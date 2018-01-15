@@ -1,0 +1,110 @@
+* {margin: 0; padding: 0;}
+/*
+div {
+  margin: 20px;
+}*/
+
+ul {
+  list-style-type: none;
+  /*width: 350px;*/
+}
+
+h3 {
+  font: bold 1em Helvetica, Verdana, sans-serif;
+}
+
+.croppedThumb {
+  float: left;
+  width: 76px;
+  height: 76px;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  position: relative;
+  border-radius: 8px;
+}
+
+li p {
+  font: 0.8em Georgia, Times New Roman, serif;
+}
+
+li {
+  /*margin: 8px 0px 8px 8px;*/
+  padding: 8px;
+  width: 336px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  background-color: #3B3B3B;
+  border-width: 1px;
+  border-style: solid;
+  border-color: transparent;
+  border-radius: 4px;
+}
+
+li:hover {
+  background: #1e1e1e;
+  border-color: transparent;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.Highlight {
+    background-color: #5e5e5e;
+}
+
+.Title {
+  padding-top: 4px;
+  padding-left: 84px;
+	height: 32px;
+	/*width: 336px;*/
+	color: #EEEEEE;
+	font-family: "Roboto Condensed";
+	font-size: 14px;
+	font-weight: bold;
+	line-height: 16px;
+}
+
+.Path {
+  padding-top: 4px;
+  padding-right: 4px;
+	/*height: 14px;*/
+	/*width: 336px;*/
+	opacity: 0.5;
+	color: #EEEEEE;
+	font-family: "Roboto Condensed";
+	font-size: 12px;
+	font-weight: 300;
+	line-height: 14px;
+	text-align: right;
+}
+
+.Detail {
+  padding-left: 84px;
+  padding-right: 4px;
+  padding-top: 8px;
+	/*height: 13px;*/
+	width: 100%;
+	color: #FFD3BF;
+	font-family: Ubuntu;
+	font-size: 12px;
+	font-weight: 300;
+	line-height: 13px;
+}
+
+.DetailLeft {
+  float: left;
+	text-align: left;
+}
+
+.DetailCenter {
+  margin: 0 auto;
+	text-align: center;
+}
+
+.DetailRight {
+  float: right;
+	text-align: right;
+}

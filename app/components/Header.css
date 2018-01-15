@@ -1,0 +1,25 @@
+.headerItem {
+    float: left;
+    opacity: 0.5;
+}
+
+.headerItem:hover {
+  cursor: pointer;
+  opacity: 1;
+}
+
+.subHeader {
+  float: left;
+  opacity: 0.5;
+  font-family: 'Open sans';
+  font-size: 12px;
+  color: #eee;
+  /*line-height: 10px;*/
+  padding: 12px;
+}
+
+.slider {
+  /*float: left;*/
+  width: 200px;
+  margin: 10px;
+}

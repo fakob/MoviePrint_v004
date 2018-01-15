@@ -10,8 +10,12 @@
  *
  * @flow
  */
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain, globalShortcut } from 'electron';
+import opencv from 'opencv';
 import MenuBuilder from './menu';
+import base64ArrayBuffer from './utils/base64ArrayBuffer';
+
+const path = require('path');
 
 let mainWindow = null;
 
@@ -61,8 +65,8 @@ app.on('ready', async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1024,
-    height: 728
+    width: 1366,
+    height: 768
   });
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);
@@ -83,4 +87,97 @@ app.on('ready', async () => {
 
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
+});
+
+ipcMain.on('send-get-poster-thumb', function (event, fileId, filePath, posterThumbId) {
+  console.log(fileId);
+  console.log(filePath);
+  const vid = new opencv.VideoCapture(filePath);
+  console.log(`frameCount: ${vid.getFrameCount()}`);
+  console.log(`width: ${vid.getWidth()}`);
+  console.log(`height: ${vid.getHeight()}`);
+  console.log(`FPS: ${vid.getFPS()}`);
+  console.log(`codec: ${vid.getFourCC()}`);
+  event.sender.send('receive-get-file-details', fileId, vid.getFrameCount(), vid.getWidth(), vid.getHeight(), vid.getFPS(), vid.getFourCC());
+
+  const frameNumberArray = [Math.floor(vid.getFrameCount() / 2)]; // only 1 value (middle frame) in array. too lazy to clean up
+  vid.read((err1, mat1) => {
+    const read = function read() {
+      vid.setPosition(frameNumberArray[iterator]);
+      vid.read((err, mat) => {
+        console.log(`counter: ${iterator}, position: ${vid.getPosition() - 1}(${vid.getPositionMS()}ms) of ${vid.getFrameCount()}`);
+        if (mat.empty() === false) {
+          const buff = mat.toBuffer();
+          event.sender.send('receive-get-poster-thumb', fileId, posterThumbId, base64ArrayBuffer(buff), vid.getPosition());
+        }
+        iterator += 1;
+        if (iterator < frameNumberArray.length) {
+          read();
+        }
+      });
+    };
+
+    if (err1) throw err1;
+    let iterator = 0;
+    vid.setPosition(frameNumberArray[iterator]);
+    read();
+  });
+});
+
+ipcMain.on('send-get-thumbs', function (event, fileId, filePath, idArray, frameNumberArray, relativeFrameCount) {
+  console.log(fileId);
+  console.log(filePath);
+  console.log(idArray);
+  // opencv.VideoStream(path.resolve(__dirname, './fingers.mov'), function (err, im) {
+  // When opening a file, the full path must be passed to opencv
+  // const vid = new opencv.VideoCapture(path.resolve(__dirname, './FrameTestMovie_v001.mov'));
+  // const vid = new opencv.VideoCapture(path.resolve(__dirname, './FrameTestMovie_v001.mp4'));
+  const vid = new opencv.VideoCapture(filePath);
+  console.log(`frameCount: ${vid.getFrameCount()}`);
+  console.log(`width: ${vid.getWidth()}`);
+  console.log(`height: ${vid.getHeight()}`);
+  console.log(`FPS: ${vid.getFPS()}`);
+  console.log(`codec: ${vid.getFourCC()}`);
+  console.log(relativeFrameCount);
+
+  vid.read((err1, mat1) => {
+    const read = function read() {
+      if (relativeFrameCount) {
+        vid.setPositionRatio(frameNumberArray[iterator]);
+      } else {
+        vid.setPosition(frameNumberArray[iterator]);
+      }
+
+      // tried to setPosition again when they are not in sync, but it did not work
+      // if (frameNumberArray[iterator] !== vid.getPosition()) {
+      //   vid.setPosition(frameNumberArray[iterator]);
+      // }
+
+      vid.read((err, mat) => {
+        console.log(`counter:
+          ${iterator}, position(set/get):
+          ${frameNumberArray[iterator]}/${vid.getPosition() - 1}(
+          ${vid.getPositionMS()}ms) of ${vid.getFrameCount()}`);
+        if (mat.empty() === false) {
+          const buff = mat.toBuffer();
+          event.sender.send('receive-get-thumbs', fileId, idArray[iterator], base64ArrayBuffer(buff), vid.getPosition() - 1);
+        } else {
+          event.sender.send('receive-get-thumbs', fileId, idArray[iterator], '', vid.getPosition() - 1);
+        }
+        iterator += 1;
+        if (iterator < frameNumberArray.length) {
+          read();
+        }
+      });
+    };
+
+    if (err1) throw err1;
+    let iterator = 0;
+    if (relativeFrameCount) {
+      vid.setPositionRatio(frameNumberArray[iterator]);
+    } else {
+      vid.setPosition(frameNumberArray[iterator]);
+    }
+    read();
+  });
 });
