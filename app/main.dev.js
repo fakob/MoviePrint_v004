@@ -11,9 +11,11 @@
  * @flow
  */
 import { app, BrowserWindow, ipcMain, globalShortcut } from 'electron';
-import opencv from 'opencv';
+// import opencv from 'opencv';
 import MenuBuilder from './menu';
 import base64ArrayBuffer from './utils/base64ArrayBuffer';
+
+const opencv = require('opencv4nodejs');
 
 const path = require('path');
 
@@ -89,26 +91,26 @@ app.on('ready', async () => {
   menuBuilder.buildMenu();
 });
 
-ipcMain.on('send-get-poster-thumb', function (event, fileId, filePath, posterThumbId) {
+ipcMain.on('send-get-poster-thumb', (event, fileId, filePath, posterThumbId) => {
   console.log(fileId);
   console.log(filePath);
   const vid = new opencv.VideoCapture(filePath);
-  console.log(`frameCount: ${vid.getFrameCount()}`);
-  console.log(`width: ${vid.getWidth()}`);
-  console.log(`height: ${vid.getHeight()}`);
-  console.log(`FPS: ${vid.getFPS()}`);
-  console.log(`codec: ${vid.getFourCC()}`);
-  event.sender.send('receive-get-file-details', fileId, vid.getFrameCount(), vid.getWidth(), vid.getHeight(), vid.getFPS(), vid.getFourCC());
+  console.log(`frameCount: ${vid.get(vid.CAP_PROP_FRAME_COUNT)}`);
+  console.log(`width: ${vid.get(vid.CAP_PROP_FRAME_WIDTH)}`);
+  console.log(`height: ${vid.get(vid.CAP_PROP_FRAME_HEIGHT)}`);
+  console.log(`FPS: ${vid.get(vid.CAP_PROP_FPS)}`);
+  console.log(`codec: ${vid.get(vid.CAP_PROP_FOURCC)}`);
+  event.sender.send('receive-get-file-details', fileId, vid.get(vid.CAP_PROP_FRAME_COUNT), vid.get(vid.CAP_PROP_FRAME_WIDTH), vid.get(vid.CAP_PROP_FRAME_HEIGHT), vid.get(vid.CAP_PROP_FPS), vid.get(vid.CAP_PROP_FOURCC));
 
-  const frameNumberArray = [Math.floor(vid.getFrameCount() / 2)]; // only 1 value (middle frame) in array. too lazy to clean up
+  const frameNumberArray = [Math.floor(vid.get(vid.CAP_PROP_FRAME_COUNT) / 2)]; // only 1 value (middle frame) in array. too lazy to clean up
   vid.read((err1, mat1) => {
     const read = function read() {
-      vid.setPosition(frameNumberArray[iterator]);
+      vid.set(vid.CAP_PROP_POS_FRAMES, frameNumberArray[iterator]);
       vid.read((err, mat) => {
-        console.log(`counter: ${iterator}, position: ${vid.getPosition() - 1}(${vid.getPositionMS()}ms) of ${vid.getFrameCount()}`);
+        console.log(`counter: ${iterator}, position: ${vid.get(vid.CAP_PROP_POS_FRAMES) - 1}(${vid.get(vid.CAP_PROP_POS_MSEC)}ms) of ${vid.get(vid.CAP_PROP_FRAME_COUNT)}`);
         if (mat.empty() === false) {
           const buff = mat.toBuffer();
-          event.sender.send('receive-get-poster-thumb', fileId, posterThumbId, base64ArrayBuffer(buff), vid.getPosition());
+          event.sender.send('receive-get-poster-thumb', fileId, posterThumbId, base64ArrayBuffer(buff), vid.get(vid.CAP_PROP_POS_FRAMES));
         }
         iterator += 1;
         if (iterator < frameNumberArray.length) {
@@ -119,12 +121,12 @@ ipcMain.on('send-get-poster-thumb', function (event, fileId, filePath, posterThu
 
     if (err1) throw err1;
     let iterator = 0;
-    vid.setPosition(frameNumberArray[iterator]);
+    vid.set(vid.CAP_PROP_POS_FRAMES, frameNumberArray[iterator]);
     read();
   });
 });
 
-ipcMain.on('send-get-thumbs', function (event, fileId, filePath, idArray, frameNumberArray, relativeFrameCount) {
+ipcMain.on('send-get-thumbs', (event, fileId, filePath, idArray, frameNumberArray, relativeFrameCount) => {
   console.log(fileId);
   console.log(filePath);
   console.log(idArray);
@@ -133,36 +135,36 @@ ipcMain.on('send-get-thumbs', function (event, fileId, filePath, idArray, frameN
   // const vid = new opencv.VideoCapture(path.resolve(__dirname, './FrameTestMovie_v001.mov'));
   // const vid = new opencv.VideoCapture(path.resolve(__dirname, './FrameTestMovie_v001.mp4'));
   const vid = new opencv.VideoCapture(filePath);
-  console.log(`frameCount: ${vid.getFrameCount()}`);
-  console.log(`width: ${vid.getWidth()}`);
-  console.log(`height: ${vid.getHeight()}`);
-  console.log(`FPS: ${vid.getFPS()}`);
-  console.log(`codec: ${vid.getFourCC()}`);
+  console.log(`frameCount: ${vid.get(vid.CAP_PROP_FRAME_COUNT)}`);
+  console.log(`width: ${vid.get(vid.CAP_PROP_FRAME_WIDTH)}`);
+  console.log(`height: ${vid.get(vid.CAP_PROP_FRAME_HEIGHT)}`);
+  console.log(`FPS: ${vid.get(vid.CAP_PROP_FPS)}`);
+  console.log(`codec: ${vid.get(vid.CAP_PROP_FOURCC)}`);
   console.log(relativeFrameCount);
 
   vid.read((err1, mat1) => {
     const read = function read() {
       if (relativeFrameCount) {
-        vid.setPositionRatio(frameNumberArray[iterator]);
+        vid.set(vid.CAP_PROP_POS_AVI_RATIO, frameNumberArray[iterator]);
       } else {
-        vid.setPosition(frameNumberArray[iterator]);
+        vid.set(vid.CAP_PROP_POS_FRAMES, frameNumberArray[iterator]);
       }
 
       // tried to setPosition again when they are not in sync, but it did not work
-      // if (frameNumberArray[iterator] !== vid.getPosition()) {
-      //   vid.setPosition(frameNumberArray[iterator]);
+      // if (frameNumberArray[iterator] !== vid.get(vid.CAP_PROP_POS_FRAMES)) {
+      //   vid.set(vid.CAP_PROP_POS_FRAMES, frameNumberArray[iterator]);
       // }
 
       vid.read((err, mat) => {
         console.log(`counter:
           ${iterator}, position(set/get):
-          ${frameNumberArray[iterator]}/${vid.getPosition() - 1}(
-          ${vid.getPositionMS()}ms) of ${vid.getFrameCount()}`);
+          ${frameNumberArray[iterator]}/${vid.get(vid.CAP_PROP_POS_FRAMES) - 1}(
+          ${vid.get(vid.CAP_PROP_POS_MSEC)}ms) of ${vid.get(vid.CAP_PROP_FRAME_COUNT)}`);
         if (mat.empty() === false) {
           const buff = mat.toBuffer();
-          event.sender.send('receive-get-thumbs', fileId, idArray[iterator], base64ArrayBuffer(buff), vid.getPosition() - 1);
+          event.sender.send('receive-get-thumbs', fileId, idArray[iterator], base64ArrayBuffer(buff), vid.get(vid.CAP_PROP_POS_FRAMES) - 1);
         } else {
-          event.sender.send('receive-get-thumbs', fileId, idArray[iterator], '', vid.getPosition() - 1);
+          event.sender.send('receive-get-thumbs', fileId, idArray[iterator], '', vid.get(vid.CAP_PROP_POS_FRAMES) - 1);
         }
         iterator += 1;
         if (iterator < frameNumberArray.length) {
@@ -174,9 +176,9 @@ ipcMain.on('send-get-thumbs', function (event, fileId, filePath, idArray, frameN
     if (err1) throw err1;
     let iterator = 0;
     if (relativeFrameCount) {
-      vid.setPositionRatio(frameNumberArray[iterator]);
+      vid.set(vid.CAP_PROP_POS_AVI_RATIO, frameNumberArray[iterator]);
     } else {
-      vid.setPosition(frameNumberArray[iterator]);
+      vid.set(vid.CAP_PROP_POS_FRAMES, frameNumberArray[iterator]);
     }
     read();
   });

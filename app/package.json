@@ -11,10 +11,11 @@
   },
   "scripts": {
     "electron-rebuild": "node -r babel-register ../internals/scripts/ElectronRebuild.js",
-    "postinstall": "npm run electron-rebuild"
+    "postinstall": "npm run electron-rebuild -w opencv4nodejs"
   },
   "license": "MIT",
   "dependencies": {
-    "opencv": "^6.0.0"
+    "opencv": "^6.0.0",
+    "opencv4nodejs": "^2.37.0"
   }
 }
