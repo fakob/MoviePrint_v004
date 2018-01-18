@@ -109,7 +109,12 @@ ipcMain.on('send-get-poster-thumb', (event, fileId, filePath, posterThumbId) => 
       vid.readAsync((err, mat) => {
         console.log(`counter: ${iterator}, position: ${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
         if (mat.empty === false) {
-          const buff = mat.getDataAsArray();
+          const buff = mat.getData();
+          console.log(typeof buff);
+          console.log(buff);
+          console.log(ArrayBuffer.isView(buff));
+          opencv.imshow('a window name', mat);
+          opencv.waitKey();
           event.sender.send('receive-get-poster-thumb', fileId, posterThumbId, base64ArrayBuffer(buff), vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES));
         }
         iterator += 1;
@@ -161,7 +166,7 @@ ipcMain.on('send-get-thumbs', (event, fileId, filePath, idArray, frameNumberArra
           ${frameNumberArray[iterator]}/${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(
           ${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
         if (mat.empty === false) {
-          const buff = mat.getDataAsArray();
+          const buff = mat.getData();
           event.sender.send('receive-get-thumbs', fileId, idArray[iterator], base64ArrayBuffer(buff), vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1);
         } else {
           event.sender.send('receive-get-thumbs', fileId, idArray[iterator], '', vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1);
