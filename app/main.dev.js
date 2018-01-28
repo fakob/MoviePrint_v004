@@ -13,7 +13,6 @@
 import { app, BrowserWindow, ipcMain, globalShortcut } from 'electron';
 // import opencv from 'opencv';
 import MenuBuilder from './menu';
-import base64ArrayBuffer from './utils/base64ArrayBuffer';
 import VideoCaptureProperties from './utils/videoCaptureProperties';
 
 const opencv = require('opencv4nodejs');
@@ -29,7 +28,6 @@ if (process.env.NODE_ENV === 'production') {
 
 if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
   require('electron-debug')();
-  const path = require('path');
   const p = path.join(__dirname, '..', 'app', 'node_modules');
   require('module').globalPaths.push(p);
 }
@@ -109,13 +107,8 @@ ipcMain.on('send-get-poster-thumb', (event, fileId, filePath, posterThumbId) => 
       vid.readAsync((err, mat) => {
         console.log(`counter: ${iterator}, position: ${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
         if (mat.empty === false) {
-          const buff = mat.getData();
-          console.log(typeof buff);
-          console.log(buff);
-          console.log(ArrayBuffer.isView(buff));
-          opencv.imshow('a window name', mat);
-          opencv.waitKey();
-          event.sender.send('receive-get-poster-thumb', fileId, posterThumbId, base64ArrayBuffer(buff), vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES));
+          const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // maybe change to .png?
+          event.sender.send('receive-get-poster-thumb', fileId, posterThumbId, outBase64, vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES));
         }
         iterator += 1;
         if (iterator < frameNumberArray.length) {
@@ -166,10 +159,16 @@ ipcMain.on('send-get-thumbs', (event, fileId, filePath, idArray, frameNumberArra
           ${frameNumberArray[iterator]}/${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(
           ${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
         if (mat.empty === false) {
-          const buff = mat.getData();
-          event.sender.send('receive-get-thumbs', fileId, idArray[iterator], base64ArrayBuffer(buff), vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1);
+          const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // maybe change to .png?
+          event.sender.send(
+            'receive-get-thumbs', fileId, idArray[iterator], outBase64,
+            vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1
+          );
         } else {
-          event.sender.send('receive-get-thumbs', fileId, idArray[iterator], '', vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1);
+          event.sender.send(
+            'receive-get-thumbs', fileId, idArray[iterator], '',
+            vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1
+          );
         }
         iterator += 1;
         if (iterator < frameNumberArray.length) {
