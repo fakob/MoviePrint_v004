@@ -3,13 +3,13 @@ const thumbsObjUrls = (state = {}, action) => {
     case 'CLEAR_MOVIE_LIST':
       return {};
     case 'UPDATE_OBJECTURL_FROM_THUMBLIST':
-      // console.log(action.payload.currentFileId);
+      // console.log(action.payload.fileId);
       // console.log(action.payload.id);
       // console.log(action.payload.thumb);
       return {
         ...state,
-        [action.payload.currentFileId]: {
-          ...state[action.payload.currentFileId],
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
           [action.payload.id]: {
             objectUrl: window.URL.createObjectURL(
               action.payload.thumb.filter(obj => obj.id === action.payload.id)[0].data

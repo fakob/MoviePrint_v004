@@ -121,6 +121,7 @@ const thumbsByFileId = (state = [], action) => {
       return {
         ...state,
         [action.payload.fileId]: {
+          ...state[action.payload.fileId],
           thumbs: state[action.payload.fileId].thumbs.map((t, index) =>
             thumb(t, action)
           )
@@ -129,8 +130,9 @@ const thumbsByFileId = (state = [], action) => {
     case 'TOGGLE_THUMB':
       return {
         ...state,
-        [action.payload.currentFileId]: {
-          thumbs: state[action.payload.currentFileId].thumbs.map((t, index) =>
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          thumbs: state[action.payload.fileId].thumbs.map((t, index) =>
             thumb(t, action)
           )
         }
@@ -139,6 +141,7 @@ const thumbsByFileId = (state = [], action) => {
       return {
         ...state,
         [action.payload.fileId]: {
+          ...state[action.payload.fileId],
           thumbs: state[action.payload.fileId].thumbs.map((t, index) =>
             thumb(t, action)
           )
@@ -147,8 +150,9 @@ const thumbsByFileId = (state = [], action) => {
     case 'UPDATE_ORDER':
       return {
         ...state,
-        [action.payload.currentFileId]: {
-          thumbs: state[action.payload.currentFileId].thumbs.map((t, index) =>
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          thumbs: state[action.payload.fileId].thumbs.map((t, index) =>
             thumb(t, action, index)
           )
         }
@@ -156,11 +160,11 @@ const thumbsByFileId = (state = [], action) => {
     case 'REMOVE_THUMB':
       // create new state with thumb removed
       console.log(state);
-      const tempState = state[action.payload.currentFileId].thumbs
-        .slice(0, state[action.payload.currentFileId].thumbs
+      const tempState = state[action.payload.fileId].thumbs
+        .slice(0, state[action.payload.fileId].thumbs
         .find(x => x.id === action.payload.id).index)
-        .concat(state[action.payload.currentFileId].thumbs
-        .slice(state[action.payload.currentFileId].thumbs
+        .concat(state[action.payload.fileId].thumbs
+        .slice(state[action.payload.fileId].thumbs
         .find(x => x.id === action.payload.id).index + 1)
       );
       console.log(tempState);
@@ -169,7 +173,7 @@ const thumbsByFileId = (state = [], action) => {
       const tempAction = Object.assign({}, action, {
         type: 'UPDATE_ORDER',
         payload: {
-          currentFileId: action.payload.currentFileId,
+          currentFileId: action.payload.fileId,
           array: tempState
         },
       });
@@ -177,7 +181,7 @@ const thumbsByFileId = (state = [], action) => {
       // run UPDATE_ORDER on thumb
       return {
         ...state,
-        [action.payload.currentFileId]: {
+        [action.payload.fileId]: {
           thumbs: tempState.map((t, index) =>
             thumb(t, tempAction, index)
           )

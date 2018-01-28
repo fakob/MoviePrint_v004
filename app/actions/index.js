@@ -92,7 +92,7 @@ export const toggleThumb = (currentFileId, id) => {
   return {
     type: 'TOGGLE_THUMB',
     payload: {
-      currentFileId,
+      fileId: currentFileId,
       id
     },
   };
@@ -102,7 +102,7 @@ export const updateOrder = (currentFileId, array) => {
   return {
     type: 'UPDATE_ORDER',
     payload: {
-      currentFileId,
+      fileId: currentFileId,
       array
     },
   };
@@ -112,7 +112,7 @@ export const removeThumb = (currentFileId, id) => {
   return {
     type: 'REMOVE_THUMB',
     payload: {
-      currentFileId,
+      fileId: currentFileId,
       id
     },
   };
@@ -196,7 +196,7 @@ export const updateThumbObjectUrlFromDB = (fileId, id, isPosterFrame = 0) =>
       return dispatch({
         type: 'UPDATE_OBJECTURL_FROM_THUMBLIST',
         payload: {
-          currentFileId: fileId,
+          fileId,
           id,
           thumb
         },
