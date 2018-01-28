@@ -33,7 +33,7 @@ const ThumbGrid = ({
       <SortableThumb
         key={thumb.id}
         indexValue={thumb.index}
-        thumbImageObjectUrl={thumbImages[thumb.id].objectUrl}
+        thumbImageObjectUrl={thumbImages !== undefined ? thumbImages[thumb.id] !== undefined ? thumbImages[thumb.id].objectUrl : undefined : undefined}
         width={file.width || 1920}
         height={file.height || 1080}
         controlersAreVisible={(thumb.id === controlersAreVisible)}
