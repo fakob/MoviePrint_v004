@@ -310,7 +310,6 @@ export const setMovieList = (files) => {
 export const setNewMovieList = (files, settings) => {
   return (dispatch, getState) => {
     console.log('inside setNewMovieList');
-    dispatch(startIsManipulating());
     const newFiles = [];
     Object.keys(files).map((key) => {
       if (files[key].type.match('video.*')) {
@@ -328,7 +327,6 @@ export const setNewMovieList = (files, settings) => {
         };
         newFiles.push(fileToAdd);
       }
-      return newFiles;
     });
     dispatch({
       type: 'CLEAR_CURRENT_FILEID',
@@ -336,23 +334,25 @@ export const setNewMovieList = (files, settings) => {
     dispatch({
       type: 'CLEAR_MOVIE_LIST',
     });
-    return imageDB.thumbList.clear()
-      .then(() => {
-        dispatch({
-          type: 'LOAD_MOVIE_LIST_FROM_DROP',
-          payload: newFiles,
-        });
-        newFiles.map((file) =>
-          ipcRenderer.send('send-get-poster-thumb', file.id, file.path, file.posterThumbId));
-        dispatch(setCurrentFileId(getState().undoGroup.present.files[0].id));
-        dispatch(clearThumbs());
-        dispatch(addDefaultThumbs(
+    imageDB.thumbList.clear()
+    .then(function () {
+      dispatch({
+        type: 'LOAD_MOVIE_LIST_FROM_DROP',
+        payload: newFiles,
+      });
+      newFiles.map((file) => {
+        ipcRenderer.send('send-get-poster-thumb', file.id, file.path, file.posterThumbId);
+      });
+      dispatch(setCurrentFileId(getState().undoGroup.present.files[0].id));
+      dispatch(clearThumbs());
+      dispatch(
+        addDefaultThumbs(
           getState().undoGroup.present.files[0],
           getState().undoGroup.present.settings.defaultRowCount *
           getState().undoGroup.present.settings.defaultColumnCount
-        ));
-        return dispatch(stopIsManipulating());
-      });
+        )
+      );
+    });
   };
 };
 

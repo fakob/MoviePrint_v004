@@ -142,7 +142,7 @@ class App extends Component {
 
     let visibleThumbGridComponent = null;
 
-    if (this.state.showPlaceholder || state.visibilitySettings.isManipulating) {
+    if (this.state.showPlaceholder) {
       visibleThumbGridComponent = (
         <ThumbGridPlaceholder
           thumbsAmount={(this.state.thumbsAmount === undefined) ?
