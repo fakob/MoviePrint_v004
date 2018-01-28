@@ -18,41 +18,37 @@ const ThumbGrid = ({
   onToggleClick, onRemoveClick, onInPointClick, onOutPointClick,
   onBackClick, onForwardClick,
   onMouseOverResult, onMouseOutResult
-  }
-) => {
-  return (
-    <div
-      className={styles.grid}
-      style={{
-        width: columnWidth,
-      }}
-      id="ThumbGrid"
-    >
-      <ThumbGridHeader
-        file={file}
-      />
-      {thumbs.map(thumb =>
-        <SortableThumb
-          key={thumb.id}
-          indexValue={thumb.index}
-          thumbImageObjectUrl={thumbImages[thumb.id].objectUrl}
-          width={file.width || 1920}
-          height={file.height || 1080}
-          controlersAreVisible={(thumb.id === controlersAreVisible)}
-          {...thumb}
-          onToggle={() => onToggleClick(file.id, thumb.id)}
-          onRemove={() => onRemoveClick(file.id, thumb.id)}
-          onInPoint={() => onInPointClick(file, thumbs, thumb.id, thumb.frameNumber)}
-          onOutPoint={() => onOutPointClick(file, thumbs, thumb.id, thumb.frameNumber)}
-          onBack={() => onBackClick(file, thumb.id, thumb.frameNumber)}
-          onForward={() => onForwardClick(file, thumb.id, thumb.frameNumber)}
-          onOver={() => onMouseOverResult(thumb.id)}
-          onOut={() => onMouseOutResult()}
-        />
-      )}
-    </div>
-  );
-};
+}) => (
+  <div
+    className={styles.grid}
+    style={{
+      width: columnWidth,
+    }}
+    id="ThumbGrid"
+  >
+    <ThumbGridHeader
+      file={file}
+    />
+    {thumbs.map(thumb => (
+      <SortableThumb
+        key={thumb.id}
+        indexValue={thumb.index}
+        thumbImageObjectUrl={thumbImages[thumb.id].objectUrl}
+        width={file.width || 1920}
+        height={file.height || 1080}
+        controlersAreVisible={(thumb.id === controlersAreVisible)}
+        {...thumb}
+        onToggle={() => onToggleClick(file.id, thumb.id)}
+        onRemove={() => onRemoveClick(file.id, thumb.id)}
+        onInPoint={() => onInPointClick(file, thumbs, thumb.id, thumb.frameNumber)}
+        onOutPoint={() => onOutPointClick(file, thumbs, thumb.id, thumb.frameNumber)}
+        onBack={() => onBackClick(file, thumb.id, thumb.frameNumber)}
+        onForward={() => onForwardClick(file, thumb.id, thumb.frameNumber)}
+        onOver={() => onMouseOverResult(thumb.id)}
+        onOut={() => onMouseOutResult()}
+      />))}
+  </div>
+);
 
 ThumbGrid.defaultProps = {
   controlersAreVisible: 'false'

@@ -9,12 +9,14 @@ import SortableThumbGrid from '../components/ThumbGrid';
 
 function getLowestFrame(thumbs) {
   return thumbs.reduce(
-    (min, p) => p.frameNumber < min ? p.frameNumber : min, thumbs[0].frameNumber
+    (min, p) => (p.frameNumber < min ? p.frameNumber : min),
+    thumbs[0].frameNumber
   );
 }
 function getHighestFrame(thumbs) {
   return thumbs.reduce(
-    (max, p) => p.frameNumber > max ? p.frameNumber : max, thumbs[0].frameNumber
+    (max, p) => (p.frameNumber > max ? p.frameNumber : max),
+    thumbs[0].frameNumber
   );
 }
 
@@ -46,16 +48,12 @@ class SortedVisibleThumbGrid extends Component {
     this.unsubscribe = store.subscribe(() => this.forceUpdate());
     store.getState().undoGroup.present.files.map((singleFile) => {
       if (store.getState().undoGroup.present.thumbsByFileId[singleFile.id] !== undefined) {
-        store.dispatch(
-          updateObjectUrlsFromThumbList(
-            singleFile.id,
-            Object.values(
-              store.getState().undoGroup.present
-              .thumbsByFileId[singleFile.id]
-              .thumbs).map((a) => a.id
-            )
-          )
-        );
+        store.dispatch(updateObjectUrlsFromThumbList(
+          singleFile.id,
+          Object.values(store.getState().undoGroup.present
+            .thumbsByFileId[singleFile.id]
+            .thumbs).map((a) => a.id)
+        ));
       }
     });
   }
@@ -66,16 +64,11 @@ class SortedVisibleThumbGrid extends Component {
 
   onSortEnd = ({ oldIndex, newIndex }) => {
     const { store } = this.context;
-    const newOrderedThumbs = arrayMove(
-      store.getState().undoGroup.present
+    const newOrderedThumbs = arrayMove(store.getState().undoGroup.present
       .thumbsByFileId[store.getState().undoGroup.present.settings.currentFileId]
-      .thumbs, oldIndex, newIndex
-    );
-    store.dispatch(
-      updateOrder(
-        store.getState().undoGroup.present.settings.currentFileId, newOrderedThumbs
-      )
-    );
+      .thumbs, oldIndex, newIndex);
+    store.dispatch(updateOrder(store.getState()
+      .undoGroup.present.settings.currentFileId, newOrderedThumbs));
   };
 
   render() {
@@ -102,10 +95,8 @@ class SortedVisibleThumbGrid extends Component {
         onSortEnd={
           this.onSortEnd.bind(this)
         }
-        useDragHandle={
-          true
-        }
-        axis={'xy'}
+        useDragHandle
+        axis="xy"
         columnWidth={this.props.columnWidth}
         controlersAreVisible={this.controlersVisible}
       />
@@ -115,9 +106,9 @@ class SortedVisibleThumbGrid extends Component {
 
 const mapStateToProps = state => {
   const tempThumbs = (typeof state.undoGroup.present
-  .thumbsByFileId[state.undoGroup.present.settings.currentFileId] === 'undefined')
-  ? undefined : state.undoGroup.present
-  .thumbsByFileId[state.undoGroup.present.settings.currentFileId].thumbs;
+    .thumbsByFileId[state.undoGroup.present.settings.currentFileId] === 'undefined')
+    ? undefined : state.undoGroup.present
+      .thumbsByFileId[state.undoGroup.present.settings.currentFileId].thumbs;
   // console.log(tempThumbs);
   return {
     thumbs: getVisibleThumbs(
@@ -127,8 +118,7 @@ const mapStateToProps = state => {
     thumbImages: state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId],
     files: state.undoGroup.present.files,
     file: state.undoGroup.present.files.find((file) =>
-      file.id === state.undoGroup.present.settings.currentFileId
-    ),
+      file.id === state.undoGroup.present.settings.currentFileId),
     settings: state.undoGroup.present.settings,
     visibilitySettings: state.visibilitySettings
   };
@@ -143,24 +133,20 @@ const mapDispatchToProps = dispatch => {
       dispatch(removeThumb(fileId, thumbId));
     },
     onInPointClick: (file, thumbs, thumbId, frameNumber) => {
-      dispatch(
-        addDefaultThumbs(
-          file,
-          thumbs.length,
-          frameNumber,
-          getHighestFrame(thumbs)
-        )
-      );
+      dispatch(addDefaultThumbs(
+        file,
+        thumbs.length,
+        frameNumber,
+        getHighestFrame(thumbs)
+      ));
     },
     onOutPointClick: (file, thumbs, thumbId, frameNumber) => {
-      dispatch(
-        addDefaultThumbs(
-          file,
-          thumbs.length,
-          getLowestFrame(thumbs),
-          frameNumber
-        )
-      );
+      dispatch(addDefaultThumbs(
+        file,
+        thumbs.length,
+        getLowestFrame(thumbs),
+        frameNumber
+      ));
     },
     onBackClick: (file, thumbId, frameNumber) => {
       dispatch(changeThumb(file, thumbId, frameNumber - getChangeThumbStep(1)));

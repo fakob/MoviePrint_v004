@@ -87,8 +87,10 @@ class App extends Component {
         file.id === this.props.currentFileId) >= 0 &&
       this.props.thumbsByFileId[this.props.currentFileId] !== undefined &&
       Object.keys(this.props.files).length !== 0)) {
+      console.log('showPlaceholder: true');
       this.setState({ showPlaceholder: true });
     } else {
+      console.log('showPlaceholder: false');
       this.setState({ showPlaceholder: false });
     }
   }
