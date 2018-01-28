@@ -18,8 +18,8 @@ const thumbsObjUrls = (state = {}, action) => {
         }
       };
     case 'UPDATE_OBJECTURLS_FROM_THUMBLIST':
-      console.log(action.payload.thumbs);
-      console.log(state);
+      // console.log(action.payload.thumbs);
+      // console.log(state);
       return {
         ...state,
         [action.payload.fileId]:
@@ -29,7 +29,7 @@ const thumbsObjUrls = (state = {}, action) => {
               const tempObject = Object.assign({}, previous,
                 { [current.id]: { objectUrl: window.URL.createObjectURL(current.data) } }
               );
-              console.log(tempObject);
+              // console.log(tempObject);
               return tempObject;
             }, {})
       };
