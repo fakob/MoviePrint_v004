@@ -179,7 +179,13 @@ class App extends Component {
               file={this.props.file}
               settings={this.props.settings}
               visibilitySettings={this.props.visibilitySettings}
-              onShowThumbsClick={this.props.onShowThumbsClick}
+              onShowThumbsClick={() => {
+                if (this.props.visibilityFilter === 'SHOW_VISIBLE') {
+                  store.dispatch(setVisibilityFilter('SHOW_ALL'));
+                } else {
+                  store.dispatch(setVisibilityFilter('SHOW_VISIBLE'));
+                }
+              }}
               onPrintClick={() => {
                 saveMoviePrint(this.props.file);
               }}
@@ -202,8 +208,26 @@ class App extends Component {
                 });
                 this.setState({ tempColumnCount: value });
               }}
-              onRowChange={this.props.onRowChange}
-              onColumnChange={this.props.onColumnChange}
+              onRowChange={(value) => {
+                store.dispatch(setDefaultRowCount(value));
+                if (this.props.currentFileId !== undefined) {
+                  store.dispatch(addDefaultThumbs(
+                    this.props.file,
+                    value *
+                    this.props.defaultColumnCount
+                  ));
+                }
+              }}
+              onColumnChange={(value) => {
+                store.dispatch(setDefaultColumnCount(value));
+                if (this.props.currentFileId !== undefined) {
+                  store.dispatch(addDefaultThumbs(
+                    this.props.file,
+                    this.props.defaultRowCount *
+                    value
+                  ));
+                }
+              }}
               onAfterChange={() => {
                 this.setState({ isManipulatingSliderInHeader: false });
               }}
@@ -270,35 +294,35 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = (dispatch, ownProps) => {
+const mapDispatchToProps = dispatch => {
   return {
-    onShowThumbsClick: () => {
-      if (this.props.visibilityFilter === 'SHOW_VISIBLE') {
-        dispatch(setVisibilityFilter('SHOW_ALL'));
-      } else {
-        dispatch(setVisibilityFilter('SHOW_VISIBLE'));
-      }
-    },
-    onRowChange: (value) => {
-      dispatch(setDefaultRowCount(value));
-      if (this.props.currentFileId !== undefined) {
-        dispatch(addDefaultThumbs(
-          this.props.file,
-          value *
-          this.props.defaultColumnCount
-        ));
-      }
-    },
-    onColumnChange: (value) => {
-      dispatch(setDefaultColumnCount(value));
-      if (this.props.currentFileId !== undefined) {
-        dispatch(addDefaultThumbs(
-          this.props.file,
-          this.props.defaultRowCount *
-          value
-        ));
-      }
-    },
+    // onShowThumbsClick: () => {
+    //   if (this.props.visibilityFilter === 'SHOW_VISIBLE') {
+    //     dispatch(setVisibilityFilter('SHOW_ALL'));
+    //   } else {
+    //     dispatch(setVisibilityFilter('SHOW_VISIBLE'));
+    //   }
+    // },
+    // onRowChange: (value) => {
+    //   dispatch(setDefaultRowCount(value));
+    //   if (this.props.currentFileId !== undefined) {
+    //     dispatch(addDefaultThumbs(
+    //       this.props.file,
+    //       value *
+    //       this.props.defaultColumnCount
+    //     ));
+    //   }
+    // },
+    // onColumnChange: (value) => {
+    //   dispatch(setDefaultColumnCount(value));
+    //   if (this.props.currentFileId !== undefined) {
+    //     dispatch(addDefaultThumbs(
+    //       this.props.file,
+    //       this.props.defaultRowCount *
+    //       value
+    //     ));
+    //   }
+    // },
   };
 };
 
@@ -307,4 +331,4 @@ App.contextTypes = {
 };
 
 // export default App;
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(mapStateToProps)(App);
