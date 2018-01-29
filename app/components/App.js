@@ -204,6 +204,9 @@ class App extends Component {
               }}
               onRowChange={this.props.onRowChange}
               onColumnChange={this.props.onColumnChange}
+              onAfterChange={() => {
+                this.setState({ isManipulatingSliderInHeader: false });
+              }}
             />
           </div>
           <div className={`${styles.SiteContent}`}>
@@ -267,7 +270,7 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     onShowThumbsClick: () => {
       if (this.props.visibilityFilter === 'SHOW_VISIBLE') {
@@ -277,37 +280,23 @@ const mapDispatchToProps = dispatch => {
       }
     },
     onRowChange: (value) => {
-      this.setState({ isManipulatingSliderInHeader: false });
-      dispatch(
-        setDefaultRowCount(
-          value
-        )
-      );
+      dispatch(setDefaultRowCount(value));
       if (this.props.currentFileId !== undefined) {
-        dispatch(
-          addDefaultThumbs(
-            this.props.file,
-            value *
-            this.props.defaultColumnCount
-          )
-        );
+        dispatch(addDefaultThumbs(
+          this.props.file,
+          value *
+          this.props.defaultColumnCount
+        ));
       }
     },
     onColumnChange: (value) => {
-      this.setState({ isManipulatingSliderInHeader: false });
-      dispatch(
-        setDefaultColumnCount(
-          value
-        )
-      );
+      dispatch(setDefaultColumnCount(value));
       if (this.props.currentFileId !== undefined) {
-        dispatch(
-          addDefaultThumbs(
-            this.props.file,
-            this.props.defaultRowCount *
-            value
-          )
-        );
+        dispatch(addDefaultThumbs(
+          this.props.file,
+          this.props.defaultRowCount *
+          value
+        ));
       }
     },
   };

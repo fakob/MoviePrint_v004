@@ -31,7 +31,7 @@ const handle = (props) => {
 
 const Header = ({ currentFileId, file, settings, visibilitySettings,
   onShowThumbsClick, onPrintClick, onRowChange, onColumnChange,
-  onStartSliding, onRowSliding, onColumnSliding }) => {
+  onStartSliding, onRowSliding, onColumnSliding, onAfterChange }) => {
 
   const onChangeRow = (value) => {
     if (!isManipulatingSlider) {
@@ -45,6 +45,7 @@ const Header = ({ currentFileId, file, settings, visibilitySettings,
   const onAfterChangeRow = (value) => {
     isManipulatingSlider = false;
     onRowChange(value);
+    onAfterChange();
   };
 
   const onChangeColumn = (value) => {
@@ -59,6 +60,7 @@ const Header = ({ currentFileId, file, settings, visibilitySettings,
   const onAfterChangeColumn = (value) => {
     isManipulatingSlider = false;
     onColumnChange(value);
+    onAfterChange();
   };
 
   // prevent to render everything which is file specific
