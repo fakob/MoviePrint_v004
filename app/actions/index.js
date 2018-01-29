@@ -151,30 +151,28 @@ export const updateThumbImage = (fileId, id, base64, frameNumber, isPosterFrame 
   ((dispatch, getState) => {
     console.log('inside updateThumbImage');
     fetch(`data:image/png;base64,${base64}`)
-    .then(response => {
-      if (response.ok) {
-        return response.blob();
-      }
-      throw new Error('fetch base64 to blob was not ok.');
-    })
-    .then(blob =>
-      imageDB.thumbList.put({
-        id,
-        fileId,
-        isPosterFrame,
-        data: blob
+      .then(response => {
+        if (response.ok) {
+          return response.blob();
+        }
+        throw new Error('fetch base64 to blob was not ok.');
       })
-    )
-    .then(() =>
-      dispatch(updateThumbObjectUrlFromDB(fileId, id, isPosterFrame))
-    )
-    .catch(error => {
-      console.log('There has been a problem with your fetch operation: ' + error.message);
-    });
+      .then(blob =>
+        imageDB.thumbList.put({
+          id,
+          fileId,
+          isPosterFrame,
+          data: blob
+        }))
+      .then(() =>
+        dispatch(updateThumbObjectUrlFromDB(fileId, id, isPosterFrame)))
+      .catch(error => {
+        console.log(`There has been a problem with your fetch operation: ${error.message}`);
+      });
     // only update frameNumber if not posterframe and different
     if (!isPosterFrame &&
       getState().undoGroup.present.thumbsByFileId[fileId].thumbs.find((thumb) =>
-      thumb.id === id).frameNumber !== frameNumber) {
+        thumb.id === id).frameNumber !== frameNumber) {
       dispatch(updateFrameNumber(fileId, id, frameNumber));
     }
   });
@@ -241,7 +239,7 @@ export const addDefaultThumbs = (file, amount = 20, start = 10, stop = file.fram
     const noFrameCount = (typeof file.frameCount === 'undefined');
     if (noFrameCount) {
       frameNumberArray = Array.from(Array(amount).keys())
-      .map(x => mapRange(x, 0, amount - 1, 0, 1, false)); // if no length then use relative value (float)
+        .map(x => mapRange(x, 0, amount - 1, 0.01, 0.99, false)); // if no length then use relative value (float)
       console.log(frameNumberArray);
     } else {
       frameNumberArray = Array.from(Array(amount).keys())
