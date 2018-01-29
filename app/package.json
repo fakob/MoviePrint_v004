@@ -15,7 +15,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "opencv": "^6.0.0",
     "opencv4nodejs": "^2.37.0"
   }
 }
