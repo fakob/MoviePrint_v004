@@ -9,6 +9,7 @@ import FileList from '../containers/FileList';
 import SettingsList from '../containers/SettingsList';
 import SortedVisibleThumbGrid from '../containers/VisibleThumbGrid';
 import ThumbGridPlaceholder from '../components/ThumbGridPlaceholder';
+import VideoPlayer from '../components/VideoPlayer';
 import { saveMoviePrint } from '../utils/utils';
 import Footer from './Footer';
 import Header from './Header';
@@ -231,6 +232,11 @@ class App extends Component {
               onAfterChange={() => {
                 this.setState({ isManipulatingSliderInHeader: false });
               }}
+            />
+          </div>
+          <div>
+            <VideoPlayer
+              path={this.props.file.path}
             />
           </div>
           <div className={`${styles.SiteContent}`}>

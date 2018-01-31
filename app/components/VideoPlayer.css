@@ -1,0 +1,68 @@
+#player {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 6rem;
+}
+
+#player video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.controlsWrapper button, .rightMenu button, .leftMenu button {
+  background: black;
+  border-radius: .3em;
+  color: rgba(0, 0, 0, 0.7);
+  fontSize: 60%;
+  vertical-align: middle;
+  padding: .2em .4em;
+  margin: 0 .5em;
+  border: none;
+}
+
+.controlsWrapper button:active, .rightMenu button:active, .leftMenu button:active  {
+  background: #ccc;
+}
+
+.controlsWrapper {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 5.75rem;
+  background: #6b6b6b;
+  text-align: center;
+}
+
+#currentTimeDisplay {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.3);
+  padding: .5em;
+}
+
+.timelineWrapper {
+  width: 100%;
+  position: relative;
+  background-color: #444;
+}
+
+.timelineWrapper .currentTime, .timelineWrapper .cutStartTime {
+  position: absolute;
+  bottom: 0;
+  top: 0;
+  width: 1px;
+}
+
+.timelineWrapper .currentTime {
+  background-color: red;
+  z-index: 2;
+}
+.timelineWrapper .cutStartTime {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-left: 1px solid black;
+  border-right: 1px solid black;
+  z-index: 1;
+}
