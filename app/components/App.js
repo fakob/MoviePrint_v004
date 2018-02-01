@@ -236,7 +236,7 @@ class App extends Component {
           </div>
           <div>
             <VideoPlayer
-              path={this.props.file.path}
+              path={this.props.file ? (this.props.file.path || '') : ''}
             />
           </div>
           <div className={`${styles.SiteContent}`}>
