@@ -2,32 +2,36 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styles from './VideoPlayer.css';
 
-const VideoPlayer = ({ path }) => {
+const pathModule = require('path');
+
+const VideoPlayer = ({ path, onPlay, onPause }) => {
   return (
     <div>
       <div id="player">
         <video
-          src={path || ''}
+          controls
+          src={`${pathModule.dirname(path)}/${encodeURIComponent(pathModule.basename(path))}` || ''}
+          onPlay={onPlay}
+          onPause={onPause}
+          autoPlay
           // onRateChange={() => this.playbackRateChange()}
-          // onPlay={() => this.onPlay(true)}
-          // onPause={() => this.onPlay(false)}
           // onDurationChange={e => this.onDurationChange(e.target.duration)}
           // onTimeUpdate={e => this.setState({ currentTime: e.target.currentTime })}
         />
       </div>
       <div className={`${styles.controlsWrapper}`}>
-            <div className={`${styles.timelineWrapper}`}>
-              <div className={`${styles.currentTime}`} style={{ left: `${((0) / (1)) * 100}%` }} />
-              <div
-                className={`${styles.cutStartTime}`}
-                style={{
-                  left: `${((0) / (1)) * 100}%`,
-                  width: `${(((0) - (0)) / (1)) * 100}%`,
-                }}
-              />
-            </div>
+        <div className={`${styles.timelineWrapper}`}>
+          <div className={`${styles.currentTime}`} style={{ left: `${((0) / (1)) * 100}%` }} />
+          <div
+            className={`${styles.cutStartTime}`}
+            style={{
+              left: `${((0) / (1)) * 100}%`,
+              width: `${(((0) - (0)) / (1)) * 100}%`,
+            }}
+          />
         </div>
       </div>
+    </div>
   );
 };
 
