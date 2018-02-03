@@ -53,8 +53,8 @@ class VideoPlayer extends Component {
     const { x } = position;
     this.setState({ controlledPosition: { x, y: 0 } });
     const newCurrentTime = ((x * 1.0) / this.state.windowWidth) * this.state.duration;
-    console.log(`${x} : ${newCurrentTime} : ${this.state.duration} : ${this.state.windowWidth}`);
-    this.refs.video.currentTime = newCurrentTime;
+    // console.log(`${x} : ${newCurrentTime} : ${this.state.duration} : ${this.state.windowWidth}`);
+    this.video.currentTime = newCurrentTime;
     this.setState({ currentTime: newCurrentTime });
   }
 
@@ -69,7 +69,8 @@ class VideoPlayer extends Component {
       <div>
         <div id="player">
           <video
-            ref="video"
+            // ref="video"
+            ref={(c) => { this.video = c; }}
             controls
             muted
             src={`${pathModule.dirname(this.props.path)}/${encodeURIComponent(pathModule.basename(this.props.path))}` || ''}
