@@ -53,9 +53,9 @@ class VideoPlayer extends Component {
 
     return (
       <div>
-        <div id="player">
+        <div className={`${styles.player}`}>
           <video
-            // ref="video"
+            className={`${styles.video}`}
             ref={(c) => { this.video = c; }}
             controls
             muted
