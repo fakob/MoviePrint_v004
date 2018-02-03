@@ -85,6 +85,7 @@ class SortedVisibleThumbGrid extends Component {
         onOutPointClick={this.props.onOutPointClick}
         onBackClick={this.props.onBackClick}
         onForwardClick={this.props.onForwardClick}
+        onScrubClick={this.props.onScrubClick}
         onMouseOverResult={(thumbId) => {
           this.controlersVisible = thumbId;
           this.forceUpdate();
@@ -124,7 +125,7 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     onToggleClick: (fileId, thumbId) => {
       dispatch(toggleThumb(fileId, thumbId));
@@ -153,6 +154,9 @@ const mapDispatchToProps = dispatch => {
     },
     onForwardClick: (file, thumbId, frameNumber) => {
       dispatch(changeThumb(file, thumbId, frameNumber + getChangeThumbStep(1)));
+    },
+    onScrubClick: (file, thumbId, frameNumber) => {
+      ownProps.parentMethod(file, thumbId, frameNumber);
     }
   };
 };

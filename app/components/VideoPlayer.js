@@ -16,7 +16,8 @@ class VideoPlayer extends Component {
       currentTime: undefined,
       duration: undefined,
       controlledPosition: {
-        x: 0, y: 0
+        x: 0,
+        y: 0
       },
       width: 640,
       height: 360
@@ -28,6 +29,7 @@ class VideoPlayer extends Component {
 
   onDurationChange(duration) {
     this.setState({ duration });
+    this.setState({ currentTime: this.props.positionRatio * this.state.duration });
     // if (!this.state.cutEndTime) this.setState({ cutEndTime: duration });
   }
 

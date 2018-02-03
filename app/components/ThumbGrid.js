@@ -16,7 +16,7 @@ const ThumbGrid = ({
   columnWidth,
   controlersAreVisible,
   onToggleClick, onRemoveClick, onInPointClick, onOutPointClick,
-  onBackClick, onForwardClick,
+  onBackClick, onForwardClick, onScrubClick,
   onMouseOverResult, onMouseOutResult
 }) => (
   <div
@@ -44,6 +44,7 @@ const ThumbGrid = ({
         onOutPoint={() => onOutPointClick(file, thumbs, thumb.id, thumb.frameNumber)}
         onBack={() => onBackClick(file, thumb.id, thumb.frameNumber)}
         onForward={() => onForwardClick(file, thumb.id, thumb.frameNumber)}
+        onScrub={() => onScrubClick(file, thumb.id, thumb.frameNumber)}
         onOver={() => onMouseOverResult(thumb.id)}
         onOut={() => onMouseOutResult()}
       />))}
@@ -78,6 +79,7 @@ ThumbGrid.propTypes = {
   onOutPointClick: PropTypes.func.isRequired,
   onBackClick: PropTypes.func.isRequired,
   onForwardClick: PropTypes.func.isRequired,
+  onScrubClick: PropTypes.func.isRequired,
   onMouseOverResult: PropTypes.func.isRequired,
   onMouseOutResult: PropTypes.func.isRequired,
 };

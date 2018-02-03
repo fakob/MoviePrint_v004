@@ -143,7 +143,9 @@ class App extends Component {
     return false;
   }
 
-  openModal() {
+  openModal(file, thumbId, frameNumber) {
+    this.setState({ thumbId });
+    this.setState({ frameNumber });
     this.setState({ modalIsOpen: true });
   }
 
@@ -186,6 +188,7 @@ class App extends Component {
         <SortedVisibleThumbGrid
           columnWidth={this.props.defaultColumnCount
             * thumbnailWidthPlusMargin}
+          parentMethod={this.openModal}
         />
       );
     }
@@ -206,6 +209,9 @@ class App extends Component {
           <div>
             <VideoPlayer
               path={this.props.file ? (this.props.file.path || '') : ''}
+              thumbId={this.state.thumbId}
+              positionRatio={(this.state.frameNumber * 1.0) / this.props.file.frameCount}
+              frameNumber={this.state.frameNumber}
             />
           </div>
           <button onClick={this.closeModal}>close</button>

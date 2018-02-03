@@ -38,7 +38,7 @@ const DragHandle = SortableHandle(() => {
 
 const Thumb = (
   { onToggle, onRemove, onDragOver, onInPoint, onOutPoint, onBack, onForward,
-    onOver, onOut,hidden, frameNumber, id, objectUrl, thumbImageObjectUrl, width, height,
+    onOver, onOut, onScrub, hidden, frameNumber, id, objectUrl, thumbImageObjectUrl, width, height,
     controlersAreVisible }
 ) => {
   const thumbWidth = 270;
@@ -113,13 +113,14 @@ const Thumb = (
           onMouseOver={over}
           onMouseLeave={out}
         />
-        {/* <img
+        <img
           src={scrub}
           className={styles.scrub}
+          onClick={onScrub}
           alt=""
           onMouseOver={over}
           onMouseLeave={out}
-        /> */}
+        />
         <img
           src={forward}
           className={styles.forward}
@@ -158,6 +159,7 @@ Thumb.propTypes = {
   onOutPoint: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,
   onForward: PropTypes.func.isRequired,
+  onScrub: PropTypes.func.isRequired,
   onOver: PropTypes.func.isRequired,
   onOut: PropTypes.func.isRequired,
 };
