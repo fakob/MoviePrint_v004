@@ -22,13 +22,6 @@ class VideoPlayer extends Component {
       // cutEndTime: undefined,
       // fileFormat: undefined,
     };
-
-    // const resetState = () => {
-    //   const video = getVideo();
-    //   video.currentTime = 0;
-    //   video.playbackRate = 1;
-    //   this.setState(defaultState);
-    // };
   }
 
   onDurationChange(duration) {
@@ -38,10 +31,14 @@ class VideoPlayer extends Component {
 
   onControlledDrag(e, position) {
     const { x, y } = position;
-    this.setState({ controlledPosition: { x, y }});
+    this.setState({ controlledPosition: { x, y } });
   }
 
+
   render() {
+    this.onControlledDrag = this.onControlledDrag.bind(this);
+
+    const dragHandlers = { onStart: this.onStart, onStop: this.onStop };
     const { controlledPosition } = this.state;
 
     return (
@@ -49,6 +46,7 @@ class VideoPlayer extends Component {
         <div id="player">
           <video
             controls
+            muted
             src={`${pathModule.dirname(this.props.path)}/${encodeURIComponent(pathModule.basename(this.props.path))}` || ''}
             width="640px"
             height="360px"
@@ -67,35 +65,15 @@ class VideoPlayer extends Component {
             <Draggable
               axis="x"
               handle=".handle"
-              defaultPosition={{ x: 0, y: 0 }}
-              // position={controlledPosition}
-              onStart={this.handleStart}
-              onDrag={this.handleDrag}
-              onStop={this.handleStop}
-              // onDrag={this.onControlledDrag}
+              position={controlledPosition}
+              {...dragHandlers}
+              onDrag={this.onControlledDrag}
             >
               <div>
+                {/* <div className={`${styles.currentTime} handle`} /> */}
                 <div className={`${styles.currentTime} handle`} style={{ left: `${(this.state.currentTime / this.state.duration) * 100}%` }} />
               </div>
             </Draggable>
-            {/* <Draggable
-              position={controlledPosition}
-              // {...dragHandlers}
-              onDrag={this.onControlledDrag}
-            >
-              <div className="box">
-                My position can be changed programmatically. <br />
-                I have a drag handler to sync state.
-              </div>
-            </Draggable> */}
-            {/* <div className={`${styles.currentTime}`} style={{ left: `${((this.state.currentTime || 0) / (this.state.duration || 1)) * 100}%` }} /> */}
-            {/* <div
-              className={`${styles.cutStartTime}`}
-              style={{
-                left: `${((0) / (1)) * 100}%`,
-                width: `${(((0) - (0)) / (1)) * 100}%`,
-              }}
-            /> */}
             <div id="currentTimeDisplay">{this.state.currentTime}</div>
           </div>
         </div>
