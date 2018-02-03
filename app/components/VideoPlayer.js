@@ -56,7 +56,7 @@ class VideoPlayer extends Component {
         <div className={`${styles.player}`}>
           <video
             className={`${styles.video}`}
-            ref={(c) => { this.video = c; }}
+            ref={(el) => { this.video = el; }}
             controls
             muted
             src={`${pathModule.dirname(this.props.path)}/${encodeURIComponent(pathModule.basename(this.props.path))}` || ''}

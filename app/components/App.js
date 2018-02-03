@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 // import keydown from 'react-keydown';
 // import domtoimage from 'dom-to-image';
 import { Sidebar } from 'semantic-ui-react';
+import Modal from 'react-modal';
 import '../app.global.css';
 import FileList from '../containers/FileList';
 import SettingsList from '../containers/SettingsList';
@@ -23,6 +24,17 @@ import { setNewMovieList, toggleLeftSidebar, toggleRightSidebar,
 
 const thumbnailWidthPlusMargin = 278;
 
+const customStyles = {
+  content : {
+    top                   : '50%',
+    left                  : '50%',
+    right                 : 'auto',
+    bottom                : 'auto',
+    marginRight           : '-50%',
+    transform             : 'translate(-50%, -50%)'
+  }
+};
+
 class App extends Component {
   constructor() {
     super();
@@ -30,6 +42,7 @@ class App extends Component {
       className: `${styles.dropzonehide}`,
       isManipulatingSliderInHeader: false,
       showPlaceholder: true,
+      modalIsOpen: false
     };
 
     this.onDragEnter = this.onDragEnter.bind(this);
@@ -37,6 +50,10 @@ class App extends Component {
     this.onDragOver = this.onDragOver.bind(this);
     this.onDrop = this.onDrop.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
+
+    this.openModal = this.openModal.bind(this);
+    this.afterOpenModal = this.afterOpenModal.bind(this);
+    this.closeModal = this.closeModal.bind(this);
   }
 
   componentDidMount() {
@@ -137,6 +154,19 @@ class App extends Component {
     return false;
   }
 
+  openModal() {
+    this.setState({ modalIsOpen: true });
+  }
+
+  afterOpenModal() {
+    // references are now sync'd and can be accessed.
+    this.subtitle.style.color = '#f00';
+  }
+
+  closeModal() {
+    this.setState({ modalIsOpen: false });
+  }
+
   render() {
     const { store } = this.context;
     const state = store.getState();
@@ -173,6 +203,24 @@ class App extends Component {
 
     return (
       <div>
+        <button onClick={this.openModal}>Open Modal</button>
+        <Modal
+          isOpen={this.state.modalIsOpen}
+          onAfterOpen={this.afterOpenModal}
+          onRequestClose={this.closeModal}
+          style={customStyles}
+          contentLabel="Example Modal"
+          appElement={this.siteContent}
+        >
+          <h1>Modal Content</h1>
+          <h2 ref={subtitle => this.subtitle = subtitle}>Hello</h2>
+          <div>
+            <VideoPlayer
+              path={this.props.file ? (this.props.file.path || '') : ''}
+            />
+          </div>
+          <button onClick={this.closeModal}>close</button>
+        </Modal>
         <div className={`${styles.Site}`}>
           <div className={`${styles.SiteHeader}`}>
             <Header
@@ -234,12 +282,10 @@ class App extends Component {
               }}
             />
           </div>
-          <div>
-            <VideoPlayer
-              path={this.props.file ? (this.props.file.path || '') : ''}
-            />
-          </div>
-          <div className={`${styles.SiteContent}`}>
+          <div
+            className={`${styles.SiteContent}`}
+            ref={(el) => { this.siteContent = el; }}
+          >
             <Sidebar.Pushable
               // as={Segment}
               className={`${styles.SidebarPushable}`}
