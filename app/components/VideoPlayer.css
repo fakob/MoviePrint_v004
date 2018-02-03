@@ -52,7 +52,8 @@
   position: absolute;
   bottom: 0;
   top: 0;
-  width: 1px;
+  width: 10px;
+  height: 30px;
 }
 
 .timelineWrapper .currentTime {

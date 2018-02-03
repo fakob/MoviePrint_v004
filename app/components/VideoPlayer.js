@@ -15,6 +15,9 @@ class VideoPlayer extends Component {
       // playing: false,
       currentTime: undefined,
       duration: undefined,
+      controlledPosition: {
+        x: 0, y: 0
+      },
       // cutStartTime: 0,
       // cutEndTime: undefined,
       // fileFormat: undefined,
@@ -33,7 +36,14 @@ class VideoPlayer extends Component {
     // if (!this.state.cutEndTime) this.setState({ cutEndTime: duration });
   }
 
+  onControlledDrag(e, position) {
+    const { x, y } = position;
+    this.setState({ controlledPosition: { x, y }});
+  }
+
   render() {
+    const { controlledPosition } = this.state;
+
     return (
       <div>
         <div id="player">
@@ -58,25 +68,34 @@ class VideoPlayer extends Component {
               axis="x"
               handle=".handle"
               defaultPosition={{ x: 0, y: 0 }}
-              position={null}
-              grid={[25, 25]}
+              // position={controlledPosition}
               onStart={this.handleStart}
               onDrag={this.handleDrag}
               onStop={this.handleStop}
+              // onDrag={this.onControlledDrag}
             >
               <div>
-                <div className="handle">Drag from here</div>
-                <div className={`${styles.currentTime}`} style={{ left: `${((this.state.currentTime || 0) / (this.state.duration || 1)) * 100}%` }} />
+                <div className={`${styles.currentTime} handle`} style={{ left: `${(this.state.currentTime / this.state.duration) * 100}%` }} />
               </div>
             </Draggable>
-            <div className={`${styles.currentTime}`} style={{ left: `${((this.state.currentTime || 0) / (this.state.duration || 1)) * 100}%` }} />
-            <div
+            {/* <Draggable
+              position={controlledPosition}
+              // {...dragHandlers}
+              onDrag={this.onControlledDrag}
+            >
+              <div className="box">
+                My position can be changed programmatically. <br />
+                I have a drag handler to sync state.
+              </div>
+            </Draggable> */}
+            {/* <div className={`${styles.currentTime}`} style={{ left: `${((this.state.currentTime || 0) / (this.state.duration || 1)) * 100}%` }} /> */}
+            {/* <div
               className={`${styles.cutStartTime}`}
               style={{
                 left: `${((0) / (1)) * 100}%`,
                 width: `${(((0) - (0)) / (1)) * 100}%`,
               }}
-            />
+            /> */}
             <div id="currentTimeDisplay">{this.state.currentTime}</div>
           </div>
         </div>
