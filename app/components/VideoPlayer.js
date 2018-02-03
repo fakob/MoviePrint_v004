@@ -13,6 +13,7 @@ class VideoPlayer extends Component {
       // working: false,
       // filePath: '', // Setting video src="" prevents memory leak in chromium
       // playing: false,
+      windowWidth: 0,
       currentTime: undefined,
       duration: undefined,
       controlledPosition: {
@@ -24,19 +25,36 @@ class VideoPlayer extends Component {
     };
   }
 
+  componentDidMount() {
+    this.updateWindowDimensions();
+    window.addEventListener('resize', this.updateWindowDimensions);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.updateWindowDimensions);
+  }
+
+  updateWindowDimensions() {
+    this.setState({ windowWidth: window.innerWidth });
+  }
+
   onDurationChange(duration) {
     this.setState({ duration });
     // if (!this.state.cutEndTime) this.setState({ cutEndTime: duration });
   }
 
   onControlledDrag(e, position) {
-    const { x, y } = position;
-    this.setState({ controlledPosition: { x, y } });
+    const { x } = position;
+    this.setState({ controlledPosition: { x, y: 0 } });
+    const newCurrentTime = ((x * 1.0) / this.state.windowWidth) * this.state.duration;
+    console.log(`${newCurrentTime} : ${this.state.duration} : ${this.state.windowWidth}`);
+    this.refs.video.currentTime = newCurrentTime;
+    this.setState({ currentTime: newCurrentTime });
   }
-
 
   render() {
     this.onControlledDrag = this.onControlledDrag.bind(this);
+    this.updateWindowDimensions = this.updateWindowDimensions.bind(this);
 
     const dragHandlers = { onStart: this.onStart, onStop: this.onStop };
     const { controlledPosition } = this.state;
@@ -45,6 +63,7 @@ class VideoPlayer extends Component {
       <div>
         <div id="player">
           <video
+            ref="video"
             controls
             muted
             src={`${pathModule.dirname(this.props.path)}/${encodeURIComponent(pathModule.basename(this.props.path))}` || ''}
@@ -52,7 +71,7 @@ class VideoPlayer extends Component {
             height="360px"
             // onPlay={onPlay}
             // onPause={onPause}
-            autoPlay
+            // autoPlay
             // onRateChange={() => this.playbackRateChange()}
             onDurationChange={e => this.onDurationChange(e.target.duration)}
             onTimeUpdate={e => this.setState({ currentTime: e.target.currentTime })}
