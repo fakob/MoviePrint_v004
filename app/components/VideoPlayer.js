@@ -43,11 +43,17 @@ class VideoPlayer extends Component {
     // if (!this.state.cutEndTime) this.setState({ cutEndTime: duration });
   }
 
+  onTimeUpdate(currentTime) {
+    this.setState({ currentTime });
+    const newX = (currentTime / this.state.duration) * this.state.windowWidth;
+    this.setState({ controlledPosition: { x: newX, y: 0 } });
+  }
+
   onControlledDrag(e, position) {
     const { x } = position;
     this.setState({ controlledPosition: { x, y: 0 } });
     const newCurrentTime = ((x * 1.0) / this.state.windowWidth) * this.state.duration;
-    console.log(`${newCurrentTime} : ${this.state.duration} : ${this.state.windowWidth}`);
+    console.log(`${x} : ${newCurrentTime} : ${this.state.duration} : ${this.state.windowWidth}`);
     this.refs.video.currentTime = newCurrentTime;
     this.setState({ currentTime: newCurrentTime });
   }
@@ -69,12 +75,8 @@ class VideoPlayer extends Component {
             src={`${pathModule.dirname(this.props.path)}/${encodeURIComponent(pathModule.basename(this.props.path))}` || ''}
             width="640px"
             height="360px"
-            // onPlay={onPlay}
-            // onPause={onPause}
-            // autoPlay
-            // onRateChange={() => this.playbackRateChange()}
             onDurationChange={e => this.onDurationChange(e.target.duration)}
-            onTimeUpdate={e => this.setState({ currentTime: e.target.currentTime })}
+            onTimeUpdate={e => this.onTimeUpdate(e.target.currentTime)}
           >
             <track kind="captions" />
           </video>
@@ -89,8 +91,7 @@ class VideoPlayer extends Component {
               onDrag={this.onControlledDrag}
             >
               <div>
-                {/* <div className={`${styles.currentTime} handle`} /> */}
-                <div className={`${styles.currentTime} handle`} style={{ left: `${(this.state.currentTime / this.state.duration) * 100}%` }} />
+                <div className={`${styles.currentTime} handle`} />
               </div>
             </Draggable>
             <div id="currentTimeDisplay">{this.state.currentTime}</div>
