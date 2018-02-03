@@ -75,3 +75,33 @@
   /*overflow-y: scroll;*/
   /*overflow-x: hidden;*/
 }
+
+/* Remove scroll on the body when react-modal is open */
+.ReactModal__Body--open {
+  overflow: hidden;
+}
+
+.ReactModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.ReactModalContent {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid #ccc;
+  background: #fff;
+  overflow: auto;
+  border-radius: 4px;
+  outline: none;
+  padding: 20px
+}

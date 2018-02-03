@@ -24,17 +24,6 @@ import { setNewMovieList, toggleLeftSidebar, toggleRightSidebar,
 
 const thumbnailWidthPlusMargin = 278;
 
-const customStyles = {
-  content : {
-    top                   : '50%',
-    left                  : '50%',
-    right                 : 'auto',
-    bottom                : 'auto',
-    marginRight           : '-50%',
-    transform             : 'translate(-50%, -50%)'
-  }
-};
-
 class App extends Component {
   constructor() {
     super();
@@ -160,7 +149,7 @@ class App extends Component {
 
   afterOpenModal() {
     // references are now sync'd and can be accessed.
-    this.subtitle.style.color = '#f00';
+    // this.subtitle.style.color = '#f00';
   }
 
   closeModal() {
@@ -208,12 +197,12 @@ class App extends Component {
           isOpen={this.state.modalIsOpen}
           onAfterOpen={this.afterOpenModal}
           onRequestClose={this.closeModal}
-          style={customStyles}
           contentLabel="Example Modal"
           appElement={this.siteContent}
+          className={`${styles.ReactModalContent}`}
+          overlayClassName={`${styles.ReactModalOverlay}`}
         >
           <h1>Modal Content</h1>
-          <h2 ref={subtitle => this.subtitle = subtitle}>Hello</h2>
           <div>
             <VideoPlayer
               path={this.props.file ? (this.props.file.path || '') : ''}
