@@ -1,5 +1,17 @@
 import domtoimage from 'dom-to-image';
 
+export const mapRange = (value, low1, high1, low2, high2, returnInt = true) => {
+  let newValue = low2 + ((high2 - low2) * ((value - low1) / (high1 - low1)));
+  if (returnInt) {
+    newValue = Math.round(newValue);
+  }
+  return Math.min(Math.max(newValue, low2), high2);
+};
+
+export const limitRange = (value, lowerLimit, upperLimit) =>
+  // value || 0 makes sure that NaN s are turned into a number to work with
+  Math.min(Math.max(value || 0, lowerLimit || 0), upperLimit || 0);
+
 export const truncate = (n, len) => {
   const ext = n.substring(n.lastIndexOf('.') + 1, n.length).toLowerCase();
   let filename = n.substring(0, n.lastIndexOf('.'));

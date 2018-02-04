@@ -1,28 +1,11 @@
 import uuidV4 from 'uuid/v4';
 import fs from 'fs';
 import imageDB from './../utils/db';
+import { mapRange, limitRange } from './../utils/utils';
 
 const { ipcRenderer } = require('electron');
 
-function mapRange(value, low1, high1, low2, high2, returnInt = true) {
-  let newValue = low2 + ((high2 - low2) * ((value - low1) / (high1 - low1)));
-  if (returnInt) {
-    newValue = Math.round(newValue);
-  }
-  return Math.min(
-    Math.max(
-      newValue, low2
-    ), high2
-  );
-}
-
-function limitRange(value, lowerLimit, upperLimit) {
-  // value || 0 makes sure that NaN s are turned into a number to work with
-  return Math.min(Math.max(value || 0, lowerLimit || 0), upperLimit || 0);
-}
-
 // visibilitySettings
-
 export const setVisibilityFilter = (filter) => {
   return {
     type: 'SET_VISIBILITY_FILTER',
