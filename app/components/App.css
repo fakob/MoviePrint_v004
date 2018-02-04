@@ -100,7 +100,7 @@
   transform: translate(-50%, -50%);
   border: 1px solid #ccc;
   background: #fff;
-  overflow: auto;
+  /* overflow: auto; */
   border-radius: 4px;
   outline: none;
   padding: 20px

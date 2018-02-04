@@ -77,6 +77,7 @@ const Thumb = (
         alt=""
         width={`${thumbWidth}px`}
         height={`${(thumbWidth * (height / width))}px`}
+        onClick={onScrub}
       />
       <div
         className={styles.frameNumber}
@@ -113,14 +114,14 @@ const Thumb = (
           onMouseOver={over}
           onMouseLeave={out}
         />
-        <img
+        {/* <img
           src={scrub}
           className={styles.scrub}
           onClick={onScrub}
           alt=""
           onMouseOver={over}
           onMouseLeave={out}
-        />
+        /> */}
         <img
           src={forward}
           className={styles.forward}
