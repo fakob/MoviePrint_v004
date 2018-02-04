@@ -9,10 +9,10 @@ import '../app.global.css';
 import FileList from '../containers/FileList';
 import SettingsList from '../containers/SettingsList';
 import SortedVisibleThumbGrid from '../containers/VisibleThumbGrid';
-import ThumbGridPlaceholder from '../components/ThumbGridPlaceholder';
 import VideoPlayer from '../components/VideoPlayer';
 import { saveMoviePrint } from '../utils/utils';
 import Footer from './Footer';
+import EditGrid from './EditGrid';
 import Header from './Header';
 import styles from './App.css';
 
@@ -30,7 +30,8 @@ class App extends Component {
       className: `${styles.dropzonehide}`,
       isManipulatingSliderInHeader: false,
       showPlaceholder: true,
-      modalIsOpen: false
+      modalIsOpen: false,
+      showEditGrid: false
     };
 
     this.onDragEnter = this.onDragEnter.bind(this);
@@ -43,6 +44,9 @@ class App extends Component {
     this.afterOpenModal = this.afterOpenModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
     this.setNewFrame = this.setNewFrame.bind(this);
+
+    this.showEditGrid = this.showEditGrid.bind(this);
+    this.hideEditGrid = this.hideEditGrid.bind(this);
   }
 
   componentDidMount() {
@@ -165,29 +169,69 @@ class App extends Component {
     this.closeModal();
   }
 
+  showEditGrid() {
+    this.setState({ showEditGrid: true });
+  }
+
+  hideEditGrid() {
+    this.setState({ showEditGrid: false });
+  }
+
   render() {
     const { store } = this.context;
     const state = store.getState();
 
     let visibleThumbGridComponent = null;
 
-    if (this.state.showPlaceholder || state.visibilitySettings.isManipulating) {
+    if (this.state.showEditGrid || this.state.showPlaceholder || state.visibilitySettings.isManipulating) {
       visibleThumbGridComponent = (
-        <ThumbGridPlaceholder
-          thumbsAmount={(this.state.thumbsAmount === undefined) ?
-            this.props.defaultRowCount *
-            this.props.defaultColumnCount :
-            this.state.thumbsAmount}
-          file={{
-            path: '',
-            name: 'placeholder name',
-            width: 1920,
-            height: 1080
+        <EditGrid
+          file={this.props.file}
+          settings={this.props.settings}
+          thumbnailWidthPlusMargin
+          hideEditGrid={this.hideEditGrid}
+          onStartSliding={() => {
+            if (!this.state.isManipulatingSliderInHeader) {
+              console.log('started sliding');
+              this.setState({ isManipulatingSliderInHeader: true });
+            }
           }}
-          axis={'xy'}
-          columnWidth={(this.state.tempColumnCount === undefined) ?
-            this.props.defaultColumnCount * thumbnailWidthPlusMargin :
-            this.state.tempColumnCount * thumbnailWidthPlusMargin}
+          onRowSliding={(value) => {
+            console.log(value);
+            this.setState({ thumbsAmount:
+              (value * this.props.defaultColumnCount)
+            });
+          }}
+          onColumnSliding={(value) => {
+            console.log(value);
+            this.setState({ thumbsAmount:
+              (this.props.defaultRowCount * value)
+            });
+            this.setState({ tempColumnCount: value });
+          }}
+          onRowChange={(value) => {
+            store.dispatch(setDefaultRowCount(value));
+            if (this.props.currentFileId !== undefined) {
+              store.dispatch(addDefaultThumbs(
+                this.props.file,
+                value *
+                this.props.defaultColumnCount
+              ));
+            }
+          }}
+          onColumnChange={(value) => {
+            store.dispatch(setDefaultColumnCount(value));
+            if (this.props.currentFileId !== undefined) {
+              store.dispatch(addDefaultThumbs(
+                this.props.file,
+                this.props.defaultRowCount *
+                value
+              ));
+            }
+          }}
+          onAfterChange={() => {
+            // this.setState({ showEditGrid: false });
+          }}
         />
       );
     } else {
@@ -202,6 +246,7 @@ class App extends Component {
 
     return (
       <div>
+        <button onClick={this.showEditGrid}>Show edit grid</button>
         <Modal
           isOpen={this.state.modalIsOpen}
           onAfterOpen={this.afterOpenModal}
@@ -225,7 +270,7 @@ class App extends Component {
         </Modal>
         <div className={`${styles.Site}`}>
           <div className={`${styles.SiteHeader}`}>
-            <Header
+            {/* <Header
               currentFileId={this.props.currentFileId}
               file={this.props.file}
               settings={this.props.settings}
@@ -282,7 +327,7 @@ class App extends Component {
               onAfterChange={() => {
                 this.setState({ isManipulatingSliderInHeader: false });
               }}
-            />
+            /> */}
           </div>
           <div
             className={`${styles.SiteContent}`}
