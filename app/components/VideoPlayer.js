@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
+import { mapRange, secondsToTimeCode, limitRange } from './../utils/utils';
 import styles from './VideoPlayer.css';
 
 const pathModule = require('path');
@@ -29,20 +30,20 @@ class VideoPlayer extends Component {
 
   onDurationChange(duration) {
     this.setState({ duration });
-    this.setState({ currentTime: this.props.positionRatio * this.state.duration });
+    // this.setState({ currentTime: this.props.positionRatio * this.state.duration });
     // if (!this.state.cutEndTime) this.setState({ cutEndTime: duration });
   }
 
   onTimeUpdate(currentTime) {
     this.setState({ currentTime });
-    const newX = (currentTime / this.state.duration) * this.state.width;
+    const newX = mapRange(currentTime, 0, this.state.duration, 0, this.state.width);
     this.setState({ controlledPosition: { x: newX, y: 0 } });
   }
 
   onControlledDrag(e, position) {
     const { x } = position;
     this.setState({ controlledPosition: { x, y: 0 } });
-    const newCurrentTime = ((x * 1.0) / this.state.width) * this.state.duration;
+    const newCurrentTime = mapRange(x, 0, this.state.width, 0, this.state.duration, false);
     this.video.currentTime = newCurrentTime;
     this.setState({ currentTime: newCurrentTime });
   }
@@ -83,7 +84,7 @@ class VideoPlayer extends Component {
                 <div className={`${styles.currentTime} handle`} />
               </div>
             </Draggable>
-            <div id="currentTimeDisplay">{this.state.currentTime}</div>
+            <div id="currentTimeDisplay">{secondsToTimeCode(this.state.currentTime)}</div>
           </div>
         </div>
       </div>

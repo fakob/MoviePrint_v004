@@ -31,13 +31,25 @@ export const truncatePath = (n, len) => {
 
 export const frameCountToTimeCode = (frames, fps = 25) => {
   // fps = (typeof fps !== 'undefined' ? fps : 30);
-  const pad = (input) => { return (input < 10) ? '0' + input : input; }
+  const pad = (input) => ((input < 10) ? `0${input}` : input);
   const seconds = (typeof frames !== 'undefined' ? frames / fps : 0);
+
   return [
     pad(Math.floor(seconds / 3600)),
-    pad(Math.floor(seconds % 3600 / 60)),
+    pad(Math.floor((seconds % 3600) / 60)),
     pad(Math.floor(seconds % 60)),
     pad(Math.floor(frames % fps))
+  ].join(':');
+};
+
+export const secondsToTimeCode = (seconds = 0) => {
+  const pad = (input) => ((input < 10) ? `0${input}` : input);
+
+  return [
+    pad(Math.floor(seconds / 3600)),
+    pad(Math.floor((seconds % 3600) / 60)),
+    pad(Math.floor(seconds % 60)),
+    pad(Math.floor((seconds - Math.floor(seconds)) * 1000), 3, '0')
   ].join(':');
 };
 
