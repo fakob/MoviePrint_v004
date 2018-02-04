@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
+import { Button } from 'semantic-ui-react';
 import { mapRange, secondsToTimeCode, limitRange } from './../utils/utils';
 import styles from './VideoPlayer.css';
 
@@ -111,9 +112,21 @@ class VideoPlayer extends Component {
             </Draggable>
             <div id="currentTimeDisplay">{secondsToTimeCode(this.state.currentTime)}</div>
           </div>
+          <Button
+            fluid
+            color="pink"
+            onClick={this.onApplyClick}
+          >
+            Apply
+          </Button>
+          <Button
+            compact
+            size="mini"
+            onClick={this.onCancelClick}
+          >
+            Cancel
+          </Button>
         </div>
-        <button onClick={this.onApplyClick}>Apply</button>
-        <button onClick={this.onCancelClick}>Cancel</button>
       </div>
     );
   }

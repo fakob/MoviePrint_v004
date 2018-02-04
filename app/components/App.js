@@ -206,12 +206,10 @@ class App extends Component {
           isOpen={this.state.modalIsOpen}
           onAfterOpen={this.afterOpenModal}
           onRequestClose={this.closeModal}
-          contentLabel="Example Modal"
           appElement={this.siteContent}
           className={`${styles.ReactModalContent}`}
           overlayClassName={`${styles.ReactModalOverlay}`}
         >
-          <h1>Modal Content</h1>
           <div>
             { this.props.file ?
               <VideoPlayer
