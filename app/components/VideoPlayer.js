@@ -26,12 +26,26 @@ class VideoPlayer extends Component {
       // cutEndTime: undefined,
       // fileFormat: undefined,
     };
+
+    this.updatePosition = this.updatePosition.bind(this);
+    this.onDurationChange = this.onDurationChange.bind(this);
+    this.onTimeUpdate = this.onTimeUpdate.bind(this);
   }
 
   onDurationChange(duration) {
-    this.setState({ duration });
-    // this.setState({ currentTime: this.props.positionRatio * this.state.duration });
-    // if (!this.state.cutEndTime) this.setState({ cutEndTime: duration });
+    // setState is asynchronious
+    // updatePosition needs to wait for setState, therefore it is put into callback of setState
+    this.setState({ duration }, () => {
+      this.updatePosition();
+    });
+  }
+
+  updatePosition() {
+    const currentTime = this.props.positionRatio * this.state.duration;
+    console.log(`${currentTime} : ${this.props.positionRatio} : ${this.state.duration}`);
+    console.log(this.state);
+    this.onTimeUpdate(currentTime);
+    this.video.currentTime = currentTime;
   }
 
   onTimeUpdate(currentTime) {
@@ -58,8 +72,8 @@ class VideoPlayer extends Component {
       <div>
         <div className={`${styles.player}`}>
           <video
-            className={`${styles.video}`}
             ref={(el) => { this.video = el; }}
+            className={`${styles.video}`}
             controls
             muted
             src={`${pathModule.dirname(this.props.path)}/${encodeURIComponent(pathModule.basename(this.props.path))}` || ''}

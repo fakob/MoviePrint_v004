@@ -147,11 +147,11 @@ class App extends Component {
     this.setState({ thumbId });
     this.setState({ frameNumber });
     this.setState({ modalIsOpen: true });
+    // const positionRatio = (this.state.frameNumber * 1.0) / this.props.file.frameCount;
+    // this.videoPlayer.onPositionRatioUpdate(positionRatio);
   }
 
   afterOpenModal() {
-    // references are now sync'd and can be accessed.
-    // this.subtitle.style.color = '#f00';
   }
 
   closeModal() {
@@ -207,12 +207,15 @@ class App extends Component {
         >
           <h1>Modal Content</h1>
           <div>
-            <VideoPlayer
-              path={this.props.file ? (this.props.file.path || '') : ''}
-              thumbId={this.state.thumbId}
-              positionRatio={(this.state.frameNumber * 1.0) / this.props.file.frameCount}
-              frameNumber={this.state.frameNumber}
-            />
+            { this.props.file ?
+              <VideoPlayer
+                ref={(el) => { this.videoPlayer = el; }}
+                path={this.props.file ? (this.props.file.path || '') : ''}
+                thumbId={this.state.thumbId}
+                frameNumber={this.state.frameNumber}
+                positionRatio={(this.state.frameNumber * 1.0) / (this.props.file.frameCount || 1)}
+              /> : ''
+            }
           </div>
           <button onClick={this.closeModal}>close</button>
         </Modal>
