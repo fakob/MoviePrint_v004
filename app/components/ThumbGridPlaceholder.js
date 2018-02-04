@@ -6,20 +6,37 @@ import { Grid } from 'semantic-ui-react';
 import ThumbPlaceholder from './ThumbPlaceholder';
 import ThumbGridHeader from './ThumbGridHeader';
 import styles from './ThumbGrid.css';
+import empty from './../img/Thumb_EMPTY.png';
 
 const colors = [
   'red', 'orange', 'yellow', 'olive', 'green', 'teal', 'blue',
   'violet', 'purple', 'pink', 'brown', 'grey', 'black',
 ];
 
-const ThumbGridPlaceholder = ({ thumbsAmount, file, columnCount, columnWidth }) => {
+const thumbWidth = 270;
+
+const ThumbGridPlaceholder = ({ thumbsAmount, width, height, columnCount, columnWidth }) => {
+  const gridArray = new Array(thumbsAmount);
+
   return (
     <Grid columns={columnCount} padded>
-      {colors.map(color => (
+      {Array.apply(null, Array(thumbsAmount)).map((val, i) => (
+        <Grid.Column>
+          <img
+            src={empty}
+            // className={styles.image}
+            alt=""
+            width={`${thumbWidth}px`}
+            height={`${(thumbWidth * (height / width))}px`}
+          />
+          {i}
+        </Grid.Column>
+      ))}
+      {/* {gridArray.map(color => (
         <Grid.Column color={color} key={color}>
           {color}
         </Grid.Column>
-      ))}
+      ))} */}
     </Grid>
     // <div
     //   className={styles.grid}

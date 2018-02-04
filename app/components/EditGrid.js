@@ -107,7 +107,7 @@ class EditGrid extends Component {
             className={styles.slider}
             min={1}
             max={20}
-            defaultValue={this.props.settings.defaultRowCount}
+            defaultValue={this.state.rowCount}
             marks={{
               1: '1',
               20: '20',
@@ -120,7 +120,7 @@ class EditGrid extends Component {
             className={styles.slider}
             min={1}
             max={20}
-            defaultValue={this.props.settings.defaultColumnCount}
+            defaultValue={this.state.columnCount}
             marks={{
               1: '1',
               20: '20',
@@ -145,22 +145,16 @@ class EditGrid extends Component {
           Cancel
         </Button>
         <ThumbGridPlaceholder
-          thumbsAmount={(this.props.settings.defaultRowCount * this.props.settings.defaultColumnCount)}
+          thumbsAmount={(this.state.columnCount * this.state.rowCount)}
           // thumbsAmount={(this.state.thumbsAmount === undefined) ?
           //   settings.defaultRowCount *
           //   settings.defaultColumnCount :
           //   this.state.thumbsAmount}
-          file={{
-            path: '',
-            name: 'placeholder name',
-            width: 1920,
-            height: 1080
-          }}
+          width={this.props.file.width}
+          height={this.props.file.height}
           axis={'xy'}
-          columnCount={this.props.settings.defaultColumnCount}
-          columnWidth={(this.props.settings.defaultColumnCount === undefined) ?
-            this.props.settings.defaultColumnCount * this.props.thumbnailWidthPlusMargin :
-            this.props.settings.defaultColumnCount * this.props.thumbnailWidthPlusMargin}
+          columnCount={this.state.columnCount}
+          columnWidth={this.state.columnCount * this.props.thumbnailWidthPlusMargin}
           // columnWidth={(this.state.tempColumnCount === undefined) ?
           //   settings.defaultColumnCount * thumbnailWidthPlusMargin :
           //   this.state.tempColumnCount * thumbnailWidthPlusMargin}

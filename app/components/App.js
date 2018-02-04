@@ -188,7 +188,7 @@ class App extends Component {
         <EditGrid
           file={this.props.file}
           settings={this.props.settings}
-          thumbnailWidthPlusMargin
+          thumbnailWidthPlusMargin={thumbnailWidthPlusMargin}
           hideEditGrid={this.hideEditGrid}
           onThumbCountChange={(columnCount, rowCount) => {
             store.dispatch(setDefaultColumnCount(columnCount));
