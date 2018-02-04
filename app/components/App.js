@@ -183,54 +183,22 @@ class App extends Component {
 
     let visibleThumbGridComponent = null;
 
-    if (this.state.showEditGrid || this.state.showPlaceholder || state.visibilitySettings.isManipulating) {
+    if (this.state.showEditGrid) {
       visibleThumbGridComponent = (
         <EditGrid
           file={this.props.file}
           settings={this.props.settings}
           thumbnailWidthPlusMargin
           hideEditGrid={this.hideEditGrid}
-          onStartSliding={() => {
-            if (!this.state.isManipulatingSliderInHeader) {
-              console.log('started sliding');
-              this.setState({ isManipulatingSliderInHeader: true });
-            }
-          }}
-          onRowSliding={(value) => {
-            console.log(value);
-            this.setState({ thumbsAmount:
-              (value * this.props.defaultColumnCount)
-            });
-          }}
-          onColumnSliding={(value) => {
-            console.log(value);
-            this.setState({ thumbsAmount:
-              (this.props.defaultRowCount * value)
-            });
-            this.setState({ tempColumnCount: value });
-          }}
-          onRowChange={(value) => {
-            store.dispatch(setDefaultRowCount(value));
+          onThumbCountChange={(columnCount, rowCount) => {
+            store.dispatch(setDefaultColumnCount(columnCount));
+            store.dispatch(setDefaultRowCount(rowCount));
             if (this.props.currentFileId !== undefined) {
               store.dispatch(addDefaultThumbs(
                 this.props.file,
-                value *
-                this.props.defaultColumnCount
+                columnCount * rowCount
               ));
             }
-          }}
-          onColumnChange={(value) => {
-            store.dispatch(setDefaultColumnCount(value));
-            if (this.props.currentFileId !== undefined) {
-              store.dispatch(addDefaultThumbs(
-                this.props.file,
-                this.props.defaultRowCount *
-                value
-              ));
-            }
-          }}
-          onAfterChange={() => {
-            // this.setState({ showEditGrid: false });
           }}
         />
       );

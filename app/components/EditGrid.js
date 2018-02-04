@@ -69,9 +69,9 @@ class EditGrid extends Component {
   };
 
   onAfterChangeRow = (value) => {
-    isManipulatingSlider = false;
+    // isManipulatingSlider = false;
     // onRowChange(value);
-    this.props.onAfterChange();
+    // this.props.onAfterChange();
   };
 
   onChangeColumn = (value) => {
@@ -91,8 +91,8 @@ class EditGrid extends Component {
   };
 
   onApplyClick = () => {
-    this.props.onColumnChange(this.state.columnCount);
-    this.props.onRowChange(this.state.rowCount);
+    this.props.onThumbCountChange(this.state.columnCount, this.state.rowCount);
+    this.props.hideEditGrid();
   };
 
   onCancelClick = () => {
