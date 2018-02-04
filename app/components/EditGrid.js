@@ -1,14 +1,10 @@
-import React from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import Slider, { Range } from 'rc-slider';
 import Tooltip from 'rc-tooltip';
 import { Button } from 'semantic-ui-react';
 import styles from './Header.css';
-import UndoRedo from '../containers/UndoRedo';
 import ThumbGridPlaceholder from '../components/ThumbGridPlaceholder';
-// import '../../node_modules/rc-slider/assets/index.css';
-import save from './../img/Thumb_SAVE.png';
-import hidden from './../img/Thumb_HIDDEN.png';
-import visible from './../img/Thumb_VISIBLE.png';
 
 // const createSliderWithTooltip = Slider.createSliderWithTooltip;
 // const Range = createSliderWithTooltip(Slider.Range);
@@ -31,116 +27,151 @@ const handle = (props) => {
   );
 };
 
-const EditGrid = ({ currentFileId, file, settings, visibilitySettings, thumbnailWidthPlusMargin,
-  onShowThumbsClick, onPrintClick, onRowChange, onColumnChange,
-  onStartSliding, onRowSliding, onColumnSliding, onAfterChange, hideEditGrid }) => {
 
-  const onChangeRow = (value) => {
-    if (!isManipulatingSlider) {
-      isManipulatingSlider = true;
-      onStartSliding();
-    } else {
-      onRowSliding(value);
+class EditGrid extends Component {
+  constructor() {
+    super();
+
+    this.state = {
+      columnCount: undefined,
+      rowCount: undefined,
     }
+
+    this.onChangeRow = this.onChangeRow.bind(this);
+    this.onAfterChangeRow = this.onAfterChangeRow.bind(this);
+    this.onChangeColumn = this.onChangeColumn.bind(this);
+    this.onAfterChangeColumn = this.onAfterChangeColumn.bind(this);
+    this.onApplyClick = this.onApplyClick.bind(this);
+    this.onCancelClick = this.onCancelClick.bind(this);
+  }
+
+  componentWillMount() {
+    const { store } = this.context;
+
+    this.setState({
+      columnCount: store.getState().undoGroup.present.settings.defaultColumnCount,
+      rowCount: store.getState().undoGroup.present.settings.defaultRowCount,
+    });
+  }
+
+  componentWillUnmount() {
+    // this.unsubscribe();
+  }
+
+  onChangeRow = (value) => {
+    this.setState({ rowCount: value });
+    // if (!isManipulatingSlider) {
+    //   isManipulatingSlider = true;
+    //   this.props.onStartSliding();
+    // } else {
+    //   this.props.onRowSliding(value);
+    // }
   };
 
-  const onAfterChangeRow = (value) => {
+  onAfterChangeRow = (value) => {
     isManipulatingSlider = false;
     // onRowChange(value);
-    onAfterChange();
+    this.props.onAfterChange();
   };
 
-  const onChangeColumn = (value) => {
-    if (!isManipulatingSlider) {
-      isManipulatingSlider = true;
-      onStartSliding();
-    } else {
-      onColumnSliding(value);
-    }
+  onChangeColumn = (value) => {
+    this.setState({ columnCount: value });
+    // if (!isManipulatingSlider) {
+    //   isManipulatingSlider = true;
+    //   this.props.onStartSliding();
+    // } else {
+    //   this.props.onColumnSliding(value);
+    // }
   };
 
-  const onAfterChangeColumn = (value) => {
-    isManipulatingSlider = false;
+  onAfterChangeColumn = (value) => {
+    // isManipulatingSlider = false;
     // onColumnChange(value);
     // onAfterChange();
   };
 
-  const onApplyClick = () => {
-    // onColumnChange(value);
-    // onRowChange(value);
+  onApplyClick = () => {
+    this.props.onColumnChange(this.state.columnCount);
+    this.props.onRowChange(this.state.rowCount);
   };
 
-  const onCancelClick = () => {
-    hideEditGrid();
+  onCancelClick = () => {
+    this.props.hideEditGrid();
   };
 
-  return (
-    <div>
+  render() {
+    return (
       <div>
-        <Slider
-          className={styles.slider}
-          min={1}
-          max={20}
-          defaultValue={settings.defaultRowCount}
-          marks={{
-            1: '1',
-            20: '20',
+        <div>
+          <Slider
+            className={styles.slider}
+            min={1}
+            max={20}
+            defaultValue={this.props.settings.defaultRowCount}
+            marks={{
+              1: '1',
+              20: '20',
+            }}
+            handle={handle}
+            onChange={this.onChangeRow}
+            onAfterChange={this.onAfterChangeRow}
+          />
+          <Slider
+            className={styles.slider}
+            min={1}
+            max={20}
+            defaultValue={this.props.settings.defaultColumnCount}
+            marks={{
+              1: '1',
+              20: '20',
+            }}
+            handle={handle}
+            onChange={this.onChangeColumn}
+            onAfterChange={this.onAfterChangeColumn}
+          />
+        </div>
+        <Button
+          fluid
+          color="pink"
+          onClick={this.onApplyClick}
+        >
+          Apply
+        </Button>
+        <Button
+          compact
+          size="mini"
+          onClick={this.onCancelClick}
+        >
+          Cancel
+        </Button>
+        <ThumbGridPlaceholder
+          thumbsAmount={(this.props.settings.defaultRowCount * this.props.settings.defaultColumnCount)}
+          // thumbsAmount={(this.state.thumbsAmount === undefined) ?
+          //   settings.defaultRowCount *
+          //   settings.defaultColumnCount :
+          //   this.state.thumbsAmount}
+          file={{
+            path: '',
+            name: 'placeholder name',
+            width: 1920,
+            height: 1080
           }}
-          handle={handle}
-          onChange={onChangeRow}
-          onAfterChange={onAfterChangeRow}
-        />
-        <Slider
-          className={styles.slider}
-          min={1}
-          max={20}
-          defaultValue={settings.defaultColumnCount}
-          marks={{
-            1: '1',
-            20: '20',
-          }}
-          handle={handle}
-          onChange={onChangeColumn}
-          onAfterChange={onAfterChangeColumn}
+          axis={'xy'}
+          columnCount={this.props.settings.defaultColumnCount}
+          columnWidth={(this.props.settings.defaultColumnCount === undefined) ?
+            this.props.settings.defaultColumnCount * this.props.thumbnailWidthPlusMargin :
+            this.props.settings.defaultColumnCount * this.props.thumbnailWidthPlusMargin}
+          // columnWidth={(this.state.tempColumnCount === undefined) ?
+          //   settings.defaultColumnCount * thumbnailWidthPlusMargin :
+          //   this.state.tempColumnCount * thumbnailWidthPlusMargin}
         />
       </div>
-      <Button
-        fluid
-        color="pink"
-        onClick={onApplyClick}
-      >
-        Apply
-      </Button>
-      <Button
-        compact
-        size="mini"
-        onClick={onCancelClick}
-      >
-        Cancel
-      </Button>
-      <ThumbGridPlaceholder
-        thumbsAmount={(settings.defaultRowCount * settings.defaultColumnCount)}
-        // thumbsAmount={(this.state.thumbsAmount === undefined) ?
-        //   settings.defaultRowCount *
-        //   settings.defaultColumnCount :
-        //   this.state.thumbsAmount}
-        file={{
-          path: '',
-          name: 'placeholder name',
-          width: 1920,
-          height: 1080
-        }}
-        axis={'xy'}
-        columnCount={settings.defaultColumnCount}
-        columnWidth={(settings.defaultColumnCount === undefined) ?
-          settings.defaultColumnCount * thumbnailWidthPlusMargin :
-          settings.defaultColumnCount * thumbnailWidthPlusMargin}
-        // columnWidth={(this.state.tempColumnCount === undefined) ?
-        //   settings.defaultColumnCount * thumbnailWidthPlusMargin :
-        //   this.state.tempColumnCount * thumbnailWidthPlusMargin}
-      />
-    </div>
-  );
+    );
+  }
+}
+
+EditGrid.contextTypes = {
+  store: PropTypes.object
 };
 
 export default EditGrid;
