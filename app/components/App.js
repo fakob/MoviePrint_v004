@@ -16,11 +16,10 @@ import Footer from './Footer';
 import Header from './Header';
 import styles from './App.css';
 
-// import { setMovieList } from '../actions';
 import { setNewMovieList, toggleLeftSidebar, toggleRightSidebar,
   addDefaultThumbs, setDefaultRowCount, setDefaultColumnCount,
   setVisibilityFilter, startIsManipulating, stopIsManipulating,
-  setCurrentFileId } from '../actions';
+  setCurrentFileId, changeThumb } from '../actions';
 
 const thumbnailWidthPlusMargin = 278;
 
@@ -43,6 +42,7 @@ class App extends Component {
     this.openModal = this.openModal.bind(this);
     this.afterOpenModal = this.afterOpenModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
+    this.setNewFrame = this.setNewFrame.bind(this);
   }
 
   componentDidMount() {
@@ -158,6 +158,13 @@ class App extends Component {
     this.setState({ modalIsOpen: false });
   }
 
+  setNewFrame(thumbId, newPositionRatio) {
+    const { store } = this.context;
+    const newFrameNumber = newPositionRatio * this.props.file.frameCount;
+    store.dispatch(changeThumb(this.props.file, thumbId, newFrameNumber));
+    this.closeModal();
+  }
+
   render() {
     const { store } = this.context;
     const state = store.getState();
@@ -195,7 +202,6 @@ class App extends Component {
 
     return (
       <div>
-        <button onClick={this.openModal}>Open Modal</button>
         <Modal
           isOpen={this.state.modalIsOpen}
           onAfterOpen={this.afterOpenModal}
@@ -212,12 +218,12 @@ class App extends Component {
                 ref={(el) => { this.videoPlayer = el; }}
                 path={this.props.file ? (this.props.file.path || '') : ''}
                 thumbId={this.state.thumbId}
-                frameNumber={this.state.frameNumber}
                 positionRatio={(this.state.frameNumber * 1.0) / (this.props.file.frameCount || 1)}
+                setNewFrame={this.setNewFrame}
+                closeModal={this.closeModal}
               /> : ''
             }
           </div>
-          <button onClick={this.closeModal}>close</button>
         </Modal>
         <div className={`${styles.Site}`}>
           <div className={`${styles.SiteHeader}`}>

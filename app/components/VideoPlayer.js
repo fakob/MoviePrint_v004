@@ -30,6 +30,10 @@ class VideoPlayer extends Component {
     this.updatePosition = this.updatePosition.bind(this);
     this.onDurationChange = this.onDurationChange.bind(this);
     this.onTimeUpdate = this.onTimeUpdate.bind(this);
+    this.onControlledDrag = this.onControlledDrag.bind(this);
+
+    this.onApplyClick = this.onApplyClick.bind(this);
+    this.onCancelClick = this.onCancelClick.bind(this);
   }
 
   onDurationChange(duration) {
@@ -62,9 +66,16 @@ class VideoPlayer extends Component {
     this.setState({ currentTime: newCurrentTime });
   }
 
-  render() {
-    this.onControlledDrag = this.onControlledDrag.bind(this);
+  onApplyClick = () => {
+    const newPositionRatio = ((this.state.currentTime * 1.0) / this.state.duration);
+    this.props.setNewFrame(this.props.thumbId, newPositionRatio);
+  }
 
+  onCancelClick = () => {
+    this.props.closeModal();
+  }
+
+  render() {
     const dragHandlers = { onStart: this.onStart, onStop: this.onStop };
     const { controlledPosition } = this.state;
 
@@ -101,13 +112,20 @@ class VideoPlayer extends Component {
             <div id="currentTimeDisplay">{secondsToTimeCode(this.state.currentTime)}</div>
           </div>
         </div>
+        <button onClick={this.onApplyClick}>Apply</button>
+        <button onClick={this.onCancelClick}>Cancel</button>
       </div>
     );
   }
 }
 
 VideoPlayer.contextTypes = {
-  store: PropTypes.object
+  store: PropTypes.object,
+  path: PropTypes.string,
+  thumbId: PropTypes.number,
+  positionRatio: PropTypes.number,
+  setNewFrame: PropTypes.func,
+  closeModal: PropTypes.func,
 };
 
 export default VideoPlayer;
