@@ -24,23 +24,20 @@ const ThumbGridPlaceholder = ({ thumbsAmount, width, height, columnCount, rowCou
   // const newThumbHeight = newThumbWidth * (height / width);
 
   return (
-    <Grid
-      columns={columnCount}
-      padded
+    <div
       className={styles.grid}
       style={{
-        // width: columnWidth,
-        zoom: scaleValue
+        width: columnWidth,
+        // zoom: scaleValue
       }}
     >
       {Array.apply(null, Array(thumbsAmount)).map((val, i) => (
-        <Grid.Column >
+        <div >
           <div
-            id="rectangle"
             className={styles.gridItem}
             style={{
-              width: width,
-              height: height,
+              width: width * scaleValue,
+              height: height * scaleValue,
               backgroundColor: 'black'
             }}
           />
@@ -52,14 +49,14 @@ const ThumbGridPlaceholder = ({ thumbsAmount, width, height, columnCount, rowCou
             height={`${(thumbWidth * (height / width))}px`}
           /> */}
           {/* {i} */}
-        </Grid.Column>
+        </div>
       ))}
       {/* {gridArray.map(color => (
         <Grid.Column color={color} key={color}>
           {color}
         </Grid.Column>
       ))} */}
-    </Grid>
+    </div>
     // <div
     //   className={styles.grid}
     //   style={{
