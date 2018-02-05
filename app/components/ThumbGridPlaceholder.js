@@ -18,14 +18,18 @@ const thumbWidth = 270;
 const ThumbGridPlaceholder = ({ thumbsAmount, width, height, columnCount, rowCount, columnWidth, contentHeight, contentWidth }) => {
   const gridArray = new Array(thumbsAmount);
   const scaleValueHeight = ((contentHeight * 1.0) / rowCount) / height;
-  const scaleValueWidth = ((contentWidth * 0.75) / columnCount) / width; // 12 of 16 columns
+  const scaleValueWidth = ((columnWidth * 0.75) / columnCount) / width; // 12 of 16 columns
   const scaleValue = Math.min(scaleValueHeight, scaleValueWidth);
   // const newThumbWidth = thumbWidth * scaleValue;
   // const newThumbHeight = newThumbWidth * (height / width);
 
   return (
-    <Grid columns={columnCount} padded
+    <Grid
+      columns={columnCount}
+      padded
+      className={styles.grid}
       style={{
+        // width: columnWidth,
         zoom: scaleValue
       }}
     >
@@ -33,6 +37,7 @@ const ThumbGridPlaceholder = ({ thumbsAmount, width, height, columnCount, rowCou
         <Grid.Column >
           <div
             id="rectangle"
+            className={styles.gridItem}
             style={{
               width: width,
               height: height,
