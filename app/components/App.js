@@ -31,7 +31,9 @@ class App extends Component {
       isManipulatingSliderInHeader: false,
       showPlaceholder: true,
       modalIsOpen: false,
-      showEditGrid: false
+      showEditGrid: false,
+      contentHeight: 0,
+      contentWidth: 0,
     };
 
     this.onDragEnter = this.onDragEnter.bind(this);
@@ -47,6 +49,8 @@ class App extends Component {
 
     this.showEditGrid = this.showEditGrid.bind(this);
     this.hideEditGrid = this.hideEditGrid.bind(this);
+
+    this.updateContentWidthAndHeight = this.updateContentWidthAndHeight.bind(this);
   }
 
   componentDidMount() {
@@ -56,6 +60,9 @@ class App extends Component {
     document.getElementById('dragbox').addEventListener('dragleave', this.onDragLeave);
     window.addEventListener('drop', this.onDrop);
     document.addEventListener('keydown', this.handleKeyPress);
+
+    this.updateContentWidthAndHeight();
+    window.addEventListener('resize', this.updateContentWidthAndHeight);
   }
 
   handleKeyPress(event) {
@@ -106,6 +113,10 @@ class App extends Component {
     }
   }
 
+  componentDidUpdate() {
+    this.updateContentWidthAndHeight();
+  }
+
   componentWillUnmount() {
     window.removeEventListener('mouseup', this.onDragLeave);
     window.removeEventListener('dragenter', this.onDragEnter);
@@ -113,6 +124,8 @@ class App extends Component {
     document.getElementById('dragbox').removeEventListener('dragleave', this.onDragLeave);
     window.removeEventListener('drop', this.onDrop);
     document.removeEventListener('keydown', this.handleKeyPress);
+
+    window.removeEventListener('resize', this.updateContentWidthAndHeight);
   }
 
   onDragEnter(e) {
@@ -145,6 +158,15 @@ class App extends Component {
       store.dispatch(setNewMovieList(files));
     }
     return false;
+  }
+
+  updateContentWidthAndHeight() {
+    if (this.state.contentHeight !== this.siteContent.clientHeight) {
+      this.setState({ contentHeight: this.siteContent.clientHeight });
+    }
+    if (this.state.contentWidth !== this.siteContent.clientWidth) {
+      this.setState({ contentWidth: this.siteContent.clientWidth });
+    }
   }
 
   openModal(file, thumbId, frameNumber) {
@@ -190,6 +212,8 @@ class App extends Component {
           settings={this.props.settings}
           thumbnailWidthPlusMargin={thumbnailWidthPlusMargin}
           hideEditGrid={this.hideEditGrid}
+          contentHeight={this.state.contentHeight}
+          contentWidth={this.state.contentWidth}
           onThumbCountChange={(columnCount, rowCount) => {
             store.dispatch(setDefaultColumnCount(columnCount));
             store.dispatch(setDefaultRowCount(rowCount));

@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Slider, { Range } from 'rc-slider';
 import Tooltip from 'rc-tooltip';
-import { Button } from 'semantic-ui-react';
+import { Button, Grid, Container } from 'semantic-ui-react';
+import uuidV4 from 'uuid/v4';
 import styles from './Header.css';
 import ThumbGridPlaceholder from '../components/ThumbGridPlaceholder';
 
@@ -55,7 +56,6 @@ class EditGrid extends Component {
   }
 
   componentWillUnmount() {
-    // this.unsubscribe();
   }
 
   onChangeRow = (value) => {
@@ -101,65 +101,79 @@ class EditGrid extends Component {
 
   render() {
     return (
-      <div>
-        <div>
-          <Slider
-            className={styles.slider}
-            min={1}
-            max={20}
-            defaultValue={this.state.rowCount}
-            marks={{
-              1: '1',
-              20: '20',
-            }}
-            handle={handle}
-            onChange={this.onChangeRow}
-            onAfterChange={this.onAfterChangeRow}
-          />
-          <Slider
-            className={styles.slider}
-            min={1}
-            max={20}
-            defaultValue={this.state.columnCount}
-            marks={{
-              1: '1',
-              20: '20',
-            }}
-            handle={handle}
-            onChange={this.onChangeColumn}
-            onAfterChange={this.onAfterChangeColumn}
-          />
-        </div>
-        <Button
-          fluid
-          color="pink"
-          onClick={this.onApplyClick}
+      // <Grid stretched verticalAlign="middle">
+      <Grid stretched>
+        <Grid.Column key="1" width={4}>
+          <Container>
+            <Slider
+              className={styles.slider}
+              min={1}
+              max={20}
+              defaultValue={this.state.rowCount}
+              marks={{
+                1: '1',
+                20: '20',
+              }}
+              handle={handle}
+              onChange={this.onChangeRow}
+              onAfterChange={this.onAfterChangeRow}
+            />
+            <Slider
+              className={styles.slider}
+              min={1}
+              max={20}
+              defaultValue={this.state.columnCount}
+              marks={{
+                1: '1',
+                20: '20',
+              }}
+              handle={handle}
+              onChange={this.onChangeColumn}
+              onAfterChange={this.onAfterChangeColumn}
+            />
+            <Button
+              fluid
+              color="pink"
+              onClick={this.onApplyClick}
+            >
+              Apply
+            </Button>
+            <Button
+              compact
+              size="mini"
+              onClick={this.onCancelClick}
+            >
+                Cancel
+            </Button>
+          </Container>
+        </Grid.Column>
+        <Grid.Column
+          key="2"
+          width={12}
+          style={{
+            backgroundColor: 'white'
+          }}
         >
-          Apply
-        </Button>
-        <Button
-          compact
-          size="mini"
-          onClick={this.onCancelClick}
-        >
-          Cancel
-        </Button>
-        <ThumbGridPlaceholder
-          thumbsAmount={(this.state.columnCount * this.state.rowCount)}
-          // thumbsAmount={(this.state.thumbsAmount === undefined) ?
-          //   settings.defaultRowCount *
-          //   settings.defaultColumnCount :
-          //   this.state.thumbsAmount}
-          width={this.props.file.width}
-          height={this.props.file.height}
-          axis={'xy'}
-          columnCount={this.state.columnCount}
-          columnWidth={this.state.columnCount * this.props.thumbnailWidthPlusMargin}
-          // columnWidth={(this.state.tempColumnCount === undefined) ?
-          //   settings.defaultColumnCount * thumbnailWidthPlusMargin :
-          //   this.state.tempColumnCount * thumbnailWidthPlusMargin}
-        />
-      </div>
+          <ThumbGridPlaceholder
+            thumbsAmount={(this.state.columnCount * this.state.rowCount)}
+            // thumbsAmount={(this.state.thumbsAmount === undefined) ?
+            //   settings.defaultRowCount *
+            //   settings.defaultColumnCount :
+            //   this.state.thumbsAmount}
+            width={this.props.file.width}
+            height={this.props.file.height}
+            axis={'xy'}
+            columnCount={this.state.columnCount}
+            rowCount={this.state.rowCount}
+            columnWidth={this.state.columnCount * this.props.thumbnailWidthPlusMargin}
+            contentHeight={this.props.contentHeight}
+            contentWidth={this.props.contentWidth}
+            // columnWidth={(this.state.tempColumnCount === undefined) ?
+            //   settings.defaultColumnCount * thumbnailWidthPlusMargin :
+            //   this.state.tempColumnCount * thumbnailWidthPlusMargin}
+          />
+        </Grid.Column>
+      </Grid>
     );
   }
 }
