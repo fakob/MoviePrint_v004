@@ -16,7 +16,12 @@ const colors = [
 const thumbWidth = 270;
 
 const ThumbGridPlaceholder = ({ thumbsAmount, width, height, columnCount, rowCount, columnWidth, contentHeight, contentWidth }) => {
-  const gridArray = new Array(thumbsAmount);
+  console.log(contentHeight);
+  console.log(rowCount);
+  console.log(height);
+  console.log(columnWidth);
+  console.log(columnCount);
+  console.log(width);
   const scaleValueHeight = ((contentHeight * 1.0) / rowCount) / height;
   const scaleValueWidth = ((columnWidth * 0.75) / columnCount) / width; // 12 of 16 columns
   const scaleValue = Math.min(scaleValueHeight, scaleValueWidth);

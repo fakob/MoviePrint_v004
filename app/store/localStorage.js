@@ -7,7 +7,9 @@ const initialStateJSON = {
   undoGroup: {
     settings: {
       defaultRowCount: 3,
-      defaultColumnCount: 3
+      defaultColumnCount: 3,
+      defaultThumbnailWidth: 270,
+      defaultMargin: 8,
     },
     thumbsByFileId: [],
     files: []
@@ -34,4 +36,4 @@ export const saveState = (state) => {
   } catch (err) {
     // Ignore write errors
   }
-}
+};

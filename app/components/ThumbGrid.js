@@ -17,7 +17,7 @@ const ThumbGrid = ({
   controlersAreVisible,
   onToggleClick, onRemoveClick, onInPointClick, onOutPointClick,
   onBackClick, onForwardClick, onScrubClick,
-  onMouseOverResult, onMouseOutResult
+  onMouseOverResult, onMouseOutResult, thumbWidth
 }) => (
   <div
     className={styles.grid}
@@ -36,6 +36,7 @@ const ThumbGrid = ({
         thumbImageObjectUrl={thumbImages !== undefined ? thumbImages[thumb.id] !== undefined ? thumbImages[thumb.id].objectUrl : undefined : undefined}
         width={file.width || 1920}
         height={file.height || 1080}
+        thumbWidth={thumbWidth}
         controlersAreVisible={(thumb.id === controlersAreVisible)}
         {...thumb}
         onToggle={() => onToggleClick(file.id, thumb.id)}

@@ -160,14 +160,14 @@ class EditGrid extends Component {
             //   settings.defaultRowCount *
             //   settings.defaultColumnCount :
             //   this.state.thumbsAmount}
-            width={this.props.file.width}
-            height={this.props.file.height}
+            width={this.props.file ? (this.props.file.width || 1920) : 1920}
+            height={this.props.file ? (this.props.file.height || 1080) : 1080}
             axis={'xy'}
             columnCount={this.state.columnCount}
             rowCount={this.state.rowCount}
             columnWidth={this.state.columnCount * this.props.thumbnailWidthPlusMargin}
-            contentHeight={this.props.contentHeight}
-            contentWidth={this.props.contentWidth}
+            contentHeight={this.props.contentHeight || 360}
+            contentWidth={this.props.contentWidth || 640}
             // columnWidth={(this.state.tempColumnCount === undefined) ?
             //   settings.defaultColumnCount * thumbnailWidthPlusMargin :
             //   this.state.tempColumnCount * thumbnailWidthPlusMargin}

@@ -39,9 +39,9 @@ const DragHandle = SortableHandle(() => {
 const Thumb = (
   { onToggle, onRemove, onDragOver, onInPoint, onOutPoint, onBack, onForward,
     onOver, onOut, onScrub, hidden, frameNumber, id, objectUrl, thumbImageObjectUrl, width, height,
-    controlersAreVisible }
+    controlersAreVisible, thumbWidth }
 ) => {
-  const thumbWidth = 270;
+  // const thumbWidth = 270;
   // let tempObjectUrl = imageDB.thumbList.where({ 'id': id });
   // console.log(imageDB.thumbList.where({ 'id': id }).then(thumb => thumb.id));
   // console.log(`controlersAreVisible: ${controlersAreVisible}`);

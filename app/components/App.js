@@ -21,7 +21,7 @@ import { setNewMovieList, toggleLeftSidebar, toggleRightSidebar,
   setVisibilityFilter, startIsManipulating, stopIsManipulating,
   setCurrentFileId, changeThumb } from '../actions';
 
-const thumbnailWidthPlusMargin = 278;
+let thumbnailWidthPlusMargin;
 
 class App extends Component {
   constructor() {
@@ -31,7 +31,7 @@ class App extends Component {
       isManipulatingSliderInHeader: false,
       showPlaceholder: true,
       modalIsOpen: false,
-      showEditGrid: false,
+      showEditGrid: true,
       contentHeight: 0,
       contentWidth: 0,
     };
@@ -54,6 +54,10 @@ class App extends Component {
   }
 
   componentDidMount() {
+    const { store } = this.context;
+    thumbnailWidthPlusMargin = store.getState().undoGroup.present.settings.defaultThumbnailWidth +
+      store.getState().undoGroup.present.settings.defaultMargin;
+
     window.addEventListener('mouseup', this.onDragLeave);
     window.addEventListener('dragenter', this.onDragEnter);
     window.addEventListener('dragover', this.onDragOver);
@@ -93,20 +97,19 @@ class App extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log(`isManipulatingSliderInHeader: ${this.state.isManipulatingSliderInHeader}`);
-    console.log(`currentFileId: ${this.props.files.findIndex((file) =>
-        file.id === this.props.currentFileId) >= 0}`);
-    console.log(`thumbs for this fileId exist: ${this.props.thumbsByFileId[this.props.currentFileId] !== undefined}`);
-    console.log(this.props.thumbsByFileId[this.props.currentFileId]);
-    console.log(`files exist: ${Object.keys(this.props.files).length !== 0}`);
-
-    if (this.state.isManipulatingSliderInHeader ||
-      !(this.props.files.findIndex((file) =>
+    // console.log(`isManipulatingSliderInHeader: ${this.state.isManipulatingSliderInHeader}`);
+    // console.log(`currentFileId: ${this.props.files.findIndex((file) =>
+    //     file.id === this.props.currentFileId) >= 0}`);
+    // console.log(`thumbs for this fileId exist: ${this.props.thumbsByFileId[this.props.currentFileId] !== undefined}`);
+    // console.log(this.props.thumbsByFileId[this.props.currentFileId]);
+    // console.log(`files exist: ${Object.keys(this.props.files).length !== 0}`);
+    //
+    if (!(this.props.files.findIndex((file) =>
         file.id === this.props.currentFileId) >= 0 &&
       this.props.thumbsByFileId[this.props.currentFileId] !== undefined &&
       Object.keys(this.props.files).length !== 0)) {
-      console.log('showPlaceholder: true');
-      this.setState({ showPlaceholder: true });
+      // console.log('showPlaceholder: true');
+      // this.setState({ showPlaceholder: true });
     } else {
       console.log('showPlaceholder: false');
       this.setState({ showPlaceholder: false });
@@ -155,6 +158,7 @@ class App extends Component {
     console.log('Files dropped: ', files);
     this.setState({ className: `${styles.dropzonehide}` });
     if (Array.from(files).some(file => file.type.match('video.*'))) {
+      this.setState({ showPlaceholder: true });
       store.dispatch(setNewMovieList(files));
     }
     return false;
@@ -205,12 +209,12 @@ class App extends Component {
 
     let visibleThumbGridComponent = null;
 
-    if (this.state.showEditGrid) {
+    if (this.state.showEditGrid || this.state.showPlaceholder) {
       visibleThumbGridComponent = (
         <EditGrid
           file={this.props.file}
           settings={this.props.settings}
-          thumbnailWidthPlusMargin={thumbnailWidthPlusMargin}
+          thumbnailWidthPlusMargin={thumbnailWidthPlusMargin || 278}
           hideEditGrid={this.hideEditGrid}
           contentHeight={this.state.contentHeight}
           contentWidth={this.state.contentWidth}
