@@ -16,8 +16,6 @@ import empty from './../img/Thumb_EMPTY.png';
 
 import imageDB from './../utils/db';
 
-
-
 const DragHandle = SortableHandle(() => {
   function over(event){
     event.target.style.opacity = 1;

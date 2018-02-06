@@ -15,24 +15,27 @@ const colors = [
 
 const thumbWidth = 270;
 
-const ThumbGridPlaceholder = ({ thumbsAmount, width, height, columnCount, rowCount, columnWidth, contentHeight, contentWidth }) => {
+const ThumbGridPlaceholder = ({ thumbsAmount, width, height, columnCount, rowCount, columnWidth, contentHeight, contentWidth, thumbWidth, thumbMargin }) => {
+  const scaleValueHeight = ((contentHeight * 1.0) / rowCount) / ((thumbWidth * (height / width)) + thumbMargin);
+  const scaleValueWidth = ((contentWidth * 0.75) / columnCount) / (thumbWidth + thumbMargin); // 12 of 16 columns
+  const scaleValue = Math.min(scaleValueHeight, scaleValueWidth);
+  const newthumbWidth = thumbWidth * scaleValue;
+  const newThumbHeight = thumbWidth * (height / width) * scaleValue;
   console.log(contentHeight);
+  console.log(contentWidth);
   console.log(rowCount);
   console.log(height);
   console.log(columnWidth);
   console.log(columnCount);
   console.log(width);
-  const scaleValueHeight = ((contentHeight * 1.0) / rowCount) / height;
-  const scaleValueWidth = ((columnWidth * 0.75) / columnCount) / width; // 12 of 16 columns
-  const scaleValue = Math.min(scaleValueHeight, scaleValueWidth);
-  // const newThumbWidth = thumbWidth * scaleValue;
-  // const newThumbHeight = newThumbWidth * (height / width);
+  console.log(scaleValue);
 
   return (
     <div
       className={styles.grid}
       style={{
-        width: columnWidth,
+        // width: columnWidth,
+        width: columnWidth * scaleValue,
         // zoom: scaleValue
       }}
     >
@@ -41,9 +44,10 @@ const ThumbGridPlaceholder = ({ thumbsAmount, width, height, columnCount, rowCou
           <div
             className={styles.gridItem}
             style={{
-              width: width * scaleValue,
-              height: height * scaleValue,
-              backgroundColor: 'black'
+              width: newthumbWidth,
+              height: newThumbHeight,
+              backgroundColor: 'black',
+              margin: (thumbMargin / 2) * scaleValue,
             }}
           />
           {/* <img

@@ -218,6 +218,8 @@ class App extends Component {
           hideEditGrid={this.hideEditGrid}
           contentHeight={this.state.contentHeight}
           contentWidth={this.state.contentWidth}
+          thumbWidth={state.undoGroup.present.settings.defaultThumbnailWidth}
+          thumbMargin={state.undoGroup.present.settings.defaultMargin}
           onThumbCountChange={(columnCount, rowCount) => {
             store.dispatch(setDefaultColumnCount(columnCount));
             store.dispatch(setDefaultRowCount(rowCount));

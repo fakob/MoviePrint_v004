@@ -168,6 +168,8 @@ class EditGrid extends Component {
             columnWidth={this.state.columnCount * this.props.thumbnailWidthPlusMargin}
             contentHeight={this.props.contentHeight || 360}
             contentWidth={this.props.contentWidth || 640}
+            thumbWidth={this.props.thumbWidth}
+            thumbMargin={this.props.thumbMargin}
             // columnWidth={(this.state.tempColumnCount === undefined) ?
             //   settings.defaultColumnCount * thumbnailWidthPlusMargin :
             //   this.state.tempColumnCount * thumbnailWidthPlusMargin}
