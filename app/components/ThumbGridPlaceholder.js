@@ -15,9 +15,13 @@ const colors = [
 
 const thumbWidth = 270;
 
-const ThumbGridPlaceholder = ({ thumbsAmount, width, height, columnCount, rowCount, columnWidth, contentHeight, contentWidth, thumbWidth, thumbMargin }) => {
-  const scaleValueHeight = ((contentHeight * 1.0) / rowCount) / ((thumbWidth * (height / width)) + thumbMargin);
-  const scaleValueWidth = ((contentWidth * 0.75) / columnCount) / (thumbWidth + thumbMargin); // 12 of 16 columns
+const ThumbGridPlaceholder = ({ thumbsAmount, width, height, columnCount, rowCount,
+  columnWidth, contentHeight, contentWidth, thumbWidth, thumbMargin }) => {
+  const generalScale = 0.9;
+  const marginWidth = 14;
+  const marginHeight = 14;
+  const scaleValueHeight = (((contentHeight * 1.0 * generalScale) - (marginHeight * 4)) / rowCount) / ((thumbWidth * (height / width)) + thumbMargin);
+  const scaleValueWidth = (((contentWidth * 0.75 * generalScale) - (marginWidth * 4)) / columnCount) / (thumbWidth + thumbMargin); // 12 of 16 columns
   const scaleValue = Math.min(scaleValueHeight, scaleValueWidth);
   const newthumbWidth = thumbWidth * scaleValue;
   const newThumbHeight = thumbWidth * (height / width) * scaleValue;
