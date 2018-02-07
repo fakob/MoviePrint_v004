@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Slider, { Range } from 'rc-slider';
 import Tooltip from 'rc-tooltip';
-import { Button, Grid, Segment, Container } from 'semantic-ui-react';
+import { Button, Grid, Segment, Container, Statistic, Divider } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
 import styles from './Settings.css';
 import ThumbGridPlaceholder from '../components/ThumbGridPlaceholder';
@@ -116,7 +116,10 @@ class EditGrid extends Component {
             <Segment raised>
               <Segment.Group>
                 <Segment>
-                  <b>{this.state.rowCount}</b> rows
+                  <Statistic horizontal>
+                    <Statistic.Value>{this.state.rowCount}</Statistic.Value>
+                    <Statistic.Label>{(this.state.rowCount === 1) ? 'Row' : 'Rows'}</Statistic.Label>
+                  </Statistic>
                   <Slider
                     className={styles.slider}
                     min={1}
@@ -132,7 +135,10 @@ class EditGrid extends Component {
                   />
                 </Segment>
                 <Segment>
-                  <b>{this.state.columnCount}</b> columns
+                  <Statistic horizontal>
+                    <Statistic.Value>{this.state.columnCount}</Statistic.Value>
+                    <Statistic.Label>{(this.state.columnCount === 1) ? 'Column' : 'Columns'}</Statistic.Label>
+                  </Statistic>
                   <Slider
                     className={styles.slider}
                     min={1}
@@ -148,20 +154,23 @@ class EditGrid extends Component {
                   />
                 </Segment>
               </Segment.Group>
-              <Button
-                fluid
-                color="pink"
-                onClick={this.onApplyClick}
-              >
-                Apply
-              </Button>
-              <Button
-                compact
-                size="mini"
-                onClick={this.onCancelClick}
-              >
+              <Segment padded>
+                <Button
+                  fluid
+                  color="pink"
+                  onClick={this.onApplyClick}
+                >
+                  Apply
+                </Button>
+                <Divider horizontal>Or</Divider>
+                <Button
+                  compact
+                  size="mini"
+                  onClick={this.onCancelClick}
+                >
                   Cancel
-              </Button>
+                </Button>
+              </Segment>
             </Segment>
           </Container>
         </Grid.Column>

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 // import keydown from 'react-keydown';
 // import domtoimage from 'dom-to-image';
-import { Sidebar } from 'semantic-ui-react';
+import { Sidebar, Rail, Sticky } from 'semantic-ui-react';
 import Modal from 'react-modal';
 import '../app.global.css';
 import FileList from '../containers/FileList';
@@ -367,6 +367,11 @@ class App extends Component {
           <div className={`${styles.SiteFooter}`}>
             <Footer />
           </div>
+          {/* <Rail position='right'>
+            <Sticky>
+              <Header as='h3'>Stuck Content</Header>
+            </Sticky>
+          </Rail> */}
         </div>
         <div id="dragbox" className={this.state.className}>
           Drop movie files
