@@ -367,11 +367,6 @@ class App extends Component {
           <div className={`${styles.SiteFooter}`}>
             <Footer />
           </div>
-          {/* <Rail position='right'>
-            <Sticky>
-              <Header as='h3'>Stuck Content</Header>
-            </Sticky>
-          </Rail> */}
         </div>
         <div id="dragbox" className={this.state.className}>
           Drop movie files
