@@ -185,10 +185,7 @@ class EditGrid extends Component {
           {/* <Segment raised> */}
             <ThumbGridPlaceholder
               thumbsAmount={(this.state.columnCount * this.state.rowCount)}
-              // thumbsAmount={(this.state.thumbsAmount === undefined) ?
-              //   settings.defaultRowCount *
-              //   settings.defaultColumnCount :
-              //   this.state.thumbsAmount}
+              settings={this.props.settings}
               width={this.props.file ? (this.props.file.width || 1920) : 1920}
               height={this.props.file ? (this.props.file.height || 1080) : 1080}
               axis={'xy'}

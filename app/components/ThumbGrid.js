@@ -17,7 +17,7 @@ const ThumbGrid = ({
   controlersAreVisible,
   onToggleClick, onRemoveClick, onInPointClick, onOutPointClick,
   onBackClick, onForwardClick, onScrubClick,
-  onMouseOverResult, onMouseOutResult, thumbWidth
+  onMouseOverResult, onMouseOutResult, thumbWidth, settings
 }) => (
   <div
     className={styles.grid}
@@ -28,6 +28,7 @@ const ThumbGrid = ({
   >
     <ThumbGridHeader
       file={file}
+      headerHeight={settings.defaultHeaderHeight}
     />
     {thumbs.map(thumb => (
       <SortableThumb

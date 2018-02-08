@@ -16,12 +16,17 @@ const colors = [
 const thumbWidth = 270;
 
 const ThumbGridPlaceholder = ({ thumbsAmount, width, height, columnCount, rowCount,
-  columnWidth, contentHeight, contentWidth, thumbWidth, thumbMargin }) => {
+  columnWidth, contentHeight, contentWidth, thumbWidth, thumbMargin, settings }) => {
+  const headerHeight = settings.defaultHeaderHeight;
   const generalScale = 0.9;
   const marginWidth = 14;
   const marginHeight = 14;
-  const scaleValueHeight = (((contentHeight * 1.0 * generalScale) - (marginHeight * 4)) / rowCount) / ((thumbWidth * (height / width)) + thumbMargin);
-  const scaleValueWidth = (((contentWidth * 0.75 * generalScale) - (marginWidth * 4)) / columnCount) / (thumbWidth + thumbMargin); // 12 of 16 columns
+  const scaleValueHeight = (((contentHeight * 1.0 * generalScale) -
+    (marginHeight * 4) - headerHeight) / rowCount) /
+    ((thumbWidth * (height / width)) + thumbMargin);
+  const scaleValueWidth = (((contentWidth * 0.75 * generalScale) -
+    (marginWidth * 4) - headerHeight) / columnCount) /
+    (thumbWidth + thumbMargin); // 12 of 16 columns
   const scaleValue = Math.min(scaleValueHeight, scaleValueWidth);
   const newthumbWidth = thumbWidth * scaleValue;
   const newThumbHeight = thumbWidth * (height / width) * scaleValue;
@@ -43,6 +48,14 @@ const ThumbGridPlaceholder = ({ thumbsAmount, width, height, columnCount, rowCou
         // zoom: scaleValue
       }}
     >
+      <div
+        className={styles.gridHeader}
+        style={{
+          height: headerHeight * scaleValue,
+          backgroundColor: 'black',
+          margin: (thumbMargin / 2) * scaleValue,
+        }}
+      />
       {Array.apply(null, Array(thumbsAmount)).map((val, i) => (
         <div >
           <div
@@ -61,39 +74,9 @@ const ThumbGridPlaceholder = ({ thumbsAmount, width, height, columnCount, rowCou
             width={`${thumbWidth}px`}
             height={`${(thumbWidth * (height / width))}px`}
           /> */}
-          {/* {i} */}
         </div>
       ))}
-      {/* {gridArray.map(color => (
-        <Grid.Column color={color} key={color}>
-          {color}
-        </Grid.Column>
-      ))} */}
     </div>
-    // <div
-    //   className={styles.grid}
-    //   style={{
-    //     width: columnWidth,
-    //   }}
-    //   id="ThumbGrid"
-    // >
-    //   <ThumbGridHeader
-    //     file={file}
-    //   />
-    //   { Array.apply(null, Array(thumbsAmount)).map((thumb, index) => {
-    //     // console.log(index);
-    //     return (
-    //       // <SortableThumb
-    //       <ThumbPlaceholder
-    //         index={index}
-    //         key={uuidV4()}
-    //         width={file.width}
-    //         height={file.height}
-    //       />
-    //     );
-    //   }
-    //   )}
-    // </div>
   );
 };
 

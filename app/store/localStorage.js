@@ -11,6 +11,7 @@ const initialStateJSON = {
       defaultColumnCount: 3,
       defaultThumbnailWidth: 270,
       defaultMargin: 8,
+      defaultHeaderHeight: 42,
     },
     thumbsByFileId: [],
     files: []

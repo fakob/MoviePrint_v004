@@ -3,11 +3,13 @@ import styles from './ThumbGrid.css';
 
 import movieprint from './../img/Thumb_MOVIEPRINT.png';
 
-const ThumbGridHeader = ({ file }) => {
-
+const ThumbGridHeader = ({ file, headerHeight }) => {
   return (
     <div
       className={styles.gridHeader}
+      style={{
+        height: headerHeight,
+      }}
     >
       <div
         className={styles.gridHeaderImage}
