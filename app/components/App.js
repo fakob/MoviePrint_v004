@@ -49,6 +49,7 @@ class App extends Component {
 
     this.showEditGrid = this.showEditGrid.bind(this);
     this.hideEditGrid = this.hideEditGrid.bind(this);
+    this.onShowThumbs = this.onShowThumbs.bind(this);
 
     this.updateContentWidthAndHeight = this.updateContentWidthAndHeight.bind(this);
   }
@@ -201,6 +202,15 @@ class App extends Component {
 
   hideEditGrid() {
     this.setState({ showEditGrid: false });
+  }
+
+  onShowThumbs() {
+    const { store } = this.context;
+    if (this.props.visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') {
+      store.dispatch(setVisibilityFilter('SHOW_ALL'));
+    } else {
+      store.dispatch(setVisibilityFilter('SHOW_VISIBLE'));
+    }
   }
 
   render() {
@@ -371,20 +381,21 @@ class App extends Component {
           className={`${styles.FixedActionMenu}`}
         >
           <Menu compact icon="labeled" vertical size="mini">
+
+            {this.state.showEditGrid === false &&
+              <Menu.Item name="hide" onClick={this.onShowThumbs}>
+                <Icon
+                  name={(this.props.visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') ? 'unhide' : 'hide'}
+                />
+                {(this.props.visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') ? 'Show' : 'Hide'}
+              </Menu.Item>
+            }
+
             <Menu.Item name="edit" onClick={this.showEditGrid}>
               <Icon name="edit" />
               Edit
             </Menu.Item>
 
-            <Menu.Item name="video camera" onClick={this.showEditGrid}>
-              <Icon name="video camera" />
-              Channels
-            </Menu.Item>
-
-            <Menu.Item name="video play" onClick={this.showEditGrid}>
-              <Icon name="video play" />
-              Videos
-            </Menu.Item>
           </Menu>
         </Sticky>
         <div id="dragbox" className={this.state.className}>
