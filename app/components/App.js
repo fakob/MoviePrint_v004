@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 // import keydown from 'react-keydown';
 // import domtoimage from 'dom-to-image';
-import { Sidebar, Rail, Sticky } from 'semantic-ui-react';
+import { Sidebar, Sticky, Menu, Icon } from 'semantic-ui-react';
 import Modal from 'react-modal';
 import '../app.global.css';
 import FileList from '../containers/FileList';
@@ -244,7 +244,6 @@ class App extends Component {
 
     return (
       <div>
-        <button onClick={this.showEditGrid}>Show edit grid</button>
         <Modal
           isOpen={this.state.modalIsOpen}
           onAfterOpen={this.afterOpenModal}
@@ -368,6 +367,26 @@ class App extends Component {
             <Footer />
           </div>
         </div>
+        <Sticky
+          className={`${styles.FixedActionMenu}`}
+        >
+          <Menu compact icon="labeled" vertical size="mini">
+            <Menu.Item name="edit" onClick={this.showEditGrid}>
+              <Icon name="edit" />
+              Edit
+            </Menu.Item>
+
+            <Menu.Item name="video camera" onClick={this.showEditGrid}>
+              <Icon name="video camera" />
+              Channels
+            </Menu.Item>
+
+            <Menu.Item name="video play" onClick={this.showEditGrid}>
+              <Icon name="video play" />
+              Videos
+            </Menu.Item>
+          </Menu>
+        </Sticky>
         <div id="dragbox" className={this.state.className}>
           Drop movie files
         </div>

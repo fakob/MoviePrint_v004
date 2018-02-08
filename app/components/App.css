@@ -107,3 +107,10 @@
   /* outline: none; */
   /* padding: 20px */
 }
+
+.FixedActionMenu {
+  position: fixed;
+  bottom: 48px;
+  right: 24px;
+  z-index: 990;
+}
