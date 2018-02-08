@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-
+import { Grid } from 'semantic-ui-react';
 import { arrayMove } from 'react-sortable-hoc';
 import { toggleThumb, updateOrder, removeThumb, updateObjectUrlsFromThumbList,
   changeThumb, addDefaultThumbs } from '../actions';
@@ -73,34 +73,53 @@ class SortedVisibleThumbGrid extends Component {
 
   render() {
     return (
-      <SortableThumbGrid
-        thumbs={this.props.thumbs}
-        thumbImages={this.props.thumbImages}
-        file={this.props.file}
-        settings={this.props.settings}
-        thumbWidth={this.props.settings.defaultThumbnailWidth}
-        onToggleClick={this.props.onToggleClick}
-        onRemoveClick={this.props.onRemoveClick}
-        onInPointClick={this.props.onInPointClick}
-        onOutPointClick={this.props.onOutPointClick}
-        onBackClick={this.props.onBackClick}
-        onForwardClick={this.props.onForwardClick}
-        onScrubClick={this.props.onScrubClick}
-        onMouseOverResult={(thumbId) => {
-          this.controlersVisible = thumbId;
-          this.forceUpdate();
+      <Grid
+        stretched
+        verticalAlign="middle"
+        padded="horizontally"
+        style={{
+          height: '100%',
+          // position: 'absolute'
         }}
-        onMouseOutResult={() => {
-          this.controlersVisible = 'false';
-        }}
-        onSortEnd={
-          this.onSortEnd.bind(this)
-        }
-        useDragHandle
-        axis="xy"
-        columnWidth={this.props.columnWidth}
-        controlersAreVisible={this.controlersVisible}
-      />
+      >
+        <Grid.Column
+          key="0"
+          width={16}
+          // className={styles.PaperLandscape}
+          style={{
+            // backgroundColor: 'gold',
+          }}
+        >
+          <SortableThumbGrid
+            thumbs={this.props.thumbs}
+            thumbImages={this.props.thumbImages}
+            file={this.props.file}
+            settings={this.props.settings}
+            thumbWidth={this.props.settings.defaultThumbnailWidth}
+            onToggleClick={this.props.onToggleClick}
+            onRemoveClick={this.props.onRemoveClick}
+            onInPointClick={this.props.onInPointClick}
+            onOutPointClick={this.props.onOutPointClick}
+            onBackClick={this.props.onBackClick}
+            onForwardClick={this.props.onForwardClick}
+            onScrubClick={this.props.onScrubClick}
+            onMouseOverResult={(thumbId) => {
+              this.controlersVisible = thumbId;
+              this.forceUpdate();
+            }}
+            onMouseOutResult={() => {
+              this.controlersVisible = 'false';
+            }}
+            onSortEnd={
+              this.onSortEnd.bind(this)
+            }
+            useDragHandle
+            axis="xy"
+            columnWidth={this.props.columnWidth}
+            controlersAreVisible={this.controlersVisible}
+          />
+      </Grid.Column>
+    </Grid>
     );
   }
 }

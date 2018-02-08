@@ -50,6 +50,7 @@ class App extends Component {
     this.showEditGrid = this.showEditGrid.bind(this);
     this.hideEditGrid = this.hideEditGrid.bind(this);
     this.onShowThumbs = this.onShowThumbs.bind(this);
+    this.onSaveMoviePrint = this.onSaveMoviePrint.bind(this);
 
     this.updateContentWidthAndHeight = this.updateContentWidthAndHeight.bind(this);
   }
@@ -213,6 +214,10 @@ class App extends Component {
     }
   }
 
+  onSaveMoviePrint() {
+    saveMoviePrint(this.props.file);
+  }
+
   render() {
     const { store } = this.context;
     const state = store.getState();
@@ -247,7 +252,9 @@ class App extends Component {
         <SortedVisibleThumbGrid
           columnWidth={this.props.defaultColumnCount
             * thumbnailWidthPlusMargin}
-          parentMethod={this.openModal}
+            contentHeight={this.state.contentHeight}
+            contentWidth={this.state.contentWidth}
+            parentMethod={this.openModal}
         />
       );
     }
@@ -277,64 +284,7 @@ class App extends Component {
         </Modal>
         <div className={`${styles.Site}`}>
           <div className={`${styles.SiteHeader}`}>
-            {/* <Header
-              currentFileId={this.props.currentFileId}
-              file={this.props.file}
-              settings={this.props.settings}
-              visibilitySettings={this.props.visibilitySettings}
-              onShowThumbsClick={() => {
-                if (this.props.visibilityFilter === 'SHOW_VISIBLE') {
-                  store.dispatch(setVisibilityFilter('SHOW_ALL'));
-                } else {
-                  store.dispatch(setVisibilityFilter('SHOW_VISIBLE'));
-                }
-              }}
-              onPrintClick={() => {
-                saveMoviePrint(this.props.file);
-              }}
-              onStartSliding={() => {
-                if (!this.state.isManipulatingSliderInHeader) {
-                  console.log('started sliding');
-                  this.setState({ isManipulatingSliderInHeader: true });
-                }
-              }}
-              onRowSliding={(value) => {
-                console.log(value);
-                this.setState({ thumbsAmount:
-                  (value * this.props.defaultColumnCount)
-                });
-              }}
-              onColumnSliding={(value) => {
-                console.log(value);
-                this.setState({ thumbsAmount:
-                  (this.props.defaultRowCount * value)
-                });
-                this.setState({ tempColumnCount: value });
-              }}
-              onRowChange={(value) => {
-                store.dispatch(setDefaultRowCount(value));
-                if (this.props.currentFileId !== undefined) {
-                  store.dispatch(addDefaultThumbs(
-                    this.props.file,
-                    value *
-                    this.props.defaultColumnCount
-                  ));
-                }
-              }}
-              onColumnChange={(value) => {
-                store.dispatch(setDefaultColumnCount(value));
-                if (this.props.currentFileId !== undefined) {
-                  store.dispatch(addDefaultThumbs(
-                    this.props.file,
-                    this.props.defaultRowCount *
-                    value
-                  ));
-                }
-              }}
-              onAfterChange={() => {
-                this.setState({ isManipulatingSliderInHeader: false });
-              }}
-            /> */}
+
           </div>
           <div
             className={`${styles.SiteContent}`}
@@ -391,9 +341,20 @@ class App extends Component {
               </Menu.Item>
             }
 
-            <Menu.Item name="edit" onClick={this.showEditGrid}>
-              <Icon name="edit" />
-              Edit
+            {this.state.showEditGrid === false &&
+              <Menu.Item name="save" onClick={this.onSaveMoviePrint}>
+                <Icon
+                  name="save"
+                />
+                Save
+              </Menu.Item>
+            }
+
+            <Menu.Item name="edit" onClick={(this.state.showEditGrid === false) ? this.showEditGrid : this.hideEditGrid}>
+              <Icon
+                name={(this.state.showEditGrid === false) ? 'edit' : 'cancel'}
+              />
+              {(this.state.showEditGrid === false) ? 'Edit' : 'Cancel'}
             </Menu.Item>
 
           </Menu>
