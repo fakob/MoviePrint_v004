@@ -1,47 +1,62 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Grid } from 'semantic-ui-react';
+import Slider, { Range } from 'rc-slider';
+import Tooltip from 'rc-tooltip';
+import { Button, Grid, Segment, Container, Statistic, Divider } from 'semantic-ui-react';
 import { arrayMove } from 'react-sortable-hoc';
 import { toggleThumb, updateOrder, removeThumb, updateObjectUrlsFromThumbList,
   changeThumb, addDefaultThumbs } from '../actions';
 import SortableThumbGrid from '../components/ThumbGrid';
+import ThumbGridPlaceholder from '../components/ThumbGridPlaceholder';
+import styles from '../components/Settings.css';
+import { getLowestFrame, getHighestFrame, getChangeThumbStep, getVisibleThumbs } from '../utils/utils';
 
-function getLowestFrame(thumbs) {
-  return thumbs.reduce(
-    (min, p) => (p.frameNumber < min ? p.frameNumber : min),
-    thumbs[0].frameNumber
+// const createSliderWithTooltip = Slider.createSliderWithTooltip;
+// const Range = createSliderWithTooltip(Slider.Range);
+const Handle = Slider.Handle;
+
+let isManipulatingSlider = false;
+
+const handle = (props) => {
+  const { value, dragging, index, ...restProps } = props;
+  return (
+    <Tooltip
+      prefixCls="rc-slider-tooltip"
+      overlay={value}
+      visible={dragging}
+      placement="top"
+      key={index}
+    >
+      <Handle value={value} {...restProps} />
+    </Tooltip>
   );
-}
-function getHighestFrame(thumbs) {
-  return thumbs.reduce(
-    (max, p) => (p.frameNumber > max ? p.frameNumber : max),
-    thumbs[0].frameNumber
-  );
-}
-
-function getChangeThumbStep(index) {
-  const changeThumbStep = [1, 10, 100];
-  return changeThumbStep[index];
-}
-
-const getVisibleThumbs = (thumbs, filter) => {
-  if (thumbs === undefined) {
-    return thumbs;
-  }
-  switch (filter) {
-    case 'SHOW_ALL':
-      return thumbs;
-    case 'SHOW_HIDDEN':
-      return thumbs.filter(t => t.hidden);
-    case 'SHOW_VISIBLE':
-      return thumbs.filter(t => !t.hidden);
-    default:
-      return thumbs;
-  }
 };
 
 class SortedVisibleThumbGrid extends Component {
+  constructor() {
+    super();
+
+    this.state = {
+      columnCount: undefined,
+      rowCount: undefined,
+    };
+
+    this.onChangeRow = this.onChangeRow.bind(this);
+    this.onChangeColumn = this.onChangeColumn.bind(this);
+    this.onApplyClick = this.onApplyClick.bind(this);
+    this.onCancelClick = this.onCancelClick.bind(this);
+  }
+
+  componentWillMount() {
+    const { store } = this.context;
+
+    this.setState({
+      columnCount: store.getState().undoGroup.present.settings.defaultColumnCount,
+      rowCount: store.getState().undoGroup.present.settings.defaultRowCount,
+    });
+  }
+
   componentDidMount() {
     console.log(this.props);
     const { store } = this.context;
@@ -71,7 +86,27 @@ class SortedVisibleThumbGrid extends Component {
       .undoGroup.present.settings.currentFileId, newOrderedThumbs));
   };
 
+  onChangeRow = (value) => {
+    this.setState({ rowCount: value });
+  };
+
+  onChangeColumn = (value) => {
+    this.setState({ columnCount: value });
+  };
+
+  onApplyClick = () => {
+    this.props.onThumbCountChange(this.state.columnCount, this.state.rowCount);
+    this.props.hideEditGrid();
+  };
+
+  onCancelClick = () => {
+    this.props.hideEditGrid();
+  };
+
   render() {
+    console.log(this.props.showEditGrid);
+    console.log(this.props.showPlaceholder);
+
     return (
       <Grid
         stretched
@@ -82,44 +117,137 @@ class SortedVisibleThumbGrid extends Component {
           // position: 'absolute'
         }}
       >
+        {(this.props.showEditGrid === false && this.props.showPlaceholder === false) &&
+          <Grid.Column
+            key="0"
+            width={16}
+            // className={styles.PaperLandscape}
+            style={{
+              // backgroundColor: 'gold',
+            }}
+          >
+            <SortableThumbGrid
+              thumbs={this.props.thumbs}
+              thumbImages={this.props.thumbImages}
+              file={this.props.file}
+              settings={this.props.settings}
+              thumbWidth={this.props.settings.defaultThumbnailWidth}
+              onToggleClick={this.props.onToggleClick}
+              onRemoveClick={this.props.onRemoveClick}
+              onInPointClick={this.props.onInPointClick}
+              onOutPointClick={this.props.onOutPointClick}
+              onBackClick={this.props.onBackClick}
+              onForwardClick={this.props.onForwardClick}
+              onScrubClick={this.props.onScrubClick}
+              onMouseOverResult={(thumbId) => {
+                this.controlersVisible = thumbId;
+                this.forceUpdate();
+              }}
+              onMouseOutResult={() => {
+                this.controlersVisible = 'false';
+              }}
+              onSortEnd={
+                this.onSortEnd.bind(this)
+              }
+              useDragHandle
+              axis="xy"
+              columnWidth={this.props.columnWidth}
+              controlersAreVisible={this.controlersVisible}
+            />
+          </Grid.Column>}
+        {(this.props.showEditGrid === true || this.props.showPlaceholder === true) &&
+          <Grid><Grid.Column key="1" width={4}>
+          <Container>
+            <Segment raised>
+              <Segment.Group>
+                <Segment>
+                  <Statistic horizontal>
+                    <Statistic.Value>{this.state.rowCount}</Statistic.Value>
+                    <Statistic.Label>{(this.state.rowCount === 1) ? 'Row' : 'Rows'}</Statistic.Label>
+                  </Statistic>
+                  <Slider
+                    className={styles.slider}
+                    min={1}
+                    max={20}
+                    defaultValue={this.state.rowCount}
+                    marks={{
+                      1: '1',
+                      20: '20',
+                    }}
+                    handle={handle}
+                    onChange={this.onChangeRow}
+                    onAfterChange={this.onAfterChangeRow}
+                  />
+                </Segment>
+                <Segment>
+                  <Statistic horizontal>
+                    <Statistic.Value>{this.state.columnCount}</Statistic.Value>
+                    <Statistic.Label>{(this.state.columnCount === 1) ? 'Column' : 'Columns'}</Statistic.Label>
+                  </Statistic>
+                  <Slider
+                    className={styles.slider}
+                    min={1}
+                    max={20}
+                    defaultValue={this.state.columnCount}
+                    marks={{
+                      1: '1',
+                      20: '20',
+                    }}
+                    handle={handle}
+                    onChange={this.onChangeColumn}
+                    onAfterChange={this.onAfterChangeColumn}
+                  />
+                </Segment>
+              </Segment.Group>
+              <Segment padded>
+                <Button
+                  fluid
+                  color="pink"
+                  onClick={this.onApplyClick}
+                >
+                  Apply
+                </Button>
+                <Divider horizontal>Or</Divider>
+                <Button
+                  compact
+                  size="mini"
+                  onClick={this.onCancelClick}
+                >
+                  Cancel
+                </Button>
+              </Segment>
+            </Segment>
+          </Container>
+        </Grid.Column>
         <Grid.Column
-          key="0"
-          width={16}
-          // className={styles.PaperLandscape}
+          key="2"
+          width={12}
+          className={styles.PaperLandscape}
           style={{
             // backgroundColor: 'gold',
           }}
         >
-          <SortableThumbGrid
-            thumbs={this.props.thumbs}
-            thumbImages={this.props.thumbImages}
-            file={this.props.file}
-            settings={this.props.settings}
-            thumbWidth={this.props.settings.defaultThumbnailWidth}
-            onToggleClick={this.props.onToggleClick}
-            onRemoveClick={this.props.onRemoveClick}
-            onInPointClick={this.props.onInPointClick}
-            onOutPointClick={this.props.onOutPointClick}
-            onBackClick={this.props.onBackClick}
-            onForwardClick={this.props.onForwardClick}
-            onScrubClick={this.props.onScrubClick}
-            onMouseOverResult={(thumbId) => {
-              this.controlersVisible = thumbId;
-              this.forceUpdate();
-            }}
-            onMouseOutResult={() => {
-              this.controlersVisible = 'false';
-            }}
-            onSortEnd={
-              this.onSortEnd.bind(this)
-            }
-            useDragHandle
-            axis="xy"
-            columnWidth={this.props.columnWidth}
-            controlersAreVisible={this.controlersVisible}
-          />
-      </Grid.Column>
-    </Grid>
+          {/* <Segment raised> */}
+            <ThumbGridPlaceholder
+              thumbsAmount={(this.state.columnCount * this.state.rowCount)}
+              settings={this.props.settings}
+              width={this.props.file ? (this.props.file.width || 1920) : 1920}
+              height={this.props.file ? (this.props.file.height || 1080) : 1080}
+              axis={'xy'}
+              columnCount={this.state.columnCount}
+              rowCount={this.state.rowCount}
+              columnWidth={this.state.columnCount * (this.props.settings.defaultThumbnailWidth + this.props.settings.defaultMargin)}
+              contentHeight={this.props.contentHeight || 360}
+              contentWidth={this.props.contentWidth || 640}
+              thumbWidth={this.props.settings.defaultThumbnailWidth}
+              thumbMargin={this.props.settings.defaultMargin}
+              // columnWidth={(this.state.tempColumnCount === undefined) ?
+              //   settings.defaultColumnCount * thumbnailWidthPlusMargin :
+              //   this.state.tempColumnCount * thumbnailWidthPlusMargin}
+            />
+          {/* </Segment> */}
+        </Grid.Column></Grid>}
+      </Grid>
     );
   }
 }

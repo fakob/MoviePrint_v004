@@ -87,3 +87,39 @@ export const saveMoviePrint = (file) => {
     console.log('done');
   });
 };
+
+
+export const getLowestFrame = (thumbs) => {
+  return thumbs.reduce(
+    (min, p) => (p.frameNumber < min ? p.frameNumber : min),
+    thumbs[0].frameNumber
+  );
+};
+
+export const getHighestFrame = (thumbs) => {
+  return thumbs.reduce(
+    (max, p) => (p.frameNumber > max ? p.frameNumber : max),
+    thumbs[0].frameNumber
+  );
+};
+
+export const getChangeThumbStep = (index) => {
+  const changeThumbStep = [1, 10, 100];
+  return changeThumbStep[index];
+};
+
+export const getVisibleThumbs = (thumbs, filter) => {
+  if (thumbs === undefined) {
+    return thumbs;
+  }
+  switch (filter) {
+    case 'SHOW_ALL':
+      return thumbs;
+    case 'SHOW_HIDDEN':
+      return thumbs.filter(t => t.hidden);
+    case 'SHOW_VISIBLE':
+      return thumbs.filter(t => !t.hidden);
+    default:
+      return thumbs;
+  }
+};

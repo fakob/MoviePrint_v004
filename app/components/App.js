@@ -222,43 +222,6 @@ class App extends Component {
     const { store } = this.context;
     const state = store.getState();
 
-    let visibleThumbGridComponent = null;
-
-    if (this.state.showEditGrid || this.state.showPlaceholder) {
-      visibleThumbGridComponent = (
-        <EditGrid
-          file={this.props.file}
-          settings={this.props.settings}
-          thumbnailWidthPlusMargin={thumbnailWidthPlusMargin || 278}
-          hideEditGrid={this.hideEditGrid}
-          contentHeight={this.state.contentHeight}
-          contentWidth={this.state.contentWidth}
-          thumbWidth={state.undoGroup.present.settings.defaultThumbnailWidth}
-          thumbMargin={state.undoGroup.present.settings.defaultMargin}
-          onThumbCountChange={(columnCount, rowCount) => {
-            store.dispatch(setDefaultColumnCount(columnCount));
-            store.dispatch(setDefaultRowCount(rowCount));
-            if (this.props.currentFileId !== undefined) {
-              store.dispatch(addDefaultThumbs(
-                this.props.file,
-                columnCount * rowCount
-              ));
-            }
-          }}
-        />
-      );
-    } else {
-      visibleThumbGridComponent = (
-        <SortedVisibleThumbGrid
-          columnWidth={this.props.defaultColumnCount
-            * thumbnailWidthPlusMargin}
-            contentHeight={this.state.contentHeight}
-            contentWidth={this.state.contentWidth}
-            parentMethod={this.openModal}
-        />
-      );
-    }
-
     return (
       <div>
         <Modal
@@ -297,7 +260,7 @@ class App extends Component {
               <Sidebar
                 className={`${styles.ItemLeftSideBar}`}
                 // as={Menu}
-                animation="overlay"
+                animation="scale down"
                 width="wide"
                 visible={state.visibilitySettings.showLeftSidebar}
                 icon="labeled"
@@ -307,13 +270,39 @@ class App extends Component {
               </Sidebar>
               <Sidebar.Pusher>
                 <div className={`${styles.ItemMain}`}>
-                  {visibleThumbGridComponent}
+                  <SortedVisibleThumbGrid
+                    showEditGrid={this.state.showEditGrid}
+                    showPlaceholder={this.state.showPlaceholder}
+
+                    columnWidth={this.props.defaultColumnCount
+                      * thumbnailWidthPlusMargin}
+                    contentHeight={this.state.contentHeight}
+                    contentWidth={this.state.contentWidth}
+                    parentMethod={this.openModal}
+
+                    // file={this.props.file}
+                    // settings={this.props.settings}
+                    // thumbnailWidthPlusMargin={thumbnailWidthPlusMargin || 278}
+                    // thumbWidth={state.undoGroup.present.settings.defaultThumbnailWidth}
+                    // thumbMargin={state.undoGroup.present.settings.defaultMargin}
+                    hideEditGrid={this.hideEditGrid}
+                    onThumbCountChange={(columnCount, rowCount) => {
+                      store.dispatch(setDefaultColumnCount(columnCount));
+                      store.dispatch(setDefaultRowCount(rowCount));
+                      if (this.props.currentFileId !== undefined) {
+                        store.dispatch(addDefaultThumbs(
+                          this.props.file,
+                          columnCount * rowCount
+                        ));
+                      }
+                    }}
+                  />
                 </div>
               </Sidebar.Pusher>
               <Sidebar
                 // as={Menu}
                 direction="right"
-                animation="push"
+                animation="scale down"
                 width="wide"
                 visible={state.visibilitySettings.showRightSidebar}
                 icon="labeled"
