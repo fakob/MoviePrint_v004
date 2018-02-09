@@ -36,8 +36,12 @@ const ThumbGrid = ({
     (marginWidth * 4) - headerHeight) / columnCount) /
     (thumbWidth + thumbMargin); // 12 of 16 columns
   const scaleValue = Math.min(scaleValueHeight, scaleValueWidth);
-  const newthumbWidth = thumbWidth * scaleValue;
-  const newThumbHeight = thumbWidth * (height / width) * scaleValue;
+  // const newThumbMargin = (thumbMargin / 2) * scaleValue;
+  // const newthumbWidth = (thumbWidth * scaleValue) - (newThumbMargin * 2);
+  // const newThumbHeight = (thumbWidth * (height / width) * scaleValue) - (newThumbMargin * 2);
+  const newThumbMargin = Math.floor((thumbMargin / 2) * scaleValue);
+  const newthumbWidth = Math.floor((thumbWidth * scaleValue) - (newThumbMargin * 2));
+  const newThumbHeight = Math.floor((thumbWidth * (height / width) * scaleValue) - (newThumbMargin * 2));
   // console.log(contentHeight);
   // console.log(contentWidth);
   // console.log(rowCount);
@@ -57,7 +61,7 @@ const ThumbGrid = ({
         style={{
           height: headerHeight * scaleValue,
           backgroundColor: 'black',
-          margin: (thumbMargin / 2) * scaleValue,
+          margin: newThumbMargin,
         }}
       />
     );
@@ -79,24 +83,25 @@ const ThumbGrid = ({
           const mappedIterator = mapRange(i, 0, thumbsAmount - 1, 0, thumbImageArrayLength - 1);
           thumbImageObjectUrl = (thumbImageArrayLength !== undefined ?
             thumbImages[thumbs[mappedIterator].id].objectUrl : undefined);
-          console.log(mappedIterator);
         }
-        console.log(thumbImages);
 
         return (
-          <div >
-            <div
-              className={styles.gridItem}
-              style={{
-                // width: newthumbWidth,
-                // height: newThumbHeight,
-                // backgroundColor: 'black',
-                margin: (thumbMargin / 2) * scaleValue,
-              }}
-            />
+          <div
+            className={styles.gridItem}
+            style={{
+              // width: newthumbWidth,
+              // height: newThumbHeight,
+              // backgroundColor: 'black',
+              margin: newThumbMargin,
+            }}
+          >
             <img
               src={thumbImageObjectUrl || empty}
-              className={styles.image}
+              style={{
+                float: 'left',
+                borderRadius: 8 * scaleValue,
+                margin: newThumbMargin,
+              }}
               alt=""
               width={newthumbWidth}
               height={newThumbHeight}
