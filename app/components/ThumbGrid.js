@@ -17,41 +17,118 @@ const ThumbGrid = ({
   controlersAreVisible,
   onToggleClick, onRemoveClick, onInPointClick, onOutPointClick,
   onBackClick, onForwardClick, onScrubClick,
-  onMouseOverResult, onMouseOutResult, thumbWidth, settings
-}) => (
-  <div
-    className={styles.grid}
-    style={{
-      width: columnWidth,
-    }}
-    id="ThumbGrid"
-  >
-    <ThumbGridHeader
-      file={file}
-      headerHeight={settings.defaultHeaderHeight}
-    />
-    {thumbs.map(thumb => (
-      <SortableThumb
-        key={thumb.id}
-        indexValue={thumb.index}
-        thumbImageObjectUrl={thumbImages !== undefined ? thumbImages[thumb.id] !== undefined ? thumbImages[thumb.id].objectUrl : undefined : undefined}
-        width={file.width || 1920}
-        height={file.height || 1080}
-        thumbWidth={thumbWidth}
-        controlersAreVisible={(thumb.id === controlersAreVisible)}
-        {...thumb}
-        onToggle={() => onToggleClick(file.id, thumb.id)}
-        onRemove={() => onRemoveClick(file.id, thumb.id)}
-        onInPoint={() => onInPointClick(file, thumbs, thumb.id, thumb.frameNumber)}
-        onOutPoint={() => onOutPointClick(file, thumbs, thumb.id, thumb.frameNumber)}
-        onBack={() => onBackClick(file, thumb.id, thumb.frameNumber)}
-        onForward={() => onForwardClick(file, thumb.id, thumb.frameNumber)}
-        onScrub={() => onScrubClick(file, thumb.id, thumb.frameNumber)}
-        onOver={() => onMouseOverResult(thumb.id)}
-        onOut={() => onMouseOutResult()}
-      />))}
-  </div>
-);
+  onMouseOverResult, onMouseOutResult, settings, showEditGrid, showPlaceholder,
+  columnCount, rowCount, width, height, contentHeight, contentWidth
+}) => {
+  const thumbsAmount = columnCount * rowCount;
+  const headerHeight = settings.defaultHeaderHeight;
+  const thumbWidth = settings.defaultThumbnailWidth;
+  const thumbMargin = settings.defaultMargin;
+  const generalScale = 0.9;
+  const marginWidth = 14;
+  const marginHeight = 14;
+  const scaleValueHeight = (((contentHeight * 1.0 * generalScale) -
+    (marginHeight * 4) - headerHeight) / rowCount) /
+    ((thumbWidth * (height / width)) + thumbMargin);
+  const scaleValueWidth = (((contentWidth * 0.75 * generalScale) -
+    (marginWidth * 4) - headerHeight) / columnCount) /
+    (thumbWidth + thumbMargin); // 12 of 16 columns
+  const scaleValue = Math.min(scaleValueHeight, scaleValueWidth);
+  const newthumbWidth = thumbWidth * scaleValue;
+  const newThumbHeight = thumbWidth * (height / width) * scaleValue;
+  console.log(contentHeight);
+  console.log(contentWidth);
+  console.log(rowCount);
+  console.log(height);
+  console.log(columnWidth);
+  console.log(columnCount);
+  console.log(width);
+  console.log(scaleValue);
+
+  let thumbGridHeaderComponent = null;
+  let thumbGridComponent = null;
+
+  if (showEditGrid === true) {
+    thumbGridHeaderComponent = (
+      <div
+        className={styles.gridHeader}
+        style={{
+          height: headerHeight * scaleValue,
+          backgroundColor: 'black',
+          margin: (thumbMargin / 2) * scaleValue,
+        }}
+      />
+    );
+  } else {
+    thumbGridHeaderComponent = (
+      <ThumbGridHeader
+        file={file}
+        headerHeight={settings.defaultHeaderHeight}
+      />
+    );
+  }
+
+  if (showEditGrid === true) {
+    thumbGridComponent = (
+      Array.apply(null, Array(thumbsAmount)).map((val, i) => (
+        <div >
+          <div
+            className={styles.gridItem}
+            style={{
+              width: newthumbWidth,
+              height: newThumbHeight,
+              backgroundColor: 'black',
+              margin: (thumbMargin / 2) * scaleValue,
+            }}
+          />
+          {/* <img
+            src={empty}
+            // className={styles.image}
+            alt=""
+            width={`${thumbWidth}px`}
+            height={`${(thumbWidth * (height / width))}px`}
+          /> */}
+        </div>
+      ))
+    );
+  } else {
+    thumbGridComponent = (
+      thumbs.map(thumb => (
+        <SortableThumb
+          key={thumb.id}
+          indexValue={thumb.index}
+          thumbImageObjectUrl={thumbImages !== undefined ? thumbImages[thumb.id] !== undefined ? thumbImages[thumb.id].objectUrl : undefined : undefined}
+          width={file.width || 1920}
+          height={file.height || 1080}
+          thumbWidth={thumbWidth}
+          controlersAreVisible={(thumb.id === controlersAreVisible)}
+          {...thumb}
+          onToggle={() => onToggleClick(file.id, thumb.id)}
+          onRemove={() => onRemoveClick(file.id, thumb.id)}
+          onInPoint={() => onInPointClick(file, thumbs, thumb.id, thumb.frameNumber)}
+          onOutPoint={() => onOutPointClick(file, thumbs, thumb.id, thumb.frameNumber)}
+          onBack={() => onBackClick(file, thumb.id, thumb.frameNumber)}
+          onForward={() => onForwardClick(file, thumb.id, thumb.frameNumber)}
+          onScrub={() => onScrubClick(file, thumb.id, thumb.frameNumber)}
+          onOver={() => onMouseOverResult(thumb.id)}
+          onOut={() => onMouseOutResult()}
+        />))
+    );
+  }
+
+  return (
+    <div
+      className={styles.grid}
+      style={{
+        width: showEditGrid ? columnWidth * scaleValue : columnWidth,
+      }}
+      id="ThumbGrid"
+    >
+      {thumbGridHeaderComponent}
+      {thumbGridComponent}
+    </div>
+  )
+};
 
 ThumbGrid.defaultProps = {
   controlersAreVisible: 'false'
