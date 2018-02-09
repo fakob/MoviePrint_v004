@@ -175,6 +175,8 @@ class SortedVisibleThumbGrid extends Component {
         </Segment>
       </Container>);
 
+      console.log(this.props.showEditGrid);
+
     return (
       <Grid
         stretched
@@ -185,56 +187,60 @@ class SortedVisibleThumbGrid extends Component {
           // position: 'absolute'
         }}
       >
-        {(this.props.showEditGrid === false && this.props.showPlaceholder === false) &&
-          <Grid.Column
-            key="0"
-            width={16}
-            // className={styles.PaperLandscape}
-            style={{
-              // backgroundColor: 'gold',
+        {(this.props.showEditGrid === true) &&
+          <Grid.Column key="1" width={4}>
+            {settingsComponent}
+          </Grid.Column>
+        }
+        <Grid.Column
+          key="2"
+          width={this.props.showEditGrid ? 12 : 16}
+          className={this.props.showEditGrid ? styles.PaperLandscape : undefined}
+          style={{
+            // backgroundColor: 'gold',
+          }}
+        >
+          <SortableThumbGrid
+            showEditGrid={this.props.showEditGrid}
+            showPlaceholder={this.props.showPlaceholder}
+            thumbs={this.props.thumbs}
+            thumbImages={this.props.thumbImages}
+            file={this.props.file}
+            settings={this.props.settings}
+            // thumbWidth={this.props.settings.defaultThumbnailWidth}
+            onToggleClick={this.props.onToggleClick}
+            onRemoveClick={this.props.onRemoveClick}
+            onInPointClick={this.props.onInPointClick}
+            onOutPointClick={this.props.onOutPointClick}
+            onBackClick={this.props.onBackClick}
+            onForwardClick={this.props.onForwardClick}
+            onScrubClick={this.props.onScrubClick}
+            onMouseOverResult={(thumbId) => {
+              this.controlersVisible = thumbId;
+              this.forceUpdate();
             }}
-          >
-            <SortableThumbGrid
-              showEditGrid={this.props.showEditGrid}
-              showPlaceholder={this.props.showPlaceholder}
-              thumbs={this.props.thumbs}
-              thumbImages={this.props.thumbImages}
-              file={this.props.file}
-              settings={this.props.settings}
-              // thumbWidth={this.props.settings.defaultThumbnailWidth}
-              onToggleClick={this.props.onToggleClick}
-              onRemoveClick={this.props.onRemoveClick}
-              onInPointClick={this.props.onInPointClick}
-              onOutPointClick={this.props.onOutPointClick}
-              onBackClick={this.props.onBackClick}
-              onForwardClick={this.props.onForwardClick}
-              onScrubClick={this.props.onScrubClick}
-              onMouseOverResult={(thumbId) => {
-                this.controlersVisible = thumbId;
-                this.forceUpdate();
-              }}
-              onMouseOutResult={() => {
-                this.controlersVisible = 'false';
-              }}
-              onSortEnd={
-                this.onSortEnd.bind(this)
-              }
-              useDragHandle
-              axis="xy"
-              // columnWidth={this.props.columnWidth}
-              controlersAreVisible={this.controlersVisible}
+            onMouseOutResult={() => {
+              this.controlersVisible = 'false';
+            }}
+            onSortEnd={
+              this.onSortEnd.bind(this)
+            }
+            useDragHandle
+            axis="xy"
+            // columnWidth={this.props.columnWidth}
+            controlersAreVisible={this.controlersVisible}
 
-              width={this.props.file ? (this.props.file.width || 1920) : 1920}
-              height={this.props.file ? (this.props.file.height || 1080) : 1080}
-              columnCount={this.state.columnCount}
-              rowCount={this.state.rowCount}
-              columnWidth={this.state.columnCount *
-                (this.props.settings.defaultThumbnailWidth + this.props.settings.defaultMargin)}
-              contentHeight={this.props.contentHeight || 360}
-              contentWidth={this.props.contentWidth || 640}
-            />
-          </Grid.Column>}
-        {(this.props.showEditGrid === true || this.props.showPlaceholder === true) &&
+            width={this.props.file ? (this.props.file.width || 1920) : 1920}
+            height={this.props.file ? (this.props.file.height || 1080) : 1080}
+            columnCount={this.state.columnCountTemp}
+            rowCount={this.state.rowCountTemp}
+            columnWidth={this.state.columnCountTemp *
+              (this.props.settings.defaultThumbnailWidth + this.props.settings.defaultMargin)}
+            contentHeight={this.props.contentHeight || 360}
+            contentWidth={this.props.contentWidth || 640}
+          />
+        </Grid.Column>
+        {/* {(this.props.showEditGrid === true || this.props.showPlaceholder === true) &&
           <Grid>
             <Grid.Column key="1" width={4}>
               {settingsComponent}
@@ -261,7 +267,7 @@ class SortedVisibleThumbGrid extends Component {
                 contentWidth={this.props.contentWidth || 640}
               />
             </Grid.Column>
-          </Grid>}
+          </Grid>} */}
       </Grid>
     );
   }
