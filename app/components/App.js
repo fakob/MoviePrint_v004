@@ -12,7 +12,6 @@ import SortedVisibleThumbGrid from '../containers/VisibleThumbGrid';
 import VideoPlayer from '../components/VideoPlayer';
 import { saveMoviePrint } from '../utils/utils';
 import Footer from './Footer';
-import EditGrid from './EditGrid';
 import Header from './Header';
 import styles from './App.css';
 

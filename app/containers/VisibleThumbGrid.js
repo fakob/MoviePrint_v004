@@ -38,6 +38,8 @@ class SortedVisibleThumbGrid extends Component {
     super();
 
     this.state = {
+      columnCountTemp: undefined,
+      rowCountTemp: undefined,
       columnCount: undefined,
       rowCount: undefined,
     };
@@ -52,6 +54,8 @@ class SortedVisibleThumbGrid extends Component {
     const { store } = this.context;
 
     this.setState({
+      columnCountTemp: store.getState().undoGroup.present.settings.defaultColumnCount,
+      rowCountTemp: store.getState().undoGroup.present.settings.defaultRowCount,
       columnCount: store.getState().undoGroup.present.settings.defaultColumnCount,
       rowCount: store.getState().undoGroup.present.settings.defaultRowCount,
     });
@@ -87,25 +91,89 @@ class SortedVisibleThumbGrid extends Component {
   };
 
   onChangeRow = (value) => {
-    this.setState({ rowCount: value });
+    this.setState({ rowCountTemp: value });
   };
 
   onChangeColumn = (value) => {
-    this.setState({ columnCount: value });
+    this.setState({ columnCountTemp: value });
   };
 
   onApplyClick = () => {
-    this.props.onThumbCountChange(this.state.columnCount, this.state.rowCount);
+    this.setState({ rowCount: this.state.rowCountTemp });
+    this.setState({ columnCount: this.state.columnCountTemp });
+    this.props.onThumbCountChange(this.state.columnCountTemp, this.state.rowCountTemp);
     this.props.hideEditGrid();
   };
 
   onCancelClick = () => {
+    this.setState({ rowCountTemp: this.state.rowCount });
+    this.setState({ columnCountTemp: this.state.columnCount });
     this.props.hideEditGrid();
   };
 
   render() {
-    console.log(this.props.showEditGrid);
-    console.log(this.props.showPlaceholder);
+    const settingsComponent = (
+      <Container>
+        <Segment raised>
+          <Segment.Group>
+            <Segment>
+              <Statistic horizontal>
+                <Statistic.Value>{this.state.rowCountTemp}</Statistic.Value>
+                <Statistic.Label>{(this.state.rowCountTemp === 1) ? 'Row' : 'Rows'}</Statistic.Label>
+              </Statistic>
+              <Slider
+                className={styles.slider}
+                min={1}
+                max={20}
+                defaultValue={this.state.rowCountTemp}
+                marks={{
+                  1: '1',
+                  20: '20',
+                }}
+                handle={handle}
+                onChange={this.onChangeRow}
+                onAfterChange={this.onAfterChangeRow}
+              />
+            </Segment>
+            <Segment>
+              <Statistic horizontal>
+                <Statistic.Value>{this.state.columnCountTemp}</Statistic.Value>
+                <Statistic.Label>{(this.state.columnCountTemp === 1) ? 'Column' : 'Columns'}</Statistic.Label>
+              </Statistic>
+              <Slider
+                className={styles.slider}
+                min={1}
+                max={20}
+                defaultValue={this.state.columnCountTemp}
+                marks={{
+                  1: '1',
+                  20: '20',
+                }}
+                handle={handle}
+                onChange={this.onChangeColumn}
+                onAfterChange={this.onAfterChangeColumn}
+              />
+            </Segment>
+          </Segment.Group>
+          <Segment padded>
+            <Button
+              fluid
+              color="pink"
+              onClick={this.onApplyClick}
+            >
+              Apply
+            </Button>
+            <Divider horizontal>Or</Divider>
+            <Button
+              compact
+              size="mini"
+              onClick={this.onCancelClick}
+            >
+              Cancel
+            </Button>
+          </Segment>
+        </Segment>
+      </Container>);
 
     return (
       <Grid
@@ -151,102 +219,47 @@ class SortedVisibleThumbGrid extends Component {
               }
               useDragHandle
               axis="xy"
-              columnWidth={this.props.columnWidth}
+              // columnWidth={this.props.columnWidth}
               controlersAreVisible={this.controlersVisible}
+
+              width={this.props.file ? (this.props.file.width || 1920) : 1920}
+              height={this.props.file ? (this.props.file.height || 1080) : 1080}
+              columnCount={this.state.columnCount}
+              rowCount={this.state.rowCount}
+              columnWidth={this.state.columnCount *
+                (this.props.settings.defaultThumbnailWidth + this.props.settings.defaultMargin)}
+              contentHeight={this.props.contentHeight || 360}
+              contentWidth={this.props.contentWidth || 640}
             />
           </Grid.Column>}
         {(this.props.showEditGrid === true || this.props.showPlaceholder === true) &&
-          <Grid><Grid.Column key="1" width={4}>
-          <Container>
-            <Segment raised>
-              <Segment.Group>
-                <Segment>
-                  <Statistic horizontal>
-                    <Statistic.Value>{this.state.rowCount}</Statistic.Value>
-                    <Statistic.Label>{(this.state.rowCount === 1) ? 'Row' : 'Rows'}</Statistic.Label>
-                  </Statistic>
-                  <Slider
-                    className={styles.slider}
-                    min={1}
-                    max={20}
-                    defaultValue={this.state.rowCount}
-                    marks={{
-                      1: '1',
-                      20: '20',
-                    }}
-                    handle={handle}
-                    onChange={this.onChangeRow}
-                    onAfterChange={this.onAfterChangeRow}
-                  />
-                </Segment>
-                <Segment>
-                  <Statistic horizontal>
-                    <Statistic.Value>{this.state.columnCount}</Statistic.Value>
-                    <Statistic.Label>{(this.state.columnCount === 1) ? 'Column' : 'Columns'}</Statistic.Label>
-                  </Statistic>
-                  <Slider
-                    className={styles.slider}
-                    min={1}
-                    max={20}
-                    defaultValue={this.state.columnCount}
-                    marks={{
-                      1: '1',
-                      20: '20',
-                    }}
-                    handle={handle}
-                    onChange={this.onChangeColumn}
-                    onAfterChange={this.onAfterChangeColumn}
-                  />
-                </Segment>
-              </Segment.Group>
-              <Segment padded>
-                <Button
-                  fluid
-                  color="pink"
-                  onClick={this.onApplyClick}
-                >
-                  Apply
-                </Button>
-                <Divider horizontal>Or</Divider>
-                <Button
-                  compact
-                  size="mini"
-                  onClick={this.onCancelClick}
-                >
-                  Cancel
-                </Button>
-              </Segment>
-            </Segment>
-          </Container>
-        </Grid.Column>
-        <Grid.Column
-          key="2"
-          width={12}
-          className={styles.PaperLandscape}
-          style={{
-            // backgroundColor: 'gold',
-          }}
-        >
-          {/* <Segment raised> */}
-            <ThumbGridPlaceholder
-              thumbsAmount={(this.state.columnCount * this.state.rowCount)}
-              settings={this.props.settings}
-              width={this.props.file ? (this.props.file.width || 1920) : 1920}
-              height={this.props.file ? (this.props.file.height || 1080) : 1080}
-              axis={'xy'}
-              columnCount={this.state.columnCount}
-              rowCount={this.state.rowCount}
-              columnWidth={this.state.columnCount * (this.props.settings.defaultThumbnailWidth + this.props.settings.defaultMargin)}
-              contentHeight={this.props.contentHeight || 360}
-              contentWidth={this.props.contentWidth || 640}
-              thumbWidth={this.props.settings.defaultThumbnailWidth}
-              thumbMargin={this.props.settings.defaultMargin}
-              // columnWidth={(this.state.tempColumnCount === undefined) ?
-              //   settings.defaultColumnCount * thumbnailWidthPlusMargin :
-              //   this.state.tempColumnCount * thumbnailWidthPlusMargin}
-            />
-          {/* </Segment> */}
-        </Grid.Column></Grid>}
+          <Grid>
+            <Grid.Column key="1" width={4}>
+              {settingsComponent}
+            </Grid.Column>
+            <Grid.Column
+              key="2"
+              width={12}
+              className={styles.PaperLandscape}
+              style={{
+                // backgroundColor: 'gold',
+              }}
+            >
+              <ThumbGridPlaceholder
+                thumbsAmount={(this.state.columnCountTemp * this.state.rowCountTemp)}
+                settings={this.props.settings}
+                width={this.props.file ? (this.props.file.width || 1920) : 1920}
+                height={this.props.file ? (this.props.file.height || 1080) : 1080}
+                axis="xy"
+                columnCount={this.state.columnCountTemp}
+                rowCount={this.state.rowCountTemp}
+                columnWidth={this.state.columnCountTemp *
+                  (this.props.settings.defaultThumbnailWidth + this.props.settings.defaultMargin)}
+                contentHeight={this.props.contentHeight || 360}
+                contentWidth={this.props.contentWidth || 640}
+              />
+            </Grid.Column>
+          </Grid>}
       </Grid>
     );
   }

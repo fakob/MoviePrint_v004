@@ -13,11 +13,12 @@ const colors = [
   'violet', 'purple', 'pink', 'brown', 'grey', 'black',
 ];
 
-const thumbWidth = 270;
-
-const ThumbGridPlaceholder = ({ thumbsAmount, width, height, columnCount, rowCount,
-  columnWidth, contentHeight, contentWidth, thumbWidth, thumbMargin, settings }) => {
+const ThumbGridPlaceholder = ({ width, height, columnCount, rowCount,
+  columnWidth, contentHeight, contentWidth, settings }) => {
+  const thumbsAmount = columnCount * rowCount;
   const headerHeight = settings.defaultHeaderHeight;
+  const thumbWidth = settings.defaultThumbnailWidth;
+  const thumbMargin = settings.defaultMargin;
   const generalScale = 0.9;
   const marginWidth = 14;
   const marginHeight = 14;
