@@ -8,7 +8,6 @@ import { arrayMove } from 'react-sortable-hoc';
 import { toggleThumb, updateOrder, removeThumb, updateObjectUrlsFromThumbList,
   changeThumb, addDefaultThumbs } from '../actions';
 import SortableThumbGrid from '../components/ThumbGrid';
-import ThumbGridPlaceholder from '../components/ThumbGridPlaceholder';
 import styles from '../components/Settings.css';
 import { getLowestFrame, getHighestFrame, getChangeThumbStep, getVisibleThumbs } from '../utils/utils';
 
@@ -240,34 +239,6 @@ class SortedVisibleThumbGrid extends Component {
             contentWidth={this.props.contentWidth || 640}
           />
         </Grid.Column>
-        {/* {(this.props.showEditGrid === true || this.props.showPlaceholder === true) &&
-          <Grid>
-            <Grid.Column key="1" width={4}>
-              {settingsComponent}
-            </Grid.Column>
-            <Grid.Column
-              key="2"
-              width={12}
-              className={styles.PaperLandscape}
-              style={{
-                // backgroundColor: 'gold',
-              }}
-            >
-              <ThumbGridPlaceholder
-                thumbsAmount={(this.state.columnCountTemp * this.state.rowCountTemp)}
-                settings={this.props.settings}
-                width={this.props.file ? (this.props.file.width || 1920) : 1920}
-                height={this.props.file ? (this.props.file.height || 1080) : 1080}
-                axis="xy"
-                columnCount={this.state.columnCountTemp}
-                rowCount={this.state.rowCountTemp}
-                columnWidth={this.state.columnCountTemp *
-                  (this.props.settings.defaultThumbnailWidth + this.props.settings.defaultMargin)}
-                contentHeight={this.props.contentHeight || 360}
-                contentWidth={this.props.contentWidth || 640}
-              />
-            </Grid.Column>
-          </Grid>} */}
       </Grid>
     );
   }

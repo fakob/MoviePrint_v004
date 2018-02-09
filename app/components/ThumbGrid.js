@@ -6,6 +6,7 @@ import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import Thumb from './Thumb';
 import ThumbGridHeader from './ThumbGridHeader';
 import styles from './ThumbGrid.css';
+import empty from './../img/Thumb_EMPTY.png';
 
 const SortableThumb = SortableElement(Thumb);
 
@@ -75,19 +76,19 @@ const ThumbGrid = ({
           <div
             className={styles.gridItem}
             style={{
-              width: newthumbWidth,
-              height: newThumbHeight,
-              backgroundColor: 'black',
+              // width: newthumbWidth,
+              // height: newThumbHeight,
+              // backgroundColor: 'black',
               margin: (thumbMargin / 2) * scaleValue,
             }}
           />
-          {/* <img
+          <img
             src={empty}
-            // className={styles.image}
+            className={styles.image}
             alt=""
-            width={`${thumbWidth}px`}
-            height={`${(thumbWidth * (height / width))}px`}
-          /> */}
+            width={newthumbWidth}
+            height={newThumbHeight}
+          />
         </div>
       ))
     );
