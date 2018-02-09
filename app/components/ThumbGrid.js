@@ -7,6 +7,7 @@ import Thumb from './Thumb';
 import ThumbGridHeader from './ThumbGridHeader';
 import styles from './ThumbGrid.css';
 import empty from './../img/Thumb_EMPTY.png';
+import { mapRange } from './../utils/utils';
 
 const SortableThumb = SortableElement(Thumb);
 
@@ -37,14 +38,14 @@ const ThumbGrid = ({
   const scaleValue = Math.min(scaleValueHeight, scaleValueWidth);
   const newthumbWidth = thumbWidth * scaleValue;
   const newThumbHeight = thumbWidth * (height / width) * scaleValue;
-  console.log(contentHeight);
-  console.log(contentWidth);
-  console.log(rowCount);
-  console.log(height);
-  console.log(columnWidth);
-  console.log(columnCount);
-  console.log(width);
-  console.log(scaleValue);
+  // console.log(contentHeight);
+  // console.log(contentWidth);
+  // console.log(rowCount);
+  // console.log(height);
+  // console.log(columnWidth);
+  // console.log(columnCount);
+  // console.log(width);
+  // console.log(scaleValue);
 
   let thumbGridHeaderComponent = null;
   let thumbGridComponent = null;
@@ -71,26 +72,38 @@ const ThumbGrid = ({
 
   if (showEditGrid === true) {
     thumbGridComponent = (
-      Array.apply(null, Array(thumbsAmount)).map((val, i) => (
-        <div >
-          <div
-            className={styles.gridItem}
-            style={{
-              // width: newthumbWidth,
-              // height: newThumbHeight,
-              // backgroundColor: 'black',
-              margin: (thumbMargin / 2) * scaleValue,
-            }}
-          />
-          <img
-            src={empty}
-            className={styles.image}
-            alt=""
-            width={newthumbWidth}
-            height={newThumbHeight}
-          />
-        </div>
-      ))
+      Array.apply(null, Array(thumbsAmount)).map((val, i) => {
+        const thumbImageArrayLength = thumbs !== undefined ? thumbs.length : undefined;
+        let thumbImageObjectUrl;
+        if (thumbImageArrayLength) {
+          const mappedIterator = mapRange(i, 0, thumbsAmount - 1, 0, thumbImageArrayLength - 1);
+          thumbImageObjectUrl = (thumbImageArrayLength !== undefined ?
+            thumbImages[thumbs[mappedIterator].id].objectUrl : undefined);
+          console.log(mappedIterator);
+        }
+        console.log(thumbImages);
+
+        return (
+          <div >
+            <div
+              className={styles.gridItem}
+              style={{
+                // width: newthumbWidth,
+                // height: newThumbHeight,
+                // backgroundColor: 'black',
+                margin: (thumbMargin / 2) * scaleValue,
+              }}
+            />
+            <img
+              src={thumbImageObjectUrl || empty}
+              className={styles.image}
+              alt=""
+              width={newthumbWidth}
+              height={newThumbHeight}
+            />
+          </div>
+        );
+      })
     );
   } else {
     thumbGridComponent = (
