@@ -62,6 +62,8 @@ const Thumb = (
     <div
       onMouseOver={onOver}
       onMouseLeave={onOut}
+      onFocus={onOver}
+      onBlur={onOut}
       className={styles.gridItem}
       style={{
         opacity: hidden ? '0.2' : '1',
@@ -75,7 +77,7 @@ const Thumb = (
         alt=""
         width={`${thumbWidth}px`}
         height={`${(thumbWidth * (height / width))}px`}
-        onClick={onScrub}
+        // onClick={onScrub}
       />
       <div
         className={styles.frameNumber}
@@ -88,54 +90,90 @@ const Thumb = (
         }}
       >
         <DragHandle />
-        <img
-          src={hidden ? show : hide}
-          className={styles.hide}
-          alt=""
+        <button
+          className={styles.hoverButton}
           onClick={onToggle}
           onMouseOver={over}
           onMouseLeave={out}
-        />
-        <img
-          src={inPoint}
-          className={styles.inPoint}
-          alt=""
+          onFocus={over}
+          onBlur={out}
+        >
+          <img
+            src={hidden ? show : hide}
+            className={styles.hide}
+            alt=""
+          />
+        </button>
+        <button
+          className={styles.hoverButton}
           onClick={onInPoint}
           onMouseOver={over}
           onMouseLeave={out}
-        />
-        <img
-          src={back}
-          className={styles.back}
-          alt=""
+          onFocus={over}
+          onBlur={out}
+        >
+          <img
+            src={inPoint}
+            className={styles.inPoint}
+            alt=""
+          />
+        </button>
+        <button
+          className={styles.hoverButton}
           onClick={onBack}
           onMouseOver={over}
           onMouseLeave={out}
-        />
-        {/* <img
-          src={scrub}
-          className={styles.scrub}
+          onFocus={over}
+          onBlur={out}
+        >
+          <img
+            src={back}
+            className={styles.back}
+            alt=""
+          />
+        </button>
+        <button
+          className={styles.hoverButton}
           onClick={onScrub}
-          alt=""
           onMouseOver={over}
           onMouseLeave={out}
-        /> */}
-        <img
-          src={forward}
-          className={styles.forward}
-          alt=""
+          onFocus={over}
+          onBlur={out}
+        >
+          <img
+            src={scrub}
+            className={styles.scrub}
+            alt=""
+          />
+        </button>
+        <button
+          className={styles.hoverButton}
           onClick={onForward}
           onMouseOver={over}
           onMouseLeave={out}
-        />
-        <img
-          src={outPoint}
-          className={styles.outPoint}
-          alt=""
+          onFocus={over}
+          onBlur={out}
+        >
+          <img
+            src={forward}
+            className={styles.forward}
+            alt=""
+          />
+        </button>
+        <button
+          className={styles.hoverButton}
           onClick={onOutPoint}
           onMouseOver={over}
           onMouseLeave={out}
-        />
+          onFocus={over}
+          onBlur={out}
+        >
+          <img
+            src={outPoint}
+            className={styles.outPoint}
+            alt=""
+          />
+        </button>
       </div>
     </div>
   );

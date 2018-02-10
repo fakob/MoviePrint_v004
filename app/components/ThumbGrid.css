@@ -84,6 +84,7 @@
   left: calc(50% - 24px);
   width: 48px;
   opacity: 0.5;
+  cursor: move;
 }
 
 .hide {
@@ -112,6 +113,7 @@
     bottom: 0;
     left: calc(50% - 24px);
     opacity: 0.5;
+    cursor: col-resize;
 }
 
 .forward {
@@ -126,4 +128,9 @@
     bottom: 0;
     right: 0;
     opacity: 0.5;
+}
+
+.hoverButton {
+  border: 0;
+  cursor: pointer;
 }

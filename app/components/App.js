@@ -98,13 +98,7 @@ class App extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    // console.log(`isManipulatingSliderInHeader: ${this.state.isManipulatingSliderInHeader}`);
-    // console.log(`currentFileId: ${this.props.files.findIndex((file) =>
-    //     file.id === this.props.currentFileId) >= 0}`);
-    // console.log(`thumbs for this fileId exist: ${this.props.thumbsByFileId[this.props.currentFileId] !== undefined}`);
-    // console.log(this.props.thumbsByFileId[this.props.currentFileId]);
-    // console.log(`files exist: ${Object.keys(this.props.files).length !== 0}`);
-    //
+
     if (!(this.props.files.findIndex((file) =>
         file.id === this.props.currentFileId) >= 0 &&
       this.props.thumbsByFileId[this.props.currentFileId] !== undefined &&
@@ -279,11 +273,6 @@ class App extends Component {
                     contentWidth={this.state.contentWidth}
                     parentMethod={this.openModal}
 
-                    // file={this.props.file}
-                    // settings={this.props.settings}
-                    // thumbnailWidthPlusMargin={thumbnailWidthPlusMargin || 278}
-                    // thumbWidth={state.undoGroup.present.settings.defaultThumbnailWidth}
-                    // thumbMargin={state.undoGroup.present.settings.defaultMargin}
                     hideEditGrid={this.hideEditGrid}
                     onThumbCountChange={(columnCount, rowCount) => {
                       store.dispatch(setDefaultColumnCount(columnCount));
