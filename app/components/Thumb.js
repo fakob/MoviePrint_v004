@@ -9,13 +9,10 @@ import outPoint from './../img/Thumb_OUT.png';
 import back from './../img/Thumb_BACK.png';
 import forward from './../img/Thumb_FORWARD.png';
 import scrub from './../img/Thumb_SCRUB.png';
-import handle from './../img/Thumb_HANDLE.png';
 import handleWide from './../img/Thumb_HANDLE_wide.png';
 import hide from './../img/Thumb_HIDE.png';
 import show from './../img/Thumb_SHOW.png';
 import empty from './../img/Thumb_EMPTY.png';
-
-import imageDB from './../utils/db';
 
 const DragHandle = SortableHandle(() => {
   function over(event) {
@@ -41,16 +38,11 @@ const DragHandle = SortableHandle(() => {
   );
 });
 
-const Thumb = (
-  { onToggle, onRemove, onDragOver, onInPoint, onOutPoint, onBack, onForward,
-    onOver, onOut, onScrub, hidden, frameNumber, id, objectUrl, thumbImageObjectUrl, width, height,
-    controlersAreVisible, thumbWidth }
-) => {
-  // const thumbWidth = 270;
-  // let tempObjectUrl = imageDB.thumbList.where({ 'id': id });
-  // console.log(imageDB.thumbList.where({ 'id': id }).then(thumb => thumb.id));
-  // console.log(`controlersAreVisible: ${controlersAreVisible}`);
-
+const Thumb = ({
+  onToggle, onInPoint, onOutPoint, onBack, onForward,
+  onOver, onOut, onScrub, hidden, frameNumber, thumbImageObjectUrl, width, height,
+  controlersAreVisible, thumbWidth
+}) => {
   function over(event) {
     event.target.style.opacity = 1;
   }
@@ -78,13 +70,12 @@ const Thumb = (
       }}
     >
       <img
-        src={thumbImageObjectUrl || empty}
-        // src={tempObjectUrl || empty}
+        src={thumbImageObjectUrl}
+        // src={thumbImageObjectUrl || empty}
         className={styles.image}
         alt=""
         width={`${thumbWidth}px`}
         height={`${(thumbWidth * (height / width))}px`}
-        // onClick={onScrub}
       />
       <div
         className={styles.frameNumber}
@@ -187,8 +178,7 @@ const Thumb = (
 };
 
 Thumb.defaultProps = {
-  width: 1920,
-  height: 1080
+  thumbImageObjectUrl: empty,
 };
 
 Thumb.propTypes = {
@@ -196,9 +186,11 @@ Thumb.propTypes = {
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
   onToggle: PropTypes.func.isRequired,
-  onRemove: PropTypes.func.isRequired,
+  thumbWidth: PropTypes.number.isRequired,
   hidden: PropTypes.bool.isRequired,
+  controlersAreVisible: PropTypes.bool.isRequired,
   frameNumber: PropTypes.number.isRequired,
+  thumbImageObjectUrl: PropTypes.string,
   onInPoint: PropTypes.func.isRequired,
   onOutPoint: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,
