@@ -10,6 +10,7 @@ import back from './../img/Thumb_BACK.png';
 import forward from './../img/Thumb_FORWARD.png';
 import scrub from './../img/Thumb_SCRUB.png';
 import handle from './../img/Thumb_HANDLE.png';
+import handleWide from './../img/Thumb_HANDLE_wide.png';
 import hide from './../img/Thumb_HIDE.png';
 import show from './../img/Thumb_SHOW.png';
 import empty from './../img/Thumb_EMPTY.png';
@@ -17,20 +18,26 @@ import empty from './../img/Thumb_EMPTY.png';
 import imageDB from './../utils/db';
 
 const DragHandle = SortableHandle(() => {
-  function over(event){
+  function over(event) {
     event.target.style.opacity = 1;
   }
-  function out(event){
+  function out(event) {
     event.target.style.opacity = 0.3;
   }
   return (
+    <button
+      className={styles.hoverButton}
+      onMouseOver={over}
+      onMouseLeave={out}
+      onFocus={over}
+      onBlur={out}
+    >
       <img
-        src={handle}
+        src={handleWide}
         className={styles.dragHandle}
         alt=""
-        onMouseOver={over}
-        onMouseLeave={out}
       />
+    </button>
   );
 });
 

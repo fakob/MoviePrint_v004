@@ -80,9 +80,9 @@
 
 .dragHandle {
   position: absolute;
-  top: 0;
-  left: calc(50% - 24px);
-  width: 48px;
+  top: calc(50% - 28px);;
+  left: calc(50% - 72px);
+  width: 144px;
   opacity: 0.5;
   cursor: move;
 }
