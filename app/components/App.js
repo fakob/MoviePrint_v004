@@ -315,6 +315,26 @@ class App extends Component {
               >
                 <FileList />
               </Sidebar>
+              <Sidebar
+                // as={Menu}
+                direction="right"
+                animation="scale down"
+                width="wide"
+                visible={state.visibilitySettings.showRightSidebar}
+                icon="labeled"
+                // vertical
+              >
+                <SettingsList
+                  columnCountTemp={this.state.columnCountTemp}
+                  rowCountTemp={this.state.rowCountTemp}
+                  columnCount={this.state.columnCount}
+                  rowCount={this.state.rowCount}
+                  onChangeColumn={this.onChangeColumn}
+                  onChangeRow={this.onChangeRow}
+                  onApplyClick={this.onApplyClick}
+                  onCancelClick={this.onCancelClick}
+                />
+              </Sidebar>
               <Sidebar.Pusher>
                 <div className={`${styles.ItemMain}`}>
                   <SortedVisibleThumbGrid
@@ -344,26 +364,6 @@ class App extends Component {
                   />
                 </div>
               </Sidebar.Pusher>
-              <Sidebar
-                // as={Menu}
-                direction="right"
-                animation="scale down"
-                width="wide"
-                visible={state.visibilitySettings.showRightSidebar}
-                icon="labeled"
-                // vertical
-              >
-                <SettingsList
-                  columnCountTemp={this.state.columnCountTemp}
-                  rowCountTemp={this.state.rowCountTemp}
-                  columnCount={this.state.columnCount}
-                  rowCount={this.state.rowCount}
-                  onChangeColumn={this.onChangeColumn}
-                  onChangeRow={this.onChangeRow}
-                  onApplyClick={this.onApplyClick}
-                  onCancelClick={this.onCancelClick}
-                />
-              </Sidebar>
             </Sidebar.Pushable>
           </div>
           <div className={`${styles.SiteFooter}`}>
