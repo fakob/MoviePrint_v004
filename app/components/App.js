@@ -33,6 +33,10 @@ class App extends Component {
       showEditGrid: true,
       contentHeight: 0,
       contentWidth: 0,
+      columnCountTemp: undefined,
+      rowCountTemp: undefined,
+      columnCount: undefined,
+      rowCount: undefined,
     };
 
     this.onDragEnter = this.onDragEnter.bind(this);
@@ -52,6 +56,22 @@ class App extends Component {
     this.onSaveMoviePrint = this.onSaveMoviePrint.bind(this);
 
     this.updateContentWidthAndHeight = this.updateContentWidthAndHeight.bind(this);
+
+    this.onChangeRow = this.onChangeRow.bind(this);
+    this.onChangeColumn = this.onChangeColumn.bind(this);
+    this.onApplyClick = this.onApplyClick.bind(this);
+    this.onCancelClick = this.onCancelClick.bind(this);
+  }
+
+  componentWillMount() {
+    const { store } = this.context;
+
+    this.setState({
+      columnCountTemp: store.getState().undoGroup.present.settings.defaultColumnCount,
+      rowCountTemp: store.getState().undoGroup.present.settings.defaultRowCount,
+      columnCount: store.getState().undoGroup.present.settings.defaultColumnCount,
+      rowCount: store.getState().undoGroup.present.settings.defaultRowCount,
+    });
   }
 
   componentDidMount() {
@@ -70,32 +90,21 @@ class App extends Component {
     window.addEventListener('resize', this.updateContentWidthAndHeight);
   }
 
-  handleKeyPress(event) {
-    // you may also add a filter here to skip keys, that do not have an effect for your app
-    // this.props.keyPressAction(event.keyCode);
-
-    const { store } = this.context;
-
-    if (event) {
-      switch (event.which) {
-        case 49: // press 1
-          store.dispatch(
-            toggleLeftSidebar()
-          );
-          break;
-        case 51: // press 3
-          store.dispatch(
-            toggleRightSidebar()
-          );
-          break;
-        case 80: // press 'p'
-          saveMoviePrint(this.props.file);
-          break;
-        default:
-      }
-      console.log(`ctrl:${event.ctrlKey}, shift:${event.shiftKey}, meta:${event.metaKey}, keynum:${event.which}`);
-    }
-  }
+  // componentDidMount() {
+  //   console.log(this.props);
+  //   const { store } = this.context;
+  //   this.unsubscribe = store.subscribe(() => this.forceUpdate());
+  //   store.getState().undoGroup.present.files.map((singleFile) => {
+  //     if (store.getState().undoGroup.present.thumbsByFileId[singleFile.id] !== undefined) {
+  //       store.dispatch(updateObjectUrlsFromThumbList(
+  //         singleFile.id,
+  //         Object.values(store.getState().undoGroup.present
+  //           .thumbsByFileId[singleFile.id]
+  //           .thumbs).map((a) => a.id)
+  //       ));
+  //     }
+  //   });
+  // }
 
   componentWillReceiveProps(nextProps) {
 
@@ -124,6 +133,29 @@ class App extends Component {
     document.removeEventListener('keydown', this.handleKeyPress);
 
     window.removeEventListener('resize', this.updateContentWidthAndHeight);
+  }
+
+  handleKeyPress(event) {
+    // you may also add a filter here to skip keys, that do not have an effect for your app
+    // this.props.keyPressAction(event.keyCode);
+
+    const { store } = this.context;
+
+    if (event) {
+      switch (event.which) {
+        case 49: // press 1
+          store.dispatch(toggleLeftSidebar());
+          break;
+        case 51: // press 3
+          store.dispatch(toggleRightSidebar());
+          break;
+        case 80: // press 'p'
+          saveMoviePrint(this.props.file);
+          break;
+        default:
+      }
+      console.log(`ctrl:${event.ctrlKey}, shift:${event.shiftKey}, meta:${event.metaKey}, keynum:${event.which}`);
+    }
   }
 
   onDragEnter(e) {
@@ -211,6 +243,28 @@ class App extends Component {
     saveMoviePrint(this.props.file);
   }
 
+
+  onChangeRow = (value) => {
+    this.setState({ rowCountTemp: value });
+  };
+
+  onChangeColumn = (value) => {
+    this.setState({ columnCountTemp: value });
+  };
+
+  onApplyClick = () => {
+    this.setState({ rowCount: this.state.rowCountTemp });
+    this.setState({ columnCount: this.state.columnCountTemp });
+    this.props.onThumbCountChange(this.state.columnCountTemp, this.state.rowCountTemp);
+    this.props.hideEditGrid();
+  };
+
+  onCancelClick = () => {
+    this.setState({ rowCountTemp: this.state.rowCount });
+    this.setState({ columnCountTemp: this.state.columnCount });
+    this.props.hideEditGrid();
+  };
+
   render() {
     const { store } = this.context;
     const state = store.getState();
@@ -273,6 +327,9 @@ class App extends Component {
                     contentWidth={this.state.contentWidth}
                     parentMethod={this.openModal}
 
+                    columnCount={this.state.columnCountTemp}
+                    rowCount={this.state.rowCountTemp}
+
                     hideEditGrid={this.hideEditGrid}
                     onThumbCountChange={(columnCount, rowCount) => {
                       store.dispatch(setDefaultColumnCount(columnCount));
@@ -296,7 +353,16 @@ class App extends Component {
                 icon="labeled"
                 // vertical
               >
-                <SettingsList />
+                <SettingsList
+                  columnCountTemp={this.state.columnCountTemp}
+                  rowCountTemp={this.state.rowCountTemp}
+                  columnCount={this.state.columnCount}
+                  rowCount={this.state.rowCount}
+                  onChangeColumn={this.onChangeColumn}
+                  onChangeRow={this.onChangeRow}
+                  onApplyClick={this.onApplyClick}
+                  onCancelClick={this.onCancelClick}
+                />
               </Sidebar>
             </Sidebar.Pushable>
           </div>

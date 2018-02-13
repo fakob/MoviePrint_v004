@@ -2,147 +2,102 @@
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import Slider, { Range } from 'rc-slider';
+import Tooltip from 'rc-tooltip';
 // import imageDB from '../utils/db';
-import { Button, Input, Icon, Step, Dropdown } from 'semantic-ui-react';
-import AddThumb from '../containers/AddThumb';
-import UndoRedo from '../containers/UndoRedo';
+import { Button, Grid, Segment, Container, Statistic, Divider } from 'semantic-ui-react';
 import { addDefaultThumbs, setDefaultRowCount, setDefaultColumnCount } from '../actions';
+import styles from '../components/Settings.css';
 
-const mpPresets = [
-  {
-    text: '5 x 3',
-    value: 15
-  },
-  {
-    text: '5 x 5',
-    value: 25
-  },
-];
+// const createSliderWithTooltip = Slider.createSliderWithTooltip;
+// const Range = createSliderWithTooltip(Slider.Range);
+const Handle = Slider.Handle;
 
-class SettingsList extends Component {
-  componentDidMount() {
-    const { store } = this.context;
-    this.unsubscribe = store.subscribe(() => this.forceUpdate());
-    // store.dispatch(updateObjectUrlsFromPosterFrame());
-  }
+// let isManipulatingSlider = false;
 
-  componentWillUnmount() {
-    this.unsubscribe();
-  }
+const handle = (props) => {
+  const { value, dragging, index, ...restProps } = props;
+  return (
+    <Tooltip
+      prefixCls="rc-slider-tooltip"
+      overlay={value}
+      visible={dragging}
+      placement="top"
+      key={index}
+    >
+      <Handle value={value} {...restProps} />
+    </Tooltip>
+  );
+};
 
-  changeRowCount(amount) {
-    const { store } = this.context;
-    const state = store.getState();
-    store.dispatch(
-      setDefaultRowCount(
-        amount
-      )
-    );
-    if (state.undoGroup.present.settings.currentFileId !== undefined) {
-      store.dispatch(
-        addDefaultThumbs(
-          state.undoGroup.present.files
-          .find(x => x.id === state.undoGroup.present.settings.currentFileId),
-          amount *
-          state.undoGroup.present.settings.defaultColumnCount
-        )
-      );
-    }
-  }
-
-  changeColumnCount(amount) {
-    const { store } = this.context;
-    const state = store.getState();
-    store.dispatch(
-      setDefaultColumnCount(
-        amount
-      )
-    );
-    if (state.undoGroup.present.settings.currentFileId !== undefined) {
-      store.dispatch(
-        addDefaultThumbs(
-          state.undoGroup.present.files
-          .find(x => x.id === state.undoGroup.present.settings.currentFileId),
-          state.undoGroup.present.settings.defaultRowCount *
-          amount
-        )
-      );
-    }
-  }
-
-  render() {
-    const { store } = this.context;
-    const state = store.getState();
-
-    return (
-      <div>
-        <AddThumb />
-        <UndoRedo />
-        <Button
-          content="10"
-          icon='plus'
-          labelPosition='left'
-        />
-        <Input
-          action={{ content: 'Row count', onClick: () => {
-            (this.changeRowCount(parseInt(this.inputtextrow.inputRef.value)));
-          } }}
-          ref={input => this.inputtextrow = input}
-          placeholder={state.undoGroup.present.settings.defaultRowCount}
-          onKeyPress={(e) => {
-            (e.key === 'Enter' ? this.changeRowCount(parseInt(e.target.value)) : null);
-          }}
-        />
-        <Input
-          action={{ content: 'Column count', onClick: () => {
-            (this.changeColumnCount(parseInt(this.inputtextcolumn.inputRef.value)));
-          } }}
-          ref={input => this.inputtextcolumn = input}
-          placeholder={state.undoGroup.present.settings.defaultColumnCount}
-          onKeyPress={(e) => {
-            (e.key === 'Enter' ? this.changeColumnCount(parseInt(e.target.value)) : null);
-          }}
-        />
-        <Step.Group size='mini'>
-          <Step>
-            <Step.Content>
-              {/* <Step.Title>Shipping</Step.Title> */}
-              {/* <Step.Description>MoviePrint presets</Step.Description> */}
-              <Dropdown placeholder='MoviePrint presets' fluid selection options={mpPresets} />
-            </Step.Content>
-          </Step>
-          <Step completed>
-            <Icon name='truck' />
-            <Step.Content>
-              <Step.Title>Shipping</Step.Title>
-              <Step.Description>Choose your shipping options</Step.Description>
-            </Step.Content>
-          </Step>
-          <Step active>
-            <Icon name='dollar' />
-            <Step.Content>
-              <Step.Title>Billing</Step.Title>
-              <Step.Description>Enter billing information</Step.Description>
-            </Step.Content>
-          </Step>
-          <Step>
-            <Icon name='dollar' />
-            <Step.Content>
-              {/* <Step.Title>Billing</Step.Title> */}
-              <Step.Description>Count of thumbs</Step.Description>
-              <Input
-                action={{ content: 'Amount', onClick: () => { (this.changeThumbCount(parseInt(this.inputtext.inputRef.value))); } }}
-                ref={input => this.inputtext = input}
-                placeholder="Amount..."
-                onKeyPress={(e) => { (e.key === 'Enter' ? this.changeThumbCount(parseInt(e.target.value)) : null); }}
-              />
-            </Step.Content>
-          </Step>
-        </Step.Group>
-      </div>
-    );
-  }
-}
+const SettingsList = ({
+  columnCountTemp, rowCountTemp, columnCount, rowCount, onChangeColumn,
+  onChangeRow, onAfterChange, onApplyClick, onCancelClick
+}) => {
+  return (
+    <Container>
+      <Segment raised>
+        <Segment.Group>
+          <Segment>
+            <Statistic horizontal>
+              <Statistic.Value>{rowCountTemp}</Statistic.Value>
+              <Statistic.Label>{(rowCountTemp === 1) ? 'Row' : 'Rows'}</Statistic.Label>
+            </Statistic>
+            <Slider
+              className={styles.slider}
+              min={1}
+              max={20}
+              defaultValue={rowCountTemp}
+              marks={{
+                1: '1',
+                20: '20',
+              }}
+              handle={handle}
+              onChange={onChangeRow}
+              // onAfterChange={onAfterChangeRow}
+            />
+          </Segment>
+          <Segment>
+            <Statistic horizontal>
+              <Statistic.Value>{columnCountTemp}</Statistic.Value>
+              <Statistic.Label>{(columnCountTemp === 1) ? 'Column' : 'Columns'}</Statistic.Label>
+            </Statistic>
+            <Slider
+              className={styles.slider}
+              min={1}
+              max={20}
+              defaultValue={columnCountTemp}
+              marks={{
+                1: '1',
+                20: '20',
+              }}
+              handle={handle}
+              onChange={onChangeColumn}
+              // onAfterChange={onAfterChangeColumn}
+            />
+          </Segment>
+        </Segment.Group>
+        <Segment padded>
+          <Button
+            fluid
+            color="pink"
+            onClick={onApplyClick}
+          >
+            Apply
+          </Button>
+          <Divider horizontal>Or</Divider>
+          <Button
+            compact
+            size="mini"
+            onClick={onCancelClick}
+          >
+            Cancel
+          </Button>
+        </Segment>
+      </Segment>
+    </Container>
+  );
+};
 
 SettingsList.contextTypes = {
   store: PropTypes.object

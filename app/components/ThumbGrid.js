@@ -146,7 +146,7 @@ const ThumbGrid = ({
       {thumbGridHeaderComponent}
       {thumbGridComponent}
     </div>
-  )
+  );
 };
 
 ThumbGrid.defaultProps = {
