@@ -68,93 +68,7 @@ class SortedVisibleThumbGrid extends Component {
       .undoGroup.present.settings.currentFileId, newOrderedThumbs));
   };
 
-  // onChangeRow = (value) => {
-  //   this.setState({ rowCountTemp: value });
-  // };
-  //
-  // onChangeColumn = (value) => {
-  //   this.setState({ columnCountTemp: value });
-  // };
-  //
-  // onApplyClick = () => {
-  //   this.setState({ rowCount: this.state.rowCountTemp });
-  //   this.setState({ columnCount: this.state.columnCountTemp });
-  //   this.props.onThumbCountChange(this.state.columnCountTemp, this.state.rowCountTemp);
-  //   this.props.hideEditGrid();
-  // };
-  //
-  // onCancelClick = () => {
-  //   this.setState({ rowCountTemp: this.state.rowCount });
-  //   this.setState({ columnCountTemp: this.state.columnCount });
-  //   this.props.hideEditGrid();
-  // };
-
   render() {
-    // const settingsComponent = (
-    //   <Container>
-    //     <Segment raised>
-    //       <Segment.Group>
-    //         <Segment>
-    //           <Statistic horizontal>
-    //             <Statistic.Value>{this.state.rowCountTemp}</Statistic.Value>
-    //             <Statistic.Label>{(this.state.rowCountTemp === 1) ? 'Row' : 'Rows'}</Statistic.Label>
-    //           </Statistic>
-    //           <Slider
-    //             className={styles.slider}
-    //             min={1}
-    //             max={20}
-    //             defaultValue={this.state.rowCountTemp}
-    //             marks={{
-    //               1: '1',
-    //               20: '20',
-    //             }}
-    //             handle={handle}
-    //             onChange={this.onChangeRow}
-    //             onAfterChange={this.onAfterChangeRow}
-    //           />
-    //         </Segment>
-    //         <Segment>
-    //           <Statistic horizontal>
-    //             <Statistic.Value>{this.state.columnCountTemp}</Statistic.Value>
-    //             <Statistic.Label>{(this.state.columnCountTemp === 1) ? 'Column' : 'Columns'}</Statistic.Label>
-    //           </Statistic>
-    //           <Slider
-    //             className={styles.slider}
-    //             min={1}
-    //             max={20}
-    //             defaultValue={this.state.columnCountTemp}
-    //             marks={{
-    //               1: '1',
-    //               20: '20',
-    //             }}
-    //             handle={handle}
-    //             onChange={this.onChangeColumn}
-    //             onAfterChange={this.onAfterChangeColumn}
-    //           />
-    //         </Segment>
-    //       </Segment.Group>
-    //       <Segment padded>
-    //         <Button
-    //           fluid
-    //           color="pink"
-    //           onClick={this.onApplyClick}
-    //         >
-    //           Apply
-    //         </Button>
-    //         <Divider horizontal>Or</Divider>
-    //         <Button
-    //           compact
-    //           size="mini"
-    //           onClick={this.onCancelClick}
-    //         >
-    //           Cancel
-    //         </Button>
-    //       </Segment>
-    //     </Segment>
-    //   </Container>);
-
-      console.log(this.props.showEditGrid);
-
     return (
       <Grid
         stretched
@@ -165,14 +79,9 @@ class SortedVisibleThumbGrid extends Component {
           // position: 'absolute'
         }}
       >
-        {(this.props.showEditGrid === true) &&
-          <Grid.Column key="1" width={4}>
-            {/* {settingsComponent} */}
-          </Grid.Column>
-        }
         <Grid.Column
           key="2"
-          width={this.props.showEditGrid ? 12 : 16}
+          width={16}
           className={this.props.showEditGrid ? styles.PaperLandscape : undefined}
           style={{
             // backgroundColor: 'gold',

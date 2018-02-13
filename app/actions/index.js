@@ -31,9 +31,33 @@ export const toggleLeftSidebar = () => {
   };
 };
 
+export const showLeftSidebar = () => {
+  return {
+    type: 'SHOW_LEFT_SIDEBAR'
+  };
+};
+
+export const hideLeftSidebar = () => {
+  return {
+    type: 'HIDE_LEFT_SIDEBAR'
+  };
+};
+
 export const toggleRightSidebar = () => {
   return {
     type: 'TOGGLE_RIGHT_SIDEBAR'
+  };
+};
+
+export const showRightSidebar = () => {
+  return {
+    type: 'SHOW_RIGHT_SIDEBAR'
+  };
+};
+
+export const hideRightSidebar = () => {
+  return {
+    type: 'HIDE_RIGHT_SIDEBAR'
   };
 };
 

@@ -16,6 +16,7 @@ import Header from './Header';
 import styles from './App.css';
 
 import { setNewMovieList, toggleLeftSidebar, toggleRightSidebar,
+  showRightSidebar, hideRightSidebar,
   addDefaultThumbs, setDefaultRowCount, setDefaultColumnCount,
   setVisibilityFilter, startIsManipulating, stopIsManipulating,
   setCurrentFileId, changeThumb } from '../actions';
@@ -90,22 +91,6 @@ class App extends Component {
     window.addEventListener('resize', this.updateContentWidthAndHeight);
   }
 
-  // componentDidMount() {
-  //   console.log(this.props);
-  //   const { store } = this.context;
-  //   this.unsubscribe = store.subscribe(() => this.forceUpdate());
-  //   store.getState().undoGroup.present.files.map((singleFile) => {
-  //     if (store.getState().undoGroup.present.thumbsByFileId[singleFile.id] !== undefined) {
-  //       store.dispatch(updateObjectUrlsFromThumbList(
-  //         singleFile.id,
-  //         Object.values(store.getState().undoGroup.present
-  //           .thumbsByFileId[singleFile.id]
-  //           .thumbs).map((a) => a.id)
-  //       ));
-  //     }
-  //   });
-  // }
-
   componentWillReceiveProps(nextProps) {
 
     if (!(this.props.files.findIndex((file) =>
@@ -147,7 +132,11 @@ class App extends Component {
           store.dispatch(toggleLeftSidebar());
           break;
         case 51: // press 3
-          store.dispatch(toggleRightSidebar());
+          if (store.getState().visibilitySettings.showRightSidebar) {
+            this.onCancelClick();
+          } else {
+            this.showEditGrid();
+          }
           break;
         case 80: // press 'p'
           saveMoviePrint(this.props.file);
@@ -223,11 +212,15 @@ class App extends Component {
   }
 
   showEditGrid() {
+    const { store } = this.context;
     this.setState({ showEditGrid: true });
+    store.dispatch(showRightSidebar());
   }
 
   hideEditGrid() {
+    const { store } = this.context;
     this.setState({ showEditGrid: false });
+    store.dispatch(hideRightSidebar());
   }
 
   onShowThumbs() {
