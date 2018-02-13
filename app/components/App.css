@@ -110,7 +110,8 @@
 
 .FixedActionMenu {
   position: fixed;
-  bottom: 66px;
+  /* bottom: 66px; */
+  bottom: 24px;
   right: 24px;
   z-index: 990;
 }

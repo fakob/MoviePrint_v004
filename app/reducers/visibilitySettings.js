@@ -18,6 +18,12 @@ const visibilitySettings = (state = {}, action) => {
       return { ...state, showRightSidebar: true };
     case 'HIDE_RIGHT_SIDEBAR':
       return { ...state, showRightSidebar: false };
+    case 'TOGGLE_ZOOM_OUT':
+      return { ...state, zoomOut: !state.zoomOut };
+    case 'ZOOM_OUT':
+      return { ...state, zoomOut: true };
+    case 'ZOOM_IN':
+      return { ...state, zoomOut: false };
     default:
       return state;
   }

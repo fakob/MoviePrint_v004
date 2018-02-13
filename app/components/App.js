@@ -16,7 +16,7 @@ import Header from './Header';
 import styles from './App.css';
 
 import { setNewMovieList, toggleLeftSidebar, toggleRightSidebar,
-  showRightSidebar, hideRightSidebar,
+  showRightSidebar, hideRightSidebar, zoomIn, zoomOut,
   addDefaultThumbs, setDefaultRowCount, setDefaultColumnCount,
   setVisibilityFilter, startIsManipulating, stopIsManipulating,
   setCurrentFileId, changeThumb } from '../actions';
@@ -54,6 +54,7 @@ class App extends Component {
     this.showEditGrid = this.showEditGrid.bind(this);
     this.hideEditGrid = this.hideEditGrid.bind(this);
     this.onShowThumbs = this.onShowThumbs.bind(this);
+    this.onZoomOut = this.onZoomOut.bind(this);
     this.onSaveMoviePrint = this.onSaveMoviePrint.bind(this);
 
     this.updateContentWidthAndHeight = this.updateContentWidthAndHeight.bind(this);
@@ -232,6 +233,15 @@ class App extends Component {
     }
   }
 
+  onZoomOut() {
+    const { store } = this.context;
+    if (this.props.visibilitySettings.zoomOut) {
+      store.dispatch(zoomIn());
+    } else {
+      store.dispatch(zoomOut());
+    }
+  }
+
   onSaveMoviePrint() {
     saveMoviePrint(this.props.file);
   }
@@ -363,10 +373,19 @@ class App extends Component {
             <Footer />
           </div>
         </div>
-        {/* <Sticky
+        <Sticky
           className={`${styles.FixedActionMenu}`}
         >
-          <Menu compact icon="labeled" vertical size="mini">
+          <Menu compact icon="labeled" size="mini">
+
+            {this.state.showEditGrid === false &&
+              <Menu.Item name="zoom" onClick={this.onZoomOut}>
+                <Icon
+                  name={(this.props.visibilitySettings.zoomOut) ? 'zoom in' : 'zoom out'}
+                />
+                {(this.props.visibilitySettings.zoomOut) ? 'Zoom in' : 'Zoom out'}
+              </Menu.Item>
+            }
 
             {this.state.showEditGrid === false &&
               <Menu.Item name="hide" onClick={this.onShowThumbs}>
@@ -394,7 +413,7 @@ class App extends Component {
             </Menu.Item>
 
           </Menu>
-        </Sticky> */}
+        </Sticky>
         <div id="dragbox" className={this.state.className}>
           Drop movie files
         </div>

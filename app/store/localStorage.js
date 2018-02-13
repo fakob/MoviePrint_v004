@@ -3,6 +3,7 @@ const initialStateJSON = {
   visibilitySettings: {
     isManipulating: false,
     visibilityFilter: 'SHOW_VISIBLE',
+    zoomOut: false,
   },
   thumbsObjUrls: {},
   undoGroup: {

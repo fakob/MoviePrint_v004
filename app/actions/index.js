@@ -61,6 +61,24 @@ export const hideRightSidebar = () => {
   };
 };
 
+export const toggleZoomOut = () => {
+  return {
+    type: 'TOGGLE_ZOOM_OUT'
+  };
+};
+
+export const zoomOut = () => {
+  return {
+    type: 'ZOOM_OUT'
+  };
+};
+
+export const zoomIn = () => {
+  return {
+    type: 'ZOOM_IN'
+  };
+};
+
 // settings
 
 export const setCurrentFileId = (fileId) => {
