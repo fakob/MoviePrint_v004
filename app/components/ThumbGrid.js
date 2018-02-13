@@ -87,6 +87,7 @@ const ThumbGrid = ({
 
         return (
           <div
+            key={i}
             className={styles.gridItem}
             style={{
               // width: newthumbWidth,

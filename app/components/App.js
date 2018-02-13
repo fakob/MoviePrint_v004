@@ -255,14 +255,26 @@ class App extends Component {
   onApplyClick = () => {
     this.setState({ rowCount: this.state.rowCountTemp });
     this.setState({ columnCount: this.state.columnCountTemp });
-    this.props.onThumbCountChange(this.state.columnCountTemp, this.state.rowCountTemp);
-    this.props.hideEditGrid();
+    this.onThumbCountChange(this.state.columnCountTemp, this.state.rowCountTemp);
+    this.hideEditGrid();
   };
 
   onCancelClick = () => {
     this.setState({ rowCountTemp: this.state.rowCount });
     this.setState({ columnCountTemp: this.state.columnCount });
-    this.props.hideEditGrid();
+    this.hideEditGrid();
+  };
+
+  onThumbCountChange = (columnCount, rowCount) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultColumnCount(columnCount));
+    store.dispatch(setDefaultRowCount(rowCount));
+    if (this.props.currentFileId !== undefined) {
+      store.dispatch(addDefaultThumbs(
+        this.props.file,
+        columnCount * rowCount
+      ));
+    }
   };
 
   render() {
@@ -349,18 +361,6 @@ class App extends Component {
 
                     columnCount={this.state.columnCountTemp}
                     rowCount={this.state.rowCountTemp}
-
-                    hideEditGrid={this.hideEditGrid}
-                    onThumbCountChange={(columnCount, rowCount) => {
-                      store.dispatch(setDefaultColumnCount(columnCount));
-                      store.dispatch(setDefaultRowCount(rowCount));
-                      if (this.props.currentFileId !== undefined) {
-                        store.dispatch(addDefaultThumbs(
-                          this.props.file,
-                          columnCount * rowCount
-                        ));
-                      }
-                    }}
                   />
                 </div>
               </Sidebar.Pusher>
@@ -370,7 +370,7 @@ class App extends Component {
             <Footer />
           </div>
         </div>
-        <Sticky
+        {/* <Sticky
           className={`${styles.FixedActionMenu}`}
         >
           <Menu compact icon="labeled" vertical size="mini">
@@ -401,7 +401,7 @@ class App extends Component {
             </Menu.Item>
 
           </Menu>
-        </Sticky>
+        </Sticky> */}
         <div id="dragbox" className={this.state.className}>
           Drop movie files
         </div>

@@ -38,22 +38,22 @@ class SortedVisibleThumbGrid extends Component {
   //     rowCount: store.getState().undoGroup.present.settings.defaultRowCount,
   //   });
   // }
-  //
-  // componentDidMount() {
-  //   console.log(this.props);
-  //   const { store } = this.context;
-  //   this.unsubscribe = store.subscribe(() => this.forceUpdate());
-  //   store.getState().undoGroup.present.files.map((singleFile) => {
-  //     if (store.getState().undoGroup.present.thumbsByFileId[singleFile.id] !== undefined) {
-  //       store.dispatch(updateObjectUrlsFromThumbList(
-  //         singleFile.id,
-  //         Object.values(store.getState().undoGroup.present
-  //           .thumbsByFileId[singleFile.id]
-  //           .thumbs).map((a) => a.id)
-  //       ));
-  //     }
-  //   });
-  // }
+
+  componentDidMount() {
+    console.log(this.props);
+    const { store } = this.context;
+    this.unsubscribe = store.subscribe(() => this.forceUpdate());
+    store.getState().undoGroup.present.files.map((singleFile) => {
+      if (store.getState().undoGroup.present.thumbsByFileId[singleFile.id] !== undefined) {
+        store.dispatch(updateObjectUrlsFromThumbList(
+          singleFile.id,
+          Object.values(store.getState().undoGroup.present
+            .thumbsByFileId[singleFile.id]
+            .thumbs).map((a) => a.id)
+        ));
+      }
+    });
+  }
 
   componentWillUnmount() {
     this.unsubscribe();
