@@ -151,7 +151,9 @@ const ThumbGrid = ({
 };
 
 ThumbGrid.defaultProps = {
-  controlersAreVisible: 'false'
+  controlersAreVisible: 'false',
+  thumbs: [],
+  file: {}
 };
 
 ThumbGrid.propTypes = {
@@ -160,18 +162,18 @@ ThumbGrid.propTypes = {
     index: PropTypes.number.isRequired,
     hidden: PropTypes.bool.isRequired,
     frameNumber: PropTypes.number.isRequired
-  }).isRequired).isRequired,
+  }).isRequired),
   thumbImages: PropTypes.object,
   // thumbImages: PropTypes.objectOf(PropTypes.objectOf(PropTypes.shape({
   //   objectUrl: PropTypes.string.isRequired
   // }).isRequired).isRequired).isRequired,
   file: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    width: PropTypes.number.isRequired,
-    height: PropTypes.number.isRequired,
-  }).isRequired,
+    id: PropTypes.string,
+    width: PropTypes.number,
+    height: PropTypes.number,
+  }),
   columnWidth: PropTypes.number.isRequired,
-  controlersAreVisible: PropTypes.string.isRequired,
+  controlersAreVisible: PropTypes.string,
   onToggleClick: PropTypes.func.isRequired,
   onRemoveClick: PropTypes.func.isRequired,
   onInPointClick: PropTypes.func.isRequired,
