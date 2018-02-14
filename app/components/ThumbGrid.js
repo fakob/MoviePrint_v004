@@ -75,8 +75,8 @@ const ThumbGrid = ({
     );
   }
 
-  if (editGrid === true) {
-  // if (false) {
+  // if (editGrid === true) {
+  if (false) {
     let tempArray = Array(thumbsAmount);
     thumbGridComponent = (
       Array.apply(null, tempArray).map((val, i) => {
@@ -135,18 +135,25 @@ const ThumbGrid = ({
       })
     );
   } else {
-    let tempArray = Array(thumbs.length);
-    let tempIterator = thumbs.length;
+    const thumbImageArrayLength = thumbs !== undefined ? thumbs.length : undefined;
+    let tempArray = Array(thumbImageArrayLength);
+    let tempIterator = Math.max(thumbImageArrayLength, thumbsAmount);
     while (tempIterator--) {
+      const mappedIterator = mapRange(
+        tempIterator,
+        0, (thumbs !== undefined ? thumbs.length : thumbImageArrayLength) - 1,
+        0, thumbImageArrayLength - 1
+      );
+      console.log(`${tempIterator} : ${mappedIterator}`);
       const tempThumbObject = {
-        id: tempIterator,
+        id: mappedIterator,
         index: tempIterator,
         frameNumber: 0,
       };
       // tempArray[tempIterator] = thumbs[tempIterator];
-      tempArray[tempIterator] = tempThumbObject;
+      tempArray[tempIterator] = thumbs[tempIterator] || tempThumbObject;
     }
-    console.log(tempArray);
+    // console.log(tempArray);
     thumbGridComponent = (
       tempArray.map(thumb => (
         <SortableThumb
@@ -156,7 +163,7 @@ const ThumbGrid = ({
           width={file.width || 1920}
           height={file.height || 1080}
           thumbWidth={thumbWidth}
-          controlersAreVisible={(thumb.id === controlersAreVisible)}
+          controlersAreVisible={editGrid ? undefined : (thumb.id === controlersAreVisible)}
           {...thumb}
           onToggle={() => onToggleClick(file.id, thumb.id)}
           onRemove={() => onRemoveClick(file.id, thumb.id)}
