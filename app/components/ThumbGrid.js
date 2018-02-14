@@ -76,8 +76,10 @@ const ThumbGrid = ({
   }
 
   if (editGrid === true) {
+  // if (false) {
+    let tempArray = Array(thumbsAmount);
     thumbGridComponent = (
-      Array.apply(null, Array(thumbsAmount)).map((val, i) => {
+      Array.apply(null, tempArray).map((val, i) => {
         const thumbImageArrayLength = thumbs !== undefined ? thumbs.length : undefined;
         let thumbImageObjectUrl;
         if (thumbImageArrayLength && thumbImages) {
@@ -88,6 +90,25 @@ const ThumbGrid = ({
         }
 
         return (
+          // <SortableThumb
+          //   key={thumb.id}
+          //   indexValue={thumb.index}
+          //   thumbImageObjectUrl={thumbImages !== undefined ? thumbImages[thumb.id] !== undefined ? thumbImages[thumb.id].objectUrl : undefined : undefined}
+          //   width={file.width || 1920}
+          //   height={file.height || 1080}
+          //   thumbWidth={thumbWidth}
+          //   controlersAreVisible={(thumb.id === controlersAreVisible)}
+          //   {...thumb}
+          //   onToggle={() => onToggleClick(file.id, thumb.id)}
+          //   onRemove={() => onRemoveClick(file.id, thumb.id)}
+          //   onInPoint={() => onInPointClick(file, thumbs, thumb.id, thumb.frameNumber)}
+          //   onOutPoint={() => onOutPointClick(file, thumbs, thumb.id, thumb.frameNumber)}
+          //   onBack={() => onBackClick(file, thumb.id, thumb.frameNumber)}
+          //   onForward={() => onForwardClick(file, thumb.id, thumb.frameNumber)}
+          //   onScrub={() => onScrubClick(file, thumb.id, thumb.frameNumber)}
+          //   onOver={() => onMouseOverResult(thumb.id)}
+          //   onOut={() => onMouseOutResult()}
+          // />
           <div
             key={i}
             className={styles.gridItem}
@@ -114,8 +135,20 @@ const ThumbGrid = ({
       })
     );
   } else {
+    let tempArray = Array(thumbs.length);
+    let tempIterator = thumbs.length;
+    while (tempIterator--) {
+      const tempThumbObject = {
+        id: tempIterator,
+        index: tempIterator,
+        frameNumber: 0,
+      };
+      // tempArray[tempIterator] = thumbs[tempIterator];
+      tempArray[tempIterator] = tempThumbObject;
+    }
+    console.log(tempArray);
     thumbGridComponent = (
-      thumbs.map(thumb => (
+      tempArray.map(thumb => (
         <SortableThumb
           key={thumb.id}
           indexValue={thumb.index}
@@ -127,8 +160,8 @@ const ThumbGrid = ({
           {...thumb}
           onToggle={() => onToggleClick(file.id, thumb.id)}
           onRemove={() => onRemoveClick(file.id, thumb.id)}
-          onInPoint={() => onInPointClick(file, thumbs, thumb.id, thumb.frameNumber)}
-          onOutPoint={() => onOutPointClick(file, thumbs, thumb.id, thumb.frameNumber)}
+          onInPoint={() => onInPointClick(file, tempArray, thumb.id, thumb.frameNumber)}
+          onOutPoint={() => onOutPointClick(file, tempArray, thumb.id, thumb.frameNumber)}
           onBack={() => onBackClick(file, thumb.id, thumb.frameNumber)}
           onForward={() => onForwardClick(file, thumb.id, thumb.frameNumber)}
           onScrub={() => onScrubClick(file, thumb.id, thumb.frameNumber)}
