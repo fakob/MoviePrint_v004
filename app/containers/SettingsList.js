@@ -40,25 +40,6 @@ const SettingsList = ({
         <Segment.Group>
           <Segment>
             <Statistic horizontal>
-              <Statistic.Value>{rowCountTemp}</Statistic.Value>
-              <Statistic.Label>{(rowCountTemp === 1) ? 'Row' : 'Rows'}</Statistic.Label>
-            </Statistic>
-            <Slider
-              className={styles.slider}
-              min={1}
-              max={20}
-              defaultValue={rowCountTemp}
-              marks={{
-                1: '1',
-                20: '20',
-              }}
-              handle={handle}
-              onChange={onChangeRow}
-              // onAfterChange={onAfterChangeRow}
-            />
-          </Segment>
-          <Segment>
-            <Statistic horizontal>
               <Statistic.Value>{columnCountTemp}</Statistic.Value>
               <Statistic.Label>{(columnCountTemp === 1) ? 'Column' : 'Columns'}</Statistic.Label>
             </Statistic>
@@ -74,6 +55,25 @@ const SettingsList = ({
               handle={handle}
               onChange={onChangeColumn}
               // onAfterChange={onAfterChangeColumn}
+            />
+          </Segment>
+          <Segment>
+            <Statistic horizontal>
+              <Statistic.Value>{rowCountTemp}</Statistic.Value>
+              <Statistic.Label>{(rowCountTemp === 1) ? 'Row' : 'Rows'}</Statistic.Label>
+            </Statistic>
+            <Slider
+              className={styles.slider}
+              min={1}
+              max={20}
+              defaultValue={rowCountTemp}
+              marks={{
+                1: '1',
+                20: '20',
+              }}
+              handle={handle}
+              onChange={onChangeRow}
+              // onAfterChange={onAfterChangeRow}
             />
           </Segment>
         </Segment.Group>

@@ -54,145 +54,72 @@ const ThumbGrid = ({
   let thumbGridHeaderComponent = null;
   let thumbGridComponent = null;
 
-  // if (editGrid === true) {
-  if (false) {
-    thumbGridHeaderComponent = (
-      <div
-        className={styles.gridHeader}
-        style={{
-          height: headerHeight * scaleValue,
-          backgroundColor: 'black',
-          margin: newThumbMargin,
-        }}
-      />
-    );
-  } else {
-    thumbGridHeaderComponent = (
-      <ThumbGridHeader
-        fileName={file.name || ''}
-        filePath={file.path || ''}
-        headerHeight={settings.defaultHeaderHeight}
-      />
-    );
-  }
+  thumbGridHeaderComponent = (
+    <ThumbGridHeader
+      fileName={file.name || ''}
+      filePath={file.path || ''}
+      headerHeight={settings.defaultHeaderHeight}
+    />
+  );
 
-  // if (editGrid === true) {
-  if (false) {
-    let tempArray = Array(thumbsAmount);
-    thumbGridComponent = (
-      Array.apply(null, tempArray).map((val, i) => {
-        const thumbImageArrayLength = thumbs !== undefined ? thumbs.length : undefined;
-        let thumbImageObjectUrl;
-        if (thumbImageArrayLength && thumbImages) {
-          const mappedIterator = mapRange(i, 0, thumbsAmount - 1, 0, thumbImageArrayLength - 1);
-          if (thumbImages[thumbs[mappedIterator].id]) {
-            thumbImageObjectUrl = thumbImages[thumbs[mappedIterator].id].objectUrl;
-          }
-        }
-
-        return (
-          // <SortableThumb
-          //   key={thumb.id}
-          //   indexValue={thumb.index}
-          //   thumbImageObjectUrl={thumbImages !== undefined ? thumbImages[thumb.id] !== undefined ? thumbImages[thumb.id].objectUrl : undefined : undefined}
-          //   width={file.width || 1920}
-          //   height={file.height || 1080}
-          //   thumbWidth={thumbWidth}
-          //   controlersAreVisible={(thumb.id === controlersAreVisible)}
-          //   {...thumb}
-          //   onToggle={() => onToggleClick(file.id, thumb.id)}
-          //   onRemove={() => onRemoveClick(file.id, thumb.id)}
-          //   onInPoint={() => onInPointClick(file, thumbs, thumb.id, thumb.frameNumber)}
-          //   onOutPoint={() => onOutPointClick(file, thumbs, thumb.id, thumb.frameNumber)}
-          //   onBack={() => onBackClick(file, thumb.id, thumb.frameNumber)}
-          //   onForward={() => onForwardClick(file, thumb.id, thumb.frameNumber)}
-          //   onScrub={() => onScrubClick(file, thumb.id, thumb.frameNumber)}
-          //   onOver={() => onMouseOverResult(thumb.id)}
-          //   onOut={() => onMouseOutResult()}
-          // />
-          <div
-            key={i}
-            className={styles.gridItem}
-            style={{
-              // width: newthumbWidth,
-              // height: newThumbHeight,
-              // backgroundColor: 'black',
-              margin: newThumbMargin,
-            }}
-          >
-            <img
-              src={thumbImageObjectUrl || empty}
-              style={{
-                float: 'left',
-                borderRadius: 8 * scaleValue,
-                margin: newThumbMargin,
-              }}
-              alt=""
-              width={newthumbWidth}
-              height={newThumbHeight}
-            />
-          </div>
-        );
-      })
+  const thumbImageArrayLength = thumbs !== undefined ? thumbs.length : undefined;
+  // const tempArrayLength = Math.max(thumbImageArrayLength, thumbsAmount);
+  const tempArrayLength = thumbsAmount;
+  let tempArray = Array(tempArrayLength);
+  let tempIterator = tempArrayLength;
+  while (tempIterator--) {
+    const mappedIterator = mapRange(
+      tempIterator,
+      0, (thumbs !== undefined ? thumbs.length : tempArrayLength) - 1,
+      0, tempArrayLength - 1
     );
-  } else {
-    const thumbImageArrayLength = thumbs !== undefined ? thumbs.length : undefined;
-    let tempArray = Array(thumbImageArrayLength);
-    const maxLength = Math.max(thumbImageArrayLength, thumbsAmount);
-    let tempIterator = maxLength;
-    while (tempIterator--) {
-      const mappedIterator = mapRange(
-        tempIterator,
-        0, (thumbs !== undefined ? thumbs.length : maxLength) - 1,
-        0, maxLength - 1
-      );
-      // console.log(`${tempIterator} : ${thumbs.length} : ${thumbsAmount} : ${maxLength} : ${tempIterator}`);
-      let tempThumbObject;
-      if (thumbs[tempIterator] === undefined) {
-        tempThumbObject = {
-          id: String(mappedIterator),
-          key: String(tempIterator),
-          index: tempIterator,
-          frameNumber: 0,
-        };
-      } else {
-        tempThumbObject = thumbs[tempIterator];
-        tempThumbObject.key = thumbs[tempIterator].id;
-        tempThumbObject.index = tempIterator;
-      }
-      // tempArray[tempIterator] = thumbs[tempIterator];
-      // console.log(tempThumbObject);
-      tempArray[tempIterator] = tempThumbObject;
+    // console.log(`${tempIterator} : ${thumbs.length} : ${thumbsAmount} : ${tempArrayLength} : ${tempIterator}`);
+    let tempThumbObject;
+    if (thumbs[tempIterator] === undefined) {
+      tempThumbObject = {
+        id: String(mappedIterator),
+        key: String(tempIterator),
+        index: tempIterator,
+        frameNumber: 0,
+      };
+    } else {
+      tempThumbObject = thumbs[tempIterator];
+      tempThumbObject.key = thumbs[tempIterator].id;
+      tempThumbObject.index = tempIterator;
     }
-    thumbGridComponent = (
-      tempArray.map(thumb => (
-        <SortableThumb
-          key={thumb.key}
-          indexValue={thumb.index}
-          thumbImageObjectUrl={thumbImages !== undefined ? thumbImages[thumb.id] !== undefined ? thumbImages[thumb.id].objectUrl : undefined : undefined}
-          width={file.width || 1920}
-          height={file.height || 1080}
-          thumbWidth={thumbWidth}
-          frameNumber={thumb.frameNumber || 0}
-          controlersAreVisible={editGrid ? undefined : (thumb.id === controlersAreVisible)}
-          onToggle={() => onToggleClick(file.id, thumb.id)}
-          onRemove={() => onRemoveClick(file.id, thumb.id)}
-          onInPoint={() => onInPointClick(file, tempArray, thumb.id, thumb.frameNumber)}
-          onOutPoint={() => onOutPointClick(file, tempArray, thumb.id, thumb.frameNumber)}
-          onBack={() => onBackClick(file, thumb.id, thumb.frameNumber)}
-          onForward={() => onForwardClick(file, thumb.id, thumb.frameNumber)}
-          onScrub={() => onScrubClick(file, thumb.id, thumb.frameNumber)}
-          onOver={() => onMouseOverResult(thumb.id)}
-          onOut={() => onMouseOutResult()}
-        />))
-    );
+    // tempArray[tempIterator] = thumbs[tempIterator];
+    // console.log(tempThumbObject);
+    tempArray[tempIterator] = tempThumbObject;
   }
+  thumbGridComponent = (
+    tempArray.map(thumb => (
+      <SortableThumb
+        key={thumb.key}
+        indexValue={thumb.index}
+        thumbImageObjectUrl={thumbImages !== undefined ? thumbImages[thumb.id] !== undefined ? thumbImages[thumb.id].objectUrl : undefined : undefined}
+        width={file.width || 1920}
+        height={file.height || 1080}
+        thumbWidth={thumbWidth}
+        frameNumber={thumb.frameNumber || 0}
+        controlersAreVisible={editGrid ? undefined : (thumb.id === controlersAreVisible)}
+        onToggle={() => onToggleClick(file.id, thumb.id)}
+        onRemove={() => onRemoveClick(file.id, thumb.id)}
+        onInPoint={() => onInPointClick(file, tempArray, thumb.id, thumb.frameNumber)}
+        onOutPoint={() => onOutPointClick(file, tempArray, thumb.id, thumb.frameNumber)}
+        onBack={() => onBackClick(file, thumb.id, thumb.frameNumber)}
+        onForward={() => onForwardClick(file, thumb.id, thumb.frameNumber)}
+        onScrub={() => onScrubClick(file, thumb.id, thumb.frameNumber)}
+        onOver={() => onMouseOverResult(thumb.id)}
+        onOut={() => onMouseOutResult()}
+      />))
+  );
 
   return (
     <div
       className={styles.grid}
       style={{
-        width: editGrid ? columnWidth * scaleValue : columnWidth,
+        // width: editGrid ? columnWidth * scaleValue : columnWidth,
+        width: columnWidth,
       }}
       id="ThumbGrid"
     >
