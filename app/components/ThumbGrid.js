@@ -19,7 +19,7 @@ const ThumbGrid = ({
   controlersAreVisible,
   onToggleClick, onRemoveClick, onInPointClick, onOutPointClick,
   onBackClick, onForwardClick, onScrubClick,
-  onMouseOverResult, onMouseOutResult, settings, showEditGrid, showPlaceholder,
+  onMouseOverResult, onMouseOutResult, settings, editGrid, showPlaceholder,
   columnCount, rowCount, width, height, contentHeight, contentWidth
 }) => {
   const thumbsAmount = columnCount * rowCount;
@@ -54,7 +54,7 @@ const ThumbGrid = ({
   let thumbGridHeaderComponent = null;
   let thumbGridComponent = null;
 
-  if (showEditGrid === true) {
+  if (editGrid === true) {
     thumbGridHeaderComponent = (
       <div
         className={styles.gridHeader}
@@ -74,7 +74,7 @@ const ThumbGrid = ({
     );
   }
 
-  if (showEditGrid === true) {
+  if (editGrid === true) {
     thumbGridComponent = (
       Array.apply(null, Array(thumbsAmount)).map((val, i) => {
         const thumbImageArrayLength = thumbs !== undefined ? thumbs.length : undefined;
@@ -140,7 +140,7 @@ const ThumbGrid = ({
     <div
       className={styles.grid}
       style={{
-        width: showEditGrid ? columnWidth * scaleValue : columnWidth,
+        width: editGrid ? columnWidth * scaleValue : columnWidth,
       }}
       id="ThumbGrid"
     >

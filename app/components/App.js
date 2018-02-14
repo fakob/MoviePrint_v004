@@ -31,7 +31,7 @@ class App extends Component {
       isManipulatingSliderInHeader: false,
       showPlaceholder: true,
       modalIsOpen: false,
-      showEditGrid: true,
+      editGrid: true,
       contentHeight: 0,
       contentWidth: 0,
       columnCountTemp: undefined,
@@ -51,7 +51,7 @@ class App extends Component {
     this.closeModal = this.closeModal.bind(this);
     this.setNewFrame = this.setNewFrame.bind(this);
 
-    this.showEditGrid = this.showEditGrid.bind(this);
+    this.editGrid = this.editGrid.bind(this);
     this.hideEditGrid = this.hideEditGrid.bind(this);
     this.onShowThumbs = this.onShowThumbs.bind(this);
     this.onZoomOut = this.onZoomOut.bind(this);
@@ -136,7 +136,7 @@ class App extends Component {
           if (store.getState().visibilitySettings.showRightSidebar) {
             this.onCancelClick();
           } else {
-            this.showEditGrid();
+            this.editGrid();
           }
           break;
         case 80: // press 'p'
@@ -212,15 +212,15 @@ class App extends Component {
     this.closeModal();
   }
 
-  showEditGrid() {
+  editGrid() {
     const { store } = this.context;
-    this.setState({ showEditGrid: true });
+    this.setState({ editGrid: true });
     store.dispatch(showRightSidebar());
   }
 
   hideEditGrid() {
     const { store } = this.context;
-    this.setState({ showEditGrid: false });
+    this.setState({ editGrid: false });
     store.dispatch(hideRightSidebar());
   }
 
@@ -353,7 +353,7 @@ class App extends Component {
               <Sidebar.Pusher>
                 <div className={`${styles.ItemMain}`}>
                   <SortedVisibleThumbGrid
-                    showEditGrid={this.state.showEditGrid}
+                    editGrid={this.state.editGrid}
                     showPlaceholder={this.state.showPlaceholder}
 
                     columnWidth={this.props.defaultColumnCount
@@ -378,7 +378,7 @@ class App extends Component {
         >
           <Menu compact icon="labeled" size="mini">
 
-            {this.state.showEditGrid === false &&
+            {this.state.editGrid === false &&
               <Menu.Item name="zoom" onClick={this.onZoomOut}>
                 <Icon
                   name={(this.props.visibilitySettings.zoomOut) ? 'zoom in' : 'zoom out'}
@@ -387,7 +387,7 @@ class App extends Component {
               </Menu.Item>
             }
 
-            {this.state.showEditGrid === false &&
+            {this.state.editGrid === false &&
               <Menu.Item name="hide" onClick={this.onShowThumbs}>
                 <Icon
                   name={(this.props.visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') ? 'unhide' : 'hide'}
@@ -396,7 +396,7 @@ class App extends Component {
               </Menu.Item>
             }
 
-            {this.state.showEditGrid === false &&
+            {this.state.editGrid === false &&
               <Menu.Item name="save" onClick={this.onSaveMoviePrint}>
                 <Icon
                   name="save"
@@ -405,11 +405,11 @@ class App extends Component {
               </Menu.Item>
             }
 
-            <Menu.Item name="edit" onClick={(this.state.showEditGrid === false) ? this.showEditGrid : this.hideEditGrid}>
+            <Menu.Item name="edit" onClick={(this.state.editGrid === false) ? this.editGrid : this.hideEditGrid}>
               <Icon
-                name={(this.state.showEditGrid === false) ? 'edit' : 'cancel'}
+                name={(this.state.editGrid === false) ? 'edit' : 'cancel'}
               />
-              {(this.state.showEditGrid === false) ? 'Edit' : 'Cancel'}
+              {(this.state.editGrid === false) ? 'Edit' : 'Cancel'}
             </Menu.Item>
 
           </Menu>

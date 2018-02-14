@@ -82,13 +82,13 @@ class SortedVisibleThumbGrid extends Component {
         <Grid.Column
           key="2"
           width={16}
-          className={this.props.showEditGrid ? styles.PaperLandscape : undefined}
+          className={this.props.editGrid ? styles.PaperLandscape : undefined}
           style={{
             // backgroundColor: 'gold',
           }}
         >
           <SortableThumbGrid
-            showEditGrid={this.props.showEditGrid}
+            editGrid={this.props.editGrid}
             showPlaceholder={this.props.showPlaceholder}
             thumbs={this.props.thumbs}
             thumbImages={this.props.thumbImages}
