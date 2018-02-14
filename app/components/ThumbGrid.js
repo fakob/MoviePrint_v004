@@ -79,10 +79,11 @@ const ThumbGrid = ({
       Array.apply(null, Array(thumbsAmount)).map((val, i) => {
         const thumbImageArrayLength = thumbs !== undefined ? thumbs.length : undefined;
         let thumbImageObjectUrl;
-        if (thumbImageArrayLength) {
+        if (thumbImageArrayLength && thumbImages) {
           const mappedIterator = mapRange(i, 0, thumbsAmount - 1, 0, thumbImageArrayLength - 1);
-          thumbImageObjectUrl = (thumbImageArrayLength !== undefined ?
-            thumbImages[thumbs[mappedIterator].id].objectUrl : undefined);
+          if (thumbImages[thumbs[mappedIterator].id]) {
+            thumbImageObjectUrl = thumbImages[thumbs[mappedIterator].id].objectUrl;
+          }
         }
 
         return (

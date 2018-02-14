@@ -143,7 +143,8 @@ const mapStateToProps = state => {
       tempThumbs,
       state.visibilitySettings.visibilityFilter
     ),
-    thumbImages: state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId],
+    thumbImages: (typeof state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId] === 'undefined')
+      ? undefined : state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId],
     files: state.undoGroup.present.files,
     file: state.undoGroup.present.files.find((file) =>
       file.id === state.undoGroup.present.settings.currentFileId),
