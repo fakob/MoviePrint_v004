@@ -68,7 +68,8 @@ const ThumbGrid = ({
   } else {
     thumbGridHeaderComponent = (
       <ThumbGridHeader
-        file={file}
+        fileName={file.name || ''}
+        filePath={file.path || ''}
         headerHeight={settings.defaultHeaderHeight}
       />
     );
