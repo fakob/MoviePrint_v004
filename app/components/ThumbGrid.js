@@ -64,44 +64,54 @@ const ThumbGrid = ({
 
   let thumbArray;
   let inputProps;
+  let thumbImageObjectUrl;
 
   if (editGrid) {
     const thumbImageArrayLength = thumbs !== undefined ? thumbs.length : undefined;
     // const tempArrayLength = Math.max(thumbImageArrayLength, thumbsAmount);
+
     const tempArrayLength = thumbsAmount;
     thumbArray = Array(tempArrayLength);
-    let tempIterator = tempArrayLength;
-    while (tempIterator--) {
+    // thumbArray = Array.apply(null, Array(tempArrayLength)).map((val, i) => {
+    //   // const thumbImageArrayLength = thumbs !== undefined ? thumbs.length : undefined;
+    //   if (thumbImageArrayLength && thumbImages) {
+    //     const mappedIterator = mapRange(i, 0, thumbsAmount - 1, 0, thumbImageArrayLength - 1);
+    //     if (thumbImages[thumbs[mappedIterator].id]) {
+    //       thumbImageObjectUrl = thumbImages[thumbs[mappedIterator].id].objectUrl;
+    //     }
+    //   }
+    // });
+    for (let i = 0; i < tempArrayLength; i++) {
       const mappedIterator = mapRange(
-        tempIterator,
+        i,
         0, tempArrayLength - 1,
         0, (thumbs !== undefined ? thumbs.length : tempArrayLength) - 1
       );
-      // console.log(`${tempIterator} : ${thumbs.length} : ${thumbsAmount} : ${tempArrayLength} : ${tempIterator}`);
+      // console.log(`${i} : ${thumbs.length} : ${thumbsAmount} : ${tempArrayLength} : ${i}`);
       let tempThumbObject = {
-        disabled: editGrid,
         id: String(mappedIterator),
       };
-      if (thumbs[tempIterator] === undefined) {
+      if (thumbs[i] === undefined) {
         tempThumbObject = {
-          key: String(tempIterator),
-          index: tempIterator,
-          frameNumber: 0,
+          key: String(i),
+          index: i,
+          // frameNumber: 0,
         };
       } else {
         tempThumbObject = thumbs[mappedIterator];
         // tempThumbObject.id = thumbs[mappedIterator].id;
-        tempThumbObject.key = thumbs[tempIterator].id;
-        tempThumbObject.index = tempIterator;
+        tempThumbObject.key = thumbs[i].id;
+        tempThumbObject.index = i;
       }
-      // tempArray[tempIterator] = thumbs[tempIterator];
-      // console.log(`${thumbImages} : ${thumbImages[tempThumbObject.id]} : ${thumbImages[tempThumbObject.id].objectUrl} : ${tempIterator}`);
-      console.log(`${thumbImages} : ${thumbImages[tempThumbObject.id]} : ${tempIterator} : ${mappedIterator}`);
-      console.log(thumbImages[tempThumbObject.id]);
-      thumbArray[tempIterator] = tempThumbObject;
+      // tempArray[i] = thumbs[i];
+      // console.log(`${thumbImages} : ${thumbImages[tempThumbObject.id]} : ${thumbImages[tempThumbObject.id].objectUrl} : ${i}`);
+      // console.log(`${thumbImages} : ${thumbImages[tempThumbObject.id]} : ${i} : ${mappedIterator}`);
+      // console.log(thumbImages[tempThumbObject.id]);
+      thumbArray[i] = tempThumbObject;
     }
   } else {
     thumbArray = thumbs;
+    console.log(thumbArray);
   }
   console.log(thumbArray);
   thumbGridComponent = (
@@ -109,11 +119,11 @@ const ThumbGrid = ({
       <SortableThumb
         key={thumb.key}
         indexValue={thumb.index}
-        thumbImageObjectUrl={thumbImages !== undefined ? thumbImages[thumb.id] !== undefined ? thumbImages[thumb.id].objectUrl : undefined : undefined}
+        thumbImageObjectUrl={thumbImageObjectUrl || (thumbImages !== undefined ? thumbImages[thumb.id] !== undefined ? thumbImages[thumb.id].objectUrl : undefined : undefined)}
         width={file.width || 1920}
         height={file.height || 1080}
         thumbWidth={thumbWidth}
-        frameNumber={thumb.frameNumber || 0}
+        frameNumber={editGrid ? undefined : thumb.frameNumber}
         controlersAreVisible={editGrid ? undefined : (thumb.id === controlersAreVisible)}
         disabled={editGrid}
         onToggle={editGrid ? null : () => onToggleClick(file.id, thumb.id)}

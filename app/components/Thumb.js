@@ -77,11 +77,13 @@ const Thumb = ({
         width={`${thumbWidth}px`}
         height={`${(thumbWidth * (height / width))}px`}
       />
-      <div
-        className={styles.frameNumber}
-      >
-        {pad(frameNumber, 4)}
-      </div>
+      {frameNumber !== undefined &&
+        <div
+          className={styles.frameNumber}
+        >
+          {pad(frameNumber, 4)}
+        </div>
+      }
       <div
         style={{
           display: controlersAreVisible ? 'block' : 'none'
