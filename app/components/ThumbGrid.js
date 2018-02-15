@@ -63,6 +63,7 @@ const ThumbGrid = ({
   );
 
   let thumbArray;
+  let inputProps;
 
   if (editGrid) {
     const thumbImageArrayLength = thumbs !== undefined ? thumbs.length : undefined;
@@ -101,11 +102,8 @@ const ThumbGrid = ({
     }
   } else {
     thumbArray = thumbs;
-    // const inputProps = {
-    //   value: 'foo',
-    //   onChange: this.handleChange
-    // };
   }
+  console.log(thumbArray);
   thumbGridComponent = (
     thumbArray.map(thumb => (
       <SortableThumb
@@ -117,15 +115,16 @@ const ThumbGrid = ({
         thumbWidth={thumbWidth}
         frameNumber={thumb.frameNumber || 0}
         controlersAreVisible={editGrid ? undefined : (thumb.id === controlersAreVisible)}
-        onToggle={() => onToggleClick(file.id, thumb.id)}
-        onRemove={() => onRemoveClick(file.id, thumb.id)}
-        onInPoint={() => onInPointClick(file, thumbArray, thumb.id, thumb.frameNumber)}
-        onOutPoint={() => onOutPointClick(file, thumbArray, thumb.id, thumb.frameNumber)}
-        onBack={() => onBackClick(file, thumb.id, thumb.frameNumber)}
-        onForward={() => onForwardClick(file, thumb.id, thumb.frameNumber)}
-        onScrub={() => onScrubClick(file, thumb.id, thumb.frameNumber)}
-        onOver={() => onMouseOverResult(thumb.id)}
-        onOut={() => onMouseOutResult()}
+        disabled={editGrid}
+        onToggle={editGrid ? null : () => onToggleClick(file.id, thumb.id)}
+        onRemove={editGrid ? null : () => onRemoveClick(file.id, thumb.id)}
+        onInPoint={editGrid ? null : () => onInPointClick(file, thumbArray, thumb.id, thumb.frameNumber)}
+        onOutPoint={editGrid ? null : () => onOutPointClick(file, thumbArray, thumb.id, thumb.frameNumber)}
+        onBack={editGrid ? null : () => onBackClick(file, thumb.id, thumb.frameNumber)}
+        onForward={editGrid ? null : () => onForwardClick(file, thumb.id, thumb.frameNumber)}
+        onScrub={editGrid ? null : () => onScrubClick(file, thumb.id, thumb.frameNumber)}
+        onOver={editGrid ? null : () => onMouseOverResult(thumb.id)}
+        onOut={editGrid ? null : () => onMouseOutResult()}
       />))
   );
 
