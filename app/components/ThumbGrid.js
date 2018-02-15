@@ -91,13 +91,13 @@ const ThumbGrid = ({
       let tempThumbObject = {
         id: String(mappedIterator),
       };
-      if (thumbs[i] === undefined) {
-        tempThumbObject = {
-          // key: String(i),
-          index: i,
-          // frameNumber: 0,
-        };
-      } else {
+      // if (thumbs[i] === undefined) {
+      //   tempThumbObject = {
+      //     // key: String(i),
+      //     index: i,
+      //     // frameNumber: 0,
+      //   };
+      // } else {
         // tempThumbObject = thumbs[mappedIterator];
         // tempThumbObject.id = thumbs[mappedIterator].id;
         // tempThumbObject.key = thumbs[i].id;
@@ -105,11 +105,12 @@ const ThumbGrid = ({
         tempThumbObject.index = i;
         if (thumbImages[thumbs[mappedIterator].id]) {
           tempThumbObject.thumbImageObjectUrl = thumbImages[thumbs[mappedIterator].id].objectUrl;
-        }
+        // }
       }
       // tempArray[i] = thumbs[i];
       // console.log(`${thumbImages} : ${thumbImages[tempThumbObject.id]} : ${thumbImages[tempThumbObject.id].objectUrl} : ${i}`);
       // console.log(`${thumbImages} : ${thumbImages[tempThumbObject.id]} : ${i} : ${mappedIterator}`);
+      console.log(`${i} : ${mappedIterator}`);
       // console.log(thumbImages[tempThumbObject.id]);
       thumbArray[i] = tempThumbObject;
     }
