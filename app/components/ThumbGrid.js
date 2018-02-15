@@ -63,14 +63,12 @@ const ThumbGrid = ({
   );
 
   let thumbArray;
-  let inputProps;
-  let thumbImageObjectUrl;
 
   if (editGrid || thumbs.length === 0) {
     const tempArrayLength = thumbsAmount;
     thumbArray = Array(tempArrayLength);
 
-    for (let i = 0; i < tempArrayLength; i++) {
+    for (let i = 0; i < tempArrayLength; i += 1) {
       const mappedIterator = mapRange(
         i,
         0, tempArrayLength - 1,
@@ -79,7 +77,7 @@ const ThumbGrid = ({
       let tempThumbObject = {
         id: String(mappedIterator),
       };
-      console.log(thumbs);
+      // console.log(thumbs);
       if (thumbs.length === 0) {
         tempThumbObject = {
           key: String(i),
@@ -92,19 +90,22 @@ const ThumbGrid = ({
           tempThumbObject.thumbImageObjectUrl = thumbImages[thumbs[mappedIterator].id].objectUrl;
         }
       }
-      console.log(`${i} : ${mappedIterator}`);
+      // console.log(`${i} : ${mappedIterator}`);
       thumbArray[i] = tempThumbObject;
     }
   } else {
     thumbArray = thumbs;
   }
-  console.log(thumbArray);
+  // console.log(thumbArray);
   thumbGridComponent = (
     thumbArray.map(thumb => (
       <SortableThumb
         key={thumb.key}
-        indexValue={thumb.index}
-        thumbImageObjectUrl={thumb.thumbImageObjectUrl || (thumbImages !== undefined ? thumbImages[thumb.id] !== undefined ? thumbImages[thumb.id].objectUrl : undefined : undefined)}
+        index={thumb.index}
+        thumbImageObjectUrl={thumb.thumbImageObjectUrl ||
+          (thumbImages !== undefined ?
+            thumbImages[thumb.id] !== undefined ?
+              thumbImages[thumb.id].objectUrl : undefined : undefined)}
         width={file.width || 1920}
         height={file.height || 1080}
         thumbWidth={thumbWidth}

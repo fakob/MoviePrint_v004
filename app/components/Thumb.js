@@ -184,22 +184,21 @@ Thumb.defaultProps = {
 };
 
 Thumb.propTypes = {
-  // id: PropTypes.string.isRequired,
-  width: PropTypes.number.isRequired,
-  height: PropTypes.number.isRequired,
-  onToggle: PropTypes.func.isRequired,
-  thumbWidth: PropTypes.number.isRequired,
-  hidden: PropTypes.bool.isRequired,
-  controlersAreVisible: PropTypes.bool.isRequired,
-  frameNumber: PropTypes.number.isRequired,
+  width: PropTypes.number,
+  height: PropTypes.number,
+  thumbWidth: PropTypes.number,
+  hidden: PropTypes.bool,
+  controlersAreVisible: PropTypes.bool,
+  frameNumber: PropTypes.number,
   thumbImageObjectUrl: PropTypes.string,
-  onInPoint: PropTypes.func.isRequired,
-  onOutPoint: PropTypes.func.isRequired,
-  onBack: PropTypes.func.isRequired,
-  onForward: PropTypes.func.isRequired,
-  onScrub: PropTypes.func.isRequired,
-  onOver: PropTypes.func.isRequired,
-  onOut: PropTypes.func.isRequired,
+  onToggle: PropTypes.func,
+  onInPoint: PropTypes.func,
+  onOutPoint: PropTypes.func,
+  onBack: PropTypes.func,
+  onForward: PropTypes.func,
+  onScrub: PropTypes.func,
+  onOver: PropTypes.func,
+  onOut: PropTypes.func,
 };
 
 export default Thumb;
