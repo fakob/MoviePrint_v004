@@ -184,7 +184,7 @@ Thumb.defaultProps = {
 };
 
 Thumb.propTypes = {
-  id: PropTypes.string.isRequired,
+  // id: PropTypes.string.isRequired,
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
   onToggle: PropTypes.func.isRequired,

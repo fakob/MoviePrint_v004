@@ -93,15 +93,19 @@ const ThumbGrid = ({
       };
       if (thumbs[i] === undefined) {
         tempThumbObject = {
-          key: String(i),
+          // key: String(i),
           index: i,
           // frameNumber: 0,
         };
       } else {
-        tempThumbObject = thumbs[mappedIterator];
+        // tempThumbObject = thumbs[mappedIterator];
         // tempThumbObject.id = thumbs[mappedIterator].id;
-        tempThumbObject.key = thumbs[i].id;
+        // tempThumbObject.key = thumbs[i].id;
+        tempThumbObject.key = i;
         tempThumbObject.index = i;
+        if (thumbImages[thumbs[mappedIterator].id]) {
+          tempThumbObject.thumbImageObjectUrl = thumbImages[thumbs[mappedIterator].id].objectUrl;
+        }
       }
       // tempArray[i] = thumbs[i];
       // console.log(`${thumbImages} : ${thumbImages[tempThumbObject.id]} : ${thumbImages[tempThumbObject.id].objectUrl} : ${i}`);
@@ -119,7 +123,7 @@ const ThumbGrid = ({
       <SortableThumb
         key={thumb.key}
         indexValue={thumb.index}
-        thumbImageObjectUrl={thumbImageObjectUrl || (thumbImages !== undefined ? thumbImages[thumb.id] !== undefined ? thumbImages[thumb.id].objectUrl : undefined : undefined)}
+        thumbImageObjectUrl={thumb.thumbImageObjectUrl || (thumbImages !== undefined ? thumbImages[thumb.id] !== undefined ? thumbImages[thumb.id].objectUrl : undefined : undefined)}
         width={file.width || 1920}
         height={file.height || 1080}
         thumbWidth={thumbWidth}
