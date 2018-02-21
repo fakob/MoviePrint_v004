@@ -34,31 +34,18 @@ const handle = (props) => {
 class SettingsList extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      checkBoxChecked: false,
-    };
+    // this.state = {
+    //   checkBoxChecked: false,
+    // };
 
     this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   handleChange = (e, { checked }) => {
-    this.setState({
-      checkBoxChecked: checked
-    });
-    console.log(e);
-    console.log(checked);
-  }
-
-  // handleChange(event) {
-  //   this.setState({
-  //     checkBoxChecked: event.target.checked
-  //   });
-  // }
-
-  handleSubmit(event) {
-    alert('A name was submitted: ' + this.state.checkBoxChecked);
-    event.preventDefault();
+    // this.setState({
+    //   checkBoxChecked: checked
+    // });
+    this.props.onReCaptureClick(checked);
   }
 
   render() {
@@ -70,8 +57,8 @@ class SettingsList extends Component {
               <Checkbox
                 toggle
                 label="Re-capture frames"
-                // value={this.state.checkBoxChecked}
-                checked={this.state.checkBoxChecked}
+                // checked={this.state.checkBoxChecked}
+                checked={this.props.reCapture}
                 onChange={this.handleChange}
               />
             </Segment>
@@ -94,7 +81,7 @@ class SettingsList extends Component {
                 // onAfterChange={this.props.onAfterChangeColumn}
               />
             </Segment>
-            {this.state.checkBoxChecked === true &&
+            {this.props.reCapture === true &&
               <Segment>
                 <Statistic horizontal>
                   <Statistic.Value>{this.props.rowCountTemp}</Statistic.Value>

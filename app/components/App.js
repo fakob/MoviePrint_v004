@@ -38,6 +38,7 @@ class App extends Component {
       rowCountTemp: undefined,
       columnCount: undefined,
       rowCount: undefined,
+      reCapture: false,
     };
 
     this.onDragEnter = this.onDragEnter.bind(this);
@@ -61,6 +62,7 @@ class App extends Component {
 
     this.onChangeRow = this.onChangeRow.bind(this);
     this.onChangeColumn = this.onChangeColumn.bind(this);
+    this.onReCaptureClick = this.onReCaptureClick.bind(this);
     this.onApplyClick = this.onApplyClick.bind(this);
     this.onCancelClick = this.onCancelClick.bind(this);
   }
@@ -256,10 +258,20 @@ class App extends Component {
     this.setState({ columnCountTemp: value });
   };
 
+  onReCaptureClick = (checked) => {
+    if (!checked) {
+      this.setState({ rowCountTemp: this.state.rowCount });
+    }
+    this.setState({ reCapture: checked });
+  };
+
   onApplyClick = () => {
-    this.setState({ rowCount: this.state.rowCountTemp });
+    // console.log(`${this.state.columnCount} : ${this.state.columnCountTemp} || ${this.state.rowCount} : ${this.state.rowCountTemp}`);
     this.setState({ columnCount: this.state.columnCountTemp });
-    this.onThumbCountChange(this.state.columnCountTemp, this.state.rowCountTemp);
+    if (this.state.reCapture) {
+      this.setState({ rowCount: this.state.rowCountTemp });
+      this.onThumbCountChange(this.state.columnCountTemp, this.state.rowCountTemp);
+    }
     this.hideEditGrid();
   };
 
@@ -345,8 +357,10 @@ class App extends Component {
                   rowCountTemp={this.state.rowCountTemp}
                   columnCount={this.state.columnCount}
                   rowCount={this.state.rowCount}
+                  reCapture={this.state.reCapture}
                   onChangeColumn={this.onChangeColumn}
                   onChangeRow={this.onChangeRow}
+                  onReCaptureClick={this.onReCaptureClick}
                   onApplyClick={this.onApplyClick}
                   onCancelClick={this.onCancelClick}
                 />
