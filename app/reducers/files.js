@@ -13,7 +13,15 @@ const file = (state = {}, type, payload, index) => {
         size: payload[index].size,
         type: payload[index].type,
         webkitRelativePath: payload[index].webkitRelativePath,
-        posterThumbId: payload[index].posterThumbId
+        posterThumbId: payload[index].posterThumbId,
+        columnCount: payload[index].columnCount,
+      });
+    case 'UPDATE_COLUMNCOUNT_OF_MOVIE_LIST_ITEM':
+      if (state.id !== payload.fileId) {
+        return state;
+      }
+      return Object.assign({}, state, {
+        columnCount: payload.columnCount,
       });
     case 'UPDATE_MOVIE_LIST_ITEM':
       if (state.id !== payload.fileId) {
@@ -58,6 +66,10 @@ const files = (state = [], { type, payload }) => {
       return [];
     case 'LOAD_MOVIE_LIST_FROM_DROP':
       return Object.keys(payload).map((t, index) =>
+        file(t, type, payload, index)
+      );
+    case 'UPDATE_COLUMNCOUNT_OF_MOVIE_LIST_ITEM':
+      return state.map((t, index) =>
         file(t, type, payload, index)
       );
     case 'UPDATE_MOVIE_LIST_ITEM':

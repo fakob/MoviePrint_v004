@@ -172,11 +172,12 @@ class App extends Component {
     e.preventDefault();
     const { store } = this.context;
     const files = e.dataTransfer.files;
+    const settings = store.getState().undoGroup.present.settings;
     console.log('Files dropped: ', files);
     this.setState({ className: `${styles.dropzonehide}` });
     if (Array.from(files).some(file => file.type.match('video.*'))) {
       this.setState({ showPlaceholder: true });
-      store.dispatch(setNewMovieList(files));
+      store.dispatch(setNewMovieList(files, settings));
     }
     return false;
   }

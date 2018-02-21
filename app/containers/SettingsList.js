@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import Slider, { Range } from 'rc-slider';
 import Tooltip from 'rc-tooltip';
 // import imageDB from '../utils/db';
-import { Button, Grid, Segment, Container, Statistic, Divider } from 'semantic-ui-react';
+import { Button, Form, Segment, Container, Statistic, Divider, Checkbox } from 'semantic-ui-react';
 import { addDefaultThumbs, setDefaultRowCount, setDefaultColumnCount } from '../actions';
 import styles from '../components/Settings.css';
 
@@ -34,10 +34,22 @@ const SettingsList = ({
   columnCountTemp, rowCountTemp, columnCount, rowCount, onChangeColumn,
   onChangeRow, onAfterChange, onApplyClick, onCancelClick
 }) => {
+
   return (
     <Container>
       <Segment raised>
         <Segment.Group>
+          <Segment>
+            <Checkbox
+              toggle
+              label="Re-capture frames"
+              value="rerender"
+              // checked={this.value === 'rerender'}
+              // checked={this.state.checked}
+              // onChange={handleChange}
+              // onClick={this.toggle}
+            />
+          </Segment>
           <Segment>
             <Statistic horizontal>
               <Statistic.Value>{columnCountTemp}</Statistic.Value>
@@ -76,24 +88,24 @@ const SettingsList = ({
               // onAfterChange={onAfterChangeRow}
             />
           </Segment>
+          <Segment padded>
+            <Button
+              fluid
+              color="pink"
+              onClick={onApplyClick}
+            >
+              Apply
+            </Button>
+            <Divider horizontal>Or</Divider>
+            <Button
+              compact
+              size="mini"
+              onClick={onCancelClick}
+            >
+              Cancel
+            </Button>
+          </Segment>
         </Segment.Group>
-        <Segment padded>
-          <Button
-            fluid
-            color="pink"
-            onClick={onApplyClick}
-          >
-            Apply
-          </Button>
-          <Divider horizontal>Or</Divider>
-          <Button
-            compact
-            size="mini"
-            onClick={onCancelClick}
-          >
-            Cancel
-          </Button>
-        </Segment>
       </Segment>
     </Container>
   );

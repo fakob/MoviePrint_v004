@@ -143,6 +143,19 @@ export const removeThumb = (currentFileId, id) => {
   };
 };
 
+export const updateFileColumnCount = (fileId, columnCount) => {
+  return (dispatch) => {
+    console.log('inside updateFileDetails');
+    dispatch({
+      type: 'UPDATE_COLUMNCOUNT_OF_MOVIE_LIST_ITEM',
+      payload: {
+        fileId,
+        columnCount,
+      }
+    });
+  };
+};
+
 export const updateFileDetails = (fileId, frameCount, width, height, fps, fourCC) => {
   return (dispatch) => {
     console.log('inside updateFileDetails');
@@ -348,6 +361,7 @@ export const setNewMovieList = (files, settings) => {
           type: files[key].type,
           webkitRelativePath: files[key].webkitRelativePath,
           posterThumbId: uuidV4(),
+          columnCount: settings.defaultColumnCount,
         };
         newFiles.push(fileToAdd);
       }
