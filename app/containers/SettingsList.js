@@ -34,18 +34,30 @@ const handle = (props) => {
 class SettingsList extends Component {
   constructor(props) {
     super(props);
-    this.state = {value: ''};
+    this.state = {
+      checkBoxChecked: false,
+    };
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  handleChange(event) {
-    this.setState({value: event.target.value});
+  handleChange = (e, { checked }) => {
+    this.setState({
+      checkBoxChecked: checked
+    });
+    console.log(e);
+    console.log(checked);
   }
 
+  // handleChange(event) {
+  //   this.setState({
+  //     checkBoxChecked: event.target.checked
+  //   });
+  // }
+
   handleSubmit(event) {
-    alert('A name was submitted: ' + this.state.value);
+    alert('A name was submitted: ' + this.state.checkBoxChecked);
     event.preventDefault();
   }
 
@@ -55,21 +67,12 @@ class SettingsList extends Component {
         <Segment raised>
           <Segment.Group>
             <Segment>
-              <form onSubmit={this.handleSubmit}>
-                <label>
-                  Name:
-                  <input type="text" value={this.state.value} onChange={this.handleChange} />
-                </label>
-                <input type="submit" value="Submit" />
-              </form>
               <Checkbox
                 toggle
                 label="Re-capture frames"
-                value="rerender"
-                // checked={this.value === 'rerender'}
-                // checked={this.state.checked}
-                // onChange={handleChange}
-                // onClick={this.toggle}
+                // value={this.state.checkBoxChecked}
+                checked={this.state.checkBoxChecked}
+                onChange={this.handleChange}
               />
             </Segment>
             <Segment>
@@ -91,25 +94,27 @@ class SettingsList extends Component {
                 // onAfterChange={this.props.onAfterChangeColumn}
               />
             </Segment>
-            <Segment>
-              <Statistic horizontal>
-                <Statistic.Value>{this.props.rowCountTemp}</Statistic.Value>
-                <Statistic.Label>{(this.props.rowCountTemp === 1) ? 'Row' : 'Rows'}</Statistic.Label>
-              </Statistic>
-              <Slider
-                className={styles.slider}
-                min={1}
-                max={20}
-                defaultValue={this.props.rowCountTemp}
-                marks={{
-                  1: '1',
-                  20: '20',
-                }}
-                handle={handle}
-                onChange={this.props.onChangeRow}
-                // onAfterChange={this.props.onAfterChangeRow}
-              />
-            </Segment>
+            {this.state.checkBoxChecked === true &&
+              <Segment>
+                <Statistic horizontal>
+                  <Statistic.Value>{this.props.rowCountTemp}</Statistic.Value>
+                  <Statistic.Label>{(this.props.rowCountTemp === 1) ? 'Row' : 'Rows'}</Statistic.Label>
+                </Statistic>
+                <Slider
+                  className={styles.slider}
+                  min={1}
+                  max={20}
+                  defaultValue={this.props.rowCountTemp}
+                  marks={{
+                    1: '1',
+                    20: '20',
+                  }}
+                  handle={handle}
+                  onChange={this.props.onChangeRow}
+                  // onAfterChange={this.props.onAfterChangeRow}
+                />
+              </Segment>
+            }
             <Segment padded>
               <Button
                 fluid
