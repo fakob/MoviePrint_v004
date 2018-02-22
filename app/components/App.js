@@ -19,7 +19,7 @@ import { setNewMovieList, toggleLeftSidebar, toggleRightSidebar,
   showRightSidebar, hideRightSidebar, zoomIn, zoomOut,
   addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
   setVisibilityFilter, startIsManipulating, stopIsManipulating,
-  setCurrentFileId, changeThumb } from '../actions';
+  setCurrentFileId, changeThumb, updateFileColumnCount } from '../actions';
 
 let thumbnailWidthPlusMargin;
 
@@ -275,12 +275,17 @@ class App extends Component {
   };
 
   onApplyClick = () => {
+    const { store } = this.context;
     console.log(`${this.state.columnCount} : ${this.state.columnCountTemp} || ${this.state.thumbCount} : ${this.state.thumbCountTemp}`);
     this.setState({ columnCount: this.state.columnCountTemp });
     if (this.state.reCapture) {
       this.setState({ thumbCount: this.state.thumbCountTemp });
       this.onThumbCountChange(this.state.columnCountTemp, this.state.thumbCountTemp);
     }
+    store.dispatch(updateFileColumnCount(
+      this.props.file.id,
+      this.state.columnCountTemp
+    ));
     this.hideEditGrid();
   };
 

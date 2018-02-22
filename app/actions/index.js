@@ -145,7 +145,7 @@ export const removeThumb = (currentFileId, id) => {
 
 export const updateFileColumnCount = (fileId, columnCount) => {
   return (dispatch) => {
-    console.log('inside updateFileDetails');
+    console.log('inside updateFileColumnCount');
     dispatch({
       type: 'UPDATE_COLUMNCOUNT_OF_MOVIE_LIST_ITEM',
       payload: {
