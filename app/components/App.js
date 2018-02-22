@@ -267,8 +267,8 @@ class App extends Component {
     if (!checked) {
       this.setState({ thumbCountTemp: this.state.thumbCount });
     } else {
-      const newThumbCount = this.state.columnCount *
-        Math.ceil(this.state.thumbCount / this.state.columnCount);
+      const newThumbCount = this.state.columnCountTemp *
+        Math.ceil(this.state.thumbCountTemp / this.state.columnCountTemp);
       this.setState({ thumbCountTemp: newThumbCount });
     }
     this.setState({ reCapture: checked });
@@ -278,9 +278,6 @@ class App extends Component {
     console.log(`${this.state.columnCount} : ${this.state.columnCountTemp} || ${this.state.thumbCount} : ${this.state.thumbCountTemp}`);
     this.setState({ columnCount: this.state.columnCountTemp });
     if (this.state.reCapture) {
-      // const newThumbCount = this.state.columnCountTemp *
-      //   Math.ceil(this.state.thumbCountTemp / this.state.columnCountTemp);
-      // this.setState({ thumbCountTemp: newThumbCount });
       this.setState({ thumbCount: this.state.thumbCountTemp });
       this.onThumbCountChange(this.state.columnCountTemp, this.state.thumbCountTemp);
     }
