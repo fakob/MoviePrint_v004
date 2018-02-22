@@ -20,9 +20,9 @@ const ThumbGrid = ({
   onToggleClick, onRemoveClick, onInPointClick, onOutPointClick,
   onBackClick, onForwardClick, onScrubClick,
   onMouseOverResult, onMouseOutResult, settings, editGrid, showPlaceholder,
-  columnCount, rowCount, width, height, contentHeight, contentWidth
+  columnCount, thumbCount, reCapture, width, height, contentHeight, contentWidth
 }) => {
-  const thumbsAmount = columnCount * rowCount;
+  const rowCount = Math.ceil(thumbCount / columnCount);
   const headerHeight = settings.defaultHeaderHeight;
   const thumbWidth = settings.defaultThumbnailWidth;
   const thumbMargin = settings.defaultMargin;
@@ -65,7 +65,7 @@ const ThumbGrid = ({
   let thumbArray;
 
   if (editGrid || thumbs.length === 0) {
-    const tempArrayLength = thumbsAmount;
+    const tempArrayLength = thumbCount;
     thumbArray = Array(tempArrayLength);
 
     for (let i = 0; i < tempArrayLength; i += 1) {

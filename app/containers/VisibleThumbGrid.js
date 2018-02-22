@@ -12,32 +12,6 @@ import styles from '../components/Settings.css';
 import { getLowestFrame, getHighestFrame, getChangeThumbStep, getVisibleThumbs } from '../utils/utils';
 
 class SortedVisibleThumbGrid extends Component {
-  // constructor() {
-  //   super();
-  //
-  //   this.state = {
-  //     columnCountTemp: undefined,
-  //     rowCountTemp: undefined,
-  //     columnCount: undefined,
-  //     rowCount: undefined,
-  //   };
-  //
-  //   this.onChangeRow = this.onChangeRow.bind(this);
-  //   this.onChangeColumn = this.onChangeColumn.bind(this);
-  //   this.onApplyClick = this.onApplyClick.bind(this);
-  //   this.onCancelClick = this.onCancelClick.bind(this);
-  // }
-
-  // componentWillMount() {
-  //   const { store } = this.context;
-  //
-  //   this.setState({
-  //     columnCountTemp: store.getState().undoGroup.present.settings.defaultColumnCount,
-  //     rowCountTemp: store.getState().undoGroup.present.settings.defaultRowCount,
-  //     columnCount: store.getState().undoGroup.present.settings.defaultColumnCount,
-  //     rowCount: store.getState().undoGroup.present.settings.defaultRowCount,
-  //   });
-  // }
 
   componentDidMount() {
     console.log(this.props);
@@ -120,7 +94,8 @@ class SortedVisibleThumbGrid extends Component {
             width={this.props.file ? (this.props.file.width || 1920) : 1920}
             height={this.props.file ? (this.props.file.height || 1080) : 1080}
             columnCount={this.props.columnCount}
-            rowCount={this.props.rowCount}
+            thumbCount={this.props.thumbCount}
+            reCapture={this.props.reCapture}
             columnWidth={this.props.columnCount *
               (this.props.settings.defaultThumbnailWidth + this.props.settings.defaultMargin)}
             contentHeight={this.props.contentHeight || 360}

@@ -8,7 +8,7 @@ const initialStateJSON = {
   thumbsObjUrls: {},
   undoGroup: {
     settings: {
-      defaultRowCount: 3,
+      defaultThumbCount: 9,
       defaultColumnCount: 3,
       defaultThumbnailWidth: 270,
       defaultMargin: 8,

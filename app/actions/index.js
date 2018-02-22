@@ -88,10 +88,10 @@ export const setCurrentFileId = (fileId) => {
   };
 };
 
-export const setDefaultRowCount = (defaultRowCount) => {
+export const setDefaultThumbCount = (defaultThumbCount) => {
   return {
-    type: 'SET_DEFAULT_ROW_COUNT',
-    defaultRowCount
+    type: 'SET_DEFAULT_THUMB_COUNT',
+    defaultThumbCount
   };
 };
 
@@ -385,8 +385,7 @@ export const setNewMovieList = (files, settings) => {
         dispatch(clearThumbs());
         dispatch(addDefaultThumbs(
           getState().undoGroup.present.files[0],
-          getState().undoGroup.present.settings.defaultRowCount *
-          getState().undoGroup.present.settings.defaultColumnCount
+          getState().undoGroup.present.settings.defaultThumbCount
         ));
         return dispatch(stopIsManipulating());
       });

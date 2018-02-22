@@ -17,7 +17,7 @@ import styles from './App.css';
 
 import { setNewMovieList, toggleLeftSidebar, toggleRightSidebar,
   showRightSidebar, hideRightSidebar, zoomIn, zoomOut,
-  addDefaultThumbs, setDefaultRowCount, setDefaultColumnCount,
+  addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
   setVisibilityFilter, startIsManipulating, stopIsManipulating,
   setCurrentFileId, changeThumb } from '../actions';
 
@@ -35,9 +35,9 @@ class App extends Component {
       contentHeight: 0,
       contentWidth: 0,
       columnCountTemp: undefined,
-      rowCountTemp: undefined,
+      thumbCountTemp: undefined,
       columnCount: undefined,
-      rowCount: undefined,
+      thumbCount: undefined,
       reCapture: false,
     };
 
@@ -72,9 +72,9 @@ class App extends Component {
 
     this.setState({
       columnCountTemp: store.getState().undoGroup.present.settings.defaultColumnCount,
-      rowCountTemp: store.getState().undoGroup.present.settings.defaultRowCount,
+      thumbCountTemp: store.getState().undoGroup.present.settings.defaultThumbCount,
       columnCount: store.getState().undoGroup.present.settings.defaultColumnCount,
-      rowCount: store.getState().undoGroup.present.settings.defaultRowCount,
+      thumbCount: store.getState().undoGroup.present.settings.defaultThumbCount,
     });
   }
 
@@ -251,44 +251,48 @@ class App extends Component {
 
 
   onChangeRow = (value) => {
-    this.setState({ rowCountTemp: value });
+    this.setState({ thumbCountTemp: this.state.columnCountTemp * value });
   };
 
   onChangeColumn = (value) => {
+    const tempRowCount = Math.ceil(this.state.thumbCountTemp / this.state.columnCountTemp);
     this.setState({ columnCountTemp: value });
+    if (this.state.reCapture) {
+      this.setState({ thumbCountTemp: tempRowCount * value });
+    }
   };
 
   onReCaptureClick = (checked) => {
     if (!checked) {
-      this.setState({ rowCountTemp: this.state.rowCount });
+      this.setState({ thumbCountTemp: this.state.thumbCount });
     }
     this.setState({ reCapture: checked });
   };
 
   onApplyClick = () => {
-    // console.log(`${this.state.columnCount} : ${this.state.columnCountTemp} || ${this.state.rowCount} : ${this.state.rowCountTemp}`);
+    // console.log(`${this.state.columnCount} : ${this.state.columnCountTemp} || ${this.state.thumbCount} : ${this.state.thumbCountTemp}`);
     this.setState({ columnCount: this.state.columnCountTemp });
     if (this.state.reCapture) {
-      this.setState({ rowCount: this.state.rowCountTemp });
-      this.onThumbCountChange(this.state.columnCountTemp, this.state.rowCountTemp);
+      this.setState({ thumbCount: this.state.thumbCountTemp });
+      this.onThumbCountChange(this.state.columnCountTemp, this.state.thumbCountTemp);
     }
     this.hideEditGrid();
   };
 
   onCancelClick = () => {
-    this.setState({ rowCountTemp: this.state.rowCount });
+    this.setState({ thumbCountTemp: this.state.thumbCount });
     this.setState({ columnCountTemp: this.state.columnCount });
     this.hideEditGrid();
   };
 
-  onThumbCountChange = (columnCount, rowCount) => {
+  onThumbCountChange = (columnCount, thumbCount) => {
     const { store } = this.context;
     store.dispatch(setDefaultColumnCount(columnCount));
-    store.dispatch(setDefaultRowCount(rowCount));
+    store.dispatch(setDefaultThumbCount(thumbCount));
     if (this.props.currentFileId !== undefined) {
       store.dispatch(addDefaultThumbs(
         this.props.file,
-        columnCount * rowCount
+        thumbCount
       ));
     }
   };
@@ -354,9 +358,10 @@ class App extends Component {
               >
                 <SettingsList
                   columnCountTemp={this.state.columnCountTemp}
-                  rowCountTemp={this.state.rowCountTemp}
+                  thumbCountTemp={this.state.thumbCountTemp}
+                  rowCountTemp={Math.ceil(this.state.thumbCountTemp / this.state.columnCountTemp)}
                   columnCount={this.state.columnCount}
-                  rowCount={this.state.rowCount}
+                  rowCount={Math.ceil(this.state.thumbCount / this.state.columnCount)}
                   reCapture={this.state.reCapture}
                   onChangeColumn={this.onChangeColumn}
                   onChangeRow={this.onChangeRow}
@@ -378,7 +383,8 @@ class App extends Component {
                     parentMethod={this.openModal}
 
                     columnCount={this.state.columnCountTemp}
-                    rowCount={this.state.rowCountTemp}
+                    thumbCount={this.state.thumbCountTemp}
+                    reCapture={this.state.reCapture}
                   />
                 </div>
               </Sidebar.Pusher>
@@ -446,7 +452,7 @@ const mapStateToProps = state => {
       .find((file) => file.id === tempCurrentFileId),
     settings: state.undoGroup.present.settings,
     visibilitySettings: state.visibilitySettings,
-    defaultRowCount: state.undoGroup.present.settings.defaultRowCount,
+    defaultThumbCount: state.undoGroup.present.settings.defaultThumbCount,
     defaultColumnCount: state.undoGroup.present.settings.defaultColumnCount,
     thumbsByFileId: state.undoGroup.present.thumbsByFileId,
   };
@@ -462,7 +468,7 @@ const mapDispatchToProps = dispatch => {
     //   }
     // },
     // onRowChange: (value) => {
-    //   dispatch(setDefaultRowCount(value));
+    //   dispatch(setDefaultThumbCount(value));
     //   if (this.props.currentFileId !== undefined) {
     //     dispatch(addDefaultThumbs(
     //       this.props.file,
@@ -476,7 +482,7 @@ const mapDispatchToProps = dispatch => {
     //   if (this.props.currentFileId !== undefined) {
     //     dispatch(addDefaultThumbs(
     //       this.props.file,
-    //       this.props.defaultRowCount *
+    //       this.props.defaultThumbCount *
     //       value
     //     ));
     //   }

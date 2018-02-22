@@ -119,7 +119,7 @@ const Header = ({ currentFileId, file, settings, visibilitySettings,
           className={styles.slider}
           min={1}
           max={20}
-          defaultValue={settings.defaultRowCount}
+          defaultValue={Math.ceil(settings.defaultThumbCount/settings.defaultColumnCount)}
           marks={{
             1: '1',
             20: '20',

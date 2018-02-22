@@ -7,7 +7,7 @@ import Slider, { Range } from 'rc-slider';
 import Tooltip from 'rc-tooltip';
 // import imageDB from '../utils/db';
 import { Button, Form, Segment, Container, Statistic, Divider, Checkbox } from 'semantic-ui-react';
-import { addDefaultThumbs, setDefaultRowCount, setDefaultColumnCount } from '../actions';
+import { addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount } from '../actions';
 import styles from '../components/Settings.css';
 
 // const createSliderWithTooltip = Slider.createSliderWithTooltip;

@@ -35,8 +35,7 @@ class SortedFileList extends Component {
                 store.dispatch(startIsManipulating());
                 store.dispatch(addDefaultThumbs(
                     file,
-                    state.undoGroup.present.settings.defaultRowCount *
-                    state.undoGroup.present.settings.defaultColumnCount
+                    state.undoGroup.present.settings.defaultThumbCount
                   ));
                 store.dispatch(stopIsManipulating());
                 console.log(`FileListElement clicked: ${file.name}`);
