@@ -69,7 +69,6 @@ class App extends Component {
 
   componentWillMount() {
     const { store } = this.context;
-    console.log('componentWillMount is running');
     this.setState({
       columnCountTemp: store.getState().undoGroup.present.settings.defaultColumnCount,
       thumbCountTemp: store.getState().undoGroup.present.settings.defaultThumbCount,
@@ -105,6 +104,17 @@ class App extends Component {
     } else {
       console.log('showPlaceholder: false');
       this.setState({ showPlaceholder: false });
+    }
+    if (this.props.file.id !== nextProps.file.id) {
+      console.log('currentFileId was updated');
+      this.setState({
+        columnCountTemp: nextProps.file.columnCount,
+        // thumbCountTemp: nextProps.thumbsByFileId[nextProps.file.id].thumbs.length,
+        thumbCountTemp: nextProps.thumbsByFileId[nextProps.file.id].thumbs.filter(thumb => thumb.hidden === false).length,
+        columnCount: nextProps.file.columnCount,
+        // thumbCount: nextProps.thumbsByFileId[nextProps.file.id].thumbs.length,
+        thumbCount: nextProps.thumbsByFileId[nextProps.file.id].thumbs.filter(thumb => thumb.hidden === false).length,
+      });
     }
   }
 
