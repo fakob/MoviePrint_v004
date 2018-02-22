@@ -106,15 +106,18 @@ class App extends Component {
       this.setState({ showPlaceholder: false });
     }
     if (this.props.file.id !== nextProps.file.id) {
-      console.log('currentFileId was updated');
+      const newThumbCount = nextProps.thumbsByFileId[nextProps.file.id].thumbs
+        .filter(thumb => thumb.hidden === false).length
       this.setState({
         columnCountTemp: nextProps.file.columnCount,
         // thumbCountTemp: nextProps.thumbsByFileId[nextProps.file.id].thumbs.length,
-        thumbCountTemp: nextProps.thumbsByFileId[nextProps.file.id].thumbs.filter(thumb => thumb.hidden === false).length,
+        thumbCountTemp: newThumbCount,
         columnCount: nextProps.file.columnCount,
         // thumbCount: nextProps.thumbsByFileId[nextProps.file.id].thumbs.length,
-        thumbCount: nextProps.thumbsByFileId[nextProps.file.id].thumbs.filter(thumb => thumb.hidden === false).length,
+        thumbCount: newThumbCount,
       });
+      console.log('currentFileId was updated');
+      console.log(newThumbCount);
     }
   }
 
