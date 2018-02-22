@@ -263,18 +263,26 @@ class App extends Component {
   };
 
   onReCaptureClick = (checked) => {
+    console.log(`${this.state.columnCount} : ${this.state.columnCountTemp} || ${this.state.thumbCount} : ${this.state.thumbCountTemp}`);
     if (!checked) {
       this.setState({ thumbCountTemp: this.state.thumbCount });
+    } else {
+      const newThumbCount = this.state.columnCount *
+        Math.ceil(this.state.thumbCount / this.state.columnCount);
+      this.setState({ thumbCountTemp: newThumbCount });
     }
     this.setState({ reCapture: checked });
   };
 
   onApplyClick = () => {
-    // console.log(`${this.state.columnCount} : ${this.state.columnCountTemp} || ${this.state.thumbCount} : ${this.state.thumbCountTemp}`);
+    console.log(`${this.state.columnCount} : ${this.state.columnCountTemp} || ${this.state.thumbCount} : ${this.state.thumbCountTemp}`);
     this.setState({ columnCount: this.state.columnCountTemp });
     if (this.state.reCapture) {
-      this.setState({ thumbCount: this.state.thumbCountTemp });
-      this.onThumbCountChange(this.state.columnCountTemp, this.state.thumbCountTemp);
+      const newThumbCount = this.state.columnCountTemp *
+        Math.ceil(this.state.thumbCountTemp / this.state.columnCountTemp);
+      this.setState({ thumbCountTemp: newThumbCount });
+      this.setState({ thumbCount: newThumbCount });
+      this.onThumbCountChange(this.state.columnCountTemp, newThumbCount);
     }
     this.hideEditGrid();
   };
