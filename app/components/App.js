@@ -23,6 +23,15 @@ import { setNewMovieList, toggleLeftSidebar, toggleRightSidebar,
 
 let thumbnailWidthPlusMargin;
 
+const setColumnAndThumbCount = (that, columnCount, thumbCount) => {
+  that.setState({
+    columnCountTemp: columnCount,
+    thumbCountTemp: thumbCount,
+    columnCount,
+    thumbCount,
+  });
+};
+
 class App extends Component {
   constructor() {
     super();
@@ -55,6 +64,7 @@ class App extends Component {
     this.editGrid = this.editGrid.bind(this);
     this.hideEditGrid = this.hideEditGrid.bind(this);
     this.onShowThumbs = this.onShowThumbs.bind(this);
+    this.onToggleThumb = this.onToggleThumb.bind(this);
     this.onZoomOut = this.onZoomOut.bind(this);
     this.onSaveMoviePrint = this.onSaveMoviePrint.bind(this);
 
@@ -110,10 +120,8 @@ class App extends Component {
         .filter(thumb => thumb.hidden === false).length
       this.setState({
         columnCountTemp: nextProps.file.columnCount,
-        // thumbCountTemp: nextProps.thumbsByFileId[nextProps.file.id].thumbs.length,
         thumbCountTemp: newThumbCount,
         columnCount: nextProps.file.columnCount,
-        // thumbCount: nextProps.thumbsByFileId[nextProps.file.id].thumbs.length,
         thumbCount: newThumbCount,
       });
       console.log('currentFileId was updated');
@@ -247,6 +255,10 @@ class App extends Component {
     } else {
       store.dispatch(setVisibilityFilter('SHOW_VISIBLE'));
     }
+  }
+
+  onToggleThumb() {
+    console.log('onToggleThumb was triggered');
   }
 
   onZoomOut() {
@@ -410,6 +422,8 @@ class App extends Component {
                       (this.props.file.columnCount || this.state.columnCountTemp)}
                     thumbCount={this.state.thumbCountTemp}
                     reCapture={this.state.reCapture}
+
+                    onToggleThumb={this.onToggleThumb}
                   />
                 </div>
               </Sidebar.Pusher>
