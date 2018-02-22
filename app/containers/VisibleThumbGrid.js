@@ -132,7 +132,6 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     onToggleClick: (fileId, thumbId) => {
       dispatch(toggleThumb(fileId, thumbId));
-      ownProps.onToggleThumb();
     },
     onRemoveClick: (fileId, thumbId) => {
       dispatch(removeThumb(fileId, thumbId));

@@ -64,7 +64,6 @@ class App extends Component {
     this.editGrid = this.editGrid.bind(this);
     this.hideEditGrid = this.hideEditGrid.bind(this);
     this.onShowThumbs = this.onShowThumbs.bind(this);
-    this.onToggleThumb = this.onToggleThumb.bind(this);
     this.onZoomOut = this.onZoomOut.bind(this);
     this.onSaveMoviePrint = this.onSaveMoviePrint.bind(this);
 
@@ -79,12 +78,11 @@ class App extends Component {
 
   componentWillMount() {
     const { store } = this.context;
-    this.setState({
-      columnCountTemp: store.getState().undoGroup.present.settings.defaultColumnCount,
-      thumbCountTemp: store.getState().undoGroup.present.settings.defaultThumbCount,
-      columnCount: store.getState().undoGroup.present.settings.defaultColumnCount,
-      thumbCount: store.getState().undoGroup.present.settings.defaultThumbCount,
-    });
+    setColumnAndThumbCount(
+      this,
+      this.props.file.columnCount || store.getState().undoGroup.present.settings.defaultColumnCount,
+      this.props.file.thumbCount || store.getState().undoGroup.present.settings.defaultThumbCount
+    );
   }
 
   componentDidMount() {
@@ -115,16 +113,31 @@ class App extends Component {
       console.log('showPlaceholder: false');
       this.setState({ showPlaceholder: false });
     }
+
+    // check if currentFileId changed
     if (this.props.file.id !== nextProps.file.id) {
       const newThumbCount = nextProps.thumbsByFileId[nextProps.file.id].thumbs
-        .filter(thumb => thumb.hidden === false).length
-      this.setState({
-        columnCountTemp: nextProps.file.columnCount,
-        thumbCountTemp: newThumbCount,
-        columnCount: nextProps.file.columnCount,
-        thumbCount: newThumbCount,
-      });
-      console.log('currentFileId was updated');
+        .filter(thumb => thumb.hidden === false).length;
+      setColumnAndThumbCount(
+        this,
+        nextProps.file.columnCount,
+        newThumbCount
+      );
+      console.log('currentFileId changed');
+      console.log(newThumbCount);
+    } else if (this.props.thumbsByFileId[this.props.file.id].thumbs
+      .filter(thumb => thumb.hidden === false).length !==
+      nextProps.thumbsByFileId[nextProps.file.id].thumbs
+        .filter(thumb => thumb.hidden === false).length) {
+      // check if visibleThumbCount changed
+      const newThumbCount = nextProps.thumbsByFileId[nextProps.file.id].thumbs
+        .filter(thumb => thumb.hidden === false).length;
+      setColumnAndThumbCount(
+        this,
+        nextProps.file.columnCount,
+        newThumbCount
+      );
+      console.log('visibleThumbCount changed');
       console.log(newThumbCount);
     }
   }
@@ -255,10 +268,6 @@ class App extends Component {
     } else {
       store.dispatch(setVisibilityFilter('SHOW_VISIBLE'));
     }
-  }
-
-  onToggleThumb() {
-    console.log('onToggleThumb was triggered');
   }
 
   onZoomOut() {
@@ -422,8 +431,6 @@ class App extends Component {
                       (this.props.file.columnCount || this.state.columnCountTemp)}
                     thumbCount={this.state.thumbCountTemp}
                     reCapture={this.state.reCapture}
-
-                    onToggleThumb={this.onToggleThumb}
                   />
                 </div>
               </Sidebar.Pusher>
