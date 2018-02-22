@@ -110,6 +110,7 @@ const ThumbGrid = ({
         height={file.height || 1080}
         thumbWidth={thumbWidth}
         frameNumber={editGrid ? undefined : thumb.frameNumber}
+        hidden={editGrid ? undefined : thumb.hidden}
         controlersAreVisible={editGrid ? undefined : (thumb.id === controlersAreVisible)}
         disabled={editGrid}
         onToggle={editGrid ? null : () => onToggleClick(file.id, thumb.id)}
