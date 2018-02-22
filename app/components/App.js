@@ -69,7 +69,7 @@ class App extends Component {
 
   componentWillMount() {
     const { store } = this.context;
-
+    console.log('componentWillMount is running');
     this.setState({
       columnCountTemp: store.getState().undoGroup.present.settings.defaultColumnCount,
       thumbCountTemp: store.getState().undoGroup.present.settings.defaultThumbCount,
@@ -392,7 +392,9 @@ class App extends Component {
                     contentWidth={this.state.contentWidth}
                     parentMethod={this.openModal}
 
-                    columnCount={this.state.columnCountTemp}
+                    columnCount={this.state.editGrid ?
+                      this.state.columnCountTemp :
+                      (this.props.file.columnCount || this.state.columnCountTemp)}
                     thumbCount={this.state.thumbCountTemp}
                     reCapture={this.state.reCapture}
                   />
