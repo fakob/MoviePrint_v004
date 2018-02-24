@@ -132,3 +132,21 @@ export const getAspectRatio = (file) => {
   }
   return ((file.width * 1.0) / file.height);
 };
+
+export const getColumnCount = (file, settings) => {
+  if (typeof file === 'undefined' ||
+  typeof file.columnCount === 'undefined') {
+    return settings.defaultColumnCount;
+  }
+  return file.columnCount;
+};
+
+export const getVisibleThumbsCount = (file, thumbsByFileId, settings) => {
+  if (typeof file === 'undefined' ||
+  typeof file.id === 'undefined' ||
+    typeof thumbsByFileId[file.id] === 'undefined') {
+    return settings.defaultThumbCount;
+  }
+  return thumbsByFileId[file.id].thumbs
+    .filter(thumb => thumb.hidden === false).length;
+};

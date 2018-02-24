@@ -10,7 +10,7 @@ import FileList from '../containers/FileList';
 import SettingsList from '../containers/SettingsList';
 import SortedVisibleThumbGrid from '../containers/VisibleThumbGrid';
 import VideoPlayer from '../components/VideoPlayer';
-import { saveMoviePrint, getAspectRatio } from '../utils/utils';
+import { saveMoviePrint, getAspectRatio, getColumnCount, getVisibleThumbsCount } from '../utils/utils';
 import Footer from './Footer';
 import Header from './Header';
 import styles from './App.css';
@@ -88,12 +88,14 @@ class App extends Component {
     const { store } = this.context;
     setColumnAndThumbCount(
       this,
-      this.props.file ? this.props.file.columnCount ||
-        store.getState().undoGroup.present.settings.defaultColumnCount :
-        store.getState().undoGroup.present.settings.defaultColumnCount,
-      this.props.file ? this.props.file.thumbCount ||
-        store.getState().undoGroup.present.settings.defaultThumbCount :
-        store.getState().undoGroup.present.settings.defaultThumbCount,
+      getColumnCount(
+        this.props.file,
+        store.getState().undoGroup.present.settings
+      ),
+      getVisibleThumbsCount(
+        this.props.file,
+        this.props.thumbsByFileId, store.getState().undoGroup.present.settings
+      ),
     );
   }
 
@@ -117,28 +119,44 @@ class App extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    const { store } = this.context;
+    const state = store.getState();
+
     if (this.props.file !== undefined &&
       nextProps.file !== undefined &&
       this.props.file.id !== undefined) {
       // check if currentFileId changed
       if (this.props.file.id !== nextProps.file.id) {
-        const newThumbCount = nextProps.thumbsByFileId[nextProps.file.id].thumbs
-          .filter(thumb => thumb.hidden === false).length;
+        // const newThumbCount = nextProps.thumbsByFileId[nextProps.file.id].thumbs
+        //   .filter(thumb => thumb.hidden === false).length;
+        const newThumbCount = getVisibleThumbsCount(
+          nextProps.file,
+          nextProps.thumbsByFileId, state.undoGroup.present.settings
+        );
         setColumnAndThumbCount(
           this,
           nextProps.file.columnCount,
           newThumbCount
         );
         console.log('currentFileId changed');
+        console.log(nextProps.file.columnCount);
         console.log(newThumbCount);
-      } else if (this.props.thumbsByFileId[this.props.currentFileId] !== undefined &&
-        this.props.thumbsByFileId[this.props.file.id].thumbs
-          .filter(thumb => thumb.hidden === false).length !==
-          nextProps.thumbsByFileId[nextProps.file.id].thumbs
-            .filter(thumb => thumb.hidden === false).length) {
+      // } else if (this.props.thumbsByFileId[this.props.file.id] !== undefined &&
+      //   this.props.thumbsByFileId[this.props.file.id].thumbs
+      //     .filter(thumb => thumb.hidden === false).length !==
+      //     nextProps.thumbsByFileId[nextProps.file.id].thumbs
+      //       .filter(thumb => thumb.hidden === false).length) {
+      }
+      const oldThumbCount = getVisibleThumbsCount(
+        this.props.file,
+        this.props.thumbsByFileId, state.undoGroup.present.settings
+      );
+      const newThumbCount = getVisibleThumbsCount(
+        nextProps.file,
+        nextProps.thumbsByFileId, state.undoGroup.present.settings
+      );
+      if (oldThumbCount !== newThumbCount) {
         // check if visibleThumbCount changed
-        const newThumbCount = nextProps.thumbsByFileId[nextProps.file.id].thumbs
-          .filter(thumb => thumb.hidden === false).length;
         setColumnAndThumbCount(
           this,
           nextProps.file.columnCount,
@@ -260,14 +278,18 @@ class App extends Component {
     const { store } = this.context;
     this.setState({ editGrid: true });
     store.dispatch(showRightSidebar());
+    console.log(this.state.columnCount);
+    console.log(this.state.thumbCount);
     setColumnAndThumbCount(
       this,
-      this.props.file ? this.props.file.columnCount ||
-        store.getState().undoGroup.present.settings.defaultColumnCount :
-        store.getState().undoGroup.present.settings.defaultColumnCount,
-      this.props.file ? this.props.file.thumbCount ||
-        store.getState().undoGroup.present.settings.defaultThumbCount :
-        store.getState().undoGroup.present.settings.defaultThumbCount,
+      getColumnCount(
+        this.props.file,
+        store.getState().undoGroup.present.settings
+      ),
+      getVisibleThumbsCount(
+        this.props.file,
+        this.props.thumbsByFileId, store.getState().undoGroup.present.settings
+      ),
     );
   }
 
@@ -342,8 +364,10 @@ class App extends Component {
   };
 
   onCancelClick = () => {
-    this.setState({ thumbCountTemp: this.state.thumbCount });
+    console.log(this.state.columnCount);
+    console.log(this.state.thumbCount);
     this.setState({ columnCountTemp: this.state.columnCount });
+    this.setState({ thumbCountTemp: this.state.thumbCount });
     this.hideEditGrid();
   };
 

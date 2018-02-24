@@ -87,8 +87,8 @@ const ThumbGrid = ({
       } else {
         tempThumbObject.key = i;
         tempThumbObject.index = i;
-        console.log(thumbs[mappedIterator]);
-        console.log(thumbImages);
+        // console.log(thumbs[mappedIterator]);
+        // console.log(thumbImages);
         if ((typeof thumbImages !== 'undefined') && thumbImages[thumbs[mappedIterator].id]) {
           tempThumbObject.thumbImageObjectUrl = thumbImages[thumbs[mappedIterator].id].objectUrl;
         }
