@@ -80,8 +80,8 @@ class App extends Component {
     const { store } = this.context;
     setColumnAndThumbCount(
       this,
-      this.props.file.columnCount || store.getState().undoGroup.present.settings.defaultColumnCount,
-      this.props.file.thumbCount || store.getState().undoGroup.present.settings.defaultThumbCount
+      this.props.file ? this.props.file.columnCount || store.getState().undoGroup.present.settings.defaultColumnCount : store.getState().undoGroup.present.settings.defaultColumnCount,
+      this.props.file ? this.props.file.thumbCount || store.getState().undoGroup.present.settings.defaultThumbCount : store.getState().undoGroup.present.settings.defaultThumbCount,
     );
   }
 
@@ -102,43 +102,45 @@ class App extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-
-    if (!(this.props.files.findIndex((file) =>
+    if (this.props.file !== undefined) {
+      if (!(this.props.files.findIndex((file) =>
         file.id === this.props.currentFileId) >= 0 &&
-      this.props.thumbsByFileId[this.props.currentFileId] !== undefined &&
-      Object.keys(this.props.files).length !== 0)) {
-      // console.log('showPlaceholder: true');
-      // this.setState({ showPlaceholder: true });
-    } else {
-      console.log('showPlaceholder: false');
-      this.setState({ showPlaceholder: false });
-    }
+        this.props.thumbsByFileId[this.props.currentFileId] !== undefined &&
+        Object.keys(this.props.files).length !== 0)) {
+        // console.log('showPlaceholder: true');
+        // this.setState({ showPlaceholder: true });
+      } else {
+        console.log('showPlaceholder: false');
+        this.setState({ showPlaceholder: false });
+      }
 
-    // check if currentFileId changed
-    if (this.props.file.id !== nextProps.file.id) {
-      const newThumbCount = nextProps.thumbsByFileId[nextProps.file.id].thumbs
-        .filter(thumb => thumb.hidden === false).length;
-      setColumnAndThumbCount(
-        this,
-        nextProps.file.columnCount,
-        newThumbCount
-      );
-      console.log('currentFileId changed');
-      console.log(newThumbCount);
-    } else if (this.props.thumbsByFileId[this.props.file.id].thumbs
-      .filter(thumb => thumb.hidden === false).length !==
-      nextProps.thumbsByFileId[nextProps.file.id].thumbs
-        .filter(thumb => thumb.hidden === false).length) {
-      // check if visibleThumbCount changed
-      const newThumbCount = nextProps.thumbsByFileId[nextProps.file.id].thumbs
-        .filter(thumb => thumb.hidden === false).length;
-      setColumnAndThumbCount(
-        this,
-        nextProps.file.columnCount,
-        newThumbCount
-      );
-      console.log('visibleThumbCount changed');
-      console.log(newThumbCount);
+      // check if currentFileId changed
+      if (this.props.file.id !== nextProps.file.id) {
+        const newThumbCount = nextProps.thumbsByFileId[nextProps.file.id].thumbs
+          .filter(thumb => thumb.hidden === false).length;
+        setColumnAndThumbCount(
+          this,
+          nextProps.file.columnCount,
+          newThumbCount
+        );
+        console.log('currentFileId changed');
+        console.log(newThumbCount);
+      } else if (this.props.thumbsByFileId[this.props.currentFileId] !== undefined &&
+        this.props.thumbsByFileId[this.props.file.id].thumbs
+          .filter(thumb => thumb.hidden === false).length !==
+          nextProps.thumbsByFileId[nextProps.file.id].thumbs
+            .filter(thumb => thumb.hidden === false).length) {
+        // check if visibleThumbCount changed
+        const newThumbCount = nextProps.thumbsByFileId[nextProps.file.id].thumbs
+          .filter(thumb => thumb.hidden === false).length;
+        setColumnAndThumbCount(
+          this,
+          nextProps.file.columnCount,
+          newThumbCount
+        );
+        console.log('visibleThumbCount changed');
+        console.log(newThumbCount);
+      }
     }
   }
 
