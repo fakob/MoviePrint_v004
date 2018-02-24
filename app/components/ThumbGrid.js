@@ -20,9 +20,11 @@ const ThumbGrid = ({
   onToggleClick, onRemoveClick, onInPointClick, onOutPointClick,
   onBackClick, onForwardClick, onScrubClick,
   onMouseOverResult, onMouseOutResult, settings, editGrid,
-  columnCount, thumbCount, reCapture, width, height, containerHeight, containerWidth,
+  columnCount, thumbCount, reCapture, containerHeight, containerWidth,
   zoomOut
 }) => {
+  const width = (typeof file !== 'undefined' && typeof file.width !== 'undefined' ? file.width : 1920);
+  const height = (typeof file !== 'undefined' && typeof file.height !== 'undefined' ? file.height : 1080);
   const rowCount = Math.ceil(thumbCount / columnCount);
   const headerHeight = settings.defaultHeaderHeight;
   const thumbWidth = settings.defaultThumbnailWidth;
@@ -99,7 +101,7 @@ const ThumbGrid = ({
   } else {
     thumbArray = thumbs;
   }
-  // console.log(thumbArray);
+  // console.log(width);
   thumbGridComponent = (
     thumbArray.map(thumb => (
       <SortableThumb
@@ -109,8 +111,8 @@ const ThumbGrid = ({
           (thumbImages !== undefined ?
             thumbImages[thumb.id] !== undefined ?
               thumbImages[thumb.id].objectUrl : undefined : undefined)}
-        width={file.width || 1920}
-        height={file.height || 1080}
+        width={width}
+        height={height}
         thumbWidth={zoomOut ? newThumbWidth : thumbWidth}
         frameNumber={editGrid ? undefined : thumb.frameNumber}
         hidden={editGrid ? undefined : thumb.hidden}
