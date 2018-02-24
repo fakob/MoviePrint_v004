@@ -111,8 +111,7 @@ const ThumbGrid = ({
           (thumbImages !== undefined ?
             thumbImages[thumb.id] !== undefined ?
               thumbImages[thumb.id].objectUrl : undefined : undefined)}
-        width={width}
-        height={height}
+        aspectRatioInv={(height * 1.0) / width}
         thumbWidth={zoomOut ? newThumbWidth : thumbWidth}
         frameNumber={editGrid ? undefined : thumb.frameNumber}
         hidden={editGrid ? undefined : thumb.hidden}

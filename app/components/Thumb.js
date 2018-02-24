@@ -40,7 +40,7 @@ const DragHandle = SortableHandle(() => {
 
 const Thumb = ({
   onToggle, onInPoint, onOutPoint, onBack, onForward,
-  onOver, onOut, onScrub, hidden, frameNumber, thumbImageObjectUrl, width, height,
+  onOver, onOut, onScrub, hidden, frameNumber, thumbImageObjectUrl, aspectRatioInv,
   controlersAreVisible, thumbWidth
 }) => {
   function over(event) {
@@ -75,7 +75,7 @@ const Thumb = ({
         className={styles.image}
         alt=""
         width={`${thumbWidth}px`}
-        height={`${(thumbWidth * (height / width))}px`}
+        height={`${(thumbWidth * aspectRatioInv)}px`}
       />
       {frameNumber !== undefined &&
         <div
@@ -184,8 +184,7 @@ Thumb.defaultProps = {
 };
 
 Thumb.propTypes = {
-  width: PropTypes.number,
-  height: PropTypes.number,
+  aspectRatioInv: PropTypes.number,
   thumbWidth: PropTypes.number,
   hidden: PropTypes.bool,
   controlersAreVisible: PropTypes.bool,
