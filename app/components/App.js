@@ -321,10 +321,12 @@ class App extends Component {
       this.setState({ thumbCount: this.state.thumbCountTemp });
       this.onThumbCountChange(this.state.columnCountTemp, this.state.thumbCountTemp);
     }
-    store.dispatch(updateFileColumnCount(
-      this.props.file.id,
-      this.state.columnCountTemp
-    ));
+    if (typeof this.props.file !== 'undefined') {
+      store.dispatch(updateFileColumnCount(
+        this.props.file.id,
+        this.state.columnCountTemp
+      ));
+    }
     this.hideEditGrid();
   };
 
