@@ -21,7 +21,6 @@ import { setNewMovieList, toggleLeftSidebar, toggleRightSidebar,
   setVisibilityFilter, startIsManipulating, stopIsManipulating,
   setCurrentFileId, changeThumb, updateFileColumnCount } from '../actions';
 
-let thumbnailWidthPlusMargin;
 
 const setColumnAndThumbCount = (that, columnCount, thumbCount) => {
   that.setState({
@@ -32,13 +31,20 @@ const setColumnAndThumbCount = (that, columnCount, thumbCount) => {
   });
 };
 
+const setThumbnailWidthPlusMarginAndHeight = (that, settings, file) => {
+  const thumbnailWidthPlusMargin = settings.defaultThumbnailWidth + settings.defaultMargin;
+  that.setState({
+    thumbnailWidthPlusMargin,
+    thumbnailHeightPlusMargin: thumbnailWidthPlusMargin * getAspectRatio(file),
+  });
+};
+
 class App extends Component {
   constructor() {
     super();
     this.state = {
       className: `${styles.dropzonehide}`,
       isManipulatingSliderInHeader: false,
-      showPlaceholder: true,
       modalIsOpen: false,
       editGrid: true,
       containerHeight: 0,
@@ -93,11 +99,11 @@ class App extends Component {
 
   componentDidMount() {
     const { store } = this.context;
-    thumbnailWidthPlusMargin = store.getState().undoGroup.present.settings.defaultThumbnailWidth +
-      store.getState().undoGroup.present.settings.defaultMargin;
-    // thumbnailHeightPlusMargin = (store.getState().undoGroup.present.settings.defaultThumbnailWidth *
-    //   (this.props.file !== undefined)) +
-      store.getState().undoGroup.present.settings.defaultMargin;
+    setThumbnailWidthPlusMarginAndHeight(
+      this,
+      store.getState().undoGroup.present.settings,
+      this.props.file
+    );
 
     window.addEventListener('mouseup', this.onDragLeave);
     window.addEventListener('dragenter', this.onDragEnter);
@@ -112,20 +118,8 @@ class App extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.file !== undefined &&
-      nextProps.props !== undefined &&
-      nextProps.props.file !== undefined &&
+      nextProps.file !== undefined &&
       this.props.file.id !== undefined) {
-      if (!(this.props.files.findIndex((file) =>
-        file.id === this.props.currentFileId) >= 0 &&
-        this.props.thumbsByFileId[this.props.currentFileId] !== undefined &&
-        Object.keys(this.props.files).length !== 0)) {
-        // console.log('showPlaceholder: true');
-        // this.setState({ showPlaceholder: true });
-      } else {
-        console.log('showPlaceholder: false');
-        this.setState({ showPlaceholder: false });
-      }
-
       // check if currentFileId changed
       if (this.props.file.id !== nextProps.file.id) {
         const newThumbCount = nextProps.thumbsByFileId[nextProps.file.id].thumbs
@@ -226,7 +220,6 @@ class App extends Component {
     console.log('Files dropped: ', files);
     this.setState({ className: `${styles.dropzonehide}` });
     if (Array.from(files).some(file => file.type.match('video.*'))) {
-      this.setState({ showPlaceholder: true });
       store.dispatch(setNewMovieList(files, settings));
     }
     return false;
@@ -443,12 +436,11 @@ class App extends Component {
                 <div className={`${styles.ItemMain}`}>
                   <SortedVisibleThumbGrid
                     editGrid={this.state.editGrid}
-                    showPlaceholder={this.state.showPlaceholder}
 
                     moviePrintWidth={this.state.columnCountTemp
-                      * thumbnailWidthPlusMargin}
+                      * this.state.thumbnailWidthPlusMargin}
                     moviePrintHeight={Math.ceil(this.state.thumbCountTemp / this.state.columnCountTemp)
-                      * thumbnailWidthPlusMargin}
+                      * this.state.thumbnailHeightPlusMargin}
                     containerHeight={this.state.containerHeight}
                     containerWidth={this.state.containerWidth}
                     parentMethod={this.openModal}

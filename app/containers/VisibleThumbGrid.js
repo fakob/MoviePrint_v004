@@ -63,7 +63,6 @@ class SortedVisibleThumbGrid extends Component {
         >
           <SortableThumbGrid
             editGrid={this.props.editGrid}
-            showPlaceholder={this.props.showPlaceholder}
             thumbs={this.props.thumbs}
             thumbImages={this.props.thumbImages}
             file={this.props.file}

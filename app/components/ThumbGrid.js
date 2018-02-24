@@ -19,7 +19,7 @@ const ThumbGrid = ({
   controlersAreVisible,
   onToggleClick, onRemoveClick, onInPointClick, onOutPointClick,
   onBackClick, onForwardClick, onScrubClick,
-  onMouseOverResult, onMouseOutResult, settings, editGrid, showPlaceholder,
+  onMouseOverResult, onMouseOutResult, settings, editGrid,
   columnCount, thumbCount, reCapture, width, height, containerHeight, containerWidth,
   zoomOut
 }) => {
