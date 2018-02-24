@@ -102,7 +102,10 @@ class App extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.file !== undefined) {
+    if (this.props.file !== undefined &&
+      nextProps.props !== undefined &&
+      nextProps.props.file !== undefined &&
+      this.props.file.id !== undefined) {
       if (!(this.props.files.findIndex((file) =>
         file.id === this.props.currentFileId) >= 0 &&
         this.props.thumbsByFileId[this.props.currentFileId] !== undefined &&
@@ -430,7 +433,8 @@ class App extends Component {
 
                     columnCount={this.state.editGrid ?
                       this.state.columnCountTemp :
-                      (this.props.file.columnCount || this.state.columnCountTemp)}
+                      (this.props.file ? this.props.file.columnCount || this.state.columnCountTemp :
+                        this.state.columnCountTemp)}
                     thumbCount={this.state.thumbCountTemp}
                     reCapture={this.state.reCapture}
                   />
