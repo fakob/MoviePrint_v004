@@ -80,8 +80,12 @@ class App extends Component {
     const { store } = this.context;
     setColumnAndThumbCount(
       this,
-      this.props.file ? this.props.file.columnCount || store.getState().undoGroup.present.settings.defaultColumnCount : store.getState().undoGroup.present.settings.defaultColumnCount,
-      this.props.file ? this.props.file.thumbCount || store.getState().undoGroup.present.settings.defaultThumbCount : store.getState().undoGroup.present.settings.defaultThumbCount,
+      this.props.file ? this.props.file.columnCount ||
+        store.getState().undoGroup.present.settings.defaultColumnCount :
+        store.getState().undoGroup.present.settings.defaultColumnCount,
+      this.props.file ? this.props.file.thumbCount ||
+        store.getState().undoGroup.present.settings.defaultThumbCount :
+        store.getState().undoGroup.present.settings.defaultThumbCount,
     );
   }
 
@@ -258,6 +262,15 @@ class App extends Component {
     const { store } = this.context;
     this.setState({ editGrid: true });
     store.dispatch(showRightSidebar());
+    setColumnAndThumbCount(
+      this,
+      this.props.file ? this.props.file.columnCount ||
+        store.getState().undoGroup.present.settings.defaultColumnCount :
+        store.getState().undoGroup.present.settings.defaultColumnCount,
+      this.props.file ? this.props.file.thumbCount ||
+        store.getState().undoGroup.present.settings.defaultThumbCount :
+        store.getState().undoGroup.present.settings.defaultThumbCount,
+    );
   }
 
   hideEditGrid() {
