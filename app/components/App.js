@@ -32,10 +32,10 @@ const setColumnAndThumbCount = (that, columnCount, thumbCount) => {
 };
 
 const setThumbnailWidthPlusMarginAndHeight = (that, settings, file) => {
-  const thumbnailWidthPlusMargin = settings.defaultThumbnailWidth + settings.defaultMargin;
+  const thumbnailWidthPlusMargin = settings.defaultThumbnailWidth + (settings.defaultMargin * 2);
   that.setState({
     thumbnailWidthPlusMargin,
-    thumbnailHeightPlusMargin: thumbnailWidthPlusMargin * getAspectRatio(file),
+    thumbnailHeightPlusMargin: Math.floor(thumbnailWidthPlusMargin * getAspectRatio(file)),
   });
 };
 

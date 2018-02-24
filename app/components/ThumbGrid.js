@@ -113,6 +113,7 @@ const ThumbGrid = ({
               thumbImages[thumb.id].objectUrl : undefined : undefined)}
         aspectRatioInv={(height * 1.0) / width}
         thumbWidth={zoomOut ? newThumbWidth : thumbWidth}
+        margin={zoomOut ? newThumbMargin : thumbMargin}
         frameNumber={editGrid ? undefined : thumb.frameNumber}
         hidden={editGrid ? undefined : thumb.hidden}
         controlersAreVisible={editGrid ? undefined : (thumb.id === controlersAreVisible)}
@@ -133,7 +134,6 @@ const ThumbGrid = ({
     <div
       className={styles.grid}
       style={{
-        // width: editGrid ? moviePrintWidth * scaleValue : moviePrintWidth,
         width: zoomOut ? containerWidth : moviePrintWidth,
       }}
       id="ThumbGrid"

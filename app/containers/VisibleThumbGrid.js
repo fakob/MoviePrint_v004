@@ -87,7 +87,6 @@ class SortedVisibleThumbGrid extends Component {
             }
             useDragHandle
             axis="xy"
-            // moviePrintWidth={this.props.moviePrintWidth}
             controlersAreVisible={this.controlersVisible}
 
             columnCount={this.props.columnCount}
