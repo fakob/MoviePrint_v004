@@ -25,6 +25,7 @@ const ThumbGrid = ({
 }) => {
   const width = (typeof file !== 'undefined' && typeof file.width !== 'undefined' ? file.width : 1920);
   const height = (typeof file !== 'undefined' && typeof file.height !== 'undefined' ? file.height : 1080);
+  const aspectRatioInv = (height * 1.0) / width;
   const rowCount = Math.ceil(thumbCount / columnCount);
   const headerHeight = settings.defaultHeaderHeight;
   const thumbWidth = settings.defaultThumbnailWidth;
@@ -34,17 +35,13 @@ const ThumbGrid = ({
   const marginHeight = 14;
   const scaleValueHeight = (((containerHeight * 1.0 * generalScale) -
     (marginHeight * 4) - headerHeight) / rowCount) /
-    ((thumbWidth * (height / width)) + thumbMargin);
-  const scaleValueWidth = (((containerWidth * 0.75 * generalScale) -
-    (marginWidth * 4) - headerHeight) / columnCount) /
-    (thumbWidth + thumbMargin); // 12 of 16 columns
+    ((thumbWidth * aspectRatioInv) + (thumbMargin * 2));
+  const scaleValueWidth = (
+    ((containerWidth * 1.0 * generalScale) - (marginWidth * 4)) / columnCount) /
+    (thumbWidth + (thumbMargin * 2));
   const scaleValue = Math.min(scaleValueHeight, scaleValueWidth);
-  // const newThumbMargin = (thumbMargin / 2) * scaleValue;
-  // const newThumbWidth = (thumbWidth * scaleValue) - (newThumbMargin * 2);
-  // const newThumbHeight = (thumbWidth * (height / width) * scaleValue) - (newThumbMargin * 2);
-  const newThumbMargin = Math.floor((thumbMargin / 2) * scaleValue);
-  const newThumbWidth = Math.floor((thumbWidth * scaleValue) - (newThumbMargin * 2));
-  const newThumbHeight = Math.floor((thumbWidth * (height / width) * scaleValue) - (newThumbMargin * 2));
+  const newThumbMargin = thumbMargin * scaleValue;
+  const newThumbWidth = thumbWidth * scaleValue;
   // console.log(containerHeight);
   // console.log(containerWidth);
   // console.log(rowCount);
@@ -111,7 +108,7 @@ const ThumbGrid = ({
           (thumbImages !== undefined ?
             thumbImages[thumb.id] !== undefined ?
               thumbImages[thumb.id].objectUrl : undefined : undefined)}
-        aspectRatioInv={(height * 1.0) / width}
+        aspectRatioInv={aspectRatioInv}
         thumbWidth={zoomOut ? newThumbWidth : thumbWidth}
         margin={zoomOut ? newThumbMargin : thumbMargin}
         frameNumber={editGrid ? undefined : thumb.frameNumber}
