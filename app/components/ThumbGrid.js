@@ -15,12 +15,13 @@ const ThumbGrid = ({
   thumbs,
   thumbImages,
   file,
-  columnWidth,
+  moviePrintWidth,
   controlersAreVisible,
   onToggleClick, onRemoveClick, onInPointClick, onOutPointClick,
   onBackClick, onForwardClick, onScrubClick,
   onMouseOverResult, onMouseOutResult, settings, editGrid, showPlaceholder,
-  columnCount, thumbCount, reCapture, width, height, contentHeight, contentWidth
+  columnCount, thumbCount, reCapture, width, height, containerHeight, containerWidth,
+  zoomOut
 }) => {
   const rowCount = Math.ceil(thumbCount / columnCount);
   const headerHeight = settings.defaultHeaderHeight;
@@ -29,24 +30,24 @@ const ThumbGrid = ({
   const generalScale = 0.9;
   const marginWidth = 14;
   const marginHeight = 14;
-  const scaleValueHeight = (((contentHeight * 1.0 * generalScale) -
+  const scaleValueHeight = (((containerHeight * 1.0 * generalScale) -
     (marginHeight * 4) - headerHeight) / rowCount) /
     ((thumbWidth * (height / width)) + thumbMargin);
-  const scaleValueWidth = (((contentWidth * 0.75 * generalScale) -
+  const scaleValueWidth = (((containerWidth * 0.75 * generalScale) -
     (marginWidth * 4) - headerHeight) / columnCount) /
     (thumbWidth + thumbMargin); // 12 of 16 columns
   const scaleValue = Math.min(scaleValueHeight, scaleValueWidth);
   // const newThumbMargin = (thumbMargin / 2) * scaleValue;
-  // const newthumbWidth = (thumbWidth * scaleValue) - (newThumbMargin * 2);
+  // const newThumbWidth = (thumbWidth * scaleValue) - (newThumbMargin * 2);
   // const newThumbHeight = (thumbWidth * (height / width) * scaleValue) - (newThumbMargin * 2);
   const newThumbMargin = Math.floor((thumbMargin / 2) * scaleValue);
-  const newthumbWidth = Math.floor((thumbWidth * scaleValue) - (newThumbMargin * 2));
+  const newThumbWidth = Math.floor((thumbWidth * scaleValue) - (newThumbMargin * 2));
   const newThumbHeight = Math.floor((thumbWidth * (height / width) * scaleValue) - (newThumbMargin * 2));
-  // console.log(contentHeight);
-  // console.log(contentWidth);
+  // console.log(containerHeight);
+  // console.log(containerWidth);
   // console.log(rowCount);
   // console.log(height);
-  // console.log(columnWidth);
+  // console.log(moviePrintWidth);
   // console.log(columnCount);
   // console.log(width);
   // console.log(scaleValue);
@@ -110,7 +111,7 @@ const ThumbGrid = ({
               thumbImages[thumb.id].objectUrl : undefined : undefined)}
         width={file.width || 1920}
         height={file.height || 1080}
-        thumbWidth={thumbWidth}
+        thumbWidth={zoomOut ? newThumbWidth : thumbWidth}
         frameNumber={editGrid ? undefined : thumb.frameNumber}
         hidden={editGrid ? undefined : thumb.hidden}
         controlersAreVisible={editGrid ? undefined : (thumb.id === controlersAreVisible)}
@@ -131,8 +132,8 @@ const ThumbGrid = ({
     <div
       className={styles.grid}
       style={{
-        // width: editGrid ? columnWidth * scaleValue : columnWidth,
-        width: columnWidth,
+        // width: editGrid ? moviePrintWidth * scaleValue : moviePrintWidth,
+        width: zoomOut ? containerWidth : moviePrintWidth,
       }}
       id="ThumbGrid"
     >
@@ -164,7 +165,7 @@ ThumbGrid.propTypes = {
     width: PropTypes.number,
     height: PropTypes.number,
   }),
-  columnWidth: PropTypes.number.isRequired,
+  moviePrintWidth: PropTypes.number.isRequired,
   controlersAreVisible: PropTypes.string,
   onToggleClick: PropTypes.func.isRequired,
   onRemoveClick: PropTypes.func.isRequired,

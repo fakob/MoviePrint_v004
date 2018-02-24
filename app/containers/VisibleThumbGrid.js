@@ -88,7 +88,7 @@ class SortedVisibleThumbGrid extends Component {
             }
             useDragHandle
             axis="xy"
-            // columnWidth={this.props.columnWidth}
+            // moviePrintWidth={this.props.moviePrintWidth}
             controlersAreVisible={this.controlersVisible}
 
             width={this.props.file ? (this.props.file.width || 1920) : 1920}
@@ -96,10 +96,11 @@ class SortedVisibleThumbGrid extends Component {
             columnCount={this.props.columnCount}
             thumbCount={this.props.thumbCount}
             reCapture={this.props.reCapture}
-            columnWidth={this.props.columnCount *
+            moviePrintWidth={this.props.columnCount *
               (this.props.settings.defaultThumbnailWidth + this.props.settings.defaultMargin)}
-            contentHeight={this.props.contentHeight || 360}
-            contentWidth={this.props.contentWidth || 640}
+            containerHeight={this.props.containerHeight || 360}
+            containerWidth={this.props.containerWidth || 640}
+            zoomOut={this.props.zoomOut}
           />
         </Grid.Column>
       </Grid>

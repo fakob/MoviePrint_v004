@@ -10,7 +10,7 @@ import FileList from '../containers/FileList';
 import SettingsList from '../containers/SettingsList';
 import SortedVisibleThumbGrid from '../containers/VisibleThumbGrid';
 import VideoPlayer from '../components/VideoPlayer';
-import { saveMoviePrint } from '../utils/utils';
+import { saveMoviePrint, getAspectRatio } from '../utils/utils';
 import Footer from './Footer';
 import Header from './Header';
 import styles from './App.css';
@@ -41,8 +41,10 @@ class App extends Component {
       showPlaceholder: true,
       modalIsOpen: false,
       editGrid: true,
-      contentHeight: 0,
-      contentWidth: 0,
+      containerHeight: 0,
+      containerWidth: 0,
+      thumbnailWidthPlusMargin: undefined,
+      thumbnailHeightPlusMargin: undefined,
       columnCountTemp: undefined,
       thumbCountTemp: undefined,
       columnCount: undefined,
@@ -67,7 +69,7 @@ class App extends Component {
     this.onZoomOut = this.onZoomOut.bind(this);
     this.onSaveMoviePrint = this.onSaveMoviePrint.bind(this);
 
-    this.updateContentWidthAndHeight = this.updateContentWidthAndHeight.bind(this);
+    this.updatecontainerWidthAndHeight = this.updatecontainerWidthAndHeight.bind(this);
 
     this.onChangeRow = this.onChangeRow.bind(this);
     this.onChangeColumn = this.onChangeColumn.bind(this);
@@ -93,6 +95,9 @@ class App extends Component {
     const { store } = this.context;
     thumbnailWidthPlusMargin = store.getState().undoGroup.present.settings.defaultThumbnailWidth +
       store.getState().undoGroup.present.settings.defaultMargin;
+    // thumbnailHeightPlusMargin = (store.getState().undoGroup.present.settings.defaultThumbnailWidth *
+    //   (this.props.file !== undefined)) +
+      store.getState().undoGroup.present.settings.defaultMargin;
 
     window.addEventListener('mouseup', this.onDragLeave);
     window.addEventListener('dragenter', this.onDragEnter);
@@ -101,8 +106,8 @@ class App extends Component {
     window.addEventListener('drop', this.onDrop);
     document.addEventListener('keydown', this.handleKeyPress);
 
-    this.updateContentWidthAndHeight();
-    window.addEventListener('resize', this.updateContentWidthAndHeight);
+    this.updatecontainerWidthAndHeight();
+    window.addEventListener('resize', this.updatecontainerWidthAndHeight);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -152,7 +157,7 @@ class App extends Component {
   }
 
   componentDidUpdate() {
-    this.updateContentWidthAndHeight();
+    this.updatecontainerWidthAndHeight();
   }
 
   componentWillUnmount() {
@@ -163,7 +168,7 @@ class App extends Component {
     window.removeEventListener('drop', this.onDrop);
     document.removeEventListener('keydown', this.handleKeyPress);
 
-    window.removeEventListener('resize', this.updateContentWidthAndHeight);
+    window.removeEventListener('resize', this.updatecontainerWidthAndHeight);
   }
 
   handleKeyPress(event) {
@@ -227,12 +232,12 @@ class App extends Component {
     return false;
   }
 
-  updateContentWidthAndHeight() {
-    if (this.state.contentHeight !== this.siteContent.clientHeight) {
-      this.setState({ contentHeight: this.siteContent.clientHeight });
+  updatecontainerWidthAndHeight() {
+    if (this.state.containerHeight !== this.siteContent.clientHeight) {
+      this.setState({ containerHeight: this.siteContent.clientHeight });
     }
-    if (this.state.contentWidth !== this.siteContent.clientWidth) {
-      this.setState({ contentWidth: this.siteContent.clientWidth });
+    if (this.state.containerWidth !== this.siteContent.clientWidth) {
+      this.setState({ containerWidth: this.siteContent.clientWidth });
     }
   }
 
@@ -403,7 +408,7 @@ class App extends Component {
               <Sidebar
                 className={`${styles.ItemLeftSideBar}`}
                 // as={Menu}
-                animation="scale down"
+                animation="overlay"
                 width="wide"
                 visible={state.visibilitySettings.showLeftSidebar}
                 icon="labeled"
@@ -414,7 +419,7 @@ class App extends Component {
               <Sidebar
                 // as={Menu}
                 direction="right"
-                animation="scale down"
+                animation="overlay"
                 width="wide"
                 visible={state.visibilitySettings.showRightSidebar}
                 icon="labeled"
@@ -440,10 +445,12 @@ class App extends Component {
                     editGrid={this.state.editGrid}
                     showPlaceholder={this.state.showPlaceholder}
 
-                    columnWidth={this.props.defaultColumnCount
+                    moviePrintWidth={this.state.columnCountTemp
                       * thumbnailWidthPlusMargin}
-                    contentHeight={this.state.contentHeight}
-                    contentWidth={this.state.contentWidth}
+                    moviePrintHeight={Math.ceil(this.state.thumbCountTemp / this.state.columnCountTemp)
+                      * thumbnailWidthPlusMargin}
+                    containerHeight={this.state.containerHeight}
+                    containerWidth={this.state.containerWidth}
                     parentMethod={this.openModal}
 
                     columnCount={this.state.editGrid ?
@@ -452,6 +459,8 @@ class App extends Component {
                         this.state.columnCountTemp)}
                     thumbCount={this.state.thumbCountTemp}
                     reCapture={this.state.reCapture}
+
+                    zoomOut={this.props.visibilitySettings.zoomOut}
                   />
                 </div>
               </Sidebar.Pusher>

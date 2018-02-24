@@ -123,3 +123,12 @@ export const getVisibleThumbs = (thumbs, filter) => {
       return thumbs;
   }
 };
+
+export const getAspectRatio = (file) => {
+  if (typeof file === 'undefined' ||
+    typeof file.width === 'undefined' ||
+    typeof file.height === 'undefined') {
+    return (16 * 1.0) / 9; // default 16:9
+  }
+  return ((file.width * 1.0) / file.height);
+};
