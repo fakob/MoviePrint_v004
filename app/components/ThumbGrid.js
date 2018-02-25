@@ -123,6 +123,7 @@ const ThumbGrid = ({
   thumbGridComponent = (
     thumbArray.map(thumb => (
       <SortableThumb
+        zoomOut={zoomOut}
         key={thumb.key}
         index={thumb.index}
         thumbImageObjectUrl={thumb.thumbImageObjectUrl ||

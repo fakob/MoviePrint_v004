@@ -41,7 +41,7 @@ const DragHandle = SortableHandle(() => {
 const Thumb = ({
   onToggle, onInPoint, onOutPoint, onBack, onForward,
   onOver, onOut, onScrub, hidden, frameNumber, thumbImageObjectUrl, aspectRatioInv,
-  controlersAreVisible, thumbWidth, margin
+  controlersAreVisible, thumbWidth, margin, zoomOut
 }) => {
   function over(event) {
     event.target.style.opacity = 1;
@@ -107,6 +107,9 @@ const Thumb = ({
           />
         </button>
         <button
+          style={{
+            display: !zoomOut ? 'block' : 'none',
+          }}
           className={styles.hoverButton}
           onClick={onInPoint}
           onMouseOver={over}
@@ -121,6 +124,9 @@ const Thumb = ({
           />
         </button>
         <button
+          style={{
+            display: !zoomOut ? 'block' : 'none'
+          }}
           className={styles.hoverButton}
           onClick={onBack}
           onMouseOver={over}
@@ -135,6 +141,9 @@ const Thumb = ({
           />
         </button>
         <button
+          style={{
+            display: !zoomOut ? 'block' : 'none',
+          }}
           className={styles.hoverButton}
           onClick={onScrub}
           onMouseOver={over}
@@ -149,6 +158,9 @@ const Thumb = ({
           />
         </button>
         <button
+          style={{
+            display: !zoomOut ? 'block' : 'none'
+          }}
           className={styles.hoverButton}
           onClick={onForward}
           onMouseOver={over}
@@ -163,6 +175,9 @@ const Thumb = ({
           />
         </button>
         <button
+          style={{
+            display: !zoomOut ? 'block' : 'none'
+          }}
           className={styles.hoverButton}
           onClick={onOutPoint}
           onMouseOver={over}
@@ -186,6 +201,7 @@ Thumb.defaultProps = {
 };
 
 Thumb.propTypes = {
+  zoomOut: PropTypes.bool,
   aspectRatioInv: PropTypes.number,
   thumbWidth: PropTypes.number,
   margin: PropTypes.number,
