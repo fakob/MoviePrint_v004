@@ -61,7 +61,8 @@
   /*margin-top: 3em;*/
   /*overflow-y: scroll;*/
   overflow-x: scroll;
-  min-height: calc(100vh - 3em - 3em);
+  /* min-height: calc(100vh - 3em - 3em); */
+  min-height: calc(100vh);
 }
 .ItemLeftSideBar {
   min-height: calc(100vh - 3em - 3em);

@@ -400,9 +400,9 @@ class App extends Component {
           </div>
         </Modal>
         <div className={`${styles.Site}`}>
-          <div className={`${styles.SiteHeader}`}>
+          {/* <div className={`${styles.SiteHeader}`}>
 
-          </div>
+          </div> */}
           <div
             className={`${styles.SiteContent}`}
             ref={(el) => { this.siteContent = el; }}
@@ -468,9 +468,9 @@ class App extends Component {
               </Sidebar.Pusher>
             </Sidebar.Pushable>
           </div>
-          <div className={`${styles.SiteFooter}`}>
+          {/* <div className={`${styles.SiteFooter}`}>
             <Footer />
-          </div>
+          </div> */}
         </div>
         <Sticky
           className={`${styles.FixedActionMenuRight}`}

@@ -29,7 +29,7 @@ const ThumbGrid = ({
   const headerHeight = settings.defaultHeaderHeight;
   const thumbWidth = settings.defaultThumbnailWidth;
   const thumbMargin = settings.defaultMargin;
-  const generalScale = 1;
+  const generalScale = 0.95;
   const marginWidth = 14;
   const marginHeight = 14;
 
