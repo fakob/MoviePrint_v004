@@ -36,7 +36,7 @@ const configureStore = (initialState?: counterStateType) => {
 
   // Skip redux logs in console during the tests
   if (process.env.NODE_ENV !== 'test') {
-  middleware.push(logger);
+    middleware.push(logger);
   }
 
   // Router Middleware
@@ -75,8 +75,7 @@ const configureStore = (initialState?: counterStateType) => {
 
   if (module.hot) {
     module.hot.accept('../reducers', () =>
-      store.replaceReducer(require('../reducers')) // eslint-disable-line global-require
-    );
+      store.replaceReducer(require('../reducers'))); // eslint-disable-line global-require
   }
 
   return store;
