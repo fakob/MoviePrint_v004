@@ -92,8 +92,8 @@ class SortedVisibleThumbGrid extends Component {
             columnCount={this.props.columnCount}
             thumbCount={this.props.thumbCount}
             reCapture={this.props.reCapture}
-            moviePrintWidth={this.props.moviePrintWidth || 640}
-            moviePrintHeight={this.props.moviePrintHeight || 360}
+            // moviePrintWidth={this.props.moviePrintWidth || 640}
+            // moviePrintHeight={this.props.moviePrintHeight || 360}
             containerWidth={this.props.containerWidth || 640}
             containerHeight={this.props.containerHeight || 360}
             zoomOut={this.props.zoomOut}

@@ -15,7 +15,6 @@ const ThumbGrid = ({
   thumbs,
   thumbImages,
   file,
-  moviePrintWidth,
   controlersAreVisible,
   onToggleClick, onRemoveClick, onInPointClick, onOutPointClick,
   onBackClick, onForwardClick, onScrubClick,
@@ -33,15 +32,30 @@ const ThumbGrid = ({
   const generalScale = 0.9;
   const marginWidth = 14;
   const marginHeight = 14;
-  const scaleValueHeight = (((containerHeight * 1.0 * generalScale) -
-    (marginHeight * 4) - headerHeight) / rowCount) /
-    ((thumbWidth * aspectRatioInv) + (thumbMargin * 2));
-  const scaleValueWidth = (
-    ((containerWidth * 1.0 * generalScale) - (marginWidth * 4)) / columnCount) /
-    (thumbWidth + (thumbMargin * 2));
-  const scaleValue = Math.min(scaleValueHeight, scaleValueWidth);
+
+  const thumbnailWidthPlusMargin = thumbWidth + (thumbMargin * 2);
+  const thumbnailHeightPlusMargin = Math.floor(thumbnailWidthPlusMargin * aspectRatioInv);
+
+  const moviePrintWidth = columnCount * thumbnailWidthPlusMargin;
+  const moviePrintHeightBody = rowCount * thumbnailHeightPlusMargin;
+  const moviePrintHeight = headerHeight + (thumbMargin * 2) + moviePrintHeightBody;
+
+  const scaleValueWidth = containerWidth / moviePrintWidth;
+  const scaleValueHeight = containerHeight / moviePrintHeight;
+
+  const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * generalScale;
+
+  // const scaleValueHeight = (((containerHeight * 1.0 * generalScale) -
+  //   (marginHeight * 4) - headerHeight) / rowCount) /
+  //   ((thumbWidth * aspectRatioInv) + (thumbMargin * 2));
+  // const scaleValueWidth = (
+  //   ((containerWidth * 1.0 * generalScale) - (marginWidth * 4)) / columnCount) /
+  //   (thumbWidth + (thumbMargin * 2));
+  // const scaleValue = Math.min(scaleValueHeight, scaleValueWidth);
+
   const newThumbMargin = thumbMargin * scaleValue;
   const newThumbWidth = thumbWidth * scaleValue;
+
   // console.log(containerHeight);
   // console.log(containerWidth);
   // console.log(rowCount);
@@ -163,7 +177,6 @@ ThumbGrid.propTypes = {
     width: PropTypes.number,
     height: PropTypes.number,
   }),
-  moviePrintWidth: PropTypes.number.isRequired,
   controlersAreVisible: PropTypes.string,
   onToggleClick: PropTypes.func.isRequired,
   onRemoveClick: PropTypes.func.isRequired,
