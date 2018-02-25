@@ -29,12 +29,12 @@ const ThumbGrid = ({
   const headerHeight = settings.defaultHeaderHeight;
   const thumbWidth = settings.defaultThumbnailWidth;
   const thumbMargin = settings.defaultMargin;
-  const generalScale = 0.9;
+  const generalScale = 1;
   const marginWidth = 14;
   const marginHeight = 14;
 
   const thumbnailWidthPlusMargin = thumbWidth + (thumbMargin * 2);
-  const thumbnailHeightPlusMargin = Math.floor(thumbnailWidthPlusMargin * aspectRatioInv);
+  const thumbnailHeightPlusMargin = thumbnailWidthPlusMargin * aspectRatioInv;
 
   const moviePrintWidth = columnCount * thumbnailWidthPlusMargin;
   const moviePrintHeightBody = rowCount * thumbnailHeightPlusMargin;
@@ -43,7 +43,7 @@ const ThumbGrid = ({
   const scaleValueWidth = containerWidth / moviePrintWidth;
   const scaleValueHeight = containerHeight / moviePrintHeight;
 
-  const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * generalScale;
+  const scaleValue = Math.min(1, Math.min(scaleValueWidth, scaleValueHeight) * generalScale);
 
   // const scaleValueHeight = (((containerHeight * 1.0 * generalScale) -
   //   (marginHeight * 4) - headerHeight) / rowCount) /
@@ -56,23 +56,30 @@ const ThumbGrid = ({
   const newThumbMargin = thumbMargin * scaleValue;
   const newThumbWidth = thumbWidth * scaleValue;
 
-  // console.log(containerHeight);
-  // console.log(containerWidth);
-  // console.log(rowCount);
-  // console.log(height);
-  // console.log(moviePrintWidth);
-  // console.log(columnCount);
-  // console.log(width);
-  // console.log(scaleValue);
+  // console.log(`columnCount: ${columnCount}`);
+  // console.log(`rowCount: ${rowCount}`);
+  // console.log(`aspectRatioInv: ${aspectRatioInv}`);
+  // console.log(`containerWidth: ${containerWidth}`);
+  // console.log(`containerHeight: ${containerHeight}`);
+  // console.log(`moviePrintWidth: ${moviePrintWidth}`);
+  // console.log(`moviePrintHeightBody: ${moviePrintHeightBody}`);
+  // console.log(`moviePrintHeight: ${moviePrintHeight}`);
+  // console.log(`scaleValueWidth: ${scaleValueWidth}`);
+  // console.log(`scaleValueHeight: ${scaleValueHeight}`);
+  // console.log(`scaleValue: ${scaleValue}`);
+  // console.log(`width: ${zoomOut ? containerWidth : moviePrintWidth}`);
 
   let thumbGridHeaderComponent = null;
   let thumbGridComponent = null;
 
   thumbGridHeaderComponent = (
     <ThumbGridHeader
+      zoomOut={zoomOut}
       fileName={file.name || ''}
       filePath={file.path || ''}
       headerHeight={settings.defaultHeaderHeight}
+      thumbMargin={thumbMargin}
+      scaleValue={zoomOut ? scaleValue : 1}
     />
   );
 
@@ -145,7 +152,7 @@ const ThumbGrid = ({
     <div
       className={styles.grid}
       style={{
-        width: zoomOut ? containerWidth : moviePrintWidth,
+        width: zoomOut ? (moviePrintWidth * scaleValue) : moviePrintWidth,
       }}
       id="ThumbGrid"
     >

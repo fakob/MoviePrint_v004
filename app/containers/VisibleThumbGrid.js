@@ -44,23 +44,23 @@ class SortedVisibleThumbGrid extends Component {
 
   render() {
     return (
-      <Grid
-        stretched
-        verticalAlign="middle"
-        padded="horizontally"
-        style={{
-          height: '100%',
-          // position: 'absolute'
-        }}
-      >
-        <Grid.Column
-          key="2"
-          width={16}
-          className={this.props.editGrid ? styles.PaperLandscape : undefined}
-          style={{
-            // backgroundColor: 'gold',
-          }}
-        >
+      // <Grid
+      //   stretched
+      //   verticalAlign="middle"
+      //   padded="horizontally"
+      //   style={{
+      //     height: '100%',
+      //     // position: 'absolute'
+      //   }}
+      // >
+      //   <Grid.Column
+      //     key="2"
+      //     width={16}
+      //     className={this.props.editGrid ? styles.PaperLandscape : undefined}
+      //     style={{
+      //       // backgroundColor: 'gold',
+      //     }}
+      //   >
           <SortableThumbGrid
             editGrid={this.props.editGrid}
             thumbs={this.props.thumbs}
@@ -98,8 +98,8 @@ class SortedVisibleThumbGrid extends Component {
             containerHeight={this.props.containerHeight || 360}
             zoomOut={this.props.zoomOut}
           />
-        </Grid.Column>
-      </Grid>
+      //   </Grid.Column>
+      // </Grid>
     );
   }
 }
