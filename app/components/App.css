@@ -71,6 +71,7 @@
 }
 .ItemRightSideBar {
   min-height: calc(100vh - 3em - 3em);
+  background: linear-gradient(270deg, #444242 0%, #3B3B3B 100%);
   /*margin-top: 3em;*/
   /*overflow-y: scroll;*/
   /*overflow-x: hidden;*/

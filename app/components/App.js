@@ -417,6 +417,7 @@ class App extends Component {
                 <FileList />
               </Sidebar>
               <Sidebar
+                className={`${styles.ItemRightSideBar}`}
                 // as={Menu}
                 direction="right"
                 animation="overlay"
