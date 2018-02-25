@@ -31,14 +31,6 @@ const setColumnAndThumbCount = (that, columnCount, thumbCount) => {
   });
 };
 
-// const setThumbnailWidthPlusMarginAndHeight = (that, settings, file) => {
-//   const thumbnailWidthPlusMargin = settings.defaultThumbnailWidth + (settings.defaultMargin * 2);
-//   that.setState({
-//     thumbnailWidthPlusMargin,
-//     thumbnailHeightPlusMargin: Math.floor(thumbnailWidthPlusMargin * getAspectRatio(file)),
-//   });
-// };
-
 class App extends Component {
   constructor() {
     super();
@@ -49,8 +41,6 @@ class App extends Component {
       editGrid: true,
       containerHeight: 0,
       containerWidth: 0,
-      // thumbnailWidthPlusMargin: undefined,
-      // thumbnailHeightPlusMargin: undefined,
       columnCountTemp: undefined,
       thumbCountTemp: undefined,
       columnCount: undefined,
@@ -100,13 +90,6 @@ class App extends Component {
   }
 
   componentDidMount() {
-    const { store } = this.context;
-    setThumbnailWidthPlusMarginAndHeight(
-      this,
-      store.getState().undoGroup.present.settings,
-      this.props.file
-    );
-
     window.addEventListener('mouseup', this.onDragLeave);
     window.addEventListener('dragenter', this.onDragEnter);
     window.addEventListener('dragover', this.onDragOver);
@@ -461,10 +444,6 @@ class App extends Component {
                   <SortedVisibleThumbGrid
                     editGrid={this.state.editGrid}
 
-                    // moviePrintWidth={this.state.columnCountTemp
-                    //   * this.state.thumbnailWidthPlusMargin}
-                    // moviePrintHeight={Math.ceil(this.state.thumbCountTemp / this.state.columnCountTemp)
-                    //   * this.state.thumbnailHeightPlusMargin}
                     containerHeight={this.state.containerHeight}
                     containerWidth={this.state.containerWidth}
                     parentMethod={this.openModal}
