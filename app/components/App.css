@@ -74,7 +74,9 @@
   background: linear-gradient(270deg, #444242 0%, #3B3B3B 100%);
   /*margin-top: 3em;*/
   /*overflow-y: scroll;*/
-  /*overflow-x: hidden;*/
+  overflow-x: hidden;
+  color: #eeeeee;
+  font-family: "Roboto"
 }
 
 /* Remove scroll on the body when react-modal is open */
@@ -109,7 +111,15 @@
   /* padding: 20px */
 }
 
-.FixedActionMenu {
+.FixedActionMenuLeft {
+  position: fixed;
+  /* bottom: 66px; */
+  bottom: 24px;
+  left: 24px;
+  z-index: 990;
+}
+
+.FixedActionMenuRight {
   position: fixed;
   /* bottom: 66px; */
   bottom: 24px;

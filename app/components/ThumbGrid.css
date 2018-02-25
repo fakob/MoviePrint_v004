@@ -61,7 +61,7 @@
     height: 100%;
     white-space: nowrap;
     border: 0;
-    overflow: auto;
+    /* overflow: auto; */
     margin: auto;
 }
 

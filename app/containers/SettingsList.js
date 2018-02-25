@@ -51,19 +51,29 @@ class SettingsList extends Component {
   render() {
     return (
       <Container>
-        <Segment raised>
-          <Segment.Group>
-            <Segment>
+        <Segment
+          padded
+          inverted
+          style={{
+            background: '#3e3e3e',
+          }}
+        >
+          <div>
+            <Segment vertical>
               <Checkbox
                 toggle
                 label="Re-capture frames"
                 // checked={this.state.checkBoxChecked}
                 checked={this.props.reCapture}
                 onChange={this.handleChange}
+                style={{
+                  color: '#eeeeee',
+                  fontFamily: 'Roboto',
+                }}
               />
             </Segment>
-            <Segment>
-              <Statistic horizontal>
+            <Segment vertical>
+              <Statistic horizontal inverted>
                 <Statistic.Value>{this.props.columnCountTemp}</Statistic.Value>
                 <Statistic.Label>{(this.props.columnCountTemp === 1) ? 'Column' : 'Columns'}</Statistic.Label>
               </Statistic>
@@ -82,8 +92,8 @@ class SettingsList extends Component {
               />
             </Segment>
             {this.props.reCapture === true &&
-              <Segment>
-                <Statistic horizontal>
+              <Segment vertical>
+                <Statistic horizontal inverted>
                   <Statistic.Value>{this.props.rowCountTemp}</Statistic.Value>
                   <Statistic.Label>{(this.props.rowCountTemp === 1) ? 'Row' : 'Rows'}</Statistic.Label>
                 </Statistic>
@@ -102,7 +112,7 @@ class SettingsList extends Component {
                 />
               </Segment>
             }
-            <Segment padded>
+            <Segment vertical padded>
               <Button
                 fluid
                 color="pink"
@@ -110,7 +120,7 @@ class SettingsList extends Component {
               >
                   Apply
               </Button>
-              <Divider
+              {/* <Divider
                 horizontal
               >
                 Or
@@ -121,9 +131,9 @@ class SettingsList extends Component {
                 onClick={this.props.onCancelClick}
               >
                 Cancel
-              </Button>
+              </Button> */}
             </Segment>
-          </Segment.Group>
+          </div>
         </Segment>
       </Container>
     );

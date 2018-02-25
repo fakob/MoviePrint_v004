@@ -38,7 +38,7 @@ class App extends Component {
       className: `${styles.dropzonehide}`,
       isManipulatingSliderInHeader: false,
       modalIsOpen: false,
-      editGrid: true,
+      editGrid: false,
       containerHeight: 0,
       containerWidth: 0,
       columnCountTemp: undefined,
@@ -59,6 +59,7 @@ class App extends Component {
     this.closeModal = this.closeModal.bind(this);
     this.setNewFrame = this.setNewFrame.bind(this);
 
+    this.toggleLeftSidebar = this.toggleLeftSidebar.bind(this);
     this.editGrid = this.editGrid.bind(this);
     this.hideEditGrid = this.hideEditGrid.bind(this);
     this.onShowThumbs = this.onShowThumbs.bind(this);
@@ -175,7 +176,7 @@ class App extends Component {
     if (event) {
       switch (event.which) {
         case 49: // press 1
-          store.dispatch(toggleLeftSidebar());
+          toggleLeftSidebar();
           break;
         case 51: // press 3
           if (store.getState().visibilitySettings.showRightSidebar) {
@@ -255,6 +256,11 @@ class App extends Component {
     const newFrameNumber = newPositionRatio * this.props.file.frameCount;
     store.dispatch(changeThumb(this.props.file, thumbId, newFrameNumber));
     this.closeModal();
+  }
+
+  toggleLeftSidebar() {
+    const { store } = this.context;
+    store.dispatch(toggleLeftSidebar());
   }
 
   editGrid() {
@@ -467,7 +473,7 @@ class App extends Component {
           </div>
         </div>
         <Sticky
-          className={`${styles.FixedActionMenu}`}
+          className={`${styles.FixedActionMenuRight}`}
         >
           <Menu compact icon="labeled" size="mini">
 
@@ -504,6 +510,22 @@ class App extends Component {
               />
               {(this.state.editGrid === false) ? 'Edit' : 'Cancel'}
             </Menu.Item>
+
+          </Menu>
+        </Sticky>
+        <Sticky
+          className={`${styles.FixedActionMenuLeft}`}
+        >
+          <Menu compact icon="labeled" size="mini">
+
+            {true &&
+              <Menu.Item name="list" onClick={this.toggleLeftSidebar}>
+                <Icon
+                  name="list"
+                />
+                {(this.props.visibilitySettings.showLeftSidebar === false) ? 'Show' : 'Hide'}
+              </Menu.Item>
+            }
 
           </Menu>
         </Sticky>
