@@ -407,70 +407,49 @@ class App extends Component {
             className={`${styles.SiteContent}`}
             ref={(el) => { this.siteContent = el; }}
           >
-            <Sidebar.Pushable
-              // as={Segment}
-              className={`${styles.SidebarPushable}`}
+            <div
+              className={`${styles.ItemSideBar} ${styles.ItemLeftSideBar} ${state.visibilitySettings.showLeftSidebar ? styles.ItemLeftSideBarAnim : ''}`}
+              // visible={state.visibilitySettings.showLeftSidebar}
+              // vertical
             >
-              <Sidebar
-                className={`${styles.ItemLeftSideBar}`}
-                // as={Menu}
-                animation="overlay"
-                width="wide"
-                visible={state.visibilitySettings.showLeftSidebar}
-                icon="labeled"
-                // vertical
-              >
-                <FileList />
-              </Sidebar>
-              <Sidebar
-                className={`${styles.ItemRightSideBar}`}
-                // as={Menu}
-                direction="right"
-                animation="overlay"
-                width="wide"
-                visible={state.visibilitySettings.showRightSidebar}
-                icon="labeled"
-                // vertical
-              >
-                <SettingsList
-                  columnCountTemp={this.state.columnCountTemp}
-                  thumbCountTemp={this.state.thumbCountTemp}
-                  rowCountTemp={Math.ceil(this.state.thumbCountTemp / this.state.columnCountTemp)}
-                  columnCount={this.state.columnCount}
-                  rowCount={Math.ceil(this.state.thumbCount / this.state.columnCount)}
-                  reCapture={this.state.reCapture}
-                  onChangeColumn={this.onChangeColumn}
-                  onChangeRow={this.onChangeRow}
-                  onReCaptureClick={this.onReCaptureClick}
-                  onApplyClick={this.onApplyClick}
-                  onCancelClick={this.onCancelClick}
-                />
-              </Sidebar>
-              <Sidebar.Pusher>
-                <div className={`${styles.ItemMain}`}>
-                  <SortedVisibleThumbGrid
-                    editGrid={this.state.editGrid}
+              <FileList />
+            </div>
+            <div
+              className={`${styles.ItemSideBar} ${styles.ItemRightSideBar} ${state.visibilitySettings.showRightSidebar ? styles.ItemRightSideBarAnim : ''}`}
+            >
+              <SettingsList
+                columnCountTemp={this.state.columnCountTemp}
+                thumbCountTemp={this.state.thumbCountTemp}
+                rowCountTemp={Math.ceil(this.state.thumbCountTemp / this.state.columnCountTemp)}
+                columnCount={this.state.columnCount}
+                rowCount={Math.ceil(this.state.thumbCount / this.state.columnCount)}
+                reCapture={this.state.reCapture}
+                onChangeColumn={this.onChangeColumn}
+                onChangeRow={this.onChangeRow}
+                onReCaptureClick={this.onReCaptureClick}
+                onApplyClick={this.onApplyClick}
+                onCancelClick={this.onCancelClick}
+              />
+            </div>
+            <div className={`${styles.ItemMain}`}>
+              <SortedVisibleThumbGrid
+                editGrid={this.state.editGrid}
 
-                    containerHeight={this.state.containerHeight}
-                    containerWidth={this.state.containerWidth}
-                    parentMethod={this.openModal}
+                containerHeight={this.state.containerHeight}
+                containerWidth={this.state.containerWidth}
+                parentMethod={this.openModal}
 
-                    columnCount={this.state.editGrid ?
-                      this.state.columnCountTemp :
-                      (this.props.file ? this.props.file.columnCount || this.state.columnCountTemp :
-                        this.state.columnCountTemp)}
-                    thumbCount={this.state.thumbCountTemp}
-                    reCapture={this.state.reCapture}
+                columnCount={this.state.editGrid ?
+                  this.state.columnCountTemp :
+                  (this.props.file ? this.props.file.columnCount || this.state.columnCountTemp :
+                    this.state.columnCountTemp)}
+                thumbCount={this.state.thumbCountTemp}
+                reCapture={this.state.reCapture}
 
-                    zoomOut={this.props.visibilitySettings.zoomOut}
-                  />
-                </div>
-              </Sidebar.Pusher>
-            </Sidebar.Pushable>
+                zoomOut={this.props.visibilitySettings.zoomOut}
+              />
+            </div>
           </div>
-          {/* <div className={`${styles.SiteFooter}`}>
-            <Footer />
-          </div> */}
         </div>
         <Sticky
           className={`${styles.FixedActionMenuRight}`}

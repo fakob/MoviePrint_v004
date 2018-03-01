@@ -57,6 +57,7 @@
   /*overflow-y: scroll;*/
   /*overflow-x: hidden;*/
 }
+
 .ItemMain {
   /*margin-top: 3em;*/
   /*overflow-y: scroll;*/
@@ -64,20 +65,30 @@
   /* min-height: calc(100vh - 3em - 3em); */
   min-height: calc(100vh);
 }
-.ItemLeftSideBar {
-  min-height: calc(100vh - 3em - 3em);
+
+.ItemSideBar {
+  min-height: calc(100vh);
   background: linear-gradient(270deg, #444242 0%, #3B3B3B 100%);
-  /*overflow-y: scroll;*/
-  /*overflow-x: hidden;*/
+  width: 350px;
+  position: fixed;
+  transition: transform 0.5s ease;
+  z-index: 102;
 }
+
+.ItemLeftSideBar {
+  transform: translate(-350px, 0);
+}
+
 .ItemRightSideBar {
-  min-height: calc(100vh - 3em - 3em);
-  background: linear-gradient(270deg, #444242 0%, #3B3B3B 100%);
-  /*margin-top: 3em;*/
-  /*overflow-y: scroll;*/
-  overflow-x: hidden;
-  color: #eeeeee;
-  font-family: "Roboto"
+  transform: translate(100vw, 0);
+}
+
+.ItemLeftSideBarAnim{
+  transform: translate(0, 0);
+}
+
+.ItemRightSideBarAnim{
+  transform: translate(calc(100vw - 350px), 0);
 }
 
 /* Remove scroll on the body when react-modal is open */
