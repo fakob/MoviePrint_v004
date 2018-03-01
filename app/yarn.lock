@@ -12,9 +12,14 @@ nan@^2.7.0:
   version "2.8.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.8.0.tgz#ed715f3fe9de02b57a5e6252d90a96675e1f085a"
 
-opencv4nodejs@^2.37.0:
-  version "2.37.0"
-  resolved "https://registry.yarnpkg.com/opencv4nodejs/-/opencv4nodejs-2.37.0.tgz#be2f695d17bc52005d7ed9b8d55b3c97f0120aab"
+opencv-build@0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/opencv-build/-/opencv-build-0.0.3.tgz#5465b9023d9074a5e6983d0de14d22ddb2fecb15"
+
+opencv4nodejs@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/opencv4nodejs/-/opencv4nodejs-3.1.0.tgz#3c7737bff259d6ecbaffd831b6615635bffebbb2"
   dependencies:
     macro-inferno "^0.2.1"
     nan "^2.7.0"
+    opencv-build "0.0.3"
