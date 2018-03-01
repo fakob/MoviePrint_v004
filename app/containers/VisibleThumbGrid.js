@@ -88,6 +88,7 @@ class SortedVisibleThumbGrid extends Component {
             useDragHandle
             axis="xy"
             controlersAreVisible={this.controlersVisible}
+            useWindowAsScrollContainer={true}
 
             columnCount={this.props.columnCount}
             thumbCount={this.props.thumbCount}
