@@ -176,7 +176,7 @@ class App extends Component {
     if (event) {
       switch (event.which) {
         case 49: // press 1
-          toggleLeftSidebar();
+          this.toggleLeftSidebar();
           break;
         case 51: // press 3
           if (store.getState().visibilitySettings.showRightSidebar) {
