@@ -29,6 +29,7 @@ const ThumbGrid = ({
   const headerHeight = settings.defaultHeaderHeight;
   const thumbWidth = settings.defaultThumbnailWidth;
   const thumbMargin = settings.defaultMargin;
+  const borderRadius = settings.defaultBorderRadius;
   const generalScale = 0.95;
   const marginWidth = 14;
   const marginHeight = 14;
@@ -55,6 +56,7 @@ const ThumbGrid = ({
 
   const newThumbMargin = thumbMargin * scaleValue;
   const newThumbWidth = thumbWidth * scaleValue;
+  const newBorderRadius = borderRadius * scaleValue;
 
   // console.log(`columnCount: ${columnCount}`);
   // console.log(`rowCount: ${rowCount}`);
@@ -132,6 +134,7 @@ const ThumbGrid = ({
               thumbImages[thumb.id].objectUrl : undefined : undefined)}
         aspectRatioInv={aspectRatioInv}
         thumbWidth={zoomOut ? newThumbWidth : thumbWidth}
+        borderRadius={zoomOut ? newBorderRadius : borderRadius}
         margin={zoomOut ? newThumbMargin : thumbMargin}
         frameNumber={editGrid ? undefined : thumb.frameNumber}
         hidden={editGrid ? undefined : thumb.hidden}
