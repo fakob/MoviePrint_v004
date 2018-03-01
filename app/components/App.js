@@ -228,11 +228,14 @@ class App extends Component {
   }
 
   updatecontainerWidthAndHeight() {
+    const { store } = this.context;
+    const state = store.getState();
     if (this.state.containerHeight !== this.siteContent.clientHeight) {
       this.setState({ containerHeight: this.siteContent.clientHeight });
     }
-    if (this.state.containerWidth !== this.siteContent.clientWidth) {
-      this.setState({ containerWidth: this.siteContent.clientWidth });
+    const containerWidthMinusSidebar = this.siteContent.clientWidth - (state.visibilitySettings.showLeftSidebar ? 350 : 0) - (state.visibilitySettings.showRightSidebar ? 350 : 0);
+    if (this.state.containerWidth !== containerWidthMinusSidebar) {
+      this.setState({ containerWidth: containerWidthMinusSidebar });
     }
   }
 
@@ -431,7 +434,9 @@ class App extends Component {
                 onCancelClick={this.onCancelClick}
               />
             </div>
-            <div className={`${styles.ItemMain}`}>
+            <div
+              className={`${styles.ItemMain} ${state.visibilitySettings.showLeftSidebar ? styles.ItemMainLeftAnim : ''} ${state.visibilitySettings.showRightSidebar ? styles.ItemMainRightAnim : ''}`}
+            >
               <SortedVisibleThumbGrid
                 editGrid={this.state.editGrid}
 
