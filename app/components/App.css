@@ -73,6 +73,9 @@
   position: fixed;
   transition: transform 0.5s ease;
   z-index: 102;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 100%;
 }
 
 .ItemLeftSideBar {
