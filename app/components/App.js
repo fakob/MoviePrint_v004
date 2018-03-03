@@ -312,11 +312,11 @@ class App extends Component {
   }
 
   onSaveMoviePrint() {
-    // saveMoviePrint(this.props.file); // this is the domtoimage script
-    // ipcRenderer.send('printPDF', this.sortedVisibleThumbGridRef.container.innerHTML);
-    console.log(this.siteContent);
-    console.log(this.divOfSortedVisibleThumbGridRef);
-    ipcRenderer.send('printPDF', this.divOfSortedVisibleThumbGridRef);
+    saveMoviePrint(this.props.file); // this is the domtoimage script
+    // // ipcRenderer.send('printPDF', this.sortedVisibleThumbGridRef.container.innerHTML);
+    // console.log(this.siteContent);
+    // console.log(this.divOfSortedVisibleThumbGridRef);
+    // ipcRenderer.send('printPDF', this.divOfSortedVisibleThumbGridRef);
   }
 
   onChangeRow = (value) => {
