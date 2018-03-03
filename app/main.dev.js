@@ -10,7 +10,7 @@
  *
  * @flow
  */
-import { app, BrowserWindow, ipcMain, globalShortcut } from 'electron';
+import { app, BrowserWindow, ipcMain, globalShortcut, shell } from 'electron';
 // import opencv from 'opencv';
 import MenuBuilder from './menu';
 import VideoCaptureProperties from './utils/videoCaptureProperties';
@@ -18,8 +18,12 @@ import VideoCaptureProperties from './utils/videoCaptureProperties';
 const opencv = require('opencv4nodejs');
 
 const path = require('path');
+const fs = require('fs');
+const os = require('os');
+
 
 let mainWindow = null;
+let workerWindow = null;
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -84,7 +88,13 @@ app.on('ready', async () => {
 
   mainWindow.on('closed', () => {
     mainWindow = null;
+    workerWindow = null;
   });
+
+  workerWindow = new BrowserWindow();
+  workerWindow.hide();
+  // workerWindow.webContents.openDevTools();
+  workerWindow.loadURL(`file://${__dirname}/worker.html`);
 
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
@@ -186,4 +196,27 @@ ipcMain.on('send-get-thumbs', (event, fileId, filePath, idArray, frameNumberArra
     }
     read();
   });
+});
+
+// retransmit it to workerWindow
+ipcMain.on('printPDF', (event: any, content: any) => {
+  workerWindow.webContents.send('printPDF', content);
+});
+// when worker window is ready
+ipcMain.on('readyToPrintPDF', (event) => {
+  const pdfPath = path.join(os.tmpdir(), 'print.pdf');
+  // Use default printing options
+  setTimeout(() => {
+    workerWindow.webContents.printToPDF({}, (error, data) => {
+      if (error) throw error;
+      fs.writeFile(pdfPath, data, (err) => {
+        if (err) {
+          throw err;
+        }
+        shell.openItem(pdfPath);
+        event.sender.send('wrote-pdf', pdfPath);
+        // workerWindow.webContents.print();
+      });
+    });
+  }, 1000);
 });

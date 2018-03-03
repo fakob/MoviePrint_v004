@@ -15,6 +15,8 @@ import Footer from './Footer';
 import Header from './Header';
 import styles from './App.css';
 
+const { ipcRenderer } = require('electron');
+
 import { setNewMovieList, toggleLeftSidebar, toggleRightSidebar,
   showRightSidebar, hideRightSidebar, zoomIn, zoomOut,
   addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
@@ -310,9 +312,12 @@ class App extends Component {
   }
 
   onSaveMoviePrint() {
-    saveMoviePrint(this.props.file);
+    // saveMoviePrint(this.props.file); // this is the domtoimage script
+    // ipcRenderer.send('printPDF', this.sortedVisibleThumbGridRef.container.innerHTML);
+    console.log(this.siteContent);
+    console.log(this.divOfSortedVisibleThumbGridRef);
+    ipcRenderer.send('printPDF', this.divOfSortedVisibleThumbGridRef);
   }
-
 
   onChangeRow = (value) => {
     this.setState({ thumbCountTemp: this.state.columnCountTemp * value });
@@ -435,9 +440,11 @@ class App extends Component {
               />
             </div>
             <div
+              ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
               className={`${styles.ItemMain} ${state.visibilitySettings.showLeftSidebar ? styles.ItemMainLeftAnim : ''} ${state.visibilitySettings.showRightSidebar ? styles.ItemMainRightAnim : ''}`}
             >
               <SortedVisibleThumbGrid
+                inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                 editGrid={this.state.editGrid}
 
                 containerHeight={this.state.containerHeight}
