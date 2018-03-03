@@ -44,64 +44,45 @@ class SortedVisibleThumbGrid extends Component {
 
   render() {
     return (
-      // <Grid
-      //   stretched
-      //   verticalAlign="middle"
-      //   padded="horizontally"
-      //   style={{
-      //     height: '100%',
-      //     // position: 'absolute'
-      //   }}
-      // >
-      //   <Grid.Column
-      //     key="2"
-      //     width={16}
-      //     className={this.props.editGrid ? styles.PaperLandscape : undefined}
-      //     style={{
-      //       // backgroundColor: 'gold',
-      //     }}
-      //   >
-          <SortableThumbGrid
-            ref={this.props.inputRef}
-            editGrid={this.props.editGrid}
-            thumbs={this.props.thumbs}
-            thumbImages={this.props.thumbImages}
-            file={this.props.file}
-            settings={this.props.settings}
-            // thumbWidth={this.props.settings.defaultThumbnailWidth}
-            onToggleClick={this.props.onToggleClick}
-            onRemoveClick={this.props.onRemoveClick}
-            onInPointClick={this.props.onInPointClick}
-            onOutPointClick={this.props.onOutPointClick}
-            onBackClick={this.props.onBackClick}
-            onForwardClick={this.props.onForwardClick}
-            onScrubClick={this.props.onScrubClick}
-            onMouseOverResult={(thumbId) => {
-              this.controlersVisible = thumbId;
-              this.forceUpdate();
-            }}
-            onMouseOutResult={() => {
-              this.controlersVisible = 'false';
-            }}
-            onSortEnd={
-              this.onSortEnd.bind(this)
-            }
-            useDragHandle
-            axis="xy"
-            controlersAreVisible={this.controlersVisible}
-            useWindowAsScrollContainer={true}
+      <SortableThumbGrid
+        ref={this.props.inputRef}
+        editGrid={this.props.editGrid}
+        thumbs={this.props.thumbs}
+        thumbImages={this.props.thumbImages}
+        file={this.props.file}
+        settings={this.props.settings}
+        // thumbWidth={this.props.settings.defaultThumbnailWidth}
+        onToggleClick={this.props.onToggleClick}
+        onRemoveClick={this.props.onRemoveClick}
+        onInPointClick={this.props.onInPointClick}
+        onOutPointClick={this.props.onOutPointClick}
+        onBackClick={this.props.onBackClick}
+        onForwardClick={this.props.onForwardClick}
+        onScrubClick={this.props.onScrubClick}
+        onMouseOverResult={(thumbId) => {
+          this.controlersVisible = thumbId;
+          this.forceUpdate();
+        }}
+        onMouseOutResult={() => {
+          this.controlersVisible = 'false';
+        }}
+        onSortEnd={
+          this.onSortEnd.bind(this)
+        }
+        useDragHandle
+        axis="xy"
+        controlersAreVisible={this.controlersVisible}
+        useWindowAsScrollContainer={true}
 
-            columnCount={this.props.columnCount}
-            thumbCount={this.props.thumbCount}
-            reCapture={this.props.reCapture}
-            // moviePrintWidth={this.props.moviePrintWidth || 640}
-            // moviePrintHeight={this.props.moviePrintHeight || 360}
-            containerWidth={this.props.containerWidth || 640}
-            containerHeight={this.props.containerHeight || 360}
-            zoomOut={this.props.zoomOut}
-          />
-      //   </Grid.Column>
-      // </Grid>
+        columnCount={this.props.columnCount}
+        thumbCount={this.props.thumbCount}
+        reCapture={this.props.reCapture}
+        // moviePrintWidth={this.props.moviePrintWidth || 640}
+        // moviePrintHeight={this.props.moviePrintHeight || 360}
+        containerWidth={this.props.containerWidth || 640}
+        containerHeight={this.props.containerHeight || 360}
+        zoomOut={this.props.zoomOut}
+      />
     );
   }
 }
