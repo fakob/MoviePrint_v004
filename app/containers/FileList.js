@@ -1,11 +1,11 @@
 // @flow
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import imageDB from '../utils/db';
 import FileListElement from '../components/FileListElement';
-import { updateObjectUrlsFromPosterFrame, addDefaultThumbs, setCurrentFileId, updateObjectUrlsFromThumbList, startIsManipulating, stopIsManipulating } from '../actions';
-
-const { ipcRenderer } = require('electron');
+import {
+  updateObjectUrlsFromPosterFrame, addDefaultThumbs, setCurrentFileId,
+  updateObjectUrlsFromThumbList, startIsManipulating, stopIsManipulating
+} from '../actions';
 
 class SortedFileList extends Component {
   componentDidMount() {
@@ -24,10 +24,11 @@ class SortedFileList extends Component {
 
     return (
       <ul>
-        {state.undoGroup.present.files.map(file => (
+        {state.undoGroup.present.files.map((file, index) => (
           <FileListElement
             key={file.id}
             {...file}
+            index
             onClick={() => {
               store.dispatch(setCurrentFileId(file.id));
               if (state.undoGroup.present

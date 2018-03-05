@@ -3,26 +3,23 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 // import keydown from 'react-keydown';
 // import domtoimage from 'dom-to-image';
-import { Sidebar, Sticky, Menu, Icon } from 'semantic-ui-react';
+import { Sticky, Menu, Icon } from 'semantic-ui-react';
 import Modal from 'react-modal';
 import '../app.global.css';
 import FileList from '../containers/FileList';
 import SettingsList from '../containers/SettingsList';
 import SortedVisibleThumbGrid from '../containers/VisibleThumbGrid';
 import VideoPlayer from '../components/VideoPlayer';
-import { saveMoviePrint, getAspectRatio, getColumnCount, getVisibleThumbsCount } from '../utils/utils';
-import Footer from './Footer';
-import Header from './Header';
+import { saveMoviePrint, getColumnCount, getVisibleThumbsCount } from '../utils/utils';
 import styles from './App.css';
+import {
+  setNewMovieList, toggleLeftSidebar, showRightSidebar, hideRightSidebar,
+  zoomIn, zoomOut, addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
+  setVisibilityFilter, setCurrentFileId, changeThumb, updateFileColumnCount,
+  updateFileDetails, clearThumbs, updateThumbImage
+} from '../actions';
 
 const { ipcRenderer } = require('electron');
-
-import { setNewMovieList, toggleLeftSidebar, toggleRightSidebar,
-  showRightSidebar, hideRightSidebar, zoomIn, zoomOut,
-  addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
-  setVisibilityFilter, startIsManipulating, stopIsManipulating,
-  setCurrentFileId, changeThumb, updateFileColumnCount, updateFileDetails, clearThumbs,
-  updateThumbImage } from '../actions';
 
 
 const setColumnAndThumbCount = (that, columnCount, thumbCount) => {
@@ -39,7 +36,6 @@ class App extends Component {
     super();
     this.state = {
       className: `${styles.dropzonehide}`,
-      isManipulatingSliderInHeader: false,
       modalIsOpen: false,
       editGrid: false,
       containerHeight: 0,
@@ -260,7 +256,10 @@ class App extends Component {
     if (this.state.containerHeight !== this.siteContent.clientHeight) {
       this.setState({ containerHeight: this.siteContent.clientHeight });
     }
-    const containerWidthMinusSidebar = this.siteContent.clientWidth - (state.visibilitySettings.showLeftSidebar ? 350 : 0) - (state.visibilitySettings.showRightSidebar ? 350 : 0);
+    const containerWidthMinusSidebar =
+      this.siteContent.clientWidth -
+      (state.visibilitySettings.showLeftSidebar ? 350 : 0) -
+      (state.visibilitySettings.showRightSidebar ? 350 : 0);
     if (this.state.containerWidth !== containerWidthMinusSidebar) {
       this.setState({ containerWidth: containerWidthMinusSidebar });
     }
@@ -554,7 +553,7 @@ class App extends Component {
 }
 
 const mapStateToProps = state => {
-  let tempCurrentFileId = state.undoGroup.present.settings.currentFileId;
+  const tempCurrentFileId = state.undoGroup.present.settings.currentFileId;
   return {
     currentFileId: tempCurrentFileId,
     files: state.undoGroup.present.files,
@@ -568,7 +567,7 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
     // onShowThumbsClick: () => {
     //   if (this.props.visibilityFilter === 'SHOW_VISIBLE') {
@@ -605,4 +604,4 @@ App.contextTypes = {
 };
 
 // export default App;
-export default connect(mapStateToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App);

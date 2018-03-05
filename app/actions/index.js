@@ -1,5 +1,4 @@
 import uuidV4 from 'uuid/v4';
-import fs from 'fs';
 import imageDB from './../utils/db';
 import { mapRange, limitRange } from './../utils/utils';
 
@@ -387,13 +386,6 @@ export const setNewMovieList = (files, settings) => {
             lastItem = true;
           }
           ipcRenderer.send('send-get-file-details', file.id, file.path, file.posterThumbId, lastItem);
-          // ipcRenderer.send('send-get-poster-thumb', file.id, file.path, file.posterThumbId));
-          // dispatch(setCurrentFileId(getState().undoGroup.present.files[0].id));
-          // dispatch(clearThumbs());
-          // dispatch(addDefaultThumbs(
-          //   getState().undoGroup.present.files[0],
-          //   getState().undoGroup.present.settings.defaultThumbCount
-          // ));
         });
         return dispatch(stopIsManipulating());
       });

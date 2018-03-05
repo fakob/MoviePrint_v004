@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import Slider, { Range } from 'rc-slider';
-import Tooltip from 'rc-tooltip';
-import { Button, Grid, Segment, Container, Statistic, Divider } from 'semantic-ui-react';
 import { arrayMove } from 'react-sortable-hoc';
-import { toggleThumb, updateOrder, removeThumb, updateObjectUrlsFromThumbList,
-  changeThumb, addDefaultThumbs } from '../actions';
+import {
+  toggleThumb, updateOrder, removeThumb, updateObjectUrlsFromThumbList,
+  changeThumb, addDefaultThumbs
+} from '../actions';
 import SortableThumbGrid from '../components/ThumbGrid';
-import styles from '../components/Settings.css';
 import { getLowestFrame, getHighestFrame, getChangeThumbStep, getVisibleThumbs } from '../utils/utils';
 
 class SortedVisibleThumbGrid extends Component {
@@ -77,8 +75,6 @@ class SortedVisibleThumbGrid extends Component {
         columnCount={this.props.columnCount}
         thumbCount={this.props.thumbCount}
         reCapture={this.props.reCapture}
-        // moviePrintWidth={this.props.moviePrintWidth || 640}
-        // moviePrintHeight={this.props.moviePrintHeight || 360}
         containerWidth={this.props.containerWidth || 640}
         containerHeight={this.props.containerHeight || 360}
         zoomOut={this.props.zoomOut}
@@ -92,7 +88,6 @@ const mapStateToProps = state => {
     .thumbsByFileId[state.undoGroup.present.settings.currentFileId] === 'undefined')
     ? undefined : state.undoGroup.present
       .thumbsByFileId[state.undoGroup.present.settings.currentFileId].thumbs;
-  // console.log(tempThumbs);
   return {
     thumbs: getVisibleThumbs(
       tempThumbs,
@@ -146,7 +141,6 @@ const mapDispatchToProps = (dispatch, ownProps) => {
 
 SortedVisibleThumbGrid.contextTypes = {
   store: PropTypes.object,
-  // isManipulatingSliderInHeader: PropTypes.bool
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SortedVisibleThumbGrid);
