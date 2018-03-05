@@ -14,8 +14,6 @@ import styles from '../components/Settings.css';
 // const Range = createSliderWithTooltip(Slider.Range);
 const Handle = Slider.Handle;
 
-// let isManipulatingSlider = false;
-
 const handle = (props) => {
   const { value, dragging, index, ...restProps } = props;
   return (

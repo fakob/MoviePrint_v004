@@ -209,6 +209,7 @@ Thumb.propTypes = {
   aspectRatioInv: PropTypes.number,
   thumbWidth: PropTypes.number,
   margin: PropTypes.number,
+  borderRadius: PropTypes.number,
   hidden: PropTypes.bool,
   controlersAreVisible: PropTypes.bool,
   frameNumber: PropTypes.number,

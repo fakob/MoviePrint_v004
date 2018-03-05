@@ -1,7 +1,6 @@
 // needs to have the same file structure as in combineReducers
 const initialStateJSON = {
   visibilitySettings: {
-    isManipulating: false,
     visibilityFilter: 'SHOW_VISIBLE',
     zoomOut: false,
   },

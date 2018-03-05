@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import FileListElement from '../components/FileListElement';
 import {
   updateObjectUrlsFromPosterFrame, addDefaultThumbs, setCurrentFileId,
-  updateObjectUrlsFromThumbList, startIsManipulating, stopIsManipulating
+  updateObjectUrlsFromThumbList,
 } from '../actions';
 
 class SortedFileList extends Component {
@@ -33,12 +33,10 @@ class SortedFileList extends Component {
               store.dispatch(setCurrentFileId(file.id));
               if (state.undoGroup.present
                 .thumbsByFileId[file.id] === undefined) {
-                store.dispatch(startIsManipulating());
                 store.dispatch(addDefaultThumbs(
                     file,
                     state.undoGroup.present.settings.defaultThumbCount
                   ));
-                store.dispatch(stopIsManipulating());
                 console.log(`FileListElement clicked: ${file.name}`);
               }
               if (state.thumbsObjUrls[file.id] === undefined && state.undoGroup.present

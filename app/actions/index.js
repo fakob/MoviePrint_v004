@@ -12,18 +12,6 @@ export const setVisibilityFilter = (filter) => {
   };
 };
 
-export const startIsManipulating = () => {
-  return {
-    type: 'START_ISMANIPULATING',
-  };
-};
-
-export const stopIsManipulating = () => {
-  return {
-    type: 'STOP_ISMANIPULATING',
-  };
-};
-
 export const toggleLeftSidebar = () => {
   return {
     type: 'TOGGLE_LEFT_SIDEBAR'
@@ -345,7 +333,6 @@ export const setMovieList = (files) => {
 export const setNewMovieList = (files, settings) => {
   return (dispatch, getState) => {
     console.log('inside setNewMovieList');
-    dispatch(startIsManipulating());
     const newFiles = [];
     Object.keys(files).map((key) => {
       if (files[key].type.match('video.*')) {
@@ -387,7 +374,6 @@ export const setNewMovieList = (files, settings) => {
           }
           ipcRenderer.send('send-get-file-details', file.id, file.path, file.posterThumbId, lastItem);
         });
-        return dispatch(stopIsManipulating());
       });
   };
 };
