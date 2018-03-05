@@ -274,6 +274,11 @@ export const addDefaultThumbs = (file, amount = 20, start = 10, stop = file.fram
     }
     console.log(noFrameCount);
     const idArray = frameNumberArray.map(() => uuidV4());
+
+    // maybe add check if thumb is already in imageDB
+    // imageDB.thumbList.where('fileId').equals(file.id).toArray().then((thumb) => {
+    // });
+
     ipcRenderer.send('send-get-thumbs', file.id, file.path, idArray, frameNumberArray, noFrameCount);
     // ipcRenderer.send('send-get-thumbs', file.id, file.path, idArray, frameNumberArray);
     dispatch({
