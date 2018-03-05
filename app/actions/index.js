@@ -293,15 +293,31 @@ export const changeThumb = (file, oldThumbId, newFrameNumber) => {
     console.log('inside changeThumb');
     const newThumbId = uuidV4();
     const newFrameNumberWithinBoundaries = limitRange(newFrameNumber, 0, file.frameCount - 1);
-    ipcRenderer.send('send-get-thumbs', file.id, file.path, [newThumbId], [newFrameNumberWithinBoundaries]);
-    dispatch({
-      type: 'CHANGE_THUMB',
-      payload: {
-        newThumbId,
-        oldThumbId,
-        newFrameNumber: newFrameNumberWithinBoundaries,
-        fileId: file.id,
+
+    imageDB.thumbList.where('[fileId+frameNumber]').equals([file.id, newFrameNumberWithinBoundaries]).toArray().then((thumb) => {
+      console.log(thumb.length);
+      if (thumb.length === 0) {
+        ipcRenderer.send('send-get-thumbs', file.id, file.path, [newThumbId], [newFrameNumberWithinBoundaries]);
+        return dispatch({
+          type: 'CHANGE_THUMB',
+          payload: {
+            newThumbId,
+            oldThumbId,
+            newFrameNumber: newFrameNumberWithinBoundaries,
+            fileId: file.id,
+          }
+        });
       }
+      dispatch({
+        type: 'CHANGE_THUMB',
+        payload: {
+          newThumbId: thumb[0].id,
+          oldThumbId,
+          newFrameNumber: thumb[0].frameNumber,
+          fileId: file.id,
+        }
+      });
+      return dispatch(updateThumbObjectUrlFromDB(file.id, thumb[0].id, false));
     });
   };
 };
