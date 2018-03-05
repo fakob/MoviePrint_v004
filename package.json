@@ -140,7 +140,7 @@
     "css-loader": "^0.28.9",
     "detect-port": "^1.2.2",
     "electron": "^1.7.11",
-    "electron-builder": "^19.55.3",
+    "electron-builder": "^20.2.1",
     "electron-devtools-installer": "^2.2.3",
     "electron-rebuild": "^1.7.3",
     "enzyme": "^3.3.0",
@@ -216,7 +216,7 @@
     "semantic-ui-css": "^2.2.12",
     "semantic-ui-react": "^0.74.2",
     "source-map-support": "^0.5.3",
-    "typeface-open-sans": "0.0.43"
+    "typeface-open-sans": "^0.0.54"
   },
   "devEngines": {
     "node": ">=7.x",
