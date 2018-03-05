@@ -21,7 +21,8 @@ import { setNewMovieList, toggleLeftSidebar, toggleRightSidebar,
   showRightSidebar, hideRightSidebar, zoomIn, zoomOut,
   addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
   setVisibilityFilter, startIsManipulating, stopIsManipulating,
-  setCurrentFileId, changeThumb, updateFileColumnCount } from '../actions';
+  setCurrentFileId, changeThumb, updateFileColumnCount, updateFileDetails, clearThumbs,
+  updateThumbImage } from '../actions';
 
 
 const setColumnAndThumbCount = (that, columnCount, thumbCount) => {
@@ -93,6 +94,30 @@ class App extends Component {
   }
 
   componentDidMount() {
+    const { store } = this.context;
+
+    ipcRenderer.on('receive-get-file-details', (event, fileId, filePath, posterThumbId, lastItem, frameCount, width, height, fps, fourCC) => {
+      store.dispatch(updateFileDetails(fileId, frameCount, width, height, fps, fourCC));
+      ipcRenderer.send('send-get-poster-thumb', fileId, filePath, posterThumbId);
+      if (lastItem) {
+        console.log('I am the lastItem');
+        store.dispatch(setCurrentFileId(store.getState().undoGroup.present.files[0].id));
+        store.dispatch(clearThumbs());
+        store.dispatch(addDefaultThumbs(
+          store.getState().undoGroup.present.files[0],
+          store.getState().undoGroup.present.settings.defaultThumbCount
+        ));
+      }
+    });
+
+    ipcRenderer.on('receive-get-thumbs', (event, fileId, id, base64, frameNumber) => {
+      store.dispatch(updateThumbImage(fileId, id, base64, frameNumber));
+    });
+
+    ipcRenderer.on('receive-get-poster-thumb', (event, fileId, id, base64, frameNumber) => {
+      store.dispatch(updateThumbImage(fileId, id, base64, frameNumber, 1));
+    });
+
     window.addEventListener('mouseup', this.onDragLeave);
     window.addEventListener('dragenter', this.onDragEnter);
     window.addEventListener('dragover', this.onDragOver);

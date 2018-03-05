@@ -9,18 +9,6 @@ import { updateFileDetails, updateThumbImage } from './actions';
 
 const { ipcRenderer } = require('electron');
 
-ipcRenderer.on('receive-get-file-details', (event, fileId, frameCount, width, height, fps, fourCC) => {
-  store.dispatch(updateFileDetails(fileId, frameCount, width, height, fps, fourCC));
-});
-
-ipcRenderer.on('receive-get-thumbs', (event, fileId, id, base64, frameNumber) => {
-  store.dispatch(updateThumbImage(fileId, id, base64, frameNumber));
-});
-
-ipcRenderer.on('receive-get-poster-thumb', (event, fileId, id, base64, frameNumber) => {
-  store.dispatch(updateThumbImage(fileId, id, base64, frameNumber, 1));
-});
-
 ipcRenderer.on('undo', () => {
   store.dispatch(UndoActionCreators.undo());
 });

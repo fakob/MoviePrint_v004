@@ -379,14 +379,22 @@ export const setNewMovieList = (files, settings) => {
           type: 'LOAD_MOVIE_LIST_FROM_DROP',
           payload: newFiles,
         });
-        newFiles.map((file) =>
-          ipcRenderer.send('send-get-poster-thumb', file.id, file.path, file.posterThumbId));
-        dispatch(setCurrentFileId(getState().undoGroup.present.files[0].id));
-        dispatch(clearThumbs());
-        dispatch(addDefaultThumbs(
-          getState().undoGroup.present.files[0],
-          getState().undoGroup.present.settings.defaultThumbCount
-        ));
+        const newFilesLength = newFiles.length;
+        newFiles.map((file, index) => {
+          let lastItem = false;
+          console.log(`${newFilesLength} : ${index}`);
+          if (newFilesLength === index + 1) {
+            lastItem = true;
+          }
+          ipcRenderer.send('send-get-file-details', file.id, file.path, file.posterThumbId, lastItem);
+          // ipcRenderer.send('send-get-poster-thumb', file.id, file.path, file.posterThumbId));
+          // dispatch(setCurrentFileId(getState().undoGroup.present.files[0].id));
+          // dispatch(clearThumbs());
+          // dispatch(addDefaultThumbs(
+          //   getState().undoGroup.present.files[0],
+          //   getState().undoGroup.present.settings.defaultThumbCount
+          // ));
+        });
         return dispatch(stopIsManipulating());
       });
   };

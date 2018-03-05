@@ -100,7 +100,7 @@ app.on('ready', async () => {
   menuBuilder.buildMenu();
 });
 
-ipcMain.on('send-get-poster-thumb', (event, fileId, filePath, posterThumbId) => {
+ipcMain.on('send-get-file-details', (event, fileId, filePath, posterThumbId, lastItem) => {
   console.log(fileId);
   console.log(filePath);
   const vid = new opencv.VideoCapture(filePath);
@@ -108,7 +108,18 @@ ipcMain.on('send-get-poster-thumb', (event, fileId, filePath, posterThumbId) => 
   console.log(`height: ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT)}`);
   console.log(`FPS: ${vid.get(VideoCaptureProperties.CAP_PROP_FPS)}`);
   console.log(`codec: ${vid.get(VideoCaptureProperties.CAP_PROP_FOURCC)}`);
-  event.sender.send('receive-get-file-details', fileId, vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT), vid.get(VideoCaptureProperties.CAP_PROP_FPS), vid.get(VideoCaptureProperties.CAP_PROP_FOURCC));
+  event.sender.send('receive-get-file-details', fileId, filePath, posterThumbId, lastItem, vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT), vid.get(VideoCaptureProperties.CAP_PROP_FPS), vid.get(VideoCaptureProperties.CAP_PROP_FOURCC));
+});
+
+ipcMain.on('send-get-poster-thumb', (event, fileId, filePath, posterThumbId) => {
+  console.log(fileId);
+  console.log(filePath);
+  const vid = new opencv.VideoCapture(filePath);
+  // console.log(`width: ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH)}`);
+  // console.log(`height: ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT)}`);
+  // console.log(`FPS: ${vid.get(VideoCaptureProperties.CAP_PROP_FPS)}`);
+  // console.log(`codec: ${vid.get(VideoCaptureProperties.CAP_PROP_FOURCC)}`);
+  // event.sender.send('receive-get-file-details', fileId, vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT), vid.get(VideoCaptureProperties.CAP_PROP_FPS), vid.get(VideoCaptureProperties.CAP_PROP_FOURCC));
 
   const frameNumberArray = [Math.floor(vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) / 2)]; // only 1 value (middle frame) in array. too lazy to clean up
   vid.readAsync((err1, mat1) => {
