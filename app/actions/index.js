@@ -186,6 +186,7 @@ export const updateThumbImage = (fileId, id, base64, frameNumber, isPosterFrame 
         imageDB.thumbList.put({
           id,
           fileId,
+          frameNumber,
           isPosterFrame,
           data: blob
         }))

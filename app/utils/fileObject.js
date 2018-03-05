@@ -7,6 +7,7 @@ const FileObject = Dexie.defineClass({
   name: String,
   path: String,
   size: Number,
+  frameNumber: Number,
   type: String,
   webkitRelativePath: String,
   base64: String,
