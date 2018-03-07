@@ -336,6 +336,16 @@ class App extends Component {
   }
 
   onSaveMoviePrint() {
+    html2canvas($("#canvas"), {
+            onrendered: function(canvas) {
+                var imgData = canvas.toDataURL(
+                    'image/png');
+                var doc = new jsPDF('p', 'mm');
+                doc.addImage(imgData, 'PNG', 10, 10);
+                doc.save('sample-file.pdf');
+            }
+        });
+
     saveMoviePrint(this.props.file); // this is the domtoimage script
     // // ipcRenderer.send('printPDF', this.sortedVisibleThumbGridRef.container.innerHTML);
     // console.log(this.siteContent);
