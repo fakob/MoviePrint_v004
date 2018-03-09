@@ -66,7 +66,8 @@ export const formatBytes = (bytes, decimals) => {
 export const saveMoviePrint = (file) => {
   console.log(file);
 
-  const node = document.getElementById('ThumbGrid');
+  const node = document.getElementById('thumbImage1');
+  // const node = document.getElementById('ThumbGrid');
 
   domtoimage.toJpeg(node, { style: { margin: 0 }, quality: 0.75 }) // because of compression largest filesize
   // domtoimage.toPng(node, {}) // because of dataUrl smallest possible filesize

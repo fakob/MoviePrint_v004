@@ -27,12 +27,16 @@ const { ipcRenderer } = require('electron');
 const saveMoviePrint2 = (file) => {
   console.log(file);
 
+  // const node = document.getElementById('thumbImage1');
+  // const node = document.getElementById('thumb1');
   const node = document.getElementById('ThumbGrid');
   // const node = document.getElementById('root');
   const newFileName = `${file.name}_MoviePrint.png`;
-
+  console.log(node);
   html2canvas(node, {
-    // proxy: 'node.js'
+    backgroundColor: null,
+    allowTaint: true,
+    scale: 1,
   }).then((canvas) => {
     canvas.toBlob((blob) => {
       saveAs(blob, newFileName);

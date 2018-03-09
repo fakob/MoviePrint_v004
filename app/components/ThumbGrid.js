@@ -128,6 +128,7 @@ const ThumbGrid = ({
         zoomOut={zoomOut}
         key={thumb.key}
         index={thumb.index}
+        tempId={thumb.index}
         thumbImageObjectUrl={thumb.thumbImageObjectUrl ||
           (thumbImages !== undefined ?
             thumbImages[thumb.id] !== undefined ?

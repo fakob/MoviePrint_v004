@@ -39,7 +39,7 @@ const DragHandle = SortableHandle(() => {
 });
 
 const Thumb = ({
-  onToggle, onInPoint, onOutPoint, onBack, onForward,
+  onToggle, onInPoint, onOutPoint, onBack, onForward, tempId,
   onOver, onOut, onScrub, hidden, frameNumber, thumbImageObjectUrl, aspectRatioInv,
   controlersAreVisible, thumbWidth, margin, zoomOut, borderRadius
 }) => {
@@ -63,6 +63,7 @@ const Thumb = ({
       onMouseLeave={onOut}
       onFocus={onOver}
       onBlur={onOut}
+      id={`thumb${tempId}`}
       className={styles.gridItem}
       style={{
         opacity: hidden ? '0.2' : '1',
@@ -73,6 +74,7 @@ const Thumb = ({
     >
       <img
         src={thumbImageObjectUrl}
+        id={`thumbImage${tempId}`}
         className={styles.image}
         alt=""
         width={`${thumbWidth}px`}
