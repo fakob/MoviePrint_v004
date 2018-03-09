@@ -23,3 +23,11 @@ opencv4nodejs@^3.1.0:
     macro-inferno "^0.2.1"
     nan "^2.7.0"
     opencv-build "0.0.3"
+
+typeface-open-sans@^0.0.54:
+  version "0.0.54"
+  resolved "https://registry.yarnpkg.com/typeface-open-sans/-/typeface-open-sans-0.0.54.tgz#20f5b5ea5c7f95d89dc1f8b2d2b1457680129cee"
+
+typeface-roboto-condensed@^0.0.54:
+  version "0.0.54"
+  resolved "https://registry.yarnpkg.com/typeface-roboto-condensed/-/typeface-roboto-condensed-0.0.54.tgz#4e0d5d24ed95e1e2efa7fcf55b8a9ceaa5bd2be7"

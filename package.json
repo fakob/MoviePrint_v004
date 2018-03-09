@@ -196,7 +196,6 @@
     "dom-to-image": "^2.6.0",
     "domify": "^1.4.0",
     "electron-debug": "^1.5.0",
-    "font-awesome": "^4.7.0",
     "history": "^4.7.2",
     "html2canvas": "^1.0.0-alpha.10",
     "lodash": "^4.17.4",
@@ -215,9 +214,8 @@
     "redux-thunk": "^2.2.0",
     "redux-undo": "^1.0.0-beta9-9-5",
     "semantic-ui-css": "^2.2.12",
-    "semantic-ui-react": "^0.74.2",
-    "source-map-support": "^0.5.3",
-    "typeface-open-sans": "^0.0.54"
+    "semantic-ui-react": "^0.78.3",
+    "source-map-support": "^0.5.3"
   },
   "devEngines": {
     "node": ">=7.x",
