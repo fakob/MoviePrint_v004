@@ -66,7 +66,7 @@ class SettingsList extends Component {
                 onChange={this.handleChange}
                 style={{
                   color: '#eeeeee',
-                  fontFamily: 'Roboto',
+                  fontFamily: 'Roboto Condensed',
                 }}
               />
             </Segment>

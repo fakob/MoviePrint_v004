@@ -5,6 +5,9 @@ import PropTypes from 'prop-types';
 // import domtoimage from 'dom-to-image';
 import { Sticky, Menu, Icon } from 'semantic-ui-react';
 import Modal from 'react-modal';
+import html2canvas from 'html2canvas';
+import domtoimage from 'dom-to-image';
+import { saveAs } from 'file-saver';
 import '../app.global.css';
 import FileList from '../containers/FileList';
 import SettingsList from '../containers/SettingsList';
@@ -20,6 +23,22 @@ import {
 } from '../actions';
 
 const { ipcRenderer } = require('electron');
+
+const saveMoviePrint2 = (file) => {
+  console.log(file);
+
+  const node = document.getElementById('ThumbGrid');
+  // const node = document.getElementById('root');
+  const newFileName = `${file.name}_MoviePrint.png`;
+
+  html2canvas(node, {
+    // proxy: 'node.js'
+  }).then((canvas) => {
+    canvas.toBlob((blob) => {
+      saveAs(blob, newFileName);
+    });
+  });
+};
 
 
 const setColumnAndThumbCount = (that, columnCount, thumbCount) => {
@@ -336,17 +355,10 @@ class App extends Component {
   }
 
   onSaveMoviePrint() {
-    html2canvas($("#canvas"), {
-            onrendered: function(canvas) {
-                var imgData = canvas.toDataURL(
-                    'image/png');
-                var doc = new jsPDF('p', 'mm');
-                doc.addImage(imgData, 'PNG', 10, 10);
-                doc.save('sample-file.pdf');
-            }
-        });
+    saveMoviePrint2(this.props.file); // this is the domtoimage script
 
-    saveMoviePrint(this.props.file); // this is the domtoimage script
+    // saveMoviePrint(this.props.file); // this is the domtoimage script
+
     // // ipcRenderer.send('printPDF', this.sortedVisibleThumbGridRef.container.innerHTML);
     // console.log(this.siteContent);
     // console.log(this.divOfSortedVisibleThumbGridRef);
