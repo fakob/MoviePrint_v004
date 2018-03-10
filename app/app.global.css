@@ -12,3 +12,11 @@
 .rc-slider-tooltip {
   z-index: 200;
 }
+
+body {
+  color: white;
+}
+
+label {
+  color: white;
+}

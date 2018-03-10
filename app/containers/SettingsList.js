@@ -55,8 +55,12 @@ class SettingsList extends Component {
             </Grid.Column>
             <Grid.Column width={12}>
               <Checkbox
-                toggle
-                label="Re-capture frames"
+                // toggle
+                label={
+                  <label className={styles.label}>
+                    Re-capture frames
+                  </label>
+                }
                 // checked={this.state.checkBoxChecked}
                 checked={this.props.reCapture}
                 onChange={this.handleChange}
@@ -157,10 +161,20 @@ class SettingsList extends Component {
             <Grid.Column width={12}>
               <List>
                 <List.Item>
-                  <Checkbox label="Show Header" />
+                  <Checkbox label={
+                    <label className={styles.label}>
+                      Show Header
+                    </label>
+                    }
+                  />
                 </List.Item>
                 <List.Item>
-                  <Checkbox label="Rounded Corners" />
+                  <Checkbox label={
+                    <label className={styles.label}>
+                      Rounded Corners
+                    </label>
+                    }
+                  />
                 </List.Item>
               </List>
             </Grid.Column>

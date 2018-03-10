@@ -5,6 +5,10 @@
   background-color: #3e3e3e;
 }
 
+.label {
+  color: white !important;
+}
+
 /*.Paper {
   background-image: url("data:image/svg+xml;charset=utf8,%3C?xml version='1.0' encoding='UTF-8'?%3E%3Csvg viewBox='0 0 298 297' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3C!-- Generator: Sketch 47.1 (45422) - http://www.bohemiancoding.com/sketch --%3E%3Ctitle%3EPaper%3C/title%3E%3Cdesc%3ECreated with Sketch.%3C/desc%3E%3Cdefs%3E%3C/defs%3E%3Cg id='Page-1' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='Paper' stroke='%23979797'%3E%3Crect id='Rectangle-9' x='44.5' y='0.5' width='209' height='296'%3E%3C/rect%3E%3Crect id='Rectangle-9-Copy' transform='translate(149.000000, 148.500000) rotate(-270.000000) translate(-149.000000, -148.500000) ' x='44.5' y='0.5' width='209' height='296'%3E%3C/rect%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   background-repeat: no-repeat;
