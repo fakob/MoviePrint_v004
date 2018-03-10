@@ -2,7 +2,7 @@ const thumb = (state = {}, action, index) => {
   switch (action.type) {
     case 'ADD_THUMB':
       return {
-        id: action.id,
+        thumbId: action.thumbId,
         index: action.index,
         text: action.text,
         hidden: false
@@ -20,7 +20,7 @@ const thumb = (state = {}, action, index) => {
       };
     case 'ADD_THUMB_WITH_DETECT_FACE':
       return {
-        id: action.id,
+        thumbId: action.thumbId,
         index: action.index,
         text: action.text,
         hidden: false,
@@ -35,14 +35,14 @@ const thumb = (state = {}, action, index) => {
         frameNumber: action.payload.newFrameNumber
       });
     case 'TOGGLE_THUMB':
-      if (state.id !== action.payload.id) {
+      if (state.thumbId !== action.payload.thumbId) {
         return state;
       }
       return Object.assign({}, state, {
         hidden: !state.hidden
       });
     case 'UPDATE_FRAMENUMBER_OF_THUMB':
-      if (state.id !== action.payload.id) {
+      if (state.thumbId !== action.payload.thumbId) {
         return state;
       }
       return Object.assign({}, state, {
@@ -59,33 +59,6 @@ const thumb = (state = {}, action, index) => {
       return Object.assign({}, action.payload.array[index], {
         index
       });
-    // case 'UPDATE_OBJECTURL_FROM_THUMBLIST':
-    //   // console.log(state);
-    //   if (state.id !== action.payload.thumb[0].id) {
-    //     return state;
-    //   }
-    //   if (action.payload.thumb[0].data.size === 0) {
-    //     return state;
-    //   }
-    //   return Object.assign({}, state, {
-    //     objectUrl: window.URL.createObjectURL(action.payload.thumb[0].data)
-    //   });
-    // case 'UPDATE_OBJECTURLS_FROM_THUMBLIST':
-    //   try {
-    //     const dataTemp = action.payload.thumbs.filter(obj => obj.id === state.id)[0].data;
-    //     if (dataTemp.size === 0) {
-    //       return state;
-    //     }
-    //     return Object.assign({}, state, {
-    //       // id: action.payload[index].id,
-    //       objectUrl: window.URL.createObjectURL(
-    //         dataTemp
-    //       )
-    //     });
-    //   } catch (e) {
-    //     console.log('catch error in UPDATE_OBJECTURLS_FROM_THUMBLIST', e);
-    //     return state;
-    //   }
     default:
       return state;
   }
@@ -163,10 +136,10 @@ const thumbsByFileId = (state = [], action) => {
       console.log(state);
       const tempState = state[action.payload.fileId].thumbs
         .slice(0, state[action.payload.fileId].thumbs
-        .find(x => x.id === action.payload.id).index)
+        .find(x => x.thumbId === action.payload.thumbId).index)
         .concat(state[action.payload.fileId].thumbs
         .slice(state[action.payload.fileId].thumbs
-        .find(x => x.id === action.payload.id).index + 1)
+        .find(x => x.thumbId === action.payload.thumbId).index + 1)
       );
       console.log(tempState);
 

@@ -325,7 +325,7 @@ export const changeThumb = (file, thumbId, newFrameNumber) => {
           fileId: file.id,
         }
       });
-      return dispatch(updateThumbObjectUrlFromDB(file.id, thumbId, thumb[0].frameId, false));
+      return dispatch(updateThumbObjectUrlFromDB(file.id, thumbId, frames[0].frameId, false));
     });
   };
 };
