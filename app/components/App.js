@@ -2,12 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 // import keydown from 'react-keydown';
-// import domtoimage from 'dom-to-image';
 import { Sticky, Menu, Icon } from 'semantic-ui-react';
 import Modal from 'react-modal';
-import html2canvas from 'html2canvas';
-import domtoimage from 'dom-to-image';
-import { saveAs } from 'file-saver';
 import '../app.global.css';
 import FileList from '../containers/FileList';
 import SettingsList from '../containers/SettingsList';
@@ -23,27 +19,6 @@ import {
 } from '../actions';
 
 const { ipcRenderer } = require('electron');
-
-const saveMoviePrint2 = (file) => {
-  console.log(file);
-
-  // const node = document.getElementById('thumbImage1');
-  // const node = document.getElementById('thumb1');
-  const node = document.getElementById('ThumbGrid');
-  // const node = document.getElementById('root');
-  const newFileName = `${file.name}_MoviePrint.png`;
-  console.log(node);
-  html2canvas(node, {
-    backgroundColor: null,
-    allowTaint: true,
-    scale: 1,
-  }).then((canvas) => {
-    canvas.toBlob((blob) => {
-      saveAs(blob, newFileName);
-    });
-  });
-};
-
 
 const setColumnAndThumbCount = (that, columnCount, thumbCount) => {
   that.setState({
@@ -232,7 +207,7 @@ class App extends Component {
           }
           break;
         case 80: // press 'p'
-          saveMoviePrint(this.props.file);
+          saveMoviePrint('ThumbGrid', this.props.file);
           break;
         default:
       }
@@ -359,14 +334,7 @@ class App extends Component {
   }
 
   onSaveMoviePrint() {
-    saveMoviePrint2(this.props.file); // this is the domtoimage script
-
-    // saveMoviePrint(this.props.file); // this is the domtoimage script
-
-    // // ipcRenderer.send('printPDF', this.sortedVisibleThumbGridRef.container.innerHTML);
-    // console.log(this.siteContent);
-    // console.log(this.divOfSortedVisibleThumbGridRef);
-    // ipcRenderer.send('printPDF', this.divOfSortedVisibleThumbGridRef);
+    saveMoviePrint('ThumbGrid', this.props.file);
   }
 
   onChangeRow = (value) => {

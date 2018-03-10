@@ -1,4 +1,5 @@
-import domtoimage from 'dom-to-image';
+import html2canvas from 'html2canvas';
+import { saveAs } from 'file-saver';
 
 export const mapRange = (value, low1, high1, low2, high2, returnInt = true) => {
   // * 1.0 added to force float division
@@ -63,32 +64,23 @@ export const formatBytes = (bytes, decimals) => {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 };
 
-export const saveMoviePrint = (file) => {
+export const saveMoviePrint = (elementId, file) => {
   console.log(file);
-
-  const node = document.getElementById('thumbImage1');
+  const node = document.getElementById(elementId);
   // const node = document.getElementById('ThumbGrid');
 
-  domtoimage.toJpeg(node, { style: { margin: 0 }, quality: 0.75 }) // because of compression largest filesize
-  // domtoimage.toPng(node, {}) // because of dataUrl smallest possible filesize
-  // domtoimage.toPng(node, {}) // because of objectUrl slightly larger filesize
-
-  .then((dataUrl) => {
-    const link = document.createElement('a');
-    // link.download = 'my-image-name.jpg';
-    const newFileName = file.name;
-    link.download = `${newFileName}_MoviePrint.jpg`;
-    link.href = dataUrl;
-    link.click();
-  })
-  .catch((error) => {
-    console.error('oops, something went wrong!', error);
-  })
-  .then(() => {
-    console.log('done');
+  const newFileName = `${file.name}_MoviePrint.png`;
+  console.log(node);
+  html2canvas(node, {
+    backgroundColor: null,
+    allowTaint: true,
+    scale: 1,
+  }).then((canvas) => {
+    canvas.toBlob((blob) => {
+      saveAs(blob, newFileName);
+    });
   });
 };
-
 
 export const getLowestFrame = (thumbs) => {
   return thumbs.reduce(
