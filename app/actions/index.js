@@ -183,7 +183,7 @@ export const updateThumbImage = (fileId, thumbId, frameId, base64, frameNumber, 
         throw new Error('fetch base64 to blob was not ok.');
       })
       .then(blob =>
-        imageDB.thumbList.put({
+        imageDB.frameList.put({
           frameId,
           fileId,
           frameNumber,
@@ -207,14 +207,14 @@ export const updateThumbObjectUrlFromDB = (fileId, thumbId, frameId, isPosterFra
   (dispatch) => {
     console.log('inside updateThumbObjectUrlFromDB');
     console.log(frameId);
-    return imageDB.thumbList.where('frameId').equals(frameId).toArray().then((thumb) => {
-      console.log(thumb[0]);
+    return imageDB.frameList.where('frameId').equals(frameId).toArray().then((frames) => {
+      console.log(frames[0]);
       if (isPosterFrame) {
         return dispatch({
           type: 'UPDATE_OBJECTURL_FROM_POSTERFRAME',
           payload: {
             frameId,
-            thumb
+            frames
           },
         });
       }
@@ -223,7 +223,7 @@ export const updateThumbObjectUrlFromDB = (fileId, thumbId, frameId, isPosterFra
         payload: {
           fileId,
           frameId,
-          thumb
+          frames
         },
       });
     });
@@ -232,14 +232,14 @@ export const updateThumbObjectUrlFromDB = (fileId, thumbId, frameId, isPosterFra
 export const updateObjectUrlsFromThumbList = (fileId, frameIdArray) => {
   return (dispatch) => {
     console.log('inside updateObjectUrlsFromThumbList');
-    imageDB.thumbList.where('frameId').anyOf(frameIdArray).toArray().then((thumbs) => {
-      console.log(thumbs.length);
-      if (thumbs.length !== 0) {
+    imageDB.frameList.where('frameId').anyOf(frameIdArray).toArray().then((frames) => {
+      console.log(frames.length);
+      if (frames.length !== 0) {
         dispatch({
           type: 'UPDATE_OBJECTURLS_FROM_THUMBLIST',
           payload: {
             fileId,
-            thumbs
+            frames
           },
         });
       }
@@ -278,7 +278,7 @@ export const addDefaultThumbs = (file, amount = 20, start = 10, stop = file.fram
     const thumbIdArray = frameNumberArray.map(() => uuidV4());
 
     // maybe add check if thumb is already in imageDB
-    // imageDB.thumbList.where('fileId').equals(file.id).toArray().then((thumb) => {
+    // imageDB.frameList.where('fileId').equals(file.id).toArray().then((frames) => {
     // });
 
     ipcRenderer.send('send-get-thumbs', file.id, file.path, thumbIdArray, frameIdArray, frameNumberArray, noFrameCount);
@@ -302,9 +302,9 @@ export const changeThumb = (file, thumbId, newFrameNumber) => {
     const newFrameId = uuidV4();
     const newFrameNumberWithinBoundaries = limitRange(newFrameNumber, 0, file.frameCount - 1);
 
-    imageDB.thumbList.where('[fileId+frameNumber]').equals([file.id, newFrameNumberWithinBoundaries]).toArray().then((thumb) => {
-      console.log(thumb.length);
-      if (thumb.length === 0) {
+    imageDB.frameList.where('[fileId+frameNumber]').equals([file.id, newFrameNumberWithinBoundaries]).toArray().then((frames) => {
+      console.log(frames.length);
+      if (frames.length === 0) {
         ipcRenderer.send('send-get-thumbs', file.id, file.path, [thumbId], [newFrameId], [newFrameNumberWithinBoundaries]);
         return dispatch({
           type: 'CHANGE_THUMB',
@@ -319,9 +319,9 @@ export const changeThumb = (file, thumbId, newFrameNumber) => {
       dispatch({
         type: 'CHANGE_THUMB',
         payload: {
-          newFrameId: thumb[0].frameId,
+          newFrameId: frames[0].frameId,
           thumbId,
-          newFrameNumber: thumb[0].frameNumber,
+          newFrameNumber: frames[0].frameNumber,
           fileId: file.id,
         }
       });
@@ -384,7 +384,7 @@ export const setNewMovieList = (files, settings) => {
     dispatch({
       type: 'CLEAR_MOVIE_LIST',
     });
-    return imageDB.thumbList.clear()
+    return imageDB.frameList.clear()
       .then(() => {
         dispatch({
           type: 'LOAD_MOVIE_LIST_FROM_DROP',
@@ -406,16 +406,16 @@ export const setNewMovieList = (files, settings) => {
 export const updateObjectUrlsFromPosterFrame = () => {
   return (dispatch, getState) => {
     console.log('inside updateObjectUrlsFromPosterFrame');
-    return imageDB.thumbList.where('isPosterFrame').equals(1).toArray()
-    .then((thumbs) => {
-      console.log(thumbs);
-      return dispatch({
-        type: 'UPDATE_OBJECTURLS_FROM_POSTERFRAME',
-        payload: {
-          files: getState().undoGroup.present.files,
-          thumbs
-        },
+    return imageDB.frameList.where('isPosterFrame').equals(1).toArray()
+      .then((frames) => {
+        console.log(frames);
+        return dispatch({
+          type: 'UPDATE_OBJECTURLS_FROM_POSTERFRAME',
+          payload: {
+            files: getState().undoGroup.present.files,
+            frames
+          },
+        });
       });
-    });
   };
 };

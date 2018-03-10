@@ -5,8 +5,8 @@ import FileObject from '../utils/fileObject';
 Dexie.debug = true; // In production, set to false to increase performance a little.
 const imageDB = new Dexie('ImageDatabase');
 imageDB.version(1).stores({
-  thumbList: '&frameId, fileId, frameNumber, isPosterFrame, [fileId+frameNumber]'
+  frameList: '&frameId, fileId, frameNumber, isPosterFrame, [fileId+frameNumber]'
 });
-imageDB.thumbList.mapToClass(FileObject);
+imageDB.frameList.mapToClass(FileObject);
 
 export default imageDB;
