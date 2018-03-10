@@ -111,8 +111,8 @@ const ThumbGrid = ({
         tempThumbObject.index = i;
         // console.log(thumbs[mappedIterator]);
         // console.log(thumbImages);
-        if ((typeof thumbImages !== 'undefined') && thumbImages[thumbs[mappedIterator].id]) {
-          tempThumbObject.thumbImageObjectUrl = thumbImages[thumbs[mappedIterator].id].objectUrl;
+        if ((typeof thumbImages !== 'undefined') && thumbImages[thumbs[mappedIterator].frameId]) {
+          tempThumbObject.thumbImageObjectUrl = thumbImages[thumbs[mappedIterator].frameId].objectUrl;
         }
       }
       // console.log(`${i} : ${mappedIterator}`);
@@ -131,24 +131,24 @@ const ThumbGrid = ({
         tempId={thumb.index}
         thumbImageObjectUrl={thumb.thumbImageObjectUrl ||
           (thumbImages !== undefined ?
-            thumbImages[thumb.id] !== undefined ?
-              thumbImages[thumb.id].objectUrl : undefined : undefined)}
+            thumbImages[thumb.frameId] !== undefined ?
+              thumbImages[thumb.frameId].objectUrl : undefined : undefined)}
         aspectRatioInv={aspectRatioInv}
         thumbWidth={zoomOut ? newThumbWidth : thumbWidth}
         borderRadius={zoomOut ? newBorderRadius : borderRadius}
         margin={zoomOut ? newThumbMargin : thumbMargin}
         frameNumber={editGrid ? undefined : thumb.frameNumber}
         hidden={editGrid ? undefined : thumb.hidden}
-        controlersAreVisible={editGrid ? undefined : (thumb.id === controlersAreVisible)}
+        controlersAreVisible={editGrid ? undefined : (thumb.thumbId === controlersAreVisible)}
         disabled={editGrid}
-        onToggle={editGrid ? null : () => onToggleClick(file.id, thumb.id)}
-        onRemove={editGrid ? null : () => onRemoveClick(file.id, thumb.id)}
-        onInPoint={editGrid ? null : () => onInPointClick(file, thumbArray, thumb.id, thumb.frameNumber)}
-        onOutPoint={editGrid ? null : () => onOutPointClick(file, thumbArray, thumb.id, thumb.frameNumber)}
-        onBack={editGrid ? null : () => onBackClick(file, thumb.id, thumb.frameNumber)}
-        onForward={editGrid ? null : () => onForwardClick(file, thumb.id, thumb.frameNumber)}
-        onScrub={editGrid ? null : () => onScrubClick(file, thumb.id, thumb.frameNumber)}
-        onOver={editGrid ? null : () => onMouseOverResult(thumb.id)}
+        onToggle={editGrid ? null : () => onToggleClick(file.id, thumb.thumbId)}
+        onRemove={editGrid ? null : () => onRemoveClick(file.id, thumb.thumbId)}
+        onInPoint={editGrid ? null : () => onInPointClick(file, thumbArray, thumb.thumbId, thumb.frameNumber)}
+        onOutPoint={editGrid ? null : () => onOutPointClick(file, thumbArray, thumb.thumbId, thumb.frameNumber)}
+        onBack={editGrid ? null : () => onBackClick(file, thumb.thumbId, thumb.frameNumber)}
+        onForward={editGrid ? null : () => onForwardClick(file, thumb.thumbId, thumb.frameNumber)}
+        onScrub={editGrid ? null : () => onScrubClick(file, thumb.thumbId, thumb.frameNumber)}
+        onOver={editGrid ? null : () => onMouseOverResult(thumb.thumbId)}
         onOut={editGrid ? null : () => onMouseOutResult()}
       />))
   );
@@ -175,7 +175,7 @@ ThumbGrid.defaultProps = {
 
 ThumbGrid.propTypes = {
   thumbs: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string.isRequired,
+    thumbId: PropTypes.string.isRequired,
     index: PropTypes.number.isRequired,
     hidden: PropTypes.bool.isRequired,
     frameNumber: PropTypes.number.isRequired

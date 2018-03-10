@@ -100,7 +100,7 @@ app.on('ready', async () => {
   menuBuilder.buildMenu();
 });
 
-ipcMain.on('send-get-file-details', (event, fileId, filePath, posterThumbId, lastItem) => {
+ipcMain.on('send-get-file-details', (event, fileId, filePath, posterFrameId, lastItem) => {
   console.log(fileId);
   console.log(filePath);
   const vid = new opencv.VideoCapture(filePath);
@@ -108,10 +108,10 @@ ipcMain.on('send-get-file-details', (event, fileId, filePath, posterThumbId, las
   console.log(`height: ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT)}`);
   console.log(`FPS: ${vid.get(VideoCaptureProperties.CAP_PROP_FPS)}`);
   console.log(`codec: ${vid.get(VideoCaptureProperties.CAP_PROP_FOURCC)}`);
-  event.sender.send('receive-get-file-details', fileId, filePath, posterThumbId, lastItem, vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT), vid.get(VideoCaptureProperties.CAP_PROP_FPS), vid.get(VideoCaptureProperties.CAP_PROP_FOURCC));
+  event.sender.send('receive-get-file-details', fileId, filePath, posterFrameId, lastItem, vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT), vid.get(VideoCaptureProperties.CAP_PROP_FPS), vid.get(VideoCaptureProperties.CAP_PROP_FOURCC));
 });
 
-ipcMain.on('send-get-poster-thumb', (event, fileId, filePath, posterThumbId) => {
+ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId) => {
   console.log(fileId);
   console.log(filePath);
   const vid = new opencv.VideoCapture(filePath);
@@ -129,7 +129,7 @@ ipcMain.on('send-get-poster-thumb', (event, fileId, filePath, posterThumbId) => 
         console.log(`counter: ${iterator}, position: ${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
         if (mat.empty === false) {
           const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // maybe change to .png?
-          event.sender.send('receive-get-poster-thumb', fileId, posterThumbId, outBase64, vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES));
+          event.sender.send('receive-get-poster-frame', fileId, posterFrameId, outBase64, vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES));
         }
         iterator += 1;
         if (iterator < frameNumberArray.length) {
@@ -145,10 +145,10 @@ ipcMain.on('send-get-poster-thumb', (event, fileId, filePath, posterThumbId) => 
   });
 });
 
-ipcMain.on('send-get-thumbs', (event, fileId, filePath, idArray, frameNumberArray, relativeFrameCount) => {
+ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArray, frameNumberArray, relativeFrameCount) => {
   console.log(fileId);
   console.log(filePath);
-  console.log(idArray);
+  console.log(frameIdArray);
   // opencv.VideoStream(path.resolve(__dirname, './fingers.mov'), function (err, im) {
   // When opening a file, the full path must be passed to opencv
   // const vid = new opencv.VideoCapture(path.resolve(__dirname, './FrameTestMovie_v001.mov'));
@@ -182,12 +182,12 @@ ipcMain.on('send-get-thumbs', (event, fileId, filePath, idArray, frameNumberArra
         if (mat.empty === false) {
           const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // maybe change to .png?
           event.sender.send(
-            'receive-get-thumbs', fileId, idArray[iterator], outBase64,
+            'receive-get-thumbs', fileId, thumbIdArray[iterator], frameIdArray[iterator], outBase64,
             vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1
           );
         } else {
           event.sender.send(
-            'receive-get-thumbs', fileId, idArray[iterator], '',
+            'receive-get-thumbs', fileId, thumbIdArray[iterator], frameIdArray[iterator], '',
             vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1
           );
         }

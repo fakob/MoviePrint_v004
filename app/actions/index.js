@@ -94,18 +94,18 @@ export const setDefaultColumnCount = (defaultColumnCount) => {
 export const addThumb = (text, index) => {
   return {
     type: 'ADD_THUMB',
-    id: uuidV4(),
+    thumbId: uuidV4(),
     text: text + ' ' + index,
     index
   };
 };
 
-export const toggleThumb = (currentFileId, id) => {
+export const toggleThumb = (currentFileId, thumbId) => {
   return {
     type: 'TOGGLE_THUMB',
     payload: {
       fileId: currentFileId,
-      id
+      thumbId
     },
   };
 };
@@ -120,12 +120,12 @@ export const updateOrder = (currentFileId, array) => {
   };
 };
 
-export const removeThumb = (currentFileId, id) => {
+export const removeThumb = (currentFileId, thumbId) => {
   return {
     type: 'REMOVE_THUMB',
     payload: {
       fileId: currentFileId,
-      id
+      thumbId
     },
   };
 };
@@ -160,19 +160,19 @@ export const updateFileDetails = (fileId, frameCount, width, height, fps, fourCC
   };
 };
 
-export const updateFrameNumber = (fileId, id, frameNumber) => {
+export const updateFrameNumber = (fileId, thumbId, frameNumber) => {
   console.log('inside updateFrameNumber');
   return {
     type: 'UPDATE_FRAMENUMBER_OF_THUMB',
     payload: {
       fileId,
-      id,
+      thumbId,
       frameNumber
     }
   };
 };
 
-export const updateThumbImage = (fileId, id, base64, frameNumber, isPosterFrame = 0) =>
+export const updateThumbImage = (fileId, thumbId, frameId, base64, frameNumber, isPosterFrame = 0) =>
   ((dispatch, getState) => {
     console.log('inside updateThumbImage');
     fetch(`data:image/png;base64,${base64}`)
@@ -184,35 +184,35 @@ export const updateThumbImage = (fileId, id, base64, frameNumber, isPosterFrame 
       })
       .then(blob =>
         imageDB.thumbList.put({
-          id,
+          frameId,
           fileId,
           frameNumber,
           isPosterFrame,
           data: blob
         }))
       .then(() =>
-        dispatch(updateThumbObjectUrlFromDB(fileId, id, isPosterFrame)))
+        dispatch(updateThumbObjectUrlFromDB(fileId, thumbId, frameId, isPosterFrame)))
       .catch(error => {
         console.log(`There has been a problem with your fetch operation: ${error.message}`);
       });
     // only update frameNumber if not posterframe and different
     if (!isPosterFrame &&
       getState().undoGroup.present.thumbsByFileId[fileId].thumbs.find((thumb) =>
-        thumb.id === id).frameNumber !== frameNumber) {
-      dispatch(updateFrameNumber(fileId, id, frameNumber));
+        thumb.frameId === frameId).frameNumber !== frameNumber) {
+      dispatch(updateFrameNumber(fileId, frameId, frameNumber));
     }
   });
 
-export const updateThumbObjectUrlFromDB = (fileId, id, isPosterFrame = 0) =>
+export const updateThumbObjectUrlFromDB = (fileId, thumbId, frameId, isPosterFrame = 0) =>
   (dispatch) => {
     console.log('inside updateThumbObjectUrlFromDB');
-    return imageDB.thumbList.where('id').equals(id).toArray().then((thumb) => {
+    return imageDB.thumbList.where('frameId').equals(frameId).toArray().then((thumb) => {
       console.log(thumb[0]);
       if (isPosterFrame) {
         return dispatch({
           type: 'UPDATE_OBJECTURL_FROM_POSTERFRAME',
           payload: {
-            id,
+            frameId,
             thumb
           },
         });
@@ -221,17 +221,17 @@ export const updateThumbObjectUrlFromDB = (fileId, id, isPosterFrame = 0) =>
         type: 'UPDATE_OBJECTURL_FROM_THUMBLIST',
         payload: {
           fileId,
-          id,
+          frameId,
           thumb
         },
       });
     });
   };
 
-export const updateObjectUrlsFromThumbList = (fileId, keyArray) => {
+export const updateObjectUrlsFromThumbList = (fileId, frameIdArray) => {
   return (dispatch) => {
     console.log('inside updateObjectUrlsFromThumbList');
-    imageDB.thumbList.where('id').anyOf(keyArray).toArray().then((thumbs) => {
+    imageDB.thumbList.where('frameId').anyOf(frameIdArray).toArray().then((thumbs) => {
       console.log(thumbs.length);
       if (thumbs.length !== 0) {
         dispatch({
@@ -273,17 +273,19 @@ export const addDefaultThumbs = (file, amount = 20, start = 10, stop = file.fram
       console.log(frameNumberArray);
     }
     console.log(noFrameCount);
-    const idArray = frameNumberArray.map(() => uuidV4());
+    const frameIdArray = frameNumberArray.map(() => uuidV4());
+    const thumbIdArray = frameNumberArray.map(() => uuidV4());
 
     // maybe add check if thumb is already in imageDB
     // imageDB.thumbList.where('fileId').equals(file.id).toArray().then((thumb) => {
     // });
 
-    ipcRenderer.send('send-get-thumbs', file.id, file.path, idArray, frameNumberArray, noFrameCount);
-    // ipcRenderer.send('send-get-thumbs', file.id, file.path, idArray, frameNumberArray);
+    ipcRenderer.send('send-get-thumbs', file.id, file.path, thumbIdArray, frameIdArray, frameNumberArray, noFrameCount);
+    // ipcRenderer.send('send-get-thumbs', file.id, file.path, frameIdArray, frameNumberArray);
     dispatch({
       type: 'ADD_DEFAULT_THUMBS',
-      idArray,
+      thumbIdArray,
+      frameIdArray,
       frameNumberArray,
       fileId: file.id,
       width: file.width,
@@ -368,7 +370,7 @@ export const setNewMovieList = (files, settings) => {
           size: files[key].size,
           type: files[key].type,
           webkitRelativePath: files[key].webkitRelativePath,
-          posterThumbId: uuidV4(),
+          posterFrameId: uuidV4(),
           columnCount: settings.defaultColumnCount,
         };
         newFiles.push(fileToAdd);
@@ -394,7 +396,7 @@ export const setNewMovieList = (files, settings) => {
           if (newFilesLength === index + 1) {
             lastItem = true;
           }
-          ipcRenderer.send('send-get-file-details', file.id, file.path, file.posterThumbId, lastItem);
+          ipcRenderer.send('send-get-file-details', file.id, file.path, file.posterFrameId, lastItem);
         });
       });
   };

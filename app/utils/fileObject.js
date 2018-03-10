@@ -1,7 +1,7 @@
 import Dexie from 'dexie';
 
 const FileObject = Dexie.defineClass({
-  id: String,
+  frameId: String,
   lastModified: Number,
   lastModifiedDate: String,
   name: String,

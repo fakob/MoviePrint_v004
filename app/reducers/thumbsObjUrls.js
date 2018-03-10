@@ -4,15 +4,15 @@ const thumbsObjUrls = (state = {}, action) => {
       return {};
     case 'UPDATE_OBJECTURL_FROM_THUMBLIST':
       // console.log(action.payload.fileId);
-      // console.log(action.payload.id);
+      // console.log(action.payload.frameId);
       // console.log(action.payload.thumb);
       return {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          [action.payload.id]: {
+          [action.payload.frameId]: {
             objectUrl: window.URL.createObjectURL(
-              action.payload.thumb.filter(obj => obj.id === action.payload.id)[0].data
+              action.payload.thumb.filter(obj => obj.frameId === action.payload.frameId)[0].data
             )
           }
         }
@@ -27,7 +27,7 @@ const thumbsObjUrls = (state = {}, action) => {
               // console.log(previous);
               // console.log(current.data);
               const tempObject = Object.assign({}, previous,
-                { [current.id]: { objectUrl: window.URL.createObjectURL(current.data) } }
+                { [current.frameId]: { objectUrl: window.URL.createObjectURL(current.data) } }
               );
               // console.log(tempObject);
               return tempObject;

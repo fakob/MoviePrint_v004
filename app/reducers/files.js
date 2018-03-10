@@ -13,7 +13,7 @@ const file = (state = {}, type, payload, index) => {
         size: payload[index].size,
         type: payload[index].type,
         webkitRelativePath: payload[index].webkitRelativePath,
-        posterThumbId: payload[index].posterThumbId,
+        posterFrameId: payload[index].posterFrameId,
         columnCount: payload[index].columnCount,
       });
     case 'UPDATE_COLUMNCOUNT_OF_MOVIE_LIST_ITEM':
@@ -35,7 +35,7 @@ const file = (state = {}, type, payload, index) => {
         fourCC: payload.fourCC
       });
     case 'UPDATE_OBJECTURL_FROM_POSTERFRAME':
-      if (state.posterThumbId !== payload.id) {
+      if (state.posterFrameId !== payload.frameId) {
         return state;
       }
       return Object.assign({}, state, {
@@ -48,7 +48,7 @@ const file = (state = {}, type, payload, index) => {
       try {
         return Object.assign({}, state, {
           objectUrl: window.URL.createObjectURL(
-            payload.thumbs.filter(obj => obj.id === payload.files[index].posterThumbId)[0].data
+            payload.thumbs.filter(obj => obj.frameId === payload.files[index].posterFrameId)[0].data
           )
         });
       } catch (e) {

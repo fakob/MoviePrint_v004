@@ -9,7 +9,8 @@ const thumb = (state = {}, action, index) => {
       };
     case 'ADD_DEFAULT_THUMBS':
       return {
-        id: action.idArray[index],
+        thumbId: action.thumbIdArray[index],
+        frameId: action.frameIdArray[index],
         frameNumber: action.frameNumberArray[index],
         fileId: action.fileId,
         index,
@@ -108,7 +109,7 @@ const thumbsByFileId = (state = [], action) => {
         [action.fileId]: {
           width: action.width,
           height: action.height,
-          thumbs: Object.keys(action.idArray).map((t, index) =>
+          thumbs: Object.keys(action.thumbIdArray).map((t, index) =>
             thumb(undefined, action, index))
         }
       };

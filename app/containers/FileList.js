@@ -45,7 +45,7 @@ class SortedFileList extends Component {
                     file.id,
                     Object.values(state.undoGroup.present
                       .thumbsByFileId[file.id]
-                      .thumbs).map((a) => a.id)
+                      .thumbs).map((a) => a.frameId)
                   ));
                 console.log(`FileListElement clicked: ${file.name}`);
               }

@@ -21,7 +21,7 @@ class SortedVisibleThumbGrid extends Component {
           singleFile.id,
           Object.values(store.getState().undoGroup.present
             .thumbsByFileId[singleFile.id]
-            .thumbs).map((a) => a.id)
+            .thumbs).map((a) => a.frameId)
         ));
       }
     });

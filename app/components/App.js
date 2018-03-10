@@ -90,9 +90,9 @@ class App extends Component {
   componentDidMount() {
     const { store } = this.context;
 
-    ipcRenderer.on('receive-get-file-details', (event, fileId, filePath, posterThumbId, lastItem, frameCount, width, height, fps, fourCC) => {
+    ipcRenderer.on('receive-get-file-details', (event, fileId, filePath, posterFrameId, lastItem, frameCount, width, height, fps, fourCC) => {
       store.dispatch(updateFileDetails(fileId, frameCount, width, height, fps, fourCC));
-      ipcRenderer.send('send-get-poster-thumb', fileId, filePath, posterThumbId);
+      ipcRenderer.send('send-get-poster-frame', fileId, filePath, posterFrameId);
       if (lastItem) {
         console.log('I am the lastItem');
         store.dispatch(setCurrentFileId(store.getState().undoGroup.present.files[0].id));
@@ -104,12 +104,13 @@ class App extends Component {
       }
     });
 
-    ipcRenderer.on('receive-get-thumbs', (event, fileId, id, base64, frameNumber) => {
-      store.dispatch(updateThumbImage(fileId, id, base64, frameNumber));
+    ipcRenderer.on('receive-get-thumbs', (event, fileId, thumbId, frameId, base64, frameNumber) => {
+      store.dispatch(updateThumbImage(fileId, thumbId, frameId, base64, frameNumber));
     });
 
-    ipcRenderer.on('receive-get-poster-thumb', (event, fileId, id, base64, frameNumber) => {
-      store.dispatch(updateThumbImage(fileId, id, base64, frameNumber, 1));
+    // poster frames don't have thumbId
+    ipcRenderer.on('receive-get-poster-frame', (event, fileId, posterFrameId, base64, frameNumber) => {
+      store.dispatch(updateThumbImage(fileId, '', posterFrameId, base64, frameNumber, 1));
     });
 
     window.addEventListener('mouseup', this.onDragLeave);
