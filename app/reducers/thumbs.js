@@ -27,11 +27,11 @@ const thumb = (state = {}, action, index) => {
         objectUrl: action.objectUrl
       };
     case 'CHANGE_THUMB':
-      if (state.id !== action.payload.oldThumbId) {
+      if (state.thumbId !== action.payload.thumbId) {
         return state;
       }
       return Object.assign({}, state, {
-        id: action.payload.newThumbId,
+        frameId: action.payload.newFrameId,
         frameNumber: action.payload.newFrameNumber
       });
     case 'TOGGLE_THUMB':

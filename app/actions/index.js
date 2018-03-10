@@ -198,14 +198,15 @@ export const updateThumbImage = (fileId, thumbId, frameId, base64, frameNumber, 
     // only update frameNumber if not posterframe and different
     if (!isPosterFrame &&
       getState().undoGroup.present.thumbsByFileId[fileId].thumbs.find((thumb) =>
-        thumb.frameId === frameId).frameNumber !== frameNumber) {
-      dispatch(updateFrameNumber(fileId, frameId, frameNumber));
+        thumb.thumbId === thumbId).frameNumber !== frameNumber) {
+      dispatch(updateFrameNumber(fileId, thumbId, frameNumber));
     }
   });
 
 export const updateThumbObjectUrlFromDB = (fileId, thumbId, frameId, isPosterFrame = 0) =>
   (dispatch) => {
     console.log('inside updateThumbObjectUrlFromDB');
+    console.log(frameId);
     return imageDB.thumbList.where('frameId').equals(frameId).toArray().then((thumb) => {
       console.log(thumb[0]);
       if (isPosterFrame) {
@@ -295,21 +296,21 @@ export const addDefaultThumbs = (file, amount = 20, start = 10, stop = file.fram
   };
 };
 
-export const changeThumb = (file, oldThumbId, newFrameNumber) => {
+export const changeThumb = (file, thumbId, newFrameNumber) => {
   return (dispatch) => {
     console.log('inside changeThumb');
-    const newThumbId = uuidV4();
+    const newFrameId = uuidV4();
     const newFrameNumberWithinBoundaries = limitRange(newFrameNumber, 0, file.frameCount - 1);
 
     imageDB.thumbList.where('[fileId+frameNumber]').equals([file.id, newFrameNumberWithinBoundaries]).toArray().then((thumb) => {
       console.log(thumb.length);
       if (thumb.length === 0) {
-        ipcRenderer.send('send-get-thumbs', file.id, file.path, [newThumbId], [newFrameNumberWithinBoundaries]);
+        ipcRenderer.send('send-get-thumbs', file.id, file.path, [thumbId], [newFrameId], [newFrameNumberWithinBoundaries]);
         return dispatch({
           type: 'CHANGE_THUMB',
           payload: {
-            newThumbId,
-            oldThumbId,
+            newFrameId,
+            thumbId,
             newFrameNumber: newFrameNumberWithinBoundaries,
             fileId: file.id,
           }
@@ -318,13 +319,13 @@ export const changeThumb = (file, oldThumbId, newFrameNumber) => {
       dispatch({
         type: 'CHANGE_THUMB',
         payload: {
-          newThumbId: thumb[0].id,
-          oldThumbId,
+          newFrameId: thumb[0].frameId,
+          thumbId,
           newFrameNumber: thumb[0].frameNumber,
           fileId: file.id,
         }
       });
-      return dispatch(updateThumbObjectUrlFromDB(file.id, thumb[0].id, false));
+      return dispatch(updateThumbObjectUrlFromDB(file.id, thumbId, thumb[0].frameId, false));
     });
   };
 };
