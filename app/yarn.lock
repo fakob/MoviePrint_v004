@@ -31,3 +31,7 @@ typeface-open-sans@^0.0.54:
 typeface-roboto-condensed@^0.0.54:
   version "0.0.54"
   resolved "https://registry.yarnpkg.com/typeface-roboto-condensed/-/typeface-roboto-condensed-0.0.54.tgz#4e0d5d24ed95e1e2efa7fcf55b8a9ceaa5bd2be7"
+
+typeface-ubuntu@^0.0.54:
+  version "0.0.54"
+  resolved "https://registry.yarnpkg.com/typeface-ubuntu/-/typeface-ubuntu-0.0.54.tgz#1219d28be0a86b9a2d779e53d8b89d13de911ac3"

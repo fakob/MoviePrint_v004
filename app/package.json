@@ -17,6 +17,7 @@
   "dependencies": {
     "opencv4nodejs": "^3.1.0",
     "typeface-open-sans": "^0.0.54",
-    "typeface-roboto-condensed": "^0.0.54"
+    "typeface-roboto-condensed": "^0.0.54",
+    "typeface-ubuntu": "^0.0.54"
   }
 }
