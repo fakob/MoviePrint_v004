@@ -6,4 +6,9 @@
 @import '~semantic-ui-css/semantic.min.css';
 @import '~typeface-open-sans';
 @import '~typeface-roboto-condensed';
+@import '~typeface-ubuntu';
 @import '~rc-slider/assets/index.css';
+
+.rc-slider-tooltip {
+  z-index: 200;
+}
