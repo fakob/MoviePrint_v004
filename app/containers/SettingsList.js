@@ -266,7 +266,13 @@ class SettingsList extends Component {
             <Grid.Column width={12}>
               <List>
                 <List.Item>
-                  {this.props.settings.defaultOutputPath}
+                  <div
+                    style={{
+                      wordWrap: 'break-word'
+                    }}
+                  >
+                    {this.props.settings.defaultOutputPath}
+                  </div>
                 </List.Item>
                 <List.Item>
                   <Button
