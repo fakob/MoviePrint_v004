@@ -154,8 +154,6 @@ const ThumbGrid = ({
         thumbInfoValue={editGrid ? undefined :
           getThumbInfoValue(settings.defaultThumbInfo, thumb.frameNumber, fps)
         }
-        frameNumber={editGrid ? undefined : thumb.frameNumber}
-        thumbInfo={settings.defaultThumbInfo}
         hidden={editGrid ? undefined : thumb.hidden}
         controlersAreVisible={editGrid ? undefined : (thumb.thumbId === controlersAreVisible)}
         disabled={editGrid}

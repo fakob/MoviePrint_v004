@@ -31,7 +31,7 @@ const handle = (props) => {
 const outputFormatOptions = [
   { value: 'png', text: 'PNG' },
   { value: 'jpg', text: 'JPG' },
-]
+];
 
 class SettingsList extends Component {
   constructor(props) {
@@ -205,10 +205,11 @@ class SettingsList extends Component {
                   />
                 </List.Item>
                 <List.Item>
-                  <Checkbox label={
-                    <label className={styles.label}>
-                      Rounded Corners
-                    </label>
+                  <Checkbox
+                    label={
+                      <label className={styles.label}>
+                        Rounded Corners
+                      </label>
                     }
                     checked={this.props.settings.defaultRoundedCorners}
                     onChange={this.onChangeRoundedCorners}
