@@ -124,6 +124,7 @@ class SettingsList extends Component {
                 min={1}
                 max={20}
                 defaultValue={this.props.rowCountTemp}
+                {...(this.props.reCapture ? {} : { value: this.props.rowCountTemp })}
                 marks={{
                   1: '1',
                   20: '20',
