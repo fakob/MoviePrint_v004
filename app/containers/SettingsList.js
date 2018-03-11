@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Slider, { Handle, createSliderWithTooltip } from 'rc-slider';
 import Tooltip from 'rc-tooltip';
-import { Button, Form, Segment, Container, Statistic, Divider, Checkbox, Grid, List } from 'semantic-ui-react';
+import { Button, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List } from 'semantic-ui-react';
 import { addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount } from '../actions';
 import styles from '../components/Settings.css';
 
@@ -28,20 +28,27 @@ const handle = (props) => {
   );
 };
 
+const outputFormatOptions = [
+  { value: 'png', text: 'PNG' },
+  { value: 'jpg', text: 'JPG' },
+]
+
 class SettingsList extends Component {
   constructor(props) {
     super(props);
-    // this.state = {
-    //   checkBoxChecked: false,
-    // };
+    this.state = {
+      thumbInfo: 'frames',
+    };
 
-    this.handleChange = this.handleChange.bind(this);
+    this.onChangeThumbInfo = this.onChangeThumbInfo.bind(this);
+    this.onChangeReCapture = this.onChangeReCapture.bind(this);
   }
 
-  handleChange = (e, { checked }) => {
-    // this.setState({
-    //   checkBoxChecked: checked
-    // });
+  onChangeThumbInfo = (e, { value }) => {
+    this.setState({ thumbInfo: value })
+  }
+
+  onChangeReCapture = (e, { checked }) => {
     this.props.onReCaptureClick(checked);
   }
 
@@ -127,12 +134,25 @@ class SettingsList extends Component {
                 }
                 // checked={this.state.checkBoxChecked}
                 checked={this.props.reCapture}
-                onChange={this.handleChange}
+                onChange={this.onChangeReCapture}
                 // style={{
                 //   color: '#eeeeee',
                 //   fontFamily: 'Roboto Condensed',
                 // }}
               />
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4} />
+            <Grid.Column width={12}>
+              <Button
+                fluid
+                color="orange"
+                disabled={!this.props.reCapture}
+                onClick={this.props.onApplyClick}
+              >
+                  Apply
+              </Button>
             </Grid.Column>
           </Grid.Row>
           <Divider inverted />
@@ -143,15 +163,15 @@ class SettingsList extends Component {
             <Grid.Column width={12}>
               <SliderWithTooltip
                 className={styles.slider}
-                min={1}
-                max={20}
-                defaultValue={this.props.rowCountTemp}
+                min={0}
+                max={40}
+                defaultValue={this.props.settings.defaultMargin}
                 marks={{
-                  1: '1',
-                  20: '20',
+                  0: '0',
+                  40: '40',
                 }}
                 handle={handle}
-                onChange={this.props.onChangeRow}
+                onChange={this.props.onChangeMargin}
                 // onAfterChange={this.props.onAfterChangeRow}
               />
             </Grid.Column>
@@ -178,19 +198,101 @@ class SettingsList extends Component {
                     }
                   />
                 </List.Item>
+                <Divider inverted />
+                <List.Item>
+                  <Radio
+                    label={
+                      <label className={styles.label}>
+                        Show frames
+                      </label>
+                      }
+                    name="radioGroup"
+                    value="frames"
+                    checked={this.state.thumbInfo === 'frames'}
+                    onChange={this.onChangeThumbInfo}
+                  />
+                </List.Item>
+                <List.Item>
+                  <Radio
+                    label={
+                      <label className={styles.label}>
+                        Show timecode
+                      </label>
+                      }
+                    name="radioGroup"
+                    value="timecode"
+                    checked={this.state.thumbInfo === 'timecode'}
+                    onChange={this.onChangeThumbInfo}
+                  />
+                </List.Item>
+                <List.Item>
+                  <Radio
+                    label={
+                      <label className={styles.label}>
+                        Hide info
+                      </label>
+                      }
+                    name="radioGroup"
+                    value="hideInfo"
+                    checked={this.state.thumbInfo === 'hideInfo'}
+                    onChange={this.onChangeThumbInfo}
+                  />
+                </List.Item>
+              </List>
+            </Grid.Column>
+          </Grid.Row>
+          <Divider inverted />
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Destination
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <List>
+                <List.Item>
+                  Filepath
+                </List.Item>
+                <List.Item>
+                  <Button>Change...</Button>
+                </List.Item>
               </List>
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
-            <Grid.Column width={4} />
+            <Grid.Column width={4}>
+              Output format
+            </Grid.Column>
             <Grid.Column width={12}>
-              <Button
-                fluid
-                color="pink"
-                onClick={this.props.onApplyClick}
-              >
-                  Apply
-              </Button>
+              <Dropdown
+                placeholder="Select..."
+                selection
+                search
+                options={outputFormatOptions}
+              />
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Save options
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <List>
+                <List.Item>
+                  <Checkbox label={
+                    <label className={styles.label}>
+                      Overwrite existing
+                    </label>
+                    }
+                  />
+                </List.Item>
+                <List.Item>
+                  <Checkbox label={
+                    <label className={styles.label}>
+                      Save individual frames
+                    </label>
+                    }
+                  />
+                </List.Item>
+              </List>
             </Grid.Column>
           </Grid.Row>
         </Grid>
@@ -198,8 +300,6 @@ class SettingsList extends Component {
     );
   }
 }
-
-
 
 const mapStateToProps = (state) => {
   return {

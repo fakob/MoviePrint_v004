@@ -24,6 +24,7 @@ const rootReducer = combineReducers({
       'UPDATE_FRAMENUMBER_OF_THUMB',
       'UPDATE_OBJECTURL_FROM_THUMBLIST',
       'UPDATE_OBJECTURL_FROM_POSTERFRAME',
+      'SET_DEFAULT_MARGIN',
     ]),
     limit: 50
   })

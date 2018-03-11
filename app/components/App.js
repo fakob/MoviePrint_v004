@@ -15,7 +15,7 @@ import {
   setNewMovieList, toggleLeftSidebar, showRightSidebar, hideRightSidebar,
   zoomIn, zoomOut, addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
   setVisibilityFilter, setCurrentFileId, changeThumb, updateFileColumnCount,
-  updateFileDetails, clearThumbs, updateThumbImage
+  updateFileDetails, clearThumbs, updateThumbImage, setDefaultMargin
 } from '../actions';
 
 const { ipcRenderer } = require('electron');
@@ -70,6 +70,7 @@ class App extends Component {
     this.onReCaptureClick = this.onReCaptureClick.bind(this);
     this.onApplyClick = this.onApplyClick.bind(this);
     this.onCancelClick = this.onCancelClick.bind(this);
+    this.onChangeMargin = this.onChangeMargin.bind(this);
   }
 
   componentWillMount() {
@@ -399,6 +400,11 @@ class App extends Component {
     }
   };
 
+  onChangeMargin = (value) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultMargin(value));
+  };
+
   render() {
     const { store } = this.context;
     const state = store.getState();
@@ -445,6 +451,7 @@ class App extends Component {
               className={`${styles.ItemSideBar} ${styles.ItemRightSideBar} ${state.visibilitySettings.showRightSidebar ? styles.ItemRightSideBarAnim : ''}`}
             >
               <SettingsList
+                settings={this.props.settings}
                 columnCountTemp={this.state.columnCountTemp}
                 thumbCountTemp={this.state.thumbCountTemp}
                 rowCountTemp={Math.ceil(this.state.thumbCountTemp / this.state.columnCountTemp)}
@@ -456,6 +463,7 @@ class App extends Component {
                 onReCaptureClick={this.onReCaptureClick}
                 onApplyClick={this.onApplyClick}
                 onCancelClick={this.onCancelClick}
+                onChangeMargin={this.onChangeMargin}
               />
             </div>
             <div

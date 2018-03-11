@@ -8,6 +8,8 @@ const settings = (state = {}, action) => {
       return { ...state, defaultThumbCount: action.defaultThumbCount };
     case 'SET_DEFAULT_COLUMN_COUNT':
       return { ...state, defaultColumnCount: action.defaultColumnCount };
+    case 'SET_DEFAULT_MARGIN':
+      return { ...state, defaultMargin: action.defaultMargin };
     default:
       return state;
   }

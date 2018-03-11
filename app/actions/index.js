@@ -89,6 +89,13 @@ export const setDefaultColumnCount = (defaultColumnCount) => {
   };
 };
 
+export const setDefaultMargin = (defaultMargin) => {
+  return {
+    type: 'SET_DEFAULT_MARGIN',
+    defaultMargin
+  };
+};
+
 // thumbs
 
 export const addThumb = (text, index) => {
