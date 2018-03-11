@@ -96,6 +96,56 @@ export const setDefaultMargin = (defaultMargin) => {
   };
 };
 
+export const setDefaultShowHeader = (defaultShowHeader) => {
+  return {
+    type: 'SET_DEFAULT_SHOW_HEADER',
+    defaultShowHeader
+  };
+};
+
+export const setDefaultRoundedCorners = (defaultRoundedCorners) => {
+  return {
+    type: 'SET_DEFAULT_ROUNDED_CORNERS',
+    defaultRoundedCorners
+  };
+};
+
+export const setDefaultThumbInfo = (defaultThumbInfo) => {
+  return {
+    type: 'SET_DEFAULT_THUMB_INFO',
+    defaultThumbInfo
+  };
+};
+
+export const setDefaultOutputPath = (defaultOutputPath) => {
+  return {
+    type: 'SET_DEFAULT_OUTPUT_PATH',
+    defaultOutputPath
+  };
+};
+
+export const setDefaultOutputFormat = (defaultOutputFormat) => {
+  return {
+    type: 'SET_DEFAULT_OUTPUT_FORMAT',
+    defaultOutputFormat
+  };
+};
+
+export const setDefaultSaveOptionOverwrite = (defaultSaveOptionOverwrite) => {
+  return {
+    type: 'SET_DEFAULT_SAVE_OPTION_OVERWRITE',
+    defaultSaveOptionOverwrite
+  };
+};
+
+export const setDefaultSaveOptionSaveIndividual = (defaultSaveOptionSaveIndividual) => {
+  return {
+    type: 'SET_DEFAULT_SAVE_OPTION_SAVE_INDIVIDUAL',
+    defaultSaveOptionSaveIndividual
+  };
+};
+
+
 // thumbs
 
 export const addThumb = (text, index) => {

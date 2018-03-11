@@ -10,6 +10,20 @@ const settings = (state = {}, action) => {
       return { ...state, defaultColumnCount: action.defaultColumnCount };
     case 'SET_DEFAULT_MARGIN':
       return { ...state, defaultMargin: action.defaultMargin };
+    case 'SET_DEFAULT_SHOW_HEADER':
+      return { ...state, defaultShowHeader: action.defaultShowHeader };
+    case 'SET_DEFAULT_ROUNDED_CORNERS':
+      return { ...state, defaultRoundedCorners: action.defaultRoundedCorners };
+    case 'SET_DEFAULT_THUMB_INFO':
+      return { ...state, defaultThumbInfo: action.defaultThumbInfo };
+    case 'SET_DEFAULT_OUTPUT_PATH':
+      return { ...state, defaultOutputPath: action.defaultOutputPath };
+    case 'SET_DEFAULT_OUTPUT_FORMAT':
+      return { ...state, defaultOutputFormat: action.defaultOutputFormat };
+    case 'SET_DEFAULT_SAVE_OPTION_OVERWRITE':
+      return { ...state, defaultSaveOptionOverwrite: action.defaultSaveOptionOverwrite };
+    case 'SET_DEFAULT_SAVE_OPTION_SAVE_INDIVIDUAL':
+      return { ...state, defaultSaveOptionSaveIndividual: action.defaultSaveOptionSaveIndividual };
     default:
       return state;
   }

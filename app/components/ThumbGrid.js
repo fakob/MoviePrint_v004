@@ -26,7 +26,7 @@ const ThumbGrid = ({
   const height = (typeof file !== 'undefined' && typeof file.height !== 'undefined' ? file.height : 1080);
   const aspectRatioInv = (height * 1.0) / width;
   const rowCount = Math.ceil(thumbCount / columnCount);
-  const headerHeight = settings.defaultHeaderHeight;
+  const headerHeight = settings.defaultShowHeader ? settings.defaultHeaderHeight : 0;
   const thumbWidth = settings.defaultThumbnailWidth;
   const thumbMargin = settings.defaultMargin;
   const borderRadius = settings.defaultBorderRadius;
@@ -161,7 +161,7 @@ const ThumbGrid = ({
       }}
       id="ThumbGrid"
     >
-      {thumbGridHeaderComponent}
+      {settings.defaultShowHeader && thumbGridHeaderComponent}
       {thumbGridComponent}
     </div>
   );

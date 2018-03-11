@@ -42,6 +42,7 @@ class SettingsList extends Component {
 
     this.onChangeThumbInfo = this.onChangeThumbInfo.bind(this);
     this.onChangeReCapture = this.onChangeReCapture.bind(this);
+    this.onChangeShowHeader = this.onChangeShowHeader.bind(this);
   }
 
   onChangeThumbInfo = (e, { value }) => {
@@ -50,6 +51,10 @@ class SettingsList extends Component {
 
   onChangeReCapture = (e, { checked }) => {
     this.props.onReCaptureClick(checked);
+  }
+
+  onChangeShowHeader = (e, { checked }) => {
+    this.props.onShowHeaderClick(checked);
   }
 
   render() {
@@ -183,11 +188,14 @@ class SettingsList extends Component {
             <Grid.Column width={12}>
               <List>
                 <List.Item>
-                  <Checkbox label={
-                    <label className={styles.label}>
-                      Show Header
-                    </label>
+                  <Checkbox
+                    label={
+                      <label className={styles.label}>
+                        Show Header
+                      </label>
                     }
+                    checked={this.props.settings.defaultShowHeader}
+                    onChange={this.onChangeShowHeader}
                   />
                 </List.Item>
                 <List.Item>
@@ -244,7 +252,7 @@ class SettingsList extends Component {
           <Divider inverted />
           <Grid.Row>
             <Grid.Column width={4}>
-              Destination
+              Output path
             </Grid.Column>
             <Grid.Column width={12}>
               <List>

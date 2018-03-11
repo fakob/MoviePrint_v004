@@ -13,6 +13,13 @@ const initialStateJSON = {
       defaultMargin: 4,
       defaultBorderRadius: 8,
       defaultHeaderHeight: 42,
+      defaultShowHeader: true,
+      defaultRoundedCorners: true,
+      defaultThumbInfo: 'frames',
+      defaultOutputPath: '',
+      defaultOutputFormat: 'png',
+      defaultSaveOptionOverwrite: true,
+      defaultSaveOptionSaveIndividual: true,
     },
     thumbsByFileId: [],
     files: []
