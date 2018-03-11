@@ -100,6 +100,28 @@ function getMimeType(outputFormat) {
   }
 }
 
+function getRndInteger(min, max) {
+  return Math.floor(Math.random() * ((max - min) + 1)) + min;
+}
+
+export const getMoviePrintColor = (index = undefined) => {
+  // console.log(index);
+  const colorArray = [
+    '#FF5006',
+    '#FFb709',
+    '#FF9365',
+    '#FFa883',
+    '#FFd3c1',
+  ];
+  let newColor;
+  if (index === undefined) {
+    newColor = colorArray[getRndInteger(0, 5)];
+  } else {
+    newColor = colorArray[index % 5];
+  }
+  return newColor;
+};
+
 export const saveMoviePrint = (elementId, exportPath, file, outputFormat, overwrite) => {
   console.log(file);
   const node = document.getElementById(elementId);

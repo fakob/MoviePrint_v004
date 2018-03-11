@@ -326,14 +326,14 @@ class SettingsList extends Component {
                     onChange={this.onChangeOverwrite}
                   />
                 </List.Item>
-                <List.Item>
+                {/* <List.Item>
                   <Checkbox label={
                     <label className={styles.label}>
                       Save individual frames
                     </label>
                     }
                   />
-                </List.Item>
+                </List.Item> */}
               </List>
             </Grid.Column>
           </Grid.Row>

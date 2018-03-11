@@ -3,6 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { SortableHandle } from 'react-sortable-hoc';
 import styles from './ThumbGrid.css';
+import { getMoviePrintColor } from '../utils/utils';
 
 import inPoint from './../img/Thumb_IN.png';
 import outPoint from './../img/Thumb_OUT.png';
@@ -63,11 +64,13 @@ const Thumb = ({
         opacity: hidden ? '0.2' : '1',
         width: thumbWidth,
         // width: `${thumbWidth}px`,
-        margin: `${margin}px`
+        margin: `${margin}px`,
       }}
     >
+      {/* {thumbImageObjectUrl !== undefined && */}
       <img
         src={thumbImageObjectUrl}
+        // onError={`this.src=${empty}`}
         id={`thumbImage${tempId}`}
         className={styles.image}
         alt=""
@@ -75,10 +78,11 @@ const Thumb = ({
         height={`${(thumbWidth * aspectRatioInv)}px`}
         style={{
           filter: `${controlersAreVisible ? 'brightness(80%)' : ''}`,
-          borderRadius: `${borderRadius}px`
+          borderRadius: `${borderRadius}px`,
+          backgroundColor: getMoviePrintColor(tempId)
         }}
-
       />
+      {/* } */}
       {thumbInfoValue !== undefined &&
         <div
           className={styles.frameNumber}
@@ -197,7 +201,7 @@ const Thumb = ({
 };
 
 Thumb.defaultProps = {
-  thumbImageObjectUrl: empty,
+  // thumbImageObjectUrl: empty,
 };
 
 Thumb.propTypes = {
