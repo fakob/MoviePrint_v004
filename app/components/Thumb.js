@@ -14,6 +14,7 @@ import handleWide from './../img/Thumb_HANDLE_wide.png';
 import hide from './../img/Thumb_HIDE.png';
 import show from './../img/Thumb_SHOW.png';
 import empty from './../img/Thumb_EMPTY.png';
+import transparent from './../img/Thumb_TRANSPARENT.png';
 
 const DragHandle = SortableHandle(() => {
   function over(event) {
@@ -60,16 +61,19 @@ const Thumb = ({
       onBlur={onOut}
       id={`thumb${tempId}`}
       className={styles.gridItem}
+      width={`${thumbWidth}px`}
+      height={`${(thumbWidth * aspectRatioInv)}px`}
       style={{
         opacity: hidden ? '0.2' : '1',
         width: thumbWidth,
-        // width: `${thumbWidth}px`,
         margin: `${margin}px`,
+        borderRadius: `${borderRadius}px`,
+        backgroundColor: getMoviePrintColor(tempId),
       }}
     >
-      {/* {thumbImageObjectUrl !== undefined && */}
       <img
-        src={thumbImageObjectUrl}
+        src={thumbImageObjectUrl !== undefined ? thumbImageObjectUrl : transparent}
+        // src={thumbImageObjectUrl}
         // onError={`this.src=${empty}`}
         id={`thumbImage${tempId}`}
         className={styles.image}
@@ -79,10 +83,8 @@ const Thumb = ({
         style={{
           filter: `${controlersAreVisible ? 'brightness(80%)' : ''}`,
           borderRadius: `${borderRadius}px`,
-          backgroundColor: getMoviePrintColor(tempId)
         }}
       />
-      {/* } */}
       {thumbInfoValue !== undefined &&
         <div
           className={styles.frameNumber}

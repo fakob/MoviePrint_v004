@@ -197,6 +197,7 @@
     "history": "^4.7.2",
     "html2canvas": "^1.0.0-alpha.10",
     "lodash": "^4.17.4",
+    "randomcolor": "^0.5.3",
     "rc-slider": "^8.3.5",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",

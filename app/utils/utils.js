@@ -1,6 +1,8 @@
 import html2canvas from 'html2canvas';
 import path from 'path';
+
 const fs = require('fs');
+const randomColor = require('randomcolor');
 
 const { ipcRenderer } = require('electron');
 
@@ -106,6 +108,7 @@ function getRndInteger(min, max) {
 
 export const getMoviePrintColor = (index = undefined) => {
   // console.log(index);
+
   const colorArray = [
     '#FF5006',
     '#FFb709',
@@ -113,12 +116,14 @@ export const getMoviePrintColor = (index = undefined) => {
     '#FFa883',
     '#FFd3c1',
   ];
-  let newColor;
-  if (index === undefined) {
-    newColor = colorArray[getRndInteger(0, 5)];
-  } else {
-    newColor = colorArray[index % 5];
-  }
+
+  const tempDate = new Date();
+  const dailySeed = `${tempDate.getDate()}${index}`;
+
+  const newColor = randomColor({
+    hue: '#FF5006',
+    seed: dailySeed,
+  });
   return newColor;
 };
 
