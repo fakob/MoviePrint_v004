@@ -1,5 +1,6 @@
 import html2canvas from 'html2canvas';
 import path from 'path';
+const fs = require('fs');
 
 const { ipcRenderer } = require('electron');
 
@@ -99,13 +100,26 @@ function getMimeType(outputFormat) {
   }
 }
 
-export const saveMoviePrint = (elementId, exportPath, file, outputFormat) => {
+export const saveMoviePrint = (elementId, exportPath, file, outputFormat, overwrite) => {
   console.log(file);
   const node = document.getElementById(elementId);
   // const node = document.getElementById('ThumbGrid');
 
-  const newFileName = `${file.name}_MoviePrint.${outputFormat}`;
-  const newFilePathAndName = path.join(exportPath, newFileName);
+  let newFileName = `${file.name}_MoviePrint.${outputFormat}`;
+  let newFilePathAndName = path.join(exportPath, newFileName);
+
+  if (!overwrite) {
+    if (fs.existsSync(newFilePathAndName)) {
+      for (let i = 1; i < 1000; i += 1) {
+        newFileName = `${file.name}_MoviePrint copy ${i}.${outputFormat}`;
+        newFilePathAndName = path.join(exportPath, newFileName);
+        if (!fs.existsSync(newFilePathAndName)) {
+          break;
+        }
+      }
+    }
+  }
+
   const qualityArgument = 0.8; // only applicable for jpg
 
   console.log(newFilePathAndName);
