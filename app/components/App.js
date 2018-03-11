@@ -16,10 +16,11 @@ import {
   zoomIn, zoomOut, addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
   setVisibilityFilter, setCurrentFileId, changeThumb, updateFileColumnCount,
   updateFileDetails, clearThumbs, updateThumbImage, setDefaultMargin, setDefaultShowHeader,
-  setDefaultRoundedCorners, setDefaultThumbInfo
+  setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath
 } from '../actions';
 
 const { ipcRenderer } = require('electron');
+const { dialog } = require('electron').remote;
 
 const setColumnAndThumbCount = (that, columnCount, thumbCount) => {
   that.setState({
@@ -77,6 +78,7 @@ class App extends Component {
     this.onShowHeaderClick = this.onShowHeaderClick.bind(this);
     this.onRoundedCornersClick = this.onRoundedCornersClick.bind(this);
     this.onThumbInfoClick = this.onThumbInfoClick.bind(this);
+    this.onChangeOutputPathClick = this.onChangeOutputPathClick.bind(this);
   }
 
   componentWillMount() {
@@ -215,7 +217,7 @@ class App extends Component {
           }
           break;
         case 80: // press 'p'
-          saveMoviePrint('ThumbGrid', this.props.file);
+          this.onSaveMoviePrint();
           break;
         default:
       }
@@ -342,7 +344,7 @@ class App extends Component {
   }
 
   onSaveMoviePrint() {
-    saveMoviePrint('ThumbGrid', this.props.file);
+    saveMoviePrint('ThumbGrid', this.props.settings.defaultOutputPath, this.props.file);
   }
 
   onChangeRow = (value) => {
@@ -440,6 +442,17 @@ class App extends Component {
     store.dispatch(setDefaultThumbInfo(value));
   };
 
+  onChangeOutputPathClick = () => {
+    const { store } = this.context;
+    const newPathArray = dialog.showOpenDialog({
+      properties: ['openDirectory']
+    });
+    const newPath = (newPathArray !== undefined ? newPathArray[0] : undefined);
+    if (newPath) {
+      store.dispatch(setDefaultOutputPath(newPath));
+    }
+  };
+
   render() {
     const { store } = this.context;
     const state = store.getState();
@@ -503,6 +516,7 @@ class App extends Component {
                 onShowHeaderClick={this.onShowHeaderClick}
                 onRoundedCornersClick={this.onRoundedCornersClick}
                 onThumbInfoClick={this.onThumbInfoClick}
+                onChangeOutputPathClick={this.onChangeOutputPathClick}
               />
             </div>
             <div

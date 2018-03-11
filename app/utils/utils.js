@@ -1,5 +1,6 @@
 import html2canvas from 'html2canvas';
 import { saveAs } from 'file-saver';
+import path from 'path';
 
 export const mapRange = (value, low1, high1, low2, high2, returnInt = true) => {
   // * 1.0 added to force float division
@@ -32,9 +33,12 @@ export const truncatePath = (n, len) => {
 
 
 export const pad = (num, size) => {
-  let s = num.toString();
-  while (s.length < size) s = `0${s}`;
-  return s;
+  if (num !== undefined && size !== undefined) {
+    let s = num.toString();
+    while (s.length < size) s = `0${s}`;
+    return s;
+  }
+  return undefined;
 };
 
 export const frameCountToTimeCode = (frames, fps = 25) => {
@@ -71,20 +75,24 @@ export const formatBytes = (bytes, decimals) => {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 };
 
-export const saveMoviePrint = (elementId, file) => {
+export const saveMoviePrint = (elementId, exportPath, file) => {
   console.log(file);
   const node = document.getElementById(elementId);
   // const node = document.getElementById('ThumbGrid');
 
   const newFileName = `${file.name}_MoviePrint.png`;
+  const newFilePathAndName = path.join(exportPath, newFileName);
+
+  console.log(newFilePathAndName);
   console.log(node);
+
   html2canvas(node, {
     backgroundColor: null,
     allowTaint: true,
     scale: 1,
   }).then((canvas) => {
     canvas.toBlob((blob) => {
-      saveAs(blob, newFileName);
+      saveAs(blob, newFilePathAndName);
     });
   });
 };

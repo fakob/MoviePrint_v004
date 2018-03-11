@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Slider, { Handle, createSliderWithTooltip } from 'rc-slider';
 import Tooltip from 'rc-tooltip';
-import { Button, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List } from 'semantic-ui-react';
+import { Button, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List, Label } from 'semantic-ui-react';
 import { addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount } from '../actions';
 import styles from '../components/Settings.css';
 
@@ -85,7 +85,7 @@ class SettingsList extends Component {
                   this.props.thumbCountTemp) ? '=' : '≈'}
                 </Statistic.Value>
               </Statistic>
-              <Statistic inverted size="small" color={(this.props.reCapture) ? 'orange' : 'white'}>
+              <Statistic inverted size="small" color={(this.props.reCapture) ? 'orange' : undefined}>
                 <Statistic.Value>{this.props.thumbCountTemp}</Statistic.Value>
                 <Statistic.Label>{(this.props.reCapture) ? 'Count' : 'Count'}</Statistic.Label>
               </Statistic>
@@ -266,10 +266,15 @@ class SettingsList extends Component {
             <Grid.Column width={12}>
               <List>
                 <List.Item>
-                  Filepath
+                  {this.props.settings.defaultOutputPath}
                 </List.Item>
                 <List.Item>
-                  <Button>Change...</Button>
+                  <Button
+                    onClick={this.props.onChangeOutputPathClick}
+                    // onKeyPress={this.onChangeOutputPathPress}
+                  >
+                    Change...
+                  </Button>
                 </List.Item>
               </List>
             </Grid.Column>

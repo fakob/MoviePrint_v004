@@ -1,3 +1,5 @@
+const { app } = require('electron').remote
+
 // needs to have the same file structure as in combineReducers
 const initialStateJSON = {
   visibilitySettings: {
@@ -16,7 +18,7 @@ const initialStateJSON = {
       defaultShowHeader: true,
       defaultRoundedCorners: true,
       defaultThumbInfo: 'frames',
-      defaultOutputPath: '',
+      defaultOutputPath: app.getPath('desktop'),
       defaultOutputFormat: 'png',
       defaultSaveOptionOverwrite: true,
       defaultSaveOptionSaveIndividual: true,
