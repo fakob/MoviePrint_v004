@@ -352,7 +352,10 @@ class App extends Component {
   }
 
   onSaveMoviePrint() {
-    saveMoviePrint('ThumbGrid', this.props.settings.defaultOutputPath, this.props.file);
+    saveMoviePrint(
+      'ThumbGrid', this.props.settings.defaultOutputPath,
+      this.props.file, this.props.settings.defaultOutputFormat
+    );
   }
 
   onChangeRow = (value) => {

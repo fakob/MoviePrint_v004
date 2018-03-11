@@ -80,7 +80,7 @@ function saveBlob(blob, fileName) {
   const reader = new FileReader();
   reader.onload = () => {
     if (reader.readyState === 2) {
-      const buffer = new Buffer(reader.result);
+      const buffer = Buffer.from(reader.result);
       ipcRenderer.send('send-save-file', fileName, buffer);
       console.log(`Saving ${JSON.stringify({ fileName, size: blob.size })}`);
     }
@@ -88,13 +88,25 @@ function saveBlob(blob, fileName) {
   reader.readAsArrayBuffer(blob);
 }
 
-export const saveMoviePrint = (elementId, exportPath, file) => {
+function getMimeType(outputFormat) {
+  switch (outputFormat) {
+    case 'png':
+      return 'image/png';
+    case 'jpg':
+      return 'image/jpeg';
+    default:
+      return 'image/png';
+  }
+}
+
+export const saveMoviePrint = (elementId, exportPath, file, outputFormat) => {
   console.log(file);
   const node = document.getElementById(elementId);
   // const node = document.getElementById('ThumbGrid');
 
-  const newFileName = `${file.name}_MoviePrint.png`;
+  const newFileName = `${file.name}_MoviePrint.${outputFormat}`;
   const newFilePathAndName = path.join(exportPath, newFileName);
+  const qualityArgument = 0.8; // only applicable for jpg
 
   console.log(newFilePathAndName);
   console.log(node);
@@ -106,7 +118,7 @@ export const saveMoviePrint = (elementId, exportPath, file) => {
   }).then((canvas) => {
     canvas.toBlob((blob) => {
       saveBlob(blob, newFilePathAndName);
-    });
+    }, getMimeType(outputFormat), qualityArgument);
   });
 };
 
