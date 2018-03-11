@@ -105,7 +105,7 @@ class SettingsList extends Component {
                   20: '20',
                 }}
                 handle={handle}
-                onChange={this.props.onChangeColumn}
+                onChange={this.props.reCapture ? this.props.onChangeColumn : this.props.onChangeColumnAndApply}
                 // onAfterChange={this.props.onAfterChangeColumn}
               />
             </Grid.Column>

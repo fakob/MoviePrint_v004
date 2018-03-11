@@ -68,6 +68,7 @@ class App extends Component {
 
     this.onChangeRow = this.onChangeRow.bind(this);
     this.onChangeColumn = this.onChangeColumn.bind(this);
+    this.onChangeColumnAndApply = this.onChangeColumnAndApply.bind(this);
     this.onReCaptureClick = this.onReCaptureClick.bind(this);
     this.onApplyClick = this.onApplyClick.bind(this);
     this.onCancelClick = this.onCancelClick.bind(this);
@@ -355,6 +356,20 @@ class App extends Component {
     }
   };
 
+  onChangeColumnAndApply = (value) => {
+    const { store } = this.context;
+    this.setState({
+      columnCountTemp: value,
+      columnCount: value
+    });
+    if (typeof this.props.file !== 'undefined') {
+      store.dispatch(updateFileColumnCount(
+        this.props.file.id,
+        value
+      ));
+    }
+  };
+
   onReCaptureClick = (checked) => {
     console.log(`${this.state.columnCount} : ${this.state.columnCountTemp} || ${this.state.thumbCount} : ${this.state.thumbCountTemp}`);
     if (!checked) {
@@ -473,6 +488,7 @@ class App extends Component {
                 rowCount={Math.ceil(this.state.thumbCount / this.state.columnCount)}
                 reCapture={this.state.reCapture}
                 onChangeColumn={this.onChangeColumn}
+                onChangeColumnAndApply={this.onChangeColumnAndApply}
                 onChangeRow={this.onChangeRow}
                 onReCaptureClick={this.onReCaptureClick}
                 onApplyClick={this.onApplyClick}
