@@ -75,7 +75,9 @@ class SettingsList extends Component {
                 <Statistic.Label>{(this.props.rowCountTemp === 1) ? 'Row' : 'Rows'}</Statistic.Label>
               </Statistic>
               <Statistic inverted size="small">
-                <Statistic.Value>{(this.props.reCapture) ? '=' : '≈'}</Statistic.Value>
+                <Statistic.Value>{(this.props.columnCountTemp * this.props.rowCountTemp ===
+                  this.props.thumbCountTemp) ? '=' : '≈'}
+                </Statistic.Value>
               </Statistic>
               <Statistic inverted size="small" color={(this.props.reCapture) ? 'orange' : 'white'}>
                 <Statistic.Value>{this.props.thumbCountTemp}</Statistic.Value>
