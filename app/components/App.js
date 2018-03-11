@@ -122,6 +122,14 @@ class App extends Component {
       store.dispatch(updateThumbImage(fileId, '', posterFrameId, base64, frameNumber, 1));
     });
 
+    ipcRenderer.on('received-saved-file', (event, path) => {
+      console.log(`Saved file: ${path}`);
+    });
+
+    ipcRenderer.on('received-saved-file-error', (event, message) => {
+      console.log(`Saved file error: ${message}`);
+    });
+
     window.addEventListener('mouseup', this.onDragLeave);
     window.addEventListener('dragenter', this.onDragEnter);
     window.addEventListener('dragover', this.onDragOver);

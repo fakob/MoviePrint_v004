@@ -1,6 +1,7 @@
 import html2canvas from 'html2canvas';
-import { saveAs } from 'file-saver';
 import path from 'path';
+
+const { ipcRenderer } = require('electron');
 
 export const mapRange = (value, low1, high1, low2, high2, returnInt = true) => {
   // * 1.0 added to force float division
@@ -75,6 +76,18 @@ export const formatBytes = (bytes, decimals) => {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 };
 
+function saveBlob(blob, fileName) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    if (reader.readyState === 2) {
+      const buffer = new Buffer(reader.result);
+      ipcRenderer.send('send-save-file', fileName, buffer);
+      console.log(`Saving ${JSON.stringify({ fileName, size: blob.size })}`);
+    }
+  };
+  reader.readAsArrayBuffer(blob);
+}
+
 export const saveMoviePrint = (elementId, exportPath, file) => {
   console.log(file);
   const node = document.getElementById(elementId);
@@ -92,7 +105,7 @@ export const saveMoviePrint = (elementId, exportPath, file) => {
     scale: 1,
   }).then((canvas) => {
     canvas.toBlob((blob) => {
-      saveAs(blob, newFilePathAndName);
+      saveBlob(blob, newFilePathAndName);
     });
   });
 };

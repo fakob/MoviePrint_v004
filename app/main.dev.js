@@ -100,6 +100,16 @@ app.on('ready', async () => {
   menuBuilder.buildMenu();
 });
 
+ipcMain.on('send-save-file', (event, filePath, buffer) => {
+  fs.writeFile(filePath, buffer, err => {
+    if (err) {
+      event.sender.send('received-saved-file-error', err.message);
+    } else {
+      event.sender.send('received-saved-file', filePath);
+    }
+  });
+});
+
 ipcMain.on('send-get-file-details', (event, fileId, filePath, posterFrameId, lastItem) => {
   console.log(fileId);
   console.log(filePath);
