@@ -30,6 +30,13 @@ export const truncatePath = (n, len) => {
   return `${front}...${back}`;
 };
 
+
+export const pad = (num, size) => {
+  let s = num.toString();
+  while (s.length < size) s = `0${s}`;
+  return s;
+};
+
 export const frameCountToTimeCode = (frames, fps = 25) => {
   // fps = (typeof fps !== 'undefined' ? fps : 30);
   const pad = (input) => ((input < 10) ? `0${input}` : input);

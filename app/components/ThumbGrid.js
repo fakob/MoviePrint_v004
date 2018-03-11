@@ -7,7 +7,7 @@ import Thumb from './Thumb';
 import ThumbGridHeader from './ThumbGridHeader';
 import styles from './ThumbGrid.css';
 import empty from './../img/Thumb_EMPTY.png';
-import { mapRange } from './../utils/utils';
+import { mapRange, frameCountToTimeCode, pad } from './../utils/utils';
 
 const SortableThumb = SortableElement(Thumb);
 
@@ -22,6 +22,20 @@ const ThumbGrid = ({
   columnCount, thumbCount, reCapture, containerHeight, containerWidth,
   zoomOut
 }) => {
+  const fps = (typeof file !== 'undefined' && typeof file.fps !== 'undefined' ? file.fps : 25);
+  function getThumbInfoValue(type, frames, fps) {
+    switch (type) {
+      case 'frames':
+        return pad(frames, 4);
+      case 'timecode':
+        return frameCountToTimeCode(frames, fps);
+      case 'hideInfo':
+        return undefined;
+      default:
+        return undefined;
+    }
+  }
+
   const width = (typeof file !== 'undefined' && typeof file.width !== 'undefined' ? file.width : 1920);
   const height = (typeof file !== 'undefined' && typeof file.height !== 'undefined' ? file.height : 1080);
   const aspectRatioInv = (height * 1.0) / width;
@@ -137,7 +151,11 @@ const ThumbGrid = ({
         thumbWidth={zoomOut ? newThumbWidth : thumbWidth}
         borderRadius={zoomOut ? newBorderRadius : borderRadius}
         margin={zoomOut ? newThumbMargin : thumbMargin}
+        thumbInfoValue={editGrid ? undefined :
+          getThumbInfoValue(settings.defaultThumbInfo, thumb.frameNumber, fps)
+        }
         frameNumber={editGrid ? undefined : thumb.frameNumber}
+        thumbInfo={settings.defaultThumbInfo}
         hidden={editGrid ? undefined : thumb.hidden}
         controlersAreVisible={editGrid ? undefined : (thumb.thumbId === controlersAreVisible)}
         disabled={editGrid}

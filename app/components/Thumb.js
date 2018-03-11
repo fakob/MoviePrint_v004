@@ -41,7 +41,7 @@ const DragHandle = SortableHandle(() => {
 const Thumb = ({
   onToggle, onInPoint, onOutPoint, onBack, onForward, tempId,
   onOver, onOut, onScrub, hidden, frameNumber, thumbImageObjectUrl, aspectRatioInv,
-  controlersAreVisible, thumbWidth, margin, zoomOut, borderRadius
+  controlersAreVisible, thumbWidth, margin, zoomOut, borderRadius, thumbInfo, thumbInfoValue
 }) => {
   function over(event) {
     event.target.style.opacity = 1;
@@ -49,12 +49,6 @@ const Thumb = ({
 
   function out(event) {
     event.target.style.opacity = 0.5;
-  }
-
-  function pad(num, size) {
-    let s = num.toString();
-    while (s.length < size) s = `0${s}`;
-    return s;
   }
 
   return (
@@ -85,13 +79,20 @@ const Thumb = ({
         }}
 
       />
-      {frameNumber !== undefined &&
+      {thumbInfoValue !== undefined &&
+        <div
+          className={styles.frameNumber}
+        >
+          {thumbInfoValue}
+        </div>
+      }
+      {/* {thumbInfo !== 'hideInfo' && frameNumber !== undefined &&
         <div
           className={styles.frameNumber}
         >
           {pad(frameNumber, 4)}
         </div>
-      }
+      } */}
       <div
         style={{
           display: controlersAreVisible ? 'block' : 'none'

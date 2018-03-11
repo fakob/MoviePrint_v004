@@ -36,18 +36,15 @@ const outputFormatOptions = [
 class SettingsList extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      thumbInfo: 'frames',
-    };
+    // this.state = {
+    //   thumbInfo: 'frames',
+    // };
 
     this.onChangeThumbInfo = this.onChangeThumbInfo.bind(this);
     this.onChangeReCapture = this.onChangeReCapture.bind(this);
     this.onChangeShowHeader = this.onChangeShowHeader.bind(this);
     this.onChangeRoundedCorners = this.onChangeRoundedCorners.bind(this);
-  }
-
-  onChangeThumbInfo = (e, { value }) => {
-    this.setState({ thumbInfo: value })
+    this.onChangeThumbInfo = this.onChangeThumbInfo.bind(this);
   }
 
   onChangeReCapture = (e, { checked }) => {
@@ -60,6 +57,10 @@ class SettingsList extends Component {
 
   onChangeRoundedCorners = (e, { checked }) => {
     this.props.onRoundedCornersClick(checked);
+  }
+
+  onChangeThumbInfo = (e, { value }) => {
+    this.props.onThumbInfoClick(value);
   }
 
   render() {
@@ -105,8 +106,8 @@ class SettingsList extends Component {
                   20: '20',
                 }}
                 handle={handle}
-                onChange={this.props.reCapture ? this.props.onChangeColumn : this.props.onChangeColumnAndApply}
-                // onAfterChange={this.props.onAfterChangeColumn}
+                onChange={this.props.reCapture ? this.props.onChangeColumn :
+                  this.props.onChangeColumnAndApply}
               />
             </Grid.Column>
           </Grid.Row>
@@ -128,7 +129,6 @@ class SettingsList extends Component {
                 }}
                 handle={handle}
                 onChange={this.props.onChangeRow}
-                // onAfterChange={this.props.onAfterChangeRow}
               />
             </Grid.Column>
           </Grid.Row>
@@ -224,7 +224,7 @@ class SettingsList extends Component {
                       }
                     name="radioGroup"
                     value="frames"
-                    checked={this.state.thumbInfo === 'frames'}
+                    checked={this.props.settings.defaultThumbInfo === 'frames'}
                     onChange={this.onChangeThumbInfo}
                   />
                 </List.Item>
@@ -237,7 +237,7 @@ class SettingsList extends Component {
                       }
                     name="radioGroup"
                     value="timecode"
-                    checked={this.state.thumbInfo === 'timecode'}
+                    checked={this.props.settings.defaultThumbInfo === 'timecode'}
                     onChange={this.onChangeThumbInfo}
                   />
                 </List.Item>
@@ -250,7 +250,7 @@ class SettingsList extends Component {
                       }
                     name="radioGroup"
                     value="hideInfo"
-                    checked={this.state.thumbInfo === 'hideInfo'}
+                    checked={this.props.settings.defaultThumbInfo === 'hideInfo'}
                     onChange={this.onChangeThumbInfo}
                   />
                 </List.Item>

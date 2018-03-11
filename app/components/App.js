@@ -16,7 +16,7 @@ import {
   zoomIn, zoomOut, addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
   setVisibilityFilter, setCurrentFileId, changeThumb, updateFileColumnCount,
   updateFileDetails, clearThumbs, updateThumbImage, setDefaultMargin, setDefaultShowHeader,
-  setDefaultRoundedCorners
+  setDefaultRoundedCorners, setDefaultThumbInfo
 } from '../actions';
 
 const { ipcRenderer } = require('electron');
@@ -76,6 +76,7 @@ class App extends Component {
     this.onChangeMargin = this.onChangeMargin.bind(this);
     this.onShowHeaderClick = this.onShowHeaderClick.bind(this);
     this.onRoundedCornersClick = this.onRoundedCornersClick.bind(this);
+    this.onThumbInfoClick = this.onThumbInfoClick.bind(this);
   }
 
   componentWillMount() {
@@ -434,6 +435,11 @@ class App extends Component {
     store.dispatch(setDefaultRoundedCorners(value));
   };
 
+  onThumbInfoClick = (value) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultThumbInfo(value));
+  };
+
   render() {
     const { store } = this.context;
     const state = store.getState();
@@ -496,6 +502,7 @@ class App extends Component {
                 onChangeMargin={this.onChangeMargin}
                 onShowHeaderClick={this.onShowHeaderClick}
                 onRoundedCornersClick={this.onRoundedCornersClick}
+                onThumbInfoClick={this.onThumbInfoClick}
               />
             </div>
             <div
