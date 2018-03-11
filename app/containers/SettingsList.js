@@ -40,11 +40,11 @@ class SettingsList extends Component {
     //   thumbInfo: 'frames',
     // };
 
-    this.onChangeThumbInfo = this.onChangeThumbInfo.bind(this);
     this.onChangeReCapture = this.onChangeReCapture.bind(this);
     this.onChangeShowHeader = this.onChangeShowHeader.bind(this);
     this.onChangeRoundedCorners = this.onChangeRoundedCorners.bind(this);
     this.onChangeThumbInfo = this.onChangeThumbInfo.bind(this);
+    this.onChangeOutputFormat = this.onChangeOutputFormat.bind(this);
   }
 
   onChangeReCapture = (e, { checked }) => {
@@ -61,6 +61,10 @@ class SettingsList extends Component {
 
   onChangeThumbInfo = (e, { value }) => {
     this.props.onThumbInfoClick(value);
+  }
+
+  onChangeOutputFormat = (e, { value }) => {
+    this.props.onOutputFormatClick(value);
   }
 
   render() {
@@ -293,8 +297,10 @@ class SettingsList extends Component {
               <Dropdown
                 placeholder="Select..."
                 selection
-                search
+                // search
                 options={outputFormatOptions}
+                defaultValue={this.props.settings.defaultOutputFormat}
+                onChange={this.onChangeOutputFormat}
               />
             </Grid.Column>
           </Grid.Row>
