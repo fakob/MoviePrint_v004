@@ -16,7 +16,8 @@ import {
   zoomIn, zoomOut, addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
   setVisibilityFilter, setCurrentFileId, changeThumb, updateFileColumnCount,
   updateFileDetails, clearThumbs, updateThumbImage, setDefaultMargin, setDefaultShowHeader,
-  setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat
+  setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat,
+  setDefaultSaveOptionOverwrite
 } from '../actions';
 
 const { ipcRenderer } = require('electron');
@@ -80,6 +81,7 @@ class App extends Component {
     this.onThumbInfoClick = this.onThumbInfoClick.bind(this);
     this.onChangeOutputPathClick = this.onChangeOutputPathClick.bind(this);
     this.onOutputFormatClick = this.onOutputFormatClick.bind(this);
+    this.onOverwriteClick = this.onOverwriteClick.bind(this);
   }
 
   componentWillMount() {
@@ -468,7 +470,13 @@ class App extends Component {
   onOutputFormatClick = (value) => {
     const { store } = this.context;
     console.log(value);
-    store.dispatch(setDefaultOutputFormat(value));
+    store.dispatch(setDefaultOutputFormat,
+      setDefaultSaveOptionOverwrite(value));
+  };
+
+  onOverwriteClick = (value) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultSaveOptionOverwrite(value));
   };
 
   render() {
@@ -536,6 +544,7 @@ class App extends Component {
                 onThumbInfoClick={this.onThumbInfoClick}
                 onChangeOutputPathClick={this.onChangeOutputPathClick}
                 onOutputFormatClick={this.onOutputFormatClick}
+                onOverwriteClick={this.onOverwriteClick}
               />
             </div>
             <div

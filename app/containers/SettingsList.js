@@ -45,6 +45,7 @@ class SettingsList extends Component {
     this.onChangeRoundedCorners = this.onChangeRoundedCorners.bind(this);
     this.onChangeThumbInfo = this.onChangeThumbInfo.bind(this);
     this.onChangeOutputFormat = this.onChangeOutputFormat.bind(this);
+    this.onChangeOverwrite = this.onChangeOverwrite.bind(this);
   }
 
   onChangeReCapture = (e, { checked }) => {
@@ -65,6 +66,10 @@ class SettingsList extends Component {
 
   onChangeOutputFormat = (e, { value }) => {
     this.props.onOutputFormatClick(value);
+  }
+
+  onChangeOverwrite = (e, { checked }) => {
+    this.props.onOverwriteClick(checked);
   }
 
   render() {
@@ -311,11 +316,14 @@ class SettingsList extends Component {
             <Grid.Column width={12}>
               <List>
                 <List.Item>
-                  <Checkbox label={
-                    <label className={styles.label}>
-                      Overwrite existing
-                    </label>
+                  <Checkbox
+                    label={
+                      <label className={styles.label}>
+                        Overwrite existing
+                      </label>
                     }
+                    checked={this.props.settings.defaultSaveOptionOverwrite}
+                    onChange={this.onChangeOverwrite}
                   />
                 </List.Item>
                 <List.Item>
