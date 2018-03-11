@@ -15,7 +15,8 @@ import {
   setNewMovieList, toggleLeftSidebar, showRightSidebar, hideRightSidebar,
   zoomIn, zoomOut, addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
   setVisibilityFilter, setCurrentFileId, changeThumb, updateFileColumnCount,
-  updateFileDetails, clearThumbs, updateThumbImage, setDefaultMargin, setDefaultShowHeader
+  updateFileDetails, clearThumbs, updateThumbImage, setDefaultMargin, setDefaultShowHeader,
+  setDefaultRoundedCorners
 } from '../actions';
 
 const { ipcRenderer } = require('electron');
@@ -73,6 +74,7 @@ class App extends Component {
 
     this.onChangeMargin = this.onChangeMargin.bind(this);
     this.onShowHeaderClick = this.onShowHeaderClick.bind(this);
+    this.onRoundedCornersClick = this.onRoundedCornersClick.bind(this);
   }
 
   componentWillMount() {
@@ -412,6 +414,11 @@ class App extends Component {
     store.dispatch(setDefaultShowHeader(value));
   };
 
+  onRoundedCornersClick = (value) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultRoundedCorners(value));
+  };
+
   render() {
     const { store } = this.context;
     const state = store.getState();
@@ -472,6 +479,7 @@ class App extends Component {
                 onCancelClick={this.onCancelClick}
                 onChangeMargin={this.onChangeMargin}
                 onShowHeaderClick={this.onShowHeaderClick}
+                onRoundedCornersClick={this.onRoundedCornersClick}
               />
             </div>
             <div

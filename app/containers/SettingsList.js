@@ -43,6 +43,7 @@ class SettingsList extends Component {
     this.onChangeThumbInfo = this.onChangeThumbInfo.bind(this);
     this.onChangeReCapture = this.onChangeReCapture.bind(this);
     this.onChangeShowHeader = this.onChangeShowHeader.bind(this);
+    this.onChangeRoundedCorners = this.onChangeRoundedCorners.bind(this);
   }
 
   onChangeThumbInfo = (e, { value }) => {
@@ -55,6 +56,10 @@ class SettingsList extends Component {
 
   onChangeShowHeader = (e, { checked }) => {
     this.props.onShowHeaderClick(checked);
+  }
+
+  onChangeRoundedCorners = (e, { checked }) => {
+    this.props.onRoundedCornersClick(checked);
   }
 
   render() {
@@ -179,7 +184,6 @@ class SettingsList extends Component {
                 }}
                 handle={handle}
                 onChange={this.props.onChangeMargin}
-                // onAfterChange={this.props.onAfterChangeRow}
               />
             </Grid.Column>
           </Grid.Row>
@@ -206,6 +210,8 @@ class SettingsList extends Component {
                       Rounded Corners
                     </label>
                     }
+                    checked={this.props.settings.defaultRoundedCorners}
+                    onChange={this.onChangeRoundedCorners}
                   />
                 </List.Item>
                 <Divider inverted />

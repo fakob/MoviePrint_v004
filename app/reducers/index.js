@@ -26,6 +26,7 @@ const rootReducer = combineReducers({
       'UPDATE_OBJECTURL_FROM_POSTERFRAME',
       'SET_DEFAULT_MARGIN',
       'SET_DEFAULT_SHOW_HEADER',
+      'SET_DEFAULT_ROUNDED_CORNERS',
     ]),
     limit: 50
   })
