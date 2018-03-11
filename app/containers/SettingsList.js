@@ -50,28 +50,6 @@ class SettingsList extends Component {
       <Container>
         <Grid padded inverted>
           <Grid.Row>
-            <Grid.Column width={4}>
-              Frames
-            </Grid.Column>
-            <Grid.Column width={12}>
-              <Checkbox
-                // toggle
-                label={
-                  <label className={styles.label}>
-                    Re-capture frames
-                  </label>
-                }
-                // checked={this.state.checkBoxChecked}
-                checked={this.props.reCapture}
-                onChange={this.handleChange}
-                // style={{
-                //   color: '#eeeeee',
-                //   fontFamily: 'Roboto Condensed',
-                // }}
-              />
-            </Grid.Column>
-          </Grid.Row>
-          <Grid.Row>
             <Grid.Column width={16}>
               <Statistic inverted size="small">
                 <Statistic.Value>{this.props.columnCountTemp}</Statistic.Value>
@@ -135,6 +113,29 @@ class SettingsList extends Component {
               />
             </Grid.Column>
           </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Frames
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <Checkbox
+                // toggle
+                label={
+                  <label className={styles.label}>
+                    Re-capture frames
+                  </label>
+                }
+                // checked={this.state.checkBoxChecked}
+                checked={this.props.reCapture}
+                onChange={this.handleChange}
+                // style={{
+                //   color: '#eeeeee',
+                //   fontFamily: 'Roboto Condensed',
+                // }}
+              />
+            </Grid.Column>
+          </Grid.Row>
+          <Divider inverted />
           <Grid.Row>
             <Grid.Column width={4}>
               Margin
