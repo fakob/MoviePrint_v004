@@ -3,7 +3,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { SortableHandle } from 'react-sortable-hoc';
 import styles from './ThumbGrid.css';
-import { getMoviePrintColor } from '../utils/utils';
 
 import inPoint from './../img/Thumb_IN.png';
 import outPoint from './../img/Thumb_OUT.png';
@@ -41,7 +40,7 @@ const DragHandle = SortableHandle(() => {
 });
 
 const Thumb = ({
-  onToggle, onInPoint, onOutPoint, onBack, onForward, tempId,
+  onToggle, onInPoint, onOutPoint, onBack, onForward, tempId, color,
   onOver, onOut, onScrub, hidden, thumbImageObjectUrl, aspectRatioInv,
   controlersAreVisible, thumbWidth, margin, zoomOut, borderRadius, thumbInfoValue
 }) => {
@@ -68,7 +67,7 @@ const Thumb = ({
         width: thumbWidth,
         margin: `${margin}px`,
         borderRadius: `${borderRadius}px`,
-        backgroundColor: getMoviePrintColor(tempId),
+        backgroundColor: color,
       }}
     >
       <img

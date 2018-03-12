@@ -45,6 +45,7 @@ class SortedVisibleThumbGrid extends Component {
       <SortableThumbGrid
         ref={this.props.inputRef}
         editGrid={this.props.editGrid}
+        colorArray={this.props.colorArray}
         thumbs={this.props.thumbs}
         thumbImages={this.props.thumbImages}
         file={this.props.file}

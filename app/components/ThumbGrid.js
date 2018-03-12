@@ -20,7 +20,7 @@ const ThumbGrid = ({
   onBackClick, onForwardClick, onScrubClick,
   onMouseOverResult, onMouseOutResult, settings, editGrid,
   columnCount, thumbCount, reCapture, containerHeight, containerWidth,
-  zoomOut
+  zoomOut, colorArray
 }) => {
   const fps = (typeof file !== 'undefined' && typeof file.fps !== 'undefined' ? file.fps : 25);
   function getThumbInfoValue(type, frames, fps) {
@@ -143,6 +143,7 @@ const ThumbGrid = ({
         key={thumb.key}
         index={thumb.index}
         tempId={thumb.index}
+        color={(colorArray !== undefined ? colorArray[thumb.index] : undefined)}
         thumbImageObjectUrl={thumb.thumbImageObjectUrl ||
           (thumbImages !== undefined ?
             thumbImages[thumb.frameId] !== undefined ?

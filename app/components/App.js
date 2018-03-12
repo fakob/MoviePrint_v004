@@ -9,7 +9,7 @@ import FileList from '../containers/FileList';
 import SettingsList from '../containers/SettingsList';
 import SortedVisibleThumbGrid from '../containers/VisibleThumbGrid';
 import VideoPlayer from '../components/VideoPlayer';
-import { saveMoviePrint, getColumnCount, getVisibleThumbsCount } from '../utils/utils';
+import { saveMoviePrint, getColumnCount, getVisibleThumbsCount, getMoviePrintColor } from '../utils/utils';
 import styles from './App.css';
 import {
   setNewMovieList, toggleLeftSidebar, showRightSidebar, hideRightSidebar,
@@ -46,6 +46,7 @@ class App extends Component {
       columnCount: undefined,
       thumbCount: undefined,
       reCapture: false,
+      colorArray: undefined,
     };
 
     this.onDragEnter = this.onDragEnter.bind(this);
@@ -86,6 +87,10 @@ class App extends Component {
 
   componentWillMount() {
     const { store } = this.context;
+    this.setState({
+      colorArray: getMoviePrintColor(store.getState()
+        .undoGroup.present.settings.defaultThumbCountMax)
+    });
     setColumnAndThumbCount(
       this,
       getColumnCount(
@@ -560,6 +565,7 @@ class App extends Component {
                 containerWidth={this.state.containerWidth}
                 parentMethod={this.openModal}
 
+                colorArray={this.state.colorArray}
                 columnCount={this.state.editGrid ?
                   this.state.columnCountTemp :
                   (this.props.file ? this.props.file.columnCount || this.state.columnCountTemp :

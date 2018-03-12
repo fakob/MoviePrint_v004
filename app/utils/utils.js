@@ -102,29 +102,24 @@ function getMimeType(outputFormat) {
   }
 }
 
-function getRndInteger(min, max) {
-  return Math.floor(Math.random() * ((max - min) + 1)) + min;
-}
+export const getMoviePrintColor = (count) => {
 
-export const getMoviePrintColor = (index = undefined) => {
-  // console.log(index);
+  // old static colours
+  // const colorArray = [
+  //   '#FF5006',
+  //   '#FFb709',
+  //   '#FF9365',
+  //   '#FFa883',
+  //   '#FFd3c1',
+  // ];
 
-  const colorArray = [
-    '#FF5006',
-    '#FFb709',
-    '#FF9365',
-    '#FFa883',
-    '#FFd3c1',
-  ];
+  console.log(`creating new newColorArray[${count}]`);
 
-  const tempDate = new Date();
-  const dailySeed = `${tempDate.getDate()}${index}`;
-
-  const newColor = randomColor({
+  const newColorArray = randomColor({
+    count,
     hue: '#FF5006',
-    seed: dailySeed,
   });
-  return newColor;
+  return newColorArray;
 };
 
 export const saveMoviePrint = (elementId, exportPath, file, outputFormat, overwrite) => {
