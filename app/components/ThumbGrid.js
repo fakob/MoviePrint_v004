@@ -58,15 +58,8 @@ const ThumbGrid = ({
   const scaleValueWidth = containerWidth / moviePrintWidth;
   const scaleValueHeight = containerHeight / moviePrintHeight;
 
-  const scaleValue = Math.min(1, Math.min(scaleValueWidth, scaleValueHeight) * generalScale);
-
-  // const scaleValueHeight = (((containerHeight * 1.0 * generalScale) -
-  //   (marginHeight * 4) - headerHeight) / rowCount) /
-  //   ((thumbWidth * aspectRatioInv) + (thumbMargin * 2));
-  // const scaleValueWidth = (
-  //   ((containerWidth * 1.0 * generalScale) - (marginWidth * 4)) / columnCount) /
-  //   (thumbWidth + (thumbMargin * 2));
-  // const scaleValue = Math.min(scaleValueHeight, scaleValueWidth);
+  // const scaleValue = Math.min(1, Math.min(scaleValueWidth, scaleValueHeight) * generalScale);
+  const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * generalScale;
 
   const newThumbMargin = thumbMargin * scaleValue;
   const newThumbWidth = thumbWidth * scaleValue;
