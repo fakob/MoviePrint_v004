@@ -214,7 +214,7 @@ class SettingsList extends Component {
                 className={styles.slider}
                 min={0}
                 max={20}
-                defaultValue={this.props.settings.defaultMarginRatio}
+                defaultValue={this.props.settings.defaultMarginRatio * this.props.settings.defaultMarginSliderFactor}
                 marks={{
                   0: '0',
                   20: '20',

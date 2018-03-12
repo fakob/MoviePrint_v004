@@ -36,14 +36,14 @@ const ThumbGrid = ({
     }
   }
 
-  const width = (typeof file !== 'undefined' && typeof file.width !== 'undefined' ? file.width : 1920);
-  const height = (typeof file !== 'undefined' && typeof file.height !== 'undefined' ? file.height : 1080);
+  const width = (typeof file !== 'undefined' && typeof file.width !== 'undefined' ? file.width : 1280);
+  const height = (typeof file !== 'undefined' && typeof file.height !== 'undefined' ? file.height : 720);
   const aspectRatioInv = (height * 1.0) / width;
   const rowCount = Math.ceil(thumbCount / columnCount);
   const headerHeight = settings.defaultShowHeader ? height * settings.defaultHeaderHeightRatio * settings.defaultThumbnailScale : 0;
   const thumbWidth = width * settings.defaultThumbnailScale;
-  const thumbMargin = thumbWidth * settings.defaultMarginRatio * settings.defaultThumbnailScale;
-  const borderRadius = settings.defaultRoundedCorners ? thumbWidth * settings.defaultBorderRadiusRatio * settings.defaultThumbnailScale : 0;
+  const thumbMargin = width * settings.defaultMarginRatio * settings.defaultThumbnailScale;
+  const borderRadius = settings.defaultRoundedCorners ? width * settings.defaultBorderRadiusRatio * settings.defaultThumbnailScale : 0;
   const generalScale = 0.95;
 
   const thumbnailWidthPlusMargin = thumbWidth + (thumbMargin * 2);
@@ -55,8 +55,6 @@ const ThumbGrid = ({
 
   const scaleValueWidth = containerWidth / moviePrintWidth;
   const scaleValueHeight = containerHeight / moviePrintHeight;
-
-  // const scaleValue = Math.min(1, Math.min(scaleValueWidth, scaleValueHeight) * generalScale);
   const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * generalScale;
 
   const newMoviePrintWidth = zoomOut ? moviePrintWidth * scaleValue : moviePrintWidth;

@@ -446,7 +446,7 @@ class App extends Component {
 
   onChangeMargin = (value) => {
     const { store } = this.context;
-    store.dispatch(setDefaultMarginRatio(value / 100.0));
+    store.dispatch(setDefaultMarginRatio(value / store.getState().undoGroup.present.settings.defaultMarginSliderFactor));
   };
 
   onShowHeaderClick = (value) => {
