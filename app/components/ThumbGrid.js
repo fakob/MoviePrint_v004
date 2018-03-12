@@ -40,10 +40,10 @@ const ThumbGrid = ({
   const height = (typeof file !== 'undefined' && typeof file.height !== 'undefined' ? file.height : 1080);
   const aspectRatioInv = (height * 1.0) / width;
   const rowCount = Math.ceil(thumbCount / columnCount);
-  const headerHeight = settings.defaultShowHeader ? settings.defaultHeaderHeight : 0;
+  const headerHeight = settings.defaultShowHeader ? settings.defaultHeaderHeight * settings.defaultThumbnailScale : 0;
   const thumbWidth = width * settings.defaultThumbnailScale;
-  const thumbMargin = settings.defaultMargin;
-  const borderRadius = settings.defaultRoundedCorners ? settings.defaultBorderRadius : 0;
+  const thumbMargin = settings.defaultMargin * settings.defaultThumbnailScale;
+  const borderRadius = settings.defaultRoundedCorners ? settings.defaultBorderRadius * settings.defaultThumbnailScale : 0;
   const generalScale = 0.95;
 
   const thumbnailWidthPlusMargin = thumbWidth + (thumbMargin * 2);
@@ -59,9 +59,11 @@ const ThumbGrid = ({
   // const scaleValue = Math.min(1, Math.min(scaleValueWidth, scaleValueHeight) * generalScale);
   const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * generalScale;
 
-  const newThumbMargin = thumbMargin * scaleValue;
-  const newThumbWidth = thumbWidth * scaleValue;
-  const newBorderRadius = borderRadius * scaleValue;
+  const newMoviePrintWidth = zoomOut ? moviePrintWidth * scaleValue : moviePrintWidth;
+  const newThumbMargin = zoomOut ? thumbMargin * scaleValue : thumbMargin;
+  const newThumbWidth = zoomOut ? thumbWidth * scaleValue : thumbWidth;
+  const newBorderRadius = zoomOut ? borderRadius * scaleValue : borderRadius;
+  const newHeaderHeight = zoomOut ? headerHeight * scaleValue : headerHeight;
 
   // console.log(`columnCount: ${columnCount}`);
   // console.log(`rowCount: ${rowCount}`);
@@ -143,9 +145,9 @@ const ThumbGrid = ({
             thumbImages[thumb.frameId] !== undefined ?
               thumbImages[thumb.frameId].objectUrl : undefined : undefined)}
         aspectRatioInv={aspectRatioInv}
-        thumbWidth={zoomOut ? newThumbWidth : thumbWidth}
-        borderRadius={zoomOut ? newBorderRadius : borderRadius}
-        margin={zoomOut ? newThumbMargin : thumbMargin}
+        thumbWidth={newThumbWidth}
+        borderRadius={newBorderRadius}
+        margin={newThumbMargin}
         thumbInfoValue={editGrid ? undefined :
           getThumbInfoValue(settings.defaultThumbInfo, thumb.frameNumber, fps)
         }
@@ -168,7 +170,7 @@ const ThumbGrid = ({
     <div
       className={styles.grid}
       style={{
-        width: zoomOut ? (moviePrintWidth * scaleValue) : moviePrintWidth,
+        width: newMoviePrintWidth,
       }}
       id="ThumbGrid"
     >
