@@ -45,8 +45,6 @@ const ThumbGrid = ({
   const thumbMargin = settings.defaultMargin;
   const borderRadius = settings.defaultRoundedCorners ? settings.defaultBorderRadius : 0;
   const generalScale = 0.95;
-  const marginWidth = 14;
-  const marginHeight = 14;
 
   const thumbnailWidthPlusMargin = thumbWidth + (thumbMargin * 2);
   const thumbnailHeightPlusMargin = thumbnailWidthPlusMargin * aspectRatioInv;
@@ -75,7 +73,10 @@ const ThumbGrid = ({
   // console.log(`moviePrintHeight: ${moviePrintHeight}`);
   // console.log(`scaleValueWidth: ${scaleValueWidth}`);
   // console.log(`scaleValueHeight: ${scaleValueHeight}`);
-  // console.log(`scaleValue: ${scaleValue}`);
+  console.log(`zoomOut: ${zoomOut}`);
+  console.log(`scaleValue: ${scaleValue}`);
+  console.log(`newHeaderHeight: ${newHeaderHeight}`);
+  console.log(`defaultThumbnailScale: ${settings.defaultThumbnailScale}`);
   // console.log(`width: ${zoomOut ? containerWidth : moviePrintWidth}`);
 
   let thumbGridHeaderComponent = null;

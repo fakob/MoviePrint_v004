@@ -4,7 +4,12 @@ import styles from './ThumbGrid.css';
 
 import movieprint from './../img/Thumb_MOVIEPRINT.png';
 
-const ThumbGridHeader = ({ zoomOut, filePath, fileName, headerHeight, thumbMargin, scaleValue }) => {
+const ThumbGridHeader = ({
+  zoomOut, filePath, fileName, headerHeight, thumbMargin, scaleValue
+}) => {
+  const moviePrintHeaderImageHeight = 124;
+  const moviePrintHeaderImageWidth = 528;
+
   return (
     <div
       className={styles.gridHeader}
