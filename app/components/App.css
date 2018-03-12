@@ -134,17 +134,17 @@
 }
 
 .FixedActionMenuLeft {
+  transition: transform 0.5s ease;
   position: fixed;
-  /* bottom: 66px; */
   bottom: 24px;
-  left: 24px;
+  left: calc(350px + 24px);
   z-index: 990;
 }
 
 .FixedActionMenuRight {
+  transition: transform 0.5s ease;
   position: fixed;
-  /* bottom: 66px; */
   bottom: 24px;
-  right: 24px;
+  right: calc(100vw + 24px);
   z-index: 990;
 }

@@ -579,7 +579,7 @@ class App extends Component {
           </div>
         </div>
         <Sticky
-          className={`${styles.FixedActionMenuRight}`}
+          className={`${styles.FixedActionMenuRight} ${styles.ItemRightSideBar} ${state.visibilitySettings.showRightSidebar ? styles.ItemRightSideBarAnim : ''}`}
         >
           <Menu compact icon="labeled" size="mini">
 
@@ -620,7 +620,7 @@ class App extends Component {
           </Menu>
         </Sticky>
         <Sticky
-          className={`${styles.FixedActionMenuLeft}`}
+          className={`${styles.FixedActionMenuLeft} ${styles.ItemLeftSideBar} ${state.visibilitySettings.showLeftSidebar ? styles.ItemLeftSideBarAnim : ''}`}
         >
           <Menu compact icon="labeled" size="mini">
 
