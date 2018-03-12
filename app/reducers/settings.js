@@ -8,6 +8,8 @@ const settings = (state = {}, action) => {
       return { ...state, defaultThumbCount: action.defaultThumbCount };
     case 'SET_DEFAULT_COLUMN_COUNT':
       return { ...state, defaultColumnCount: action.defaultColumnCount };
+    case 'SET_DEFAULT_THUMBNAIL_SCALE':
+      return { ...state, defaultThumbnailScale: action.defaultThumbnailScale };
     case 'SET_DEFAULT_MARGIN':
       return { ...state, defaultMargin: action.defaultMargin };
     case 'SET_DEFAULT_SHOW_HEADER':

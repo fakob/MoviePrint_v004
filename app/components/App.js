@@ -17,7 +17,7 @@ import {
   setVisibilityFilter, setCurrentFileId, changeThumb, updateFileColumnCount,
   updateFileDetails, clearThumbs, updateThumbImage, setDefaultMargin, setDefaultShowHeader,
   setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat,
-  setDefaultSaveOptionOverwrite
+  setDefaultSaveOptionOverwrite, setDefaultThumbnailScale
 } from '../actions';
 
 const { ipcRenderer } = require('electron');
@@ -83,6 +83,7 @@ class App extends Component {
     this.onChangeOutputPathClick = this.onChangeOutputPathClick.bind(this);
     this.onOutputFormatClick = this.onOutputFormatClick.bind(this);
     this.onOverwriteClick = this.onOverwriteClick.bind(this);
+    this.onThumbnailScaleClick = this.onThumbnailScaleClick.bind(this);
   }
 
   componentWillMount() {
@@ -485,6 +486,11 @@ class App extends Component {
     store.dispatch(setDefaultSaveOptionOverwrite(value));
   };
 
+  onThumbnailScaleClick = (value) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultThumbnailScale(value));
+  };
+
   render() {
     const { store } = this.context;
     const state = store.getState();
@@ -551,6 +557,7 @@ class App extends Component {
                 onChangeOutputPathClick={this.onChangeOutputPathClick}
                 onOutputFormatClick={this.onOutputFormatClick}
                 onOverwriteClick={this.onOverwriteClick}
+                onThumbnailScaleClick={this.onThumbnailScaleClick}
               />
             </div>
             <div

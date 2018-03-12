@@ -28,6 +28,14 @@ const handle = (props) => {
   );
 };
 
+const thumbnailScale = [
+  { value: 1, text: '1/1' },
+  { value: 0.5, text: '1/2' },
+  { value: 0.25, text: '1/4' },
+  { value: 0.125, text: '1/8' },
+  { value: 0.0625, text: '1/16' },
+];
+
 const outputFormatOptions = [
   { value: 'png', text: 'PNG' },
   { value: 'jpg', text: 'JPG' },
@@ -46,6 +54,7 @@ class SettingsList extends Component {
     this.onChangeThumbInfo = this.onChangeThumbInfo.bind(this);
     this.onChangeOutputFormat = this.onChangeOutputFormat.bind(this);
     this.onChangeOverwrite = this.onChangeOverwrite.bind(this);
+    this.onChangeThumbnailScale = this.onChangeThumbnailScale.bind(this);
   }
 
   onChangeReCapture = (e, { checked }) => {
@@ -70,6 +79,10 @@ class SettingsList extends Component {
 
   onChangeOverwrite = (e, { checked }) => {
     this.props.onOverwriteClick(checked);
+  }
+
+  onChangeThumbnailScale = (e, { value }) => {
+    this.props.onThumbnailScaleClick(value);
   }
 
   render() {
@@ -177,6 +190,21 @@ class SettingsList extends Component {
             </Grid.Column>
           </Grid.Row>
           <Divider inverted />
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Scale
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <Dropdown
+                placeholder="Select..."
+                selection
+                // search
+                options={thumbnailScale}
+                defaultValue={this.props.settings.defaultThumbnailScale}
+                onChange={this.onChangeThumbnailScale}
+              />
+            </Grid.Column>
+          </Grid.Row>
           <Grid.Row>
             <Grid.Column width={4}>
               Margin

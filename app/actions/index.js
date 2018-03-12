@@ -89,6 +89,13 @@ export const setDefaultColumnCount = (defaultColumnCount) => {
   };
 };
 
+export const setDefaultThumbnailScale = (defaultThumbnailScale) => {
+  return {
+    type: 'SET_DEFAULT_THUMBNAIL_SCALE',
+    defaultThumbnailScale
+  };
+};
+
 export const setDefaultMargin = (defaultMargin) => {
   return {
     type: 'SET_DEFAULT_MARGIN',

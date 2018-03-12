@@ -50,7 +50,6 @@ class SortedVisibleThumbGrid extends Component {
         thumbImages={this.props.thumbImages}
         file={this.props.file}
         settings={this.props.settings}
-        // thumbWidth={this.props.settings.defaultThumbnailWidth}
         onToggleClick={this.props.onToggleClick}
         onRemoveClick={this.props.onRemoveClick}
         onInPointClick={this.props.onInPointClick}
