@@ -19,7 +19,7 @@ const settings = (state = {}, action) => {
     case 'SET_DEFAULT_THUMB_INFO':
       return { ...state, defaultThumbInfo: action.defaultThumbInfo };
     case 'SET_DEFAULT_OUTPUT_SCALE':
-      return { ...state, defaultOutputScale: action.defaultOutputScale };
+      return { ...state, defaultOutputScaleCompensator: action.defaultOutputScaleCompensator };
     case 'SET_DEFAULT_OUTPUT_PATH':
       return { ...state, defaultOutputPath: action.defaultOutputPath };
     case 'SET_DEFAULT_OUTPUT_FORMAT':

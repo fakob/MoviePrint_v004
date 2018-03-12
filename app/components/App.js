@@ -363,7 +363,7 @@ class App extends Component {
   onSaveMoviePrint() {
     saveMoviePrint(
       'ThumbGrid', this.props.settings.defaultOutputPath,
-      this.props.file, this.props.settings.defaultThumbnailScale / this.props.settings.defaultOutputScale,
+      this.props.file, this.props.settings.defaultThumbnailScale / this.props.settings.defaultOutputScaleCompensator,
       this.props.settings.defaultOutputFormat,
       this.props.settings.defaultSaveOptionOverwrite
     );

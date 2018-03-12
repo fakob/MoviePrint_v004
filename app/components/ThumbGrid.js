@@ -40,10 +40,10 @@ const ThumbGrid = ({
   const height = (typeof file !== 'undefined' && typeof file.height !== 'undefined' ? file.height : 1080);
   const aspectRatioInv = (height * 1.0) / width;
   const rowCount = Math.ceil(thumbCount / columnCount);
-  const headerHeight = settings.defaultShowHeader ? settings.defaultHeaderHeight * settings.defaultThumbnailScale : 0;
+  const headerHeight = settings.defaultShowHeader ? height * settings.defaultHeaderHeightRatio * settings.defaultThumbnailScale : 0;
   const thumbWidth = width * settings.defaultThumbnailScale;
   const thumbMargin = settings.defaultMargin * settings.defaultThumbnailScale;
-  const borderRadius = settings.defaultRoundedCorners ? settings.defaultHeaderHeight * settings.defaultBorderRadiusRatio * settings.defaultThumbnailScale : 0;
+  const borderRadius = settings.defaultRoundedCorners ? thumbWidth * settings.defaultBorderRadiusRatio * settings.defaultThumbnailScale : 0;
   const generalScale = 0.95;
 
   const thumbnailWidthPlusMargin = thumbWidth + (thumbMargin * 2);
