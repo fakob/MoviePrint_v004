@@ -18,6 +18,8 @@ const settings = (state = {}, action) => {
       return { ...state, defaultRoundedCorners: action.defaultRoundedCorners };
     case 'SET_DEFAULT_THUMB_INFO':
       return { ...state, defaultThumbInfo: action.defaultThumbInfo };
+    case 'SET_DEFAULT_OUTPUT_SCALE':
+      return { ...state, defaultOutputScale: action.defaultOutputScale };
     case 'SET_DEFAULT_OUTPUT_PATH':
       return { ...state, defaultOutputPath: action.defaultOutputPath };
     case 'SET_DEFAULT_OUTPUT_FORMAT':

@@ -17,7 +17,7 @@ const ThumbGrid = ({
   file,
   controlersAreVisible,
   onToggleClick, onRemoveClick, onInPointClick, onOutPointClick,
-  onBackClick, onForwardClick, onScrubClick,
+  onBackClick, onForwardClick, onScrubClick, onNewScaleValue,
   onMouseOverResult, onMouseOutResult, settings, editGrid,
   columnCount, thumbCount, reCapture, containerHeight, containerWidth,
   zoomOut, colorArray
@@ -65,6 +65,8 @@ const ThumbGrid = ({
   const newBorderRadius = zoomOut ? borderRadius * scaleValue : borderRadius;
   const newHeaderHeight = zoomOut ? headerHeight * scaleValue : headerHeight;
   const newScaleValue = zoomOut ? settings.defaultThumbnailScale * scaleValue : settings.defaultThumbnailScale;
+
+  onNewScaleValue(newScaleValue);
 
   // console.log(`columnCount: ${columnCount}`);
   // console.log(`rowCount: ${rowCount}`);

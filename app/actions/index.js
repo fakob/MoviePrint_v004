@@ -131,6 +131,13 @@ export const setDefaultOutputPath = (defaultOutputPath) => {
   };
 };
 
+export const setDefaultOutputScale = (defaultOutputScale) => {
+  return {
+    type: 'SET_DEFAULT_OUTPUT_SCALE',
+    defaultOutputScale
+  };
+};
+
 export const setDefaultOutputFormat = (defaultOutputFormat) => {
   return {
     type: 'SET_DEFAULT_OUTPUT_FORMAT',
