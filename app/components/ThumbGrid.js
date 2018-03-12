@@ -43,7 +43,7 @@ const ThumbGrid = ({
   const headerHeight = settings.defaultShowHeader ? settings.defaultHeaderHeight * settings.defaultThumbnailScale : 0;
   const thumbWidth = width * settings.defaultThumbnailScale;
   const thumbMargin = settings.defaultMargin * settings.defaultThumbnailScale;
-  const borderRadius = settings.defaultRoundedCorners ? settings.defaultBorderRadius * settings.defaultThumbnailScale : 0;
+  const borderRadius = settings.defaultRoundedCorners ? settings.defaultHeaderHeight * settings.defaultBorderRadiusRatio * settings.defaultThumbnailScale : 0;
   const generalScale = 0.95;
 
   const thumbnailWidthPlusMargin = thumbWidth + (thumbMargin * 2);
@@ -136,6 +136,7 @@ const ThumbGrid = ({
     thumbArray.map(thumb => (
       <SortableThumb
         zoomOut={zoomOut}
+        scaleValue={newScaleValue}
         key={thumb.key}
         index={thumb.index}
         tempId={thumb.index}

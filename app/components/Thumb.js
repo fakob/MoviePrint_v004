@@ -15,7 +15,7 @@ import show from './../img/Thumb_SHOW.png';
 import empty from './../img/Thumb_EMPTY.png';
 import transparent from './../img/Thumb_TRANSPARENT.png';
 
-const DragHandle = SortableHandle(() => {
+const DragHandle = SortableHandle(({ scaleValue }) => {
   function over(event) {
     event.target.style.opacity = 1;
   }
@@ -29,6 +29,10 @@ const DragHandle = SortableHandle(() => {
       onMouseLeave={out}
       onFocus={over}
       onBlur={out}
+      // style={{
+      //   transformOrigin: 'center center',
+      //   transform: `scale(${scaleValue})`,
+      // }}
     >
       <img
         src={handleWide}
@@ -40,7 +44,7 @@ const DragHandle = SortableHandle(() => {
 });
 
 const Thumb = ({
-  onToggle, onInPoint, onOutPoint, onBack, onForward, tempId, color,
+  onToggle, onInPoint, onOutPoint, onBack, onForward, tempId, color, scaleValue,
   onOver, onOut, onScrub, hidden, thumbImageObjectUrl, aspectRatioInv,
   controlersAreVisible, thumbWidth, margin, zoomOut, borderRadius, thumbInfoValue
 }) => {
@@ -66,7 +70,7 @@ const Thumb = ({
         opacity: hidden ? '0.2' : '1',
         width: thumbWidth,
         margin: `${margin}px`,
-        borderRadius: `${borderRadius}px`,
+        borderRadius: `${Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: color,
       }}
     >
@@ -87,6 +91,10 @@ const Thumb = ({
       {thumbInfoValue !== undefined &&
         <div
           className={styles.frameNumber}
+          style={{
+            transformOrigin: 'left top',
+            transform: `scale(${scaleValue})`,
+          }}
         >
           {thumbInfoValue}
         </div>
@@ -96,7 +104,9 @@ const Thumb = ({
           display: controlersAreVisible ? 'block' : 'none'
         }}
       >
-        <DragHandle />
+        <DragHandle
+          scaleValue={scaleValue}
+        />
         <button
           className={styles.hoverButton}
           onClick={onToggle}

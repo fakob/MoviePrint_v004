@@ -70,11 +70,11 @@
   top: 0;
   left: 0;
   background: #eee;
-  border-radius:2px;
+  border-radius:8px;
   font-family: 'Open sans';
-  font-size: 10px;
-  line-height: 10px;
-  padding: 1px;
+  font-size: 40px;
+  line-height: 40px;
+  padding: 4px;
   color: #000000;
   /*opacity: 0.5;*/
 }

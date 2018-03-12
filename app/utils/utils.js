@@ -122,10 +122,10 @@ export const getMoviePrintColor = (count) => {
   return newColorArray;
 };
 
-export const saveMoviePrint = (elementId, exportPath, file, outputFormat, overwrite) => {
+export const saveMoviePrint = (elementId, exportPath, file, scale, outputFormat, overwrite) => {
   console.log(file);
   const node = document.getElementById(elementId);
-  // const node = document.getElementById('ThumbGrid');
+  // const node = document.getElementById('ThumbGrid');1
 
   let newFileName = `${file.name}_MoviePrint.${outputFormat}`;
   let newFilePathAndName = path.join(exportPath, newFileName);
@@ -150,7 +150,7 @@ export const saveMoviePrint = (elementId, exportPath, file, outputFormat, overwr
   html2canvas(node, {
     backgroundColor: null,
     allowTaint: true,
-    scale: 1,
+    scale,
   }).then((canvas) => {
     canvas.toBlob((blob) => {
       saveBlob(blob, newFilePathAndName);
