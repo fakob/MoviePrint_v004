@@ -586,9 +586,9 @@ class App extends Component {
             {this.state.editGrid === false &&
               <Menu.Item name="zoom" onClick={this.onZoomOut}>
                 <Icon
-                  name={(this.props.visibilitySettings.zoomOut) ? 'zoom in' : 'zoom out'}
+                  name={(this.props.visibilitySettings.zoomOut) ? 'block layout' : 'maximize'}
                 />
-                {(this.props.visibilitySettings.zoomOut) ? 'Zoom in' : 'Zoom out'}
+                {(this.props.visibilitySettings.zoomOut) ? '1:1' : 'Fit'}
               </Menu.Item>
             }
 
