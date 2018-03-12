@@ -14,8 +14,8 @@ const ThumbGridHeader = ({
     <div
       className={styles.gridHeader}
       style={{
-        height: headerHeight * scaleValue,
-        margin: thumbMargin * scaleValue,
+        height: headerHeight,
+        margin: thumbMargin,
       }}
     >
       <div

@@ -64,6 +64,7 @@ const ThumbGrid = ({
   const newThumbWidth = zoomOut ? thumbWidth * scaleValue : thumbWidth;
   const newBorderRadius = zoomOut ? borderRadius * scaleValue : borderRadius;
   const newHeaderHeight = zoomOut ? headerHeight * scaleValue : headerHeight;
+  const newScaleValue = zoomOut ? settings.defaultThumbnailScale * scaleValue : settings.defaultThumbnailScale;
 
   // console.log(`columnCount: ${columnCount}`);
   // console.log(`rowCount: ${rowCount}`);
@@ -75,11 +76,10 @@ const ThumbGrid = ({
   // console.log(`moviePrintHeight: ${moviePrintHeight}`);
   // console.log(`scaleValueWidth: ${scaleValueWidth}`);
   // console.log(`scaleValueHeight: ${scaleValueHeight}`);
-  console.log(`zoomOut: ${zoomOut}`);
-  console.log(`scaleValue: ${scaleValue}`);
-  console.log(`newHeaderHeight: ${newHeaderHeight}`);
-  console.log(`defaultThumbnailScale: ${settings.defaultThumbnailScale}`);
-  // console.log(`width: ${zoomOut ? containerWidth : moviePrintWidth}`);
+  // console.log(`zoomOut: ${zoomOut}`);
+  // console.log(`scaleValue: ${scaleValue}`);
+  // console.log(`newHeaderHeight: ${newHeaderHeight}`);
+  // console.log(`defaultThumbnailScale: ${settings.defaultThumbnailScale}`);
 
   let thumbGridHeaderComponent = null;
   let thumbGridComponent = null;
@@ -89,9 +89,9 @@ const ThumbGrid = ({
       zoomOut={zoomOut}
       fileName={file.name || ''}
       filePath={file.path || ''}
-      headerHeight={settings.defaultHeaderHeight}
-      thumbMargin={thumbMargin}
-      scaleValue={zoomOut ? scaleValue : 1}
+      headerHeight={newHeaderHeight}
+      thumbMargin={newThumbMargin}
+      scaleValue={newScaleValue}
     />
   );
 
