@@ -4,6 +4,8 @@ const { app } = require('electron').remote
 const initialStateJSON = {
   visibilitySettings: {
     visibilityFilter: 'SHOW_VISIBLE',
+    showLeftSidebar: false,
+    showRightSidebar: false,
     zoomOut: false,
   },
   thumbsObjUrls: {},
