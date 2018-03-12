@@ -42,7 +42,7 @@ const ThumbGrid = ({
   const rowCount = Math.ceil(thumbCount / columnCount);
   const headerHeight = settings.defaultShowHeader ? height * settings.defaultHeaderHeightRatio * settings.defaultThumbnailScale : 0;
   const thumbWidth = width * settings.defaultThumbnailScale;
-  const thumbMargin = settings.defaultMargin * settings.defaultThumbnailScale;
+  const thumbMargin = thumbWidth * settings.defaultMarginRatio * settings.defaultThumbnailScale;
   const borderRadius = settings.defaultRoundedCorners ? thumbWidth * settings.defaultBorderRadiusRatio * settings.defaultThumbnailScale : 0;
   const generalScale = 0.95;
 
