@@ -13,10 +13,10 @@
 }
 
 .gridHeaderText {
-  height: 31px;
-  line-height: 12px;
-  font-size: 10px;
-  padding-top: 10px;
+  /* height: 31px; */
+  /* line-height: 12px; */
+  /* font-size: 10px; */
+  /* padding-top: 10px; */
   white-space: normal;
   display: table-cell;
   vertical-align: bottom;

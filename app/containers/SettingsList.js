@@ -33,7 +33,7 @@ const thumbnailScale = [
   { value: 0.5, text: '1/2' },
   { value: 0.25, text: '1/4' },
   { value: 0.125, text: '1/8' },
-  { value: 0.0625, text: '1/16' },
+  // { value: 0.0625, text: '1/16' },
 ];
 
 const outputFormatOptions = [

@@ -21,25 +21,41 @@ const ThumbGridHeader = ({
       <div
         className={styles.gridHeaderImage}
         style={{
-          transformOrigin: 'left top',
-          transform: `scale(${scaleValue})`,
+          // transformOrigin: 'left top',
+          // transform: `scale(${scaleValue})`,
         }}
       >
         <img
           src={movieprint}
           alt=""
+          height={`${moviePrintHeaderImageHeight * scaleValue}px`}
+          width={`${moviePrintHeaderImageWidth * scaleValue}px`}
         />
       </div>
-      {!zoomOut && <div
-        className={styles.gridHeaderText}
-      >
-        {`${filePath.substr(0, filePath.lastIndexOf('/'))}/`}
-        <span
-          className={styles.gridHeaderTextName}
+      {/* {!zoomOut && */}
+        <div
+          className={styles.gridHeaderText}
+          style={{
+            // transformOrigin: 'left top',
+            // transform: `translate(${(moviePrintHeaderImageWidth * scaleValue) - moviePrintHeaderImageWidth}px)`,
+            height: `${128 * scaleValue}px`,
+            lineHeight: `${48 * scaleValue}px`,
+            fontSize: `${40 * scaleValue}px`,
+            paddingTop: `${40 * scaleValue}px`,
+          }}
         >
-          {fileName}
-        </span>
-      </div>}
+          {`${filePath.substr(0, filePath.lastIndexOf('/'))}/`}
+          <span
+            className={styles.gridHeaderTextName}
+            style={{
+              fontSize: `${48 * scaleValue}px`,
+              letterSpacing: `${1.2 * scaleValue}px`,
+            }}
+          >
+            {fileName}
+          </span>
+        </div>
+      {/* } */}
     </div>
   );
 };
