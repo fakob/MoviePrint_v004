@@ -213,11 +213,11 @@ class SettingsList extends Component {
               <SliderWithTooltip
                 className={styles.slider}
                 min={0}
-                max={40}
-                defaultValue={this.props.settings.defaultMargin}
+                max={20}
+                defaultValue={this.props.settings.defaultMarginRatio}
                 marks={{
                   0: '0',
-                  40: '40',
+                  20: '20',
                 }}
                 handle={handle}
                 onChange={this.props.onChangeMargin}

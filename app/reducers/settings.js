@@ -11,7 +11,7 @@ const settings = (state = {}, action) => {
     case 'SET_DEFAULT_THUMBNAIL_SCALE':
       return { ...state, defaultThumbnailScale: action.defaultThumbnailScale };
     case 'SET_DEFAULT_MARGIN':
-      return { ...state, defaultMargin: action.defaultMargin };
+      return { ...state, defaultMarginRatio: action.defaultMarginRatio };
     case 'SET_DEFAULT_SHOW_HEADER':
       return { ...state, defaultShowHeader: action.defaultShowHeader };
     case 'SET_DEFAULT_ROUNDED_CORNERS':

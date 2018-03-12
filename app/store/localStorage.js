@@ -15,7 +15,7 @@ const initialStateJSON = {
       defaultThumbCount: 9,
       defaultColumnCount: 3,
       defaultThumbnailScale: 0.25,
-      defaultMarginRatio: 0.1,
+      defaultMarginRatio: 0.05,
       defaultBorderRadiusRatio: 0.08,
       defaultHeaderHeightRatio: 0.16,
       defaultShowHeader: true,

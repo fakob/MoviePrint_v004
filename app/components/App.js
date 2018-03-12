@@ -15,7 +15,7 @@ import {
   setNewMovieList, toggleLeftSidebar, showRightSidebar, hideRightSidebar,
   zoomIn, zoomOut, addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
   setVisibilityFilter, setCurrentFileId, changeThumb, updateFileColumnCount,
-  updateFileDetails, clearThumbs, updateThumbImage, setDefaultMargin, setDefaultShowHeader,
+  updateFileDetails, clearThumbs, updateThumbImage, setDefaultMarginRatio, setDefaultShowHeader,
   setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat,
   setDefaultSaveOptionOverwrite, setDefaultThumbnailScale
 } from '../actions';
@@ -446,7 +446,7 @@ class App extends Component {
 
   onChangeMargin = (value) => {
     const { store } = this.context;
-    store.dispatch(setDefaultMargin(value));
+    store.dispatch(setDefaultMarginRatio(value / 100.0));
   };
 
   onShowHeaderClick = (value) => {

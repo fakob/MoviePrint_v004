@@ -96,10 +96,10 @@ export const setDefaultThumbnailScale = (defaultThumbnailScale) => {
   };
 };
 
-export const setDefaultMargin = (defaultMargin) => {
+export const setDefaultMarginRatio = (defaultMarginRatio) => {
   return {
     type: 'SET_DEFAULT_MARGIN',
-    defaultMargin
+    defaultMarginRatio
   };
 };
 
