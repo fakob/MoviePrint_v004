@@ -590,41 +590,30 @@ class App extends Component {
           className={`${styles.FixedActionMenuRight} ${styles.ItemRightSideBar} ${state.visibilitySettings.showRightSidebar ? styles.ItemRightSideBarAnim : ''}`}
         >
           <Menu compact icon="labeled" size="mini">
-
-            {this.state.editGrid === false &&
-              <Menu.Item name="zoom" onClick={this.onZoomOut}>
-                <Icon
-                  name={(this.props.visibilitySettings.zoomOut) ? 'block layout' : 'maximize'}
-                />
-                {(this.props.visibilitySettings.zoomOut) ? '1:1' : 'Fit'}
-              </Menu.Item>
-            }
-
-            {this.state.editGrid === false &&
-              <Menu.Item name="hide" onClick={this.onShowThumbs}>
-                <Icon
-                  name={(this.props.visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') ? 'unhide' : 'hide'}
-                />
-                {(this.props.visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') ? 'Show' : 'Hide'}
-              </Menu.Item>
-            }
-
-            {this.state.editGrid === false &&
-              <Menu.Item name="save" onClick={this.onSaveMoviePrint}>
-                <Icon
-                  name="save"
-                />
-                Save
-              </Menu.Item>
-            }
-
+            <Menu.Item name="zoom" onClick={this.onZoomOut}>
+              <Icon
+                name={(this.props.visibilitySettings.zoomOut) ? 'block layout' : 'maximize'}
+              />
+              {(this.props.visibilitySettings.zoomOut) ? '1:1' : 'Fit'}
+            </Menu.Item>
+            <Menu.Item name="hide" onClick={this.onShowThumbs}>
+              <Icon
+                name={(this.props.visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') ? 'unhide' : 'hide'}
+              />
+              {(this.props.visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') ? 'Show' : 'Hide'}
+            </Menu.Item>
+            <Menu.Item name="save" onClick={this.onSaveMoviePrint}>
+              <Icon
+                name="save"
+              />
+              Save
+            </Menu.Item>
             <Menu.Item name="edit" onClick={(this.state.editGrid === false) ? this.editGrid : this.hideEditGrid}>
               <Icon
-                name={(this.state.editGrid === false) ? 'edit' : 'cancel'}
+                name={(this.state.editGrid === false) ? 'edit' : 'edit'}
               />
-              {(this.state.editGrid === false) ? 'Edit' : 'Cancel'}
+              {(this.state.editGrid === false) ? 'Edit' : 'Hide'}
             </Menu.Item>
-
           </Menu>
         </Sticky>
         <Sticky
