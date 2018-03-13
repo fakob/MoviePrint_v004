@@ -127,6 +127,7 @@ class App extends Component {
     this.onSaveMoviePrint = this.onSaveMoviePrint.bind(this);
 
     this.updatecontainerWidthAndHeight = this.updatecontainerWidthAndHeight.bind(this);
+    this.updateScaleValue = this.updateScaleValue.bind(this);
 
     this.onChangeRow = this.onChangeRow.bind(this);
     this.onChangeColumn = this.onChangeColumn.bind(this);
@@ -262,25 +263,10 @@ class App extends Component {
         console.log(newThumbCount);
       }
     }
-
-    // const { store } = this.context;
-    // const state = store.getState();
-    const scaleValueObject = getScaleValueObject(
-      nextProps.file, nextProps.settings,
-      this.state.columnCount, this.state.thumbCount,
-      this.state.containerWidth, this.state.containerHeight,
-      nextProps.visibilitySettings.zoomOut
-    );
-    this.setState({
-      scaleValueObject
-    });
-    if (this.props.settings.defaultOutputScaleCompensator !== scaleValueObject.newScaleValue) {
-      console.log('got newscalevalue');
-      store.dispatch(setDefaultOutputScaleCompensator(scaleValueObject.newScaleValue));
-    }
   }
 
   componentDidUpdate() {
+    console.log('run componentDidUpdate');
     this.updatecontainerWidthAndHeight();
   }
 
@@ -355,18 +341,36 @@ class App extends Component {
     return false;
   }
 
+  updateScaleValue() {
+    const { store } = this.context;
+    const scaleValueObject = getScaleValueObject(
+      this.props.file, this.props.settings,
+      this.state.columnCount, this.state.thumbCount,
+      this.state.containerWidth, this.state.containerHeight,
+      this.props.visibilitySettings.zoomOut
+    );
+    this.setState({
+      scaleValueObject
+    });
+    if (this.props.settings.defaultOutputScaleCompensator !== scaleValueObject.newScaleValue) {
+      console.log('got newscalevalue');
+      store.dispatch(setDefaultOutputScaleCompensator(scaleValueObject.newScaleValue));
+    }
+  }
+
   updatecontainerWidthAndHeight() {
     const { store } = this.context;
     const state = store.getState();
-    if (this.state.containerHeight !== this.siteContent.clientHeight) {
-      this.setState({ containerHeight: this.siteContent.clientHeight });
-    }
     const containerWidthMinusSidebar =
-      this.siteContent.clientWidth -
-      (state.visibilitySettings.showLeftSidebar ? 350 : 0) -
-      (state.visibilitySettings.showRightSidebar ? 350 : 0);
-    if (this.state.containerWidth !== containerWidthMinusSidebar) {
-      this.setState({ containerWidth: containerWidthMinusSidebar });
+    this.siteContent.clientWidth -
+    (state.visibilitySettings.showLeftSidebar ? 350 : 0) -
+    (state.visibilitySettings.showRightSidebar ? 350 : 0);
+    if (this.state.containerHeight !== this.siteContent.clientHeight ||
+      this.state.containerWidth !== containerWidthMinusSidebar) {
+      this.setState({
+        containerHeight: this.siteContent.clientHeight,
+        containerWidth: containerWidthMinusSidebar
+      }, this.updateScaleValue());
     }
   }
 
@@ -645,7 +649,7 @@ class App extends Component {
               ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
               className={`${styles.ItemMain} ${state.visibilitySettings.showLeftSidebar ? styles.ItemMainLeftAnim : ''} ${state.visibilitySettings.showRightSidebar ? styles.ItemMainRightAnim : ''}`}
               style={{
-                // width: this.state.scaleValueObject.newMoviePrintWidth
+                width: this.state.scaleValueObject.newMoviePrintWidth
               }}
             >
               <SortedVisibleThumbGrid
