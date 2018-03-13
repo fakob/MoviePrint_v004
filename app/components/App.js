@@ -32,6 +32,63 @@ const setColumnAndThumbCount = (that, columnCount, thumbCount) => {
   });
 };
 
+const getScaleValueObject = (file, settings, columnCount, thumbCount, containerWidth, containerHeight) => {
+  const width = (typeof file !== 'undefined' && typeof file.width !== 'undefined' ? file.width : 1280);
+  const height = (typeof file !== 'undefined' && typeof file.height !== 'undefined' ? file.height : 720);
+  const aspectRatioInv = (height * 1.0) / width;
+  const rowCount = Math.ceil(thumbCount / columnCount);
+  const headerHeight = settings.defaultShowHeader ? height * settings.defaultHeaderHeightRatio * settings.defaultThumbnailScale : 0;
+  const thumbWidth = width * settings.defaultThumbnailScale;
+  const thumbMargin = width * settings.defaultMarginRatio * settings.defaultThumbnailScale;
+  const borderRadius = settings.defaultRoundedCorners ? width * settings.defaultBorderRadiusRatio * settings.defaultThumbnailScale : 0;
+  const generalScale = 0.95;
+
+  const thumbnailWidthPlusMargin = thumbWidth + (thumbMargin * 2);
+  const thumbnailHeightPlusMargin = thumbnailWidthPlusMargin * aspectRatioInv;
+
+  const moviePrintWidth = columnCount * thumbnailWidthPlusMargin;
+  const moviePrintHeightBody = rowCount * thumbnailHeightPlusMargin;
+  const moviePrintHeight = headerHeight + (thumbMargin * 2) + moviePrintHeightBody;
+
+  const scaleValueWidth = containerWidth / moviePrintWidth;
+  const scaleValueHeight = containerHeight / moviePrintHeight;
+  const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * generalScale;
+
+  const newMoviePrintWidth = zoomOut ? moviePrintWidth * scaleValue : moviePrintWidth;
+  const newMoviePrintHeightBody = zoomOut ? moviePrintHeightBody * scaleValue : moviePrintHeightBody;
+  const newMoviePrintHeight = zoomOut ? moviePrintHeight * scaleValue : moviePrintHeight;
+  const newThumbMargin = zoomOut ? thumbMargin * scaleValue : thumbMargin;
+  const newThumbWidth = zoomOut ? thumbWidth * scaleValue : thumbWidth;
+  const newBorderRadius = zoomOut ? borderRadius * scaleValue : borderRadius;
+  const newHeaderHeight = zoomOut ? headerHeight * scaleValue : headerHeight;
+  const newScaleValue = zoomOut ? settings.defaultThumbnailScale * scaleValue :
+    settings.defaultThumbnailScale;
+
+  const scaleValueObject = {
+    containerWidth,
+    containerHeight,
+    newMoviePrintWidth,
+    newMoviePrintHeight,
+    newMoviePrintHeightBody,
+    newThumbMargin,
+    newThumbWidth,
+    newBorderRadius,
+    newHeaderHeight,
+    newScaleValue,
+  };
+
+  console.log('getScaleValueObject was run');
+  // console.log(file);
+  // console.log(settings);
+  // console.log(columnCount);
+  // console.log(thumbCount);
+  // console.log(containerWidth);
+  // console.log(containerHeight);
+  console.log(scaleValueObject);
+
+  return scaleValueObject;
+};
+
 class App extends Component {
   constructor() {
     super();
@@ -47,6 +104,7 @@ class App extends Component {
       thumbCount: undefined,
       reCapture: false,
       colorArray: undefined,
+      scaleValueObject: undefined,
     };
 
     this.onDragEnter = this.onDragEnter.bind(this);
@@ -88,10 +146,6 @@ class App extends Component {
 
   componentWillMount() {
     const { store } = this.context;
-    this.setState({
-      colorArray: getMoviePrintColor(store.getState()
-        .undoGroup.present.settings.defaultThumbCountMax)
-    });
     setColumnAndThumbCount(
       this,
       getColumnCount(
@@ -103,6 +157,14 @@ class App extends Component {
         this.props.thumbsByFileId, store.getState().undoGroup.present.settings
       ),
     );
+    this.setState({
+      colorArray: getMoviePrintColor(store.getState()
+        .undoGroup.present.settings.defaultThumbCountMax),
+      scaleValueObject: getScaleValueObject(this.props.file, this.props.settings,
+        this.state.columnCount, this.state.thumbCount,
+        this.state.containerWidth, this.state.containerHeight
+      )
+    });
   }
 
   componentDidMount() {
@@ -200,8 +262,19 @@ class App extends Component {
     }
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     this.updatecontainerWidthAndHeight();
+
+    // const { store } = this.context;
+    // const state = store.getState();
+    const scaleValueObject = getScaleValueObject(this.props.file, this.props.settings,
+      this.state.columnCount, this.state.thumbCount,
+      this.state.containerWidth, this.state.containerHeight
+    )
+    if (prevProps.settings.defaultOutputScaleCompensator !== scaleValueObject.newScaleValue) {
+      console.log('got newscalevalue');
+      // store.dispatch(setDefaultOutputScaleCompensator(scaleValueObject.newScaleValue));
+    }
   }
 
   componentWillUnmount() {
@@ -564,6 +637,9 @@ class App extends Component {
             <div
               ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
               className={`${styles.ItemMain} ${state.visibilitySettings.showLeftSidebar ? styles.ItemMainLeftAnim : ''} ${state.visibilitySettings.showRightSidebar ? styles.ItemMainRightAnim : ''}`}
+              // style={{
+              //   width: this.state.
+              // }}
             >
               <SortedVisibleThumbGrid
                 inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
