@@ -17,7 +17,7 @@ import {
   setVisibilityFilter, setCurrentFileId, changeThumb, updateFileColumnCount,
   updateFileDetails, clearThumbs, updateThumbImage, setDefaultMarginRatio, setDefaultShowHeader,
   setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat,
-  setDefaultSaveOptionOverwrite, setDefaultThumbnailScale
+  setDefaultSaveOptionOverwrite, setDefaultThumbnailScale, setDefaultOutputScaleCompensator
 } from '../actions';
 
 const { ipcRenderer } = require('electron');
@@ -32,7 +32,7 @@ const setColumnAndThumbCount = (that, columnCount, thumbCount) => {
   });
 };
 
-const getScaleValueObject = (file, settings, columnCount, thumbCount, containerWidth, containerHeight) => {
+const getScaleValueObject = (file, settings, columnCount, thumbCount, containerWidth, containerHeight, zoomOutBool) => {
   const width = (typeof file !== 'undefined' && typeof file.width !== 'undefined' ? file.width : 1280);
   const height = (typeof file !== 'undefined' && typeof file.height !== 'undefined' ? file.height : 720);
   const aspectRatioInv = (height * 1.0) / width;
@@ -54,14 +54,14 @@ const getScaleValueObject = (file, settings, columnCount, thumbCount, containerW
   const scaleValueHeight = containerHeight / moviePrintHeight;
   const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * generalScale;
 
-  const newMoviePrintWidth = zoomOut ? moviePrintWidth * scaleValue : moviePrintWidth;
-  const newMoviePrintHeightBody = zoomOut ? moviePrintHeightBody * scaleValue : moviePrintHeightBody;
-  const newMoviePrintHeight = zoomOut ? moviePrintHeight * scaleValue : moviePrintHeight;
-  const newThumbMargin = zoomOut ? thumbMargin * scaleValue : thumbMargin;
-  const newThumbWidth = zoomOut ? thumbWidth * scaleValue : thumbWidth;
-  const newBorderRadius = zoomOut ? borderRadius * scaleValue : borderRadius;
-  const newHeaderHeight = zoomOut ? headerHeight * scaleValue : headerHeight;
-  const newScaleValue = zoomOut ? settings.defaultThumbnailScale * scaleValue :
+  const newMoviePrintWidth = zoomOutBool ? moviePrintWidth * scaleValue : moviePrintWidth;
+  const newMoviePrintHeightBody = zoomOutBool ? moviePrintHeightBody * scaleValue : moviePrintHeightBody;
+  const newMoviePrintHeight = zoomOutBool ? moviePrintHeight * scaleValue : moviePrintHeight;
+  const newThumbMargin = zoomOutBool ? thumbMargin * scaleValue : thumbMargin;
+  const newThumbWidth = zoomOutBool ? thumbWidth * scaleValue : thumbWidth;
+  const newBorderRadius = zoomOutBool ? borderRadius * scaleValue : borderRadius;
+  const newHeaderHeight = zoomOutBool ? headerHeight * scaleValue : headerHeight;
+  const newScaleValue = zoomOutBool ? settings.defaultThumbnailScale * scaleValue :
     settings.defaultThumbnailScale;
 
   const scaleValueObject = {
@@ -78,6 +78,7 @@ const getScaleValueObject = (file, settings, columnCount, thumbCount, containerW
   };
 
   console.log('getScaleValueObject was run');
+  console.log(zoomOutBool);
   // console.log(file);
   // console.log(settings);
   // console.log(columnCount);
@@ -162,7 +163,8 @@ class App extends Component {
         .undoGroup.present.settings.defaultThumbCountMax),
       scaleValueObject: getScaleValueObject(this.props.file, this.props.settings,
         this.state.columnCount, this.state.thumbCount,
-        this.state.containerWidth, this.state.containerHeight
+        this.state.containerWidth, this.state.containerHeight,
+        this.props.visibilitySettings.zoomOut
       )
     });
   }
@@ -260,21 +262,26 @@ class App extends Component {
         console.log(newThumbCount);
       }
     }
-  }
-
-  componentDidUpdate(prevProps) {
-    this.updatecontainerWidthAndHeight();
 
     // const { store } = this.context;
     // const state = store.getState();
-    const scaleValueObject = getScaleValueObject(this.props.file, this.props.settings,
+    const scaleValueObject = getScaleValueObject(
+      nextProps.file, nextProps.settings,
       this.state.columnCount, this.state.thumbCount,
-      this.state.containerWidth, this.state.containerHeight
-    )
-    if (prevProps.settings.defaultOutputScaleCompensator !== scaleValueObject.newScaleValue) {
+      this.state.containerWidth, this.state.containerHeight,
+      nextProps.visibilitySettings.zoomOut
+    );
+    this.setState({
+      scaleValueObject
+    });
+    if (this.props.settings.defaultOutputScaleCompensator !== scaleValueObject.newScaleValue) {
       console.log('got newscalevalue');
-      // store.dispatch(setDefaultOutputScaleCompensator(scaleValueObject.newScaleValue));
+      store.dispatch(setDefaultOutputScaleCompensator(scaleValueObject.newScaleValue));
     }
+  }
+
+  componentDidUpdate() {
+    this.updatecontainerWidthAndHeight();
   }
 
   componentWillUnmount() {
@@ -637,9 +644,9 @@ class App extends Component {
             <div
               ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
               className={`${styles.ItemMain} ${state.visibilitySettings.showLeftSidebar ? styles.ItemMainLeftAnim : ''} ${state.visibilitySettings.showRightSidebar ? styles.ItemMainRightAnim : ''}`}
-              // style={{
-              //   width: this.state.
-              // }}
+              style={{
+                // width: this.state.scaleValueObject.newMoviePrintWidth
+              }}
             >
               <SortedVisibleThumbGrid
                 inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
@@ -658,6 +665,7 @@ class App extends Component {
                 reCapture={this.state.reCapture}
 
                 zoomOut={this.props.visibilitySettings.zoomOut}
+                scaleValueObject={this.state.scaleValueObject}
               />
             </div>
           </div>

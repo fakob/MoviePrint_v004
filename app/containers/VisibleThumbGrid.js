@@ -84,6 +84,7 @@ class SortedVisibleThumbGrid extends Component {
         containerWidth={this.props.containerWidth || 640}
         containerHeight={this.props.containerHeight || 360}
         zoomOut={this.props.zoomOut}
+        scaleValueObject={this.props.scaleValueObject}
       />
     );
   }

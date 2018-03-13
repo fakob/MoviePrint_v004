@@ -20,7 +20,7 @@ const ThumbGrid = ({
   onBackClick, onForwardClick, onScrubClick, onNewScaleValue,
   onMouseOverResult, onMouseOutResult, settings, editGrid,
   columnCount, thumbCount, reCapture, containerHeight, containerWidth,
-  zoomOut, colorArray
+  zoomOut, colorArray, scaleValueObject
 }) => {
   const fps = (typeof file !== 'undefined' && typeof file.fps !== 'undefined' ? file.fps : 25);
   function getThumbInfoValue(type, frames, fps) {
@@ -36,35 +36,35 @@ const ThumbGrid = ({
     }
   }
 
-  const width = (typeof file !== 'undefined' && typeof file.width !== 'undefined' ? file.width : 1280);
-  const height = (typeof file !== 'undefined' && typeof file.height !== 'undefined' ? file.height : 720);
-  const aspectRatioInv = (height * 1.0) / width;
-  const rowCount = Math.ceil(thumbCount / columnCount);
-  const headerHeight = settings.defaultShowHeader ? height * settings.defaultHeaderHeightRatio * settings.defaultThumbnailScale : 0;
-  const thumbWidth = width * settings.defaultThumbnailScale;
-  const thumbMargin = width * settings.defaultMarginRatio * settings.defaultThumbnailScale;
-  const borderRadius = settings.defaultRoundedCorners ? width * settings.defaultBorderRadiusRatio * settings.defaultThumbnailScale : 0;
-  const generalScale = 0.95;
-
-  const thumbnailWidthPlusMargin = thumbWidth + (thumbMargin * 2);
-  const thumbnailHeightPlusMargin = thumbnailWidthPlusMargin * aspectRatioInv;
-
-  const moviePrintWidth = columnCount * thumbnailWidthPlusMargin;
-  const moviePrintHeightBody = rowCount * thumbnailHeightPlusMargin;
-  const moviePrintHeight = headerHeight + (thumbMargin * 2) + moviePrintHeightBody;
-
-  const scaleValueWidth = containerWidth / moviePrintWidth;
-  const scaleValueHeight = containerHeight / moviePrintHeight;
-  const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * generalScale;
-
-  const newMoviePrintWidth = zoomOut ? moviePrintWidth * scaleValue : moviePrintWidth;
-  const newThumbMargin = zoomOut ? thumbMargin * scaleValue : thumbMargin;
-  const newThumbWidth = zoomOut ? thumbWidth * scaleValue : thumbWidth;
-  const newBorderRadius = zoomOut ? borderRadius * scaleValue : borderRadius;
-  const newHeaderHeight = zoomOut ? headerHeight * scaleValue : headerHeight;
-  const newScaleValue = zoomOut ? settings.defaultThumbnailScale * scaleValue : settings.defaultThumbnailScale;
-
-  onNewScaleValue(newScaleValue);
+  // const width = (typeof file !== 'undefined' && typeof file.width !== 'undefined' ? file.width : 1280);
+  // const height = (typeof file !== 'undefined' && typeof file.height !== 'undefined' ? file.height : 720);
+  // const aspectRatioInv = (height * 1.0) / width;
+  // const rowCount = Math.ceil(thumbCount / columnCount);
+  // const headerHeight = settings.defaultShowHeader ? height * settings.defaultHeaderHeightRatio * settings.defaultThumbnailScale : 0;
+  // const thumbWidth = width * settings.defaultThumbnailScale;
+  // const thumbMargin = width * settings.defaultMarginRatio * settings.defaultThumbnailScale;
+  // const borderRadius = settings.defaultRoundedCorners ? width * settings.defaultBorderRadiusRatio * settings.defaultThumbnailScale : 0;
+  // const generalScale = 0.95;
+  //
+  // const thumbnailWidthPlusMargin = thumbWidth + (thumbMargin * 2);
+  // const thumbnailHeightPlusMargin = thumbnailWidthPlusMargin * aspectRatioInv;
+  //
+  // const moviePrintWidth = columnCount * thumbnailWidthPlusMargin;
+  // const moviePrintHeightBody = rowCount * thumbnailHeightPlusMargin;
+  // const moviePrintHeight = headerHeight + (thumbMargin * 2) + moviePrintHeightBody;
+  //
+  // const scaleValueWidth = containerWidth / moviePrintWidth;
+  // const scaleValueHeight = containerHeight / moviePrintHeight;
+  // const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * generalScale;
+  //
+  // const newMoviePrintWidth = zoomOut ? moviePrintWidth * scaleValue : moviePrintWidth;
+  // const newThumbMargin = zoomOut ? thumbMargin * scaleValue : thumbMargin;
+  // const newThumbWidth = zoomOut ? thumbWidth * scaleValue : thumbWidth;
+  // const newBorderRadius = zoomOut ? borderRadius * scaleValue : borderRadius;
+  // const newHeaderHeight = zoomOut ? headerHeight * scaleValue : headerHeight;
+  // const newScaleValue = zoomOut ? settings.defaultThumbnailScale * scaleValue : settings.defaultThumbnailScale;
+  //
+  // onNewScaleValue(newScaleValue);
 
   // console.log(`columnCount: ${columnCount}`);
   // console.log(`rowCount: ${rowCount}`);
@@ -89,9 +89,9 @@ const ThumbGrid = ({
       zoomOut={zoomOut}
       fileName={file.name || ''}
       filePath={file.path || ''}
-      headerHeight={newHeaderHeight}
-      thumbMargin={newThumbMargin}
-      scaleValue={newScaleValue}
+      headerHeight={scaleValueObject.newHeaderHeight}
+      thumbMargin={scaleValueObject.newThumbMargin}
+      scaleValue={scaleValueObject.newScaleValue}
     />
   );
 
@@ -136,7 +136,7 @@ const ThumbGrid = ({
     thumbArray.map(thumb => (
       <SortableThumb
         zoomOut={zoomOut}
-        scaleValue={newScaleValue}
+        scaleValue={scaleValueObject.newScaleValue}
         key={thumb.key}
         index={thumb.index}
         tempId={thumb.index}
@@ -145,10 +145,10 @@ const ThumbGrid = ({
           (thumbImages !== undefined ?
             thumbImages[thumb.frameId] !== undefined ?
               thumbImages[thumb.frameId].objectUrl : undefined : undefined)}
-        aspectRatioInv={aspectRatioInv}
-        thumbWidth={newThumbWidth}
-        borderRadius={newBorderRadius}
-        margin={newThumbMargin}
+        aspectRatioInv={scaleValueObject.aspectRatioInv}
+        thumbWidth={scaleValueObject.newThumbWidth}
+        borderRadius={scaleValueObject.newBorderRadius}
+        margin={scaleValueObject.newThumbMargin}
         thumbInfoValue={editGrid ? undefined :
           getThumbInfoValue(settings.defaultThumbInfo, thumb.frameNumber, fps)
         }
@@ -171,7 +171,7 @@ const ThumbGrid = ({
     <div
       className={styles.grid}
       style={{
-        width: newMoviePrintWidth,
+        width: scaleValueObject.newMoviePrintWidth,
       }}
       id="ThumbGrid"
     >
