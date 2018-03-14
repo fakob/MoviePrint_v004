@@ -379,7 +379,6 @@ class App extends Component {
     if (this.props.settings.defaultOutputScaleCompensator !== scaleValueObject.newScaleValue) {
       console.log('got newscalevalue');
       store.dispatch(setDefaultOutputScaleCompensator(scaleValueObject.newScaleValue));
-      // this.forceUpdate();
     }
   }
 
@@ -684,9 +683,6 @@ class App extends Component {
             <div
               ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
               className={`${styles.ItemMain} ${state.visibilitySettings.showLeftSidebar ? styles.ItemMainLeftAnim : ''} ${state.visibilitySettings.showRightSidebar ? styles.ItemMainRightAnim : ''}`}
-              style={{
-                width: this.state.scaleValueObject.newMoviePrintWidth
-              }}
             >
               <SortedVisibleThumbGrid
                 inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
