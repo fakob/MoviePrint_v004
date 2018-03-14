@@ -33,14 +33,14 @@ const setColumnAndThumbCount = (that, columnCount, thumbCount) => {
 };
 
 const getScaleValueObject = (file, settings, columnCount, thumbCount, containerWidth, containerHeight, zoomOutBool) => {
-  const width = (typeof file !== 'undefined' && typeof file.width !== 'undefined' ? file.width : 1280);
-  const height = (typeof file !== 'undefined' && typeof file.height !== 'undefined' ? file.height : 720);
-  const aspectRatioInv = (height * 1.0) / width;
+  const movieWidth = (typeof file !== 'undefined' && typeof file.width !== 'undefined' ? file.width : 1280);
+  const movieHeight = (typeof file !== 'undefined' && typeof file.height !== 'undefined' ? file.height : 720);
+  const aspectRatioInv = (movieHeight * 1.0) / movieWidth;
   const rowCount = Math.ceil(thumbCount / columnCount);
-  const headerHeight = settings.defaultShowHeader ? height * settings.defaultHeaderHeightRatio * settings.defaultThumbnailScale : 0;
-  const thumbWidth = width * settings.defaultThumbnailScale;
-  const thumbMargin = width * settings.defaultMarginRatio * settings.defaultThumbnailScale;
-  const borderRadius = settings.defaultRoundedCorners ? width * settings.defaultBorderRadiusRatio * settings.defaultThumbnailScale : 0;
+  const headerHeight = settings.defaultShowHeader ? movieHeight * settings.defaultHeaderHeightRatio * settings.defaultThumbnailScale : 0;
+  const thumbWidth = movieWidth * settings.defaultThumbnailScale;
+  const thumbMargin = movieWidth * settings.defaultMarginRatio * settings.defaultThumbnailScale;
+  const borderRadius = settings.defaultRoundedCorners ? movieWidth * settings.defaultBorderRadiusRatio * settings.defaultThumbnailScale : 0;
   const generalScale = 0.95;
 
   const thumbnailWidthPlusMargin = thumbWidth + (thumbMargin * 2);
@@ -67,6 +67,9 @@ const getScaleValueObject = (file, settings, columnCount, thumbCount, containerW
   const scaleValueObject = {
     containerWidth,
     containerHeight,
+    aspectRatioInv,
+    movieWidth,
+    movieHeight,
     newMoviePrintWidth,
     newMoviePrintHeight,
     newMoviePrintHeightBody,
@@ -163,7 +166,8 @@ class App extends Component {
       colorArray: getMoviePrintColor(store.getState()
         .undoGroup.present.settings.defaultThumbCountMax),
       scaleValueObject: getScaleValueObject(this.props.file, this.props.settings,
-        this.state.columnCount, this.state.thumbCount,
+        // this.state.columnCount, this.state.thumbCount,
+        this.state.columnCountTemp, this.state.thumbCountTemp,
         this.state.containerWidth, this.state.containerHeight,
         this.props.visibilitySettings.zoomOut
       )
@@ -265,9 +269,27 @@ class App extends Component {
     }
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps, prevState) {
     console.log('run componentDidUpdate');
     this.updatecontainerWidthAndHeight();
+
+    // update scaleValue when these parameter change
+    if ((prevProps.file === undefined ? false : (prevProps.file.width !== this.props.file.width)) ||
+      (prevProps.file === undefined ? false : (prevProps.file.height !== this.props.file.height)) ||
+      prevProps.settings.defaultThumbnailScale !== this.props.settings.defaultThumbnailScale ||
+      prevProps.settings.defaultMarginRatio !== this.props.settings.defaultMarginRatio ||
+      prevProps.settings.defaultShowHeader !== this.props.settings.defaultShowHeader ||
+      prevProps.settings.defaultOutputScaleCompensator !== this.props.settings.defaultOutputScaleCompensator ||
+      prevProps.visibilitySettings.zoomOut !== this.props.visibilitySettings.zoomOut ||
+      // prevProps.visibilitySettings.showLeftSidebar !== this.props.visibilitySettings.showLeftSidebar ||
+      // prevProps.visibilitySettings.showRightSidebar !== this.props.visibilitySettings.showRightSidebar ||
+      prevState.columnCountTemp !== this.state.columnCountTemp ||
+      prevState.thumbCountTemp !== this.state.thumbCountTemp ||
+      prevState.columnCount !== this.state.columnCount ||
+      prevState.thumbCount !== this.state.thumbCount
+    ) {
+      this.updateScaleValue();
+    }
   }
 
   componentWillUnmount() {
@@ -343,9 +365,11 @@ class App extends Component {
 
   updateScaleValue() {
     const { store } = this.context;
+    console.log(`inside updateScaleValue and containerWidth: ${this.state.containerWidth}`);
     const scaleValueObject = getScaleValueObject(
       this.props.file, this.props.settings,
-      this.state.columnCount, this.state.thumbCount,
+      // this.state.columnCount, this.state.thumbCount,
+      this.state.columnCountTemp, this.state.thumbCountTemp,
       this.state.containerWidth, this.state.containerHeight,
       this.props.visibilitySettings.zoomOut
     );
@@ -355,6 +379,7 @@ class App extends Component {
     if (this.props.settings.defaultOutputScaleCompensator !== scaleValueObject.newScaleValue) {
       console.log('got newscalevalue');
       store.dispatch(setDefaultOutputScaleCompensator(scaleValueObject.newScaleValue));
+      // this.forceUpdate();
     }
   }
 
@@ -367,10 +392,11 @@ class App extends Component {
     (state.visibilitySettings.showRightSidebar ? 350 : 0);
     if (this.state.containerHeight !== this.siteContent.clientHeight ||
       this.state.containerWidth !== containerWidthMinusSidebar) {
+      console.log(`new containerWidth: ${containerWidthMinusSidebar}`);
       this.setState({
         containerHeight: this.siteContent.clientHeight,
         containerWidth: containerWidthMinusSidebar
-      }, this.updateScaleValue());
+      }, () => this.updateScaleValue());
     }
   }
 
@@ -455,14 +481,23 @@ class App extends Component {
 
   onChangeRow = (value) => {
     this.setState({ thumbCountTemp: this.state.columnCountTemp * value });
+    this.updateScaleValue();
   };
 
   onChangeColumn = (value) => {
+    const { store } = this.context;
     const tempRowCount = Math.ceil(this.state.thumbCountTemp / this.state.columnCountTemp);
     this.setState({ columnCountTemp: value });
     if (this.state.reCapture) {
       this.setState({ thumbCountTemp: tempRowCount * value });
     }
+    if (typeof this.props.file !== 'undefined') {
+      store.dispatch(updateFileColumnCount(
+        this.props.file.id,
+        value
+      ));
+    }
+    this.updateScaleValue();
   };
 
   onChangeColumnAndApply = (value) => {
@@ -477,6 +512,7 @@ class App extends Component {
         value
       ));
     }
+    this.updateScaleValue();
   };
 
   onReCaptureClick = (checked) => {
