@@ -32,7 +32,7 @@ const setColumnAndThumbCount = (that, columnCount, thumbCount) => {
   });
 };
 
-const getScaleValueObject = (file, settings, columnCount, thumbCount, containerWidth, containerHeight, zoomOutBool) => {
+const getScaleValueObject = (file, settings, columnCount = 3, thumbCount = 3, containerWidth, containerHeight, zoomOutBool) => {
   const movieWidth = (typeof file !== 'undefined' && typeof file.width !== 'undefined' ? file.width : 1280);
   const movieHeight = (typeof file !== 'undefined' && typeof file.height !== 'undefined' ? file.height : 720);
   const aspectRatioInv = (movieHeight * 1.0) / movieWidth;
@@ -53,7 +53,7 @@ const getScaleValueObject = (file, settings, columnCount, thumbCount, containerW
   const scaleValueWidth = containerWidth / moviePrintWidth;
   const scaleValueHeight = containerHeight / moviePrintHeight;
   const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * generalScale;
-
+  console.log(scaleValue);
   const newMoviePrintWidth = zoomOutBool ? moviePrintWidth * scaleValue : moviePrintWidth;
   const newMoviePrintHeightBody = zoomOutBool ? moviePrintHeightBody * scaleValue : moviePrintHeightBody;
   const newMoviePrintHeight = zoomOutBool ? moviePrintHeight * scaleValue : moviePrintHeight;

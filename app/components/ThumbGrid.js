@@ -115,6 +115,7 @@ const ThumbGrid = ({
         tempThumbObject = {
           key: String(i),
           index: i,
+          // thumbId: String(i),
         };
       } else {
         tempThumbObject.key = i;

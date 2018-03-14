@@ -9,7 +9,7 @@ const ThumbGridHeader = ({
 }) => {
   const moviePrintHeaderImageHeight = 124;
   const moviePrintHeaderImageWidth = 528;
-
+  console.log(headerHeight);
   return (
     <div
       className={styles.gridHeader}
