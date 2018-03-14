@@ -127,13 +127,16 @@ export const saveMoviePrint = (elementId, exportPath, file, scale, outputFormat,
   const node = document.getElementById(elementId);
   // const node = document.getElementById('ThumbGrid');1
 
-  let newFileName = `${file.name}_MoviePrint.${outputFormat}`;
+  // in case there is no file loaded give standard name
+  let newFileName = file !== undefined ? `${file.name}_MoviePrint.${outputFormat}` :
+    `MoviePrint.${outputFormat}`;
   let newFilePathAndName = path.join(exportPath, newFileName);
 
   if (!overwrite) {
     if (fs.existsSync(newFilePathAndName)) {
       for (let i = 1; i < 1000; i += 1) {
-        newFileName = `${file.name}_MoviePrint copy ${i}.${outputFormat}`;
+        newFileName = file !== undefined ? `${file.name}_MoviePrint copy ${i}.${outputFormat}` :
+          `MoviePrint copy ${i}.${outputFormat}`;
         newFilePathAndName = path.join(exportPath, newFileName);
         if (!fs.existsSync(newFilePathAndName)) {
           break;
