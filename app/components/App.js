@@ -99,7 +99,6 @@ class App extends Component {
     this.state = {
       className: `${styles.dropzonehide}`,
       modalIsOpen: false,
-      editGrid: false,
       containerHeight: 0,
       containerWidth: 0,
       columnCountTemp: undefined,
@@ -428,7 +427,6 @@ class App extends Component {
 
   editGrid() {
     const { store } = this.context;
-    this.setState({ editGrid: true });
     store.dispatch(showRightSidebar());
     console.log(this.state.columnCount);
     console.log(this.state.thumbCount);
@@ -447,7 +445,6 @@ class App extends Component {
 
   hideEditGrid() {
     const { store } = this.context;
-    this.setState({ editGrid: false });
     store.dispatch(hideRightSidebar());
   }
 
@@ -686,14 +683,14 @@ class App extends Component {
             >
               <SortedVisibleThumbGrid
                 inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
-                editGrid={this.state.editGrid}
+                editGrid={state.visibilitySettings.showRightSidebar}
 
                 containerHeight={this.state.containerHeight}
                 containerWidth={this.state.containerWidth}
                 parentMethod={this.openModal}
 
                 colorArray={this.state.colorArray}
-                columnCount={this.state.editGrid ?
+                columnCount={state.visibilitySettings.showRightSidebar ?
                   this.state.columnCountTemp :
                   (this.props.file ? this.props.file.columnCount || this.state.columnCountTemp :
                     this.state.columnCountTemp)}
@@ -728,11 +725,11 @@ class App extends Component {
               />
               Save
             </Menu.Item>
-            <Menu.Item name="edit" onClick={(this.state.editGrid === false) ? this.editGrid : this.hideEditGrid}>
+            <Menu.Item name="edit" onClick={(state.visibilitySettings.showRightSidebar === false) ? this.editGrid : this.hideEditGrid}>
               <Icon
-                name={(this.state.editGrid === false) ? 'edit' : 'edit'}
+                name={(state.visibilitySettings.showRightSidebar === false) ? 'edit' : 'edit'}
               />
-              {(this.state.editGrid === false) ? 'Edit' : 'Hide'}
+              {(state.visibilitySettings.showRightSidebar === false) ? 'Edit' : 'Hide'}
             </Menu.Item>
           </Menu>
         </Sticky>
