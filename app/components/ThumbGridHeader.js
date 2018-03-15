@@ -11,7 +11,7 @@ const ThumbGridHeader = ({
   const headerImageRatio = 0.5; // 50% of height
   const textRatio = 0.25; // 25% of height
 
-  console.log(headerHeight);
+  // console.log(headerHeight);
   return (
     <div
       className={styles.gridHeader}

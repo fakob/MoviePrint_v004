@@ -53,7 +53,7 @@ const getScaleValueObject = (file, settings, columnCount = 3, thumbCount = 3, co
   const scaleValueWidth = containerWidth / moviePrintWidth;
   const scaleValueHeight = containerHeight / moviePrintHeight;
   const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * generalScale;
-  console.log(scaleValue);
+  // console.log(scaleValue);
   const newMoviePrintWidth = zoomOutBool ? moviePrintWidth * scaleValue : moviePrintWidth;
   const newMoviePrintHeightBody = zoomOutBool ? moviePrintHeightBody * scaleValue : moviePrintHeightBody;
   const newMoviePrintHeight = zoomOutBool ? moviePrintHeight * scaleValue : moviePrintHeight;
@@ -80,15 +80,15 @@ const getScaleValueObject = (file, settings, columnCount = 3, thumbCount = 3, co
     newScaleValue,
   };
 
-  console.log('getScaleValueObject was run');
-  console.log(zoomOutBool);
+  // console.log('getScaleValueObject was run');
+  // console.log(zoomOutBool);
   // console.log(file);
   // console.log(settings);
   // console.log(columnCount);
   // console.log(thumbCount);
   // console.log(containerWidth);
   // console.log(containerHeight);
-  console.log(scaleValueObject);
+  // console.log(scaleValueObject);
 
   return scaleValueObject;
 };
@@ -269,7 +269,7 @@ class App extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log('run componentDidUpdate');
+    console.log('App.js componentDidUpdate');
     this.updatecontainerWidthAndHeight();
 
     // update scaleValue when these parameter change
@@ -278,6 +278,7 @@ class App extends Component {
       prevProps.settings.defaultThumbnailScale !== this.props.settings.defaultThumbnailScale ||
       prevProps.settings.defaultMarginRatio !== this.props.settings.defaultMarginRatio ||
       prevProps.settings.defaultShowHeader !== this.props.settings.defaultShowHeader ||
+      prevProps.settings.defaultRoundedCorners !== this.props.settings.defaultRoundedCorners ||
       prevProps.settings.defaultOutputScaleCompensator !== this.props.settings.defaultOutputScaleCompensator ||
       prevProps.visibilitySettings.zoomOut !== this.props.visibilitySettings.zoomOut ||
       // prevProps.visibilitySettings.showLeftSidebar !== this.props.visibilitySettings.showLeftSidebar ||
@@ -364,7 +365,7 @@ class App extends Component {
 
   updateScaleValue() {
     const { store } = this.context;
-    console.log(`inside updateScaleValue and containerWidth: ${this.state.containerWidth}`);
+    // console.log(`inside updateScaleValue and containerWidth: ${this.state.containerWidth}`);
     const scaleValueObject = getScaleValueObject(
       this.props.file, this.props.settings,
       // this.state.columnCount, this.state.thumbCount,
