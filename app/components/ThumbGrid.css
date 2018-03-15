@@ -2,24 +2,25 @@
   background: #3b3b3b;
   color: #eee;
   font-family: 'Open sans';
-  /* margin: 4px; */
-  /*border-radius: 8px;*/
   padding-left: 4px;
   overflow: hidden;
+  position: relative;
+  line-height: 0;
+}
+
+.gridHeaderImageAndText {
+  float: left;
+  transform-origin: 'left bottom';
+  vertical-align: baseline;
 }
 
 .gridHeaderImage {
-  float: left;
+  display: inline-block;
 }
 
 .gridHeaderText {
-  /* height: 31px; */
-  /* line-height: 12px; */
-  /* font-size: 10px; */
-  /* padding-top: 10px; */
+  display: inline-block;
   white-space: normal;
-  display: table-cell;
-  /* vertical-align: bottom; */
   color: #FF925E;
 }
 

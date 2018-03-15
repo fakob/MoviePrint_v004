@@ -18,31 +18,23 @@ const ThumbGridHeader = ({
       style={{
         height: headerHeight,
         margin: thumbMargin,
-        position: 'relative',
-        lineHeight: 0,
       }}
     >
       <div
-        className={styles.gridHeaderImage}
+        className={styles.gridHeaderImageAndText}
         style={{
-          transformOrigin: 'left bottom',
           transform: `translate(0px, ${headerHeight * headerMarginRatioTop}px)`,
-          verticalAlign: 'baseline',
         }}
       >
         <img
           src={movieprint}
           alt=""
           height={`${headerHeight * headerImageRatio}px`}
-          style={{
-            display: 'inline-block',
-          }}
         />
         <div
           className={styles.gridHeaderText}
           style={{
             fontSize: `${headerHeight * textRatio}px`,
-            display: 'inline-block',
           }}
         >
           {(filePath !== '') && `${filePath.substr(0, filePath.lastIndexOf('/'))}/`}
