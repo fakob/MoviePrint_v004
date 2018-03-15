@@ -1,5 +1,6 @@
 Alpha release of
-# MoviePrint
+
+![MoviePrint](resources/icon.png)
 
 A tool which lets you create screenshots of entire movies in an instant.
 <br/>
