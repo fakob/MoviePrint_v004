@@ -18,7 +18,7 @@ const initialStateJSON = {
       defaultMarginRatio: 0.02,
       defaultMarginSliderFactor: 200.0,
       defaultBorderRadiusRatio: 0.04,
-      defaultHeaderHeightRatio: 0.16,
+      defaultHeaderHeightRatio: 0.25,
       defaultShowHeader: true,
       defaultRoundedCorners: true,
       defaultThumbInfo: 'frames',

@@ -7,8 +7,10 @@ import movieprint from './../img/Thumb_MOVIEPRINT.png';
 const ThumbGridHeader = ({
   zoomOut, filePath, fileName, headerHeight, thumbMargin, scaleValue
 }) => {
-  const moviePrintHeaderImageHeight = 124;
-  const moviePrintHeaderImageWidth = 528;
+  const bottomMarginRatio = 0.3; // 30% of height
+  const headerImageRatio = 0.5; // 50% of height
+  const textRatio = 0.25; // 25% of height
+
   console.log(headerHeight);
   return (
     <div
@@ -16,46 +18,50 @@ const ThumbGridHeader = ({
       style={{
         height: headerHeight,
         margin: thumbMargin,
+        position: 'relative',
       }}
     >
       <div
         className={styles.gridHeaderImage}
         style={{
-          // transformOrigin: 'left top',
-          // transform: `scale(${scaleValue})`,
+          transformOrigin: 'left bottom',
+          transform: `translate(0px, ${headerHeight * bottomMarginRatio}px)`,
+          // position: 'absolute',
+          // bottom: `${headerHeight * bottomMarginRatio}px`,
+          // lineHeight: '0px',
+          // display: 'flex'
         }}
       >
         <img
           src={movieprint}
           alt=""
-          height={`${moviePrintHeaderImageHeight * scaleValue}px`}
-          width={`${moviePrintHeaderImageWidth * scaleValue}px`}
+          height={`${headerHeight * headerImageRatio}px`}
+          // width={`${moviePrintHeaderImageWidth * scaleValue}px`}
         />
       </div>
-      {/* {!zoomOut && */}
-        <div
-          className={styles.gridHeaderText}
+      <div
+        className={styles.gridHeaderText}
+        style={{
+          transformOrigin: 'left bottom',
+          transform: `translate(0px, ${headerHeight * bottomMarginRatio}px)`,
+          // position: 'absolute',
+          // bottom: `${headerHeight * bottomMarginRatio}px`,
+          // lineHeight: '0px',
+          // display: 'flex',
+          fontSize: `${headerHeight * textRatio}px`,
+        }}
+      >
+        {(filePath !== '') && `${filePath.substr(0, filePath.lastIndexOf('/'))}/`}
+        <span
+          className={styles.gridHeaderTextName}
           style={{
-            // transformOrigin: 'left top',
-            // transform: `translate(${(moviePrintHeaderImageWidth * scaleValue) - moviePrintHeaderImageWidth}px)`,
-            height: `${128 * scaleValue}px`,
-            lineHeight: `${48 * scaleValue}px`,
-            fontSize: `${40 * scaleValue}px`,
-            paddingTop: `${40 * scaleValue}px`,
+            fontSize: `${headerHeight * textRatio * 1.5}px`,
+            // letterSpacing: `${1.2 * scaleValue}px`,
           }}
         >
-          {`${filePath.substr(0, filePath.lastIndexOf('/'))}/`}
-          <span
-            className={styles.gridHeaderTextName}
-            style={{
-              fontSize: `${48 * scaleValue}px`,
-              letterSpacing: `${1.2 * scaleValue}px`,
-            }}
-          >
-            {fileName}
-          </span>
-        </div>
-      {/* } */}
+          {fileName}
+        </span>
+      </div>
     </div>
   );
 };
