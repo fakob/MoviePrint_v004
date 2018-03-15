@@ -6,7 +6,6 @@ import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import Thumb from './Thumb';
 import ThumbGridHeader from './ThumbGridHeader';
 import styles from './ThumbGrid.css';
-import empty from './../img/Thumb_EMPTY.png';
 import { mapRange, frameCountToTimeCode, pad } from './../utils/utils';
 
 const SortableThumb = SortableElement(Thumb);
@@ -17,10 +16,9 @@ const ThumbGrid = ({
   file,
   controlersAreVisible,
   onToggleClick, onRemoveClick, onInPointClick, onOutPointClick,
-  onBackClick, onForwardClick, onScrubClick, onNewScaleValue,
+  onBackClick, onForwardClick, onScrubClick,
   onMouseOverResult, onMouseOutResult, settings, editGrid,
-  columnCount, thumbCount, reCapture, containerHeight, containerWidth,
-  zoomOut, colorArray, scaleValueObject
+  thumbCount, zoomOut, colorArray, scaleValueObject
 }) => {
   const fps = (typeof file !== 'undefined' && typeof file.fps !== 'undefined' ? file.fps : 25);
   function getThumbInfoValue(type, frames, fps) {
@@ -35,51 +33,6 @@ const ThumbGrid = ({
         return undefined;
     }
   }
-
-  // const width = (typeof file !== 'undefined' && typeof file.width !== 'undefined' ? file.width : 1280);
-  // const height = (typeof file !== 'undefined' && typeof file.height !== 'undefined' ? file.height : 720);
-  // const aspectRatioInv = (height * 1.0) / width;
-  // const rowCount = Math.ceil(thumbCount / columnCount);
-  // const headerHeight = settings.defaultShowHeader ? height * settings.defaultHeaderHeightRatio * settings.defaultThumbnailScale : 0;
-  // const thumbWidth = width * settings.defaultThumbnailScale;
-  // const thumbMargin = width * settings.defaultMarginRatio * settings.defaultThumbnailScale;
-  // const borderRadius = settings.defaultRoundedCorners ? width * settings.defaultBorderRadiusRatio * settings.defaultThumbnailScale : 0;
-  // const generalScale = 0.95;
-  //
-  // const thumbnailWidthPlusMargin = thumbWidth + (thumbMargin * 2);
-  // const thumbnailHeightPlusMargin = thumbnailWidthPlusMargin * aspectRatioInv;
-  //
-  // const moviePrintWidth = columnCount * thumbnailWidthPlusMargin;
-  // const moviePrintHeightBody = rowCount * thumbnailHeightPlusMargin;
-  // const moviePrintHeight = headerHeight + (thumbMargin * 2) + moviePrintHeightBody;
-  //
-  // const scaleValueWidth = containerWidth / moviePrintWidth;
-  // const scaleValueHeight = containerHeight / moviePrintHeight;
-  // const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * generalScale;
-  //
-  // const newMoviePrintWidth = zoomOut ? moviePrintWidth * scaleValue : moviePrintWidth;
-  // const newThumbMargin = zoomOut ? thumbMargin * scaleValue : thumbMargin;
-  // const newThumbWidth = zoomOut ? thumbWidth * scaleValue : thumbWidth;
-  // const newBorderRadius = zoomOut ? borderRadius * scaleValue : borderRadius;
-  // const newHeaderHeight = zoomOut ? headerHeight * scaleValue : headerHeight;
-  // const newScaleValue = zoomOut ? settings.defaultThumbnailScale * scaleValue : settings.defaultThumbnailScale;
-  //
-  // onNewScaleValue(newScaleValue);
-
-  // console.log(`columnCount: ${columnCount}`);
-  // console.log(`rowCount: ${rowCount}`);
-  // console.log(`aspectRatioInv: ${aspectRatioInv}`);
-  // console.log(`containerWidth: ${containerWidth}`);
-  // console.log(`containerHeight: ${containerHeight}`);
-  // console.log(`moviePrintWidth: ${moviePrintWidth}`);
-  // console.log(`moviePrintHeightBody: ${moviePrintHeightBody}`);
-  // console.log(`moviePrintHeight: ${moviePrintHeight}`);
-  // console.log(`scaleValueWidth: ${scaleValueWidth}`);
-  // console.log(`scaleValueHeight: ${scaleValueHeight}`);
-  // console.log(`zoomOut: ${zoomOut}`);
-  // console.log(`scaleValue: ${scaleValue}`);
-  // console.log(`newHeaderHeight: ${newHeaderHeight}`);
-  // console.log(`defaultThumbnailScale: ${settings.defaultThumbnailScale}`);
 
   let thumbGridHeaderComponent = null;
   let thumbGridComponent = null;
