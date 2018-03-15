@@ -109,15 +109,22 @@ const ThumbGrid = ({
         hidden={editGrid ? undefined : thumb.hidden}
         controlersAreVisible={editGrid ? undefined : (thumb.thumbId === controlersAreVisible)}
         disabled={editGrid}
-        onToggle={editGrid ? null : () => onToggleClick(file.id, thumb.thumbId)}
-        onRemove={editGrid ? null : () => onRemoveClick(file.id, thumb.thumbId)}
-        onInPoint={editGrid ? null : () => onInPointClick(file, thumbArray, thumb.thumbId, thumb.frameNumber)}
-        onOutPoint={editGrid ? null : () => onOutPointClick(file, thumbArray, thumb.thumbId, thumb.frameNumber)}
-        onBack={editGrid ? null : () => onBackClick(file, thumb.thumbId, thumb.frameNumber)}
-        onForward={editGrid ? null : () => onForwardClick(file, thumb.thumbId, thumb.frameNumber)}
-        onScrub={editGrid ? null : () => onScrubClick(file, thumb.thumbId, thumb.frameNumber)}
         onOver={editGrid ? null : () => onMouseOverResult(thumb.thumbId)}
         onOut={editGrid ? null : () => onMouseOutResult()}
+        onToggle={(editGrid || (thumb.thumbId !== controlersAreVisible)) ?
+          null : () => onToggleClick(file.id, thumb.thumbId)}
+        onRemove={(editGrid || (thumb.thumbId !== controlersAreVisible)) ?
+          null : () => onRemoveClick(file.id, thumb.thumbId)}
+        onInPoint={(editGrid || (thumb.thumbId !== controlersAreVisible)) ?
+          null : () => onInPointClick(file, thumbArray, thumb.thumbId, thumb.frameNumber)}
+        onOutPoint={(editGrid || (thumb.thumbId !== controlersAreVisible)) ?
+          null : () => onOutPointClick(file, thumbArray, thumb.thumbId, thumb.frameNumber)}
+        onBack={(editGrid || (thumb.thumbId !== controlersAreVisible)) ?
+          null : () => onBackClick(file, thumb.thumbId, thumb.frameNumber)}
+        onForward={(editGrid || (thumb.thumbId !== controlersAreVisible)) ?
+          null : () => onForwardClick(file, thumb.thumbId, thumb.frameNumber)}
+        onScrub={(editGrid || (thumb.thumbId !== controlersAreVisible)) ?
+          null : () => onScrubClick(file, thumb.thumbId, thumb.frameNumber)}
       />))
   );
 
