@@ -66,6 +66,10 @@
   display: flex;
 }
 
+.ItemMainEdit {
+  border: 5px solid #8f542e;
+}
+
 .ItemMainLeftAnim {
   margin-left: 350px;
 }

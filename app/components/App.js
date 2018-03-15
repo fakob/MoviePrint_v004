@@ -680,7 +680,9 @@ class App extends Component {
             </div>
             <div
               ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
-              className={`${styles.ItemMain} ${state.visibilitySettings.showLeftSidebar ? styles.ItemMainLeftAnim : ''} ${state.visibilitySettings.showRightSidebar ? styles.ItemMainRightAnim : ''}`}
+              className={`${styles.ItemMain} ${state.visibilitySettings.showLeftSidebar ? styles.ItemMainLeftAnim : ''}
+                ${state.visibilitySettings.showRightSidebar ? styles.ItemMainRightAnim : ''}
+                ${state.visibilitySettings.showRightSidebar ? styles.ItemMainEdit : ''}`}
             >
               <SortedVisibleThumbGrid
                 inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
