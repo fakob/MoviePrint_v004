@@ -26,41 +26,35 @@ const ThumbGridHeader = ({
         style={{
           transformOrigin: 'left bottom',
           transform: `translate(0px, ${headerHeight * bottomMarginRatio}px)`,
-          // position: 'absolute',
-          // bottom: `${headerHeight * bottomMarginRatio}px`,
-          // lineHeight: '0px',
-          // display: 'flex'
+          verticalAlign: 'baseline',
         }}
       >
         <img
           src={movieprint}
           alt=""
           height={`${headerHeight * headerImageRatio}px`}
-          // width={`${moviePrintHeaderImageWidth * scaleValue}px`}
-        />
-      </div>
-      <div
-        className={styles.gridHeaderText}
-        style={{
-          transformOrigin: 'left bottom',
-          transform: `translate(0px, ${headerHeight * bottomMarginRatio}px)`,
-          // position: 'absolute',
-          // bottom: `${headerHeight * bottomMarginRatio}px`,
-          // lineHeight: '0px',
-          // display: 'flex',
-          fontSize: `${headerHeight * textRatio}px`,
-        }}
-      >
-        {(filePath !== '') && `${filePath.substr(0, filePath.lastIndexOf('/'))}/`}
-        <span
-          className={styles.gridHeaderTextName}
           style={{
-            fontSize: `${headerHeight * textRatio * 1.5}px`,
-            // letterSpacing: `${1.2 * scaleValue}px`,
+            display: 'inline-block',
+          }}
+        />
+        <div
+          className={styles.gridHeaderText}
+          style={{
+            fontSize: `${headerHeight * textRatio}px`,
+            display: 'inline-block',
           }}
         >
-          {fileName}
-        </span>
+          {(filePath !== '') && `${filePath.substr(0, filePath.lastIndexOf('/'))}/`}
+          <span
+            className={styles.gridHeaderTextName}
+            style={{
+              fontSize: `${headerHeight * textRatio * 1.5}px`,
+              // letterSpacing: `${1.2 * scaleValue}px`,
+            }}
+          >
+            {fileName}
+          </span>
+        </div>
       </div>
     </div>
   );
