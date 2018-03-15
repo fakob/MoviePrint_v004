@@ -45,7 +45,7 @@ const DragHandle = SortableHandle(({ scaleValue }) => {
 
 const Thumb = ({
   onToggle, onInPoint, onOutPoint, onBack, onForward, tempId, color, scaleValue,
-  onOver, onOut, onScrub, hidden, thumbImageObjectUrl, aspectRatioInv,
+  onOver, onOut, onScrub, hidden, thumbImageObjectUrl, aspectRatioInv, thumbInfoRatio,
   controlersAreVisible, thumbWidth, margin, zoomOut, borderRadius, thumbInfoValue
 }) => {
   function over(event) {
@@ -93,7 +93,7 @@ const Thumb = ({
           className={styles.frameNumber}
           style={{
             transformOrigin: 'left top',
-            transform: `scale(${scaleValue})`,
+            transform: `scale(${(thumbInfoRatio * thumbWidth * aspectRatioInv) / 10})`,
           }}
         >
           {thumbInfoValue}

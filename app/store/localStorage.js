@@ -22,6 +22,7 @@ const initialStateJSON = {
       defaultShowHeader: true,
       defaultRoundedCorners: true,
       defaultThumbInfo: 'frames',
+      defaultThumbInfoRatio: 0.075,
       defaultOutputScaleCompensator: 1,
       defaultOutputPath: app.getPath('desktop'),
       defaultOutputFormat: 'png',

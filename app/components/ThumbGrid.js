@@ -21,12 +21,12 @@ const ThumbGrid = ({
   thumbCount, zoomOut, colorArray, scaleValueObject
 }) => {
   const fps = (typeof file !== 'undefined' && typeof file.fps !== 'undefined' ? file.fps : 25);
-  function getThumbInfoValue(type, frames, fps) {
+  function getThumbInfoValue(type, frames, framesPerSecond) {
     switch (type) {
       case 'frames':
         return pad(frames, 4);
       case 'timecode':
-        return frameCountToTimeCode(frames, fps);
+        return frameCountToTimeCode(frames, framesPerSecond);
       case 'hideInfo':
         return undefined;
       default:
@@ -106,6 +106,7 @@ const ThumbGrid = ({
         thumbInfoValue={editGrid ? undefined :
           getThumbInfoValue(settings.defaultThumbInfo, thumb.frameNumber, fps)
         }
+        thumbInfoRatio={settings.defaultThumbInfoRatio}
         hidden={editGrid ? undefined : thumb.hidden}
         controlersAreVisible={editGrid ? undefined : (thumb.thumbId === controlersAreVisible)}
         disabled={editGrid}
