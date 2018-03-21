@@ -40,7 +40,9 @@
       "app.html",
       "main.prod.js",
       "main.prod.js.map",
-      "package.json"
+      "package.json",
+      "!node_modules/opencv-build/opencv/opencv",
+      "!node_modules/opencv-build/opencv/opencv_contrib"
     ],
     "dmg": {
       "contents": [
