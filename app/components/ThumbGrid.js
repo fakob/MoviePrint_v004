@@ -73,16 +73,15 @@ const ThumbGrid = ({
       } else if (thumbs.length === tempArrayLength) {
         tempThumbObject = thumbs[i];
       } else {
-        tempThumbObject.key = i;
-        tempThumbObject.index = i;
-        // console.log(thumbs[mappedIterator]);
-        // console.log(thumbImages);
+        console.log(i);
         if ((typeof thumbImages !== 'undefined') &&
           // thumbImages[thumbs[mappedIterator].frameId] &&
           (i === 0 || i === (tempArrayLength - 1))
         ) {
-          tempThumbObject.thumbImageObjectUrl = thumbImages[thumbs[mappedIterator].frameId].objectUrl;
+          tempThumbObject = thumbs[mappedIterator];
         }
+        tempThumbObject.key = i;
+        tempThumbObject.index = i;
       }
       // console.log(`${i} : ${mappedIterator}`);
       thumbArray[i] = tempThumbObject;
@@ -108,9 +107,7 @@ const ThumbGrid = ({
         thumbWidth={scaleValueObject.newThumbWidth}
         borderRadius={scaleValueObject.newBorderRadius}
         margin={scaleValueObject.newThumbMargin}
-        thumbInfoValue={editGrid ? undefined :
-          getThumbInfoValue(settings.defaultThumbInfo, thumb.frameNumber, fps)
-        }
+        thumbInfoValue={getThumbInfoValue(settings.defaultThumbInfo, thumb.frameNumber, fps)}
         thumbInfoRatio={settings.defaultThumbInfoRatio}
         hidden={thumb.hidden}
         controlersAreVisible={editGrid ? undefined : (thumb.thumbId === controlersAreVisible)}

@@ -37,9 +37,9 @@ export const truncatePath = (n, len) => {
 
 
 export const pad = (num, size) => {
-  if (num !== undefined && size !== undefined) {
-    let s = num.toString();
-    while (s.length < size) s = `0${s}`;
+  if (size !== undefined) {
+    let s = (num !== undefined) ? num.toString() : '';
+    while (s.length < size) s = `${(num !== undefined) ? '0' : '–'}${s}`;
     return s;
   }
   return undefined;
@@ -47,15 +47,17 @@ export const pad = (num, size) => {
 
 export const frameCountToTimeCode = (frames, fps = 25) => {
   // fps = (typeof fps !== 'undefined' ? fps : 30);
-  const pad = (input) => ((input < 10) ? `0${input}` : input);
-  const seconds = (typeof frames !== 'undefined' ? frames / fps : 0);
-
-  return [
-    pad(Math.floor(seconds / 3600)),
-    pad(Math.floor((seconds % 3600) / 60)),
-    pad(Math.floor(seconds % 60)),
-    pad(Math.floor(frames % fps))
-  ].join(':');
+  if (frames !== undefined) {
+    const paddedValue = (input) => ((input < 10) ? `0${input}` : input);
+    const seconds = (typeof frames !== 'undefined' ? frames / fps : 0);
+    return [
+      paddedValue(Math.floor(seconds / 3600)),
+      paddedValue(Math.floor((seconds % 3600) / 60)),
+      paddedValue(Math.floor(seconds % 60)),
+      paddedValue(Math.floor(frames % fps))
+    ].join(':');
+  }
+  return '––:––:––:––';
 };
 
 export const secondsToTimeCode = (seconds = 0) => {
