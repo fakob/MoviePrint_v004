@@ -748,38 +748,62 @@ class App extends Component {
         <Sticky
           className={`${styles.FixedActionMenuRight} ${styles.ItemRightSideBar} ${this.props.visibilitySettings.showRightSidebar ? styles.ItemRightSideBarAnim : ''}`}
         >
-          <Menu compact icon="labeled" size="mini">
-            <Menu.Item name="zoom" onClick={this.onViewToggle}>
+          <Menu
+            compact
+            icon="labeled"
+            size="mini"
+          >
+            <Menu.Item
+              name="zoom"
+              onClick={this.onViewToggle}
+              className={styles.FixedActionMenuFlex}
+            >
               <Icon
                 name={(this.props.visibilitySettings.zoomOut) ? 'picture' : 'block layout'}
               />
-              {(this.props.visibilitySettings.zoomOut) ? 'View' : 'View'}
+              {(this.props.visibilitySettings.zoomOut) ? 'Thumb view' : 'Print view'}
             </Menu.Item>
-            <Menu.Item name="save" onClick={this.onSaveMoviePrint}>
+            <Menu.Item
+              name="save"
+              onClick={this.onSaveMoviePrint}
+              className={styles.FixedActionMenuFlex}
+            >
               <Icon
                 name="save"
               />
-              Save
+              Save MoviePrint
             </Menu.Item>
-            <Menu.Item name="edit" onClick={(this.props.visibilitySettings.showRightSidebar === false) ? this.editGrid : this.hideEditGrid}>
+            <Menu.Item
+              name="edit"
+              onClick={(this.props.visibilitySettings.showRightSidebar === false) ? this.editGrid : this.hideEditGrid}
+              className={styles.FixedActionMenuFlex}
+            >
               <Icon
                 name={(this.props.visibilitySettings.showRightSidebar === false) ? 'edit' : 'edit'}
               />
-              {(this.props.visibilitySettings.showRightSidebar === false) ? 'Edit' : 'Edit'}
+              {(this.props.visibilitySettings.showRightSidebar === false) ? 'Show edit' : 'Hide edit'}
             </Menu.Item>
           </Menu>
         </Sticky>
         <Sticky
           className={`${styles.FixedActionMenuLeft} ${styles.ItemLeftSideBar} ${this.props.visibilitySettings.showLeftSidebar ? styles.ItemLeftSideBarAnim : ''}`}
         >
-          <Menu compact icon="labeled" size="mini">
+          <Menu
+            compact
+            icon="labeled"
+            size="mini"
+          >
 
             {true &&
-              <Menu.Item name="list" onClick={this.toggleLeftSidebar}>
+              <Menu.Item
+                name="list"
+                onClick={this.toggleLeftSidebar}
+                className={styles.FixedActionMenuFlex}
+              >
                 <Icon
                   name="list"
                 />
-                {(this.props.visibilitySettings.showLeftSidebar === false) ? 'Show' : 'Hide'}
+                {(this.props.visibilitySettings.showLeftSidebar === false) ? 'Show list' : 'Hide list'}
               </Menu.Item>
             }
 

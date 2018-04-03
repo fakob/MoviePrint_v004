@@ -161,14 +161,14 @@ class SettingsList extends Component {
           </Grid.Row>
           <Grid.Row>
             <Grid.Column width={4}>
-              Frames
+              Count
             </Grid.Column>
             <Grid.Column width={12}>
               <Checkbox
                 // toggle
                 label={
                   <label className={styles.label}>
-                    Re-capture frames
+                    Change thumb count
                   </label>
                 }
                 // checked={this.state.checkBoxChecked}

@@ -153,3 +153,7 @@
   right: calc(100vw + 24px);
   z-index: 990;
 }
+
+.FixedActionMenuFlex {
+  flex-shrink: 1 !important;
+}
