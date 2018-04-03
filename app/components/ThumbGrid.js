@@ -73,7 +73,6 @@ const ThumbGrid = ({
       } else if (thumbs.length === tempArrayLength) {
         tempThumbObject = thumbs[i];
       } else {
-        console.log(i);
         if ((typeof thumbImages !== 'undefined') &&
           // thumbImages[thumbs[mappedIterator].frameId] &&
           (i === 0 || i === (tempArrayLength - 1))

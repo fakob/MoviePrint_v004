@@ -9,7 +9,7 @@ import FileList from '../containers/FileList';
 import SettingsList from '../containers/SettingsList';
 import SortedVisibleThumbGrid from '../containers/VisibleThumbGrid';
 import VideoPlayer from '../components/VideoPlayer';
-import { saveMoviePrint, getColumnCount, getThumbsCount, getMoviePrintColor } from '../utils/utils';
+import { getLowestFrame, getHighestFrame, getVisibleThumbs, saveMoviePrint, getColumnCount, getThumbsCount, getMoviePrintColor } from '../utils/utils';
 import styles from './App.css';
 import {
   setNewMovieList, toggleLeftSidebar, showRightSidebar, hideRightSidebar,
@@ -574,7 +574,17 @@ class App extends Component {
     if (this.props.currentFileId !== undefined) {
       store.dispatch(addDefaultThumbs(
         this.props.file,
-        thumbCount
+        thumbCount,
+        getLowestFrame(getVisibleThumbs(
+          (typeof this.props.thumbsByFileId[this.props.currentFileId] === 'undefined')
+            ? undefined : this.props.thumbsByFileId[this.props.currentFileId].thumbs,
+          this.props.visibilitySettings.visibilityFilter
+        )),
+        getHighestFrame(getVisibleThumbs(
+          (typeof this.props.thumbsByFileId[this.props.currentFileId] === 'undefined')
+            ? undefined : this.props.thumbsByFileId[this.props.currentFileId].thumbs,
+          this.props.visibilitySettings.visibilityFilter
+        ))
       ));
     }
   };
