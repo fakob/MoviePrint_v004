@@ -754,6 +754,18 @@ class App extends Component {
             size="mini"
           >
             <Menu.Item
+              name="save"
+              onClick={this.onSaveMoviePrint}
+              color="orange"
+              active="orange"
+              className={styles.FixedActionMenuFlex}
+            >
+              <Icon
+                name="save"
+              />
+              Save MoviePrint
+            </Menu.Item>
+            <Menu.Item
               name="zoom"
               onClick={this.onViewToggle}
               className={styles.FixedActionMenuFlex}
@@ -762,16 +774,6 @@ class App extends Component {
                 name={(this.props.visibilitySettings.zoomOut) ? 'picture' : 'block layout'}
               />
               {(this.props.visibilitySettings.zoomOut) ? 'Thumb view' : 'Print view'}
-            </Menu.Item>
-            <Menu.Item
-              name="save"
-              onClick={this.onSaveMoviePrint}
-              className={styles.FixedActionMenuFlex}
-            >
-              <Icon
-                name="save"
-              />
-              Save MoviePrint
             </Menu.Item>
             <Menu.Item
               name="edit"
