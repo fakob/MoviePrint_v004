@@ -213,12 +213,15 @@ export const getColumnCount = (file, settings) => {
   return file.columnCount;
 };
 
-export const getVisibleThumbsCount = (file, thumbsByFileId, settings) => {
+export const getThumbsCount = (file, thumbsByFileId, settings, visibilityFilter) => {
   if (typeof file === 'undefined' ||
   typeof file.id === 'undefined' ||
     typeof thumbsByFileId[file.id] === 'undefined') {
     return settings.defaultThumbCount;
   }
-  return thumbsByFileId[file.id].thumbs
-    .filter(thumb => thumb.hidden === false).length;
+  if (visibilityFilter === 'SHOW_VISIBLE') {
+    return thumbsByFileId[file.id].thumbs
+      .filter(thumb => thumb.hidden === false).length;
+  }
+  return thumbsByFileId[file.id].thumbs.length;
 };

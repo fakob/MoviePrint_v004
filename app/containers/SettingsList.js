@@ -51,6 +51,7 @@ class SettingsList extends Component {
     this.onChangeReCapture = this.onChangeReCapture.bind(this);
     this.onChangeShowHeader = this.onChangeShowHeader.bind(this);
     this.onChangeRoundedCorners = this.onChangeRoundedCorners.bind(this);
+    this.onChangeShowHiddenThumbs = this.onChangeShowHiddenThumbs.bind(this);
     this.onChangeThumbInfo = this.onChangeThumbInfo.bind(this);
     this.onChangeOutputFormat = this.onChangeOutputFormat.bind(this);
     this.onChangeOverwrite = this.onChangeOverwrite.bind(this);
@@ -67,6 +68,10 @@ class SettingsList extends Component {
 
   onChangeRoundedCorners = (e, { checked }) => {
     this.props.onRoundedCornersClick(checked);
+  }
+
+  onChangeShowHiddenThumbs = (e, { checked }) => {
+    this.props.onShowHiddenThumbsClick(checked);
   }
 
   onChangeThumbInfo = (e, { value }) => {
@@ -250,6 +255,17 @@ class SettingsList extends Component {
                     }
                     checked={this.props.settings.defaultRoundedCorners}
                     onChange={this.onChangeRoundedCorners}
+                  />
+                </List.Item>
+                <List.Item>
+                  <Checkbox
+                    label={
+                      <label className={styles.label}>
+                        Show hidden thumbs
+                      </label>
+                    }
+                    checked={this.props.visibilitySettings.visibilityFilter === 'SHOW_ALL'}
+                    onChange={this.onChangeShowHiddenThumbs}
                   />
                 </List.Item>
                 <Divider inverted />
