@@ -49,12 +49,13 @@ const getScaleValueObject = (file, settings, columnCount = 3, thumbCount = 3, co
   const moviePrintWidth = columnCount * thumbnailWidthPlusMargin;
   const moviePrintHeightBody = rowCount * thumbnailHeightPlusMargin;
   const moviePrintHeight = headerHeight + (thumbMargin * 2) + moviePrintHeightBody;
+  const moviePrintWidthForThumbView = thumbCount * thumbnailWidthPlusMargin; // only one row
 
   const scaleValueWidth = containerWidth / moviePrintWidth;
   const scaleValueHeight = containerHeight / moviePrintHeight;
   const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * generalScale;
   // console.log(scaleValue);
-  const newMoviePrintWidth = zoomOutBool ? moviePrintWidth * scaleValue : moviePrintWidth;
+  const newMoviePrintWidth = zoomOutBool ? moviePrintWidth * scaleValue : moviePrintWidthForThumbView;
   const newMoviePrintHeightBody = zoomOutBool ? moviePrintHeightBody * scaleValue : moviePrintHeightBody;
   const newMoviePrintHeight = zoomOutBool ? moviePrintHeight * scaleValue : moviePrintHeight;
   const newThumbMargin = zoomOutBool ? thumbMargin * scaleValue : thumbMargin;
@@ -735,6 +736,9 @@ class App extends Component {
               className={`${styles.ItemMain} ${this.props.visibilitySettings.showLeftSidebar ? styles.ItemMainLeftAnim : ''}
                 ${this.props.visibilitySettings.showRightSidebar ? styles.ItemMainRightAnim : ''}
                 ${this.props.visibilitySettings.showRightSidebar ? styles.ItemMainEdit : ''}`}
+              style={{
+                width: this.props.visibilitySettings.zoomOut ? undefined : this.state.scaleValueObject.newMoviePrintWidth
+              }}
             >
               <SortedVisibleThumbGrid
                 inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
@@ -788,16 +792,16 @@ class App extends Component {
               Save MoviePrint
             </Menu.Item>
             {!this.props.visibilitySettings.showRightSidebar &&
-            <Menu.Item
-              name="zoom"
-              onClick={this.onViewToggle}
-              className={styles.FixedActionMenuFlex}
-            >
-              <Icon
-                name={(this.props.visibilitySettings.zoomOut) ? 'picture' : 'block layout'}
-              />
-              {(this.props.visibilitySettings.zoomOut) ? 'Thumb view' : 'Print view'}
-            </Menu.Item>
+              <Menu.Item
+                name="zoom"
+                onClick={this.onViewToggle}
+                className={styles.FixedActionMenuFlex}
+              >
+                <Icon
+                  name={(this.props.visibilitySettings.zoomOut) ? 'picture' : 'block layout'}
+                />
+                {(this.props.visibilitySettings.zoomOut) ? 'Thumb view' : 'Print view'}
+              </Menu.Item>
             }
             <Menu.Item
               name="edit"

@@ -138,7 +138,7 @@ const ThumbGrid = ({
       }}
       id="ThumbGrid"
     >
-      {settings.defaultShowHeader && thumbGridHeaderComponent}
+      {settings.defaultShowHeader && zoomOut && thumbGridHeaderComponent}
       {thumbGridComponent}
     </div>
   );
