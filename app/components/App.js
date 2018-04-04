@@ -787,6 +787,7 @@ class App extends Component {
               }
               Save MoviePrint
             </Menu.Item>
+            {!this.props.visibilitySettings.showRightSidebar &&
             <Menu.Item
               name="zoom"
               onClick={this.onViewToggle}
@@ -797,6 +798,7 @@ class App extends Component {
               />
               {(this.props.visibilitySettings.zoomOut) ? 'Thumb view' : 'Print view'}
             </Menu.Item>
+            }
             <Menu.Item
               name="edit"
               onClick={(this.props.visibilitySettings.showRightSidebar === false) ? this.editGrid : this.hideEditGrid}
