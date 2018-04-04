@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 // import keydown from 'react-keydown';
-import { Sticky, Menu, Icon } from 'semantic-ui-react';
+import { Sticky, Menu, Icon, Loader } from 'semantic-ui-react';
 import Modal from 'react-modal';
 import '../app.global.css';
 import FileList from '../containers/FileList';
@@ -108,6 +108,7 @@ class App extends Component {
       reCapture: false,
       colorArray: undefined,
       scaleValueObject: undefined,
+      savingMoviePrint: false,
     };
 
     this.onDragEnter = this.onDragEnter.bind(this);
@@ -204,10 +205,18 @@ class App extends Component {
     });
 
     ipcRenderer.on('received-saved-file', (event, path) => {
+      setTimeout(
+        this.setState({ savingMoviePrint: false }),
+        1000
+      ); // adding timeout to prevent clicking multiple times
       console.log(`Saved file: ${path}`);
     });
 
     ipcRenderer.on('received-saved-file-error', (event, message) => {
+      setTimeout(
+        this.setState({ savingMoviePrint: false }),
+        1000
+      ); // adding timeout to prevent clicking multiple times
       console.log(`Saved file error: ${message}`);
     });
 
@@ -486,11 +495,14 @@ class App extends Component {
   }
 
   onSaveMoviePrint() {
-    saveMoviePrint(
-      'ThumbGrid', this.props.settings.defaultOutputPath,
-      this.props.file, this.props.settings.defaultThumbnailScale / this.props.settings.defaultOutputScaleCompensator,
-      this.props.settings.defaultOutputFormat,
-      this.props.settings.defaultSaveOptionOverwrite
+    this.setState(
+      { savingMoviePrint: true },
+      saveMoviePrint(
+        'ThumbGrid', this.props.settings.defaultOutputPath,
+        this.props.file, this.props.settings.defaultThumbnailScale / this.props.settings.defaultOutputScaleCompensator,
+        this.props.settings.defaultOutputFormat,
+        this.props.settings.defaultSaveOptionOverwrite
+      )
     );
   }
 
@@ -758,12 +770,21 @@ class App extends Component {
               name="save"
               onClick={this.onSaveMoviePrint}
               color="orange"
-              active
+              active={!this.state.savingMoviePrint}
               className={styles.FixedActionMenuFlex}
+              disabled={this.state.savingMoviePrint}
             >
-              <Icon
-                name="save"
-              />
+              { this.state.savingMoviePrint ?
+                <Loader
+                  active
+                  inline
+                  size="small"
+                />
+                :
+                <Icon
+                  name="save"
+                />
+              }
               Save MoviePrint
             </Menu.Item>
             <Menu.Item
