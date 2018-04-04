@@ -140,27 +140,29 @@ class SettingsList extends Component {
               />
             </Grid.Column>
           </Grid.Row>
-          <Grid.Row>
-            <Grid.Column width={4}>
-              Rows
-            </Grid.Column>
-            <Grid.Column width={12}>
-              <SliderWithTooltip
-                disabled={!this.props.reCapture}
-                className={styles.slider}
-                min={1}
-                max={20}
-                defaultValue={this.props.rowCountTemp}
-                {...(this.props.reCapture ? {} : { value: this.props.rowCountTemp })}
-                marks={{
-                  1: '1',
-                  20: '20',
-                }}
-                handle={handle}
-                onChange={this.props.onChangeRow}
-              />
-            </Grid.Column>
-          </Grid.Row>
+          { this.props.reCapture &&
+            <Grid.Row>
+              <Grid.Column width={4}>
+                Rows
+              </Grid.Column>
+              <Grid.Column width={12}>
+                <SliderWithTooltip
+                  disabled={!this.props.reCapture}
+                  className={styles.slider}
+                  min={1}
+                  max={20}
+                  defaultValue={this.props.rowCountTemp}
+                  {...(this.props.reCapture ? {} : { value: this.props.rowCountTemp })}
+                  marks={{
+                    1: '1',
+                    20: '20',
+                  }}
+                  handle={handle}
+                  onChange={this.props.onChangeRow}
+                />
+              </Grid.Column>
+            </Grid.Row>
+          }
           <Grid.Row>
             <Grid.Column width={4}>
               Count
