@@ -694,6 +694,7 @@ class App extends Component {
               <SettingsList
                 settings={this.props.settings}
                 visibilitySettings={this.props.visibilitySettings}
+                file={this.props.file}
                 columnCountTemp={this.state.columnCountTemp}
                 thumbCountTemp={this.state.thumbCountTemp}
                 rowCountTemp={Math.ceil(this.state.thumbCountTemp / this.state.columnCountTemp)}
@@ -757,7 +758,7 @@ class App extends Component {
               name="save"
               onClick={this.onSaveMoviePrint}
               color="orange"
-              active="orange"
+              active
               className={styles.FixedActionMenuFlex}
             >
               <Icon

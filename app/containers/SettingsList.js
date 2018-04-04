@@ -28,13 +28,15 @@ const handle = (props) => {
   );
 };
 
-const thumbnailScale = [
-  { value: 1, text: '1/1' },
-  { value: 0.5, text: '1/2' },
-  { value: 0.25, text: '1/4' },
-  { value: 0.125, text: '1/8' },
-  // { value: 0.0625, text: '1/16' },
-];
+const thumbnailScale = (file = { width: 1920, height: 1080 }) => {
+  return [
+    { value: 1, text: `${file.width}×${file.height} – 1/1` },
+    { value: 0.5, text: `${file.width * 0.5}×${file.height * 0.5} – 1/2` },
+    { value: 0.25, text: `${file.width * 0.25}×${file.height * 0.25} – 1/4` },
+    { value: 0.125, text: `${file.width * 0.125}×${file.height * 0.125} – 1/8` },
+    // { value: 0.0625, text: '1/16' },
+  ];
+};
 
 const outputFormatOptions = [
   { value: 'png', text: 'PNG' },
@@ -197,21 +199,6 @@ class SettingsList extends Component {
           <Divider inverted />
           <Grid.Row>
             <Grid.Column width={4}>
-              Scale
-            </Grid.Column>
-            <Grid.Column width={12}>
-              <Dropdown
-                placeholder="Select..."
-                selection
-                // search
-                options={thumbnailScale}
-                defaultValue={this.props.settings.defaultThumbnailScale}
-                onChange={this.onChangeThumbnailScale}
-              />
-            </Grid.Column>
-          </Grid.Row>
-          <Grid.Row>
-            <Grid.Column width={4}>
               Margin
             </Grid.Column>
             <Grid.Column width={12}>
@@ -350,6 +337,21 @@ class SettingsList extends Component {
                 options={outputFormatOptions}
                 defaultValue={this.props.settings.defaultOutputFormat}
                 onChange={this.onChangeOutputFormat}
+              />
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Thumb size
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <Dropdown
+                placeholder="Select..."
+                selection
+                // search
+                options={thumbnailScale(this.props.file)}
+                defaultValue={this.props.settings.defaultThumbnailScale}
+                onChange={this.onChangeThumbnailScale}
               />
             </Grid.Column>
           </Grid.Row>
