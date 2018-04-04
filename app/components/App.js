@@ -49,6 +49,7 @@ const getScaleValueObject = (file, settings, columnCount = 3, thumbCount = 3, co
   const moviePrintWidth = columnCount * thumbnailWidthPlusMargin;
   const moviePrintHeightBody = rowCount * thumbnailHeightPlusMargin;
   const moviePrintHeight = headerHeight + (thumbMargin * 2) + moviePrintHeightBody;
+
   const moviePrintWidthForThumbView = thumbCount * thumbnailWidthPlusMargin; // only one row
 
   const scaleValueWidth = containerWidth / moviePrintWidth;
@@ -770,27 +771,29 @@ class App extends Component {
             icon="labeled"
             size="mini"
           >
-            <Menu.Item
-              name="save"
-              onClick={this.onSaveMoviePrint}
-              color="orange"
-              active={!this.state.savingMoviePrint}
-              className={styles.FixedActionMenuFlex}
-              disabled={this.state.savingMoviePrint}
-            >
-              { this.state.savingMoviePrint ?
-                <Loader
-                  active
-                  inline
-                  size="small"
-                />
-                :
-                <Icon
-                  name="save"
-                />
-              }
-              Save MoviePrint
-            </Menu.Item>
+            {this.props.visibilitySettings.zoomOut &&
+              <Menu.Item
+                name="save"
+                onClick={this.onSaveMoviePrint}
+                color="orange"
+                active={!this.state.savingMoviePrint}
+                className={styles.FixedActionMenuFlex}
+                disabled={this.state.savingMoviePrint}
+              >
+                { this.state.savingMoviePrint ?
+                  <Loader
+                    active
+                    inline
+                    size="small"
+                  />
+                  :
+                  <Icon
+                    name="save"
+                  />
+                }
+                Save MoviePrint
+              </Menu.Item>
+            }
             {!this.props.visibilitySettings.showRightSidebar &&
               <Menu.Item
                 name="zoom"
