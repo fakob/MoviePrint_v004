@@ -738,12 +738,14 @@ class App extends Component {
             </div>
             {!this.props.visibilitySettings.zoomOut &&
               <div
-                className={`${styles.ItemVideoPlayer}`}
+                className={`${styles.ItemVideoPlayer} ${this.props.visibilitySettings.showLeftSidebar ? styles.ItemMainLeftAnim : ''}`}
               >
                 { this.props.file ?
                   <VideoPlayer
                     ref={(el) => { this.videoPlayer = el; }}
                     path={this.props.file ? (this.props.file.path || '') : ''}
+                    width={this.props.settings.defaultVideoPlayerHeight / this.state.scaleValueObject.aspectRatioInv}
+                    height={this.props.settings.defaultVideoPlayerHeight}
                     // thumbId={this.state.thumbId}
                     positionRatio={0}
                     // positionRatio={(this.state.frameNumber * 1.0) / (this.props.file.frameCount || 1)}
@@ -755,9 +757,13 @@ class App extends Component {
             }
             <div
               ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
-              className={`${styles.ItemMain} ${this.props.visibilitySettings.showLeftSidebar ? styles.ItemMainLeftAnim : ''} ${this.props.visibilitySettings.zoomOut ? styles.ItemMainMinHeight : ''} ${this.props.visibilitySettings.showRightSidebar ? styles.ItemMainRightAnim : ''} ${this.props.visibilitySettings.showRightSidebar ? styles.ItemMainEdit : ''}`}
+              className={`${styles.ItemMain} ${this.props.visibilitySettings.showLeftSidebar ? styles.ItemMainLeftAnim : ''} ${this.props.visibilitySettings.zoomOut ? styles.ItemMainMinHeight : ''} ${this.props.visibilitySettings.showRightSidebar ? styles.ItemMainRightAnim : ''} ${this.props.visibilitySettings.showRightSidebar ? styles.ItemMainEdit : ''} ${!this.props.visibilitySettings.zoomOut ? styles.ItemMainTopAnim : ''}`}
               style={{
-                width: this.props.visibilitySettings.zoomOut ? undefined : this.state.scaleValueObject.newMoviePrintWidth
+                width: this.props.visibilitySettings.zoomOut ? undefined : this.state.scaleValueObject.newMoviePrintWidth,
+                marginTop: this.props.visibilitySettings.zoomOut ? undefined :
+                  `${this.props.settings.defaultVideoPlayerHeight +
+                    this.props.settings.defaultVideoPlayerControllerHeight +
+                    this.props.settings.defaultBorderMargin}px`
               }}
             >
               <SortedVisibleThumbGrid

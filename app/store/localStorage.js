@@ -28,6 +28,9 @@ const initialStateJSON = {
       defaultOutputFormat: 'png',
       defaultSaveOptionOverwrite: false,
       defaultSaveOptionSaveIndividual: true,
+      defaultVideoPlayerHeight: 360,
+      defaultVideoPlayerControllerHeight: 48,
+      defaultBorderMargin: 24,
     },
     thumbsByFileId: [],
     files: []

@@ -70,11 +70,22 @@
 }
 
 .ItemVideoPlayer {
-
+  transition: margin 0.5s ease;
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  margin-right: -50%;
+  transform: translate(-50%);
 }
 
 .ItemMainEdit {
   border: 5px solid #8f542e;
+}
+
+.ItemMainTopAnim {
+  margin-top: 350px;
 }
 
 .ItemMainLeftAnim {

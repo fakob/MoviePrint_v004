@@ -21,8 +21,6 @@ class VideoPlayer extends Component {
         x: 0,
         y: 0
       },
-      width: 640,
-      height: 360
       // cutStartTime: 0,
       // cutEndTime: undefined,
       // fileFormat: undefined,
@@ -55,14 +53,14 @@ class VideoPlayer extends Component {
 
   onTimeUpdate(currentTime) {
     this.setState({ currentTime });
-    const newX = mapRange(currentTime, 0, this.state.duration, 0, this.state.width);
+    const newX = mapRange(currentTime, 0, this.state.duration, 0, this.props.width);
     this.setState({ controlledPosition: { x: newX, y: 0 } });
   }
 
   onControlledDrag(e, position) {
     const { x } = position;
     this.setState({ controlledPosition: { x, y: 0 } });
-    const newCurrentTime = mapRange(x, 0, this.state.width, 0, this.state.duration, false);
+    const newCurrentTime = mapRange(x, 0, this.props.width, 0, this.state.duration, false);
     this.video.currentTime = newCurrentTime;
     this.setState({ currentTime: newCurrentTime });
   }
@@ -89,8 +87,8 @@ class VideoPlayer extends Component {
             controls
             muted
             src={`${pathModule.dirname(this.props.path)}/${encodeURIComponent(pathModule.basename(this.props.path))}` || ''}
-            width={this.state.width}
-            height={this.state.height}
+            width={this.props.width}
+            height={this.props.height}
             onDurationChange={e => this.onDurationChange(e.target.duration)}
             onTimeUpdate={e => this.onTimeUpdate(e.target.currentTime)}
           >
@@ -118,13 +116,6 @@ class VideoPlayer extends Component {
             onClick={this.onApplyClick}
           >
             Apply
-          </Button>
-          <Button
-            compact
-            size="mini"
-            onClick={this.onCancelClick}
-          >
-            Cancel
           </Button>
         </div>
       </div>
