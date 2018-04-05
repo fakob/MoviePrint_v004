@@ -6,7 +6,7 @@ const initialStateJSON = {
     visibilityFilter: 'SHOW_VISIBLE',
     showLeftSidebar: false,
     showRightSidebar: false,
-    zoomOut: false,
+    zoomOut: true,
   },
   thumbsObjUrls: {},
   undoGroup: {
