@@ -58,15 +58,17 @@ class VideoPlayer extends Component {
   }
 
   onTimeUpdate(currentTime) {
+    const width = (this.props.height - this.props.controllerHeight) / this.props.aspectRatioInv;
     this.setState({ currentTime });
-    const newX = mapRange(currentTime, 0, this.state.duration, 0, this.props.width);
+    const newX = mapRange(currentTime, 0, this.state.duration, 0, width);
     this.setState({ controlledPosition: { x: newX, y: 0 } });
   }
 
   onControlledDrag(e, position) {
+    const width = (this.props.height - this.props.controllerHeight) / this.props.aspectRatioInv;
     const { x } = position;
     this.setState({ controlledPosition: { x, y: 0 } });
-    const newCurrentTime = mapRange(x, 0, this.props.width, 0, this.state.duration, false);
+    const newCurrentTime = mapRange(x, 0, width, 0, this.state.duration, false);
     this.video.currentTime = newCurrentTime;
     this.setState({ currentTime: newCurrentTime });
   }
