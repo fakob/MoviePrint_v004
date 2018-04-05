@@ -50,7 +50,11 @@ const getScaleValueObject = (file, settings, columnCount = 3, thumbCount = 3, co
   const moviePrintHeightBody = rowCount * thumbnailHeightPlusMargin;
   const moviePrintHeight = headerHeight + (thumbMargin * 2) + moviePrintHeightBody;
 
-  const moviePrintWidthForThumbView = thumbCount * thumbnailWidthPlusMargin; // only one row
+  const thumbnailHeightForThumbView = (containerHeight / 3);
+  const thumbnailWidthForThumbView = thumbnailHeightForThumbView / aspectRatioInv;
+  const thumbMarginForThumbView = thumbnailWidthForThumbView * settings.defaultMarginRatio;
+  const thumbnailWidthPlusMarginForThumbView = thumbnailWidthForThumbView + (thumbMarginForThumbView * 2);
+  const moviePrintWidthForThumbView = thumbCount * thumbnailWidthPlusMarginForThumbView; // only one row
 
   const scaleValueWidth = containerWidth / moviePrintWidth;
   const scaleValueHeight = containerHeight / moviePrintHeight;
@@ -59,8 +63,8 @@ const getScaleValueObject = (file, settings, columnCount = 3, thumbCount = 3, co
   const newMoviePrintWidth = zoomOutBool ? moviePrintWidth * scaleValue : moviePrintWidthForThumbView;
   const newMoviePrintHeightBody = zoomOutBool ? moviePrintHeightBody * scaleValue : moviePrintHeightBody;
   const newMoviePrintHeight = zoomOutBool ? moviePrintHeight * scaleValue : moviePrintHeight;
-  const newThumbMargin = zoomOutBool ? thumbMargin * scaleValue : thumbMargin;
-  const newThumbWidth = zoomOutBool ? thumbWidth * scaleValue : thumbWidth;
+  const newThumbMargin = zoomOutBool ? thumbMargin * scaleValue : thumbMarginForThumbView;
+  const newThumbWidth = zoomOutBool ? thumbWidth * scaleValue : thumbnailWidthForThumbView;
   const newBorderRadius = zoomOutBool ? borderRadius * scaleValue : borderRadius;
   const newHeaderHeight = zoomOutBool ? headerHeight * scaleValue : headerHeight;
   const newScaleValue = zoomOutBool ? settings.defaultThumbnailScale * scaleValue :
@@ -674,7 +678,7 @@ class App extends Component {
           className={`${styles.ReactModalContent}`}
           overlayClassName={`${styles.ReactModalOverlay}`}
         >
-          <div>
+          {/* <div>
             { this.props.file ?
               <VideoPlayer
                 ref={(el) => { this.videoPlayer = el; }}
@@ -685,7 +689,7 @@ class App extends Component {
                 closeModal={this.closeModal}
               /> : ''
             }
-          </div>
+          </div> */}
         </Modal>
         <div className={`${styles.Site}`}>
           {/* <div className={`${styles.SiteHeader}`}>
@@ -732,11 +736,26 @@ class App extends Component {
                 onThumbnailScaleClick={this.onThumbnailScaleClick}
               />
             </div>
+            {!this.props.visibilitySettings.zoomOut &&
+              <div
+                className={`${styles.ItemVideoPlayer}`}
+              >
+                { this.props.file ?
+                  <VideoPlayer
+                    ref={(el) => { this.videoPlayer = el; }}
+                    path={this.props.file ? (this.props.file.path || '') : ''}
+                    // thumbId={this.state.thumbId}
+                    positionRatio={0}
+                    // positionRatio={(this.state.frameNumber * 1.0) / (this.props.file.frameCount || 1)}
+                    // setNewFrame={this.setNewFrame}
+                    // closeModal={this.closeModal}/
+                  /> : ''
+                }
+              </div>
+            }
             <div
               ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
-              className={`${styles.ItemMain} ${this.props.visibilitySettings.showLeftSidebar ? styles.ItemMainLeftAnim : ''}
-                ${this.props.visibilitySettings.showRightSidebar ? styles.ItemMainRightAnim : ''}
-                ${this.props.visibilitySettings.showRightSidebar ? styles.ItemMainEdit : ''}`}
+              className={`${styles.ItemMain} ${this.props.visibilitySettings.showLeftSidebar ? styles.ItemMainLeftAnim : ''} ${this.props.visibilitySettings.zoomOut ? styles.ItemMainMinHeight : ''} ${this.props.visibilitySettings.showRightSidebar ? styles.ItemMainRightAnim : ''} ${this.props.visibilitySettings.showRightSidebar ? styles.ItemMainEdit : ''}`}
               style={{
                 width: this.props.visibilitySettings.zoomOut ? undefined : this.state.scaleValueObject.newMoviePrintWidth
               }}

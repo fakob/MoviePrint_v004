@@ -60,10 +60,17 @@
 
 .ItemMain {
   overflow-x: scroll;
-  min-height: calc(100vh);
   transition: margin 0.5s ease;
   clear: both;
   display: flex;
+}
+
+.ItemMainMinHeight {
+  min-height: calc(100vh);
+}
+
+.ItemVideoPlayer {
+
 }
 
 .ItemMainEdit {
