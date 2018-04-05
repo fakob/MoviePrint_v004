@@ -45,10 +45,7 @@
       "!node_modules/opencv-build/opencv/opencv",
       "!node_modules/opencv-build/opencv/opencv_contrib"
     ],
-    "asarUnpack": [
-      "node_modules/opencv-build/**/*",
-      "node_modules/opencv4nodejs/**/*"
-    ],
+    "asar": false,
     "dmg": {
       "contents": [
         {
