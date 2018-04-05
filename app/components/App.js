@@ -300,8 +300,8 @@ class App extends Component {
     this.updatecontainerWidthAndHeight();
 
     // update scaleValue when these parameter change
-    if ((prevProps.file === undefined ? false : (prevProps.file.width !== this.props.file.width)) ||
-      (prevProps.file === undefined ? false : (prevProps.file.height !== this.props.file.height)) ||
+    if (((prevProps.file === undefined || this.props.file === undefined) ? false : (prevProps.file.width !== this.props.file.width)) ||
+      ((prevProps.file === undefined || this.props.file === undefined) ? false : (prevProps.file.height !== this.props.file.height)) ||
       prevProps.settings.defaultThumbnailScale !== this.props.settings.defaultThumbnailScale ||
       prevProps.settings.defaultMarginRatio !== this.props.settings.defaultMarginRatio ||
       prevProps.settings.defaultShowHeader !== this.props.settings.defaultShowHeader ||
