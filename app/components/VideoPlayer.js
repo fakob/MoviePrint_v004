@@ -83,7 +83,7 @@ class VideoPlayer extends Component {
   render() {
     const dragHandlers = { onStart: this.onStart, onStop: this.onStop };
     const { controlledPosition } = this.state;
-
+    console.log(this.props.positionRatio);
     return (
       <div>
         <div className={`${styles.player}`}>
@@ -93,8 +93,8 @@ class VideoPlayer extends Component {
             controls
             muted
             src={`${pathModule.dirname(this.props.path)}/${encodeURIComponent(pathModule.basename(this.props.path))}` || ''}
-            width={this.props.width}
-            height={this.props.height}
+            width={(this.props.height - this.props.controllerHeight) / this.props.aspectRatioInv}
+            height={this.props.height - this.props.controllerHeight}
             onDurationChange={e => this.onDurationChange(e.target.duration)}
             onTimeUpdate={e => this.onTimeUpdate(e.target.currentTime)}
           >

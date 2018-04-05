@@ -50,7 +50,9 @@ const getScaleValueObject = (file, settings, columnCount = 3, thumbCount = 3, co
   const moviePrintHeightBody = rowCount * thumbnailHeightPlusMargin;
   const moviePrintHeight = headerHeight + (thumbMargin * 2) + moviePrintHeightBody;
 
-  const thumbnailHeightForThumbView = (containerHeight / 3);
+  const videoPlayerHeight = ((containerHeight * 2) / 3);
+  const videoPlayerWidth = videoPlayerHeight / aspectRatioInv;
+  const thumbnailHeightForThumbView = ((containerHeight / 3) - (settings.defaultBorderMargin * 3));
   const thumbnailWidthForThumbView = thumbnailHeightForThumbView / aspectRatioInv;
   const thumbMarginForThumbView = thumbnailWidthForThumbView * settings.defaultMarginRatio;
   const thumbnailWidthPlusMarginForThumbView = thumbnailWidthForThumbView + (thumbMarginForThumbView * 2);
@@ -84,6 +86,8 @@ const getScaleValueObject = (file, settings, columnCount = 3, thumbCount = 3, co
     newBorderRadius,
     newHeaderHeight,
     newScaleValue,
+    videoPlayerHeight,
+    videoPlayerWidth,
   };
 
   // console.log('getScaleValueObject was run');
@@ -416,9 +420,10 @@ class App extends Component {
     this.siteContent.clientWidth -
     (this.props.visibilitySettings.showLeftSidebar ? 350 : 0) -
     (this.props.visibilitySettings.showRightSidebar ? 350 : 0);
-    if (this.state.containerHeight !== this.siteContent.clientHeight ||
-      this.state.containerWidth !== containerWidthMinusSidebar) {
-      console.log(`new containerWidth: ${containerWidthMinusSidebar}`);
+    if ((Math.abs(this.state.containerHeight - this.siteContent.clientHeight) > 5) ||
+      (Math.abs(this.state.containerWidth - containerWidthMinusSidebar) > 5)) {
+      console.log(`new containerWidth: ${this.siteContent.clientHeight}`);
+      console.log(`new containerHeight: ${containerWidthMinusSidebar}`);
       this.setState({
         containerHeight: this.siteContent.clientHeight,
         containerWidth: containerWidthMinusSidebar
@@ -755,8 +760,9 @@ class App extends Component {
                   <VideoPlayer
                     ref={(el) => { this.videoPlayer = el; }}
                     path={this.props.file ? (this.props.file.path || '') : ''}
-                    width={this.props.settings.defaultVideoPlayerHeight / this.state.scaleValueObject.aspectRatioInv}
-                    height={this.props.settings.defaultVideoPlayerHeight}
+                    aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
+                    height={this.state.scaleValueObject.videoPlayerHeight}
+                    controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
                     thumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
                     // positionRatio={0}
                     positionRatio={this.state.selectedThumbObject ? ((this.state.selectedThumbObject.frameNumber * 1.0) / (this.props.file.frameCount || 1)) : 0}
@@ -772,9 +778,8 @@ class App extends Component {
               style={{
                 width: this.props.visibilitySettings.zoomOut ? undefined : this.state.scaleValueObject.newMoviePrintWidth,
                 marginTop: this.props.visibilitySettings.zoomOut ? undefined :
-                  `${this.props.settings.defaultVideoPlayerHeight +
-                    this.props.settings.defaultVideoPlayerControllerHeight +
-                    this.props.settings.defaultBorderMargin}px`
+                  `${this.state.scaleValueObject.videoPlayerHeight +
+                    (this.props.settings.defaultBorderMargin * 2)}px`
               }}
             >
               <SortedVisibleThumbGrid
