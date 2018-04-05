@@ -115,6 +115,7 @@ class App extends Component {
       colorArray: undefined,
       scaleValueObject: undefined,
       savingMoviePrint: false,
+      selectedThumbObject: undefined,
     };
 
     this.onDragEnter = this.onDragEnter.bind(this);
@@ -124,6 +125,7 @@ class App extends Component {
     this.handleKeyPress = this.handleKeyPress.bind(this);
 
     this.openModal = this.openModal.bind(this);
+    this.onSelectMethod = this.onSelectMethod.bind(this);
     this.afterOpenModal = this.afterOpenModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
     this.setNewFrame = this.setNewFrame.bind(this);
@@ -430,6 +432,15 @@ class App extends Component {
     this.setState({ modalIsOpen: true });
     // const positionRatio = (this.state.frameNumber * 1.0) / this.props.file.frameCount;
     // this.videoPlayer.onPositionRatioUpdate(positionRatio);
+  }
+
+  onSelectMethod(file, thumbId, frameNumber) {
+    this.setState({
+      selectedThumbObject: {
+        thumbId,
+        frameNumber
+      }
+    });
   }
 
   afterOpenModal() {
@@ -746,10 +757,10 @@ class App extends Component {
                     path={this.props.file ? (this.props.file.path || '') : ''}
                     width={this.props.settings.defaultVideoPlayerHeight / this.state.scaleValueObject.aspectRatioInv}
                     height={this.props.settings.defaultVideoPlayerHeight}
-                    // thumbId={this.state.thumbId}
-                    positionRatio={0}
-                    // positionRatio={(this.state.frameNumber * 1.0) / (this.props.file.frameCount || 1)}
-                    // setNewFrame={this.setNewFrame}
+                    thumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
+                    // positionRatio={0}
+                    positionRatio={this.state.selectedThumbObject ? ((this.state.selectedThumbObject.frameNumber * 1.0) / (this.props.file.frameCount || 1)) : 0}
+                    setNewFrame={this.setNewFrame}
                     // closeModal={this.closeModal}/
                   /> : ''
                 }
@@ -772,6 +783,7 @@ class App extends Component {
 
                 containerHeight={this.state.containerHeight}
                 containerWidth={this.state.containerWidth}
+                selectMethod={this.onSelectMethod}
                 parentMethod={this.openModal}
 
                 colorArray={this.state.colorArray}

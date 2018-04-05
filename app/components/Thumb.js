@@ -44,7 +44,7 @@ const DragHandle = SortableHandle(({ scaleValue }) => {
 });
 
 const Thumb = ({
-  onToggle, onInPoint, onOutPoint, onBack, onForward, tempId, color, scaleValue,
+  onSelect, onToggle, onInPoint, onOutPoint, onBack, onForward, tempId, color, scaleValue,
   onOver, onOut, onScrub, hidden, thumbImageObjectUrl, aspectRatioInv, thumbInfoRatio,
   controlersAreVisible, thumbWidth, margin, zoomOut, borderRadius, thumbInfoValue
 }) => {
@@ -62,6 +62,7 @@ const Thumb = ({
       onMouseLeave={onOut}
       onFocus={onOver}
       onBlur={onOut}
+      onClick={onSelect}
       id={`thumb${tempId}`}
       className={styles.gridItem}
       width={`${thumbWidth}px`}

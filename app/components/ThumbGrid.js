@@ -15,7 +15,7 @@ const ThumbGrid = ({
   thumbImages,
   file,
   controlersAreVisible,
-  onToggleClick, onRemoveClick, onInPointClick, onOutPointClick,
+  onSelectClick, onToggleClick, onRemoveClick, onInPointClick, onOutPointClick,
   onBackClick, onForwardClick, onScrubClick,
   onMouseOverResult, onMouseOutResult, settings, editGrid,
   thumbCount, zoomOut, colorArray, scaleValueObject
@@ -113,6 +113,8 @@ const ThumbGrid = ({
         disabled={editGrid}
         onOver={editGrid ? null : () => onMouseOverResult(thumb.thumbId)}
         onOut={editGrid ? null : () => onMouseOutResult()}
+        onSelect={(editGrid || (thumb.thumbId !== controlersAreVisible)) ?
+          null : () => onSelectClick(file, thumb.thumbId, thumb.frameNumber)}
         onToggle={(editGrid || (thumb.thumbId !== controlersAreVisible)) ?
           null : () => onToggleClick(file.id, thumb.thumbId)}
         onRemove={(editGrid || (thumb.thumbId !== controlersAreVisible)) ?
@@ -167,6 +169,7 @@ ThumbGrid.propTypes = {
     height: PropTypes.number,
   }),
   controlersAreVisible: PropTypes.string,
+  onSelectClick: PropTypes.func.isRequired,
   onToggleClick: PropTypes.func.isRequired,
   onRemoveClick: PropTypes.func.isRequired,
   onInPointClick: PropTypes.func.isRequired,

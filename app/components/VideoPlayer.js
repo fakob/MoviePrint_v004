@@ -35,6 +35,12 @@ class VideoPlayer extends Component {
     this.onCancelClick = this.onCancelClick.bind(this);
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.positionRatio !== this.props.positionRatio) {
+      this.updatePosition(this.props.positionRatio);
+    }
+  }
+
   onDurationChange(duration) {
     // setState is asynchronious
     // updatePosition needs to wait for setState, therefore it is put into callback of setState
