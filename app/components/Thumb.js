@@ -46,7 +46,7 @@ const DragHandle = SortableHandle(({ scaleValue }) => {
 const Thumb = ({
   onSelect, onToggle, onInPoint, onOutPoint, onBack, onForward, tempId, color, scaleValue,
   onOver, onOut, onScrub, hidden, thumbImageObjectUrl, aspectRatioInv, thumbInfoRatio,
-  controlersAreVisible, thumbWidth, margin, zoomOut, borderRadius, thumbInfoValue
+  controlersAreVisible, thumbWidth, margin, zoomOut, borderRadius, thumbInfoValue, selected
 }) => {
   function over(event) {
     event.target.style.opacity = 1;
@@ -64,15 +64,16 @@ const Thumb = ({
       onBlur={onOut}
       onClick={onSelect}
       id={`thumb${tempId}`}
-      className={styles.gridItem}
+      className={`${styles.gridItem} ${selected ? styles.gridItemSelected : ''}`}
       width={`${thumbWidth}px`}
       height={`${(thumbWidth * aspectRatioInv)}px`}
       style={{
         opacity: hidden ? '0.2' : '1',
         width: thumbWidth,
         margin: `${margin}px`,
-        borderRadius: `${Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
-        backgroundColor: color,
+        outlineWidth: `${selected ? margin : 0}px`,
+        borderRadius: `${selected ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
+        // backgroundColor: color,
       }}
     >
       <img
@@ -86,7 +87,7 @@ const Thumb = ({
         height={`${(thumbWidth * aspectRatioInv)}px`}
         style={{
           filter: `${controlersAreVisible ? 'brightness(80%)' : ''}`,
-          borderRadius: `${borderRadius}px`,
+          borderRadius: `${selected ? 0 : borderRadius}px`,
         }}
       />
       {thumbInfoValue !== undefined &&

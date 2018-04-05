@@ -18,7 +18,7 @@ const ThumbGrid = ({
   onSelectClick, onToggleClick, onRemoveClick, onInPointClick, onOutPointClick,
   onBackClick, onForwardClick, onScrubClick,
   onMouseOverResult, onMouseOutResult, settings, editGrid,
-  thumbCount, zoomOut, colorArray, scaleValueObject
+  thumbCount, zoomOut, colorArray, scaleValueObject, selectedThumbId
 }) => {
   const fps = (typeof file !== 'undefined' && typeof file.fps !== 'undefined' ? file.fps : 25);
   function getThumbInfoValue(type, frames, framesPerSecond) {
@@ -111,6 +111,7 @@ const ThumbGrid = ({
         hidden={thumb.hidden}
         controlersAreVisible={editGrid ? undefined : (thumb.thumbId === controlersAreVisible)}
         disabled={editGrid}
+        selected={selectedThumbId === thumb.thumbId}
         onOver={editGrid ? null : () => onMouseOverResult(thumb.thumbId)}
         onOut={editGrid ? null : () => onMouseOutResult()}
         onSelect={(editGrid || (thumb.thumbId !== controlersAreVisible)) ?

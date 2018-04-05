@@ -50,6 +50,7 @@ class SortedVisibleThumbGrid extends Component {
         thumbImages={this.props.thumbImages}
         file={this.props.file}
         settings={this.props.settings}
+        selectedThumbId={this.props.selectedThumbId}
         onSelectClick={this.props.onSelectClick}
         onToggleClick={this.props.onToggleClick}
         onRemoveClick={this.props.onRemoveClick}

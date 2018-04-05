@@ -783,6 +783,7 @@ class App extends Component {
 
                 containerHeight={this.state.containerHeight}
                 containerWidth={this.state.containerWidth}
+                selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
                 selectMethod={this.onSelectMethod}
                 parentMethod={this.openModal}
 

@@ -41,6 +41,12 @@
     position: relative;
 }
 
+.gridItemSelected {
+  outline-style: solid;
+  outline-color: #FF5006;
+  background-color: #FF5006;
+}
+
 .gridItem:hover {
   background: #eee;
   cursor: pointer;
