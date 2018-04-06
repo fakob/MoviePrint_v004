@@ -41,6 +41,7 @@ class VideoPlayer extends Component {
     this.onTimeUpdate = this.onTimeUpdate.bind(this);
     this.onControlledDrag = this.onControlledDrag.bind(this);
 
+    this.onTimelineClick = this.onTimelineClick.bind(this);
     this.onApplyClick = this.onApplyClick.bind(this);
     this.onCancelClick = this.onCancelClick.bind(this);
   }
@@ -118,7 +119,28 @@ class VideoPlayer extends Component {
     this.setState({ controlledPosition: { x: newX, y: 0 } });
   }
 
+  onTimelineClick(e) {
+    // e = Mouse click event.
+    // console.log(`onTimelineClick - target - ${e.target.id}`);
+    // console.log(`onTimelineClick- current - ${e.currentTarget.id}`);
+    if (e.target.id === 'timeLine') { // so this does not get fired when dragged
+      const rect = e.target.getBoundingClientRect();
+      const x = e.clientX - rect.left; // x position within the element.
+      // const y = e.clientY - rect.top;  //y position within the element.
+      console.log(this.state.controlledPosition);
+      console.log(x);
+      const width = (this.props.height - this.props.controllerHeight) / this.props.aspectRatioInv;
+      // const { x } = position;
+      this.setState({ controlledPosition: { x, y: 0 } });
+      const newCurrentTime = mapRange(x, 0, width, 0, this.state.duration, false);
+      this.video.currentTime = newCurrentTime;
+      this.setState({ currentTime: newCurrentTime });
+    }
+  }
+
   onControlledDrag(e, position) {
+    // console.log(`onControlledDrag - target - ${e.target.id}`);
+    // console.log(`onControlledDrag- current - ${e.currentTarget.id}`);
     const width = (this.props.height - this.props.controllerHeight) / this.props.aspectRatioInv;
     const { x } = position;
     this.setState({ controlledPosition: { x, y: 0 } });
@@ -160,9 +182,19 @@ class VideoPlayer extends Component {
           >
             <track kind="captions" />
           </video>
+          <div
+            id="currentTimeDisplay"
+            className={styles.frameNumberOrTimeCode}
+          >
+            {secondsToTimeCode(this.state.currentTime, this.props.file.fps)}
+          </div>
         </div>
         <div className={`${styles.controlsWrapper}`}>
-          <div className={`${styles.timelineWrapper}`}>
+          <div
+            id="timeLine"
+            className={`${styles.timelineWrapper}`}
+            onClick={this.onTimelineClick}
+          >
             <Draggable
               axis="x"
               handle=".handle"
@@ -174,7 +206,6 @@ class VideoPlayer extends Component {
                 <div className={`${styles.currentTime} handle`} />
               </div>
             </Draggable>
-            <div id="currentTimeDisplay">{secondsToTimeCode(this.state.currentTime)}</div>
           </div>
           <div className={`${styles.buttonWrapper}`}>
             <Button.Group

@@ -65,14 +65,15 @@ export const frameCountToTimeCode = (frames, fps = 25) => {
   return '––:––:––:––';
 };
 
-export const secondsToTimeCode = (seconds = 0) => {
+export const secondsToTimeCode = (seconds = 0, fps = 25) => {
   const pad = (input) => ((input < 10) ? `0${input}` : input);
 
   return [
     pad(Math.floor(seconds / 3600)),
     pad(Math.floor((seconds % 3600) / 60)),
     pad(Math.floor(seconds % 60)),
-    pad(Math.floor((seconds - Math.floor(seconds)) * 1000), 3, '0')
+    pad(Math.floor((seconds * fps) % fps))
+    // pad(Math.floor((seconds - Math.floor(seconds)) * 1000), 3, '0')
   ].join(':');
 };
 
