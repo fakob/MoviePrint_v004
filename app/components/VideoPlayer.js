@@ -85,14 +85,15 @@ class VideoPlayer extends Component {
   render() {
     const dragHandlers = { onStart: this.onStart, onStop: this.onStop };
     const { controlledPosition } = this.state;
-    console.log(this.props.positionRatio);
+    // console.log(this.props.positionRatio);
+    // console.log(`${this.props.positionRatio} === ${((this.state.currentTime * 1.0) / this.state.duration)}`);
     return (
       <div>
         <div className={`${styles.player}`}>
           <video
             ref={(el) => { this.video = el; }}
             className={`${styles.video}`}
-            controls
+            controls={this.props.showPlaybar ? 'true' : undefined}
             muted
             src={`${pathModule.dirname(this.props.path)}/${encodeURIComponent(pathModule.basename(this.props.path))}` || ''}
             width={(this.props.height - this.props.controllerHeight) / this.props.aspectRatioInv}
@@ -119,8 +120,10 @@ class VideoPlayer extends Component {
             <div id="currentTimeDisplay">{secondsToTimeCode(this.state.currentTime)}</div>
           </div>
           <Button
-            fluid
-            color="pink"
+            size="mini"
+            compact
+            color="orange"
+            // disabled={(this.props.positionRatio === ((this.state.currentTime * 1.0) / this.state.duration)) ? 'true' : undefined}
             onClick={this.onApplyClick}
           >
             Apply

@@ -48,6 +48,24 @@ export const hideRightSidebar = () => {
   };
 };
 
+export const togglePlaybar = () => {
+  return {
+    type: 'TOGGLE_PLAYBAR'
+  };
+};
+
+export const showPlaybar = () => {
+  return {
+    type: 'SHOW_PLAYBAR'
+  };
+};
+
+export const hidePlaybar = () => {
+  return {
+    type: 'HIDE_PLAYBAR'
+  };
+};
+
 export const toggleZoomOut = () => {
   return {
     type: 'TOGGLE_ZOOM_OUT'

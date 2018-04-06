@@ -17,7 +17,8 @@ import {
   setVisibilityFilter, setCurrentFileId, changeThumb, updateFileColumnCount,
   updateFileDetails, clearThumbs, updateThumbImage, setDefaultMarginRatio, setDefaultShowHeader,
   setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat,
-  setDefaultSaveOptionOverwrite, setDefaultThumbnailScale, setDefaultOutputScaleCompensator
+  setDefaultSaveOptionOverwrite, setDefaultThumbnailScale, setDefaultOutputScaleCompensator,
+  showPlaybar, hidePlaybar
 } from '../actions';
 
 const { ipcRenderer } = require('electron');
@@ -139,6 +140,7 @@ class App extends Component {
     this.hideEditGrid = this.hideEditGrid.bind(this);
     this.onShowThumbs = this.onShowThumbs.bind(this);
     this.onViewToggle = this.onViewToggle.bind(this);
+    this.onTogglePlaybar = this.onTogglePlaybar.bind(this);
     this.switchToPrintView = this.switchToPrintView.bind(this);
     this.onSaveMoviePrint = this.onSaveMoviePrint.bind(this);
 
@@ -516,6 +518,15 @@ class App extends Component {
     }
   }
 
+  onTogglePlaybar() {
+    const { store } = this.context;
+    if (this.props.visibilitySettings.showPlaybar) {
+      store.dispatch(hidePlaybar());
+    } else {
+      store.dispatch(showPlaybar());
+    }
+  }
+
   onSaveMoviePrint() {
     this.setState(
       { savingMoviePrint: true },
@@ -764,7 +775,7 @@ class App extends Component {
                     height={this.state.scaleValueObject.videoPlayerHeight}
                     controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
                     thumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
-                    // positionRatio={0}
+                    showPlaybar={this.props.visibilitySettings.showPlaybar}
                     positionRatio={this.state.selectedThumbObject ? ((this.state.selectedThumbObject.frameNumber * 1.0) / (this.props.file.frameCount || 1)) : 0}
                     setNewFrame={this.setNewFrame}
                     // closeModal={this.closeModal}/
@@ -849,16 +860,30 @@ class App extends Component {
                 {(this.props.visibilitySettings.zoomOut) ? 'Thumb view' : 'Print view'}
               </Menu.Item>
             }
-            <Menu.Item
-              name="edit"
-              onClick={(this.props.visibilitySettings.showRightSidebar === false) ? this.editGrid : this.hideEditGrid}
-              className={styles.FixedActionMenuFlex}
-            >
-              <Icon
-                name={(this.props.visibilitySettings.showRightSidebar === false) ? 'edit' : 'edit'}
-              />
-              {(this.props.visibilitySettings.showRightSidebar === false) ? 'Show edit' : 'Hide edit'}
-            </Menu.Item>
+            {this.props.visibilitySettings.zoomOut &&
+              <Menu.Item
+                name="edit"
+                onClick={(this.props.visibilitySettings.showRightSidebar === false) ? this.editGrid : this.hideEditGrid}
+                className={styles.FixedActionMenuFlex}
+              >
+                <Icon
+                  name={(this.props.visibilitySettings.showRightSidebar === false) ? 'edit' : 'edit'}
+                />
+                {(this.props.visibilitySettings.showRightSidebar === false) ? 'Show edit' : 'Hide edit'}
+              </Menu.Item>
+            }
+            {!this.props.visibilitySettings.zoomOut &&
+              <Menu.Item
+                name="playbar"
+                onClick={this.onTogglePlaybar}
+                className={styles.FixedActionMenuFlex}
+              >
+                <Icon
+                  name={(this.props.visibilitySettings.showPlaybar === false) ? 'video' : 'video'}
+                />
+                {(this.props.visibilitySettings.showPlaybar === false) ? 'Show playbar' : 'Hide playbar'}
+              </Menu.Item>
+            }
           </Menu>
         </Sticky>
         <Sticky
