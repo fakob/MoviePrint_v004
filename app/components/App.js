@@ -51,9 +51,15 @@ const getScaleValueObject = (file, settings, columnCount = 3, thumbCount = 3, co
   const moviePrintHeightBody = rowCount * thumbnailHeightPlusMargin;
   const moviePrintHeight = headerHeight + (thumbMargin * 2) + moviePrintHeightBody;
 
-  const videoPlayerHeight = ((containerHeight * 2) / 3);
-  const videoPlayerWidth = videoPlayerHeight / aspectRatioInv;
-  const thumbnailHeightForThumbView = ((containerHeight / 3) - (settings.defaultBorderMargin * 3));
+  const videoHeight = ((containerHeight * 2) / 3) - settings.defaultVideoPlayerControllerHeight;
+  const videoWidth = videoHeight / aspectRatioInv;
+  let videoPlayerHeight = videoHeight + settings.defaultVideoPlayerControllerHeight;
+  let videoPlayerWidth = videoWidth;
+  if (videoWidth > containerWidth) {
+    videoPlayerWidth = containerWidth - (settings.defaultBorderMargin * 2);
+    videoPlayerHeight = (videoPlayerWidth * aspectRatioInv) + settings.defaultVideoPlayerControllerHeight;
+  }
+  const thumbnailHeightForThumbView = ((videoPlayerHeight / 2) - (settings.defaultBorderMargin * 3));
   const thumbnailWidthForThumbView = thumbnailHeightForThumbView / aspectRatioInv;
   const thumbMarginForThumbView = thumbnailWidthForThumbView * settings.defaultMarginRatio;
   const thumbnailWidthPlusMarginForThumbView = thumbnailWidthForThumbView + (thumbMarginForThumbView * 2);
@@ -773,6 +779,7 @@ class App extends Component {
                     path={this.props.file ? (this.props.file.path || '') : ''}
                     aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
                     height={this.state.scaleValueObject.videoPlayerHeight}
+                    width={this.state.scaleValueObject.videoPlayerWidth}
                     controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
                     thumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
                     showPlaybar={this.props.visibilitySettings.showPlaybar}
