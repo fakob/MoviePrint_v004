@@ -139,7 +139,6 @@ class App extends Component {
     this.onSelectMethod = this.onSelectMethod.bind(this);
     this.afterOpenModal = this.afterOpenModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
-    this.setNewFrame = this.setNewFrame.bind(this);
 
     this.toggleLeftSidebar = this.toggleLeftSidebar.bind(this);
     this.editGrid = this.editGrid.bind(this);
@@ -463,12 +462,12 @@ class App extends Component {
     this.setState({ modalIsOpen: false });
   }
 
-  setNewFrame(thumbId, newPositionRatio) {
-    const { store } = this.context;
-    const newFrameNumber = newPositionRatio * this.props.file.frameCount;
-    store.dispatch(changeThumb(this.props.file, thumbId, newFrameNumber));
-    this.closeModal();
-  }
+  // setNewFrame(thumbId, newPositionRatio) {
+  //   const { store } = this.context;
+  //   const newFrameNumber = newPositionRatio * this.props.file.frameCount;
+  //   store.dispatch(changeThumb(this.props.file, thumbId, newFrameNumber));
+  //   this.closeModal();
+  // }
 
   toggleLeftSidebar() {
     const { store } = this.context;
@@ -788,7 +787,7 @@ class App extends Component {
                     showPlaybar={this.props.visibilitySettings.showPlaybar}
                     frameNumber={this.state.selectedThumbObject ? this.state.selectedThumbObject.frameNumber : 0}
                     positionRatio={this.state.selectedThumbObject ? ((this.state.selectedThumbObject.frameNumber * 1.0) / (this.props.file.frameCount || 1)) : 0}
-                    setNewFrame={this.setNewFrame}
+                    // setNewFrame={this.setNewFrame}
                   /> : ''
                 }
               </div>

@@ -53,32 +53,37 @@ class VideoPlayer extends Component {
 
   onInPointClick(file, thumbs, thumbId, frameNumber) {
     const { store } = this.context;
+    const newPositionRatio = ((this.state.currentTime * 1.0) / this.state.duration);
+    const newFrameNumber = newPositionRatio * this.props.file.frameCount;
     store.dispatch(addDefaultThumbs(
       file,
       thumbs.length,
-      frameNumber,
+      newFrameNumber,
       getHighestFrame(thumbs)
     ));
   }
 
   onOutPointClick(file, thumbs, thumbId, frameNumber) {
     const { store } = this.context;
+    const newPositionRatio = ((this.state.currentTime * 1.0) / this.state.duration);
+    const newFrameNumber = newPositionRatio * this.props.file.frameCount;
     store.dispatch(addDefaultThumbs(
       file,
       thumbs.length,
       getLowestFrame(thumbs),
-      frameNumber
+      newFrameNumber
     ));
   }
 
   onBackClick(file, thumbId, frameNumber, step) {
-    const { store } = this.context;
-    store.dispatch(changeThumb(file, thumbId, frameNumber - step));
+    // const { store } = this.context;
+    // store.dispatch(changeThumb(file, thumbId, frameNumber - step));
+    this.updatePositionWithStep(step);
   }
 
   onForwardClick(file, thumbId, frameNumber, step) {
-    const { store } = this.context;
-    store.dispatch(changeThumb(file, thumbId, frameNumber + step));
+    // const { store } = this.context;
+    // store.dispatch(changeThumb(file, thumbId, frameNumber + step));
     this.updatePositionWithStep(step);
   }
 
@@ -123,8 +128,11 @@ class VideoPlayer extends Component {
   }
 
   onApplyClick = () => {
+    const { store } = this.context;
     const newPositionRatio = ((this.state.currentTime * 1.0) / this.state.duration);
-    this.props.setNewFrame(this.props.thumbId, newPositionRatio);
+    const newFrameNumber = newPositionRatio * this.props.file.frameCount;
+    store.dispatch(changeThumb(this.props.file, this.props.thumbId, newFrameNumber));
+    // this.props.setNewFrame(this.props.thumbId, newPositionRatio);
   }
 
   onCancelClick = () => {
