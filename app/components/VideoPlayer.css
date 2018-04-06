@@ -33,32 +33,43 @@
   right: 0;
   bottom: 0;
   /* height: 5.75rem; */
-  background: #6b6b6b;
+  /* background: #6b6b6b; */
   text-align: center;
+  margin-top: 4px;
 }
 
 #currentTimeDisplay {
   text-align: center;
   color: rgba(255, 255, 255, 0.3);
-  padding: .5em;
+  /* padding: .5em; */
 }
 
 .timelineWrapper {
   width: 100%;
   position: relative;
-  background-color: #444;
+  background-color: #421400;
+  height: 24px;
+}
+
+.buttonWrapper {
+  width: 100%;
+  position: relative;
+  /* background-color: #444; */
+  height: 32px;
+  margin-top: 4px;
+  padding: 4px;
 }
 
 .timelineWrapper .currentTime, .timelineWrapper .cutStartTime {
   position: absolute;
   bottom: 0;
   top: 0;
-  width: 10px;
-  height: 30px;
+  width: 8px;
+  height: 24px;
 }
 
 .timelineWrapper .currentTime {
-  background-color: red;
+  background-color: #FF5006;
   z-index: 2;
 }
 .timelineWrapper .cutStartTime {

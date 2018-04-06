@@ -772,6 +772,9 @@ class App extends Component {
             {!this.props.visibilitySettings.zoomOut &&
               <div
                 className={`${styles.ItemVideoPlayer} ${this.props.visibilitySettings.showLeftSidebar ? styles.ItemMainLeftAnim : ''}`}
+                style={{
+                  top: `${this.props.settings.defaultBorderMargin}px`
+                }}
               >
                 { this.props.file ?
                   <VideoPlayer

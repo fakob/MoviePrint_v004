@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
-import { Button } from 'semantic-ui-react';
+import { Button, Divider } from 'semantic-ui-react';
 import { mapRange, secondsToTimeCode, limitRange } from './../utils/utils';
 import styles from './VideoPlayer.css';
 
@@ -119,16 +119,89 @@ class VideoPlayer extends Component {
             </Draggable>
             <div id="currentTimeDisplay">{secondsToTimeCode(this.state.currentTime)}</div>
           </div>
-          <Button
-            size="mini"
-            compact
-            color="orange"
-            // disabled={(this.props.positionRatio === ((this.state.currentTime * 1.0) / this.state.duration)) ? 'true' : undefined}
-            disabled={(this.props.thumbId === undefined) ? 'true' : undefined}
-            onClick={this.onApplyClick}
-          >
-            Apply
-          </Button>
+          <div className={`${styles.buttonWrapper}`}>
+            <Button.Group
+              size="mini"
+              compact
+              floated="left"
+            >
+              <Button
+                basic
+                color="orange"
+                content="Choose as IN-point"
+                onClick={this.onApplyClick}
+              />
+            </Button.Group>
+            <Button.Group
+              size="mini"
+              compact
+              style={{
+                marginRight: '20px'
+              }}
+            >
+              <Button
+                content="-100"
+              />
+              <Button
+                content="-10"
+              />
+              <Button
+                content="-1"
+              />
+            </Button.Group>
+            <Divider vertical>&nbsp;</Divider>
+            <Button.Group
+              size="mini"
+              compact
+            >
+              <Button
+                content="Choose"
+                color="orange"
+                onClick={this.onApplyClick}
+              />
+            </Button.Group>
+            <Button.Group
+              size="mini"
+              compact
+              style={{
+                marginLeft: '20px'
+              }}
+            >
+              <Button
+                content="+1"
+              />
+              <Button
+                content="+10"
+              />
+              <Button
+                content="+100"
+              />
+            </Button.Group>
+            <Button.Group
+              size="mini"
+              compact
+              floated="right"
+            >
+              <Button
+                basic
+                color="orange"
+                content="Choose as OUT-point"
+                onClick={this.onApplyClick}
+              />
+            </Button.Group>
+          </div>
+          <div>
+            {/* <Button
+              size="mini"
+              compact
+              color="orange"
+              // disabled={(this.props.positionRatio === ((this.state.currentTime * 1.0) / this.state.duration)) ? 'true' : undefined}
+              disabled={(this.props.thumbId === undefined) ? 'true' : undefined}
+              onClick={this.onApplyClick}
+            >
+              Apply
+            </Button> */}
+          </div>
         </div>
       </div>
     );

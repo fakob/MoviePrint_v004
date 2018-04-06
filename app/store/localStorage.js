@@ -30,7 +30,7 @@ const initialStateJSON = {
       defaultSaveOptionOverwrite: false,
       defaultSaveOptionSaveIndividual: true,
       defaultVideoPlayerHeight: 360,
-      defaultVideoPlayerControllerHeight: 48,
+      defaultVideoPlayerControllerHeight: 64,
       defaultBorderMargin: 24,
     },
     thumbsByFileId: [],

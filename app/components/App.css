@@ -72,7 +72,6 @@
 .ItemVideoPlayer {
   transition: margin 0.5s ease;
   position: fixed;
-  top: 24px;
   left: 50%;
   right: auto;
   bottom: auto;
