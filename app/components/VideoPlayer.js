@@ -1,8 +1,13 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
 import { Button, Divider } from 'semantic-ui-react';
-import { mapRange, secondsToTimeCode, limitRange } from './../utils/utils';
+import { changeThumb, addDefaultThumbs } from '../actions';
+import {
+  getLowestFrame, getHighestFrame, getChangeThumbStep, getVisibleThumbs,
+  mapRange, secondsToTimeCode, limitRange, frameCountToSeconds
+} from './../utils/utils';
 import styles from './VideoPlayer.css';
 
 const pathModule = require('path');
@@ -26,7 +31,12 @@ class VideoPlayer extends Component {
       // fileFormat: undefined,
     };
 
+    this.onInPointClick = this.onInPointClick.bind(this);
+    this.onOutPointClick = this.onOutPointClick.bind(this);
+    this.onBackClick = this.onBackClick.bind(this);
+    this.onForwardClick = this.onForwardClick.bind(this);
     this.updatePosition = this.updatePosition.bind(this);
+    this.updatePositionWithStep = this.updatePositionWithStep.bind(this);
     this.onDurationChange = this.onDurationChange.bind(this);
     this.onTimeUpdate = this.onTimeUpdate.bind(this);
     this.onControlledDrag = this.onControlledDrag.bind(this);
@@ -41,12 +51,51 @@ class VideoPlayer extends Component {
     }
   }
 
+  onInPointClick(file, thumbs, thumbId, frameNumber) {
+    const { store } = this.context;
+    store.dispatch(addDefaultThumbs(
+      file,
+      thumbs.length,
+      frameNumber,
+      getHighestFrame(thumbs)
+    ));
+  }
+
+  onOutPointClick(file, thumbs, thumbId, frameNumber) {
+    const { store } = this.context;
+    store.dispatch(addDefaultThumbs(
+      file,
+      thumbs.length,
+      getLowestFrame(thumbs),
+      frameNumber
+    ));
+  }
+
+  onBackClick(file, thumbId, frameNumber, step) {
+    const { store } = this.context;
+    store.dispatch(changeThumb(file, thumbId, frameNumber - step));
+  }
+
+  onForwardClick(file, thumbId, frameNumber, step) {
+    const { store } = this.context;
+    store.dispatch(changeThumb(file, thumbId, frameNumber + step));
+    this.updatePositionWithStep(step);
+  }
+
   onDurationChange(duration) {
     // setState is asynchronious
     // updatePosition needs to wait for setState, therefore it is put into callback of setState
     this.setState({ duration }, () => {
       this.updatePosition();
     });
+  }
+
+  updatePositionWithStep(step) {
+    const currentTime = (this.props.positionRatio) * this.state.duration + frameCountToSeconds(step, this.props.file.fps);
+    console.log(`${currentTime} : ${this.props.positionRatio} : ${this.state.duration}`);
+    console.log(this.state);
+    this.onTimeUpdate(currentTime);
+    this.video.currentTime = currentTime;
   }
 
   updatePosition() {
@@ -129,7 +178,7 @@ class VideoPlayer extends Component {
                 basic
                 color="orange"
                 content="Choose as IN-point"
-                onClick={this.onApplyClick}
+                onClick={() => this.onInPointClick(this.props.file, this.props.thumbs, this.props.thumbId, this.props.frameNumber)}
               />
             </Button.Group>
             <Button.Group
@@ -141,12 +190,15 @@ class VideoPlayer extends Component {
             >
               <Button
                 content="-100"
+                onClick={() => this.onBackClick(this.props.file, this.props.thumbId, this.props.frameNumber, -100)}
               />
               <Button
                 content="-10"
+                onClick={() => this.onBackClick(this.props.file, this.props.thumbId, this.props.frameNumber, -10)}
               />
               <Button
                 content="-1"
+                onClick={() => this.onBackClick(this.props.file, this.props.thumbId, this.props.frameNumber, -1)}
               />
             </Button.Group>
             <Divider vertical>&nbsp;</Divider>
@@ -169,12 +221,15 @@ class VideoPlayer extends Component {
             >
               <Button
                 content="+1"
+                onClick={() => this.onForwardClick(this.props.file, this.props.thumbId, this.props.frameNumber, 1)}
               />
               <Button
                 content="+10"
+                onClick={() => this.onForwardClick(this.props.file, this.props.thumbId, this.props.frameNumber, 10)}
               />
               <Button
                 content="+100"
+                onClick={() => this.onForwardClick(this.props.file, this.props.thumbId, this.props.frameNumber, 100)}
               />
             </Button.Group>
             <Button.Group
@@ -186,7 +241,7 @@ class VideoPlayer extends Component {
                 basic
                 color="orange"
                 content="Choose as OUT-point"
-                onClick={this.onApplyClick}
+                onClick={() => this.onOutPointClick(this.props.file, this.props.thumbs, this.props.thumbId, this.props.frameNumber)}
               />
             </Button.Group>
           </div>
@@ -208,6 +263,54 @@ class VideoPlayer extends Component {
   }
 }
 
+const mapStateToProps = state => {
+  const tempThumbs = (typeof state.undoGroup.present
+    .thumbsByFileId[state.undoGroup.present.settings.currentFileId] === 'undefined')
+    ? undefined : state.undoGroup.present
+      .thumbsByFileId[state.undoGroup.present.settings.currentFileId].thumbs;
+  return {
+    thumbs: getVisibleThumbs(
+      tempThumbs,
+      state.visibilitySettings.visibilityFilter
+    ),
+    thumbImages: (typeof state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId] === 'undefined')
+      ? undefined : state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId],
+    files: state.undoGroup.present.files,
+    file: state.undoGroup.present.files.find((file) =>
+      file.id === state.undoGroup.present.settings.currentFileId),
+    settings: state.undoGroup.present.settings,
+    visibilitySettings: state.visibilitySettings
+  };
+};
+
+const mapDispatchToProps = (dispatch, ownProps) => {
+  // return {
+  //   onInPointClick: (file, thumbs, thumbId, frameNumber) => {
+  //     dispatch(addDefaultThumbs(
+  //       file,
+  //       thumbs.length,
+  //       frameNumber,
+  //       getHighestFrame(thumbs)
+  //     ));
+  //   },
+  //   onOutPointClick: (file, thumbs, thumbId, frameNumber) => {
+  //     dispatch(addDefaultThumbs(
+  //       file,
+  //       thumbs.length,
+  //       getLowestFrame(thumbs),
+  //       frameNumber
+  //     ));
+  //   },
+  //   onBackClick: (file, thumbId, frameNumber, step) => {
+  //     dispatch(changeThumb(file, thumbId, frameNumber - step));
+  //   },
+  //   onForwardClick: (file, thumbId, frameNumber, step) => {
+  //     dispatch(changeThumb(file, thumbId, frameNumber + step));
+  //     ownProps.updatePositionWithStep(step);
+  //   }
+  // };
+};
+
 VideoPlayer.contextTypes = {
   store: PropTypes.object,
   path: PropTypes.string,
@@ -217,4 +320,4 @@ VideoPlayer.contextTypes = {
   closeModal: PropTypes.func,
 };
 
-export default VideoPlayer;
+export default connect(mapStateToProps, mapDispatchToProps)(VideoPlayer);

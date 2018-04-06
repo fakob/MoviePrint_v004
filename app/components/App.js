@@ -786,9 +786,9 @@ class App extends Component {
                     controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
                     thumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
                     showPlaybar={this.props.visibilitySettings.showPlaybar}
+                    frameNumber={this.state.selectedThumbObject ? this.state.selectedThumbObject.frameNumber : 0}
                     positionRatio={this.state.selectedThumbObject ? ((this.state.selectedThumbObject.frameNumber * 1.0) / (this.props.file.frameCount || 1)) : 0}
                     setNewFrame={this.setNewFrame}
-                    // closeModal={this.closeModal}/
                   /> : ''
                 }
               </div>

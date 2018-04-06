@@ -45,6 +45,11 @@ export const pad = (num, size) => {
   return undefined;
 };
 
+export const frameCountToSeconds = (frames, fps = 25) => {
+  const seconds = (typeof frames !== 'undefined' ? ((frames * 1.0) / fps) : 0);
+  return seconds;
+};
+
 export const frameCountToTimeCode = (frames, fps = 25) => {
   // fps = (typeof fps !== 'undefined' ? fps : 30);
   if (frames !== undefined) {
