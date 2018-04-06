@@ -124,6 +124,7 @@ class VideoPlayer extends Component {
             compact
             color="orange"
             // disabled={(this.props.positionRatio === ((this.state.currentTime * 1.0) / this.state.duration)) ? 'true' : undefined}
+            disabled={(this.props.thumbId === undefined) ? 'true' : undefined}
             onClick={this.onApplyClick}
           >
             Apply
