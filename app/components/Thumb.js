@@ -73,7 +73,7 @@ const Thumb = ({
         margin: `${margin}px`,
         outlineWidth: `${selected ? margin : 0}px`,
         borderRadius: `${selected ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
-        // backgroundColor: color,
+        backgroundColor: color,
       }}
     >
       <img
