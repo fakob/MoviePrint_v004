@@ -88,7 +88,7 @@ const ThumbGrid = ({
   } else {
     thumbArray = thumbs;
   }
-  // console.log(width);
+  console.log(selectedThumbId);
   thumbGridComponent = (
     thumbArray.map(thumb => (
       <SortableThumb
@@ -111,7 +111,7 @@ const ThumbGrid = ({
         hidden={thumb.hidden}
         controlersAreVisible={editGrid ? undefined : (thumb.thumbId === controlersAreVisible)}
         disabled={editGrid}
-        selected={selectedThumbId === thumb.thumbId}
+        selected={selectedThumbId ? (selectedThumbId === thumb.thumbId) : false}
         onOver={editGrid ? null : () => onMouseOverResult(thumb.thumbId)}
         onOut={editGrid ? null : () => onMouseOutResult()}
         onSelect={(editGrid || (thumb.thumbId !== controlersAreVisible)) ?
