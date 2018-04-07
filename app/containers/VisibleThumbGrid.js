@@ -36,6 +36,16 @@ class SortedVisibleThumbGrid extends Component {
     });
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.selectedThumbId !== this.props.selectedThumbId ||
+      prevProps.zoomOut !== this.props.zoomOut
+    ) {
+      setTimeout(() => {
+        this.scrollThumbIntoView();
+      }, 500);
+    }
+  }
+
   componentWillUnmount() {
     this.unsubscribe();
   }
@@ -51,15 +61,16 @@ class SortedVisibleThumbGrid extends Component {
 
   onSelectClick2 = (file, thumbId, frameNumber) => {
     this.props.selectMethod(file, thumbId, frameNumber);
-    this.scrollThumbIntoView();
   }
 
   scrollThumbIntoView = () => {
   // const handleShow = (i) => {
     // this.setState({ index: i });
-    console.log(this.scrollIntoViewElement);
-    console.log(this.scrollIntoViewElement.current);
-    this.scrollIntoViewElement.current.scrollIntoView({ block: 'end', behavior: 'smooth' });
+    if (this.scrollIntoViewElement && this.scrollIntoViewElement.current !== null) {
+      console.log(this.scrollIntoViewElement);
+      console.log(this.scrollIntoViewElement.current);
+      this.scrollIntoViewElement.current.scrollIntoView({ block: 'end', behavior: 'smooth' });
+    }
   };
 
   render() {
@@ -67,6 +78,7 @@ class SortedVisibleThumbGrid extends Component {
       <SortableThumbGrid
         ref={this.props.inputRef} // for the saveMoviePrint function
         inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
+        // inputRefThumb={this.props.inputRefThumb} // for the thumb scrollIntoView function
         editGrid={this.props.editGrid}
         colorArray={this.props.colorArray}
         thumbs={this.props.thumbs}

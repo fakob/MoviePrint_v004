@@ -130,6 +130,8 @@ class App extends Component {
       outputScaleCompensator: 1,
     };
 
+    // this.scrollIntoViewElement = React.createRef();
+
     this.onDragEnter = this.onDragEnter.bind(this);
     this.onDragLeave = this.onDragLeave.bind(this);
     this.onDragOver = this.onDragOver.bind(this);
@@ -138,6 +140,7 @@ class App extends Component {
 
     this.openModal = this.openModal.bind(this);
     this.onSelectMethod = this.onSelectMethod.bind(this);
+    // this.scrollThumbIntoView = this.scrollThumbIntoView.bind(this);
     this.afterOpenModal = this.afterOpenModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
 
@@ -329,6 +332,10 @@ class App extends Component {
     ) {
       this.updateScaleValue();
     }
+    // if ((prevState.selectedThumbObject && this.state.selectedThumbObject) ?
+    //   prevState.selectedThumbObject.thumbId !== this.state.selectedThumbObject.thumbId : false) {
+    //   this.scrollThumbIntoView();
+    // }
   }
 
   componentWillUnmount() {
@@ -454,30 +461,22 @@ class App extends Component {
   }
 
   onSelectMethod(file, thumbId, frameNumber) {
-    this.setState(
-      {
-        selectedThumbObject: {
-          thumbId,
-          frameNumber
-        }
+    this.setState({
+      selectedThumbObject: {
+        thumbId,
+        frameNumber
       }
-      // ,
-      // this.scrollThumbIntoView()
-    );
+    });
   }
 
-  // onSelectClick2 = (file, thumbId, frameNumber) => {
-  //   this.props.selectMethod(file, thumbId, frameNumber);
-  //   this.scrollThumbIntoView();
-  // }
-  //
-  // scrollThumbIntoView = () => {
+  // scrollThumbIntoView() {
   // // const handleShow = (i) => {
   //   // this.setState({ index: i });
   //   console.log(this.scrollIntoViewElement);
-  //   console.log(this.scrollIntoViewElement.current);
-  //   this.scrollIntoViewElement.current.scrollIntoView({ block: 'end', behavior: 'smooth' });
-  // };
+  //   // console.log(this.scrollIntoViewElement.current);
+  //   // this.scrollIntoViewElement.current.scrollIntoView({ block: 'end', behavior: 'smooth' });
+  //   this.scrollIntoViewElement.current.scrollIntoView();
+  // }
 
   afterOpenModal() {
   }
@@ -828,6 +827,7 @@ class App extends Component {
             >
               <SortedVisibleThumbGrid
                 inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
+                // inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
                 editGrid={this.props.visibilitySettings.showRightSidebar}
 
                 containerHeight={this.state.containerHeight}
