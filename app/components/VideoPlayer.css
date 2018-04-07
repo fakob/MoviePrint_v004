@@ -86,7 +86,8 @@
   position: absolute;
   bottom: 0;
   top: 0;
-  width: 8px;
+  width: 24px;
+  border-radius: 8px;
   height: 24px;
 }
 

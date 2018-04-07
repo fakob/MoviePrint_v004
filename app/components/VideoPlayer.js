@@ -125,7 +125,7 @@ class VideoPlayer extends Component {
   }
 
   onTimeUpdate(currentTime) {
-    const width = (this.props.height - this.props.controllerHeight) / this.props.aspectRatioInv;
+    const width = ((this.props.height - this.props.controllerHeight) / this.props.aspectRatioInv) - 24;
     this.setState({ currentTime });
     const newX = mapRange(currentTime, 0, this.state.duration, 0, width);
     this.setState({ controlledPosition: { x: newX, y: 0 } });
@@ -141,7 +141,7 @@ class VideoPlayer extends Component {
       // const y = e.clientY - rect.top;  //y position within the element.
       console.log(this.state.controlledPosition);
       console.log(x);
-      const width = (this.props.height - this.props.controllerHeight) / this.props.aspectRatioInv;
+      const width = ((this.props.height - this.props.controllerHeight) / this.props.aspectRatioInv) - 24;
       // const { x } = position;
       this.setState({ controlledPosition: { x, y: 0 } });
       const newCurrentTime = mapRange(x, 0, width, 0, this.state.duration, false);
@@ -153,7 +153,7 @@ class VideoPlayer extends Component {
   onControlledDrag(e, position) {
     // console.log(`onControlledDrag - target - ${e.target.id}`);
     // console.log(`onControlledDrag- current - ${e.currentTarget.id}`);
-    const width = (this.props.height - this.props.controllerHeight) / this.props.aspectRatioInv;
+    const width = ((this.props.height - this.props.controllerHeight) / this.props.aspectRatioInv) - 24;
     const { x } = position;
     this.setState({ controlledPosition: { x, y: 0 } });
     const newCurrentTime = mapRange(x, 0, width, 0, this.state.duration, false);
