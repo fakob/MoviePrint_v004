@@ -10,6 +10,10 @@ import SortableThumbGrid from '../components/ThumbGrid';
 import { getLowestFrame, getHighestFrame, getChangeThumbStep, getVisibleThumbs } from '../utils/utils';
 
 class SortedVisibleThumbGrid extends Component {
+  constructor(props) {
+    super(props);
+    // this.scrollIntoViewElement = React.createRef();
+  }
 
   componentDidMount() {
     console.log(this.props);
@@ -43,7 +47,8 @@ class SortedVisibleThumbGrid extends Component {
   render() {
     return (
       <SortableThumbGrid
-        ref={this.props.inputRef}
+        ref={this.props.inputRef} // for the saveMoviePrint function
+        // inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
         editGrid={this.props.editGrid}
         colorArray={this.props.colorArray}
         thumbs={this.props.thumbs}

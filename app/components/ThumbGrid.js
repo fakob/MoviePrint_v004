@@ -34,6 +34,13 @@ const ThumbGrid = ({
     }
   }
 
+  function handleShow(i) {
+  // const handleShow = (i) => {
+    // this.setState({ index: i });
+    console.log(this);
+    this.refs[i].scrollIntoView({ block: 'end', behavior: 'smooth' });
+  }
+
   let thumbGridHeaderComponent = null;
   let thumbGridComponent = null;
 
@@ -96,6 +103,7 @@ const ThumbGrid = ({
         scaleValue={scaleValueObject.newScaleValue}
         key={thumb.key}
         index={thumb.index}
+        ref={thumb.thumbId}
         tempId={thumb.index}
         color={(colorArray !== undefined ? colorArray[thumb.index] : undefined)}
         thumbImageObjectUrl={thumb.thumbImageObjectUrl ||
@@ -115,7 +123,11 @@ const ThumbGrid = ({
         onOver={editGrid ? null : () => onMouseOverResult(thumb.thumbId)}
         onOut={editGrid ? null : () => onMouseOutResult()}
         onSelect={(editGrid || (thumb.thumbId !== controlersAreVisible)) ?
-          null : () => onSelectClick(file, thumb.thumbId, thumb.frameNumber)}
+          null : () => {
+            // this.handleShow.bind(this, thumb.Id);
+            // this.handleShow(thumb.Id);
+            onSelectClick(file, thumb.thumbId, thumb.frameNumber);
+          }}
         onToggle={(editGrid || (thumb.thumbId !== controlersAreVisible)) ?
           null : () => onToggleClick(file.id, thumb.thumbId)}
         onRemove={(editGrid || (thumb.thumbId !== controlersAreVisible)) ?
