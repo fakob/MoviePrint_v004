@@ -48,7 +48,7 @@
 }
 
 .gridItem:hover {
-  background: #eee;
+  /* background: #eee; */
   cursor: pointer;
 }
 
@@ -94,7 +94,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   width: 144px;
-  opacity: 0.5;
+  opacity: 1;
   cursor: move;
 }
 

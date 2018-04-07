@@ -113,7 +113,7 @@ class SortedVisibleThumbGrid extends Component {
         }
         // useDragHandle
         axis="xy"
-        pressDelay={300}
+        pressDelay={250}
         helperClass={styles.whileDragging}
         controlersAreVisible={this.controlersVisible}
         useWindowAsScrollContainer={true}

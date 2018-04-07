@@ -59,6 +59,7 @@ const Thumb = ({
 
   const minimumWidthToShowHover = 100;
   const minimumWidthToShrinkHover = 160;
+  const handleWideWidth = 144;
 
   return (
     <div
@@ -78,7 +79,7 @@ const Thumb = ({
         margin: `${margin}px`,
         outlineWidth: `${selected ? margin : 0}px`,
         borderRadius: `${selected ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
-        backgroundColor: color,
+        backgroundColor: thumbImageObjectUrl !== undefined ? undefined : color,
       }}
     >
       <img
@@ -111,9 +112,30 @@ const Thumb = ({
           display: controlersAreVisible ? 'block' : 'none'
         }}
       >
-        <DragHandle
+        <button
+          className={styles.hoverButton}
+          // onMouseOver={over}
+          // onMouseLeave={out}
+          // onFocus={over}
+          // onBlur={out}
+          style={{
+            // transformOrigin: 'center center',
+            // transform: `scale(${scaleValue})`,
+            // opacity: 1
+          }}
+        >
+          <img
+            src={handleWide}
+            className={styles.dragHandle}
+            style={{
+              width: `${Math.min(handleWideWidth, thumbWidth)}px`
+            }}
+            alt=""
+          />
+        </button>
+        {/* <DragHandle
           scaleValue={scaleValue}
-        />
+        /> */}
         <button
           style={{
             display: (thumbWidth > minimumWidthToShowHover) ? 'block' : 'none',
