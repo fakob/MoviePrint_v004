@@ -10,6 +10,18 @@ import {
 } from './../utils/utils';
 import styles from './VideoPlayer.css';
 
+import inPoint from './../img/Thumb_IN.png';
+import outPoint from './../img/Thumb_OUT.png';
+import back from './../img/Thumb_BACK.png';
+import forward from './../img/Thumb_FORWARD.png';
+import choose from './../img/Thumb_CHOOSE.png';
+import scrub from './../img/Thumb_SCRUB.png';
+import handleWide from './../img/Thumb_HANDLE_wide.png';
+import hide from './../img/Thumb_HIDE.png';
+import show from './../img/Thumb_SHOW.png';
+import empty from './../img/Thumb_EMPTY.png';
+import transparent from './../img/Thumb_TRANSPARENT.png';
+
 const pathModule = require('path');
 
 class VideoPlayer extends Component {
@@ -164,6 +176,15 @@ class VideoPlayer extends Component {
   render() {
     const dragHandlers = { onStart: this.onStart, onStop: this.onStop };
     const { controlledPosition } = this.state;
+
+    function over(event) {
+      event.target.style.opacity = 1;
+    }
+
+    function out(event) {
+      event.target.style.opacity = 0.5;
+    }
+
     // console.log(this.props.positionRatio);
     // console.log(`${this.props.positionRatio} === ${((this.state.currentTime * 1.0) / this.state.duration)}`);
     return (
@@ -188,6 +209,77 @@ class VideoPlayer extends Component {
           >
             {secondsToTimeCode(this.state.currentTime, this.props.file.fps)}
           </div>
+          <div
+            className={`${styles.overVideoButtonWrapper}`}
+            style={{
+              display: (this.props.thumbId && !this.props.showPlaybar) ? 'block' : 'none',
+            }}
+          >
+            <button
+              className={styles.hoverButton}
+              onClick={() => this.onInPointClick(this.props.file, this.props.thumbs, this.props.thumbId, this.props.frameNumber)}
+              onMouseOver={over}
+              onMouseLeave={out}
+              onFocus={over}
+              onBlur={out}
+            >
+              <img
+                src={inPoint}
+                className={styles.inPoint}
+                alt=""
+              />
+            </button>
+            <button
+              className={styles.hoverButton}
+              onClick={this.onApplyClick}
+              onMouseOver={over}
+              onMouseLeave={out}
+              onFocus={over}
+              onBlur={out}
+            >
+              <img
+                src={choose}
+                className={styles.choose}
+                alt=""
+              />
+            </button>
+            {/* <Button.Group
+              size="mini"
+              compact
+            >
+              <Button
+                content="Choose"
+                color="orange"
+                onClick={this.onApplyClick}
+              />
+            </Button.Group> */}
+            {/* <Button.Group
+              size="mini"
+              compact
+              floated="right"
+            >
+              <Button
+                basic
+                color="orange"
+                content="Choose as OUT-point"
+                onClick={() => this.onOutPointClick(this.props.file, this.props.thumbs, this.props.thumbId, this.props.frameNumber)}
+              />
+            </Button.Group> */}
+            <button
+              className={styles.hoverButton}
+              onClick={() => this.onOutPointClick(this.props.file, this.props.thumbs, this.props.thumbId, this.props.frameNumber)}
+              onMouseOver={over}
+              onMouseLeave={out}
+              onFocus={over}
+              onBlur={out}
+            >
+              <img
+                src={outPoint}
+                className={styles.outPoint}
+                alt=""
+              />
+            </button>
+          </div>
         </div>
         <div className={`${styles.controlsWrapper}`}>
           <div
@@ -211,18 +303,6 @@ class VideoPlayer extends Component {
             <Button.Group
               size="mini"
               compact
-              floated="left"
-            >
-              <Button
-                basic
-                color="orange"
-                content="Choose as IN-point"
-                onClick={() => this.onInPointClick(this.props.file, this.props.thumbs, this.props.thumbId, this.props.frameNumber)}
-              />
-            </Button.Group>
-            <Button.Group
-              size="mini"
-              compact
               style={{
                 marginRight: '20px'
               }}
@@ -238,17 +318,6 @@ class VideoPlayer extends Component {
               <Button
                 content="-1"
                 onClick={() => this.onBackClick(this.props.file, this.props.thumbId, this.props.frameNumber, -1)}
-              />
-            </Button.Group>
-            <Divider vertical>&nbsp;</Divider>
-            <Button.Group
-              size="mini"
-              compact
-            >
-              <Button
-                content="Choose"
-                color="orange"
-                onClick={this.onApplyClick}
               />
             </Button.Group>
             <Button.Group
@@ -271,30 +340,6 @@ class VideoPlayer extends Component {
                 onClick={() => this.onForwardClick(this.props.file, this.props.thumbId, this.props.frameNumber, 100)}
               />
             </Button.Group>
-            <Button.Group
-              size="mini"
-              compact
-              floated="right"
-            >
-              <Button
-                basic
-                color="orange"
-                content="Choose as OUT-point"
-                onClick={() => this.onOutPointClick(this.props.file, this.props.thumbs, this.props.thumbId, this.props.frameNumber)}
-              />
-            </Button.Group>
-          </div>
-          <div>
-            {/* <Button
-              size="mini"
-              compact
-              color="orange"
-              // disabled={(this.props.positionRatio === ((this.state.currentTime * 1.0) / this.state.duration)) ? 'true' : undefined}
-              disabled={(this.props.thumbId === undefined) ? 'true' : undefined}
-              onClick={this.onApplyClick}
-            >
-              Apply
-            </Button> */}
           </div>
         </div>
       </div>
