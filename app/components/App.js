@@ -377,7 +377,13 @@ class App extends Component {
   }
 
   onDragEnter(e) {
-    this.setState({ className: `${styles.dropzoneshow}` });
+    console.log(e);
+    console.log(e.target);
+    console.log(e.target.localName);
+    // console.log(e.currentTarget);
+    if (e.target.localName !== 'img') { // exclude dragging thumbs
+      this.setState({ className: `${styles.dropzoneshow}` });
+    }
     e.stopPropagation();
     e.preventDefault();
     return false;

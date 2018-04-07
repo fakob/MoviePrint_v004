@@ -78,8 +78,8 @@ const Thumb = ({
         opacity: hidden ? '0.2' : '1',
         width: thumbWidth,
         margin: `${margin}px`,
-        outlineWidth: `${selected ? margin : 0}px`,
-        borderRadius: `${selected ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
+        outlineWidth: `${(selected && !zoomOut) ? margin : 0}px`,
+        borderRadius: `${(selected && !zoomOut) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: thumbImageObjectUrl !== undefined ? undefined : color,
       }}
     >
@@ -94,7 +94,7 @@ const Thumb = ({
         height={`${(thumbWidth * aspectRatioInv)}px`}
         style={{
           filter: `${controlersAreVisible ? 'brightness(80%)' : ''}`,
-          borderRadius: `${selected ? 0 : borderRadius}px`,
+          borderRadius: `${(selected && !zoomOut) ? 0 : borderRadius}px`,
         }}
       />
       {thumbInfoValue !== undefined &&
