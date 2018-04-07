@@ -47,7 +47,7 @@ const Thumb = ({
   onSelect, onToggle, onInPoint, onOutPoint, onBack, onForward, tempId, color, scaleValue,
   onOver, onOut, onScrub, hidden, thumbImageObjectUrl, aspectRatioInv, thumbInfoRatio,
   controlersAreVisible, thumbWidth, margin, zoomOut, borderRadius, thumbInfoValue, selected,
-  inputRefThumb
+  inputRefThumb, onThumbDoubleClick
 }) => {
   function over(event) {
     event.target.style.opacity = 1;
@@ -69,8 +69,9 @@ const Thumb = ({
       onFocus={onOver}
       onBlur={onOut}
       onClick={onSelect}
+      onDoubleClick={onThumbDoubleClick}
       id={`thumb${tempId}`}
-      className={`${styles.gridItem} ${selected ? styles.gridItemSelected : ''}`}
+      className={`${styles.gridItem} ${(selected && !zoomOut) ? styles.gridItemSelected : ''}`}
       width={`${thumbWidth}px`}
       height={`${(thumbWidth * aspectRatioInv)}px`}
       style={{

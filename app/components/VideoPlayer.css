@@ -123,7 +123,10 @@
 .choose {
     position: absolute;
     bottom: 0;
-    left: calc(50% - 24px);
+    /* left: calc(50% - 24px); */
+    /* top: 50%; */
+    left: 50%;
+    transform: translate(-50%, 0%);
     opacity: 0.5;
     /* cursor: col-resize; */
 }

@@ -5,7 +5,7 @@ import { arrayMove } from 'react-sortable-hoc';
 import scrollIntoView from 'scroll-into-view';
 import {
   toggleThumb, updateOrder, removeThumb, updateObjectUrlsFromThumbList,
-  changeThumb, addDefaultThumbs
+  changeThumb, addDefaultThumbs, zoomIn, zoomOut
 } from '../actions';
 import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
@@ -19,7 +19,7 @@ class SortedVisibleThumbGrid extends Component {
     this.scrollIntoViewElement = React.createRef();
 
     this.scrollThumbIntoView = this.scrollThumbIntoView.bind(this);
-    this.onSelectClick2 = this.onSelectClick2.bind(this);
+    this.onSelectClick = this.onSelectClick.bind(this);
   }
 
   componentDidMount() {
@@ -63,7 +63,7 @@ class SortedVisibleThumbGrid extends Component {
       .undoGroup.present.settings.currentFileId, newOrderedThumbs));
   };
 
-  onSelectClick2 = (file, thumbId, frameNumber) => {
+  onSelectClick = (file, thumbId, frameNumber) => {
     this.props.selectMethod(file, thumbId, frameNumber);
   }
 
@@ -92,8 +92,8 @@ class SortedVisibleThumbGrid extends Component {
         file={this.props.file}
         settings={this.props.settings}
         selectedThumbId={this.props.selectedThumbId}
-        // onSelectClick={this.props.onSelectClick}
-        onSelectClick={this.onSelectClick2}
+        onSelectClick={this.onSelectClick}
+        onThumbDoubleClick={this.props.onViewToggle}
         onToggleClick={this.props.onToggleClick}
         onRemoveClick={this.props.onRemoveClick}
         onInPointClick={this.props.onInPointClick}
@@ -152,10 +152,14 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
-    // onSelectClick: (file, thumbId, frameNumber) => {
-    //   this.scrollThumbIntoView();
-    //   ownProps.selectMethod(file, thumbId, frameNumber);
-    // },
+    onViewToggle: () => {
+      console.log(ownProps);
+      if (ownProps.zoomOut) {
+        dispatch(zoomIn());
+      } else {
+        dispatch(zoomOut());
+      }
+    },
     onToggleClick: (fileId, thumbId) => {
       dispatch(toggleThumb(fileId, thumbId));
     },
