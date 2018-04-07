@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { arrayMove } from 'react-sortable-hoc';
 import {
   toggleThumb, updateOrder, removeThumb, updateObjectUrlsFromThumbList,
-  changeThumb, addDefaultThumbs, setDefaultOutputScaleCompensator
+  changeThumb, addDefaultThumbs
 } from '../actions';
 import SortableThumbGrid from '../components/ThumbGrid';
 import { getLowestFrame, getHighestFrame, getChangeThumbStep, getVisibleThumbs } from '../utils/utils';
@@ -69,12 +69,6 @@ class SortedVisibleThumbGrid extends Component {
         onSortEnd={
           this.onSortEnd.bind(this)
         }
-        onNewScaleValue={(value) => {
-          const { store } = this.context;
-          if (this.props.settings.defaultOutputScaleCompensator !== value) {
-            store.dispatch(setDefaultOutputScaleCompensator(value));
-          }
-        }}
         useDragHandle
         axis="xy"
         controlersAreVisible={this.controlersVisible}

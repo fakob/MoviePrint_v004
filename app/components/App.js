@@ -17,7 +17,7 @@ import {
   setVisibilityFilter, setCurrentFileId, changeThumb, updateFileColumnCount,
   updateFileDetails, clearThumbs, updateThumbImage, setDefaultMarginRatio, setDefaultShowHeader,
   setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat,
-  setDefaultSaveOptionOverwrite, setDefaultThumbnailScale, setDefaultOutputScaleCompensator,
+  setDefaultSaveOptionOverwrite, setDefaultThumbnailScale,
   showPlaybar, hidePlaybar
 } from '../actions';
 
@@ -127,6 +127,7 @@ class App extends Component {
       scaleValueObject: undefined,
       savingMoviePrint: false,
       selectedThumbObject: undefined,
+      outputScaleCompensator: 1,
     };
 
     this.onDragEnter = this.onDragEnter.bind(this);
@@ -317,7 +318,7 @@ class App extends Component {
       prevProps.settings.defaultMarginRatio !== this.props.settings.defaultMarginRatio ||
       prevProps.settings.defaultShowHeader !== this.props.settings.defaultShowHeader ||
       prevProps.settings.defaultRoundedCorners !== this.props.settings.defaultRoundedCorners ||
-      prevProps.settings.defaultOutputScaleCompensator !== this.props.settings.defaultOutputScaleCompensator ||
+      prevState.outputScaleCompensator !== this.state.outputScaleCompensator ||
       prevProps.visibilitySettings.zoomOut !== this.props.visibilitySettings.zoomOut ||
       // prevProps.visibilitySettings.showLeftSidebar !== this.props.visibilitySettings.showLeftSidebar ||
       // prevProps.visibilitySettings.showRightSidebar !== this.props.visibilitySettings.showRightSidebar ||
@@ -411,13 +412,19 @@ class App extends Component {
       this.state.containerWidth, this.state.containerHeight,
       this.props.visibilitySettings.zoomOut
     );
-    this.setState({
-      scaleValueObject
-    });
-    if (this.props.settings.defaultOutputScaleCompensator !== scaleValueObject.newScaleValue) {
-      console.log('got newscalevalue');
-      store.dispatch(setDefaultOutputScaleCompensator(scaleValueObject.newScaleValue));
-    }
+    this.setState(
+      {
+        scaleValueObject
+      },
+      () => {
+        if (this.state.outputScaleCompensator !== scaleValueObject.newScaleValue) {
+          console.log('got newscalevalue');
+          this.setState({
+            outputScaleCompensator: scaleValueObject.newScaleValue
+          });
+        }
+      }
+    );
   }
 
   updatecontainerWidthAndHeight() {
@@ -537,7 +544,7 @@ class App extends Component {
       { savingMoviePrint: true },
       saveMoviePrint(
         'ThumbGrid', this.props.settings.defaultOutputPath,
-        this.props.file, this.props.settings.defaultThumbnailScale / this.props.settings.defaultOutputScaleCompensator,
+        this.props.file, this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
         this.props.settings.defaultOutputFormat,
         this.props.settings.defaultSaveOptionOverwrite
       )

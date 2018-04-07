@@ -149,13 +149,6 @@ export const setDefaultOutputPath = (defaultOutputPath) => {
   };
 };
 
-export const setDefaultOutputScaleCompensator = (defaultOutputScaleCompensator) => {
-  return {
-    type: 'SET_DEFAULT_OUTPUT_SCALE',
-    defaultOutputScaleCompensator
-  };
-};
-
 export const setDefaultOutputFormat = (defaultOutputFormat) => {
   return {
     type: 'SET_DEFAULT_OUTPUT_FORMAT',
