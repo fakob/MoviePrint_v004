@@ -454,13 +454,30 @@ class App extends Component {
   }
 
   onSelectMethod(file, thumbId, frameNumber) {
-    this.setState({
-      selectedThumbObject: {
-        thumbId,
-        frameNumber
+    this.setState(
+      {
+        selectedThumbObject: {
+          thumbId,
+          frameNumber
+        }
       }
-    });
+      // ,
+      // this.scrollThumbIntoView()
+    );
   }
+
+  // onSelectClick2 = (file, thumbId, frameNumber) => {
+  //   this.props.selectMethod(file, thumbId, frameNumber);
+  //   this.scrollThumbIntoView();
+  // }
+  //
+  // scrollThumbIntoView = () => {
+  // // const handleShow = (i) => {
+  //   // this.setState({ index: i });
+  //   console.log(this.scrollIntoViewElement);
+  //   console.log(this.scrollIntoViewElement.current);
+  //   this.scrollIntoViewElement.current.scrollIntoView({ block: 'end', behavior: 'smooth' });
+  // };
 
   afterOpenModal() {
   }

@@ -12,7 +12,12 @@ import { getLowestFrame, getHighestFrame, getChangeThumbStep, getVisibleThumbs }
 class SortedVisibleThumbGrid extends Component {
   constructor(props) {
     super(props);
-    // this.scrollIntoViewElement = React.createRef();
+    console.log(React.version);
+    // this.scrollIntoViewElement = null;
+    this.scrollIntoViewElement = React.createRef();
+
+    this.scrollThumbIntoView = this.scrollThumbIntoView.bind(this);
+    this.onSelectClick2 = this.onSelectClick2.bind(this);
   }
 
   componentDidMount() {
@@ -44,11 +49,24 @@ class SortedVisibleThumbGrid extends Component {
       .undoGroup.present.settings.currentFileId, newOrderedThumbs));
   };
 
+  onSelectClick2 = (file, thumbId, frameNumber) => {
+    this.props.selectMethod(file, thumbId, frameNumber);
+    this.scrollThumbIntoView();
+  }
+
+  scrollThumbIntoView = () => {
+  // const handleShow = (i) => {
+    // this.setState({ index: i });
+    console.log(this.scrollIntoViewElement);
+    console.log(this.scrollIntoViewElement.current);
+    this.scrollIntoViewElement.current.scrollIntoView({ block: 'end', behavior: 'smooth' });
+  };
+
   render() {
     return (
       <SortableThumbGrid
         ref={this.props.inputRef} // for the saveMoviePrint function
-        // inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
+        inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
         editGrid={this.props.editGrid}
         colorArray={this.props.colorArray}
         thumbs={this.props.thumbs}
@@ -56,7 +74,8 @@ class SortedVisibleThumbGrid extends Component {
         file={this.props.file}
         settings={this.props.settings}
         selectedThumbId={this.props.selectedThumbId}
-        onSelectClick={this.props.onSelectClick}
+        // onSelectClick={this.props.onSelectClick}
+        onSelectClick={this.onSelectClick2}
         onToggleClick={this.props.onToggleClick}
         onRemoveClick={this.props.onRemoveClick}
         onInPointClick={this.props.onInPointClick}
@@ -113,9 +132,10 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
-    onSelectClick: (file, thumbId, frameNumber) => {
-      ownProps.selectMethod(file, thumbId, frameNumber);
-    },
+    // onSelectClick: (file, thumbId, frameNumber) => {
+    //   this.scrollThumbIntoView();
+    //   ownProps.selectMethod(file, thumbId, frameNumber);
+    // },
     onToggleClick: (fileId, thumbId) => {
       dispatch(toggleThumb(fileId, thumbId));
     },

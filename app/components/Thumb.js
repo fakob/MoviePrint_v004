@@ -46,7 +46,8 @@ const DragHandle = SortableHandle(({ scaleValue }) => {
 const Thumb = ({
   onSelect, onToggle, onInPoint, onOutPoint, onBack, onForward, tempId, color, scaleValue,
   onOver, onOut, onScrub, hidden, thumbImageObjectUrl, aspectRatioInv, thumbInfoRatio,
-  controlersAreVisible, thumbWidth, margin, zoomOut, borderRadius, thumbInfoValue, selected
+  controlersAreVisible, thumbWidth, margin, zoomOut, borderRadius, thumbInfoValue, selected,
+  inputRefThumb
 }) => {
   function over(event) {
     event.target.style.opacity = 1;
@@ -58,6 +59,7 @@ const Thumb = ({
 
   return (
     <div
+      ref={inputRefThumb}
       onMouseOver={onOver}
       onMouseLeave={onOut}
       onFocus={onOver}

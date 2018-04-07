@@ -18,7 +18,8 @@ const ThumbGrid = ({
   onSelectClick, onToggleClick, onRemoveClick, onInPointClick, onOutPointClick,
   onBackClick, onForwardClick, onScrubClick,
   onMouseOverResult, onMouseOutResult, settings, editGrid,
-  thumbCount, zoomOut, colorArray, scaleValueObject, selectedThumbId
+  thumbCount, zoomOut, colorArray, scaleValueObject, selectedThumbId,
+  inputRefThumb
 }) => {
   const fps = (typeof file !== 'undefined' && typeof file.fps !== 'undefined' ? file.fps : 25);
   function getThumbInfoValue(type, frames, framesPerSecond) {
@@ -32,13 +33,6 @@ const ThumbGrid = ({
       default:
         return undefined;
     }
-  }
-
-  function handleShow(i) {
-  // const handleShow = (i) => {
-    // this.setState({ index: i });
-    console.log(this);
-    this.refs[i].scrollIntoView({ block: 'end', behavior: 'smooth' });
   }
 
   let thumbGridHeaderComponent = null;
@@ -103,7 +97,7 @@ const ThumbGrid = ({
         scaleValue={scaleValueObject.newScaleValue}
         key={thumb.key}
         index={thumb.index}
-        ref={thumb.thumbId}
+        inputRefThumb={(selectedThumbId === thumb.thumbId) ? inputRefThumb : undefined} // for the thumb scrollIntoView function
         tempId={thumb.index}
         color={(colorArray !== undefined ? colorArray[thumb.index] : undefined)}
         thumbImageObjectUrl={thumb.thumbImageObjectUrl ||
