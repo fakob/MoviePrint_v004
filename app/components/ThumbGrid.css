@@ -98,11 +98,17 @@
   cursor: move;
 }
 
+.whileDragging {
+  /* box-shadow: 4px 4px 10px 0px rgba(255,81,6,0.75); */
+  box-shadow: 0px 0px 80px 0px rgba(0,0,0,0.75);
+}
+
 .hide {
     position: absolute;
     top: 0;
     right: 0;
     opacity: 0.5;
+    z-index: 100;
 }
 
 .inPoint {

@@ -7,6 +7,7 @@ import {
   toggleThumb, updateOrder, removeThumb, updateObjectUrlsFromThumbList,
   changeThumb, addDefaultThumbs
 } from '../actions';
+import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
 import { getLowestFrame, getHighestFrame, getChangeThumbStep, getVisibleThumbs } from '../utils/utils';
 
@@ -110,8 +111,10 @@ class SortedVisibleThumbGrid extends Component {
         onSortEnd={
           this.onSortEnd.bind(this)
         }
-        useDragHandle
+        // useDragHandle
         axis="xy"
+        pressDelay={300}
+        helperClass={styles.whileDragging}
         controlersAreVisible={this.controlersVisible}
         useWindowAsScrollContainer={true}
 

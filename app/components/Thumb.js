@@ -29,10 +29,10 @@ const DragHandle = SortableHandle(({ scaleValue }) => {
       onMouseLeave={out}
       onFocus={over}
       onBlur={out}
-      // style={{
-      //   transformOrigin: 'center center',
-      //   transform: `scale(${scaleValue})`,
-      // }}
+      style={{
+        // transformOrigin: 'center center',
+        // transform: `scale(${scaleValue})`,
+      }}
     >
       <img
         src={handleWide}
@@ -56,6 +56,9 @@ const Thumb = ({
   function out(event) {
     event.target.style.opacity = 0.5;
   }
+
+  const minimumWidthToShowHover = 100;
+  const minimumWidthToShrinkHover = 160;
 
   return (
     <div
@@ -112,6 +115,14 @@ const Thumb = ({
           scaleValue={scaleValue}
         />
         <button
+          style={{
+            display: (thumbWidth > minimumWidthToShowHover) ? 'block' : 'none',
+            transformOrigin: 'top right',
+            transform: `scale(${(thumbWidth > minimumWidthToShrinkHover) ? 1 : 0.7})`,
+            position: 'absolute',
+            top: 0,
+            right: 0,
+          }}
           className={styles.hoverButton}
           onClick={onToggle}
           onMouseOver={over}
@@ -127,7 +138,12 @@ const Thumb = ({
         </button>
         <button
           style={{
-            display: !zoomOut ? 'block' : 'none',
+            display: (thumbWidth > minimumWidthToShowHover) ? 'block' : 'none',
+            transformOrigin: 'left bottom',
+            transform: `scale(${(thumbWidth > minimumWidthToShrinkHover) ? 1 : 0.7})`,
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
           }}
           className={styles.hoverButton}
           onClick={onInPoint}
@@ -142,7 +158,7 @@ const Thumb = ({
             alt=""
           />
         </button>
-        <button
+        {/* <button
           style={{
             display: !zoomOut ? 'block' : 'none'
           }}
@@ -158,8 +174,8 @@ const Thumb = ({
             className={styles.back}
             alt=""
           />
-        </button>
-        <button
+        </button> */}
+        {/* <button
           style={{
             display: !zoomOut ? 'block' : 'none',
           }}
@@ -175,8 +191,8 @@ const Thumb = ({
             className={styles.scrub}
             alt=""
           />
-        </button>
-        <button
+        </button> */}
+        {/* <button
           style={{
             display: !zoomOut ? 'block' : 'none'
           }}
@@ -192,10 +208,15 @@ const Thumb = ({
             className={styles.forward}
             alt=""
           />
-        </button>
+        </button> */}
         <button
           style={{
-            display: !zoomOut ? 'block' : 'none'
+            display: (thumbWidth > minimumWidthToShowHover) ? 'block' : 'none',
+            transformOrigin: 'right bottom',
+            transform: `scale(${(thumbWidth > minimumWidthToShrinkHover) ? 1 : 0.7})`,
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
           }}
           className={styles.hoverButton}
           onClick={onOutPoint}
