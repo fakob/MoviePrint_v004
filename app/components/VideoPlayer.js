@@ -109,7 +109,7 @@ class VideoPlayer extends Component {
   }
 
   updatePositionWithStep(step) {
-    const currentTime = (this.props.positionRatio) * this.state.duration + frameCountToSeconds(step, this.props.file.fps);
+    const currentTime = this.video.currentTime + frameCountToSeconds(step, this.props.file.fps);
     console.log(`${currentTime} : ${this.props.positionRatio} : ${this.state.duration}`);
     console.log(this.state);
     this.onTimeUpdate(currentTime);
@@ -243,28 +243,6 @@ class VideoPlayer extends Component {
                 alt=""
               />
             </button>
-            {/* <Button.Group
-              size="mini"
-              compact
-            >
-              <Button
-                content="Choose"
-                color="orange"
-                onClick={this.onApplyClick}
-              />
-            </Button.Group> */}
-            {/* <Button.Group
-              size="mini"
-              compact
-              floated="right"
-            >
-              <Button
-                basic
-                color="orange"
-                content="Choose as OUT-point"
-                onClick={() => this.onOutPointClick(this.props.file, this.props.thumbs, this.props.thumbId, this.props.frameNumber)}
-              />
-            </Button.Group> */}
             <button
               className={styles.hoverButton}
               onClick={() => this.onOutPointClick(this.props.file, this.props.thumbs, this.props.thumbId, this.props.frameNumber)}
