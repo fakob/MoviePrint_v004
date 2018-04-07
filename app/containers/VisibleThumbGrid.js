@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { arrayMove } from 'react-sortable-hoc';
+import scrollIntoView from 'scroll-into-view';
 import {
   toggleThumb, updateOrder, removeThumb, updateObjectUrlsFromThumbList,
   changeThumb, addDefaultThumbs
@@ -37,9 +38,11 @@ class SortedVisibleThumbGrid extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevProps.selectedThumbId !== this.props.selectedThumbId ||
-      prevProps.zoomOut !== this.props.zoomOut
-    ) {
+    if (prevProps.selectedThumbId !== this.props.selectedThumbId) {
+      this.scrollThumbIntoView();
+    }
+    // only delay when switching to thumbView
+    if (prevProps.zoomOut !== this.props.zoomOut && prevProps.zoomOut) {
       setTimeout(() => {
         this.scrollThumbIntoView();
       }, 500);
@@ -64,12 +67,14 @@ class SortedVisibleThumbGrid extends Component {
   }
 
   scrollThumbIntoView = () => {
-  // const handleShow = (i) => {
-    // this.setState({ index: i });
     if (this.scrollIntoViewElement && this.scrollIntoViewElement.current !== null) {
-      console.log(this.scrollIntoViewElement);
-      console.log(this.scrollIntoViewElement.current);
-      this.scrollIntoViewElement.current.scrollIntoView({ block: 'end', behavior: 'smooth' });
+      // console.log(this.scrollIntoViewElement);
+      scrollIntoView(this.scrollIntoViewElement.current, {
+        time: 300,
+        align: {
+          left: 0.5,
+        }
+      });
     }
   };
 
