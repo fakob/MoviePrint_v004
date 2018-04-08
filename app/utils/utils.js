@@ -6,6 +6,17 @@ const randomColor = require('randomcolor');
 
 const { ipcRenderer } = require('electron');
 
+export const getObjectProperty = (fn) => {
+  let value;
+  try {
+    value = fn();
+    return value;
+  } catch (e) {
+    value = undefined;
+    return value;
+  }
+};
+
 export const mapRange = (value, low1, high1, low2, high2, returnInt = true) => {
   // * 1.0 added to force float division
   let newValue = low2 + ((high2 - low2) * (((value - low1) * 1.0) / (high1 - low1)));
