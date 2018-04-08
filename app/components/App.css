@@ -28,27 +28,45 @@
   /*background-color: red;*/
 }
 
+.dropzoneshowAccept {
+  /* outline-color: #00FF00; */
+  background-color: rgba(0,134,0,0.7) !important;
+}
+
+.dropzoneshowReject {
+  /* outline-color: #FF0000; */
+  background-color: rgba(134,0,0,0.7) !important;
+}
+
 .dropzoneshow {
-  /*background-color: green;*/
-  position: fixed;
-  display: flex;
-  background: rgba(17, 109, 210, 0.5);
-  border: 15px solid #0c3158;
-  width: 100%;
-  height: 100%;
-  zIndex: 2000;
-  top: 0;
+  /* outline-style: solid;
+  outline-color: #0c3158;
+  outline-width: 15px;
+  outline-offset: -15px; */
+  z-index: 2000;
+  position: fixed; /* Stay in place */
+  z-index: 10000; /* Sit on top */
   left: 0;
-  right: 0;
-  bottom: 0;
-  flex: 1;
-  justify-content: center;
-  align-items: center;
-  textAlign: center;
-  font-size: 30px;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgba(255,80,6,0.7); /* Black w/ opacity */
+}
+
+.dropzoneshowContent {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+  outline: 0;
+  font-size: 100px;
   font-weight: 600;
   color: #fff;
-  letterSpacing: 1px;
+  letter-spacing: 1px;
   margin: auto;
   font-family: 'Roboto Condensed';
 }

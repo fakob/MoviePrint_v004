@@ -792,250 +792,245 @@ class App extends Component {
         onDrop={this.onDrop.bind(this)}
         onDragEnter={this.onDragEnter.bind(this)}
         onDragLeave={this.onDragLeave.bind(this)}
+        className={styles.dropzoneshow}
+        acceptClassName={styles.dropzoneshowAccept}
+        rejectClassName={styles.dropzoneshowReject}
       >
-        {/* { dropzoneActive && <div style={overlayStyle}>Drop files...</div> } */}
-        { dropzoneActive &&
-          <div
-            style={overlayStyle}
-            className={styles.dropzoneshow}
-          >
-            {/* Drop files... */}
-            {({ isDragActive, isDragReject, acceptedFiles, rejectedFiles }) => {
-              if (isDragActive) {
-                return "This file is authorized";
-              }
-              if (isDragReject) {
-                return "This file is not authorized";
-              }
-              return acceptedFiles.length || rejectedFiles.length
-                ? `Accepted ${acceptedFiles.length}, rejected ${rejectedFiles.length} files`
-                : "Try dropping some files.";
-            }}
-          </div>
-        }
-        <div>
-          {/* <Modal
-            isOpen={this.state.modalIsOpen}
-            onAfterOpen={this.afterOpenModal}
-            onRequestClose={this.closeModal}
-            appElement={this.siteContent}
-            className={`${styles.ReactModalContent}`}
-            overlayClassName={`${styles.ReactModalOverlay}`}
-          > */}
-            {/* <div>
-              { this.props.file ?
-                <VideoPlayer
-                  ref={(el) => { this.videoPlayer = el; }}
-                  path={this.props.file ? (this.props.file.path || '') : ''}
-                  thumbId={this.state.thumbId}
-                  positionRatio={(this.state.frameNumber * 1.0) / (this.props.file.frameCount || 1)}
-                  setNewFrame={this.setNewFrame}
-                  closeModal={this.closeModal}
-                /> : ''
-              }
-            </div> */}
-          {/* </Modal> */}
-          <div className={`${styles.Site}`}>
-            {/* <div className={`${styles.SiteHeader}`}>
-
-            </div> */}
-            <div
-              className={`${styles.SiteContent}`}
-              ref={(el) => { this.siteContent = el; }}
-            >
-              <div
-                className={`${styles.ItemSideBar} ${styles.ItemLeftSideBar} ${this.props.visibilitySettings.showLeftSidebar ? styles.ItemLeftSideBarAnim : ''}`}
-                // visible={this.props.visibilitySettings.showLeftSidebar}
-                // vertical
-              >
-                <FileList />
-              </div>
-              <div
-                className={`${styles.ItemSideBar} ${styles.ItemRightSideBar} ${this.props.visibilitySettings.showRightSidebar ? styles.ItemRightSideBarAnim : ''}`}
-              >
-                <SettingsList
-                  settings={this.props.settings}
-                  visibilitySettings={this.props.visibilitySettings}
-                  file={this.props.file}
-                  columnCountTemp={this.state.columnCountTemp}
-                  thumbCountTemp={this.state.thumbCountTemp}
-                  rowCountTemp={Math.ceil(this.state.thumbCountTemp / this.state.columnCountTemp)}
-                  columnCount={this.state.columnCount}
-                  rowCount={Math.ceil(this.state.thumbCount / this.state.columnCount)}
-                  reCapture={this.state.reCapture}
-                  onChangeColumn={this.onChangeColumn}
-                  onChangeColumnAndApply={this.onChangeColumnAndApply}
-                  onChangeRow={this.onChangeRow}
-                  onReCaptureClick={this.onReCaptureClick}
-                  onApplyClick={this.onApplyClick}
-                  onCancelClick={this.onCancelClick}
-                  onChangeMargin={this.onChangeMargin}
-                  onShowHeaderClick={this.onShowHeaderClick}
-                  onRoundedCornersClick={this.onRoundedCornersClick}
-                  onShowHiddenThumbsClick={this.onShowHiddenThumbsClick}
-                  onThumbInfoClick={this.onThumbInfoClick}
-                  onChangeOutputPathClick={this.onChangeOutputPathClick}
-                  onOutputFormatClick={this.onOutputFormatClick}
-                  onOverwriteClick={this.onOverwriteClick}
-                  onThumbnailScaleClick={this.onThumbnailScaleClick}
-                />
-              </div>
-              {!this.props.visibilitySettings.zoomOut &&
-                <div
-                  className={`${styles.ItemVideoPlayer} ${this.props.visibilitySettings.showLeftSidebar ? styles.ItemMainLeftAnim : ''}`}
-                  style={{
-                    top: `${this.props.settings.defaultBorderMargin}px`
-                  }}
-                >
+        {({ isDragActive, isDragAccept, isDragReject }) => {
+          return (
+            <div>
+              {/* <Modal
+                isOpen={this.state.modalIsOpen}
+                onAfterOpen={this.afterOpenModal}
+                onRequestClose={this.closeModal}
+                appElement={this.siteContent}
+                className={`${styles.ReactModalContent}`}
+                overlayClassName={`${styles.ReactModalOverlay}`}
+              > */}
+                {/* <div>
                   { this.props.file ?
                     <VideoPlayer
                       ref={(el) => { this.videoPlayer = el; }}
                       path={this.props.file ? (this.props.file.path || '') : ''}
-                      aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
-                      height={this.state.scaleValueObject.videoPlayerHeight}
-                      width={this.state.scaleValueObject.videoPlayerWidth}
-                      controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
-                      thumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
-                      showPlaybar={this.props.visibilitySettings.showPlaybar}
-                      frameNumber={this.state.selectedThumbObject ? this.state.selectedThumbObject.frameNumber : 0}
-                      positionRatio={this.state.selectedThumbObject ? ((this.state.selectedThumbObject.frameNumber * 1.0) / (this.props.file.frameCount || 1)) : 0}
-                      // setNewFrame={this.setNewFrame}
+                      thumbId={this.state.thumbId}
+                      positionRatio={(this.state.frameNumber * 1.0) / (this.props.file.frameCount || 1)}
+                      setNewFrame={this.setNewFrame}
+                      closeModal={this.closeModal}
                     /> : ''
                   }
+                </div> */}
+              {/* </Modal> */}
+              <div className={`${styles.Site}`}>
+                {/* <div className={`${styles.SiteHeader}`}>
+
+                </div> */}
+                <div
+                  className={`${styles.SiteContent}`}
+                  ref={(el) => { this.siteContent = el; }}
+                >
+                  <div
+                    className={`${styles.ItemSideBar} ${styles.ItemLeftSideBar} ${this.props.visibilitySettings.showLeftSidebar ? styles.ItemLeftSideBarAnim : ''}`}
+                    // visible={this.props.visibilitySettings.showLeftSidebar}
+                    // vertical
+                  >
+                    <FileList />
+                  </div>
+                  <div
+                    className={`${styles.ItemSideBar} ${styles.ItemRightSideBar} ${this.props.visibilitySettings.showRightSidebar ? styles.ItemRightSideBarAnim : ''}`}
+                  >
+                    <SettingsList
+                      settings={this.props.settings}
+                      visibilitySettings={this.props.visibilitySettings}
+                      file={this.props.file}
+                      columnCountTemp={this.state.columnCountTemp}
+                      thumbCountTemp={this.state.thumbCountTemp}
+                      rowCountTemp={Math.ceil(this.state.thumbCountTemp / this.state.columnCountTemp)}
+                      columnCount={this.state.columnCount}
+                      rowCount={Math.ceil(this.state.thumbCount / this.state.columnCount)}
+                      reCapture={this.state.reCapture}
+                      onChangeColumn={this.onChangeColumn}
+                      onChangeColumnAndApply={this.onChangeColumnAndApply}
+                      onChangeRow={this.onChangeRow}
+                      onReCaptureClick={this.onReCaptureClick}
+                      onApplyClick={this.onApplyClick}
+                      onCancelClick={this.onCancelClick}
+                      onChangeMargin={this.onChangeMargin}
+                      onShowHeaderClick={this.onShowHeaderClick}
+                      onRoundedCornersClick={this.onRoundedCornersClick}
+                      onShowHiddenThumbsClick={this.onShowHiddenThumbsClick}
+                      onThumbInfoClick={this.onThumbInfoClick}
+                      onChangeOutputPathClick={this.onChangeOutputPathClick}
+                      onOutputFormatClick={this.onOutputFormatClick}
+                      onOverwriteClick={this.onOverwriteClick}
+                      onThumbnailScaleClick={this.onThumbnailScaleClick}
+                    />
+                  </div>
+                  {!this.props.visibilitySettings.zoomOut &&
+                    <div
+                      className={`${styles.ItemVideoPlayer} ${this.props.visibilitySettings.showLeftSidebar ? styles.ItemMainLeftAnim : ''}`}
+                      style={{
+                        top: `${this.props.settings.defaultBorderMargin}px`
+                      }}
+                    >
+                      { this.props.file ?
+                        <VideoPlayer
+                          ref={(el) => { this.videoPlayer = el; }}
+                          path={this.props.file ? (this.props.file.path || '') : ''}
+                          aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
+                          height={this.state.scaleValueObject.videoPlayerHeight}
+                          width={this.state.scaleValueObject.videoPlayerWidth}
+                          controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
+                          thumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
+                          showPlaybar={this.props.visibilitySettings.showPlaybar}
+                          frameNumber={this.state.selectedThumbObject ? this.state.selectedThumbObject.frameNumber : 0}
+                          positionRatio={this.state.selectedThumbObject ? ((this.state.selectedThumbObject.frameNumber * 1.0) / (this.props.file.frameCount || 1)) : 0}
+                          // setNewFrame={this.setNewFrame}
+                        /> : ''
+                      }
+                    </div>
+                  }
+                  <div
+                    ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
+                    className={`${styles.ItemMain} ${this.props.visibilitySettings.showLeftSidebar ? styles.ItemMainLeftAnim : ''} ${this.props.visibilitySettings.zoomOut ? styles.ItemMainMinHeight : ''} ${this.props.visibilitySettings.showRightSidebar ? styles.ItemMainRightAnim : ''} ${this.props.visibilitySettings.showRightSidebar ? styles.ItemMainEdit : ''} ${!this.props.visibilitySettings.zoomOut ? styles.ItemMainTopAnim : ''}`}
+                    style={{
+                      width: this.props.visibilitySettings.zoomOut ? undefined : this.state.scaleValueObject.newMoviePrintWidth,
+                      marginTop: this.props.visibilitySettings.zoomOut ? undefined :
+                        `${this.state.scaleValueObject.videoPlayerHeight +
+                          (this.props.settings.defaultBorderMargin * 2)}px`
+                    }}
+                  >
+                    <SortedVisibleThumbGrid
+                      inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
+                      // inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
+                      editGrid={this.props.visibilitySettings.showRightSidebar}
+
+                      containerHeight={this.state.containerHeight}
+                      containerWidth={this.state.containerWidth}
+                      selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
+                      selectMethod={this.onSelectMethod}
+                      parentMethod={this.openModal}
+
+                      colorArray={this.state.colorArray}
+                      columnCount={this.props.visibilitySettings.showRightSidebar ?
+                        this.state.columnCountTemp :
+                        (this.props.file ? this.props.file.columnCount || this.state.columnCountTemp :
+                          this.state.columnCountTemp)}
+                      thumbCount={this.state.thumbCountTemp}
+                      reCapture={this.state.reCapture}
+
+                      zoomOut={this.props.visibilitySettings.zoomOut}
+                      scaleValueObject={this.state.scaleValueObject}
+                    />
+                  </div>
+                </div>
+              </div>
+              <Sticky
+                className={`${styles.FixedActionMenuRight} ${styles.ItemRightSideBar} ${this.props.visibilitySettings.showRightSidebar ? styles.ItemRightSideBarAnim : ''}`}
+              >
+                <Menu
+                  compact
+                  icon="labeled"
+                  size="mini"
+                >
+                  {this.props.visibilitySettings.zoomOut &&
+                    <Menu.Item
+                      name="save"
+                      onClick={this.onSaveMoviePrint}
+                      color="orange"
+                      active={!this.state.savingMoviePrint}
+                      className={styles.FixedActionMenuFlex}
+                      disabled={this.state.savingMoviePrint}
+                    >
+                      { this.state.savingMoviePrint ?
+                        <Loader
+                          active
+                          inline
+                          size="small"
+                        />
+                        :
+                        <Icon
+                          name="save"
+                        />
+                      }
+                      Save MoviePrint
+                    </Menu.Item>
+                  }
+                  {!this.props.visibilitySettings.showRightSidebar &&
+                    <Menu.Item
+                      name="zoom"
+                      onClick={this.onViewToggle}
+                      className={styles.FixedActionMenuFlex}
+                    >
+                      <Icon
+                        name={(this.props.visibilitySettings.zoomOut) ? 'picture' : 'block layout'}
+                      />
+                      {(this.props.visibilitySettings.zoomOut) ? 'Thumb view' : 'Print view'}
+                    </Menu.Item>
+                  }
+                  {this.props.visibilitySettings.zoomOut &&
+                    <Menu.Item
+                      name="edit"
+                      onClick={(this.props.visibilitySettings.showRightSidebar === false) ? this.editGrid : this.hideEditGrid}
+                      className={styles.FixedActionMenuFlex}
+                    >
+                      <Icon
+                        name={(this.props.visibilitySettings.showRightSidebar === false) ? 'edit' : 'edit'}
+                      />
+                      {(this.props.visibilitySettings.showRightSidebar === false) ? 'Show edit' : 'Hide edit'}
+                    </Menu.Item>
+                  }
+                  {!this.props.visibilitySettings.zoomOut &&
+                    <Menu.Item
+                      name="playbar"
+                      onClick={this.onTogglePlaybar}
+                      className={styles.FixedActionMenuFlex}
+                    >
+                      <Icon
+                        name={(this.props.visibilitySettings.showPlaybar === false) ? 'video' : 'video'}
+                      />
+                      {(this.props.visibilitySettings.showPlaybar === false) ? 'Show playbar' : 'Hide playbar'}
+                    </Menu.Item>
+                  }
+                </Menu>
+              </Sticky>
+              <Sticky
+                className={`${styles.FixedActionMenuLeft} ${styles.ItemLeftSideBar} ${this.props.visibilitySettings.showLeftSidebar ? styles.ItemLeftSideBarAnim : ''}`}
+              >
+                <Menu
+                  compact
+                  icon="labeled"
+                  size="mini"
+                >
+
+                  {true &&
+                    <Menu.Item
+                      name="list"
+                      onClick={this.toggleLeftSidebar}
+                      className={styles.FixedActionMenuFlex}
+                    >
+                      <Icon
+                        name="list"
+                      />
+                      {(this.props.visibilitySettings.showLeftSidebar === false) ? 'Show list' : 'Hide list'}
+                    </Menu.Item>
+                  }
+
+                </Menu>
+              </Sticky>
+              { dropzoneActive &&
+                <div
+                  className={`${styles.dropzoneshow} ${isDragAccept ? styles.dropzoneshowAccept : ''} ${isDragReject ? styles.dropzoneshowReject : ''}`}
+                >
+                  <div
+                    className={styles.dropzoneshowContent}
+                  >
+                    {`${isDragAccept ? 'DROP' : ''} ${isDragReject ? 'NOT ALLOWED' : ''}`}
+                  </div>
                 </div>
               }
-              <div
-                ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
-                className={`${styles.ItemMain} ${this.props.visibilitySettings.showLeftSidebar ? styles.ItemMainLeftAnim : ''} ${this.props.visibilitySettings.zoomOut ? styles.ItemMainMinHeight : ''} ${this.props.visibilitySettings.showRightSidebar ? styles.ItemMainRightAnim : ''} ${this.props.visibilitySettings.showRightSidebar ? styles.ItemMainEdit : ''} ${!this.props.visibilitySettings.zoomOut ? styles.ItemMainTopAnim : ''}`}
-                style={{
-                  width: this.props.visibilitySettings.zoomOut ? undefined : this.state.scaleValueObject.newMoviePrintWidth,
-                  marginTop: this.props.visibilitySettings.zoomOut ? undefined :
-                    `${this.state.scaleValueObject.videoPlayerHeight +
-                      (this.props.settings.defaultBorderMargin * 2)}px`
-                }}
-              >
-                <SortedVisibleThumbGrid
-                  inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
-                  // inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
-                  editGrid={this.props.visibilitySettings.showRightSidebar}
-
-                  containerHeight={this.state.containerHeight}
-                  containerWidth={this.state.containerWidth}
-                  selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
-                  selectMethod={this.onSelectMethod}
-                  parentMethod={this.openModal}
-
-                  colorArray={this.state.colorArray}
-                  columnCount={this.props.visibilitySettings.showRightSidebar ?
-                    this.state.columnCountTemp :
-                    (this.props.file ? this.props.file.columnCount || this.state.columnCountTemp :
-                      this.state.columnCountTemp)}
-                  thumbCount={this.state.thumbCountTemp}
-                  reCapture={this.state.reCapture}
-
-                  zoomOut={this.props.visibilitySettings.zoomOut}
-                  scaleValueObject={this.state.scaleValueObject}
-                />
-              </div>
             </div>
-          </div>
-          <Sticky
-            className={`${styles.FixedActionMenuRight} ${styles.ItemRightSideBar} ${this.props.visibilitySettings.showRightSidebar ? styles.ItemRightSideBarAnim : ''}`}
-          >
-            <Menu
-              compact
-              icon="labeled"
-              size="mini"
-            >
-              {this.props.visibilitySettings.zoomOut &&
-                <Menu.Item
-                  name="save"
-                  onClick={this.onSaveMoviePrint}
-                  color="orange"
-                  active={!this.state.savingMoviePrint}
-                  className={styles.FixedActionMenuFlex}
-                  disabled={this.state.savingMoviePrint}
-                >
-                  { this.state.savingMoviePrint ?
-                    <Loader
-                      active
-                      inline
-                      size="small"
-                    />
-                    :
-                    <Icon
-                      name="save"
-                    />
-                  }
-                  Save MoviePrint
-                </Menu.Item>
-              }
-              {!this.props.visibilitySettings.showRightSidebar &&
-                <Menu.Item
-                  name="zoom"
-                  onClick={this.onViewToggle}
-                  className={styles.FixedActionMenuFlex}
-                >
-                  <Icon
-                    name={(this.props.visibilitySettings.zoomOut) ? 'picture' : 'block layout'}
-                  />
-                  {(this.props.visibilitySettings.zoomOut) ? 'Thumb view' : 'Print view'}
-                </Menu.Item>
-              }
-              {this.props.visibilitySettings.zoomOut &&
-                <Menu.Item
-                  name="edit"
-                  onClick={(this.props.visibilitySettings.showRightSidebar === false) ? this.editGrid : this.hideEditGrid}
-                  className={styles.FixedActionMenuFlex}
-                >
-                  <Icon
-                    name={(this.props.visibilitySettings.showRightSidebar === false) ? 'edit' : 'edit'}
-                  />
-                  {(this.props.visibilitySettings.showRightSidebar === false) ? 'Show edit' : 'Hide edit'}
-                </Menu.Item>
-              }
-              {!this.props.visibilitySettings.zoomOut &&
-                <Menu.Item
-                  name="playbar"
-                  onClick={this.onTogglePlaybar}
-                  className={styles.FixedActionMenuFlex}
-                >
-                  <Icon
-                    name={(this.props.visibilitySettings.showPlaybar === false) ? 'video' : 'video'}
-                  />
-                  {(this.props.visibilitySettings.showPlaybar === false) ? 'Show playbar' : 'Hide playbar'}
-                </Menu.Item>
-              }
-            </Menu>
-          </Sticky>
-          <Sticky
-            className={`${styles.FixedActionMenuLeft} ${styles.ItemLeftSideBar} ${this.props.visibilitySettings.showLeftSidebar ? styles.ItemLeftSideBarAnim : ''}`}
-          >
-            <Menu
-              compact
-              icon="labeled"
-              size="mini"
-            >
-
-              {true &&
-                <Menu.Item
-                  name="list"
-                  onClick={this.toggleLeftSidebar}
-                  className={styles.FixedActionMenuFlex}
-                >
-                  <Icon
-                    name="list"
-                  />
-                  {(this.props.visibilitySettings.showLeftSidebar === false) ? 'Show list' : 'Hide list'}
-                </Menu.Item>
-              }
-
-            </Menu>
-          </Sticky>
-          <div id="dragbox" className={this.state.className}>
-            Drop movie files
-          </div>
-        </div>
+          )
+        }}
       </Dropzone>
     );
   }
