@@ -197,6 +197,7 @@ class App extends Component {
       if (lastItem) {
         console.log('I am the lastItem');
         store.dispatch(setCurrentFileId(store.getState().undoGroup.present.files[0].id));
+        this.updateScaleValue(); // so the aspect ratio of the thumbs are correct after drag
         store.dispatch(clearThumbs());
         store.dispatch(addDefaultThumbs(
           store.getState().undoGroup.present.files[0],

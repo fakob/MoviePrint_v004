@@ -125,11 +125,6 @@ ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId) => 
   console.log(fileId);
   console.log(filePath);
   const vid = new opencv.VideoCapture(filePath);
-  // console.log(`width: ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH)}`);
-  // console.log(`height: ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT)}`);
-  // console.log(`FPS: ${vid.get(VideoCaptureProperties.CAP_PROP_FPS)}`);
-  // console.log(`codec: ${vid.get(VideoCaptureProperties.CAP_PROP_FOURCC)}`);
-  // event.sender.send('receive-get-file-details', fileId, vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT), vid.get(VideoCaptureProperties.CAP_PROP_FPS), vid.get(VideoCaptureProperties.CAP_PROP_FOURCC));
 
   const frameNumberArray = [Math.floor(vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) / 2)]; // only 1 value (middle frame) in array. too lazy to clean up
   vid.readAsync((err1, mat1) => {
@@ -169,7 +164,7 @@ ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArr
   console.log(`height: ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT)}`);
   console.log(`FPS: ${vid.get(VideoCaptureProperties.CAP_PROP_FPS)}`);
   console.log(`codec: ${vid.get(VideoCaptureProperties.CAP_PROP_FOURCC)}`);
-  console.log(relativeFrameCount);
+  console.log(`relativeFrameCount: ${relativeFrameCount}`);
 
   vid.readAsync((err1, mat1) => {
     const read = function read() {
