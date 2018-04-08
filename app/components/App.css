@@ -43,9 +43,7 @@
   outline-color: #0c3158;
   outline-width: 15px;
   outline-offset: -15px; */
-  z-index: 2000;
   position: fixed; /* Stay in place */
-  z-index: 10000; /* Sit on top */
   left: 0;
   top: 0;
   width: 100%; /* Full width */

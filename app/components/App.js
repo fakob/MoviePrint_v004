@@ -98,17 +98,6 @@ const getScaleValueObject = (file, settings, columnCount = 3, thumbCount = 3, co
     videoPlayerHeight,
     videoPlayerWidth,
   };
-
-  // console.log('getScaleValueObject was run');
-  // console.log(zoomOutBool);
-  // console.log(file);
-  // console.log(settings);
-  // console.log(columnCount);
-  // console.log(thumbCount);
-  // console.log(containerWidth);
-  // console.log(containerHeight);
-  // console.log(scaleValueObject);
-
   return scaleValueObject;
 };
 
@@ -135,17 +124,10 @@ class App extends Component {
       dropzoneActive: false,
     };
 
-    // this.scrollIntoViewElement = React.createRef();
-
-    // this.onDragEnter = this.onDragEnter.bind(this);
-    // this.onDragLeave = this.onDragLeave.bind(this);
-    // this.onDragOver = this.onDragOver.bind(this);
-    // this.onDrop = this.onDrop.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
 
     this.openModal = this.openModal.bind(this);
     this.onSelectMethod = this.onSelectMethod.bind(this);
-    // this.scrollThumbIntoView = this.scrollThumbIntoView.bind(this);
     this.afterOpenModal = this.afterOpenModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
 
@@ -248,11 +230,6 @@ class App extends Component {
       console.log(`Saved file error: ${message}`);
     });
 
-    window.addEventListener('mouseup', this.onDragLeave);
-    // window.addEventListener('dragenter', this.onDragEnter);
-    // window.addEventListener('dragover', this.onDragOver);
-    // document.getElementById('dragbox').addEventListener('dragleave', this.onDragLeave);
-    // window.addEventListener('drop', this.onDrop);
     document.addEventListener('keydown', this.handleKeyPress);
 
     this.updatecontainerWidthAndHeight();
@@ -328,8 +305,6 @@ class App extends Component {
       prevProps.settings.defaultRoundedCorners !== this.props.settings.defaultRoundedCorners ||
       prevState.outputScaleCompensator !== this.state.outputScaleCompensator ||
       prevProps.visibilitySettings.zoomOut !== this.props.visibilitySettings.zoomOut ||
-      // prevProps.visibilitySettings.showLeftSidebar !== this.props.visibilitySettings.showLeftSidebar ||
-      // prevProps.visibilitySettings.showRightSidebar !== this.props.visibilitySettings.showRightSidebar ||
       prevState.columnCountTemp !== this.state.columnCountTemp ||
       prevState.thumbCountTemp !== this.state.thumbCountTemp ||
       prevState.columnCount !== this.state.columnCount ||
@@ -337,18 +312,9 @@ class App extends Component {
     ) {
       this.updateScaleValue();
     }
-    // if ((prevState.selectedThumbObject && this.state.selectedThumbObject) ?
-    //   prevState.selectedThumbObject.thumbId !== this.state.selectedThumbObject.thumbId : false) {
-    //   this.scrollThumbIntoView();
-    // }
   }
 
   componentWillUnmount() {
-    window.removeEventListener('mouseup', this.onDragLeave);
-    // window.removeEventListener('dragenter', this.onDragEnter);
-    // window.addEventListener('dragover', this.onDragOver);
-    // document.getElementById('dragbox').removeEventListener('dragleave', this.onDragLeave);
-    // window.removeEventListener('drop', this.onDrop);
     document.removeEventListener('keydown', this.handleKeyPress);
 
     window.removeEventListener('resize', this.updatecontainerWidthAndHeight);
@@ -381,45 +347,6 @@ class App extends Component {
     }
   }
 
-  // onDragEnter(e) {
-  //   console.log(e);
-  //   console.log(e.target);
-  //   console.log(e.target.localName);
-  //   // console.log(e.currentTarget);
-  //   if (e.target.localName !== 'img') { // exclude dragging thumbs
-  //     this.setState({ className: `${styles.dropzoneshow}` });
-  //   }
-  //   e.stopPropagation();
-  //   e.preventDefault();
-  //   return false;
-  // }
-  //
-  // onDragOver(e) {
-  //   e.preventDefault();
-  //   e.stopPropagation();
-  //   return false;
-  // }
-  //
-  // onDragLeave(e) {
-  //   this.setState({ className: `${styles.dropzonehide}` });
-  //   e.stopPropagation();
-  //   e.preventDefault();
-  //   return false;
-  // }
-  //
-  // onDrop(e) {
-  //   e.preventDefault();
-  //   const { store } = this.context;
-  //   const files = e.dataTransfer.files;
-  //   const settings = store.getState().undoGroup.present.settings;
-  //   console.log('Files dropped: ', files);
-  //   this.setState({ className: `${styles.dropzonehide}` });
-  //   if (Array.from(files).some(file => file.type.match('video.*'))) {
-  //     store.dispatch(setNewMovieList(files, settings));
-  //   }
-  //   return false;
-  // }
-
   onDragEnter() {
     this.setState({
       dropzoneActive: true
@@ -438,7 +365,7 @@ class App extends Component {
       dropzoneActive: false
     });
     const { store } = this.context;
-    const settings = store.getState().undoGroup.present.settings;
+    const { settings } = store.getState().undoGroup.present;
     console.log('Files dropped: ', files);
     this.setState({ className: `${styles.dropzonehide}` });
     if (Array.from(files).some(file => file.type.match('video.*'))) {
@@ -512,15 +439,6 @@ class App extends Component {
       }
     });
   }
-
-  // scrollThumbIntoView() {
-  // // const handleShow = (i) => {
-  //   // this.setState({ index: i });
-  //   console.log(this.scrollIntoViewElement);
-  //   // console.log(this.scrollIntoViewElement.current);
-  //   // this.scrollIntoViewElement.current.scrollIntoView({ block: 'end', behavior: 'smooth' });
-  //   this.scrollIntoViewElement.current.scrollIntoView();
-  // }
 
   afterOpenModal() {
   }
@@ -764,29 +682,12 @@ class App extends Component {
   };
 
   render() {
-    const { store } = this.context;
-    const state = store.getState();
-
     const { accept, files, dropzoneActive } = this.state;
-    const overlayStyle = {
-      position: 'absolute',
-      top: 0,
-      right: 0,
-      bottom: 0,
-      left: 0,
-      padding: '2.5em 0',
-      background: 'rgba(0,0,0,0.5)',
-      textAlign: 'center',
-      color: '#fff',
-      zIndex: 2000,
-    };
-
-    console.log(accept);
-    console.log(dropzoneActive);
 
     return (
       <Dropzone
         disableClick
+        disablePreview
         style={{ position: 'relative' }}
         accept={accept}
         onDrop={this.onDrop.bind(this)}

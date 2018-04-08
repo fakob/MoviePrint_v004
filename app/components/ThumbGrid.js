@@ -89,7 +89,7 @@ const ThumbGrid = ({
   } else {
     thumbArray = thumbs;
   }
-  console.log(selectedThumbId);
+  // console.log(selectedThumbId);
   thumbGridComponent = (
     thumbArray.map(thumb => (
       <SortableThumb

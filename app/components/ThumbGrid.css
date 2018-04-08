@@ -99,8 +99,7 @@
 }
 
 .whileDragging {
-  /* box-shadow: 4px 4px 10px 0px rgba(255,81,6,0.75); */
-  box-shadow: 0px 0px 80px 40px rgba(0,0,0,0.75);
+  box-shadow: 0px 0px 80px 10px rgba(0,0,0,0.5);
 }
 
 .hide {
