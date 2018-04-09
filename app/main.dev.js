@@ -14,12 +14,15 @@ import { app, BrowserWindow, ipcMain, globalShortcut, shell } from 'electron';
 // import opencv from 'opencv';
 import MenuBuilder from './menu';
 import VideoCaptureProperties from './utils/videoCaptureProperties';
+import { limitRange } from './utils/utils';
 
 const opencv = require('opencv4nodejs');
 
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+
+const searchLimit = 100; // how long to go forward or backward to find a none-empty frame
 
 
 let mainWindow = null;
@@ -167,38 +170,51 @@ ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArr
   console.log(`relativeFrameCount: ${relativeFrameCount}`);
 
   vid.readAsync((err1) => {
-    const read = function read() {
-      if (relativeFrameCount) {
-        vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, frameNumberArray[iterator]);
-      } else {
-        vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberArray[iterator]);
-      }
+    const read = (frameOffset = 0) => {
+      // limit frameNumberToCapture between 0 and movie length
+      const frameNumberToCapture = limitRange(
+        frameNumberArray[iterator] + frameOffset,
+        0,
+        (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1)
+      );
+
+      vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberToCapture);
+
+      // console.log(`before readAsync: ${iterator}, frameOffset: ${frameOffset}, ${frameNumberToCapture}/${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
 
       vid.readAsync((err, mat) => {
-        console.log(`counter:
-          ${iterator}, position(set/get):
-          ${frameNumberArray[iterator]}/${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(
-          ${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
+        console.log(`readAsync: ${iterator}, frameOffset: ${frameOffset}, ${frameNumberToCapture}/${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
 
-        if ((mat.empty === false) && (vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC))) {
+        if (mat.empty === false) {
           const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // maybe change to .png?
-          // if (iterator > (frameNumberArray.length - 3)) {
-          //   console.log('second to last frame');
-          // }
           event.sender.send(
             'receive-get-thumbs', fileId, thumbIdArray[iterator], frameIdArray[iterator], outBase64,
             vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1
           );
+          iterator += 1;
+          if (iterator < frameNumberArray.length) {
+            read();
+          }
         } else {
-          console.log('second to last frame');
-          event.sender.send(
-            'receive-get-thumbs', fileId, thumbIdArray[iterator], frameIdArray[iterator], '',
-            vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1
-          );
-        }
-        iterator += 1;
-        if (iterator < frameNumberArray.length) {
-          read();
+          console.log('frame is empty');
+          // assumption is that the we might find frames forward or backward which work
+          if (Math.abs(frameOffset) < searchLimit) {
+            // if frameNumberToCapture is in first halfe of the movie go forward else backward
+            if (frameNumberToCapture < (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) / 2)) {
+              console.log('will try to read one frame forward');
+              read(frameOffset + 1);
+            } else {
+              console.log('will try to read one frame backward');
+              read(frameOffset - 1);
+            }
+          } else {
+            console.log('still empty, will stop and send an empty frame back');
+            event.sender.send(
+              'receive-get-thumbs', fileId, thumbIdArray[iterator], frameIdArray[iterator], '',
+              vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1
+            );
+            iterator += 1;
+          }
         }
       });
     };
