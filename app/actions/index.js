@@ -257,31 +257,35 @@ export const updateFrameNumber = (fileId, thumbId, frameNumber) => {
 export const updateThumbImage = (fileId, thumbId, frameId, base64, frameNumber, isPosterFrame = 0) =>
   ((dispatch, getState) => {
     console.log('inside updateThumbImage');
-    fetch(`data:image/png;base64,${base64}`)
-      .then(response => {
-        if (response.ok) {
-          return response.blob();
-        }
-        throw new Error('fetch base64 to blob was not ok.');
-      })
-      .then(blob =>
-        imageDB.frameList.put({
-          frameId,
-          fileId,
-          frameNumber,
-          isPosterFrame,
-          data: blob
-        }))
-      .then(() =>
-        dispatch(updateThumbObjectUrlFromDB(fileId, thumbId, frameId, isPosterFrame)))
-      .catch(error => {
-        console.log(`There has been a problem with your fetch operation: ${error.message}`);
-      });
-    // only update frameNumber if not posterframe and different
-    if (!isPosterFrame &&
-      getState().undoGroup.present.thumbsByFileId[fileId].thumbs.find((thumb) =>
-        thumb.thumbId === thumbId).frameNumber !== frameNumber) {
-      dispatch(updateFrameNumber(fileId, thumbId, frameNumber));
+    if (base64 === '') {
+      console.log('base64 empty');
+    } else {
+      fetch(`data:image/png;base64,${base64}`)
+        .then(response => {
+          if (response.ok) {
+            return response.blob();
+          }
+          throw new Error('fetch base64 to blob was not ok.');
+        })
+        .then(blob =>
+          imageDB.frameList.put({
+            frameId,
+            fileId,
+            frameNumber,
+            isPosterFrame,
+            data: blob
+          }))
+        .then(() =>
+          dispatch(updateThumbObjectUrlFromDB(fileId, thumbId, frameId, isPosterFrame)))
+        .catch(error => {
+          console.log(`There has been a problem with your fetch operation: ${error.message}`);
+        });
+      // only update frameNumber if not posterframe and different
+      if (!isPosterFrame &&
+        getState().undoGroup.present.thumbsByFileId[fileId].thumbs.find((thumb) =>
+          thumb.thumbId === thumbId).frameNumber !== frameNumber) {
+        dispatch(updateFrameNumber(fileId, thumbId, frameNumber));
+      }
     }
   });
 

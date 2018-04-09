@@ -166,7 +166,7 @@ ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArr
   console.log(`codec: ${vid.get(VideoCaptureProperties.CAP_PROP_FOURCC)}`);
   console.log(`relativeFrameCount: ${relativeFrameCount}`);
 
-  vid.readAsync((err1, mat1) => {
+  vid.readAsync((err1) => {
     const read = function read() {
       if (relativeFrameCount) {
         vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, frameNumberArray[iterator]);
@@ -174,23 +174,23 @@ ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArr
         vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberArray[iterator]);
       }
 
-      // tried to setPosition again when they are not in sync, but it did not work
-      // if (frameNumberArray[iterator] !== vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)) {
-      //   vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberArray[iterator]);
-      // }
-
       vid.readAsync((err, mat) => {
         console.log(`counter:
           ${iterator}, position(set/get):
           ${frameNumberArray[iterator]}/${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(
           ${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
-        if (mat.empty === false) {
+
+        if ((mat.empty === false) && (vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC))) {
           const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // maybe change to .png?
+          // if (iterator > (frameNumberArray.length - 3)) {
+          //   console.log('second to last frame');
+          // }
           event.sender.send(
             'receive-get-thumbs', fileId, thumbIdArray[iterator], frameIdArray[iterator], outBase64,
             vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1
           );
         } else {
+          console.log('second to last frame');
           event.sender.send(
             'receive-get-thumbs', fileId, thumbIdArray[iterator], frameIdArray[iterator], '',
             vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1

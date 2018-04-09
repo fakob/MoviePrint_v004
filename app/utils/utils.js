@@ -6,6 +6,8 @@ const randomColor = require('randomcolor');
 
 const { ipcRenderer } = require('electron');
 
+// prevent typeerrors when accessing nested props of a none-existing object
+// usage getObjectProperty(() => objectA.propertyB)
 export const getObjectProperty = (fn) => {
   let value;
   try {
