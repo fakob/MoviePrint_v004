@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 // import keydown from 'react-keydown';
-import { Sticky, Menu, Icon, Loader } from 'semantic-ui-react';
+import { Sticky, Menu, Icon, Loader, Grid, Image } from 'semantic-ui-react';
 import Modal from 'react-modal';
 import Dropzone from 'react-dropzone'
 
@@ -408,13 +408,15 @@ class App extends Component {
   }
 
   updatecontainerWidthAndHeight() {
+    // wrapped in try catch as in a global error case this.siteContent ref is not set
     try {
       const { store } = this.context;
       const state = store.getState();
       const containerWidthMinusSidebar =
       this.siteContent.clientWidth -
       (this.props.visibilitySettings.showLeftSidebar ? 350 : 0) -
-      (this.props.visibilitySettings.showRightSidebar ? 350 : 0);
+      (this.props.visibilitySettings.showRightSidebar ? 350 : 0) -
+      (this.props.file ? 0 : 700);
       if ((Math.abs(this.state.containerHeight - this.siteContent.clientHeight) > 5) ||
       (Math.abs(this.state.containerWidth - containerWidthMinusSidebar) > 5)) {
         console.log(`new containerWidth: ${this.siteContent.clientHeight}`);
@@ -810,28 +812,72 @@ class App extends Component {
                             (this.props.settings.defaultBorderMargin * 2)}px`
                       }}
                     >
-                      <SortedVisibleThumbGrid
-                        inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
-                        // inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
-                        editGrid={this.props.visibilitySettings.showRightSidebar}
+                      { this.props.file ? (
+                        <SortedVisibleThumbGrid
+                          inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
+                          // inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
+                          editGrid={this.props.visibilitySettings.showRightSidebar}
 
-                        containerHeight={this.state.containerHeight}
-                        containerWidth={this.state.containerWidth}
-                        selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
-                        selectMethod={this.onSelectMethod}
-                        parentMethod={this.openModal}
+                          containerHeight={this.state.containerHeight}
+                          containerWidth={this.state.containerWidth}
+                          selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
+                          selectMethod={this.onSelectMethod}
+                          parentMethod={this.openModal}
 
-                        colorArray={this.state.colorArray}
-                        columnCount={this.props.visibilitySettings.showRightSidebar ?
-                          this.state.columnCountTemp :
-                          (this.props.file ? this.props.file.columnCount || this.state.columnCountTemp :
-                            this.state.columnCountTemp)}
-                        thumbCount={this.state.thumbCountTemp}
-                        reCapture={this.state.reCapture}
+                          colorArray={this.state.colorArray}
+                          columnCount={this.props.visibilitySettings.showRightSidebar ?
+                            this.state.columnCountTemp :
+                            (this.props.file ? this.props.file.columnCount || this.state.columnCountTemp :
+                              this.state.columnCountTemp)}
+                          thumbCount={this.state.thumbCountTemp}
+                          reCapture={this.state.reCapture}
 
-                        zoomOut={this.props.visibilitySettings.zoomOut}
-                        scaleValueObject={this.state.scaleValueObject}
-                      />
+                          zoomOut={this.props.visibilitySettings.zoomOut}
+                          scaleValueObject={this.state.scaleValueObject}
+                        />
+                      ) :
+                      (
+                        <Grid
+                          columns={3}
+                          divided
+                          className={styles.ItemMainStartup}
+                        >
+                          <Grid.Row>
+                            <Grid.Column>
+                              DROP MOVIES
+                            </Grid.Column>
+                            <Grid.Column>
+                              <SortedVisibleThumbGrid
+                                inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
+                                // inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
+                                editGrid={this.props.visibilitySettings.showRightSidebar}
+
+                                containerHeight={this.state.containerHeight}
+                                containerWidth={this.state.containerWidth}
+                                selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
+                                selectMethod={this.onSelectMethod}
+                                parentMethod={this.openModal}
+
+                                colorArray={this.state.colorArray}
+                                columnCount={this.props.visibilitySettings.showRightSidebar ?
+                                  this.state.columnCountTemp :
+                                  (this.props.file ? this.props.file.columnCount || this.state.columnCountTemp :
+                                    this.state.columnCountTemp)}
+                                thumbCount={this.state.thumbCountTemp}
+                                reCapture={this.state.reCapture}
+
+                                zoomOut={this.props.visibilitySettings.zoomOut}
+                                scaleValueObject={this.state.scaleValueObject}
+                              />
+                              CUSTOMISE LOOK
+                            </Grid.Column>
+                            <Grid.Column>
+                              SAVE MOVIEPRINT
+                            </Grid.Column>
+                          </Grid.Row>
+                        </Grid>
+                      )
+                      }
                     </div>
                   </div>
                 </div>
