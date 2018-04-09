@@ -141,9 +141,25 @@
   transform: translate(calc(100vw - 350px), 0);
 }
 
-.ItemMainStartup{
+.ItemMainStartupContainer{
   margin: auto;
   width: 100%;
+  display: flex;
+  align-items: baseline;
+}
+
+.ItemMainStartupItem{
+  width: 300px;
+  margin: auto;
+  text-align: center;
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 40px;
+  text-align: center;
+  color: #fff;
+  letter-spacing: 1px;
+  margin: auto;
+  font-family: 'Roboto Condensed';
 }
 
 /* Remove scroll on the body when react-modal is open */

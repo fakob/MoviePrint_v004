@@ -412,18 +412,20 @@ class App extends Component {
     try {
       const { store } = this.context;
       const state = store.getState();
-      const containerWidthMinusSidebar =
-      this.siteContent.clientWidth -
-      (this.props.visibilitySettings.showLeftSidebar ? 350 : 0) -
-      (this.props.visibilitySettings.showRightSidebar ? 350 : 0) -
-      (this.props.file ? 0 : 700);
-      if ((Math.abs(this.state.containerHeight - this.siteContent.clientHeight) > 5) ||
-      (Math.abs(this.state.containerWidth - containerWidthMinusSidebar) > 5)) {
-        console.log(`new containerWidth: ${this.siteContent.clientHeight}`);
-        console.log(`new containerHeight: ${containerWidthMinusSidebar}`);
+      const containerWidthInner =
+        this.siteContent.clientWidth -
+        (this.props.visibilitySettings.showLeftSidebar ? 350 : 0) -
+        (this.props.visibilitySettings.showRightSidebar ? 350 : 0) -
+        (this.props.file ? 0 : 700); // for startup
+      const containerHeightInner = this.siteContent.clientHeight -
+        (this.props.file ? 0 : 100); // for startup
+      if ((Math.abs(this.state.containerHeight - containerHeightInner) > 5) ||
+      (Math.abs(this.state.containerWidth - containerWidthInner) > 5)) {
+        console.log(`new containerWidth: ${containerHeightInner}`);
+        console.log(`new containerHeight: ${containerWidthInner}`);
         this.setState({
-          containerHeight: this.siteContent.clientHeight,
-          containerWidth: containerWidthMinusSidebar
+          containerHeight: containerHeightInner,
+          containerWidth: containerWidthInner
         }, () => this.updateScaleValue());
       }
       return true;
@@ -837,16 +839,26 @@ class App extends Component {
                         />
                       ) :
                       (
-                        <Grid
-                          columns={3}
-                          divided
-                          className={styles.ItemMainStartup}
+                        <div
+                          className={styles.ItemMainStartupContainer}
                         >
-                          <Grid.Row>
-                            <Grid.Column>
-                              DROP MOVIES
-                            </Grid.Column>
-                            <Grid.Column>
+                          <div
+                            className={styles.ItemMainStartupItem}
+                          >
+                            DROP MOVIES
+                          </div>
+                          <div
+                            className={styles.ItemMainStartupItem}
+                            style={{
+                              flexGrow: 3,
+                              position: 'relative',
+                            }}
+                          >
+                            <div
+                              style={{
+                                opacity: '0.3',
+                              }}
+                            >
                               <SortedVisibleThumbGrid
                                 inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                                 // inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
@@ -869,13 +881,24 @@ class App extends Component {
                                 zoomOut={this.props.visibilitySettings.zoomOut}
                                 scaleValueObject={this.state.scaleValueObject}
                               />
+                            </div>
+                            <div
+                              style={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                              }}
+                            >
                               CUSTOMISE LOOK
-                            </Grid.Column>
-                            <Grid.Column>
-                              SAVE MOVIEPRINT
-                            </Grid.Column>
-                          </Grid.Row>
-                        </Grid>
+                            </div>
+                          </div>
+                          <div
+                            className={styles.ItemMainStartupItem}
+                          >
+                            SAVE MOVIEPRINT
+                          </div>
+                        </div>
                       )
                       }
                     </div>
@@ -933,7 +956,7 @@ class App extends Component {
                         <Icon
                           name={(this.props.visibilitySettings.showRightSidebar === false) ? 'edit' : 'edit'}
                         />
-                        {(this.props.visibilitySettings.showRightSidebar === false) ? 'Show edit' : 'Hide edit'}
+                        {(this.props.visibilitySettings.showRightSidebar === false) ? 'Customise look' : 'Hide'}
                       </Menu.Item>
                     }
                     {!this.props.visibilitySettings.zoomOut &&
@@ -968,7 +991,7 @@ class App extends Component {
                         <Icon
                           name="list"
                         />
-                        {(this.props.visibilitySettings.showLeftSidebar === false) ? 'Show list' : 'Hide list'}
+                        {(this.props.visibilitySettings.showLeftSidebar === false) ? 'Movie list' : 'Hide'}
                       </Menu.Item>
                     }
 
