@@ -1,19 +1,28 @@
 {
-  "name": "electron-react-boilerplate",
-  "productName": "electron-react-boilerplate",
-  "version": "1.0.0",
-  "description": "Electron application boilerplate based on React, React Router, Webpack, React Hot Loader for rapid application development",
+  "name": "movieprint-v004",
+  "productName": "MoviePrint_v004",
+  "version": "0.1.0-alpha",
+  "description": "A tool which lets you create screenshots of entire movies in an instant.",
   "main": "./main.prod.js",
   "author": {
-    "name": "C. T. Lin",
-    "email": "chentsulin@gmail.com",
-    "url": "https://github.com/chentsulin"
+    "name": "Jakob Schindegger",
+    "email": "jakob@fakob.com",
+    "url": "http://www.fakob.com"
   },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fakob/MoviePrint_v004/issues"
+  },
+  "keywords": [
+    "opencv",
+    "screenshot",
+    "movie"
+  ],
+  "homepage": "https://github.com/fakob/MoviePrint_v004#readme",
   "scripts": {
     "electron-rebuild": "node -r babel-register ../internals/scripts/ElectronRebuild.js",
     "postinstall": "npm run electron-rebuild -w opencv4nodejs"
   },
-  "license": "MIT",
   "dependencies": {
     "opencv4nodejs": "^4.1.0",
     "typeface-open-sans": "^0.0.54",
