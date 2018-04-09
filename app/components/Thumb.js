@@ -32,10 +32,17 @@ const DragHandle = SortableHandle(({ width, height }) => {
       style={{
         width,
         height,
-        // transformOrigin: 'center center',
-        // transform: `scale(${scaleValue})`,
       }}
     >
+      <img
+        src={transparent}
+        // className={styles.dragHandleTouchArea}
+        style={{
+          width,
+          height,
+        }}
+        alt=""
+      />
       <img
         src={handleWide}
         className={styles.dragHandleIcon}
@@ -65,7 +72,6 @@ const Thumb = ({
 
   const minimumWidthToShowHover = 100;
   const minimumWidthToShrinkHover = 160;
-  const handleWideWidth = 144;
 
   return (
     <div
@@ -142,7 +148,8 @@ const Thumb = ({
         </button> */}
         <DragHandle
           width={thumbWidth}
-          height={thumbWidth * aspectRatioInv * 0.8}
+          height={thumbWidth * aspectRatioInv}
+          // height={thumbWidth * aspectRatioInv * 0.8}
           // handleWideWidth={handleWideWidth}
         />
         <button

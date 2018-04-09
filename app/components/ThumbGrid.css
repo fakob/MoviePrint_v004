@@ -97,7 +97,7 @@
   height: 80%;
   opacity: 1;
   cursor: move;
-  /* background-color: transparent; */
+  background-color: transparent;
   border: 0;
   outline:none;
 }
