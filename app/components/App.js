@@ -408,20 +408,25 @@ class App extends Component {
   }
 
   updatecontainerWidthAndHeight() {
-    const { store } = this.context;
-    const state = store.getState();
-    const containerWidthMinusSidebar =
-    this.siteContent.clientWidth -
-    (this.props.visibilitySettings.showLeftSidebar ? 350 : 0) -
-    (this.props.visibilitySettings.showRightSidebar ? 350 : 0);
-    if ((Math.abs(this.state.containerHeight - this.siteContent.clientHeight) > 5) ||
+    try {
+      const { store } = this.context;
+      const state = store.getState();
+      const containerWidthMinusSidebar =
+      this.siteContent.clientWidth -
+      (this.props.visibilitySettings.showLeftSidebar ? 350 : 0) -
+      (this.props.visibilitySettings.showRightSidebar ? 350 : 0);
+      if ((Math.abs(this.state.containerHeight - this.siteContent.clientHeight) > 5) ||
       (Math.abs(this.state.containerWidth - containerWidthMinusSidebar) > 5)) {
-      console.log(`new containerWidth: ${this.siteContent.clientHeight}`);
-      console.log(`new containerHeight: ${containerWidthMinusSidebar}`);
-      this.setState({
-        containerHeight: this.siteContent.clientHeight,
-        containerWidth: containerWidthMinusSidebar
-      }, () => this.updateScaleValue());
+        console.log(`new containerWidth: ${this.siteContent.clientHeight}`);
+        console.log(`new containerHeight: ${containerWidthMinusSidebar}`);
+        this.setState({
+          containerHeight: this.siteContent.clientHeight,
+          containerWidth: containerWidthMinusSidebar
+        }, () => this.updateScaleValue());
+      }
+      return true;
+    } catch (e) {
+      return undefined;
     }
   }
 

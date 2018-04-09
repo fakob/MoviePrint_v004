@@ -1,23 +1,24 @@
 // @flow
 import { app, Menu, shell, BrowserWindow } from 'electron';
+import { clearCache } from './utils/utils';
 
-const clearCache = (win) => {
-  win.webContents.session.getCacheSize((cacheSizeBefore) => {
-    console.log(`cacheSize before: ${cacheSizeBefore}`);
-    // clear HTTP cache
-    win.webContents.session.clearCache(() => {
-      // then clear data of web storages
-      win.webContents.session.clearStorageData(() => {
-        // then print cacheSize
-        win.webContents.session.getCacheSize((cacheSizeAfter) => {
-          console.log(`cacheSize after: ${cacheSizeAfter}`);
-          // and reload to use initialStateJSON
-          win.webContents.reload();
-        });
-      });
-    });
-  });
-};
+// const clearCache = (win) => {
+//   win.webContents.session.getCacheSize((cacheSizeBefore) => {
+//     console.log(`cacheSize before: ${cacheSizeBefore}`);
+//     // clear HTTP cache
+//     win.webContents.session.clearCache(() => {
+//       // then clear data of web storages
+//       win.webContents.session.clearStorageData(() => {
+//         // then print cacheSize
+//         win.webContents.session.getCacheSize((cacheSizeAfter) => {
+//           console.log(`cacheSize after: ${cacheSizeAfter}`);
+//           // and reload to use initialStateJSON
+//           win.webContents.reload();
+//         });
+//       });
+//     });
+//   });
+// };
 
 export default class MenuBuilder {
   mainWindow: BrowserWindow;

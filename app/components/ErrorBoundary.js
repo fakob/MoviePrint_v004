@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Button, Divider } from 'semantic-ui-react';
 import styles from './ErrorBoundary.css';
+import { clearCache } from '../utils/utils';
 
 const { getCurrentWindow } = require('electron').remote;
 
@@ -28,7 +29,8 @@ class ErrorBoundary extends Component {
   }
 
   onRestartClick() {
-    console.log('restartclick')
+    console.log('restartclick');
+    clearCache(getCurrentWindow());
   }
 
   render() {
