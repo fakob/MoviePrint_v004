@@ -1,0 +1,25 @@
+.ErrorContainer{
+  position: relative;/* need this to position inner content */
+  background-color: #1e1e1e;
+  width: 100%; /* Full width */
+  height: 100vh; /* Full height */
+}
+
+.ErrorContent{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+  outline: 0;
+  font-size: 100px;
+  font-weight: 600;
+  line-height: 100px;
+  text-align: center;
+  color: #fff;
+  letter-spacing: 1px;
+  margin: auto;
+  font-family: 'Roboto Condensed';
+}

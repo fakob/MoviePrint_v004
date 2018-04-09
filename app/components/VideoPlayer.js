@@ -52,6 +52,7 @@ class VideoPlayer extends Component {
     this.onDurationChange = this.onDurationChange.bind(this);
     this.onTimeUpdate = this.onTimeUpdate.bind(this);
     this.onControlledDrag = this.onControlledDrag.bind(this);
+    this.onVideoError = this.onVideoError.bind(this);
 
     this.onTimelineClick = this.onTimelineClick.bind(this);
     this.onApplyClick = this.onApplyClick.bind(this);
@@ -173,6 +174,11 @@ class VideoPlayer extends Component {
     this.props.closeModal();
   }
 
+  onVideoError = () => {
+    console.log('onVideoError');
+    console.log(this);
+  }
+
   render() {
     const dragHandlers = { onStart: this.onStart, onStop: this.onStop };
     const { controlledPosition } = this.state;
@@ -200,6 +206,7 @@ class VideoPlayer extends Component {
             height={this.props.height - this.props.controllerHeight}
             onDurationChange={e => this.onDurationChange(e.target.duration)}
             onTimeUpdate={e => this.onTimeUpdate(e.target.currentTime)}
+            onError={this.onVideoError}
           >
             <track kind="captions" />
           </video>

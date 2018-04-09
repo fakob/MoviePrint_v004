@@ -63,6 +63,8 @@
   outline: 0;
   font-size: 100px;
   font-weight: 600;
+  line-height: 100px;
+  text-align: center;
   color: #fff;
   letter-spacing: 1px;
   margin: auto;
