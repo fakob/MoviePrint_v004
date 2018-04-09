@@ -111,7 +111,7 @@ class SortedVisibleThumbGrid extends Component {
         onSortEnd={
           this.onSortEnd.bind(this)
         }
-        // useDragHandle
+        useDragHandle
         axis="xy"
         pressDelay={250}
         helperClass={styles.whileDragging}

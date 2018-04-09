@@ -15,7 +15,7 @@ import show from './../img/Thumb_SHOW.png';
 import empty from './../img/Thumb_EMPTY.png';
 import transparent from './../img/Thumb_TRANSPARENT.png';
 
-const DragHandle = SortableHandle(({ scaleValue }) => {
+const DragHandle = SortableHandle(({ width, height }) => {
   function over(event) {
     event.target.style.opacity = 1;
   }
@@ -24,19 +24,25 @@ const DragHandle = SortableHandle(({ scaleValue }) => {
   }
   return (
     <button
-      className={styles.hoverButton}
+      className={`${styles.dragHandleButton}`}
       onMouseOver={over}
       onMouseLeave={out}
       onFocus={over}
       onBlur={out}
       style={{
+        width,
+        height,
         // transformOrigin: 'center center',
         // transform: `scale(${scaleValue})`,
       }}
     >
       <img
         src={handleWide}
-        className={styles.dragHandle}
+        className={styles.dragHandleIcon}
+        style={{
+          // width: `${Math.min(handleWideWidth, thumbWidth)}px`
+          // width: thumbWidth
+        }}
         alt=""
       />
     </button>
@@ -113,7 +119,7 @@ const Thumb = ({
           display: controlersAreVisible ? 'block' : 'none'
         }}
       >
-        <button
+        {/* <button
           className={styles.hoverButton}
           // onMouseOver={over}
           // onMouseLeave={out}
@@ -133,10 +139,12 @@ const Thumb = ({
             }}
             alt=""
           />
-        </button>
-        {/* <DragHandle
-          scaleValue={scaleValue}
-        /> */}
+        </button> */}
+        <DragHandle
+          width={thumbWidth}
+          height={thumbWidth * aspectRatioInv * 0.8}
+          // handleWideWidth={handleWideWidth}
+        />
         <button
           style={{
             display: (thumbWidth > minimumWidthToShowHover) ? 'block' : 'none',

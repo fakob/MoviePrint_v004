@@ -64,12 +64,12 @@
 }
 
 .grid {
-    display: block;
-    height: 100%;
-    white-space: nowrap;
-    border: 0;
-    overflow: auto;
-    margin: auto;
+  display: block;
+  height: 100%;
+  white-space: nowrap;
+  border: 0;
+  overflow: auto;
+  margin: auto;
 }
 
 .frameNumber {
@@ -86,7 +86,23 @@
   /*opacity: 0.5;*/
 }
 
-.dragHandle {
+.dragHandleButton {
+  position: absolute;
+  /* top: calc(50% - 28px);
+  left: calc(50% - 72px); */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* width: 144px; */
+  height: 80%;
+  opacity: 1;
+  cursor: move;
+  /* background-color: transparent; */
+  border: 0;
+  outline:none;
+}
+
+.dragHandleIcon {
   position: absolute;
   /* top: calc(50% - 28px);
   left: calc(50% - 72px); */
@@ -95,7 +111,7 @@
   transform: translate(-50%, -50%);
   width: 144px;
   opacity: 1;
-  cursor: move;
+  /* cursor: move; */
 }
 
 .whileDragging {
@@ -103,47 +119,53 @@
 }
 
 .hide {
-    position: absolute;
-    top: 0;
-    right: 0;
-    opacity: 0.5;
-    z-index: 100;
+  position: absolute;
+  outline:none;
+  top: 0;
+  right: 0;
+  opacity: 0.5;
+  z-index: 100;
 }
 
 .inPoint {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    opacity: 0.5;
+  position: absolute;
+  outline:none;
+  bottom: 0;
+  left: 0;
+  opacity: 0.5;
 }
 
 .back {
-    position: absolute;
-    bottom: 0;
-    left: calc(50% - 24px - 48px);
-    opacity: 0.5;
+  position: absolute;
+  outline:none;
+  bottom: 0;
+  left: calc(50% - 24px - 48px);
+  opacity: 0.5;
 }
 
 .scrub {
-    position: absolute;
-    bottom: 0;
-    left: calc(50% - 24px);
-    opacity: 0.5;
-    cursor: col-resize;
+  position: absolute;
+  outline:none;
+  bottom: 0;
+  left: calc(50% - 24px);
+  opacity: 0.5;
+  cursor: col-resize;
 }
 
 .forward {
   position: absolute;
+  outline:none;
   bottom: 0;
   left: calc(50% + 24px);
   opacity: 0.5;
 }
 
 .outPoint {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    opacity: 0.5;
+  position: absolute;
+  outline:none;
+  bottom: 0;
+  right: 0;
+  opacity: 0.5;
 }
 
 .hoverButton {
