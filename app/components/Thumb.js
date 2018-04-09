@@ -39,6 +39,7 @@ const DragHandle = SortableHandle(({ width, height }) => {
         // className={styles.dragHandleTouchArea}
         style={{
           width,
+          // height: height * 0.8,
           height,
         }}
         alt=""
