@@ -10,6 +10,7 @@ import '../app.global.css';
 import FileList from '../containers/FileList';
 import SettingsList from '../containers/SettingsList';
 import SortedVisibleThumbGrid from '../containers/VisibleThumbGrid';
+import ErrorBoundary from '../components/ErrorBoundary';
 import VideoPlayer from '../components/VideoPlayer';
 import { getLowestFrame, getHighestFrame, getVisibleThumbs, saveMoviePrint, getColumnCount, getThumbsCount, getMoviePrintColor } from '../utils/utils';
 import styles from './App.css';
@@ -774,20 +775,24 @@ class App extends Component {
                         top: `${this.props.settings.defaultBorderMargin}px`
                       }}
                     >
-                      { this.props.file ?
-                        <VideoPlayer
-                          ref={(el) => { this.videoPlayer = el; }}
-                          path={this.props.file ? (this.props.file.path || '') : ''}
-                          aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
-                          height={this.state.scaleValueObject.videoPlayerHeight}
-                          width={this.state.scaleValueObject.videoPlayerWidth}
-                          controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
-                          thumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
-                          showPlaybar={this.props.visibilitySettings.showPlaybar}
-                          frameNumber={this.state.selectedThumbObject ? this.state.selectedThumbObject.frameNumber : 0}
-                          positionRatio={this.state.selectedThumbObject ? ((this.state.selectedThumbObject.frameNumber * 1.0) / (this.props.file.frameCount || 1)) : 0}
-                          // setNewFrame={this.setNewFrame}
-                        /> : ''
+                      { this.props.file ? (
+                        <ErrorBoundary>
+                          <VideoPlayer
+                            ref={(el) => { this.videoPlayer = el; }}
+                            path={this.props.file ? (this.props.file.path || '') : ''}
+                            aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
+                            height={this.state.scaleValueObject.videoPlayerHeight}
+                            width={this.state.scaleValueObject.videoPlayerWidth}
+                            controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
+                            thumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
+                            showPlaybar={this.props.visibilitySettings.showPlaybar}
+                            frameNumber={this.state.selectedThumbObject ? this.state.selectedThumbObject.frameNumber : 0}
+                            positionRatio={this.state.selectedThumbObject ? ((this.state.selectedThumbObject.frameNumber * 1.0) / (this.props.file.frameCount || 1)) : 0}
+                            // setNewFrame={this.setNewFrame}
+                          />
+                        </ErrorBoundary>
+                      ) :
+                      ''
                       }
                     </div>
                   }
