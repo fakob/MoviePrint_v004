@@ -2,9 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 // import keydown from 'react-keydown';
-import { Sticky, Menu, Icon, Loader, Grid, Image } from 'semantic-ui-react';
-import Modal from 'react-modal';
-import Dropzone from 'react-dropzone'
+import { Sticky, Menu, Icon, Loader } from 'semantic-ui-react';
+import Dropzone from 'react-dropzone';
 
 import '../app.global.css';
 import FileList from '../containers/FileList';
