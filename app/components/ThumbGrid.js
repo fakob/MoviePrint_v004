@@ -6,20 +6,31 @@ import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import Thumb from './Thumb';
 import ThumbGridHeader from './ThumbGridHeader';
 import styles from './ThumbGrid.css';
-import { mapRange, frameCountToTimeCode, pad } from './../utils/utils';
+import { mapRange, frameCountToTimeCode, pad, getObjectProperty } from './../utils/utils';
 
 const SortableThumb = SortableElement(Thumb);
 
 const ThumbGrid = ({
-  thumbs,
-  thumbImages,
+  colorArray,
+  controlersAreVisibleId,
+  editGrid,
   file,
-  controlersAreVisible,
-  onSelectClick, onToggleClick, onRemoveClick, onInPointClick, onOutPointClick,
-  onBackClick, onForwardClick, onScrubClick,
-  onMouseOverResult, onMouseOutResult, settings, editGrid,
-  thumbCount, zoomOut, colorArray, scaleValueObject, selectedThumbId,
-  inputRefThumb, onThumbDoubleClick
+  inputRefThumb,
+  onInPointClick,
+  onMouseOutResult,
+  onMouseOverResult,
+  onOutPointClick,
+  onRemoveClick,
+  onSelectClick,
+  onThumbDoubleClick,
+  onToggleClick,
+  scaleValueObject,
+  selectedThumbId,
+  settings,
+  thumbCount,
+  thumbImages,
+  thumbs,
+  zoomOut,
 }) => {
   const fps = (file !== undefined && file.fps !== undefined ? file.fps : 25);
   function getThumbInfoValue(type, frames, framesPerSecond) {
@@ -89,7 +100,7 @@ const ThumbGrid = ({
   } else {
     thumbArray = thumbs;
   }
-  // console.log(selectedThumbId);
+  console.log(controlersAreVisibleId);
   thumbGridComponent = (
     thumbArray.map(thumb => (
       <SortableThumb
@@ -97,13 +108,12 @@ const ThumbGrid = ({
         scaleValue={scaleValueObject.newScaleValue}
         key={thumb.key}
         index={thumb.index}
-        inputRefThumb={(selectedThumbId === thumb.thumbId) ? inputRefThumb : undefined} // for the thumb scrollIntoView function
+        inputRefThumb={(selectedThumbId === thumb.thumbId) ?
+          inputRefThumb : undefined} // for the thumb scrollIntoView function
         tempId={thumb.index}
         color={(colorArray !== undefined ? colorArray[thumb.index] : undefined)}
         thumbImageObjectUrl={thumb.thumbImageObjectUrl ||
-          (thumbImages !== undefined ?
-            thumbImages[thumb.frameId] !== undefined ?
-              thumbImages[thumb.frameId].objectUrl : undefined : undefined)}
+          getObjectProperty(() => thumbImages[thumb.frameId].objectUrl)}
         aspectRatioInv={scaleValueObject.aspectRatioInv}
         thumbWidth={scaleValueObject.newThumbWidth}
         borderRadius={scaleValueObject.newBorderRadius}
@@ -111,32 +121,24 @@ const ThumbGrid = ({
         thumbInfoValue={getThumbInfoValue(settings.defaultThumbInfo, thumb.frameNumber, fps)}
         thumbInfoRatio={settings.defaultThumbInfoRatio}
         hidden={thumb.hidden}
-        controlersAreVisible={editGrid ? undefined : (thumb.thumbId === controlersAreVisible)}
+        controlersAreVisible={editGrid ? undefined : (thumb.thumbId === controlersAreVisibleId)}
         disabled={editGrid}
         selected={selectedThumbId ? (selectedThumbId === thumb.thumbId) : false}
         onOver={editGrid ? null : () => onMouseOverResult(thumb.thumbId)}
         onOut={editGrid ? null : () => onMouseOutResult()}
-        onSelect={(editGrid || (thumb.thumbId !== controlersAreVisible)) ?
+        onSelect={(editGrid || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => {
-            // this.handleShow.bind(this, thumb.Id);
-            // this.handleShow(thumb.Id);
             onSelectClick(file, thumb.thumbId, thumb.frameNumber);
           }}
         onThumbDoubleClick={onThumbDoubleClick}
-        onToggle={(editGrid || (thumb.thumbId !== controlersAreVisible)) ?
+        onToggle={(editGrid || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => onToggleClick(file.id, thumb.thumbId)}
-        onRemove={(editGrid || (thumb.thumbId !== controlersAreVisible)) ?
+        onRemove={(editGrid || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => onRemoveClick(file.id, thumb.thumbId)}
-        onInPoint={(editGrid || (thumb.thumbId !== controlersAreVisible)) ?
+        onInPoint={(editGrid || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => onInPointClick(file, thumbArray, thumb.thumbId, thumb.frameNumber)}
-        onOutPoint={(editGrid || (thumb.thumbId !== controlersAreVisible)) ?
+        onOutPoint={(editGrid || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => onOutPointClick(file, thumbArray, thumb.thumbId, thumb.frameNumber)}
-        onBack={(editGrid || (thumb.thumbId !== controlersAreVisible)) ?
-          null : () => onBackClick(file, thumb.thumbId, thumb.frameNumber)}
-        onForward={(editGrid || (thumb.thumbId !== controlersAreVisible)) ?
-          null : () => onForwardClick(file, thumb.thumbId, thumb.frameNumber)}
-        onScrub={(editGrid || (thumb.thumbId !== controlersAreVisible)) ?
-          null : () => onScrubClick(file, thumb.thumbId, thumb.frameNumber)}
       />))
   );
 
@@ -155,7 +157,8 @@ const ThumbGrid = ({
 };
 
 ThumbGrid.defaultProps = {
-  controlersAreVisible: 'false',
+  controlersAreVisibleId: 'false',
+  selectedThumbId: undefined,
   thumbs: [],
   file: {}
 };
@@ -168,28 +171,29 @@ ThumbGrid.propTypes = {
     frameNumber: PropTypes.number.isRequired
   }).isRequired),
   thumbImages: PropTypes.object,
-  // thumbImages: PropTypes.objectOf(PropTypes.objectOf(PropTypes.shape({
-  //   objectUrl: PropTypes.string.isRequired
-  // }).isRequired).isRequired).isRequired,
+  inputRefThumb: PropTypes.object,
   file: PropTypes.shape({
     id: PropTypes.string,
     width: PropTypes.number,
     height: PropTypes.number,
   }),
-  controlersAreVisible: PropTypes.string,
+  controlersAreVisibleId: PropTypes.string,
+  selectedThumbId: PropTypes.string,
+  thumbCount: PropTypes.number.isRequired,
+  editGrid: PropTypes.bool.isRequired,
+  scaleValueObject: PropTypes.object.isRequired,
+  settings: PropTypes.object.isRequired,
+  zoomOut: PropTypes.bool.isRequired,
   onSelectClick: PropTypes.func.isRequired,
   onToggleClick: PropTypes.func.isRequired,
   onRemoveClick: PropTypes.func.isRequired,
   onInPointClick: PropTypes.func.isRequired,
   onOutPointClick: PropTypes.func.isRequired,
-  onBackClick: PropTypes.func.isRequired,
-  onForwardClick: PropTypes.func.isRequired,
-  onScrubClick: PropTypes.func.isRequired,
+  onThumbDoubleClick: PropTypes.func.isRequired,
   onMouseOverResult: PropTypes.func.isRequired,
   onMouseOutResult: PropTypes.func.isRequired,
 };
 
 const SortableThumbGrid = SortableContainer(ThumbGrid);
 
-// export default ThumbGrid;
 export default SortableThumbGrid;

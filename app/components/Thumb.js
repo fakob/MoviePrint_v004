@@ -67,7 +67,7 @@ const Thumb = ({
   const minimumWidthToShrinkHover = 160;
 
   return (
-    <button
+    <div
       ref={inputRefThumb}
       onMouseOver={onOver}
       onMouseLeave={onOut}
@@ -188,7 +188,7 @@ const Thumb = ({
           />
         </button>
       </div>
-    </button>
+    </div>
   );
 };
 
@@ -197,7 +197,7 @@ Thumb.defaultProps = {
   controlersAreVisible: false,
   hidden: false,
   thumbImageObjectUrl: undefined,
-  thumbInfoValue: ''
+  thumbInfoValue: undefined
 };
 
 Thumb.propTypes = {
@@ -208,13 +208,13 @@ Thumb.propTypes = {
   hidden: PropTypes.bool,
   inputRefThumb: PropTypes.object,
   margin: PropTypes.number.isRequired,
-  onInPoint: PropTypes.func.isRequired,
+  onInPoint: PropTypes.func,
   onOut: PropTypes.func.isRequired,
-  onOutPoint: PropTypes.func.isRequired,
+  onOutPoint: PropTypes.func,
   onOver: PropTypes.func.isRequired,
   onSelect: PropTypes.func.isRequired,
   onThumbDoubleClick: PropTypes.func.isRequired,
-  onToggle: PropTypes.func.isRequired,
+  onToggle: PropTypes.func,
   selected: PropTypes.bool,
   tempId: PropTypes.number.isRequired,
   thumbImageObjectUrl: PropTypes.string,
