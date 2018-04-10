@@ -137,6 +137,7 @@ class App extends Component {
 
     this.onSelectMethod = this.onSelectMethod.bind(this);
 
+    this.hideLeftSidebar = this.hideLeftSidebar.bind(this);
     this.toggleLeftSidebar = this.toggleLeftSidebar.bind(this);
     this.editGrid = this.editGrid.bind(this);
     this.hideEditGrid = this.hideEditGrid.bind(this);
@@ -437,6 +438,13 @@ class App extends Component {
     });
   }
 
+  hideLeftSidebar() {
+    const { store } = this.context;
+    if (this.props.visibilitySettings.showLeftSidebar) {
+      store.dispatch(toggleLeftSidebar());
+    }
+  }
+
   toggleLeftSidebar() {
     const { store } = this.context;
     store.dispatch(toggleLeftSidebar());
@@ -485,6 +493,8 @@ class App extends Component {
   onViewToggle() {
     const { store } = this.context;
     if (this.props.visibilitySettings.zoomOut) {
+      this.hideEditGrid();
+      this.hideLeftSidebar();
       store.dispatch(zoomIn());
     } else {
       store.dispatch(zoomOut());
@@ -790,7 +800,9 @@ class App extends Component {
                           containerWidth={this.state.containerWidth}
                           selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
                           selectMethod={this.onSelectMethod}
-                          parentMethod={this.openModal}
+                          onThumbDoubleClick={this.onViewToggle}
+                          onThumbDoubleClick={this.onViewToggle}
+                                parentMethod={this.openModal}
 
                           colorArray={this.state.colorArray}
                           columnCount={this.props.visibilitySettings.showRightSidebar ?
@@ -837,6 +849,7 @@ class App extends Component {
                                 containerWidth={this.state.containerWidth}
                                 selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
                                 selectMethod={this.onSelectMethod}
+                                onThumbDoubleClick={this.onViewToggle}
                                 parentMethod={this.openModal}
 
                                 colorArray={this.state.colorArray}

@@ -6,7 +6,7 @@ import Slider, { Handle, createSliderWithTooltip } from 'rc-slider';
 import Tooltip from 'rc-tooltip';
 import { Button, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List, Label } from 'semantic-ui-react';
 import { addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount } from '../actions';
-import styles from '../components/Settings.css';
+import styles from './Settings.css';
 
 const SliderWithTooltip = createSliderWithTooltip(Slider);
 

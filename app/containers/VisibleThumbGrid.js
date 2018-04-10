@@ -93,7 +93,7 @@ class SortedVisibleThumbGrid extends Component {
         settings={this.props.settings}
         selectedThumbId={this.props.selectedThumbId}
         onSelectClick={this.onSelectClick}
-        onThumbDoubleClick={this.props.onViewToggle}
+        onThumbDoubleClick={this.props.onThumbDoubleClick}
         onToggleClick={this.props.onToggleClick}
         onRemoveClick={this.props.onRemoveClick}
         onInPointClick={this.props.onInPointClick}
@@ -153,14 +153,14 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
-    onViewToggle: () => {
-      console.log(ownProps);
-      if (ownProps.zoomOut) {
-        dispatch(zoomIn());
-      } else {
-        dispatch(zoomOut());
-      }
-    },
+    // onViewToggle: () => {
+    //   console.log(ownProps);
+    //   if (ownProps.zoomOut) {
+    //     dispatch(zoomIn());
+    //   } else {
+    //     dispatch(zoomOut());
+    //   }
+    // },
     onToggleClick: (fileId, thumbId) => {
       dispatch(toggleThumb(fileId, thumbId));
     },
