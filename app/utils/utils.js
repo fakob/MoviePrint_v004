@@ -77,15 +77,15 @@ export const pad = (num, size) => {
 };
 
 export const frameCountToSeconds = (frames, fps = 25) => {
-  const seconds = (typeof frames !== 'undefined' ? ((frames * 1.0) / fps) : 0);
+  const seconds = (frames !== undefined ? ((frames * 1.0) / fps) : 0);
   return seconds;
 };
 
 export const frameCountToTimeCode = (frames, fps = 25) => {
-  // fps = (typeof fps !== 'undefined' ? fps : 30);
+  // fps = (fps !== undefined ? fps : 30);
   if (frames !== undefined) {
     const paddedValue = (input) => ((input < 10) ? `0${input}` : input);
-    const seconds = (typeof frames !== 'undefined' ? frames / fps : 0);
+    const seconds = (frames !== undefined ? frames / fps : 0);
     return [
       paddedValue(Math.floor(seconds / 3600)),
       paddedValue(Math.floor((seconds % 3600) / 60)),
@@ -236,26 +236,22 @@ export const getVisibleThumbs = (thumbs, filter) => {
 };
 
 export const getAspectRatio = (file) => {
-  if (typeof file === 'undefined' ||
-    typeof file.width === 'undefined' ||
-    typeof file.height === 'undefined') {
+  if (file === undefined || file.width === undefined || file.height === undefined) {
     return (16 * 1.0) / 9; // default 16:9
   }
   return ((file.width * 1.0) / file.height);
 };
 
 export const getColumnCount = (file, settings) => {
-  if (typeof file === 'undefined' ||
-  typeof file.columnCount === 'undefined') {
+  if (file === undefined || file.columnCount === undefined) {
     return settings.defaultColumnCount;
   }
   return file.columnCount;
 };
 
 export const getThumbsCount = (file, thumbsByFileId, settings, visibilityFilter) => {
-  if (typeof file === 'undefined' ||
-  typeof file.id === 'undefined' ||
-    typeof thumbsByFileId[file.id] === 'undefined') {
+  if (file === undefined || file.id === undefined ||
+    thumbsByFileId[file.id] === undefined) {
     return settings.defaultThumbCount;
   }
   if (visibilityFilter === 'SHOW_VISIBLE') {

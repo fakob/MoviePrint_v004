@@ -21,7 +21,7 @@ const ThumbGrid = ({
   thumbCount, zoomOut, colorArray, scaleValueObject, selectedThumbId,
   inputRefThumb, onThumbDoubleClick
 }) => {
-  const fps = (typeof file !== 'undefined' && typeof file.fps !== 'undefined' ? file.fps : 25);
+  const fps = (file !== undefined && file.fps !== undefined ? file.fps : 25);
   function getThumbInfoValue(type, frames, framesPerSecond) {
     switch (type) {
       case 'frames':
@@ -74,7 +74,7 @@ const ThumbGrid = ({
       } else if (thumbs.length === tempArrayLength) {
         tempThumbObject = thumbs[i];
       } else {
-        if ((typeof thumbImages !== 'undefined') &&
+        if ((thumbImages !== undefined) &&
           // thumbImages[thumbs[mappedIterator].frameId] &&
           (i === 0 || i === (tempArrayLength - 1))
         ) {

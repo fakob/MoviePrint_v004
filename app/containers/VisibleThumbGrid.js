@@ -132,8 +132,8 @@ class SortedVisibleThumbGrid extends Component {
 }
 
 const mapStateToProps = state => {
-  const tempThumbs = (typeof state.undoGroup.present
-    .thumbsByFileId[state.undoGroup.present.settings.currentFileId] === 'undefined')
+  const tempThumbs = (state.undoGroup.present
+    .thumbsByFileId[state.undoGroup.present.settings.currentFileId] === undefined)
     ? undefined : state.undoGroup.present
       .thumbsByFileId[state.undoGroup.present.settings.currentFileId].thumbs;
   return {
@@ -141,7 +141,7 @@ const mapStateToProps = state => {
       tempThumbs,
       state.visibilitySettings.visibilityFilter
     ),
-    thumbImages: (typeof state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId] === 'undefined')
+    thumbImages: (state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId] === undefined)
       ? undefined : state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId],
     files: state.undoGroup.present.files,
     file: state.undoGroup.present.files.find((file) =>

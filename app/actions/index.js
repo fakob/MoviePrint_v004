@@ -349,7 +349,7 @@ export const addDefaultThumbs = (file, amount = 20, start = 10, stop = file.fram
     const startWithBoundaries = limitRange(start, 0, file.frameCount - 1);
     const stopWithBoundaries = limitRange(stop, 0, file.frameCount - 1);
     let frameNumberArray;
-    const noFrameCount = (typeof file.frameCount === 'undefined');
+    const noFrameCount = (file.frameCount === undefined);
     if (noFrameCount) {
       frameNumberArray = Array.from(Array(amount).keys())
         .map(x => mapRange(x, 0, amount - 1, 0.01, 0.99, false)); // if no length then use relative value (float)

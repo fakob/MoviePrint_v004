@@ -17,7 +17,7 @@ import styles from './App.css';
 import {
   setNewMovieList, toggleLeftSidebar, showRightSidebar, hideRightSidebar,
   zoomIn, zoomOut, addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
-  setVisibilityFilter, setCurrentFileId, changeThumb, updateFileColumnCount,
+  setVisibilityFilter, setCurrentFileId, updateFileColumnCount,
   updateFileDetails, clearThumbs, updateThumbImage, setDefaultMarginRatio, setDefaultShowHeader,
   setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat,
   setDefaultSaveOptionOverwrite, setDefaultThumbnailScale,
@@ -36,15 +36,20 @@ const setColumnAndThumbCount = (that, columnCount, thumbCount) => {
   });
 };
 
-const getScaleValueObject = (file, settings, columnCount = 3, thumbCount = 3, containerWidth, containerHeight, zoomOutBool) => {
-  const movieWidth = (typeof file !== 'undefined' && typeof file.width !== 'undefined' ? file.width : 1280);
-  const movieHeight = (typeof file !== 'undefined' && typeof file.height !== 'undefined' ? file.height : 720);
+const getScaleValueObject = (
+  file, settings, columnCount = 3, thumbCount = 3,
+  containerWidth, containerHeight, zoomOutBool
+) => {
+  const movieWidth = (file !== undefined && file.width !== undefined ? file.width : 1280);
+  const movieHeight = (file !== undefined && file.height !== undefined ? file.height : 720);
   const aspectRatioInv = (movieHeight * 1.0) / movieWidth;
   const rowCount = Math.ceil(thumbCount / columnCount);
-  const headerHeight = settings.defaultShowHeader ? movieHeight * settings.defaultHeaderHeightRatio * settings.defaultThumbnailScale : 0;
+  const headerHeight = settings.defaultShowHeader ? movieHeight *
+    settings.defaultHeaderHeightRatio * settings.defaultThumbnailScale : 0;
   const thumbWidth = movieWidth * settings.defaultThumbnailScale;
   const thumbMargin = movieWidth * settings.defaultMarginRatio * settings.defaultThumbnailScale;
-  const borderRadius = settings.defaultRoundedCorners ? movieWidth * settings.defaultBorderRadiusRatio * settings.defaultThumbnailScale : 0;
+  const borderRadius = settings.defaultRoundedCorners ? movieWidth *
+    settings.defaultBorderRadiusRatio * settings.defaultThumbnailScale : 0;
   const generalScale = 0.95;
 
   const thumbnailWidthPlusMargin = thumbWidth + (thumbMargin * 2);
@@ -60,20 +65,26 @@ const getScaleValueObject = (file, settings, columnCount = 3, thumbCount = 3, co
   let videoPlayerWidth = videoWidth;
   if (videoWidth > containerWidth) {
     videoPlayerWidth = containerWidth - (settings.defaultBorderMargin * 2);
-    videoPlayerHeight = (videoPlayerWidth * aspectRatioInv) + settings.defaultVideoPlayerControllerHeight;
+    videoPlayerHeight = (videoPlayerWidth * aspectRatioInv) +
+      settings.defaultVideoPlayerControllerHeight;
   }
-  const thumbnailHeightForThumbView = ((videoPlayerHeight / 2) - (settings.defaultBorderMargin * 3));
+  const thumbnailHeightForThumbView =
+    ((videoPlayerHeight / 2) - (settings.defaultBorderMargin * 3));
   const thumbnailWidthForThumbView = thumbnailHeightForThumbView / aspectRatioInv;
   const thumbMarginForThumbView = thumbnailWidthForThumbView * settings.defaultMarginRatio;
-  const thumbnailWidthPlusMarginForThumbView = thumbnailWidthForThumbView + (thumbMarginForThumbView * 2);
-  const moviePrintWidthForThumbView = thumbCount * thumbnailWidthPlusMarginForThumbView; // only one row
+  const thumbnailWidthPlusMarginForThumbView =
+    thumbnailWidthForThumbView + (thumbMarginForThumbView * 2);
+  const moviePrintWidthForThumbView =
+    thumbCount * thumbnailWidthPlusMarginForThumbView; // only one row
 
   const scaleValueWidth = containerWidth / moviePrintWidth;
   const scaleValueHeight = containerHeight / moviePrintHeight;
   const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * generalScale;
   // console.log(scaleValue);
-  const newMoviePrintWidth = zoomOutBool ? moviePrintWidth * scaleValue : moviePrintWidthForThumbView;
-  const newMoviePrintHeightBody = zoomOutBool ? moviePrintHeightBody * scaleValue : moviePrintHeightBody;
+  const newMoviePrintWidth =
+    zoomOutBool ? moviePrintWidth * scaleValue : moviePrintWidthForThumbView;
+  const newMoviePrintHeightBody =
+    zoomOutBool ? moviePrintHeightBody * scaleValue : moviePrintHeightBody;
   const newMoviePrintHeight = zoomOutBool ? moviePrintHeight * scaleValue : moviePrintHeight;
   const newThumbMargin = zoomOutBool ? thumbMargin * scaleValue : thumbMarginForThumbView;
   const newThumbWidth = zoomOutBool ? thumbWidth * scaleValue : thumbnailWidthForThumbView;
@@ -106,8 +117,6 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      className: `${styles.dropzonehide}`,
-      modalIsOpen: false,
       containerHeight: 0,
       containerWidth: 0,
       columnCountTemp: undefined,
@@ -121,16 +130,12 @@ class App extends Component {
       selectedThumbObject: undefined,
       outputScaleCompensator: 1,
       accept: 'video/*',
-      files: [],
       dropzoneActive: false,
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
 
-    this.openModal = this.openModal.bind(this);
     this.onSelectMethod = this.onSelectMethod.bind(this);
-    this.afterOpenModal = this.afterOpenModal.bind(this);
-    this.closeModal = this.closeModal.bind(this);
 
     this.toggleLeftSidebar = this.toggleLeftSidebar.bind(this);
     this.editGrid = this.editGrid.bind(this);
@@ -180,7 +185,8 @@ class App extends Component {
     this.setState({
       colorArray: getMoviePrintColor(store.getState()
         .undoGroup.present.settings.defaultThumbCountMax),
-      scaleValueObject: getScaleValueObject(this.props.file, this.props.settings,
+      scaleValueObject: getScaleValueObject(
+        this.props.file, this.props.settings,
         // this.state.columnCount, this.state.thumbCount,
         this.state.columnCountTemp, this.state.thumbCountTemp,
         this.state.containerWidth, this.state.containerHeight,
@@ -247,8 +253,6 @@ class App extends Component {
       this.props.file.id !== undefined) {
       // check if currentFileId changed
       if (this.props.file.id !== nextProps.file.id) {
-        // const newThumbCount = nextProps.thumbsByFileId[nextProps.file.id].thumbs
-        //   .filter(thumb => thumb.hidden === false).length;
         const newThumbCount = getThumbsCount(
           nextProps.file,
           nextProps.thumbsByFileId,
@@ -263,11 +267,6 @@ class App extends Component {
         console.log('currentFileId changed');
         console.log(nextProps.file.columnCount);
         console.log(newThumbCount);
-      // } else if (this.props.thumbsByFileId[this.props.file.id] !== undefined &&
-      //   this.props.thumbsByFileId[this.props.file.id].thumbs
-      //     .filter(thumb => thumb.hidden === false).length !==
-      //     nextProps.thumbsByFileId[nextProps.file.id].thumbs
-      //       .filter(thumb => thumb.hidden === false).length) {
       }
       const oldThumbCount = getThumbsCount(
         this.props.file,
@@ -369,7 +368,6 @@ class App extends Component {
     const { store } = this.context;
     const { settings } = store.getState().undoGroup.present;
     console.log('Files dropped: ', files);
-    this.setState({ className: `${styles.dropzonehide}` });
     if (Array.from(files).some(file => file.type.match('video.*'))) {
       store.dispatch(setNewMovieList(files, settings));
     }
@@ -383,11 +381,9 @@ class App extends Component {
   }
 
   updateScaleValue() {
-    const { store } = this.context;
     // console.log(`inside updateScaleValue and containerWidth: ${this.state.containerWidth}`);
     const scaleValueObject = getScaleValueObject(
       this.props.file, this.props.settings,
-      // this.state.columnCount, this.state.thumbCount,
       this.state.columnCountTemp, this.state.thumbCountTemp,
       this.state.containerWidth, this.state.containerHeight,
       this.props.visibilitySettings.zoomOut
@@ -410,8 +406,6 @@ class App extends Component {
   updatecontainerWidthAndHeight() {
     // wrapped in try catch as in a global error case this.siteContent ref is not set
     try {
-      const { store } = this.context;
-      const state = store.getState();
       const containerWidthInner =
         this.siteContent.clientWidth -
         (this.props.visibilitySettings.showLeftSidebar ? 350 : 0) -
@@ -434,14 +428,6 @@ class App extends Component {
     }
   }
 
-  openModal(file, thumbId, frameNumber) {
-    this.setState({ thumbId });
-    this.setState({ frameNumber });
-    this.setState({ modalIsOpen: true });
-    // const positionRatio = (this.state.frameNumber * 1.0) / this.props.file.frameCount;
-    // this.videoPlayer.onPositionRatioUpdate(positionRatio);
-  }
-
   onSelectMethod(file, thumbId, frameNumber) {
     this.setState({
       selectedThumbObject: {
@@ -450,20 +436,6 @@ class App extends Component {
       }
     });
   }
-
-  afterOpenModal() {
-  }
-
-  closeModal() {
-    this.setState({ modalIsOpen: false });
-  }
-
-  // setNewFrame(thumbId, newPositionRatio) {
-  //   const { store } = this.context;
-  //   const newFrameNumber = newPositionRatio * this.props.file.frameCount;
-  //   store.dispatch(changeThumb(this.props.file, thumbId, newFrameNumber));
-  //   this.closeModal();
-  // }
 
   toggleLeftSidebar() {
     const { store } = this.context;
@@ -532,8 +504,10 @@ class App extends Component {
     this.setState(
       { savingMoviePrint: true },
       saveMoviePrint(
-        'ThumbGrid', this.props.settings.defaultOutputPath,
-        this.props.file, this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
+        'ThumbGrid',
+        this.props.settings.defaultOutputPath,
+        this.props.file,
+        this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
         this.props.settings.defaultOutputFormat,
         this.props.settings.defaultSaveOptionOverwrite
       )
@@ -552,7 +526,7 @@ class App extends Component {
     if (this.state.reCapture) {
       this.setState({ thumbCountTemp: tempRowCount * value });
     }
-    if (typeof this.props.file !== 'undefined') {
+    if (this.props.file !== undefined) {
       store.dispatch(updateFileColumnCount(
         this.props.file.id,
         value
@@ -567,7 +541,7 @@ class App extends Component {
       columnCountTemp: value,
       columnCount: value
     });
-    if (typeof this.props.file !== 'undefined') {
+    if (this.props.file !== undefined) {
       store.dispatch(updateFileColumnCount(
         this.props.file.id,
         value
@@ -596,7 +570,7 @@ class App extends Component {
       this.setState({ thumbCount: this.state.thumbCountTemp });
       this.onThumbCountChange(this.state.columnCountTemp, this.state.thumbCountTemp);
     }
-    if (typeof this.props.file !== 'undefined') {
+    if (this.props.file !== undefined) {
       store.dispatch(updateFileColumnCount(
         this.props.file.id,
         this.state.columnCountTemp
@@ -622,12 +596,12 @@ class App extends Component {
         this.props.file,
         thumbCount,
         getLowestFrame(getVisibleThumbs(
-          (typeof this.props.thumbsByFileId[this.props.currentFileId] === 'undefined')
+          (this.props.thumbsByFileId[this.props.currentFileId] === undefined)
             ? undefined : this.props.thumbsByFileId[this.props.currentFileId].thumbs,
           this.props.visibilitySettings.visibilityFilter
         )),
         getHighestFrame(getVisibleThumbs(
-          (typeof this.props.thumbsByFileId[this.props.currentFileId] === 'undefined')
+          (this.props.thumbsByFileId[this.props.currentFileId] === undefined)
             ? undefined : this.props.thumbsByFileId[this.props.currentFileId].thumbs,
           this.props.visibilitySettings.visibilityFilter
         ))
@@ -637,7 +611,8 @@ class App extends Component {
 
   onChangeMargin = (value) => {
     const { store } = this.context;
-    store.dispatch(setDefaultMarginRatio(value / store.getState().undoGroup.present.settings.defaultMarginSliderFactor));
+    store.dispatch(setDefaultMarginRatio(value /
+        store.getState().undoGroup.present.settings.defaultMarginSliderFactor));
   };
 
   onShowHeaderClick = (value) => {
@@ -678,8 +653,10 @@ class App extends Component {
   onOutputFormatClick = (value) => {
     const { store } = this.context;
     console.log(value);
-    store.dispatch(setDefaultOutputFormat,
-      setDefaultSaveOptionOverwrite(value));
+    store.dispatch(
+      setDefaultOutputFormat,
+      setDefaultSaveOptionOverwrite(value)
+    );
   };
 
   onOverwriteClick = (value) => {
@@ -693,7 +670,7 @@ class App extends Component {
   };
 
   render() {
-    const { accept, files, dropzoneActive } = this.state;
+    const { accept, dropzoneActive } = this.state;
 
     return (
       <ErrorBoundary>
@@ -709,42 +686,16 @@ class App extends Component {
           acceptClassName={styles.dropzoneshowAccept}
           rejectClassName={styles.dropzoneshowReject}
         >
-          {({ isDragActive, isDragAccept, isDragReject }) => {
+          {({ isDragAccept, isDragReject }) => {
             return (
               <div>
-                {/* <Modal
-                  isOpen={this.state.modalIsOpen}
-                  onAfterOpen={this.afterOpenModal}
-                  onRequestClose={this.closeModal}
-                  appElement={this.siteContent}
-                  className={`${styles.ReactModalContent}`}
-                  overlayClassName={`${styles.ReactModalOverlay}`}
-                > */}
-                  {/* <div>
-                    { this.props.file ?
-                      <VideoPlayer
-                        ref={(el) => { this.videoPlayer = el; }}
-                        path={this.props.file ? (this.props.file.path || '') : ''}
-                        thumbId={this.state.thumbId}
-                        positionRatio={(this.state.frameNumber * 1.0) / (this.props.file.frameCount || 1)}
-                        setNewFrame={this.setNewFrame}
-                        closeModal={this.closeModal}
-                      /> : ''
-                    }
-                  </div> */}
-                {/* </Modal> */}
                 <div className={`${styles.Site}`}>
-                  {/* <div className={`${styles.SiteHeader}`}>
-
-                  </div> */}
                   <div
                     className={`${styles.SiteContent}`}
                     ref={(el) => { this.siteContent = el; }}
                   >
                     <div
                       className={`${styles.ItemSideBar} ${styles.ItemLeftSideBar} ${this.props.visibilitySettings.showLeftSidebar ? styles.ItemLeftSideBarAnim : ''}`}
-                      // visible={this.props.visibilitySettings.showLeftSidebar}
-                      // vertical
                     >
                       <FileList />
                     </div>
@@ -757,7 +708,8 @@ class App extends Component {
                         file={this.props.file}
                         columnCountTemp={this.state.columnCountTemp}
                         thumbCountTemp={this.state.thumbCountTemp}
-                        rowCountTemp={Math.ceil(this.state.thumbCountTemp / this.state.columnCountTemp)}
+                        rowCountTemp={Math.ceil(this.state.thumbCountTemp /
+                          this.state.columnCountTemp)}
                         columnCount={this.state.columnCount}
                         rowCount={Math.ceil(this.state.thumbCount / this.state.columnCount)}
                         reCapture={this.state.reCapture}
@@ -797,7 +749,6 @@ class App extends Component {
                             showPlaybar={this.props.visibilitySettings.showPlaybar}
                             frameNumber={this.state.selectedThumbObject ? this.state.selectedThumbObject.frameNumber : 0}
                             positionRatio={this.state.selectedThumbObject ? ((this.state.selectedThumbObject.frameNumber * 1.0) / (this.props.file.frameCount || 1)) : 0}
-                            // setNewFrame={this.setNewFrame}
                           />
                         ) :
                         (
@@ -1051,41 +1002,8 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    // onShowThumbsClick: () => {
-    //   if (this.props.visibilityFilter === 'SHOW_VISIBLE') {
-    //     dispatch(setVisibilityFilter('SHOW_ALL'));
-    //   } else {
-    //     dispatch(setVisibilityFilter('SHOW_VISIBLE'));
-    //   }
-    // },
-    // onRowChange: (value) => {
-    //   dispatch(setDefaultThumbCount(value));
-    //   if (this.props.currentFileId !== undefined) {
-    //     dispatch(addDefaultThumbs(
-    //       this.props.file,
-    //       value *
-    //       this.props.defaultColumnCount
-    //     ));
-    //   }
-    // },
-    // onColumnChange: (value) => {
-    //   dispatch(setDefaultColumnCount(value));
-    //   if (this.props.currentFileId !== undefined) {
-    //     dispatch(addDefaultThumbs(
-    //       this.props.file,
-    //       this.props.defaultThumbCount *
-    //       value
-    //     ));
-    //   }
-    // },
-  };
-};
-
 App.contextTypes = {
   store: PropTypes.object
 };
 
-// export default App;
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(mapStateToProps)(App);

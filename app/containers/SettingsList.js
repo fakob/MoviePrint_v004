@@ -1,7 +1,6 @@
 // @flow
 
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Slider, { Handle, createSliderWithTooltip } from 'rc-slider';
 import Tooltip from 'rc-tooltip';
@@ -391,29 +390,8 @@ class SettingsList extends Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  return {
-    // thumbs: getVisibleThumbs(
-    //   tempThumbs,
-    //   state.visibilitySettings.visibilityFilter
-    // ),
-    // thumbImages: (typeof state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId] === 'undefined')
-    //   ? undefined : state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId],
-    // files: state.undoGroup.present.files,
-    // file: state.undoGroup.present.files.find((file) =>
-    //   file.id === state.undoGroup.present.settings.currentFileId),
-    // settings: state.undoGroup.present.settings,
-    // visibilitySettings: state.visibilitySettings
-  };
-};
-
-const mapDispatchToProps = (dispatch, ownProps) => {
-  return {
-  };
-};
-
 SettingsList.contextTypes = {
   store: PropTypes.object
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(SettingsList);
+export default SettingsList;

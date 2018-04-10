@@ -15,7 +15,7 @@ const configureStore = (initialState?: counterStateType) => {
 // const configureStore = (initialState: ?counterStateType) => {
   // store State in localStorage
   let persistedState;
-  if (typeof initialState === 'undefined') {
+  if (initialState === undefined) {
     persistedState = loadState();
   } else {
     persistedState = initialState;

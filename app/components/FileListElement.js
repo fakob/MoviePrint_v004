@@ -10,15 +10,10 @@ const FileListElement = ({
 }) => (
   <li onClick={onClick} className={(currentFileId === id) ? `${styles.Highlight}` : ''} >
     <div
-      // style={{ background: url((typeof objectUrl === 'undefined') ? mpNotFound : objectUrl) }}
       className={`${styles.croppedThumb}`}
       style={(objectUrl !== undefined) ? { backgroundImage: `url(${objectUrl})` } : { backgroundColor: '#1e1e1e' }}
       alt={`${name}`}
     />
-    {/* <img
-      src={(typeof objectUrl === 'undefined') ? `${mpNotFound}` : `${objectUrl}`}
-      alt={`${name}`}
-    /> */}
     <div
       className={`${styles.Path}`}
       title={path.slice(0, path.lastIndexOf('/'))}

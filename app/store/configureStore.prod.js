@@ -14,7 +14,7 @@ const enhancer = applyMiddleware(thunk, router);
 
 function configureStore(initialState?: counterStateType) {
   let persistedState;
-  if (typeof initialState === 'undefined') {
+  if (initialState === undefined) {
     persistedState = loadState();
   } else {
     persistedState = initialState;
