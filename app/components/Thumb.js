@@ -1,3 +1,4 @@
+/* eslint no-param-reassign: ["error"] */
 // @flow
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -6,13 +7,9 @@ import styles from './ThumbGrid.css';
 
 import inPoint from './../img/Thumb_IN.png';
 import outPoint from './../img/Thumb_OUT.png';
-import back from './../img/Thumb_BACK.png';
-import forward from './../img/Thumb_FORWARD.png';
-import scrub from './../img/Thumb_SCRUB.png';
 import handleWide from './../img/Thumb_HANDLE_wide.png';
 import hide from './../img/Thumb_HIDE.png';
 import show from './../img/Thumb_SHOW.png';
-import empty from './../img/Thumb_EMPTY.png';
 import transparent from './../img/Thumb_TRANSPARENT.png';
 
 const DragHandle = SortableHandle(({ width, height }) => {
@@ -36,7 +33,6 @@ const DragHandle = SortableHandle(({ width, height }) => {
     >
       <img
         src={transparent}
-        // className={styles.dragHandleTouchArea}
         style={{
           width,
           // height: height * 0.8,
@@ -47,10 +43,6 @@ const DragHandle = SortableHandle(({ width, height }) => {
       <img
         src={handleWide}
         className={styles.dragHandleIcon}
-        style={{
-          // width: `${Math.min(handleWideWidth, thumbWidth)}px`
-          // width: thumbWidth
-        }}
         alt=""
       />
     </button>
@@ -58,8 +50,8 @@ const DragHandle = SortableHandle(({ width, height }) => {
 });
 
 const Thumb = ({
-  onSelect, onToggle, onInPoint, onOutPoint, onBack, onForward, tempId, color, scaleValue,
-  onOver, onOut, onScrub, hidden, thumbImageObjectUrl, aspectRatioInv, thumbInfoRatio,
+  onSelect, onToggle, onInPoint, onOutPoint, tempId, color,
+  onOver, onOut, hidden, thumbImageObjectUrl, aspectRatioInv, thumbInfoRatio,
   controlersAreVisible, thumbWidth, margin, zoomOut, borderRadius, thumbInfoValue, selected,
   inputRefThumb, onThumbDoubleClick
 }) => {
@@ -75,13 +67,14 @@ const Thumb = ({
   const minimumWidthToShrinkHover = 160;
 
   return (
-    <div
+    <button
       ref={inputRefThumb}
       onMouseOver={onOver}
       onMouseLeave={onOut}
       onFocus={onOver}
       onBlur={onOut}
       onClick={onSelect}
+      onKeyPress={onSelect}
       onDoubleClick={onThumbDoubleClick}
       id={`thumb${tempId}`}
       className={`${styles.gridItem} ${(selected && !zoomOut) ? styles.gridItemSelected : ''}`}
@@ -98,8 +91,6 @@ const Thumb = ({
     >
       <img
         src={thumbImageObjectUrl !== undefined ? thumbImageObjectUrl : transparent}
-        // src={thumbImageObjectUrl}
-        // onError={`this.src=${empty}`}
         id={`thumbImage${tempId}`}
         className={styles.image}
         alt=""
@@ -197,32 +188,40 @@ const Thumb = ({
           />
         </button>
       </div>
-    </div>
+    </button>
   );
 };
 
 Thumb.defaultProps = {
-  // thumbImageObjectUrl: empty,
+  selected: false,
+  controlersAreVisible: false,
+  hidden: false,
+  thumbImageObjectUrl: undefined,
+  thumbInfoValue: ''
 };
 
 Thumb.propTypes = {
-  zoomOut: PropTypes.bool,
-  aspectRatioInv: PropTypes.number,
-  thumbWidth: PropTypes.number,
-  margin: PropTypes.number,
-  borderRadius: PropTypes.number,
-  hidden: PropTypes.bool,
+  aspectRatioInv: PropTypes.number.isRequired,
+  borderRadius: PropTypes.number.isRequired,
+  color: PropTypes.string.isRequired,
   controlersAreVisible: PropTypes.bool,
-  frameNumber: PropTypes.number,
+  hidden: PropTypes.bool,
+  inputRefThumb: PropTypes.object,
+  margin: PropTypes.number.isRequired,
+  onInPoint: PropTypes.func.isRequired,
+  onOut: PropTypes.func.isRequired,
+  onOutPoint: PropTypes.func.isRequired,
+  onOver: PropTypes.func.isRequired,
+  onSelect: PropTypes.func.isRequired,
+  onThumbDoubleClick: PropTypes.func.isRequired,
+  onToggle: PropTypes.func.isRequired,
+  selected: PropTypes.bool,
+  tempId: PropTypes.number.isRequired,
   thumbImageObjectUrl: PropTypes.string,
-  onToggle: PropTypes.func,
-  onInPoint: PropTypes.func,
-  onOutPoint: PropTypes.func,
-  onBack: PropTypes.func,
-  onForward: PropTypes.func,
-  onScrub: PropTypes.func,
-  onOver: PropTypes.func,
-  onOut: PropTypes.func,
+  thumbInfoRatio: PropTypes.number.isRequired,
+  thumbInfoValue: PropTypes.string,
+  thumbWidth: PropTypes.number.isRequired,
+  zoomOut: PropTypes.bool.isRequired,
 };
 
 export default Thumb;
