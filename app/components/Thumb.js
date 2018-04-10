@@ -126,32 +126,9 @@ const Thumb = ({
           display: controlersAreVisible ? 'block' : 'none'
         }}
       >
-        {/* <button
-          className={styles.hoverButton}
-          // onMouseOver={over}
-          // onMouseLeave={out}
-          // onFocus={over}
-          // onBlur={out}
-          style={{
-            // transformOrigin: 'center center',
-            // transform: `scale(${scaleValue})`,
-            // opacity: 1
-          }}
-        >
-          <img
-            src={handleWide}
-            className={styles.dragHandle}
-            style={{
-              width: `${Math.min(handleWideWidth, thumbWidth)}px`
-            }}
-            alt=""
-          />
-        </button> */}
         <DragHandle
           width={thumbWidth}
           height={thumbWidth * aspectRatioInv}
-          // height={thumbWidth * aspectRatioInv * 0.8}
-          // handleWideWidth={handleWideWidth}
         />
         <button
           style={{
@@ -197,57 +174,6 @@ const Thumb = ({
             alt=""
           />
         </button>
-        {/* <button
-          style={{
-            display: !zoomOut ? 'block' : 'none'
-          }}
-          className={styles.hoverButton}
-          onClick={onBack}
-          onMouseOver={over}
-          onMouseLeave={out}
-          onFocus={over}
-          onBlur={out}
-        >
-          <img
-            src={back}
-            className={styles.back}
-            alt=""
-          />
-        </button> */}
-        {/* <button
-          style={{
-            display: !zoomOut ? 'block' : 'none',
-          }}
-          className={styles.hoverButton}
-          onClick={onScrub}
-          onMouseOver={over}
-          onMouseLeave={out}
-          onFocus={over}
-          onBlur={out}
-        >
-          <img
-            src={scrub}
-            className={styles.scrub}
-            alt=""
-          />
-        </button> */}
-        {/* <button
-          style={{
-            display: !zoomOut ? 'block' : 'none'
-          }}
-          className={styles.hoverButton}
-          onClick={onForward}
-          onMouseOver={over}
-          onMouseLeave={out}
-          onFocus={over}
-          onBlur={out}
-        >
-          <img
-            src={forward}
-            className={styles.forward}
-            alt=""
-          />
-        </button> */}
         <button
           style={{
             display: (thumbWidth > minimumWidthToShowHover) ? 'block' : 'none',

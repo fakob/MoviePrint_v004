@@ -12,6 +12,7 @@ import SettingsList from '../containers/SettingsList';
 import SortedVisibleThumbGrid from '../containers/VisibleThumbGrid';
 import ErrorBoundary from '../components/ErrorBoundary';
 import VideoPlayer from '../components/VideoPlayer';
+import ThumbEmpty from '../components/ThumbEmpty';
 import { getLowestFrame, getHighestFrame, getVisibleThumbs, saveMoviePrint, getColumnCount, getThumbsCount, getMoviePrintColor } from '../utils/utils';
 import styles from './App.css';
 import {
@@ -800,7 +801,22 @@ class App extends Component {
                             // setNewFrame={this.setNewFrame}
                           />
                         ) :
-                        ''
+                        (
+                          <div
+                            style={{
+                              opacity: '0.3',
+                            }}
+                          >
+                            <ThumbEmpty
+                              color={(this.state.colorArray !== undefined ? this.state.colorArray[0] : undefined)}
+                              thumbImageObjectUrl={undefined}
+                              aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
+                              thumbWidth={this.state.scaleValueObject.videoPlayerWidth}
+                              borderRadius={this.state.scaleValueObject.newBorderRadius}
+                              margin={this.state.scaleValueObject.newThumbMargin}
+                            />
+                          </div>
+                        )
                         }
                       </div>
                     }
@@ -841,9 +857,12 @@ class App extends Component {
                       (
                         <div
                           className={styles.ItemMainStartupContainer}
+                          style={{
+                            // flex: '1 auto',
+                          }}
                         >
                           <div
-                            className={styles.ItemMainStartupItem}
+                            className={`${styles.ItemMainStartupItem} ${this.props.visibilitySettings.zoomOut ? '' : styles.hiddenItem}`}
                           >
                             DROP MOVIES
                           </div>
@@ -883,6 +902,7 @@ class App extends Component {
                               />
                             </div>
                             <div
+                              className={`${this.props.visibilitySettings.zoomOut ? '' : styles.hiddenItem}`}
                               style={{
                                 position: 'absolute',
                                 top: '50%',
@@ -894,7 +914,7 @@ class App extends Component {
                             </div>
                           </div>
                           <div
-                            className={styles.ItemMainStartupItem}
+                            className={`${styles.ItemMainStartupItem} ${this.props.visibilitySettings.zoomOut ? '' : styles.hiddenItem}`}
                           >
                             SAVE MOVIEPRINT
                           </div>
@@ -991,7 +1011,7 @@ class App extends Component {
                         <Icon
                           name="list"
                         />
-                        {(this.props.visibilitySettings.showLeftSidebar === false) ? 'Movie list' : 'Hide'}
+                        {(this.props.visibilitySettings.showLeftSidebar === false) ? 'Movies' : 'Hide'}
                       </Menu.Item>
                     }
 

@@ -213,3 +213,7 @@
 .FixedActionMenuFlex {
   flex-shrink: 1 !important;
 }
+
+.hiddenItem {
+  display: none;
+}
