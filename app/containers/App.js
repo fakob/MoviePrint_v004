@@ -656,17 +656,15 @@ class App extends Component {
     });
     const newPath = (newPathArray !== undefined ? newPathArray[0] : undefined);
     if (newPath) {
-      store.dispatch(setDefaultOutputPath, setDefaultOutputFormat(newPath));
+      console.log(newPath);
+      store.dispatch(setDefaultOutputPath(newPath));
     }
   };
 
   onOutputFormatClick = (value) => {
     const { store } = this.context;
     console.log(value);
-    store.dispatch(
-      setDefaultOutputFormat,
-      setDefaultSaveOptionOverwrite(value)
-    );
+    store.dispatch(setDefaultOutputFormat(value));
   };
 
   onOverwriteClick = (value) => {

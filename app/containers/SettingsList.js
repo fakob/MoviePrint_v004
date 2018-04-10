@@ -318,7 +318,6 @@ class SettingsList extends Component {
                 <List.Item>
                   <Button
                     onClick={this.props.onChangeOutputPathClick}
-                    // onKeyPress={this.onChangeOutputPathPress}
                   >
                     Change...
                   </Button>
