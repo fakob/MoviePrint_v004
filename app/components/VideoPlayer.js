@@ -12,8 +12,8 @@ import {
 import styles from './VideoPlayer.css';
 import stylesThumb from './ThumbGrid.css';
 
-import inPoint from './../img/Thumb_IN.png';
-import outPoint from './../img/Thumb_OUT.png';
+import inPointButton from './../img/Thumb_IN.png';
+import outPointButton from './../img/Thumb_OUT.png';
 import back from './../img/Thumb_BACK.png';
 import forward from './../img/Thumb_FORWARD.png';
 import choose from './../img/Thumb_CHOOSE.png';
@@ -195,8 +195,14 @@ class VideoPlayer extends Component {
       event.target.style.opacity = 0.5;
     }
 
-    // console.log(this.props.positionRatio);
-    // console.log(`${this.props.positionRatio} === ${((this.state.currentTime * 1.0) / this.state.duration)}`);
+    const inPoint = getLowestFrame(this.props.thumbs);
+    const outPoint = getHighestFrame(this.props.thumbs);
+    const inPointPositionOnTimeline = ((videoWidth * 1.0) / this.props.file.frameCount) * inPoint;
+    const outPointPositionOnTimeline = ((videoWidth * 1.0) / this.props.file.frameCount) * outPoint;
+    const cutWidthOnTimeLine = outPointPositionOnTimeline - inPointPositionOnTimeline;
+
+    console.log(inPoint);
+    console.log(outPoint);
     return (
       <div>
         <div
@@ -229,14 +235,10 @@ class VideoPlayer extends Component {
           <div
             className={`${styles.overVideoButtonWrapper}`}
             style={{
-              // display: (this.props.thumbId && !this.props.showPlaybar) ? 'block' : 'none',
+              // display: this.props.thumbId ? 'block' : 'none',
+              marginBottom: this.props.showPlaybar ? VERTICAL_OFFSET_OF_INOUTPOINT_POPUP : 0,
             }}
           >
-          {/* <div
-            style={{
-              position: 'relative',
-            }}
-          > */}
             <Popup
               trigger={
                 <button
@@ -248,7 +250,7 @@ class VideoPlayer extends Component {
                   onBlur={out}
                 >
                   <img
-                    src={inPoint}
+                    src={inPointButton}
                     className={styles.inPoint}
                     alt=""
                   />
@@ -272,6 +274,9 @@ class VideoPlayer extends Component {
                   onMouseLeave={out}
                   onFocus={over}
                   onBlur={out}
+                  style={{
+                    display: this.props.thumbId ? 'block' : 'none',
+                  }}
                 >
                   <img
                     src={choose}
@@ -302,7 +307,7 @@ class VideoPlayer extends Component {
                   onBlur={out}
                 >
                   <img
-                    src={outPoint}
+                    src={outPointButton}
                     className={styles.outPoint}
                     alt=""
                   />
@@ -318,10 +323,16 @@ class VideoPlayer extends Component {
               verticalOffset={VERTICAL_OFFSET_OF_INOUTPOINT_POPUP}
               horizontalOffset={videoWidth}
             />
-          {/* </div> */}
           </div>
         </div>
         <div className={`${styles.controlsWrapper}`}>
+          <div
+            className={`${styles.timelineCut}`}
+            style={{
+              left: inPointPositionOnTimeline,
+              width: cutWidthOnTimeLine
+            }}
+          />
           <div
             id="timeLine"
             className={`${styles.timelineWrapper}`}

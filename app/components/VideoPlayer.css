@@ -65,6 +65,12 @@
   height: 24px;
 }
 
+.timelineCut {
+  position: relative;
+  background-color: #ff0000;
+  height: 2px;
+}
+
 .buttonWrapper {
   width: 100%;
   position: relative;
