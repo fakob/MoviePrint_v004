@@ -142,7 +142,7 @@ class VideoPlayer extends Component {
 
   updatePositionFromTime(currentTime) {
     this.setState({ currentTime });
-    const xPos = mapRange(currentTime, 0, this.state.duration, 0, this.state.videoWidth);
+    const xPos = mapRange(currentTime, 0, this.state.duration, 0, this.state.videoWidth, false);
     this.setState({ playHeadPosition: xPos });
   }
 
@@ -153,8 +153,8 @@ class VideoPlayer extends Component {
       console.log('updateTimeFromThumbId');
       const frameNumberOfThumb = this.props.thumbs.find((thumb) => thumb.thumbId === thumbId).frameNumber;
       const { frameCount } = this.props.file;
-      xPos = mapRange(frameNumberOfThumb, 0, frameCount - 1, 0, this.state.videoWidth);
-      currentTime = mapRange(xPos, 0, this.state.videoWidth, 0, this.state.duration);
+      xPos = mapRange(frameNumberOfThumb, 0, frameCount - 1, 0, this.state.videoWidth, false);
+      currentTime = mapRange(frameNumberOfThumb, 0, frameCount - 1, 0, this.state.duration, false);
     }
     console.log(currentTime);
     this.setState({ playHeadPosition: xPos });
@@ -164,7 +164,7 @@ class VideoPlayer extends Component {
 
   updateTimeFromPosition(xPos) {
     this.setState({ playHeadPosition: xPos });
-    const currentTime = mapRange(xPos, 0, this.state.videoWidth, 0, this.state.duration);
+    const currentTime = mapRange(xPos, 0, this.state.videoWidth, 0, this.state.duration, false);
     // console.log(`${currentTime} : ${this.props.positionRatio} : ${this.state.duration}`);
     this.setState({ currentTime });
     this.video.currentTime = currentTime;
@@ -270,7 +270,9 @@ class VideoPlayer extends Component {
             id="currentTimeDisplay"
             className={styles.frameNumberOrTimeCode}
           >
-            {secondsToTimeCode(this.state.currentTime, this.props.file.fps)}
+            {secondsToTimeCode(this.state.currentTime, this.props.file.fps)} -
+            {this.state.currentTime} -
+            {this.props.file.fps}
           </div>
           <div
             className={`${styles.overVideoButtonWrapper}`}
