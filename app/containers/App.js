@@ -753,10 +753,9 @@ class App extends Component {
                             height={this.state.scaleValueObject.videoPlayerHeight}
                             width={this.state.scaleValueObject.videoPlayerWidth}
                             controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
-                            thumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
+                            selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
                             showPlaybar={this.props.visibilitySettings.showPlaybar}
                             frameNumber={this.state.selectedThumbObject ? this.state.selectedThumbObject.frameNumber : 0}
-                            positionRatio={this.state.selectedThumbObject ? ((this.state.selectedThumbObject.frameNumber * 1.0) / (this.props.file.frameCount || 1)) : 0}
                           />
                         ) :
                         (

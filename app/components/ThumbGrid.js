@@ -100,7 +100,7 @@ const ThumbGrid = ({
   } else {
     thumbArray = thumbs;
   }
-  console.log(controlersAreVisibleId);
+  // console.log(controlersAreVisibleId);
   thumbGridComponent = (
     thumbArray.map(thumb => (
       <SortableThumb

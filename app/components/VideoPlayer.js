@@ -33,18 +33,12 @@ class VideoPlayer extends Component {
     super(props);
 
     this.state = {
-      // working: false,
-      // filePath: '', // Setting video src="" prevents memory leak in chromium
-      // playing: false,
-      currentTime: undefined, // in seconds
-      duration: undefined, // in seconds
+      currentTime: 0, // in seconds
+      duration: 0, // in seconds
       playHeadPosition: 0, // in pixel
       mouseStartDragInsideTimeline: false,
-      videoHeight: undefined,
-      videoWidth: undefined,
-      // cutStartTime: 0,
-      // cutEndTime: undefined,
-      // fileFormat: undefined,
+      videoHeight: 360,
+      videoWidth: 640,
     };
 
     this.onInPointClick = this.onInPointClick.bind(this);
@@ -53,6 +47,7 @@ class VideoPlayer extends Component {
     this.onForwardClick = this.onForwardClick.bind(this);
     this.updatePositionWithStep = this.updatePositionWithStep.bind(this);
     this.onDurationChange = this.onDurationChange.bind(this);
+    this.updateTimeFromThumbId = this.updateTimeFromThumbId.bind(this);
     this.updatePositionFromTime = this.updatePositionFromTime.bind(this);
     this.onVideoError = this.onVideoError.bind(this);
 
@@ -65,13 +60,17 @@ class VideoPlayer extends Component {
     this.onCancelClick = this.onCancelClick.bind(this);
   }
 
-  componentWillMount(prevProps, prevState) {
+  componentWillMount(prevProps) {
     const videoHeight = this.props.height - this.props.controllerHeight;
     const videoWidth = videoHeight / this.props.aspectRatioInv;
     this.setState({
       videoHeight,
       videoWidth
     })
+  }
+
+  componentDidMount() {
+    this.updateTimeFromThumbId(this.props.selectedThumbId);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -90,8 +89,8 @@ class VideoPlayer extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.positionRatio !== this.props.positionRatio) {
-      this.updateTimeFromRatio(this.props.positionRatio);
+    if (prevProps.selectedThumbId !== this.props.selectedThumbId) {
+      this.updateTimeFromThumbId(this.props.selectedThumbId);
     }
   }
 
@@ -119,15 +118,11 @@ class VideoPlayer extends Component {
     ));
   }
 
-  onBackClick(file, thumbId, frameNumber, step) {
-    // const { store } = this.context;
-    // store.dispatch(changeThumb(file, thumbId, frameNumber - step));
+  onBackClick(step) {
     this.updatePositionWithStep(step);
   }
 
-  onForwardClick(file, thumbId, frameNumber, step) {
-    // const { store } = this.context;
-    // store.dispatch(changeThumb(file, thumbId, frameNumber + step));
+  onForwardClick(step) {
     this.updatePositionWithStep(step);
   }
 
@@ -140,11 +135,9 @@ class VideoPlayer extends Component {
   }
 
   updatePositionWithStep(step) {
-    const currentTime = this.video.currentTime + frameCountToSeconds(step, this.props.file.fps);
-    console.log(`${currentTime} : ${this.props.positionRatio} : ${this.state.duration}`);
-    console.log(this.state);
-    this.updatePositionFromTime(currentTime);
-    this.video.currentTime = currentTime;
+    const currentTimePlusStep = this.state.currentTime + frameCountToSeconds(step, this.props.file.fps);
+    this.updatePositionFromTime(currentTimePlusStep);
+    this.video.currentTime = currentTimePlusStep;
   }
 
   updatePositionFromTime(currentTime) {
@@ -153,9 +146,17 @@ class VideoPlayer extends Component {
     this.setState({ playHeadPosition: xPos });
   }
 
-  updateTimeFromRatio(ratio) {
-    const xPos = mapRange(ratio, 0, 1, 0, this.state.videoWidth);
-    const currentTime = mapRange(xPos, 0, this.state.videoWidth, 0, this.state.duration);
+  updateTimeFromThumbId(thumbId) {
+    let xPos = 0;
+    let currentTime = 0;
+    if (thumbId) {
+      console.log('updateTimeFromThumbId');
+      const frameNumberOfThumb = this.props.thumbs.find((thumb) => thumb.thumbId === thumbId).frameNumber;
+      const { frameCount } = this.props.file;
+      xPos = mapRange(frameNumberOfThumb, 0, frameCount - 1, 0, this.state.videoWidth);
+      currentTime = mapRange(xPos, 0, this.state.videoWidth, 0, this.state.duration);
+    }
+    console.log(currentTime);
     this.setState({ playHeadPosition: xPos });
     this.setState({ currentTime });
     this.video.currentTime = currentTime;
@@ -209,8 +210,8 @@ class VideoPlayer extends Component {
     const { store } = this.context;
     const newPositionRatio = ((this.state.currentTime * 1.0) / this.state.duration);
     const newFrameNumber = newPositionRatio * this.props.file.frameCount;
-    store.dispatch(changeThumb(this.props.file, this.props.thumbId, newFrameNumber));
-    // this.props.setNewFrame(this.props.thumbId, newPositionRatio);
+    store.dispatch(changeThumb(this.props.file, this.props.selectedThumbId, newFrameNumber));
+    // this.props.setNewFrame(this.props.selectedThumbId, newPositionRatio);
   }
   onCancelClick = () => {
     this.props.closeModal();
@@ -274,15 +275,15 @@ class VideoPlayer extends Component {
           <div
             className={`${styles.overVideoButtonWrapper}`}
             style={{
-              // display: this.props.thumbId ? 'block' : 'none',
-              marginBottom: this.props.showPlaybar ? VERTICAL_OFFSET_OF_INOUTPOINT_POPUP : 0,
+              // display: this.props.selectedThumbId ? 'block' : 'none',
+              transform: this.props.showPlaybar ? 'translateY(-64px)' : undefined,
             }}
           >
             <Popup
               trigger={
                 <button
                   className={styles.hoverButton}
-                  onClick={() => this.onInPointClick(this.props.file, this.props.thumbs, this.props.thumbId, this.props.frameNumber)}
+                  onClick={() => this.onInPointClick(this.props.file, this.props.thumbs, this.props.selectedThumbId, this.props.frameNumber)}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}
@@ -314,7 +315,7 @@ class VideoPlayer extends Component {
                   onFocus={over}
                   onBlur={out}
                   style={{
-                    display: this.props.thumbId ? 'block' : 'none',
+                    display: this.props.selectedThumbId ? 'block' : 'none',
                   }}
                 >
                   <img
@@ -339,7 +340,7 @@ class VideoPlayer extends Component {
               trigger={
                 <button
                   className={styles.hoverButton}
-                  onClick={() => this.onOutPointClick(this.props.file, this.props.thumbs, this.props.thumbId, this.props.frameNumber)}
+                  onClick={() => this.onOutPointClick(this.props.file, this.props.thumbs, this.props.selectedThumbId, this.props.frameNumber)}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}
@@ -399,15 +400,15 @@ class VideoPlayer extends Component {
             >
               <Button
                 content="-100"
-                onClick={() => this.onBackClick(this.props.file, this.props.thumbId, this.props.frameNumber, -100)}
+                onClick={() => this.onBackClick(-100)}
               />
               <Button
                 content="-10"
-                onClick={() => this.onBackClick(this.props.file, this.props.thumbId, this.props.frameNumber, -10)}
+                onClick={() => this.onBackClick(-10)}
               />
               <Button
                 content="-1"
-                onClick={() => this.onBackClick(this.props.file, this.props.thumbId, this.props.frameNumber, -1)}
+                onClick={() => this.onBackClick(-1)}
               />
             </Button.Group>
             <Button.Group
@@ -419,15 +420,15 @@ class VideoPlayer extends Component {
             >
               <Button
                 content="+1"
-                onClick={() => this.onForwardClick(this.props.file, this.props.thumbId, this.props.frameNumber, 1)}
+                onClick={() => this.onForwardClick(1)}
               />
               <Button
                 content="+10"
-                onClick={() => this.onForwardClick(this.props.file, this.props.thumbId, this.props.frameNumber, 10)}
+                onClick={() => this.onForwardClick(10)}
               />
               <Button
                 content="+100"
-                onClick={() => this.onForwardClick(this.props.file, this.props.thumbId, this.props.frameNumber, 100)}
+                onClick={() => this.onForwardClick(100)}
               />
             </Button.Group>
           </div>
@@ -457,34 +458,6 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = (dispatch, ownProps) => {
-  return {
-  //   onInPointClick: (file, thumbs, thumbId, frameNumber) => {
-  //     dispatch(addDefaultThumbs(
-  //       file,
-  //       thumbs.length,
-  //       frameNumber,
-  //       getHighestFrame(thumbs)
-  //     ));
-  //   },
-  //   onOutPointClick: (file, thumbs, thumbId, frameNumber) => {
-  //     dispatch(addDefaultThumbs(
-  //       file,
-  //       thumbs.length,
-  //       getLowestFrame(thumbs),
-  //       frameNumber
-  //     ));
-  //   },
-  //   onBackClick: (file, thumbId, frameNumber, step) => {
-  //     dispatch(changeThumb(file, thumbId, frameNumber - step));
-  //   },
-  //   onForwardClick: (file, thumbId, frameNumber, step) => {
-  //     dispatch(changeThumb(file, thumbId, frameNumber + step));
-  //     ownProps.updatePositionWithStep(step);
-  //   }
-  };
-};
-
 VideoPlayer.contextTypes = {
   store: PropTypes.object,
   path: PropTypes.string,
@@ -494,4 +467,4 @@ VideoPlayer.contextTypes = {
   closeModal: PropTypes.func,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(VideoPlayer);
+export default connect(mapStateToProps)(VideoPlayer);
