@@ -94,26 +94,32 @@ class VideoPlayer extends Component {
     }
   }
 
-  onInPointClick(file, thumbs, thumbId, frameNumber) {
+  onInPointClick() {
     const { store } = this.context;
-    const newPositionRatio = ((this.state.currentTime * 1.0) / this.state.duration);
-    const newFrameNumber = newPositionRatio * this.props.file.frameCount;
+    const newFrameNumber = mapRange(
+      this.state.currentTime,
+      0, this.state.duration,
+      0, this.props.file.frameCount - 1
+    );
     store.dispatch(addDefaultThumbs(
-      file,
-      thumbs.length,
+      this.props.file,
+      this.props.thumbs.length,
       newFrameNumber,
-      getHighestFrame(thumbs)
+      getHighestFrame(this.props.thumbs)
     ));
   }
 
-  onOutPointClick(file, thumbs, thumbId, frameNumber) {
+  onOutPointClick() {
     const { store } = this.context;
-    const newPositionRatio = ((this.state.currentTime * 1.0) / this.state.duration);
-    const newFrameNumber = newPositionRatio * this.props.file.frameCount;
+    const newFrameNumber = mapRange(
+      this.state.currentTime,
+      0, this.state.duration,
+      0, this.props.file.frameCount - 1
+    );
     store.dispatch(addDefaultThumbs(
-      file,
-      thumbs.length,
-      getLowestFrame(thumbs),
+      this.props.file,
+      this.props.thumbs.length,
+      getLowestFrame(this.props.thumbs),
       newFrameNumber
     ));
   }
@@ -270,9 +276,7 @@ class VideoPlayer extends Component {
             id="currentTimeDisplay"
             className={styles.frameNumberOrTimeCode}
           >
-            {secondsToTimeCode(this.state.currentTime, this.props.file.fps)} -
-            {this.state.currentTime} -
-            {this.props.file.fps}
+            {secondsToTimeCode(this.state.currentTime, this.props.file.fps)}
           </div>
           <div
             className={`${styles.overVideoButtonWrapper}`}
@@ -285,7 +289,7 @@ class VideoPlayer extends Component {
               trigger={
                 <button
                   className={styles.hoverButton}
-                  onClick={() => this.onInPointClick(this.props.file, this.props.thumbs, this.props.selectedThumbId, this.props.frameNumber)}
+                  onClick={this.onInPointClick}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}
@@ -342,7 +346,7 @@ class VideoPlayer extends Component {
               trigger={
                 <button
                   className={styles.hoverButton}
-                  onClick={() => this.onOutPointClick(this.props.file, this.props.thumbs, this.props.selectedThumbId, this.props.frameNumber)}
+                  onClick={this.onOutPointClick}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}

@@ -67,7 +67,7 @@
 
 .timelineCut {
   position: absolute;
-  background-color: #ff0000;
+  background-color: rgba(255, 80, 6, 0.4);
   height: 2px;
 }
 
@@ -89,11 +89,12 @@
 
 .timelinePlayhead {
   position: absolute;
-  bottom: 0;
-  top: 0;
+  /* bottom: 0; */
+  /* top: 0; */
   width: 2px;
-  background-color: #FF5006;
-  height: 24px;
+  background-color: rgba(255, 80, 6, 1);
+  height: 20px;
+  margin-top: 2px;
 }
 
 .timelineWrapper .currentTime {
