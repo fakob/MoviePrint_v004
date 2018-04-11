@@ -36,13 +36,12 @@ class VideoPlayer extends Component {
       // working: false,
       // filePath: '', // Setting video src="" prevents memory leak in chromium
       // playing: false,
-      currentTime: undefined,
-      duration: undefined,
-      controlledPosition: {
-        x: 0,
-        y: 0
-      },
-      startListeningToMouse: false
+      currentTime: undefined, // in seconds
+      duration: undefined, // in seconds
+      playHeadPosition: 0, // in pixel
+      mouseStartDragInsideTimeline: false,
+      videoHeight: undefined,
+      videoWidth: undefined,
       // cutStartTime: 0,
       // cutEndTime: undefined,
       // fileFormat: undefined,
@@ -52,11 +51,9 @@ class VideoPlayer extends Component {
     this.onOutPointClick = this.onOutPointClick.bind(this);
     this.onBackClick = this.onBackClick.bind(this);
     this.onForwardClick = this.onForwardClick.bind(this);
-    this.updatePosition = this.updatePosition.bind(this);
     this.updatePositionWithStep = this.updatePositionWithStep.bind(this);
     this.onDurationChange = this.onDurationChange.bind(this);
-    this.onTimeUpdate = this.onTimeUpdate.bind(this);
-    this.onControlledDrag = this.onControlledDrag.bind(this);
+    this.updatePositionFromTime = this.updatePositionFromTime.bind(this);
     this.onVideoError = this.onVideoError.bind(this);
 
     this.onTimelineClick = this.onTimelineClick.bind(this);
@@ -68,9 +65,33 @@ class VideoPlayer extends Component {
     this.onCancelClick = this.onCancelClick.bind(this);
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentWillMount(prevProps, prevState) {
+    const videoHeight = this.props.height - this.props.controllerHeight;
+    const videoWidth = videoHeight / this.props.aspectRatioInv;
+    this.setState({
+      videoHeight,
+      videoWidth
+    })
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (
+      nextProps.aspectRatioInv !== this.props.aspectRatioInv ||
+      nextProps.height !== this.props.height ||
+      nextProps.width !== this.props.width
+    ) {
+      const videoHeight = this.props.height - this.props.controllerHeight;
+      const videoWidth = videoHeight / this.props.aspectRatioInv;
+      this.setState({
+        videoHeight,
+        videoWidth
+      });
+    }
+  }
+
+  componentDidUpdate(prevProps) {
     if (prevProps.positionRatio !== this.props.positionRatio) {
-      this.updatePosition(this.props.positionRatio);
+      this.updateTimeFromRatio(this.props.positionRatio);
     }
   }
 
@@ -114,7 +135,7 @@ class VideoPlayer extends Component {
     // setState is asynchronious
     // updatePosition needs to wait for setState, therefore it is put into callback of setState
     this.setState({ duration }, () => {
-      this.updatePosition();
+      this.updateTimeFromPosition(this.state.playHeadPosition);
     });
   }
 
@@ -122,82 +143,66 @@ class VideoPlayer extends Component {
     const currentTime = this.video.currentTime + frameCountToSeconds(step, this.props.file.fps);
     console.log(`${currentTime} : ${this.props.positionRatio} : ${this.state.duration}`);
     console.log(this.state);
-    this.onTimeUpdate(currentTime);
+    this.updatePositionFromTime(currentTime);
     this.video.currentTime = currentTime;
   }
 
-  updatePosition() {
-    const currentTime = this.props.positionRatio * this.state.duration;
-    console.log(`${currentTime} : ${this.props.positionRatio} : ${this.state.duration}`);
-    console.log(this.state);
-    this.onTimeUpdate(currentTime);
-    this.video.currentTime = currentTime;
-  }
-
-  onTimeUpdate(currentTime) {
-    const width = ((this.props.height - this.props.controllerHeight) / this.props.aspectRatioInv) - 24;
+  updatePositionFromTime(currentTime) {
     this.setState({ currentTime });
-    const newX = mapRange(currentTime, 0, this.state.duration, 0, width);
-    this.setState({ controlledPosition: { x: newX, y: 0 } });
+    const xPos = mapRange(currentTime, 0, this.state.duration, 0, this.state.videoWidth);
+    this.setState({ playHeadPosition: xPos });
+  }
+
+  updateTimeFromRatio(ratio) {
+    const xPos = mapRange(ratio, 0, 1, 0, this.state.videoWidth);
+    const currentTime = mapRange(xPos, 0, this.state.videoWidth, 0, this.state.duration);
+    this.setState({ playHeadPosition: xPos });
+    this.setState({ currentTime });
+    this.video.currentTime = currentTime;
+  }
+
+  updateTimeFromPosition(xPos) {
+    this.setState({ playHeadPosition: xPos });
+    const currentTime = mapRange(xPos, 0, this.state.videoWidth, 0, this.state.duration);
+    // console.log(`${currentTime} : ${this.props.positionRatio} : ${this.state.duration}`);
+    this.setState({ currentTime });
+    this.video.currentTime = currentTime;
   }
 
   onTimelineClick(e) {
-    // e = Mouse click event.
-    // console.log(`onTimelineClick - target - ${e.target.id}`);
-    // console.log(`onTimelineClick- current - ${e.currentTarget.id}`);
-    if (e.target.id === 'timeLine') { // so this does not get fired when dragged
-      const rect = e.target.getBoundingClientRect();
-      const x = e.clientX - rect.left; // x position within the element.
-      // const y = e.clientY - rect.top;  //y position within the element.
-      console.log(this.state.controlledPosition);
-      console.log(x);
-      const width = ((this.props.height - this.props.controllerHeight) / this.props.aspectRatioInv) - 24;
-      // const { x } = position;
-      this.setState({ controlledPosition: { x, y: 0 } });
-      const newCurrentTime = mapRange(x, 0, width, 0, this.state.duration, false);
-      this.video.currentTime = newCurrentTime;
-      this.setState({ currentTime: newCurrentTime });
+    const bounds = this.timeLine.getBoundingClientRect();
+    const x = e.clientX - bounds.left;
+    // const y = e.clientY - bounds.top;
+    // console.log('mouse dragging over');
+    this.updateTimeFromPosition(x);
     }
-  }
 
   onTimelineDrag() {
-    console.log('start dragging');
-    this.setState({ startListeningToMouse: true });
+    // console.log('start dragging');
+    this.setState({ mouseStartDragInsideTimeline: true });
   }
 
   onTimelineMouseOver(e) {
     // console.log('mouse moving over');
-    if (this.state.startListeningToMouse) {
-      const bounds = e.target.getBoundingClientRect();
+    if (this.state.mouseStartDragInsideTimeline) { // check if dragging over timeline
+      const bounds = this.timeLine.getBoundingClientRect();
       const x = e.clientX - bounds.left;
       // const y = e.clientY - bounds.top;
-      console.log(x);
-      console.log('mouse dragging over');
-      // this.setState({ startListeningToMouse: false });
+      // console.log('mouse dragging over');
+      this.updateTimeFromPosition(x);
     }
   }
 
   onTimelineDragStop() {
-    console.log('stopped dragging');
-    this.setState({ startListeningToMouse: false });
+    // console.log('stopped dragging');
+    this.setState({ mouseStartDragInsideTimeline: false });
   }
 
   onTimelineExit() {
-    console.log('leaving timeline');
-    if (this.state.startListeningToMouse) {
-      this.setState({ startListeningToMouse: false });
+    // console.log('leaving timeline');
+    if (this.state.mouseStartDragInsideTimeline) {
+      this.setState({ mouseStartDragInsideTimeline: false });
     }
-  }
-
-  onControlledDrag(e, position) {
-    // console.log(`onControlledDrag - target - ${e.target.id}`);
-    // console.log(`onControlledDrag- current - ${e.currentTarget.id}`);
-    const width = ((this.props.height - this.props.controllerHeight) / this.props.aspectRatioInv) - 24;
-    const { x } = position;
-    this.setState({ controlledPosition: { x, y: 0 } });
-    const newCurrentTime = mapRange(x, 0, width, 0, this.state.duration, false);
-    this.video.currentTime = newCurrentTime;
-    this.setState({ currentTime: newCurrentTime });
   }
 
   onApplyClick = () => {
@@ -207,7 +212,6 @@ class VideoPlayer extends Component {
     store.dispatch(changeThumb(this.props.file, this.props.thumbId, newFrameNumber));
     // this.props.setNewFrame(this.props.thumbId, newPositionRatio);
   }
-
   onCancelClick = () => {
     this.props.closeModal();
   }
@@ -219,9 +223,7 @@ class VideoPlayer extends Component {
 
   render() {
     const dragHandlers = { onStart: this.onStart, onStop: this.onStop };
-    const { controlledPosition } = this.state;
-    const videoHeight = this.props.height - this.props.controllerHeight;
-    const videoWidth = videoHeight / this.props.aspectRatioInv;
+    const { playHeadPosition } = this.state;
 
     function over(event) {
       event.target.style.opacity = 1;
@@ -233,20 +235,20 @@ class VideoPlayer extends Component {
 
     const inPoint = getLowestFrame(this.props.thumbs);
     const outPoint = getHighestFrame(this.props.thumbs);
-    const inPointPositionOnTimeline = ((videoWidth * 1.0) / this.props.file.frameCount) * inPoint;
-    const outPointPositionOnTimeline = ((videoWidth * 1.0) / this.props.file.frameCount) * outPoint;
+    const inPointPositionOnTimeline = ((this.state.videoWidth * 1.0) / this.props.file.frameCount) * inPoint;
+    const outPointPositionOnTimeline = ((this.state.videoWidth * 1.0) / this.props.file.frameCount) * outPoint;
     const cutWidthOnTimeLine = Math.max(outPointPositionOnTimeline - inPointPositionOnTimeline, MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE);
 
     // console.log(inPoint);
     // console.log(outPoint);
-    // console.log(this.state.startListeningToMouse);
+    // console.log(this.state.mouseStartDragInsideTimeline);
     return (
       <div>
         <div
           className={`${styles.player}`}
           style={{
-            width: videoWidth,
-            height: videoHeight,
+            width: this.state.videoWidth,
+            height: this.state.videoHeight,
           }}
         >
           <video
@@ -255,10 +257,10 @@ class VideoPlayer extends Component {
             controls={this.props.showPlaybar ? 'true' : undefined}
             muted
             src={`${pathModule.dirname(this.props.path)}/${encodeURIComponent(pathModule.basename(this.props.path))}` || ''}
-            width={videoWidth}
-            height={videoHeight}
+            width={this.state.videoWidth}
+            height={this.state.videoHeight}
             onDurationChange={e => this.onDurationChange(e.target.duration)}
-            onTimeUpdate={e => this.onTimeUpdate(e.target.currentTime)}
+            onTimeUpdate={e => this.updatePositionFromTime(e.target.currentTime)}
             onError={this.onVideoError}
           >
             <track kind="captions" />
@@ -331,7 +333,7 @@ class VideoPlayer extends Component {
               position="top center"
               className={stylesThumb.popupThumb}
               verticalOffset={VERTICAL_OFFSET_OF_INOUTPOINT_POPUP}
-              horizontalOffset={videoWidth / 2}
+              horizontalOffset={this.state.videoWidth / 2}
             />
             <Popup
               trigger={
@@ -358,7 +360,7 @@ class VideoPlayer extends Component {
               position="top right"
               className={stylesThumb.popupThumb}
               verticalOffset={VERTICAL_OFFSET_OF_INOUTPOINT_POPUP}
-              horizontalOffset={videoWidth}
+              horizontalOffset={this.state.videoWidth}
             />
           </div>
         </div>
@@ -366,26 +368,17 @@ class VideoPlayer extends Component {
           <div
             id="timeLine"
             className={`${styles.timelineWrapper}`}
+            onClick={this.onTimelineClick}
             onMouseDown={this.onTimelineDrag}
             onMouseUp={this.onTimelineDragStop}
             onMouseMove={this.onTimelineMouseOver}
             onMouseLeave={this.onTimelineExit}
+            ref={(el) => { this.timeLine = el; }}
           >
-            {/* <Draggable
-              axis="x"
-              handle=".handle"
-              position={controlledPosition}
-              onDrag={this.onControlledDrag}
-              {...dragHandlers}
-            >
-              <div>
-                <div className={`${styles.currentTime} handle`} />
-              </div>
-            </Draggable> */}
             <div
               className={`${styles.timelinePlayhead}`}
               style={{
-                left: controlledPosition.x,
+                left: playHeadPosition,
               }}
             />
             <div
