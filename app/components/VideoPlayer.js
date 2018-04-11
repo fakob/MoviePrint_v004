@@ -42,6 +42,7 @@ class VideoPlayer extends Component {
         x: 0,
         y: 0
       },
+      startListeningToMouse: false
       // cutStartTime: 0,
       // cutEndTime: undefined,
       // fileFormat: undefined,
@@ -59,6 +60,10 @@ class VideoPlayer extends Component {
     this.onVideoError = this.onVideoError.bind(this);
 
     this.onTimelineClick = this.onTimelineClick.bind(this);
+    this.onTimelineDrag = this.onTimelineDrag.bind(this);
+    this.onTimelineDragStop = this.onTimelineDragStop.bind(this);
+    this.onTimelineMouseOver = this.onTimelineMouseOver.bind(this);
+    this.onTimelineExit = this.onTimelineExit.bind(this);
     this.onApplyClick = this.onApplyClick.bind(this);
     this.onCancelClick = this.onCancelClick.bind(this);
   }
@@ -155,6 +160,35 @@ class VideoPlayer extends Component {
     }
   }
 
+  onTimelineDrag() {
+    console.log('start dragging');
+    this.setState({ startListeningToMouse: true });
+  }
+
+  onTimelineMouseOver(e) {
+    // console.log('mouse moving over');
+    if (this.state.startListeningToMouse) {
+      const bounds = e.target.getBoundingClientRect();
+      const x = e.clientX - bounds.left;
+      // const y = e.clientY - bounds.top;
+      console.log(x);
+      console.log('mouse dragging over');
+      // this.setState({ startListeningToMouse: false });
+    }
+  }
+
+  onTimelineDragStop() {
+    console.log('stopped dragging');
+    this.setState({ startListeningToMouse: false });
+  }
+
+  onTimelineExit() {
+    console.log('leaving timeline');
+    if (this.state.startListeningToMouse) {
+      this.setState({ startListeningToMouse: false });
+    }
+  }
+
   onControlledDrag(e, position) {
     // console.log(`onControlledDrag - target - ${e.target.id}`);
     // console.log(`onControlledDrag- current - ${e.currentTarget.id}`);
@@ -203,8 +237,9 @@ class VideoPlayer extends Component {
     const outPointPositionOnTimeline = ((videoWidth * 1.0) / this.props.file.frameCount) * outPoint;
     const cutWidthOnTimeLine = Math.max(outPointPositionOnTimeline - inPointPositionOnTimeline, MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE);
 
-    console.log(inPoint);
-    console.log(outPoint);
+    // console.log(inPoint);
+    // console.log(outPoint);
+    // console.log(this.state.startListeningToMouse);
     return (
       <div>
         <div
@@ -329,18 +364,14 @@ class VideoPlayer extends Component {
         </div>
         <div className={`${styles.controlsWrapper}`}>
           <div
-            className={`${styles.timelineCut}`}
-            style={{
-              left: inPointPositionOnTimeline,
-              width: cutWidthOnTimeLine
-            }}
-          />
-          <div
             id="timeLine"
             className={`${styles.timelineWrapper}`}
-            onClick={this.onTimelineClick}
+            onMouseDown={this.onTimelineDrag}
+            onMouseUp={this.onTimelineDragStop}
+            onMouseMove={this.onTimelineMouseOver}
+            onMouseLeave={this.onTimelineExit}
           >
-            <Draggable
+            {/* <Draggable
               axis="x"
               handle=".handle"
               position={controlledPosition}
@@ -350,7 +381,20 @@ class VideoPlayer extends Component {
               <div>
                 <div className={`${styles.currentTime} handle`} />
               </div>
-            </Draggable>
+            </Draggable> */}
+            <div
+              className={`${styles.timelinePlayhead}`}
+              style={{
+                left: controlledPosition.x,
+              }}
+            />
+            <div
+              className={`${styles.timelineCut}`}
+              style={{
+                left: inPointPositionOnTimeline,
+                width: cutWidthOnTimeLine
+              }}
+            />
           </div>
           <div className={`${styles.buttonWrapper}`}>
             <Button.Group

@@ -66,7 +66,7 @@
 }
 
 .timelineCut {
-  position: relative;
+  position: absolute;
   background-color: #ff0000;
   height: 2px;
 }
@@ -87,12 +87,12 @@
   height: 32px;
 }
 
-.timelineWrapper .currentTime, .timelineWrapper .cutStartTime {
+.timelinePlayhead {
   position: absolute;
   bottom: 0;
   top: 0;
-  width: 24px;
-  border-radius: 8px;
+  width: 2px;
+  background-color: #FF5006;
   height: 24px;
 }
 
