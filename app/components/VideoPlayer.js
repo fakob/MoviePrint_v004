@@ -4,7 +4,9 @@ import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
 import { Button, Popup } from 'semantic-ui-react';
 import { changeThumb, addDefaultThumbs } from '../actions';
-import { VERTICAL_OFFSET_OF_INOUTPOINT_POPUP } from '../utils/constants'
+import {
+  VERTICAL_OFFSET_OF_INOUTPOINT_POPUP, MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE
+} from '../utils/constants'
 import {
   getLowestFrame, getHighestFrame, getChangeThumbStep, getVisibleThumbs,
   mapRange, secondsToTimeCode, limitRange, frameCountToSeconds
@@ -199,7 +201,7 @@ class VideoPlayer extends Component {
     const outPoint = getHighestFrame(this.props.thumbs);
     const inPointPositionOnTimeline = ((videoWidth * 1.0) / this.props.file.frameCount) * inPoint;
     const outPointPositionOnTimeline = ((videoWidth * 1.0) / this.props.file.frameCount) * outPoint;
-    const cutWidthOnTimeLine = outPointPositionOnTimeline - inPointPositionOnTimeline;
+    const cutWidthOnTimeLine = Math.max(outPointPositionOnTimeline - inPointPositionOnTimeline, MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE);
 
     console.log(inPoint);
     console.log(outPoint);
