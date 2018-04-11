@@ -4,6 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { SortableHandle } from 'react-sortable-hoc';
 import styles from './ThumbGrid.css';
+import { Popup } from 'semantic-ui-react'
 
 import inPoint from './../img/Thumb_IN.png';
 import outPoint from './../img/Thumb_OUT.png';
@@ -65,6 +66,7 @@ const Thumb = ({
 
   const minimumWidthToShowHover = 100;
   const minimumWidthToShrinkHover = 160;
+  const verticalOffsetOfInOutPointPopup = 40; // heightOfInOutPointButtons
 
   return (
     <div
@@ -143,50 +145,83 @@ const Thumb = ({
             alt=""
           />
         </button>
-        <button
+        <Popup
+          trigger={
+            <button
+              style={{
+                display: (thumbWidth > minimumWidthToShowHover) ? 'block' : 'none',
+                transformOrigin: 'left bottom',
+                transform: `scale(${(thumbWidth > minimumWidthToShrinkHover) ? 1 : 0.7})`,
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+              }}
+              className={styles.hoverButton}
+              onClick={onInPoint}
+              onMouseOver={over}
+              onMouseLeave={out}
+              onFocus={over}
+              onBlur={out}
+            >
+              <img
+                src={inPoint}
+                className={styles.inPoint}
+                alt=""
+              />
+            </button>
+          }
+          content="Use this frame as In-point"
+          hoverable
+          basic
+          inverted
+          mouseEnterDelay={1000}
+          className={styles.popupThumb}
+          verticalOffset={(thumbWidth > minimumWidthToShrinkHover) ?
+            verticalOffsetOfInOutPointPopup : verticalOffsetOfInOutPointPopup / 2}
           style={{
-            display: (thumbWidth > minimumWidthToShowHover) ? 'block' : 'none',
             transformOrigin: 'left bottom',
             transform: `scale(${(thumbWidth > minimumWidthToShrinkHover) ? 1 : 0.7})`,
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
           }}
-          className={styles.hoverButton}
-          onClick={onInPoint}
-          onMouseOver={over}
-          onMouseLeave={out}
-          onFocus={over}
-          onBlur={out}
-        >
-          <img
-            src={inPoint}
-            className={styles.inPoint}
-            alt=""
-          />
-        </button>
-        <button
+        />
+        <Popup
+          trigger={
+            <button
+              style={{
+                display: (thumbWidth > minimumWidthToShowHover) ? 'block' : 'none',
+                transformOrigin: 'right bottom',
+                transform: `scale(${(thumbWidth > minimumWidthToShrinkHover) ? 1 : 0.7})`,
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+              }}
+              className={styles.hoverButton}
+              onClick={onOutPoint}
+              onMouseOver={over}
+              onMouseLeave={out}
+              onFocus={over}
+              onBlur={out}
+            >
+              <img
+                src={outPoint}
+                className={styles.outPoint}
+                alt=""
+              />
+            </button>
+          }
+          content="Use this frame as Out-point"
+          hoverable
+          basic
+          inverted
+          mouseEnterDelay={1000}
+          position="top right"
+          className={styles.popupThumb}
+          verticalOffset={(thumbWidth > minimumWidthToShrinkHover) ?
+            verticalOffsetOfInOutPointPopup : verticalOffsetOfInOutPointPopup / 2}
           style={{
-            display: (thumbWidth > minimumWidthToShowHover) ? 'block' : 'none',
             transformOrigin: 'right bottom',
             transform: `scale(${(thumbWidth > minimumWidthToShrinkHover) ? 1 : 0.7})`,
-            position: 'absolute',
-            bottom: 0,
-            right: 0,
           }}
-          className={styles.hoverButton}
-          onClick={onOutPoint}
-          onMouseOver={over}
-          onMouseLeave={out}
-          onFocus={over}
-          onBlur={out}
-        >
-          <img
-            src={outPoint}
-            className={styles.outPoint}
-            alt=""
-          />
-        </button>
+        />
       </div>
     </div>
   );
@@ -197,7 +232,13 @@ Thumb.defaultProps = {
   controlersAreVisible: false,
   hidden: false,
   thumbImageObjectUrl: undefined,
-  thumbInfoValue: undefined
+  thumbInfoValue: undefined,
+  onSelect: null,
+  onOut: null,
+  onOver: null,
+  onToggle: null,
+  onInPoint: null,
+  onOutPoint: null,
 };
 
 Thumb.propTypes = {
@@ -209,10 +250,10 @@ Thumb.propTypes = {
   inputRefThumb: PropTypes.object,
   margin: PropTypes.number.isRequired,
   onInPoint: PropTypes.func,
-  onOut: PropTypes.func.isRequired,
+  onOut: PropTypes.func,
   onOutPoint: PropTypes.func,
-  onOver: PropTypes.func.isRequired,
-  onSelect: PropTypes.func.isRequired,
+  onOver: PropTypes.func,
+  onSelect: PropTypes.func,
   onThumbDoubleClick: PropTypes.func.isRequired,
   onToggle: PropTypes.func,
   selected: PropTypes.bool,
