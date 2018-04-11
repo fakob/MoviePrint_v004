@@ -2,13 +2,15 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
-import { Button, Divider } from 'semantic-ui-react';
+import { Button, Popup } from 'semantic-ui-react';
 import { changeThumb, addDefaultThumbs } from '../actions';
+import { VERTICAL_OFFSET_OF_INOUTPOINT_POPUP } from '../utils/constants'
 import {
   getLowestFrame, getHighestFrame, getChangeThumbStep, getVisibleThumbs,
   mapRange, secondsToTimeCode, limitRange, frameCountToSeconds
 } from './../utils/utils';
 import styles from './VideoPlayer.css';
+import stylesThumb from './ThumbGrid.css';
 
 import inPoint from './../img/Thumb_IN.png';
 import outPoint from './../img/Thumb_OUT.png';
@@ -182,6 +184,8 @@ class VideoPlayer extends Component {
   render() {
     const dragHandlers = { onStart: this.onStart, onStop: this.onStop };
     const { controlledPosition } = this.state;
+    const videoHeight = this.props.height - this.props.controllerHeight;
+    const videoWidth = videoHeight / this.props.aspectRatioInv;
 
     function over(event) {
       event.target.style.opacity = 1;
@@ -195,15 +199,21 @@ class VideoPlayer extends Component {
     // console.log(`${this.props.positionRatio} === ${((this.state.currentTime * 1.0) / this.state.duration)}`);
     return (
       <div>
-        <div className={`${styles.player}`}>
+        <div
+          className={`${styles.player}`}
+          style={{
+            width: videoWidth,
+            height: videoHeight,
+          }}
+        >
           <video
             ref={(el) => { this.video = el; }}
             className={`${styles.video}`}
             controls={this.props.showPlaybar ? 'true' : undefined}
             muted
             src={`${pathModule.dirname(this.props.path)}/${encodeURIComponent(pathModule.basename(this.props.path))}` || ''}
-            width={(this.props.height - this.props.controllerHeight) / this.props.aspectRatioInv}
-            height={this.props.height - this.props.controllerHeight}
+            width={videoWidth}
+            height={videoHeight}
             onDurationChange={e => this.onDurationChange(e.target.duration)}
             onTimeUpdate={e => this.onTimeUpdate(e.target.currentTime)}
             onError={this.onVideoError}
@@ -219,51 +229,96 @@ class VideoPlayer extends Component {
           <div
             className={`${styles.overVideoButtonWrapper}`}
             style={{
-              display: (this.props.thumbId && !this.props.showPlaybar) ? 'block' : 'none',
+              // display: (this.props.thumbId && !this.props.showPlaybar) ? 'block' : 'none',
             }}
           >
-            <button
-              className={styles.hoverButton}
-              onClick={() => this.onInPointClick(this.props.file, this.props.thumbs, this.props.thumbId, this.props.frameNumber)}
-              onMouseOver={over}
-              onMouseLeave={out}
-              onFocus={over}
-              onBlur={out}
-            >
-              <img
-                src={inPoint}
-                className={styles.inPoint}
-                alt=""
-              />
-            </button>
-            <button
-              className={styles.hoverButton}
-              onClick={this.onApplyClick}
-              onMouseOver={over}
-              onMouseLeave={out}
-              onFocus={over}
-              onBlur={out}
-            >
-              <img
-                src={choose}
-                className={styles.choose}
-                alt=""
-              />
-            </button>
-            <button
-              className={styles.hoverButton}
-              onClick={() => this.onOutPointClick(this.props.file, this.props.thumbs, this.props.thumbId, this.props.frameNumber)}
-              onMouseOver={over}
-              onMouseLeave={out}
-              onFocus={over}
-              onBlur={out}
-            >
-              <img
-                src={outPoint}
-                className={styles.outPoint}
-                alt=""
-              />
-            </button>
+          {/* <div
+            style={{
+              position: 'relative',
+            }}
+          > */}
+            <Popup
+              trigger={
+                <button
+                  className={styles.hoverButton}
+                  onClick={() => this.onInPointClick(this.props.file, this.props.thumbs, this.props.thumbId, this.props.frameNumber)}
+                  onMouseOver={over}
+                  onMouseLeave={out}
+                  onFocus={over}
+                  onBlur={out}
+                >
+                  <img
+                    src={inPoint}
+                    className={styles.inPoint}
+                    alt=""
+                  />
+                </button>
+              }
+              content="Use this frame as In-point"
+              hoverable
+              basic
+              inverted
+              mouseEnterDelay={1000}
+              position="top left"
+              className={stylesThumb.popupThumb}
+              verticalOffset={VERTICAL_OFFSET_OF_INOUTPOINT_POPUP}
+            />
+            <Popup
+              trigger={
+                <button
+                  className={styles.hoverButton}
+                  onClick={this.onApplyClick}
+                  onMouseOver={over}
+                  onMouseLeave={out}
+                  onFocus={over}
+                  onBlur={out}
+                >
+                  <img
+                    src={choose}
+                    className={styles.choose}
+                    alt=""
+                  />
+                </button>
+              }
+              content="Choose this frame as thumb"
+              hoverable
+              basic
+              inverted
+              size="mini"
+              mouseEnterDelay={1000}
+              position="top center"
+              className={stylesThumb.popupThumb}
+              verticalOffset={VERTICAL_OFFSET_OF_INOUTPOINT_POPUP}
+              horizontalOffset={videoWidth / 2}
+            />
+            <Popup
+              trigger={
+                <button
+                  className={styles.hoverButton}
+                  onClick={() => this.onOutPointClick(this.props.file, this.props.thumbs, this.props.thumbId, this.props.frameNumber)}
+                  onMouseOver={over}
+                  onMouseLeave={out}
+                  onFocus={over}
+                  onBlur={out}
+                >
+                  <img
+                    src={outPoint}
+                    className={styles.outPoint}
+                    alt=""
+                  />
+                </button>
+              }
+              content="Use this frame as Out-point"
+              hoverable
+              basic
+              inverted
+              mouseEnterDelay={1000}
+              position="top right"
+              className={stylesThumb.popupThumb}
+              verticalOffset={VERTICAL_OFFSET_OF_INOUTPOINT_POPUP}
+              horizontalOffset={videoWidth}
+            />
+          {/* </div> */}
           </div>
         </div>
         <div className={`${styles.controlsWrapper}`}>
@@ -353,7 +408,7 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => {
-  // return {
+  return {
   //   onInPointClick: (file, thumbs, thumbId, frameNumber) => {
   //     dispatch(addDefaultThumbs(
   //       file,
@@ -377,7 +432,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   //     dispatch(changeThumb(file, thumbId, frameNumber + step));
   //     ownProps.updatePositionWithStep(step);
   //   }
-  // };
+  };
 };
 
 VideoPlayer.contextTypes = {

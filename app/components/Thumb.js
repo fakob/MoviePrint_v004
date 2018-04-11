@@ -3,6 +3,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { SortableHandle } from 'react-sortable-hoc';
+import {
+  MINIMUM_WIDTH_TO_SHRINK_HOVER, MINIMUM_WIDTH_TO_SHOW_HOVER,
+  VERTICAL_OFFSET_OF_INOUTPOINT_POPUP
+} from '../utils/constants'
 import styles from './ThumbGrid.css';
 import { Popup } from 'semantic-ui-react'
 
@@ -64,10 +68,6 @@ const Thumb = ({
     event.target.style.opacity = 0.5;
   }
 
-  const minimumWidthToShowHover = 100;
-  const minimumWidthToShrinkHover = 160;
-  const verticalOffsetOfInOutPointPopup = 40; // heightOfInOutPointButtons
-
   return (
     <div
       ref={inputRefThumb}
@@ -125,9 +125,9 @@ const Thumb = ({
         />
         <button
           style={{
-            display: (thumbWidth > minimumWidthToShowHover) ? 'block' : 'none',
+            display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
             transformOrigin: 'top right',
-            transform: `scale(${(thumbWidth > minimumWidthToShrinkHover) ? 1 : 0.7})`,
+            transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
             position: 'absolute',
             top: 0,
             right: 0,
@@ -149,9 +149,9 @@ const Thumb = ({
           trigger={
             <button
               style={{
-                display: (thumbWidth > minimumWidthToShowHover) ? 'block' : 'none',
+                display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
                 transformOrigin: 'left bottom',
-                transform: `scale(${(thumbWidth > minimumWidthToShrinkHover) ? 1 : 0.7})`,
+                transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
                 position: 'absolute',
                 bottom: 0,
                 left: 0,
@@ -176,20 +176,20 @@ const Thumb = ({
           inverted
           mouseEnterDelay={1000}
           className={styles.popupThumb}
-          verticalOffset={(thumbWidth > minimumWidthToShrinkHover) ?
-            verticalOffsetOfInOutPointPopup : verticalOffsetOfInOutPointPopup / 2}
+          verticalOffset={(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ?
+            VERTICAL_OFFSET_OF_INOUTPOINT_POPUP : VERTICAL_OFFSET_OF_INOUTPOINT_POPUP / 2}
           style={{
             transformOrigin: 'left bottom',
-            transform: `scale(${(thumbWidth > minimumWidthToShrinkHover) ? 1 : 0.7})`,
+            transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
           }}
         />
         <Popup
           trigger={
             <button
               style={{
-                display: (thumbWidth > minimumWidthToShowHover) ? 'block' : 'none',
+                display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
                 transformOrigin: 'right bottom',
-                transform: `scale(${(thumbWidth > minimumWidthToShrinkHover) ? 1 : 0.7})`,
+                transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
                 position: 'absolute',
                 bottom: 0,
                 right: 0,
@@ -215,11 +215,11 @@ const Thumb = ({
           mouseEnterDelay={1000}
           position="top right"
           className={styles.popupThumb}
-          verticalOffset={(thumbWidth > minimumWidthToShrinkHover) ?
-            verticalOffsetOfInOutPointPopup : verticalOffsetOfInOutPointPopup / 2}
+          verticalOffset={(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ?
+            VERTICAL_OFFSET_OF_INOUTPOINT_POPUP : VERTICAL_OFFSET_OF_INOUTPOINT_POPUP / 2}
           style={{
             transformOrigin: 'right bottom',
-            transform: `scale(${(thumbWidth > minimumWidthToShrinkHover) ? 1 : 0.7})`,
+            transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
           }}
         />
       </div>
