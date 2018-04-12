@@ -9,7 +9,7 @@ import {
 } from '../actions';
 import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
-import { getLowestFrame, getHighestFrame, getChangeThumbStep, getVisibleThumbs } from '../utils/utils';
+import { saveThumb, getLowestFrame, getHighestFrame, getChangeThumbStep, getVisibleThumbs } from '../utils/utils';
 
 class SortedVisibleThumbGrid extends Component {
   constructor(props) {
@@ -98,6 +98,7 @@ class SortedVisibleThumbGrid extends Component {
         onRemoveClick={this.props.onRemoveClick}
         onInPointClick={this.props.onInPointClick}
         onOutPointClick={this.props.onOutPointClick}
+        onSaveThumbClick={this.props.onSaveThumbClick}
         onBackClick={this.props.onBackClick}
         onForwardClick={this.props.onForwardClick}
         onScrubClick={this.props.onScrubClick}
@@ -182,6 +183,12 @@ const mapDispatchToProps = (dispatch, ownProps) => {
         getLowestFrame(thumbs),
         frameNumber
       ));
+    },
+    onSaveThumbClick: (fileName, frameNumber, frameId) => {
+      console.log(fileName);
+      console.log(frameNumber);
+      console.log(frameId);
+      saveThumb(fileName, frameNumber, frameId);
     },
     onBackClick: (file, thumbId, frameNumber) => {
       dispatch(changeThumb(file, thumbId, frameNumber - getChangeThumbStep(1)));

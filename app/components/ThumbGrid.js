@@ -20,6 +20,7 @@ const ThumbGrid = ({
   onMouseOutResult,
   onMouseOverResult,
   onOutPointClick,
+  onSaveThumbClick,
   onRemoveClick,
   onSelectClick,
   onThumbDoubleClick,
@@ -139,6 +140,8 @@ const ThumbGrid = ({
           null : () => onInPointClick(file, thumbArray, thumb.thumbId, thumb.frameNumber)}
         onOutPoint={(editGrid || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => onOutPointClick(file, thumbArray, thumb.thumbId, thumb.frameNumber)}
+        onSaveThumb={(editGrid || (thumb.thumbId !== controlersAreVisibleId)) ?
+          null : () => onSaveThumbClick(file.name, thumb.frameNumber, thumb.frameId)}
       />))
   );
 
@@ -189,6 +192,7 @@ ThumbGrid.propTypes = {
   onRemoveClick: PropTypes.func.isRequired,
   onInPointClick: PropTypes.func.isRequired,
   onOutPointClick: PropTypes.func.isRequired,
+  onSaveThumbClick: PropTypes.func.isRequired,
   onThumbDoubleClick: PropTypes.func.isRequired,
   onMouseOverResult: PropTypes.func.isRequired,
   onMouseOutResult: PropTypes.func.isRequired,

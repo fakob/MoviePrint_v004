@@ -3,12 +3,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { SortableHandle } from 'react-sortable-hoc';
+import { Popup } from 'semantic-ui-react';
 import {
   MINIMUM_WIDTH_TO_SHRINK_HOVER, MINIMUM_WIDTH_TO_SHOW_HOVER,
   VERTICAL_OFFSET_OF_INOUTPOINT_POPUP
 } from '../utils/constants'
 import styles from './ThumbGrid.css';
-import { Popup } from 'semantic-ui-react'
 
 import inPoint from './../img/Thumb_IN.png';
 import outPoint from './../img/Thumb_OUT.png';
@@ -55,7 +55,7 @@ const DragHandle = SortableHandle(({ width, height }) => {
 });
 
 const Thumb = ({
-  onSelect, onToggle, onInPoint, onOutPoint, tempId, color,
+  onSelect, onToggle, onInPoint, onOutPoint, onSaveThumb, tempId, color,
   onOver, onOut, hidden, thumbImageObjectUrl, aspectRatioInv, thumbInfoRatio,
   controlersAreVisible, thumbWidth, margin, zoomOut, borderRadius, thumbInfoValue, selected,
   inputRefThumb, onThumbDoubleClick
@@ -183,6 +183,29 @@ const Thumb = ({
             transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
           }}
         />
+        <button
+          style={{
+            display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+            transformOrigin: 'center bottom',
+            transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+            transform: 'translateX(-50%)',
+            position: 'absolute',
+            bottom: 0,
+            left: '50%',
+          }}
+          className={styles.hoverButton}
+          onClick={onSaveThumb}
+          onMouseOver={over}
+          onMouseLeave={out}
+          onFocus={over}
+          onBlur={out}
+        >
+          <img
+            src={outPoint}
+            className={styles.outPoint}
+            alt=""
+          />
+        </button>
         <Popup
           trigger={
             <button
@@ -239,6 +262,7 @@ Thumb.defaultProps = {
   onToggle: null,
   onInPoint: null,
   onOutPoint: null,
+  onSaveThumb: null,
 };
 
 Thumb.propTypes = {
@@ -252,6 +276,7 @@ Thumb.propTypes = {
   onInPoint: PropTypes.func,
   onOut: PropTypes.func,
   onOutPoint: PropTypes.func,
+  onSaveThumb: PropTypes.func,
   onOver: PropTypes.func,
   onSelect: PropTypes.func,
   onThumbDoubleClick: PropTypes.func.isRequired,

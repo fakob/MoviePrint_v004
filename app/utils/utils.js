@@ -1,5 +1,6 @@
 import html2canvas from 'html2canvas';
 import path from 'path';
+import imageDB from './../utils/db';
 
 const fs = require('fs');
 const randomColor = require('randomcolor');
@@ -118,7 +119,7 @@ export const formatBytes = (bytes, decimals) => {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 };
 
-function saveBlob(blob, fileName) {
+export const saveBlob = (blob, fileName) => {
   const reader = new FileReader();
   reader.onload = () => {
     if (reader.readyState === 2) {
@@ -128,7 +129,22 @@ function saveBlob(blob, fileName) {
     }
   };
   reader.readAsArrayBuffer(blob);
-}
+};
+
+export const saveThumb = (fileName, frameNumber, frameId) => {
+  return imageDB.frameList.where('frameId').equals(frameId).toArray().then((frames) => {
+    console.log(frames[0]);
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (reader.readyState === 2) {
+        const buffer = Buffer.from(reader.result);
+        ipcRenderer.send('send-save-file', fileName, buffer);
+        console.log(`Saving ${JSON.stringify({ fileName, size: frames[0].data.size })}`);
+      }
+    };
+    reader.readAsArrayBuffer(frames[0].data);
+  });
+};
 
 function getMimeType(outputFormat) {
   switch (outputFormat) {
