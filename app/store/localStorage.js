@@ -1,4 +1,4 @@
-const { app } = require('electron').remote
+const { app } = require('electron').remote;
 
 // needs to have the same file structure as in combineReducers
 const initialStateJSON = {

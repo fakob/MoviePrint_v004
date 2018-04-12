@@ -6,6 +6,7 @@ const fs = require('fs');
 const randomColor = require('randomcolor');
 
 const { ipcRenderer } = require('electron');
+const { app } = require('electron').remote;
 
 export const clearCache = (win) => {
   win.webContents.session.getCacheSize((cacheSizeBefore) => {
@@ -132,17 +133,23 @@ export const saveBlob = (blob, fileName) => {
 };
 
 export const saveThumb = (fileName, frameNumber, frameId) => {
+  const newFilePathAndName = getFilePathAndName(fileName, `-frame${frameNumber}`, 'png');
+
   return imageDB.frameList.where('frameId').equals(frameId).toArray().then((frames) => {
     console.log(frames[0]);
     const reader = new FileReader();
+
+    // This event is triggered each time the reading operation is successfully completed.
     reader.onload = () => {
       if (reader.readyState === 2) {
         const buffer = Buffer.from(reader.result);
-        ipcRenderer.send('send-save-file', fileName, buffer);
-        console.log(`Saving ${JSON.stringify({ fileName, size: frames[0].data.size })}`);
+        ipcRenderer.send('send-save-file', newFilePathAndName, buffer);
+        console.log(`Saving ${JSON.stringify({ newFilePathAndName, size: frames[0].data.size })}`);
       }
     };
+
     reader.readAsArrayBuffer(frames[0].data);
+    return true;
   });
 };
 
@@ -177,20 +184,22 @@ export const getMoviePrintColor = (count) => {
   return newColorArray;
 };
 
-export const saveMoviePrint = (elementId, exportPath, file, scale, outputFormat, overwrite) => {
-  console.log(file);
-  const node = document.getElementById(elementId);
-  // const node = document.getElementById('ThumbGrid');1
-
+export const getFilePathAndName = (
+  fileName,
+  postfix = '',
+  outputFormat,
+  exportPath = app.getPath('desktop'),
+  overwrite = false
+) => {
   // in case there is no file loaded give standard name
-  let newFileName = file !== undefined ? `${file.name}_MoviePrint.${outputFormat}` :
+  let newFileName = fileName !== undefined ? `${fileName}${postfix}.${outputFormat}` :
     `MoviePrint.${outputFormat}`;
   let newFilePathAndName = path.join(exportPath, newFileName);
 
   if (!overwrite) {
     if (fs.existsSync(newFilePathAndName)) {
       for (let i = 1; i < 1000; i += 1) {
-        newFileName = file !== undefined ? `${file.name}_MoviePrint copy ${i}.${outputFormat}` :
+        newFileName = fileName !== undefined ? `${fileName}${postfix} copy ${i}.${outputFormat}` :
           `MoviePrint copy ${i}.${outputFormat}`;
         newFilePathAndName = path.join(exportPath, newFileName);
         if (!fs.existsSync(newFilePathAndName)) {
@@ -199,6 +208,32 @@ export const saveMoviePrint = (elementId, exportPath, file, scale, outputFormat,
       }
     }
   }
+  return newFilePathAndName;
+};
+
+export const saveMoviePrint = (elementId, exportPath, file, scale, outputFormat, overwrite) => {
+  console.log(file);
+  const node = document.getElementById(elementId);
+  // const node = document.getElementById('ThumbGrid');1
+
+  const newFilePathAndName = getFilePathAndName(file.name, '_MoviePrint', outputFormat, exportPath, overwrite);
+  // // in case there is no file loaded give standard name
+  // let newFileName = file !== undefined ? `${file.name}_MoviePrint.${outputFormat}` :
+  //   `MoviePrint.${outputFormat}`;
+  // let newFilePathAndName = path.join(exportPath, newFileName);
+  //
+  // if (!overwrite) {
+  //   if (fs.existsSync(newFilePathAndName)) {
+  //     for (let i = 1; i < 1000; i += 1) {
+  //       newFileName = file !== undefined ? `${file.name}_MoviePrint copy ${i}.${outputFormat}` :
+  //         `MoviePrint copy ${i}.${outputFormat}`;
+  //       newFilePathAndName = path.join(exportPath, newFileName);
+  //       if (!fs.existsSync(newFilePathAndName)) {
+  //         break;
+  //       }
+  //     }
+  //   }
+  // }
 
   const qualityArgument = 0.8; // only applicable for jpg
 
