@@ -3,8 +3,8 @@
 
 
 "@types/node@>6":
-  version "9.6.2"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-9.6.2.tgz#e49ac1adb458835e95ca6487bc20f916b37aff23"
+  version "9.6.4"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-9.6.4.tgz#0ef7b4cfc3499881c81e0ea1ce61a23f6f4f5b42"
 
 ansi-regex@^2.0.0:
   version "2.1.1"
@@ -78,9 +78,9 @@ nan@^2.7.0, nan@^2.8.0:
   version "2.10.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.10.0.tgz#96d0cd610ebd58d4b4de9cc0c6828cda99c7548f"
 
-native-node-utils@0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/native-node-utils/-/native-node-utils-0.0.4.tgz#9b739e589da441f9b4716de1054c3d53a0894198"
+native-node-utils@0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/native-node-utils/-/native-node-utils-0.1.2.tgz#7069f6b2a066742b55d886430b8ea5b3a9ae5ac2"
   dependencies:
     nan "^2.8.0"
 
@@ -101,20 +101,20 @@ object-assign@^4.1.0:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/object-assign/-/object-assign-4.1.1.tgz#2109adc7965887cfc05cbbd442cac8bfbb360863"
 
-opencv-build@0.0.11:
+opencv-build@^0.0.11:
   version "0.0.11"
   resolved "https://registry.yarnpkg.com/opencv-build/-/opencv-build-0.0.11.tgz#082d36f8d1364ff8d1ba21f18403515b8a1bd0a1"
   dependencies:
     npmlog "^4.1.2"
 
 opencv4nodejs@^4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/opencv4nodejs/-/opencv4nodejs-4.1.0.tgz#4ea25b4c7e5e657cacbe3d4e30001d706116f256"
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/opencv4nodejs/-/opencv4nodejs-4.2.0.tgz#11b46e27cabb0554923a7c919526ab153b8cd3e2"
   dependencies:
     macro-inferno "^0.2.1"
     nan "^2.7.0"
-    native-node-utils "0.0.4"
-    opencv-build "0.0.11"
+    native-node-utils "0.1.2"
+    opencv-build "^0.0.11"
   optionalDependencies:
     "@types/node" ">6"
 
