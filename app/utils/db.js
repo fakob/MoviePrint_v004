@@ -1,5 +1,5 @@
 import Dexie from 'dexie';
-import FileObject from '../utils/fileObject';
+import FileObject from './fileObject';
 
 // Force debug mode to get async stacks from exceptions.
 Dexie.debug = true; // In production, set to false to increase performance a little.
