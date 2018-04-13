@@ -1,12 +1,12 @@
 import html2canvas from 'html2canvas';
 import path from 'path';
-import imageDB from './../utils/db';
+// import imageDB from './../utils/db';
 
 const fs = require('fs');
 const randomColor = require('randomcolor');
 
 const { ipcRenderer } = require('electron');
-const { app } = require('electron').remote;
+// const { app } = require('electron').remote;
 
 export const clearCache = (win) => {
   win.webContents.session.getCacheSize((cacheSizeBefore) => {
@@ -135,22 +135,22 @@ export const saveBlob = (blob, fileName) => {
 export const saveThumb = (fileName, frameNumber, frameId) => {
   const newFilePathAndName = getFilePathAndName(fileName, `-frame${frameNumber}`, 'png');
 
-  return imageDB.frameList.where('frameId').equals(frameId).toArray().then((frames) => {
-    console.log(frames[0]);
-    const reader = new FileReader();
-
-    // This event is triggered each time the reading operation is successfully completed.
-    reader.onload = () => {
-      if (reader.readyState === 2) {
-        const buffer = Buffer.from(reader.result);
-        ipcRenderer.send('send-save-file', newFilePathAndName, buffer);
-        console.log(`Saving ${JSON.stringify({ newFilePathAndName, size: frames[0].data.size })}`);
-      }
-    };
-
-    reader.readAsArrayBuffer(frames[0].data);
-    return true;
-  });
+  // return imageDB.frameList.where('frameId').equals(frameId).toArray().then((frames) => {
+  //   console.log(frames[0]);
+  //   const reader = new FileReader();
+  //
+  //   // This event is triggered each time the reading operation is successfully completed.
+  //   reader.onload = () => {
+  //     if (reader.readyState === 2) {
+  //       const buffer = Buffer.from(reader.result);
+  //       ipcRenderer.send('send-save-file', newFilePathAndName, buffer);
+  //       console.log(`Saving ${JSON.stringify({ newFilePathAndName, size: frames[0].data.size })}`);
+  //     }
+  //   };
+  //
+  //   reader.readAsArrayBuffer(frames[0].data);
+  //   return true;
+  // });
 };
 
 function getMimeType(outputFormat) {
@@ -188,7 +188,8 @@ export const getFilePathAndName = (
   fileName,
   postfix = '',
   outputFormat,
-  exportPath = app.getPath('desktop'),
+  // exportPath = app.getPath('desktop'),
+  exportPath = '',
   overwrite = false
 ) => {
   // in case there is no file loaded give standard name
