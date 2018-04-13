@@ -7,12 +7,13 @@ import { Popup } from 'semantic-ui-react';
 import {
   MINIMUM_WIDTH_TO_SHRINK_HOVER, MINIMUM_WIDTH_TO_SHOW_HOVER,
   VERTICAL_OFFSET_OF_INOUTPOINT_POPUP
-} from '../utils/constants'
+} from '../utils/constants';
 import styles from './ThumbGrid.css';
 
 import inPoint from './../img/Thumb_IN.png';
 import outPoint from './../img/Thumb_OUT.png';
 import handleWide from './../img/Thumb_HANDLE_wide.png';
+import save from './../img/Thumb_SAVE.png';
 import hide from './../img/Thumb_HIDE.png';
 import show from './../img/Thumb_SHOW.png';
 import transparent from './../img/Thumb_TRANSPARENT.png';
@@ -188,9 +189,8 @@ const Thumb = ({
             display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
             transformOrigin: 'center bottom',
             transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-            transform: 'translateX(-50%)',
             position: 'absolute',
-            bottom: 0,
+            top: 0,
             left: '50%',
           }}
           className={styles.hoverButton}
@@ -201,8 +201,8 @@ const Thumb = ({
           onBlur={out}
         >
           <img
-            src={outPoint}
-            className={styles.outPoint}
+            src={save}
+            className={styles.save}
             alt=""
           />
         </button>

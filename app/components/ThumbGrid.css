@@ -135,30 +135,31 @@
   opacity: 0.5;
 }
 
-.back {
+/* .back {
   position: absolute;
   outline:none;
   bottom: 0;
   left: calc(50% - 24px - 48px);
   opacity: 0.5;
-}
+} */
 
-.scrub {
+.save {
   position: absolute;
   outline:none;
-  bottom: 0;
-  left: calc(50% - 24px);
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
   opacity: 0.5;
   cursor: col-resize;
 }
 
-.forward {
+/* .forward {
   position: absolute;
   outline:none;
   bottom: 0;
   left: calc(50% + 24px);
   opacity: 0.5;
-}
+} */
 
 .outPoint {
   position: absolute;

@@ -1,12 +1,12 @@
 import html2canvas from 'html2canvas';
 import path from 'path';
-import imageDB from './../utils/db';
+import imageDB from './db';
 
 const fs = require('fs');
 const randomColor = require('randomcolor');
 
 const { ipcRenderer } = require('electron');
-const { app } = require('electron').remote;
+// const { app } = require('electron').remote;
 
 export const clearCache = (win) => {
   win.webContents.session.getCacheSize((cacheSizeBefore) => {
@@ -184,11 +184,12 @@ export const getMoviePrintColor = (count) => {
   return newColorArray;
 };
 
-export const getFilePathAndName = (
+const getFilePathAndName = (
   fileName,
   postfix = '',
   outputFormat,
-  exportPath = app.getPath('desktop'),
+  exportPath = '',
+  // exportPath = app.getPath('desktop'),
   overwrite = false
 ) => {
   // in case there is no file loaded give standard name
@@ -214,26 +215,8 @@ export const getFilePathAndName = (
 export const saveMoviePrint = (elementId, exportPath, file, scale, outputFormat, overwrite) => {
   console.log(file);
   const node = document.getElementById(elementId);
-  // const node = document.getElementById('ThumbGrid');1
 
   const newFilePathAndName = getFilePathAndName(file.name, '_MoviePrint', outputFormat, exportPath, overwrite);
-  // // in case there is no file loaded give standard name
-  // let newFileName = file !== undefined ? `${file.name}_MoviePrint.${outputFormat}` :
-  //   `MoviePrint.${outputFormat}`;
-  // let newFilePathAndName = path.join(exportPath, newFileName);
-  //
-  // if (!overwrite) {
-  //   if (fs.existsSync(newFilePathAndName)) {
-  //     for (let i = 1; i < 1000; i += 1) {
-  //       newFileName = file !== undefined ? `${file.name}_MoviePrint copy ${i}.${outputFormat}` :
-  //         `MoviePrint copy ${i}.${outputFormat}`;
-  //       newFilePathAndName = path.join(exportPath, newFileName);
-  //       if (!fs.existsSync(newFilePathAndName)) {
-  //         break;
-  //       }
-  //     }
-  //   }
-  // }
 
   const qualityArgument = 0.8; // only applicable for jpg
 
