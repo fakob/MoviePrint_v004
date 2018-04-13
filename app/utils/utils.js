@@ -6,7 +6,7 @@ const fs = require('fs');
 const randomColor = require('randomcolor');
 
 const { ipcRenderer } = require('electron');
-const { app } = require('electron').remote;
+// const { app } = require('electron').remote;
 
 export const clearCache = (win) => {
   win.webContents.session.getCacheSize((cacheSizeBefore) => {
@@ -188,7 +188,8 @@ export const getFilePathAndName = (
   fileName,
   postfix = '',
   outputFormat,
-  exportPath = app.getPath('desktop'),
+  exportPath = '',
+  // exportPath = app.getPath('desktop'),
   overwrite = false
 ) => {
   // in case there is no file loaded give standard name
