@@ -519,7 +519,9 @@ class App extends Component {
         this.props.file,
         this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
         this.props.settings.defaultOutputFormat,
-        this.props.settings.defaultSaveOptionOverwrite
+        this.props.settings.defaultSaveOptionOverwrite,
+        true,
+        this.props.thumbs
       )
     );
   }
@@ -999,7 +1001,15 @@ class App extends Component {
 
 const mapStateToProps = state => {
   const tempCurrentFileId = state.undoGroup.present.settings.currentFileId;
+  const tempThumbs = (state.undoGroup.present
+    .thumbsByFileId[tempCurrentFileId] === undefined)
+    ? undefined : state.undoGroup.present
+      .thumbsByFileId[tempCurrentFileId].thumbs;
   return {
+    thumbs: getVisibleThumbs(
+      tempThumbs,
+      state.visibilitySettings.visibilityFilter
+    ),
     currentFileId: tempCurrentFileId,
     files: state.undoGroup.present.files,
     file: state.undoGroup.present.files

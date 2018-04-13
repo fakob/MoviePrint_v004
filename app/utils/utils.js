@@ -6,7 +6,7 @@ const fs = require('fs');
 const randomColor = require('randomcolor');
 
 const { ipcRenderer } = require('electron');
-// const { app } = require('electron').remote;
+const { app } = require('electron').remote;
 
 export const clearCache = (win) => {
   win.webContents.session.getCacheSize((cacheSizeBefore) => {
@@ -188,8 +188,8 @@ const getFilePathAndName = (
   fileName,
   postfix = '',
   outputFormat,
-  exportPath = '',
-  // exportPath = app.getPath('desktop'),
+  // exportPath = '',
+  exportPath = app.getPath('desktop'),
   overwrite = false
 ) => {
   // in case there is no file loaded give standard name
@@ -212,7 +212,7 @@ const getFilePathAndName = (
   return newFilePathAndName;
 };
 
-export const saveMoviePrint = (elementId, exportPath, file, scale, outputFormat, overwrite) => {
+export const saveMoviePrint = (elementId, exportPath, file, scale, outputFormat, overwrite, saveIndividualThumbs = false, thumbs) => {
   console.log(file);
   const node = document.getElementById(elementId);
 
@@ -232,6 +232,12 @@ export const saveMoviePrint = (elementId, exportPath, file, scale, outputFormat,
       saveBlob(blob, newFilePathAndName);
     }, getMimeType(outputFormat), qualityArgument);
   });
+
+  if (saveIndividualThumbs) {
+    thumbs.map(thumb => {
+      saveThumb(file.name, thumb.frameNumber, thumb.frameId);
+    });
+  }
 };
 
 export const getLowestFrame = (thumbs) => {
