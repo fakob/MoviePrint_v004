@@ -216,7 +216,7 @@ class VideoPlayer extends Component {
   onApplyClick = () => {
     const { store } = this.context;
     const newPositionRatio = ((this.state.currentTime * 1.0) / this.state.duration);
-    const newFrameNumber = newPositionRatio * this.props.file.frameCount;
+    const newFrameNumber = Math.round(newPositionRatio * this.props.file.frameCount);
     store.dispatch(changeThumb(this.props.file, this.props.selectedThumbId, newFrameNumber));
     // this.props.setNewFrame(this.props.selectedThumbId, newPositionRatio);
   }
@@ -224,7 +224,7 @@ class VideoPlayer extends Component {
   onAddClick = () => {
     const { store } = this.context;
     const newPositionRatio = ((this.state.currentTime * 1.0) / this.state.duration);
-    const newFrameNumber = newPositionRatio * this.props.file.frameCount;
+    const newFrameNumber = Math.round(newPositionRatio * this.props.file.frameCount);
     store.dispatch(addThumb(this.props.file, newFrameNumber, this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index + 1));
   }
 
