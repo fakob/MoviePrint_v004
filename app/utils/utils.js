@@ -155,7 +155,7 @@ export const saveThumb = (fileName, frameNumber, frameId, saveToFolder = '', ove
     ensureDirectoryExistence(newFolderName);
   }
 
-  const newFilePathObject = getFilePathObject(fileName, `-frame${frameNumber}`, 'png', newFolderName, overwrite);
+  const newFilePathObject = getFilePathObject(fileName, `-frame${pad(frameNumber, 6)}`, 'png', newFolderName, overwrite);
   const newFilePathAndName = pathR.join(
     newFilePathObject.dir,
     newFilePathObject.base
