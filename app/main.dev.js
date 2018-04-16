@@ -12,15 +12,14 @@
  */
 import { app, BrowserWindow, ipcMain, globalShortcut, shell } from 'electron';
 // import opencv from 'opencv';
+import path from 'path';
+import fs from 'fs';
+
 import MenuBuilder from './menu';
 import VideoCaptureProperties from './utils/videoCaptureProperties';
-import { limitRange } from './utils/utils';
+import { limitRange } from './utils/utilsForMain';
 
 const opencv = require('opencv4nodejs');
-
-const path = require('path');
-const fs = require('fs');
-const os = require('os');
 
 const searchLimit = 100; // how long to go forward or backward to find a none-empty frame
 

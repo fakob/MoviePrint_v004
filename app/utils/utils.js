@@ -1,12 +1,12 @@
 import html2canvas from 'html2canvas';
-import path from 'path';
-import imageDB from './db';
+import pathR from 'path';
+import fsR from 'fs';
+// import imageDB from './db';
 
-const fs = require('fs');
 const randomColor = require('randomcolor');
 
 const { ipcRenderer } = require('electron');
-const { app } = require('electron').remote;
+// const { app } = require('electron').remote;
 
 export const clearCache = (win) => {
   win.webContents.session.getCacheSize((cacheSizeBefore) => {
@@ -195,15 +195,15 @@ const getFilePathAndName = (
   // in case there is no file loaded give standard name
   let newFileName = fileName !== undefined ? `${fileName}${postfix}.${outputFormat}` :
     `MoviePrint.${outputFormat}`;
-  let newFilePathAndName = path.join(exportPath, newFileName);
+  let newFilePathAndName = pathR.join(exportPath, newFileName);
 
   if (!overwrite) {
-    if (fs.existsSync(newFilePathAndName)) {
+    if (fsR.existsSync(newFilePathAndName)) {
       for (let i = 1; i < 1000; i += 1) {
         newFileName = fileName !== undefined ? `${fileName}${postfix} copy ${i}.${outputFormat}` :
           `MoviePrint copy ${i}.${outputFormat}`;
-        newFilePathAndName = path.join(exportPath, newFileName);
-        if (!fs.existsSync(newFilePathAndName)) {
+        newFilePathAndName = pathR.join(exportPath, newFileName);
+        if (!fsR.existsSync(newFilePathAndName)) {
           break;
         }
       }
