@@ -27,7 +27,7 @@ const initialStateJSON = {
       defaultOutputPath: app.getPath('desktop'),
       defaultOutputFormat: 'png',
       defaultSaveOptionOverwrite: false,
-      defaultSaveOptionSaveIndividual: true,
+      defaultSaveOptionIncludeIndividual: false,
       defaultVideoPlayerHeight: 360,
       defaultVideoPlayerControllerHeight: 64,
       defaultBorderMargin: 24,

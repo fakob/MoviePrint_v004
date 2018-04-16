@@ -56,6 +56,7 @@ class SettingsList extends Component {
     this.onChangeThumbInfo = this.onChangeThumbInfo.bind(this);
     this.onChangeOutputFormat = this.onChangeOutputFormat.bind(this);
     this.onChangeOverwrite = this.onChangeOverwrite.bind(this);
+    this.onChangeIncludeIndividual = this.onChangeIncludeIndividual.bind(this);
     this.onChangeThumbnailScale = this.onChangeThumbnailScale.bind(this);
   }
 
@@ -85,6 +86,10 @@ class SettingsList extends Component {
 
   onChangeOverwrite = (e, { checked }) => {
     this.props.onOverwriteClick(checked);
+  }
+
+  onChangeIncludeIndividual = (e, { checked }) => {
+    this.props.onIncludeIndividualClick(checked);
   }
 
   onChangeThumbnailScale = (e, { value }) => {
@@ -372,14 +377,17 @@ class SettingsList extends Component {
                     onChange={this.onChangeOverwrite}
                   />
                 </List.Item>
-                {/* <List.Item>
-                  <Checkbox label={
-                    <label className={styles.label}>
-                      Save individual frames
-                    </label>
+                <List.Item>
+                  <Checkbox
+                    label={
+                      <label className={styles.label}>
+                        Include individual thumbs
+                      </label>
                     }
+                    checked={this.props.settings.defaultSaveOptionIncludeIndividual}
+                    onChange={this.onChangeIncludeIndividual}
                   />
-                </List.Item> */}
+                </List.Item>
               </List>
             </Grid.Column>
           </Grid.Row>

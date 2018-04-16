@@ -147,7 +147,7 @@ export const saveBlob = (blob, fileName) => {
   reader.readAsArrayBuffer(blob);
 };
 
-export const saveThumb = (fileName, frameNumber, frameId, saveToFolder = '') => {
+export const saveThumb = (fileName, frameNumber, frameId, saveToFolder = '', overwrite = false) => {
   // save thumbs in folder with the same name as moviePrint
   let newFolderName = app.getPath('desktop');
   if (saveToFolder) {
@@ -155,7 +155,7 @@ export const saveThumb = (fileName, frameNumber, frameId, saveToFolder = '') => 
     ensureDirectoryExistence(newFolderName);
   }
 
-  const newFilePathObject = getFilePathObject(fileName, `-frame${frameNumber}`, 'png', newFolderName);
+  const newFilePathObject = getFilePathObject(fileName, `-frame${frameNumber}`, 'png', newFolderName, overwrite);
   const newFilePathAndName = pathR.join(
     newFilePathObject.dir,
     newFilePathObject.base
@@ -270,7 +270,7 @@ export const saveMoviePrint = (elementId, exportPath, file, scale, outputFormat,
 
   if (saveIndividualThumbs) {
     thumbs.map(thumb => {
-      saveThumb(newFilePathObject.name, thumb.frameNumber, thumb.frameId, newFilePathAndNameWithoutExtension);
+      saveThumb(newFilePathObject.name, thumb.frameNumber, thumb.frameId, newFilePathAndNameWithoutExtension, overwrite);
     });
   }
 };

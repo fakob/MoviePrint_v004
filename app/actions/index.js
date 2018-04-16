@@ -163,10 +163,10 @@ export const setDefaultSaveOptionOverwrite = (defaultSaveOptionOverwrite) => {
   };
 };
 
-export const setDefaultSaveOptionSaveIndividual = (defaultSaveOptionSaveIndividual) => {
+export const setDefaultSaveOptionIncludeIndividual = (defaultSaveOptionIncludeIndividual) => {
   return {
-    type: 'SET_DEFAULT_SAVE_OPTION_SAVE_INDIVIDUAL',
-    defaultSaveOptionSaveIndividual
+    type: 'SET_DEFAULT_SAVE_OPTION_INCLUDE_INDIVIDUAL',
+    defaultSaveOptionIncludeIndividual
   };
 };
 

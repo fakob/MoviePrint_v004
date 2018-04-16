@@ -24,8 +24,11 @@ const settings = (state = {}, action) => {
       return { ...state, defaultOutputFormat: action.defaultOutputFormat };
     case 'SET_DEFAULT_SAVE_OPTION_OVERWRITE':
       return { ...state, defaultSaveOptionOverwrite: action.defaultSaveOptionOverwrite };
-    case 'SET_DEFAULT_SAVE_OPTION_SAVE_INDIVIDUAL':
-      return { ...state, defaultSaveOptionSaveIndividual: action.defaultSaveOptionSaveIndividual };
+    case 'SET_DEFAULT_SAVE_OPTION_INCLUDE_INDIVIDUAL':
+      return {
+        ...state,
+        defaultSaveOptionIncludeIndividual: action.defaultSaveOptionIncludeIndividual
+      };
     default:
       return state;
   }

@@ -20,7 +20,7 @@ import {
   setVisibilityFilter, setCurrentFileId, updateFileColumnCount,
   updateFileDetails, clearThumbs, updateThumbImage, setDefaultMarginRatio, setDefaultShowHeader,
   setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat,
-  setDefaultSaveOptionOverwrite, setDefaultThumbnailScale,
+  setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
   showPlaybar, hidePlaybar
 } from '../actions';
 
@@ -165,6 +165,7 @@ class App extends Component {
     this.onChangeOutputPathClick = this.onChangeOutputPathClick.bind(this);
     this.onOutputFormatClick = this.onOutputFormatClick.bind(this);
     this.onOverwriteClick = this.onOverwriteClick.bind(this);
+    this.onIncludeIndividualClick = this.onIncludeIndividualClick.bind(this);
     this.onThumbnailScaleClick = this.onThumbnailScaleClick.bind(this);
   }
 
@@ -520,7 +521,7 @@ class App extends Component {
         this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
         this.props.settings.defaultOutputFormat,
         this.props.settings.defaultSaveOptionOverwrite,
-        true,
+        this.props.settings.defaultSaveOptionIncludeIndividual,
         this.props.thumbs
       )
     );
@@ -674,6 +675,11 @@ class App extends Component {
     store.dispatch(setDefaultSaveOptionOverwrite(value));
   };
 
+  onIncludeIndividualClick = (value) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultSaveOptionIncludeIndividual(value));
+  };
+
   onThumbnailScaleClick = (value) => {
     const { store } = this.context;
     store.dispatch(setDefaultThumbnailScale(value));
@@ -737,6 +743,7 @@ class App extends Component {
                         onChangeOutputPathClick={this.onChangeOutputPathClick}
                         onOutputFormatClick={this.onOutputFormatClick}
                         onOverwriteClick={this.onOverwriteClick}
+                        onIncludeIndividualClick={this.onIncludeIndividualClick}
                         onThumbnailScaleClick={this.onThumbnailScaleClick}
                       />
                     </div>
