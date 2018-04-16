@@ -2,10 +2,13 @@ const thumb = (state = {}, action, index) => {
   switch (action.type) {
     case 'ADD_THUMB':
       return {
-        thumbId: action.thumbId,
-        index: action.index,
-        text: action.text,
-        hidden: false
+        thumbId: action.payload.thumbId,
+        frameId: action.payload.frameId,
+        frameNumber: action.payload.frameNumber,
+        fileId: action.payload.fileId,
+        index: action.payload.index,
+        text: action.payload.text,
+        hidden: false,
       };
     case 'ADD_DEFAULT_THUMBS':
       return {
@@ -16,7 +19,6 @@ const thumb = (state = {}, action, index) => {
         index,
         text: action.text,
         hidden: false,
-        objectUrl: action.objectUrl
       };
     case 'ADD_THUMB_WITH_DETECT_FACE':
       return {
@@ -24,7 +26,6 @@ const thumb = (state = {}, action, index) => {
         index: action.index,
         text: action.text,
         hidden: false,
-        objectUrl: action.objectUrl
       };
     case 'CHANGE_THUMB':
       if (state.thumbId !== action.payload.thumbId) {
@@ -66,16 +67,17 @@ const thumb = (state = {}, action, index) => {
 
 const thumbsByFileId = (state = [], action) => {
   switch (action.type) {
-    case 'ADD_THUMB':
-      return [
-        //// code to insert thumb anywhere - not working yet
-        //// see https://egghead.io/lessons/javascript-redux-avoiding-array-mutations-with-concat-slice-and-spread
-        // ...state.slice(0, (action.index)),
-        // thumb(undefined, action),
-        // ...state.slice(action.index + 2)
+    case 'ADD_THUMB': {
+      const newArray = state[action.payload.fileId].thumbs.slice();
+      newArray.splice(action.payload.index, 0, action.payload);
+      return {
         ...state,
-        thumb(undefined, action)
-      ];
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          thumbs: newArray
+        }
+      };
+    }
     case 'ADD_DEFAULT_THUMBS':
       return {
         ...state,

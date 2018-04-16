@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
 import { Button, Popup } from 'semantic-ui-react';
-import { changeThumb, addDefaultThumbs } from '../actions';
+import { changeThumb, addDefaultThumbs, addThumb } from '../actions';
 import {
   VERTICAL_OFFSET_OF_INOUTPOINT_POPUP, MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE
 } from '../utils/constants'
@@ -57,6 +57,7 @@ class VideoPlayer extends Component {
     this.onTimelineMouseOver = this.onTimelineMouseOver.bind(this);
     this.onTimelineExit = this.onTimelineExit.bind(this);
     this.onApplyClick = this.onApplyClick.bind(this);
+    this.onAddClick = this.onAddClick.bind(this);
     this.onCancelClick = this.onCancelClick.bind(this);
   }
 
@@ -219,6 +220,14 @@ class VideoPlayer extends Component {
     store.dispatch(changeThumb(this.props.file, this.props.selectedThumbId, newFrameNumber));
     // this.props.setNewFrame(this.props.selectedThumbId, newPositionRatio);
   }
+
+  onAddClick = () => {
+    const { store } = this.context;
+    const newPositionRatio = ((this.state.currentTime * 1.0) / this.state.duration);
+    const newFrameNumber = newPositionRatio * this.props.file.frameCount;
+    store.dispatch(addThumb(this.props.file, newFrameNumber, this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index + 1));
+  }
+
   onCancelClick = () => {
     this.props.closeModal();
   }
@@ -332,6 +341,37 @@ class VideoPlayer extends Component {
                 </button>
               }
               content="Choose this frame as thumb"
+              hoverable
+              basic
+              inverted
+              size="mini"
+              mouseEnterDelay={1000}
+              position="top center"
+              className={stylesThumb.popupThumb}
+              verticalOffset={VERTICAL_OFFSET_OF_INOUTPOINT_POPUP}
+              horizontalOffset={this.state.videoWidth / 2}
+            />
+            <Popup
+              trigger={
+                <button
+                  className={styles.hoverButton}
+                  onClick={this.onAddClick}
+                  onMouseOver={over}
+                  onMouseLeave={out}
+                  onFocus={over}
+                  onBlur={out}
+                  style={{
+                    display: this.props.selectedThumbId ? 'block' : 'none',
+                  }}
+                >
+                  <img
+                    src={choose}
+                    className={styles.addThumb}
+                    alt=""
+                  />
+                </button>
+              }
+              content="Add this frame as thumb"
               hoverable
               basic
               inverted

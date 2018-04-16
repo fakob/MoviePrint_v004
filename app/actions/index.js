@@ -173,12 +173,44 @@ export const setDefaultSaveOptionIncludeIndividual = (defaultSaveOptionIncludeIn
 
 // thumbs
 
-export const addThumb = (text, index) => {
-  return {
-    type: 'ADD_THUMB',
-    thumbId: uuidV4(),
-    text: text + ' ' + index,
-    index
+export const addThumb = (file, frameNumber, index) => {
+  return (dispatch) => {
+    console.log('inside addThumb');
+    const frameId = uuidV4();
+    const thumbId = uuidV4();
+    const newFrameNumberWithinBoundaries = limitRange(frameNumber, 0, file.frameCount - 1);
+
+    imageDB.frameList.where('[fileId+frameNumber]').equals([file.id, newFrameNumberWithinBoundaries]).toArray().then((frames) => {
+      console.log(frames.length);
+      if (frames.length === 0) {
+        ipcRenderer.send('send-get-thumbs', file.id, file.path, [thumbId], [frameId], [newFrameNumberWithinBoundaries]);
+        return dispatch({
+          type: 'ADD_THUMB',
+          payload: {
+            thumbId,
+            frameId,
+            frameNumber,
+            fileId: file.id,
+            index,
+            text: file.name,
+            hidden: false,
+          }
+        });
+      }
+      dispatch({
+        type: 'ADD_THUMB',
+        payload: {
+          thumbId,
+          frameId: frames[0].frameId,
+          frameNumber,
+          fileId: file.id,
+          index,
+          text: file.name,
+          hidden: false,
+        }
+      });
+      return dispatch(updateThumbObjectUrlFromDB(file.id, thumbId, frames[0].frameId, false));
+    });
   };
 };
 

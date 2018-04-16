@@ -137,3 +137,14 @@
     opacity: 0.5;
     /* cursor: col-resize; */
 }
+
+.addThumb {
+    position: absolute;
+    bottom: 0;
+    /* left: calc(50% - 24px); */
+    /* top: 50%; */
+    left: 70%;
+    transform: translate(-50%, 0%);
+    opacity: 0.5;
+    /* cursor: col-resize; */
+}
