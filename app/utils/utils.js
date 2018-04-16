@@ -1,12 +1,27 @@
 import html2canvas from 'html2canvas';
 import pathR from 'path';
 import fsR from 'fs';
-// import imageDB from './db';
+import imageDB from './db';
 
 const randomColor = require('randomcolor');
 
 const { ipcRenderer } = require('electron');
-// const { app } = require('electron').remote;
+const { app } = require('electron').remote;
+
+const ensureDirectoryExistence = (filePath, isDirectory = true) => {
+  let dirname;
+  if (isDirectory) {
+    dirname = filePath;
+  } else {
+    dirname = pathR.dirname(filePath);
+  }
+  console.log(dirname);
+  if (fsR.existsSync(dirname)) {
+    return true;
+  }
+  ensureDirectoryExistence(dirname, false);
+  fsR.mkdirSync(dirname);
+};
 
 export const clearCache = (win) => {
   win.webContents.session.getCacheSize((cacheSizeBefore) => {
@@ -132,8 +147,19 @@ export const saveBlob = (blob, fileName) => {
   reader.readAsArrayBuffer(blob);
 };
 
-export const saveThumb = (fileName, frameNumber, frameId) => {
-  const newFilePathAndName = getFilePathAndName(fileName, `-frame${frameNumber}`, 'png');
+export const saveThumb = (fileName, frameNumber, frameId, saveToFolder = '') => {
+  // save thumbs in folder with the same name as moviePrint
+  let newFolderName = app.getPath('desktop');
+  if (saveToFolder) {
+    newFolderName = saveToFolder;
+    ensureDirectoryExistence(newFolderName);
+  }
+
+  const newFilePathObject = getFilePathObject(fileName, `-frame${frameNumber}`, 'png', newFolderName);
+  const newFilePathAndName = pathR.join(
+    newFilePathObject.dir,
+    newFilePathObject.base
+  );
 
   return imageDB.frameList.where('frameId').equals(frameId).toArray().then((frames) => {
     console.log(frames[0]);
@@ -184,7 +210,7 @@ export const getMoviePrintColor = (count) => {
   return newColorArray;
 };
 
-const getFilePathAndName = (
+const getFilePathObject = (
   fileName,
   postfix = '',
   outputFormat,
@@ -209,19 +235,23 @@ const getFilePathAndName = (
       }
     }
   }
-  return newFilePathAndName;
+  return pathR.parse(newFilePathAndName);
 };
 
 export const saveMoviePrint = (elementId, exportPath, file, scale, outputFormat, overwrite, saveIndividualThumbs = false, thumbs) => {
   console.log(file);
   const node = document.getElementById(elementId);
 
-  const newFilePathAndName = getFilePathAndName(file.name, '_MoviePrint', outputFormat, exportPath, overwrite);
+  const newFilePathObject = getFilePathObject(file.name, '_MoviePrint', outputFormat, exportPath, overwrite);
+  const newFilePathAndName = pathR.join(
+    newFilePathObject.dir,
+    newFilePathObject.base
+  );
 
   const qualityArgument = 0.8; // only applicable for jpg
 
-  console.log(newFilePathAndName);
-  console.log(node);
+  // console.log(newFilePathAndName);
+  // console.log(node);
 
   html2canvas(node, {
     backgroundColor: null,
@@ -233,9 +263,14 @@ export const saveMoviePrint = (elementId, exportPath, file, scale, outputFormat,
     }, getMimeType(outputFormat), qualityArgument);
   });
 
+  const newFilePathAndNameWithoutExtension = pathR.join(
+    newFilePathObject.dir,
+    newFilePathObject.name
+  );
+
   if (saveIndividualThumbs) {
     thumbs.map(thumb => {
-      saveThumb(file.name, thumb.frameNumber, thumb.frameId);
+      saveThumb(newFilePathObject.name, thumb.frameNumber, thumb.frameId, newFilePathAndNameWithoutExtension);
     });
   }
 };
