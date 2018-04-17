@@ -9,7 +9,7 @@ import {
 } from '../actions';
 import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
-import { getLowestFrame, getHighestFrame, getChangeThumbStep, getVisibleThumbs } from '../utils/utils';
+import { getNextThumb, getPreviousThumb, getLowestFrame, getHighestFrame, getChangeThumbStep, getVisibleThumbs } from '../utils/utils';
 import saveThumb from '../utils/saveThumb';
 
 class SortedVisibleThumbGrid extends Component {
@@ -184,6 +184,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
         getLowestFrame(thumbs),
         frameNumber
       ));
+      // getPreviousThumb(thumbs, thumbId);
     },
     onSaveThumbClick: (fileName, frameNumber, frameId) => {
       console.log(fileName);

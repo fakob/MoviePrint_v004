@@ -205,6 +205,20 @@ export const getHighestFrame = (thumbs) => {
   );
 };
 
+export const getPreviousThumb = (thumbs, thumbId) => {
+  const currentIndex = thumbs.find((thumb) => thumb.thumbId === thumbId).index;
+  const newIndex = ((currentIndex - 1) >= 0) ? (currentIndex - 1) : (thumbs.length - 1);
+  // console.log(thumbs[newIndex]);
+  return (thumbs[newIndex]);
+};
+
+export const getNextThumb = (thumbs, thumbId) => {
+  const currentIndex = thumbs.find((thumb) => thumb.thumbId === thumbId).index;
+  const newIndex = ((currentIndex + 1) < thumbs.length) ? (currentIndex + 1) : 0;
+  // console.log(thumbs[newIndex]);
+  return (thumbs[newIndex]);
+};
+
 export const getChangeThumbStep = (index) => {
   const changeThumbStep = [1, 10, 100];
   return changeThumbStep[index];
