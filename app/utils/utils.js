@@ -89,6 +89,11 @@ export const pad = (num, size) => {
   return undefined;
 };
 
+export const secondsToFrameCount = (seconds = 0, fps = 25) => {
+  const frames = Math.round(seconds * fps * 1.0);
+  return frames;
+};
+
 export const frameCountToSeconds = (frames, fps = 25) => {
   const seconds = (frames !== undefined ? ((frames * 1.0) / fps) : 0);
   return seconds;
