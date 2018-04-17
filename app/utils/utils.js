@@ -2,11 +2,7 @@ import pathR from 'path';
 import fsR from 'fs';
 
 const randomColor = require('randomcolor');
-
 const { ipcRenderer } = require('electron');
-// const { app } = require('electron').remote;
-// const imageDB = require('./db.js');
-
 
 export const ensureDirectoryExistence = (filePath, isDirectory = true) => {
   let dirname;
