@@ -1,14 +1,15 @@
 import html2canvas from 'html2canvas';
 import pathR from 'path';
 import fsR from 'fs';
-import imageDB from './db';
 
 const randomColor = require('randomcolor');
 
 const { ipcRenderer } = require('electron');
-const { app } = require('electron').remote;
+// const { app } = require('electron').remote;
+// const imageDB = require('./db.js');
 
-const ensureDirectoryExistence = (filePath, isDirectory = true) => {
+
+export const ensureDirectoryExistence = (filePath, isDirectory = true) => {
   let dirname;
   if (isDirectory) {
     dirname = filePath;
@@ -147,38 +148,6 @@ export const saveBlob = (blob, fileName) => {
   reader.readAsArrayBuffer(blob);
 };
 
-export const saveThumb = (fileName, frameNumber, frameId, saveToFolder = '', overwrite = false) => {
-  // save thumbs in folder with the same name as moviePrint
-  let newFolderName = app.getPath('desktop');
-  if (saveToFolder) {
-    newFolderName = saveToFolder;
-    ensureDirectoryExistence(newFolderName);
-  }
-
-  const newFilePathObject = getFilePathObject(fileName, `-frame${pad(frameNumber, 6)}`, 'png', newFolderName, overwrite);
-  const newFilePathAndName = pathR.join(
-    newFilePathObject.dir,
-    newFilePathObject.base
-  );
-
-  return imageDB.frameList.where('frameId').equals(frameId).toArray().then((frames) => {
-    console.log(frames[0]);
-    const reader = new FileReader();
-
-    // This event is triggered each time the reading operation is successfully completed.
-    reader.onload = () => {
-      if (reader.readyState === 2) {
-        const buffer = Buffer.from(reader.result);
-        ipcRenderer.send('send-save-file', newFilePathAndName, buffer);
-        console.log(`Saving ${JSON.stringify({ newFilePathAndName, size: frames[0].data.size })}`);
-      }
-    };
-
-    reader.readAsArrayBuffer(frames[0].data);
-    return true;
-  });
-};
-
 function getMimeType(outputFormat) {
   switch (outputFormat) {
     case 'png':
@@ -210,7 +179,7 @@ export const getMoviePrintColor = (count) => {
   return newColorArray;
 };
 
-const getFilePathObject = (
+export const getFilePathObject = (
   fileName,
   postfix = '',
   outputFormat,

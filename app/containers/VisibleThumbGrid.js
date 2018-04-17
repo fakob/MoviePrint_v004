@@ -9,7 +9,8 @@ import {
 } from '../actions';
 import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
-import { saveThumb, getLowestFrame, getHighestFrame, getChangeThumbStep, getVisibleThumbs } from '../utils/utils';
+import { getLowestFrame, getHighestFrame, getChangeThumbStep, getVisibleThumbs } from '../utils/utils';
+import saveThumb from '../utils/saveThumb';
 
 class SortedVisibleThumbGrid extends Component {
   constructor(props) {
