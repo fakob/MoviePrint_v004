@@ -132,9 +132,17 @@ class App extends Component {
       outputScaleCompensator: 1,
       accept: 'video/*',
       dropzoneActive: false,
+      keyObject: {
+        shiftKey: false,
+        altKey: false,
+        ctrlKey: false,
+        metaKey: false,
+        which: undefined
+      }
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
+    this.handleKeyUp = this.handleKeyUp.bind(this);
 
     this.onSelectMethod = this.onSelectMethod.bind(this);
 
@@ -242,6 +250,7 @@ class App extends Component {
     });
 
     document.addEventListener('keydown', this.handleKeyPress);
+    document.addEventListener('keyup', this.handleKeyUp);
 
     this.updatecontainerWidthAndHeight();
     window.addEventListener('resize', this.updatecontainerWidthAndHeight);
@@ -320,6 +329,7 @@ class App extends Component {
 
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeyPress);
+    document.removeEventListener('keyup', this.handleKeyUp);
 
     window.removeEventListener('resize', this.updatecontainerWidthAndHeight);
   }
@@ -347,7 +357,35 @@ class App extends Component {
           break;
         default:
       }
-      console.log(`ctrl:${event.ctrlKey}, shift:${event.shiftKey}, meta:${event.metaKey}, keynum:${event.which}`);
+      this.setState(
+        {
+          keyObject: {
+            shiftKey: event.shiftKey,
+            altKey: event.altKey,
+            ctrlKey: event.ctrlKey,
+            metaKey: event.metaKey,
+            which: event.which
+          }
+        },
+        console.log(`ctrl:${event.ctrlKey}, shift:${event.shiftKey}, alt:${event.altKey}, meta:${event.metaKey}, keynum:${event.which}`)
+      );
+    }
+  }
+
+  handleKeyUp(event) {
+    if (event) {
+      this.setState(
+        {
+          keyObject: {
+            shiftKey: false,
+            altKey: false,
+            ctrlKey: false,
+            metaKey: false,
+            which: undefined
+          }
+        },
+        console.log('keyup')
+      );
     }
   }
 
@@ -767,6 +805,7 @@ class App extends Component {
                             showPlaybar={this.props.visibilitySettings.showPlaybar}
                             frameNumber={this.state.selectedThumbObject ? this.state.selectedThumbObject.frameNumber : 0}
                             selectMethod={this.onSelectMethod}
+                            keyObject={this.state.keyObject}
                           />
                         ) :
                         (

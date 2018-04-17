@@ -20,6 +20,7 @@ import outPointButton from './../img/Thumb_OUT.png';
 import back from './../img/Thumb_BACK.png';
 import forward from './../img/Thumb_FORWARD.png';
 import choose from './../img/Thumb_CHOOSE.png';
+import add from './../img/Thumb_ADD.png';
 import scrub from './../img/Thumb_SCRUB.png';
 import handleWide from './../img/Thumb_HANDLE_wide.png';
 import hide from './../img/Thumb_HIDE.png';
@@ -58,7 +59,6 @@ class VideoPlayer extends Component {
     this.onTimelineMouseOver = this.onTimelineMouseOver.bind(this);
     this.onTimelineExit = this.onTimelineExit.bind(this);
     this.onApplyClick = this.onApplyClick.bind(this);
-    this.onAddClick = this.onAddClick.bind(this);
     this.onCancelClick = this.onCancelClick.bind(this);
   }
 
@@ -225,21 +225,15 @@ class VideoPlayer extends Component {
   onApplyClick = () => {
     const { store } = this.context;
     const newFrameNumber = secondsToFrameCount(this.state.currentTime, this.props.file.fps);
-    store.dispatch(changeThumb(this.props.file, this.props.selectedThumbId, newFrameNumber));
-
-    // move selection to next thumb
-    const nextThumbObject = getNextThumb(this.props.thumbs, this.props.selectedThumbId);
-    this.props.selectMethod(nextThumbObject.thumbId, nextThumbObject.frameNumber);
-  }
-
-  onAddClick = () => {
-    const { store } = this.context;
-    const newFrameNumber = secondsToFrameCount(this.state.currentTime, this.props.file.fps);
-    store.dispatch(addThumb(
-      this.props.file,
-      newFrameNumber,
-      this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index + 1
-    ));
+    if (this.props.keyObject.altKey) {
+      store.dispatch(addThumb(
+        this.props.file,
+        newFrameNumber,
+        this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index + 1
+      ));
+    } else {
+      store.dispatch(changeThumb(this.props.file, this.props.selectedThumbId, newFrameNumber));
+    }
 
     // move selection to next thumb
     const nextThumbObject = getNextThumb(this.props.thumbs, this.props.selectedThumbId);
@@ -352,44 +346,13 @@ class VideoPlayer extends Component {
                   }}
                 >
                   <img
-                    src={choose}
+                    src={this.props.keyObject.altKey ? add : choose}
                     className={styles.choose}
                     alt=""
                   />
                 </button>
               }
               content="Choose this frame as thumb"
-              hoverable
-              basic
-              inverted
-              size="mini"
-              mouseEnterDelay={1000}
-              position="top center"
-              className={stylesThumb.popupThumb}
-              verticalOffset={VERTICAL_OFFSET_OF_INOUTPOINT_POPUP}
-              horizontalOffset={this.state.videoWidth / 2}
-            />
-            <Popup
-              trigger={
-                <button
-                  className={styles.hoverButton}
-                  onClick={this.onAddClick}
-                  onMouseOver={over}
-                  onMouseLeave={out}
-                  onFocus={over}
-                  onBlur={out}
-                  style={{
-                    display: this.props.selectedThumbId ? 'block' : 'none',
-                  }}
-                >
-                  <img
-                    src={choose}
-                    className={styles.addThumb}
-                    alt=""
-                  />
-                </button>
-              }
-              content="Add this frame as thumb"
               hoverable
               basic
               inverted
