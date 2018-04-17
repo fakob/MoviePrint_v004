@@ -64,8 +64,8 @@ class SortedVisibleThumbGrid extends Component {
       .undoGroup.present.settings.currentFileId, newOrderedThumbs));
   };
 
-  onSelectClick = (file, thumbId, frameNumber) => {
-    this.props.selectMethod(file, thumbId, frameNumber);
+  onSelectClick = (thumbId, frameNumber) => {
+    this.props.selectMethod(thumbId, frameNumber);
   }
 
   scrollThumbIntoView = () => {

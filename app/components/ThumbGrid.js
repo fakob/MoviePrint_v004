@@ -129,7 +129,7 @@ const ThumbGrid = ({
         onOut={editGrid ? null : () => onMouseOutResult()}
         onSelect={(editGrid || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => {
-            onSelectClick(file, thumb.thumbId, thumb.frameNumber);
+            onSelectClick(thumb.thumbId, thumb.frameNumber);
           }}
         onThumbDoubleClick={onThumbDoubleClick}
         onToggle={(editGrid || (thumb.thumbId !== controlersAreVisibleId)) ?

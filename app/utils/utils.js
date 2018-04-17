@@ -192,31 +192,47 @@ export const getFilePathObject = (
 };
 
 export const getLowestFrame = (thumbs) => {
-  return thumbs.reduce(
-    (min, p) => (p.frameNumber < min ? p.frameNumber : min),
-    thumbs[0].frameNumber
-  );
+  if (thumbs) {
+    return thumbs.reduce(
+      (min, p) => (p.frameNumber < min ? p.frameNumber : min),
+      thumbs[0].frameNumber
+    );
+  }
 };
 
 export const getHighestFrame = (thumbs) => {
-  return thumbs.reduce(
-    (max, p) => (p.frameNumber > max ? p.frameNumber : max),
-    thumbs[0].frameNumber
-  );
+  if (thumbs) {
+    return thumbs.reduce(
+      (max, p) => (p.frameNumber > max ? p.frameNumber : max),
+      thumbs[0].frameNumber
+    );
+  }
 };
 
 export const getPreviousThumb = (thumbs, thumbId) => {
-  const currentIndex = thumbs.find((thumb) => thumb.thumbId === thumbId).index;
-  const newIndex = ((currentIndex - 1) >= 0) ? (currentIndex - 1) : (thumbs.length - 1);
-  // console.log(thumbs[newIndex]);
-  return (thumbs[newIndex]);
+  if (thumbs) {
+    if (thumbId) {
+      const currentIndex = thumbs.find((thumb) => thumb.thumbId === thumbId).index;
+      const newIndex = ((currentIndex - 1) >= 0) ? (currentIndex - 1) : (thumbs.length - 1);
+      // console.log(thumbs[newIndex]);
+      return thumbs[newIndex];
+    }
+    return thumbs[thumbs.length - 1]; // return last item if no thumbId provided
+  }
+  return undefined; // return undefined if no thumbs provided
 };
 
 export const getNextThumb = (thumbs, thumbId) => {
-  const currentIndex = thumbs.find((thumb) => thumb.thumbId === thumbId).index;
-  const newIndex = ((currentIndex + 1) < thumbs.length) ? (currentIndex + 1) : 0;
-  // console.log(thumbs[newIndex]);
-  return (thumbs[newIndex]);
+  if (thumbs) {
+    if (thumbId) {
+      const currentIndex = thumbs.find((thumb) => thumb.thumbId === thumbId).index;
+      const newIndex = ((currentIndex + 1) < thumbs.length) ? (currentIndex + 1) : 0;
+      // console.log(thumbs[newIndex]);
+      return thumbs[newIndex];
+    }
+    return thumbs[0]; // return first item if no thumbId provided
+  }
+  return undefined; // return undefined if no thumbs provided
 };
 
 export const getChangeThumbStep = (index) => {

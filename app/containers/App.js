@@ -431,7 +431,7 @@ class App extends Component {
     }
   }
 
-  onSelectMethod(file, thumbId, frameNumber) {
+  onSelectMethod(thumbId, frameNumber) {
     this.setState({
       selectedThumbObject: {
         thumbId,
@@ -766,6 +766,7 @@ class App extends Component {
                             selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
                             showPlaybar={this.props.visibilitySettings.showPlaybar}
                             frameNumber={this.state.selectedThumbObject ? this.state.selectedThumbObject.frameNumber : 0}
+                            selectMethod={this.onSelectMethod}
                           />
                         ) :
                         (

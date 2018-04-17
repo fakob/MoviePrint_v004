@@ -9,7 +9,8 @@ import {
 } from '../utils/constants'
 import {
   getLowestFrame, getHighestFrame, getChangeThumbStep, getVisibleThumbs,
-  mapRange, secondsToTimeCode, limitRange, frameCountToSeconds
+  mapRange, secondsToTimeCode, limitRange, frameCountToSeconds,
+  getNextThumb, getPreviousThumb
 } from './../utils/utils';
 import styles from './VideoPlayer.css';
 import stylesThumb from './ThumbGrid.css';
@@ -154,19 +155,21 @@ class VideoPlayer extends Component {
   }
 
   updateTimeFromThumbId(thumbId) {
-    let xPos = 0;
-    let currentTime = 0;
-    if (thumbId) {
-      console.log('updateTimeFromThumbId');
-      const frameNumberOfThumb = this.props.thumbs.find((thumb) => thumb.thumbId === thumbId).frameNumber;
-      const { frameCount } = this.props.file;
-      xPos = mapRange(frameNumberOfThumb, 0, frameCount - 1, 0, this.state.videoWidth, false);
-      currentTime = mapRange(frameNumberOfThumb, 0, frameCount - 1, 0, this.state.duration, false);
+    if (this.props.thumbs) {
+      let xPos = 0;
+      let currentTime = 0;
+      if (thumbId) {
+        console.log('updateTimeFromThumbId');
+        const frameNumberOfThumb = this.props.thumbs.find((thumb) => thumb.thumbId === thumbId).frameNumber;
+        const { frameCount } = this.props.file;
+        xPos = mapRange(frameNumberOfThumb, 0, frameCount - 1, 0, this.state.videoWidth, false);
+        currentTime = mapRange(frameNumberOfThumb, 0, frameCount - 1, 0, this.state.duration, false);
+      }
+      console.log(currentTime);
+      this.setState({ playHeadPosition: xPos });
+      this.setState({ currentTime });
+      this.video.currentTime = currentTime;
     }
-    console.log(currentTime);
-    this.setState({ playHeadPosition: xPos });
-    this.setState({ currentTime });
-    this.video.currentTime = currentTime;
   }
 
   updateTimeFromPosition(xPos) {
@@ -218,7 +221,10 @@ class VideoPlayer extends Component {
     const newPositionRatio = ((this.state.currentTime * 1.0) / this.state.duration);
     const newFrameNumber = Math.round(newPositionRatio * this.props.file.frameCount);
     store.dispatch(changeThumb(this.props.file, this.props.selectedThumbId, newFrameNumber));
-    // this.props.setNewFrame(this.props.selectedThumbId, newPositionRatio);
+
+    // move selection to next thumb
+    const nextThumbObject = getNextThumb(this.props.thumbs, this.props.selectedThumbId);
+    this.props.selectMethod(nextThumbObject.thumbId, nextThumbObject.frameNumber);
   }
 
   onAddClick = () => {
@@ -226,6 +232,10 @@ class VideoPlayer extends Component {
     const newPositionRatio = ((this.state.currentTime * 1.0) / this.state.duration);
     const newFrameNumber = Math.round(newPositionRatio * this.props.file.frameCount);
     store.dispatch(addThumb(this.props.file, newFrameNumber, this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index + 1));
+
+    // move selection to next thumb
+    const nextThumbObject = getNextThumb(this.props.thumbs, this.props.selectedThumbId);
+    this.props.selectMethod(nextThumbObject.thumbId, nextThumbObject.frameNumber);
   }
 
   onCancelClick = () => {
