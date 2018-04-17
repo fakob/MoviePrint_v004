@@ -12,7 +12,8 @@ import SortedVisibleThumbGrid from '../containers/VisibleThumbGrid';
 import ErrorBoundary from '../components/ErrorBoundary';
 import VideoPlayer from '../components/VideoPlayer';
 import ThumbEmpty from '../components/ThumbEmpty';
-import { getLowestFrame, getHighestFrame, getVisibleThumbs, saveMoviePrint, getColumnCount, getThumbsCount, getMoviePrintColor } from '../utils/utils';
+import { getLowestFrame, getHighestFrame, getVisibleThumbs, getColumnCount, getThumbsCount, getMoviePrintColor } from '../utils/utils';
+import saveMoviePrint from '../utils/saveMoviePrint';
 import styles from './App.css';
 import {
   setNewMovieList, toggleLeftSidebar, showRightSidebar, hideRightSidebar,
