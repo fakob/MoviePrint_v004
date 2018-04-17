@@ -155,18 +155,7 @@ export const getMimeType = (outputFormat) => {
 };
 
 export const getMoviePrintColor = (count) => {
-
-  // old static colours
-  // const colorArray = [
-  //   '#FF5006',
-  //   '#FFb709',
-  //   '#FF9365',
-  //   '#FFa883',
-  //   '#FFd3c1',
-  // ];
-
   console.log(`creating new newColorArray[${count}]`);
-
   const newColorArray = randomColor({
     count,
     hue: '#FF5006',

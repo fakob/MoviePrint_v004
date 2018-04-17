@@ -1,3 +1,11 @@
+export const MOVIEPRINT_COLORS = [
+  '#FF5006',
+  '#FFb709',
+  '#FF9365',
+  '#FFa883',
+  '#FFd3c1',
+];
+
 export const DEFAULT_MOVIE_WIDTH = 1920;
 export const DEFAULT_MOVIE_HEIGHT = 1080;
 export const DEFAULT_MOVIE_ASPECTRATIO = 1.778;
