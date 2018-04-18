@@ -86,7 +86,7 @@ class SortedVisibleThumbGrid extends Component {
         ref={this.props.inputRef} // for the saveMoviePrint function
         inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
         // inputRefThumb={this.props.inputRefThumb} // for the thumb scrollIntoView function
-        editGrid={this.props.editGrid}
+        showSettings={this.props.showSettings}
         colorArray={this.props.colorArray}
         thumbs={this.props.thumbs}
         thumbImages={this.props.thumbImages}

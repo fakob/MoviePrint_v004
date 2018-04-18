@@ -13,7 +13,7 @@ const SortableThumb = SortableElement(Thumb);
 const ThumbGrid = ({
   colorArray,
   controlersAreVisibleId,
-  editGrid,
+  showSettings,
   file,
   inputRefThumb,
   onInPointClick,
@@ -63,7 +63,7 @@ const ThumbGrid = ({
 
   let thumbArray;
 
-  if (editGrid || thumbs.length === 0) {
+  if (showSettings || thumbs.length === 0) {
     const tempArrayLength = thumbCount;
     thumbArray = Array(tempArrayLength);
 
@@ -122,25 +122,25 @@ const ThumbGrid = ({
         thumbInfoValue={getThumbInfoValue(settings.defaultThumbInfo, thumb.frameNumber, fps)}
         thumbInfoRatio={settings.defaultThumbInfoRatio}
         hidden={thumb.hidden}
-        controlersAreVisible={editGrid ? undefined : (thumb.thumbId === controlersAreVisibleId)}
-        disabled={editGrid}
+        controlersAreVisible={showSettings ? undefined : (thumb.thumbId === controlersAreVisibleId)}
+        disabled={showSettings}
         selected={selectedThumbId ? (selectedThumbId === thumb.thumbId) : false}
-        onOver={editGrid ? null : () => onMouseOverResult(thumb.thumbId)}
-        onOut={editGrid ? null : () => onMouseOutResult()}
-        onSelect={(editGrid || (thumb.thumbId !== controlersAreVisibleId)) ?
+        onOver={showSettings ? null : () => onMouseOverResult(thumb.thumbId)}
+        onOut={showSettings ? null : () => onMouseOutResult()}
+        onSelect={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => {
             onSelectClick(thumb.thumbId, thumb.frameNumber);
           }}
         onThumbDoubleClick={onThumbDoubleClick}
-        onToggle={(editGrid || (thumb.thumbId !== controlersAreVisibleId)) ?
+        onToggle={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => onToggleClick(file.id, thumb.thumbId)}
-        onRemove={(editGrid || (thumb.thumbId !== controlersAreVisibleId)) ?
+        onRemove={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => onRemoveClick(file.id, thumb.thumbId)}
-        onInPoint={(editGrid || (thumb.thumbId !== controlersAreVisibleId)) ?
+        onInPoint={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => onInPointClick(file, thumbArray, thumb.thumbId, thumb.frameNumber)}
-        onOutPoint={(editGrid || (thumb.thumbId !== controlersAreVisibleId)) ?
+        onOutPoint={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => onOutPointClick(file, thumbArray, thumb.thumbId, thumb.frameNumber)}
-        onSaveThumb={(editGrid || (thumb.thumbId !== controlersAreVisibleId)) ?
+        onSaveThumb={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => onSaveThumbClick(file.name, thumb.frameNumber, thumb.frameId)}
       />))
   );
@@ -183,7 +183,7 @@ ThumbGrid.propTypes = {
   controlersAreVisibleId: PropTypes.string,
   selectedThumbId: PropTypes.string,
   thumbCount: PropTypes.number.isRequired,
-  editGrid: PropTypes.bool.isRequired,
+  showSettings: PropTypes.bool.isRequired,
   scaleValueObject: PropTypes.object.isRequired,
   settings: PropTypes.object.isRequired,
   zoomOut: PropTypes.bool.isRequired,

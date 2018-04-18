@@ -125,19 +125,19 @@
   max-height: 100%;
 }
 
-.ItemLeftSideBar {
+.ItemMovielist {
   transform: translate(-350px, 0);
 }
 
-.ItemRightSideBar {
+.ItemSettings {
   transform: translate(100vw, 0);
 }
 
-.ItemLeftSideBarAnim{
+.ItemMovielistAnim{
   transform: translate(0, 0);
 }
 
-.ItemRightSideBarAnim{
+.ItemSettingsAnim{
   transform: translate(calc(100vw - 350px), 0);
 }
 

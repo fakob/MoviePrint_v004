@@ -8,7 +8,7 @@ import {
 import styles from './Header.css';
 
 const Header = ({
-  file, visibilitySettings, toggleLeftSidebar
+  file, visibilitySettings, toggleMovielist
 }) => {
 
   return (
@@ -19,12 +19,12 @@ const Header = ({
         // widths={3}
       >
         <Menu.Item
-          onClick={toggleLeftSidebar}
+          onClick={toggleMovielist}
         >
           <Icon
             name="list"
           />
-          {(visibilitySettings.showLeftSidebar === false) ? 'Show Movie list' : 'Hide Movie list'}
+          {(visibilitySettings.showMovielist === false) ? 'Show Movie list' : 'Hide Movie list'}
         </Menu.Item>
         <Menu.Item>
           {file.name}

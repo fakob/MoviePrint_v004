@@ -17,7 +17,7 @@ import { getLowestFrame, getHighestFrame, getVisibleThumbs, getColumnCount, getT
 import saveMoviePrint from '../utils/saveMoviePrint';
 import styles from './App.css';
 import {
-  setNewMovieList, toggleLeftSidebar, showRightSidebar, hideRightSidebar,
+  setNewMovieList, toggleMovielist, showSettings, hideSettings,
   zoomIn, zoomOut, addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
   setVisibilityFilter, setCurrentFileId, updateFileColumnCount,
   updateFileDetails, clearThumbs, updateThumbImage, setDefaultMarginRatio, setDefaultShowHeader,
@@ -147,10 +147,10 @@ class App extends Component {
 
     this.onSelectMethod = this.onSelectMethod.bind(this);
 
-    this.hideLeftSidebar = this.hideLeftSidebar.bind(this);
-    this.toggleLeftSidebar = this.toggleLeftSidebar.bind(this);
-    this.editGrid = this.editGrid.bind(this);
-    this.hideEditGrid = this.hideEditGrid.bind(this);
+    this.hideMovielist = this.hideMovielist.bind(this);
+    this.toggleMovielist = this.toggleMovielist.bind(this);
+    this.showSettings = this.showSettings.bind(this);
+    this.hideSettings = this.hideSettings.bind(this);
     this.onShowThumbs = this.onShowThumbs.bind(this);
     this.onViewToggle = this.onViewToggle.bind(this);
     this.onTogglePlaybar = this.onTogglePlaybar.bind(this);
@@ -344,13 +344,13 @@ class App extends Component {
     if (event) {
       switch (event.which) {
         case 49: // press 1
-          this.toggleLeftSidebar();
+          this.toggleMovielist();
           break;
         case 51: // press 3
-          if (store.getState().visibilitySettings.showRightSidebar) {
+          if (store.getState().visibilitySettings.showSettings) {
             this.onCancelClick();
           } else {
-            this.editGrid();
+            this.showSettings();
           }
           break;
         case 80: // press 'p'
@@ -450,8 +450,8 @@ class App extends Component {
     try {
       const containerWidthInner =
         this.siteContent.clientWidth -
-        (this.props.visibilitySettings.showLeftSidebar ? 350 : 0) -
-        (this.props.visibilitySettings.showRightSidebar ? 350 : 0) -
+        (this.props.visibilitySettings.showMovielist ? 350 : 0) -
+        (this.props.visibilitySettings.showSettings ? 350 : 0) -
         (this.props.file ? 0 : 700); // for startup
       const containerHeightInner = this.siteContent.clientHeight -
         (this.props.file ? 0 : 100); // for startup
@@ -479,21 +479,21 @@ class App extends Component {
     });
   }
 
-  hideLeftSidebar() {
+  hideMovielist() {
     const { store } = this.context;
-    if (this.props.visibilitySettings.showLeftSidebar) {
-      store.dispatch(toggleLeftSidebar());
+    if (this.props.visibilitySettings.showMovielist) {
+      store.dispatch(toggleMovielist());
     }
   }
 
-  toggleLeftSidebar() {
+  toggleMovielist() {
     const { store } = this.context;
-    store.dispatch(toggleLeftSidebar());
+    store.dispatch(toggleMovielist());
   }
 
-  editGrid() {
+  showSettings() {
     const { store } = this.context;
-    store.dispatch(showRightSidebar());
+    store.dispatch(showSettings());
     console.log(this.state.columnCount);
     console.log(this.state.thumbCount);
     setColumnAndThumbCount(
@@ -512,9 +512,9 @@ class App extends Component {
     this.switchToPrintView();
   }
 
-  hideEditGrid() {
+  hideSettings() {
     const { store } = this.context;
-    store.dispatch(hideRightSidebar());
+    store.dispatch(hideSettings());
   }
 
   onShowThumbs() {
@@ -534,8 +534,8 @@ class App extends Component {
   onViewToggle() {
     const { store } = this.context;
     if (this.props.visibilitySettings.zoomOut) {
-      this.hideEditGrid();
-      this.hideLeftSidebar();
+      this.hideSettings();
+      this.hideMovielist();
       store.dispatch(zoomIn());
     } else {
       store.dispatch(zoomOut());
@@ -629,7 +629,7 @@ class App extends Component {
         this.state.columnCountTemp
       ));
     }
-    this.hideEditGrid();
+    this.hideSettings();
   };
 
   onCancelClick = () => {
@@ -637,7 +637,7 @@ class App extends Component {
     console.log(this.state.thumbCount);
     this.setState({ columnCountTemp: this.state.columnCount });
     this.setState({ thumbCountTemp: this.state.thumbCount });
-    this.hideEditGrid();
+    this.hideSettings();
   };
 
   onThumbCountChange = (columnCount, thumbCount) => {
@@ -753,15 +753,15 @@ class App extends Component {
                     <Header
                       visibilitySettings={this.props.visibilitySettings}
                       file={this.props.file}
-                      toggleLeftSidebar={this.toggleLeftSidebar}
+                      toggleMovielist={this.toggleMovielist}
                     />
                     <div
-                      className={`${styles.ItemSideBar} ${styles.ItemLeftSideBar} ${this.props.visibilitySettings.showLeftSidebar ? styles.ItemLeftSideBarAnim : ''}`}
+                      className={`${styles.ItemSideBar} ${styles.ItemMovielist} ${this.props.visibilitySettings.showMovielist ? styles.ItemMovielistAnim : ''}`}
                     >
                       <FileList />
                     </div>
                     <div
-                      className={`${styles.ItemSideBar} ${styles.ItemRightSideBar} ${this.props.visibilitySettings.showRightSidebar ? styles.ItemRightSideBarAnim : ''}`}
+                      className={`${styles.ItemSideBar} ${styles.ItemSettings} ${this.props.visibilitySettings.showSettings ? styles.ItemSettingsAnim : ''}`}
                     >
                       <SettingsList
                         settings={this.props.settings}
@@ -794,7 +794,7 @@ class App extends Component {
                     </div>
                     {!this.props.visibilitySettings.zoomOut &&
                       <div
-                        className={`${styles.ItemVideoPlayer} ${this.props.visibilitySettings.showLeftSidebar ? styles.ItemMainLeftAnim : ''}`}
+                        className={`${styles.ItemVideoPlayer} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''}`}
                         style={{
                           top: `${this.props.settings.defaultBorderMargin}px`
                         }}
@@ -835,7 +835,7 @@ class App extends Component {
                     }
                     <div
                       ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
-                      className={`${styles.ItemMain} ${this.props.visibilitySettings.showLeftSidebar ? styles.ItemMainLeftAnim : ''} ${this.props.visibilitySettings.zoomOut ? styles.ItemMainMinHeight : ''} ${this.props.visibilitySettings.showRightSidebar ? styles.ItemMainRightAnim : ''} ${this.props.visibilitySettings.showRightSidebar ? styles.ItemMainEdit : ''} ${!this.props.visibilitySettings.zoomOut ? styles.ItemMainTopAnim : ''}`}
+                      className={`${styles.ItemMain} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''} ${this.props.visibilitySettings.zoomOut ? styles.ItemMainMinHeight : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainRightAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainEdit : ''} ${!this.props.visibilitySettings.zoomOut ? styles.ItemMainTopAnim : ''}`}
                       style={{
                         width: this.props.visibilitySettings.zoomOut ? undefined : this.state.scaleValueObject.newMoviePrintWidth,
                         marginTop: this.props.visibilitySettings.zoomOut ? undefined :
@@ -847,7 +847,7 @@ class App extends Component {
                         <SortedVisibleThumbGrid
                           inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                           // inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
-                          editGrid={this.props.visibilitySettings.showRightSidebar}
+                          showSettings={this.props.visibilitySettings.showSettings}
 
                           containerHeight={this.state.containerHeight}
                           containerWidth={this.state.containerWidth}
@@ -858,7 +858,7 @@ class App extends Component {
                                 parentMethod={this.openModal}
 
                           colorArray={this.state.colorArray}
-                          columnCount={this.props.visibilitySettings.showRightSidebar ?
+                          columnCount={this.props.visibilitySettings.showSettings ?
                             this.state.columnCountTemp :
                             (this.props.file ? this.props.file.columnCount || this.state.columnCountTemp :
                               this.state.columnCountTemp)}
@@ -896,7 +896,7 @@ class App extends Component {
                               <SortedVisibleThumbGrid
                                 inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                                 // inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
-                                editGrid={this.props.visibilitySettings.showRightSidebar}
+                                showSettings={this.props.visibilitySettings.showSettings}
 
                                 containerHeight={this.state.containerHeight}
                                 containerWidth={this.state.containerWidth}
@@ -906,7 +906,7 @@ class App extends Component {
                                 parentMethod={this.openModal}
 
                                 colorArray={this.state.colorArray}
-                                columnCount={this.props.visibilitySettings.showRightSidebar ?
+                                columnCount={this.props.visibilitySettings.showSettings ?
                                   this.state.columnCountTemp :
                                   (this.props.file ? this.props.file.columnCount || this.state.columnCountTemp :
                                     this.state.columnCountTemp)}
@@ -941,7 +941,7 @@ class App extends Component {
                   </div>
                 </div>
                 <Sticky
-                  className={`${styles.FixedActionMenuRight} ${styles.ItemRightSideBar} ${this.props.visibilitySettings.showRightSidebar ? styles.ItemRightSideBarAnim : ''}`}
+                  className={`${styles.FixedActionMenuRight} ${styles.ItemSettings} ${this.props.visibilitySettings.showSettings ? styles.ItemSettingsAnim : ''}`}
                 >
                   <Menu
                     compact
@@ -971,7 +971,7 @@ class App extends Component {
                         Save MoviePrint
                       </Menu.Item>
                     }
-                    {!this.props.visibilitySettings.showRightSidebar &&
+                    {!this.props.visibilitySettings.showSettings &&
                       <Menu.Item
                         name="zoom"
                         onClick={this.onViewToggle}
@@ -986,13 +986,13 @@ class App extends Component {
                     {this.props.visibilitySettings.zoomOut &&
                       <Menu.Item
                         name="edit"
-                        onClick={(this.props.visibilitySettings.showRightSidebar === false) ? this.editGrid : this.hideEditGrid}
+                        onClick={(this.props.visibilitySettings.showSettings === false) ? this.showSettings : this.hideSettings}
                         className={styles.FixedActionMenuFlex}
                       >
                         <Icon
-                          name={(this.props.visibilitySettings.showRightSidebar === false) ? 'edit' : 'edit'}
+                          name={(this.props.visibilitySettings.showSettings === false) ? 'edit' : 'edit'}
                         />
-                        {(this.props.visibilitySettings.showRightSidebar === false) ? 'Customise look' : 'Hide'}
+                        {(this.props.visibilitySettings.showSettings === false) ? 'Customise look' : 'Hide'}
                       </Menu.Item>
                     }
                     {!this.props.visibilitySettings.zoomOut &&
@@ -1010,7 +1010,7 @@ class App extends Component {
                   </Menu>
                 </Sticky>
                 <Sticky
-                  className={`${styles.FixedActionMenuLeft} ${styles.ItemLeftSideBar} ${this.props.visibilitySettings.showLeftSidebar ? styles.ItemLeftSideBarAnim : ''}`}
+                  className={`${styles.FixedActionMenuLeft} ${styles.ItemMovielist} ${this.props.visibilitySettings.showMovielist ? styles.ItemMovielistAnim : ''}`}
                 >
                   <Menu
                     compact
@@ -1021,13 +1021,13 @@ class App extends Component {
                     {true &&
                       <Menu.Item
                         name="list"
-                        onClick={this.toggleLeftSidebar}
+                        onClick={this.toggleMovielist}
                         className={styles.FixedActionMenuFlex}
                       >
                         <Icon
                           name="list"
                         />
-                        {(this.props.visibilitySettings.showLeftSidebar === false) ? 'Movies' : 'Hide'}
+                        {(this.props.visibilitySettings.showMovielist === false) ? 'Movies' : 'Hide'}
                       </Menu.Item>
                     }
 

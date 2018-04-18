@@ -2,18 +2,18 @@ const visibilitySettings = (state = {}, action) => {
   switch (action.type) {
     case 'SET_VISIBILITY_FILTER':
       return { ...state, visibilityFilter: action.filter };
-    case 'TOGGLE_LEFT_SIDEBAR':
-      return { ...state, showLeftSidebar: !state.showLeftSidebar };
-    case 'SHOW_LEFT_SIDEBAR':
-      return { ...state, showLeftSidebar: true };
-    case 'HIDE_LEFT_SIDEBAR':
-      return { ...state, showLeftSidebar: false };
-    case 'TOGGLE_RIGHT_SIDEBAR':
-      return { ...state, showRightSidebar: !state.showRightSidebar };
-    case 'SHOW_RIGHT_SIDEBAR':
-      return { ...state, showRightSidebar: true };
-    case 'HIDE_RIGHT_SIDEBAR':
-      return { ...state, showRightSidebar: false };
+    case 'TOGGLE_MOVIELIST':
+      return { ...state, showMovielist: !state.showMovielist };
+    case 'SHOW_MOVIELIST':
+      return { ...state, showMovielist: true };
+    case 'HIDE_MOVIELIST':
+      return { ...state, showMovielist: false };
+    case 'TOGGLE_SETTINGS':
+      return { ...state, showSettings: !state.showSettings };
+    case 'SHOW_SETTINGS':
+      return { ...state, showSettings: true };
+    case 'HIDE_SETTINGS':
+      return { ...state, showSettings: false };
     case 'TOGGLE_PLAYBAR':
       return { ...state, showPlaybar: !state.showPlaybar };
     case 'SHOW_PLAYBAR':

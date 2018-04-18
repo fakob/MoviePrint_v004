@@ -12,39 +12,39 @@ export const setVisibilityFilter = (filter) => {
   };
 };
 
-export const toggleLeftSidebar = () => {
+export const toggleMovielist = () => {
   return {
-    type: 'TOGGLE_LEFT_SIDEBAR'
+    type: 'TOGGLE_MOVIELIST'
   };
 };
 
-export const showLeftSidebar = () => {
+export const showMovielist = () => {
   return {
-    type: 'SHOW_LEFT_SIDEBAR'
+    type: 'SHOW_MOVIELIST'
   };
 };
 
-export const hideLeftSidebar = () => {
+export const hideMovielist = () => {
   return {
-    type: 'HIDE_LEFT_SIDEBAR'
+    type: 'HIDE_MOVIELIST'
   };
 };
 
-export const toggleRightSidebar = () => {
+export const toggleSettings = () => {
   return {
-    type: 'TOGGLE_RIGHT_SIDEBAR'
+    type: 'TOGGLE_SETTINGS'
   };
 };
 
-export const showRightSidebar = () => {
+export const showSettings = () => {
   return {
-    type: 'SHOW_RIGHT_SIDEBAR'
+    type: 'SHOW_SETTINGS'
   };
 };
 
-export const hideRightSidebar = () => {
+export const hideSettings = () => {
   return {
-    type: 'HIDE_RIGHT_SIDEBAR'
+    type: 'HIDE_SETTINGS'
   };
 };
 
