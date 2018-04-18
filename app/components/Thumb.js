@@ -127,6 +127,30 @@ const Thumb = ({
         <button
           style={{
             display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+            transformOrigin: 'center top',
+            transform: `translate(-50%, 10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+          }}
+          className={`${styles.hoverButton} ${styles.hide}`}
+          onClick={onToggle}
+          onMouseOver={over}
+          onMouseLeave={out}
+          onFocus={over}
+          onBlur={out}
+        >
+          <Icon
+            inverted
+            name={hidden ? 'unhide' : 'hide'}
+            className={styles.opaque}
+          />
+          {/* <img
+            src={hidden ? show : hide}
+            className={styles.hide}
+            alt=""
+          /> */}
+        </button>
+        <button
+          style={{
+            display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
             transformOrigin: 'top right',
             transform: `translate(-50%, 10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
           }}
@@ -156,43 +180,52 @@ const Thumb = ({
             position: 'absolute',
             bottom: 0,
             left: 0,
+            marginLeft: '8px',
           }}
-          className={styles.hoverButton}
+          className={`${styles.hoverButton} ${styles.textButton}`}
           onClick={onInPoint}
           onMouseOver={over}
           onMouseLeave={out}
           onFocus={over}
           onBlur={out}
         >
-          <img
-            src={inPoint}
-            className={styles.inPoint}
-            alt=""
-          />
+          IN
         </button>
-        <button
+        {/* <button
           style={{
             display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-            transformOrigin: 'center top',
-            transform: `translate(-50%, 10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+            transformOrigin: 'center bottom',
+            transform: `translateX(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+            position: 'absolute',
+            bottom: 0,
+            left: '25%',
           }}
-          className={`${styles.hoverButton} ${styles.hide}`}
-          onClick={onToggle}
+          className={`${styles.hoverButton} ${styles.textButton}`}
+          onClick={onThumbDoubleClick}
           onMouseOver={over}
           onMouseLeave={out}
           onFocus={over}
           onBlur={out}
         >
-          <Icon
-            inverted
-            name={hidden ? 'unhide' : 'hide'}
-            className={styles.opaque}
-          />
-          {/* <img
-            src={hidden ? show : hide}
-            className={styles.hide}
-            alt=""
-          /> */}
+          {zoomOut ? '<<' : '<'}
+        </button> */}
+        <button
+          style={{
+            display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+            transformOrigin: 'center bottom',
+            transform: `translateX(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+            position: 'absolute',
+            bottom: 0,
+            left: '50%',
+          }}
+          className={`${styles.hoverButton} ${styles.textButton}`}
+          onClick={onThumbDoubleClick}
+          onMouseOver={over}
+          onMouseLeave={out}
+          onFocus={over}
+          onBlur={out}
+        >
+          {zoomOut ? 'EDIT' : 'EXIT'}
         </button>
         <button
           style={{
@@ -202,28 +235,16 @@ const Thumb = ({
             position: 'absolute',
             bottom: 0,
             right: 0,
+            marginRight: '8px',
           }}
-          className={styles.hoverButton}
+          className={`${styles.hoverButton} ${styles.textButton}`}
           onClick={onOutPoint}
           onMouseOver={over}
           onMouseLeave={out}
           onFocus={over}
           onBlur={out}
         >
-          {/* OUT */}
-          {/* <div
-            style={{
-              fontFamily: 'Franchise',
-              fontSize: '100px'
-            }}
-          >
-            this is a test text
-          </div> */}
-          <img
-            src={outPoint}
-            className={styles.outPoint}
-            alt=""
-          />
+          OUT
         </button>
       </div>
     </div>

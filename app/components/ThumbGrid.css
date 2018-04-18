@@ -149,7 +149,13 @@
   top: 0;
   right: 0;
   opacity: 0.5;
-  background-color: transparent;
+}
+
+.textButton {
+  font-family: 'Franchise';
+  color: #ffffff;
+  font-size: 30px;
+  opacity: 0.5;
 }
 
 /* .forward {
@@ -171,6 +177,7 @@
 .hoverButton {
   border: 0;
   cursor: pointer;
+  background-color: transparent;
 }
 
 .opaque {
