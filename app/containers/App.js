@@ -10,6 +10,7 @@ import FileList from '../containers/FileList';
 import SettingsList from '../containers/SettingsList';
 import SortedVisibleThumbGrid from '../containers/VisibleThumbGrid';
 import ErrorBoundary from '../components/ErrorBoundary';
+import Header from '../components/Header';
 import VideoPlayer from '../components/VideoPlayer';
 import ThumbEmpty from '../components/ThumbEmpty';
 import { getLowestFrame, getHighestFrame, getVisibleThumbs, getColumnCount, getThumbsCount, getMoviePrintColor } from '../utils/utils';
@@ -749,6 +750,11 @@ class App extends Component {
                     className={`${styles.SiteContent}`}
                     ref={(el) => { this.siteContent = el; }}
                   >
+                    <Header
+                      visibilitySettings={this.props.visibilitySettings}
+                      file={this.props.file}
+                      toggleLeftSidebar={this.toggleLeftSidebar}
+                    />
                     <div
                       className={`${styles.ItemSideBar} ${styles.ItemLeftSideBar} ${this.props.visibilitySettings.showLeftSidebar ? styles.ItemLeftSideBarAnim : ''}`}
                     >
