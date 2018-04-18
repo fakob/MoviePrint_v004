@@ -8,7 +8,7 @@ import {
 import styles from './Header.css';
 
 const Header = ({
-  file, visibilitySettings, toggleMovielist
+  file, visibilitySettings, toggleMovielist, toggleSettings
 }) => {
 
   return (
@@ -43,11 +43,13 @@ const Header = ({
               <Dropdown.Item>Hide info</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
-          <Menu.Item>
+          <Menu.Item
+            onClick={toggleSettings}
+          >
             <Icon
               name="edit"
             />
-            More settings
+            {(visibilitySettings.showSettings === false) ? 'More settings' : 'Hide settings'}
           </Menu.Item>
         </Menu.Menu>
       </Menu>

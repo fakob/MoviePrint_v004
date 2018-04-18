@@ -11,6 +11,7 @@ import SettingsList from '../containers/SettingsList';
 import SortedVisibleThumbGrid from '../containers/VisibleThumbGrid';
 import ErrorBoundary from '../components/ErrorBoundary';
 import Header from '../components/Header';
+import Footer from '../components/Footer';
 import VideoPlayer from '../components/VideoPlayer';
 import ThumbEmpty from '../components/ThumbEmpty';
 import { getLowestFrame, getHighestFrame, getVisibleThumbs, getColumnCount, getThumbsCount, getMoviePrintColor } from '../utils/utils';
@@ -149,6 +150,7 @@ class App extends Component {
 
     this.hideMovielist = this.hideMovielist.bind(this);
     this.toggleMovielist = this.toggleMovielist.bind(this);
+    this.toggleSettings = this.toggleSettings.bind(this);
     this.showSettings = this.showSettings.bind(this);
     this.hideSettings = this.hideSettings.bind(this);
     this.onShowThumbs = this.onShowThumbs.bind(this);
@@ -517,6 +519,14 @@ class App extends Component {
     store.dispatch(hideSettings());
   }
 
+  toggleSettings() {
+    if (this.props.visibilitySettings.showSettings) {
+      this.hideSettings();
+    } else {
+      this.showSettings();
+    }
+  }
+
   onShowThumbs() {
     const { store } = this.context;
     if (this.props.visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') {
@@ -754,6 +764,7 @@ class App extends Component {
                       visibilitySettings={this.props.visibilitySettings}
                       file={this.props.file}
                       toggleMovielist={this.toggleMovielist}
+                      toggleSettings={this.toggleSettings}
                     />
                     <div
                       className={`${styles.ItemSideBar} ${styles.ItemMovielist} ${this.props.visibilitySettings.showMovielist ? styles.ItemMovielistAnim : ''}`}
@@ -938,9 +949,15 @@ class App extends Component {
                       )
                       }
                     </div>
+                    <Footer
+                      visibilitySettings={this.props.visibilitySettings}
+                      file={this.props.file}
+                      onSaveMoviePrint={this.onSaveMoviePrint}
+                      savingMoviePrint={this.state.savingMoviePrint}
+                    />
                   </div>
                 </div>
-                <Sticky
+                {/* <Sticky
                   className={`${styles.FixedActionMenuRight} ${styles.ItemSettings} ${this.props.visibilitySettings.showSettings ? styles.ItemSettingsAnim : ''}`}
                 >
                   <Menu
@@ -1032,7 +1049,7 @@ class App extends Component {
                     }
 
                   </Menu>
-                </Sticky>
+                </Sticky> */}
                 { dropzoneActive &&
                   <div
                     className={`${styles.dropzoneshow} ${isDragAccept ? styles.dropzoneshowAccept : ''} ${isDragReject ? styles.dropzoneshowReject : ''}`}
