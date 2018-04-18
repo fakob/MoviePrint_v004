@@ -45,7 +45,7 @@ const Header = ({
             onClick={onToggleShowHiddenThumbsClick}
           >
             <Icon
-              name="unhide"
+              name={(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'unhide' : 'hide'}
             />
             {(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'Hide thumbs' : 'Show thumbs'}
           </Menu.Item>

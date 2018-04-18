@@ -122,9 +122,9 @@
   position: absolute;
   outline:none;
   top: 0;
-  right: 0;
+  left: 50%;
   opacity: 0.5;
-  z-index: 100;
+  background-color: transparent;
 }
 
 .inPoint {
@@ -147,9 +147,9 @@
   position: absolute;
   outline:none;
   top: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 0;
   opacity: 0.5;
+  background-color: transparent;
 }
 
 /* .forward {
@@ -171,6 +171,10 @@
 .hoverButton {
   border: 0;
   cursor: pointer;
+}
+
+.opaque {
+  opacity: 1 !important;
 }
 
 .popupThumb {

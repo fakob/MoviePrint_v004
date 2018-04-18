@@ -8,6 +8,10 @@
 @import '~typeface-roboto-condensed';
 @import '~typeface-ubuntu';
 @import '~rc-slider/assets/index.css';
+@font-face {
+  font-family: Franchise;
+  src: url("./dist/Franchise-Bold.woff");
+}
 
 .rc-slider-tooltip {
   z-index: 200;

@@ -3,7 +3,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { SortableHandle } from 'react-sortable-hoc';
-import { Popup } from 'semantic-ui-react';
+import { Icon } from 'semantic-ui-react';
 import {
   MINIMUM_WIDTH_TO_SHRINK_HOVER, MINIMUM_WIDTH_TO_SHOW_HOVER,
   VERTICAL_OFFSET_OF_INOUTPOINT_POPUP
@@ -12,26 +12,26 @@ import styles from './ThumbGrid.css';
 
 import inPoint from './../img/Thumb_IN.png';
 import outPoint from './../img/Thumb_OUT.png';
-import handleWide from './../img/Thumb_HANDLE_wide.png';
+// import handleWide from './../img/Thumb_HANDLE_wide.png';
 import save from './../img/Thumb_SAVE.png';
 import hide from './../img/Thumb_HIDE.png';
 import show from './../img/Thumb_SHOW.png';
 import transparent from './../img/Thumb_TRANSPARENT.png';
 
 const DragHandle = SortableHandle(({ width, height }) => {
-  function over(event) {
-    event.target.style.opacity = 1;
-  }
-  function out(event) {
-    event.target.style.opacity = 0.3;
-  }
+  // function over(event) {
+  //   event.target.style.opacity = 1;
+  // }
+  // function out(event) {
+  //   event.target.style.opacity = 0.3;
+  // }
   return (
     <button
       className={`${styles.dragHandleButton}`}
-      onMouseOver={over}
-      onMouseLeave={out}
-      onFocus={over}
-      onBlur={out}
+      // onMouseOver={over}
+      // onMouseLeave={out}
+      // onFocus={over}
+      // onBlur={out}
       style={{
         width,
         height,
@@ -46,11 +46,11 @@ const DragHandle = SortableHandle(({ width, height }) => {
         }}
         alt=""
       />
-      <img
+      {/* <img
         src={handleWide}
         className={styles.dragHandleIcon}
         alt=""
-      />
+      /> */}
     </button>
   );
 });
@@ -84,7 +84,7 @@ const Thumb = ({
       width={`${thumbWidth}px`}
       height={`${(thumbWidth * aspectRatioInv)}px`}
       style={{
-        opacity: hidden ? '0.2' : '1',
+        opacity: hidden ? '0.5' : '1',
         width: thumbWidth,
         margin: `${margin}px`,
         outlineWidth: `${(selected && !zoomOut) ? margin : 0}px`,
@@ -128,123 +128,103 @@ const Thumb = ({
           style={{
             display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
             transformOrigin: 'top right',
-            transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-            position: 'absolute',
-            top: 0,
-            right: 0,
+            transform: `translate(-50%, 10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
           }}
-          className={styles.hoverButton}
-          onClick={onToggle}
-          onMouseOver={over}
-          onMouseLeave={out}
-          onFocus={over}
-          onBlur={out}
-        >
-          <img
-            src={hidden ? show : hide}
-            className={styles.hide}
-            alt=""
-          />
-        </button>
-        <Popup
-          trigger={
-            <button
-              style={{
-                display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-                transformOrigin: 'left bottom',
-                transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                position: 'absolute',
-                bottom: 0,
-                left: 0,
-              }}
-              className={styles.hoverButton}
-              onClick={onInPoint}
-              onMouseOver={over}
-              onMouseLeave={out}
-              onFocus={over}
-              onBlur={out}
-            >
-              <img
-                src={inPoint}
-                className={styles.inPoint}
-                alt=""
-              />
-            </button>
-          }
-          content="Use this frame as In-point"
-          hoverable
-          basic
-          inverted
-          mouseEnterDelay={1000}
-          className={styles.popupThumb}
-          verticalOffset={(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ?
-            VERTICAL_OFFSET_OF_INOUTPOINT_POPUP : VERTICAL_OFFSET_OF_INOUTPOINT_POPUP / 2}
-          style={{
-            transformOrigin: 'left bottom',
-            transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-          }}
-        />
-        <button
-          style={{
-            display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-            transformOrigin: 'center bottom',
-            transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-            position: 'absolute',
-            top: 0,
-            left: '50%',
-          }}
-          className={styles.hoverButton}
+          className={`${styles.hoverButton} ${styles.save}`}
           onClick={onSaveThumb}
           onMouseOver={over}
           onMouseLeave={out}
           onFocus={over}
           onBlur={out}
         >
-          <img
+          <Icon
+            inverted
+            name="download"
+            className={styles.opaque}
+          />
+          {/* <img
             src={save}
             className={styles.save}
             alt=""
+          /> */}
+        </button>
+        <button
+          style={{
+            display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+            transformOrigin: 'left bottom',
+            transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+          }}
+          className={styles.hoverButton}
+          onClick={onInPoint}
+          onMouseOver={over}
+          onMouseLeave={out}
+          onFocus={over}
+          onBlur={out}
+        >
+          <img
+            src={inPoint}
+            className={styles.inPoint}
+            alt=""
           />
         </button>
-        <Popup
-          trigger={
-            <button
-              style={{
-                display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-                transformOrigin: 'right bottom',
-                transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                position: 'absolute',
-                bottom: 0,
-                right: 0,
-              }}
-              className={styles.hoverButton}
-              onClick={onOutPoint}
-              onMouseOver={over}
-              onMouseLeave={out}
-              onFocus={over}
-              onBlur={out}
-            >
-              <img
-                src={outPoint}
-                className={styles.outPoint}
-                alt=""
-              />
-            </button>
-          }
-          content="Use this frame as Out-point"
-          hoverable
-          basic
-          inverted
-          mouseEnterDelay={1000}
-          position="top right"
-          className={styles.popupThumb}
-          verticalOffset={(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ?
-            VERTICAL_OFFSET_OF_INOUTPOINT_POPUP : VERTICAL_OFFSET_OF_INOUTPOINT_POPUP / 2}
+        <button
           style={{
+            display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+            transformOrigin: 'center top',
+            transform: `translate(-50%, 10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+          }}
+          className={`${styles.hoverButton} ${styles.hide}`}
+          onClick={onToggle}
+          onMouseOver={over}
+          onMouseLeave={out}
+          onFocus={over}
+          onBlur={out}
+        >
+          <Icon
+            inverted
+            name={hidden ? 'unhide' : 'hide'}
+            className={styles.opaque}
+          />
+          {/* <img
+            src={hidden ? show : hide}
+            className={styles.hide}
+            alt=""
+          /> */}
+        </button>
+        <button
+          style={{
+            display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
             transformOrigin: 'right bottom',
             transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
           }}
-        />
+          className={styles.hoverButton}
+          onClick={onOutPoint}
+          onMouseOver={over}
+          onMouseLeave={out}
+          onFocus={over}
+          onBlur={out}
+        >
+          {/* OUT */}
+          {/* <div
+            style={{
+              fontFamily: 'Franchise',
+              fontSize: '100px'
+            }}
+          >
+            this is a test text
+          </div> */}
+          <img
+            src={outPoint}
+            className={styles.outPoint}
+            alt=""
+          />
+        </button>
       </div>
     </div>
   );
