@@ -59,7 +59,7 @@ const Thumb = ({
   onSelect, onToggle, onInPoint, onOutPoint, onSaveThumb, tempId, color,
   onOver, onOut, hidden, thumbImageObjectUrl, aspectRatioInv, thumbInfoRatio,
   controlersAreVisible, thumbWidth, margin, zoomOut, borderRadius, thumbInfoValue, selected,
-  inputRefThumb, onThumbDoubleClick
+  inputRefThumb, onThumbDoubleClick, onBack, onForward
 }) => {
   function over(event) {
     event.target.style.opacity = 1;
@@ -191,7 +191,7 @@ const Thumb = ({
         >
           IN
         </button>
-        {/* <button
+        <button
           style={{
             display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
             transformOrigin: 'center bottom',
@@ -201,14 +201,14 @@ const Thumb = ({
             left: '25%',
           }}
           className={`${styles.hoverButton} ${styles.textButton}`}
-          onClick={onThumbDoubleClick}
+          onClick={onBack}
           onMouseOver={over}
           onMouseLeave={out}
           onFocus={over}
           onBlur={out}
         >
           {zoomOut ? '<<' : '<'}
-        </button> */}
+        </button>
         <button
           style={{
             display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
@@ -226,6 +226,24 @@ const Thumb = ({
           onBlur={out}
         >
           {zoomOut ? 'EDIT' : 'EXIT'}
+        </button>
+        <button
+          style={{
+            display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+            transformOrigin: 'center bottom',
+            transform: `translateX(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+            position: 'absolute',
+            bottom: 0,
+            left: '75%',
+          }}
+          className={`${styles.hoverButton} ${styles.textButton}`}
+          onClick={onForward}
+          onMouseOver={over}
+          onMouseLeave={out}
+          onFocus={over}
+          onBlur={out}
+        >
+          {zoomOut ? '>>' : '>'}
         </button>
         <button
           style={{

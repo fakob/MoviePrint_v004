@@ -97,6 +97,8 @@ class SortedVisibleThumbGrid extends Component {
         onThumbDoubleClick={this.props.onThumbDoubleClick}
         onToggleClick={this.props.onToggleClick}
         onRemoveClick={this.props.onRemoveClick}
+        onBackClick={this.props.onBackClick}
+        onForwardClick={this.props.onForwardClick}
         onInPointClick={this.props.onInPointClick}
         onOutPointClick={this.props.onOutPointClick}
         onSaveThumbClick={this.props.onSaveThumbClick}
