@@ -1,6 +1,11 @@
-.headerItem {
-    float: left;
-    opacity: 0.5;
+.menu {
+  z-index: 200;
+  background-color: #1e1e1e;
+}
+
+/* .headerItem {
+  float: left;
+  opacity: 0.5;
 }
 
 .headerItem:hover {
@@ -14,6 +19,5 @@
   font-family: 'Open sans';
   font-size: 12px;
   color: #eee;
-  /*line-height: 10px;*/
   padding: 12px;
-}
+} */

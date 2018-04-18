@@ -6,6 +6,9 @@ export const MOVIEPRINT_COLORS = [
   '#FFd3c1',
 ];
 
+export const MENU_HEADER_HEIGHT = 35;
+export const MENU_FOOTER_HEIGHT = 35;
+
 export const DEFAULT_MOVIE_WIDTH = 1920;
 export const DEFAULT_MOVIE_HEIGHT = 1080;
 export const DEFAULT_MOVIE_ASPECTRATIO = 1.778;

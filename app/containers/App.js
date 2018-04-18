@@ -18,7 +18,7 @@ import { getLowestFrame, getHighestFrame, getVisibleThumbs, getColumnCount, getT
 import saveMoviePrint from '../utils/saveMoviePrint';
 import styles from './App.css';
 import {
-  setNewMovieList, toggleMovielist, showSettings, hideSettings,
+  setNewMovieList, showMovielist, hideMovielist, showSettings, hideSettings,
   zoomIn, zoomOut, addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
   setVisibilityFilter, setCurrentFileId, updateFileColumnCount,
   updateFileDetails, clearThumbs, updateThumbImage, setDefaultMarginRatio, setDefaultShowHeader,
@@ -26,6 +26,9 @@ import {
   setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
   showPlaybar, hidePlaybar
 } from '../actions';
+import {
+  MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT
+} from '../utils/constants';
 
 const { ipcRenderer } = require('electron');
 const { dialog } = require('electron').remote;
@@ -148,6 +151,7 @@ class App extends Component {
 
     this.onSelectMethod = this.onSelectMethod.bind(this);
 
+    this.showMovielist = this.showMovielist.bind(this);
     this.hideMovielist = this.hideMovielist.bind(this);
     this.toggleMovielist = this.toggleMovielist.bind(this);
     this.toggleSettings = this.toggleSettings.bind(this);
@@ -172,6 +176,7 @@ class App extends Component {
     this.onChangeMargin = this.onChangeMargin.bind(this);
     this.onShowHeaderClick = this.onShowHeaderClick.bind(this);
     this.onRoundedCornersClick = this.onRoundedCornersClick.bind(this);
+    this.onToggleShowHiddenThumbsClick = this.onToggleShowHiddenThumbsClick.bind(this);
     this.onShowHiddenThumbsClick = this.onShowHiddenThumbsClick.bind(this);
     this.onThumbInfoClick = this.onThumbInfoClick.bind(this);
     this.onChangeOutputPathClick = this.onChangeOutputPathClick.bind(this);
@@ -481,16 +486,23 @@ class App extends Component {
     });
   }
 
+  showMovielist() {
+    const { store } = this.context;
+    store.dispatch(showMovielist());
+    this.switchToPrintView();
+  }
+
   hideMovielist() {
     const { store } = this.context;
-    if (this.props.visibilitySettings.showMovielist) {
-      store.dispatch(toggleMovielist());
-    }
+    store.dispatch(hideMovielist());
   }
 
   toggleMovielist() {
-    const { store } = this.context;
-    store.dispatch(toggleMovielist());
+    if (this.props.visibilitySettings.showMovielist) {
+      this.hideMovielist();
+    } else {
+      this.showMovielist();
+    }
   }
 
   showSettings() {
@@ -688,6 +700,15 @@ class App extends Component {
     store.dispatch(setDefaultRoundedCorners(value));
   };
 
+  onToggleShowHiddenThumbsClick = () => {
+    const { store } = this.context;
+    if (this.props.visibilitySettings.visibilityFilter === 'SHOW_ALL') {
+      store.dispatch(setVisibilityFilter('SHOW_VISIBLE'));
+    } else {
+      store.dispatch(setVisibilityFilter('SHOW_ALL'));
+    }
+  };
+
   onShowHiddenThumbsClick = (value) => {
     const { store } = this.context;
     if (value) {
@@ -756,16 +777,22 @@ class App extends Component {
             return (
               <div>
                 <div className={`${styles.Site}`}>
+                  <Header
+                    visibilitySettings={this.props.visibilitySettings}
+                    settings={this.props.settings}
+                    file={this.props.file}
+                    toggleMovielist={this.toggleMovielist}
+                    toggleSettings={this.toggleSettings}
+                    onToggleShowHiddenThumbsClick={this.onToggleShowHiddenThumbsClick}
+                    onThumbInfoClick={this.onThumbInfoClick}
+                  />
                   <div
                     className={`${styles.SiteContent}`}
                     ref={(el) => { this.siteContent = el; }}
+                    style={{
+                      height: `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)`
+                    }}
                   >
-                    <Header
-                      visibilitySettings={this.props.visibilitySettings}
-                      file={this.props.file}
-                      toggleMovielist={this.toggleMovielist}
-                      toggleSettings={this.toggleSettings}
-                    />
                     <div
                       className={`${styles.ItemSideBar} ${styles.ItemMovielist} ${this.props.visibilitySettings.showMovielist ? styles.ItemMovielistAnim : ''}`}
                     >
@@ -807,7 +834,7 @@ class App extends Component {
                       <div
                         className={`${styles.ItemVideoPlayer} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''}`}
                         style={{
-                          top: `${this.props.settings.defaultBorderMargin}px`
+                          top: `${MENU_HEADER_HEIGHT + this.props.settings.defaultBorderMargin}px`
                         }}
                       >
                         { this.props.file ? (
@@ -846,12 +873,13 @@ class App extends Component {
                     }
                     <div
                       ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
-                      className={`${styles.ItemMain} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''} ${this.props.visibilitySettings.zoomOut ? styles.ItemMainMinHeight : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainRightAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainEdit : ''} ${!this.props.visibilitySettings.zoomOut ? styles.ItemMainTopAnim : ''}`}
+                      className={`${styles.ItemMain} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainRightAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainEdit : ''} ${!this.props.visibilitySettings.zoomOut ? styles.ItemMainTopAnim : ''}`}
                       style={{
                         width: this.props.visibilitySettings.zoomOut ? undefined : this.state.scaleValueObject.newMoviePrintWidth,
                         marginTop: this.props.visibilitySettings.zoomOut ? undefined :
                           `${this.state.scaleValueObject.videoPlayerHeight +
-                            (this.props.settings.defaultBorderMargin * 2)}px`
+                            (this.props.settings.defaultBorderMargin * 2)}px`,
+                        minHeight: this.props.visibilitySettings.zoomOut ? `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)` : undefined
                       }}
                     >
                       { this.props.file ? (
@@ -949,13 +977,13 @@ class App extends Component {
                       )
                       }
                     </div>
-                    <Footer
-                      visibilitySettings={this.props.visibilitySettings}
-                      file={this.props.file}
-                      onSaveMoviePrint={this.onSaveMoviePrint}
-                      savingMoviePrint={this.state.savingMoviePrint}
-                    />
                   </div>
+                  <Footer
+                    visibilitySettings={this.props.visibilitySettings}
+                    file={this.props.file}
+                    onSaveMoviePrint={this.onSaveMoviePrint}
+                    savingMoviePrint={this.state.savingMoviePrint}
+                  />
                 </div>
                 {/* <Sticky
                   className={`${styles.FixedActionMenuRight} ${styles.ItemSettings} ${this.props.visibilitySettings.showSettings ? styles.ItemSettingsAnim : ''}`}

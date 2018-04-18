@@ -2,17 +2,28 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Menu, Dropdown, Icon } from 'semantic-ui-react';
 import {
-  MINIMUM_WIDTH_TO_SHRINK_HOVER, MINIMUM_WIDTH_TO_SHOW_HOVER,
-  VERTICAL_OFFSET_OF_INOUTPOINT_POPUP
+  MENU_HEADER_HEIGHT
 } from '../utils/constants';
-import styles from './Header.css';
+import styles from './Menu.css';
 
 const Header = ({
-  file, visibilitySettings, toggleMovielist, toggleSettings
+  file, visibilitySettings, toggleMovielist, toggleSettings,
+  onToggleShowHiddenThumbsClick, settings, onThumbInfoClick
 }) => {
 
+  const thumbInfoOptions = [
+    { value: 'frames', text: 'Show frames', },
+    { value: 'timecode', text: 'Show timecode', },
+    { value: 'hideInfo', text: 'Hide info' },
+  ];
+
   return (
-    <div>
+    <div
+      className={`${styles.menu}`}
+      style={{
+        height: MENU_HEADER_HEIGHT
+      }}
+    >
       <Menu
         size="tiny"
         inverted
@@ -30,19 +41,21 @@ const Header = ({
           {file.name}
         </Menu.Item>
         <Menu.Menu position="right">
-          <Menu.Item>
+          <Menu.Item
+            onClick={onToggleShowHiddenThumbsClick}
+          >
             <Icon
               name="unhide"
             />
-            Show hidden
+            {(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'Hide thumbs' : 'Show thumbs'}
           </Menu.Item>
-          <Dropdown item text="Show info">
-            <Dropdown.Menu>
-              <Dropdown.Item>Show frames</Dropdown.Item>
-              <Dropdown.Item>Show timecode</Dropdown.Item>
-              <Dropdown.Item>Hide info</Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
+          <Dropdown
+            text="Show info"
+            item
+            options={thumbInfoOptions}
+            value={settings.defaultThumbInfo}
+            onChange={(e, { value }) => onThumbInfoClick(value)}
+          />
           <Menu.Item
             onClick={toggleSettings}
           >

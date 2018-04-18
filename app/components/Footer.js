@@ -2,10 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Menu, Dropdown, Icon, Loader } from 'semantic-ui-react';
 import {
-  MINIMUM_WIDTH_TO_SHRINK_HOVER, MINIMUM_WIDTH_TO_SHOW_HOVER,
-  VERTICAL_OFFSET_OF_INOUTPOINT_POPUP
+  MENU_FOOTER_HEIGHT
 } from '../utils/constants';
-// import styles from './Footer.css';
+import styles from './Menu.css';
 
 const Footer = ({
   file, visibilitySettings, toggleMovielist, toggleSettings, onSaveMoviePrint,
@@ -13,20 +12,17 @@ const Footer = ({
 }) => {
 
   return (
-    <div>
+    <div
+      className={`${styles.menu}`}
+      style={{
+        height: MENU_FOOTER_HEIGHT
+      }}
+    >
       <Menu
         size="tiny"
         inverted
         // widths={3}
       >
-        {/* <Menu.Item
-          onClick={toggleMovielist}
-        >
-          <Icon
-            name="list"
-          />
-          {(visibilitySettings.showMovielist === false) ? 'Show Movie list' : 'Hide Movie list'}
-        </Menu.Item> */}
         <Menu.Item>
           {file.name}
         </Menu.Item>
