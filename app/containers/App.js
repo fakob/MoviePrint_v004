@@ -894,8 +894,7 @@ class App extends Component {
                           selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
                           selectMethod={this.onSelectMethod}
                           onThumbDoubleClick={this.onViewToggle}
-                          onThumbDoubleClick={this.onViewToggle}
-                                parentMethod={this.openModal}
+                          parentMethod={this.openModal}
 
                           colorArray={this.state.colorArray}
                           columnCount={this.props.visibilitySettings.showSettings ?
