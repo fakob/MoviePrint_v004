@@ -24,7 +24,7 @@ import {
   updateFileDetails, clearThumbs, updateThumbImage, setDefaultMarginRatio, setDefaultShowHeader,
   setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat,
   setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
-  showPlaybar, hidePlaybar
+  showPlaybar, hidePlaybar, updateFileDetailUseRatio
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT
@@ -237,8 +237,9 @@ class App extends Component {
     });
 
     // poster frames don't have thumbId
-    ipcRenderer.on('receive-get-poster-frame', (event, fileId, posterFrameId, base64, frameNumber) => {
+    ipcRenderer.on('receive-get-poster-frame', (event, fileId, posterFrameId, base64, frameNumber, useRatio) => {
       store.dispatch(updateThumbImage(fileId, '', posterFrameId, base64, frameNumber, 1));
+      store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
     });
 
     ipcRenderer.on('received-saved-file', (event, path) => {

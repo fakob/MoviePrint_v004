@@ -128,26 +128,35 @@ ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId) => 
   console.log(filePath);
   const vid = new opencv.VideoCapture(filePath);
 
-  const frameNumberArray = [Math.floor(vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) / 2)]; // only 1 value (middle frame) in array. too lazy to clean up
+  const frameNumberToCapture = Math.floor(vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) / 2); // capture frame in the middle
   vid.readAsync((err1, mat1) => {
     const read = function read() {
-      vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberArray[iterator]);
+
+      vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberToCapture);
       vid.readAsync((err, mat) => {
-        console.log(`counter: ${iterator}, position: ${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
+        console.log(`${frameNumberToCapture}/${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
+
+        let useRatio = false;
+        // frames not match
+        if (frameNumberToCapture !== (vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1)) {
+          console.log('########################### Playhead not at correct position: useRatio set to TRUE ###########################');
+          useRatio = true;
+        }
+
         if (mat.empty === false) {
           const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // maybe change to .png?
-          event.sender.send('receive-get-poster-frame', fileId, posterFrameId, outBase64, vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES));
+          event.sender.send('receive-get-poster-frame', fileId, posterFrameId, outBase64, vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES), useRatio);
         }
-        iterator += 1;
-        if (iterator < frameNumberArray.length) {
-          read();
-        }
+        // iterator += 1;
+        // if (iterator < frameNumberArray.length) {
+        //   read();
+        // }
       });
     };
 
     if (err1) throw err1;
-    let iterator = 0;
-    vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberArray[iterator]);
+    // let iterator = 0;
+    vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberToCapture);
     read();
   });
 });

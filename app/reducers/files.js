@@ -23,6 +23,13 @@ const file = (state = {}, type, payload, index) => {
       return Object.assign({}, state, {
         columnCount: payload.columnCount,
       });
+    case 'UPDATE_MOVIE_LIST_ITEM_USERATIO':
+      if (state.id !== payload.fileId) {
+        return state;
+      }
+      return Object.assign({}, state, {
+        useRatio: payload.useRatio
+      });
     case 'UPDATE_MOVIE_LIST_ITEM':
       if (state.id !== payload.fileId) {
         return state;
@@ -72,6 +79,7 @@ const files = (state = [], { type, payload }) => {
       return state.map((t, index) =>
         file(t, type, payload, index)
       );
+    case 'UPDATE_MOVIE_LIST_ITEM_USERATIO':
     case 'UPDATE_MOVIE_LIST_ITEM':
       return state.map((t, index) =>
         file(t, type, payload, index)

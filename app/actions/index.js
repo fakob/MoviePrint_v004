@@ -257,6 +257,19 @@ export const updateFileColumnCount = (fileId, columnCount) => {
   };
 };
 
+export const updateFileDetailUseRatio = (fileId, useRatio) => {
+  return (dispatch) => {
+    console.log('inside updateFileDetailUseRatio');
+    dispatch({
+      type: 'UPDATE_MOVIE_LIST_ITEM_USERATIO',
+      payload: {
+        fileId,
+        useRatio
+      }
+    });
+  };
+};
+
 export const updateFileDetails = (fileId, frameCount, width, height, fps, fourCC) => {
   return (dispatch) => {
     console.log('inside updateFileDetails');
