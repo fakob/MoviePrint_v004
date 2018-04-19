@@ -69,6 +69,41 @@ const Thumb = ({
     event.target.style.opacity = 0.5;
   }
 
+  function onToggleWithStop(e) {
+    e.stopPropagation();
+    onToggle();
+  }
+
+  function onSaveThumbWithStop(e) {
+    e.stopPropagation();
+    onSaveThumb();
+  }
+
+  function onInPointWithStop(e) {
+    e.stopPropagation();
+    onInPoint();
+  }
+
+  function onOutPointWithStop(e) {
+    e.stopPropagation();
+    onOutPoint();
+  }
+
+  function onForwardWithStop(e) {
+    e.stopPropagation();
+    onForward();
+  }
+
+  function onBackWithStop(e) {
+    e.stopPropagation();
+    onBack();
+  }
+
+  function onThumbDoubleClickWithStop(e) {
+    e.stopPropagation();
+    onThumbDoubleClick();
+  }
+
   return (
     <div
       ref={inputRefThumb}
@@ -78,7 +113,7 @@ const Thumb = ({
       onBlur={onOut}
       onClick={onSelect}
       onKeyPress={onSelect}
-      onDoubleClick={onThumbDoubleClick}
+      onDoubleClick={onThumbDoubleClickWithStop}
       id={`thumb${tempId}`}
       className={`${styles.gridItem} ${(selected && !zoomOut) ? styles.gridItemSelected : ''}`}
       width={`${thumbWidth}px`}
@@ -131,7 +166,7 @@ const Thumb = ({
             transform: `translate(-50%, 10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
           }}
           className={`${styles.hoverButton} ${styles.hide}`}
-          onClick={onToggle}
+          onClick={onToggleWithStop}
           onMouseOver={over}
           onMouseLeave={out}
           onFocus={over}
@@ -155,7 +190,7 @@ const Thumb = ({
             transform: `translate(-50%, 10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
           }}
           className={`${styles.hoverButton} ${styles.save}`}
-          onClick={onSaveThumb}
+          onClick={onSaveThumbWithStop}
           onMouseOver={over}
           onMouseLeave={out}
           onFocus={over}
@@ -183,7 +218,7 @@ const Thumb = ({
             marginLeft: '8px',
           }}
           className={`${styles.hoverButton} ${styles.textButton}`}
-          onClick={onInPoint}
+          onClick={onInPointWithStop}
           onMouseOver={over}
           onMouseLeave={out}
           onFocus={over}
@@ -201,7 +236,7 @@ const Thumb = ({
             left: '30%',
           }}
           className={`${styles.hoverButton} ${styles.textButton}`}
-          onClick={onBack}
+          onClick={onBackWithStop}
           onMouseOver={over}
           onMouseLeave={out}
           onFocus={over}
@@ -219,7 +254,7 @@ const Thumb = ({
             left: '50%',
           }}
           className={`${styles.hoverButton} ${styles.textButton}`}
-          onClick={onThumbDoubleClick}
+          onClick={onThumbDoubleClickWithStop}
           onMouseOver={over}
           onMouseLeave={out}
           onFocus={over}
@@ -237,7 +272,7 @@ const Thumb = ({
             left: '70%',
           }}
           className={`${styles.hoverButton} ${styles.textButton}`}
-          onClick={onForward}
+          onClick={onForwardWithStop}
           onMouseOver={over}
           onMouseLeave={out}
           onFocus={over}
@@ -256,7 +291,7 @@ const Thumb = ({
             marginRight: '8px',
           }}
           className={`${styles.hoverButton} ${styles.textButton}`}
-          onClick={onOutPoint}
+          onClick={onOutPointWithStop}
           onMouseOver={over}
           onMouseLeave={out}
           onFocus={over}

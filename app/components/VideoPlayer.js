@@ -94,6 +94,7 @@ class VideoPlayer extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    console.log(`${prevProps.selectedThumbId} !== ${this.props.selectedThumbId}`);
     if (prevProps.selectedThumbId !== this.props.selectedThumbId) {
       this.updateTimeFromThumbId(this.props.selectedThumbId);
     }
@@ -191,21 +192,20 @@ class VideoPlayer extends Component {
   }
 
   updateTimeFromThumbId(thumbId) {
-    if (this.props.thumbs) {
+    console.log(thumbId);
+    console.log(this.props.thumbs);
+    if (thumbId || this.props.thumbs) {
       let xPos = 0;
       let currentTime = 0;
       if (thumbId) {
         console.log('updateTimeFromThumbId');
-        const frameNumberOfThumb =
-          this.props.thumbs.find((thumb) => thumb.thumbId === thumbId).frameNumber;
-        const { frameCount } = this.props.file;
-        xPos = mapRange(frameNumberOfThumb, 0, frameCount - 1, 0, this.state.videoWidth, false);
-        currentTime = frameCountToSeconds(frameNumberOfThumb, this.props.file.fps);
-        // currentTime = mapRange(
-        //   frameNumberOfThumb,
-        //   0, frameCount - 1,
-        //   0, this.state.duration, false
-        // );
+        const selectedThumb = this.props.thumbs.find((thumb) => thumb.thumbId === thumbId);
+        if (selectedThumb) {
+          const frameNumberOfThumb = selectedThumb.frameNumber;
+          const { frameCount } = this.props.file;
+          xPos = mapRange(frameNumberOfThumb, 0, frameCount - 1, 0, this.state.videoWidth, false);
+          currentTime = frameCountToSeconds(frameNumberOfThumb, this.props.file.fps);
+        }
       }
       console.log(currentTime);
       this.setState({ playHeadPosition: xPos });
