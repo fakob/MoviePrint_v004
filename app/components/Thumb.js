@@ -260,7 +260,7 @@ const Thumb = ({
           onFocus={over}
           onBlur={out}
         >
-          {zoomOut ? 'EDIT' : 'EXIT'}
+          {zoomOut ? 'EDIT' : 'BACK'}
         </button>
         <button
           style={{
