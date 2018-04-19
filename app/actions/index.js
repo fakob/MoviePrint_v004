@@ -183,7 +183,7 @@ export const addThumb = (file, frameNumber, index) => {
     imageDB.frameList.where('[fileId+frameNumber]').equals([file.id, newFrameNumberWithinBoundaries]).toArray().then((frames) => {
       console.log(frames.length);
       if (frames.length === 0) {
-        ipcRenderer.send('send-get-thumbs', file.id, file.path, [thumbId], [frameId], [newFrameNumberWithinBoundaries]);
+        ipcRenderer.send('send-get-thumbs', file.id, file.path, [thumbId], [frameId], [newFrameNumberWithinBoundaries], file.useRatio);
         return dispatch({
           type: 'ADD_THUMB',
           payload: {
@@ -393,18 +393,9 @@ export const addDefaultThumbs = (file, amount = 20, start = 10, stop = file.fram
     // const stop = file.frameCount - 1;
     const startWithBoundaries = limitRange(start, 0, file.frameCount - 1);
     const stopWithBoundaries = limitRange(stop, 0, file.frameCount - 1);
-    let frameNumberArray;
-    const noFrameCount = (file.frameCount === undefined);
-    if (noFrameCount) {
-      frameNumberArray = Array.from(Array(amount).keys())
-        .map(x => mapRange(x, 0, amount - 1, 0.01, 0.99, false)); // if no length then use relative value (float)
-      console.log(frameNumberArray);
-    } else {
-      frameNumberArray = Array.from(Array(amount).keys())
-        .map(x => mapRange(x, 0, amount - 1, startWithBoundaries, stopWithBoundaries));
-      console.log(frameNumberArray);
-    }
-    console.log(noFrameCount);
+    const frameNumberArray = Array.from(Array(amount).keys())
+      .map(x => mapRange(x, 0, amount - 1, startWithBoundaries, stopWithBoundaries));
+    console.log(frameNumberArray);
     const frameIdArray = frameNumberArray.map(() => uuidV4());
     const thumbIdArray = frameNumberArray.map(() => uuidV4());
 
@@ -412,7 +403,7 @@ export const addDefaultThumbs = (file, amount = 20, start = 10, stop = file.fram
     // imageDB.frameList.where('fileId').equals(file.id).toArray().then((frames) => {
     // });
 
-    ipcRenderer.send('send-get-thumbs', file.id, file.path, thumbIdArray, frameIdArray, frameNumberArray, noFrameCount);
+    ipcRenderer.send('send-get-thumbs', file.id, file.path, thumbIdArray, frameIdArray, frameNumberArray, file.useRatio);
     // ipcRenderer.send('send-get-thumbs', file.id, file.path, frameIdArray, frameNumberArray);
     dispatch({
       type: 'ADD_DEFAULT_THUMBS',
@@ -436,7 +427,7 @@ export const changeThumb = (file, thumbId, newFrameNumber) => {
     imageDB.frameList.where('[fileId+frameNumber]').equals([file.id, newFrameNumberWithinBoundaries]).toArray().then((frames) => {
       console.log(frames.length);
       if (frames.length === 0) {
-        ipcRenderer.send('send-get-thumbs', file.id, file.path, [thumbId], [newFrameId], [newFrameNumberWithinBoundaries]);
+        ipcRenderer.send('send-get-thumbs', file.id, file.path, [thumbId], [newFrameId], [newFrameNumberWithinBoundaries], file.useRatio);
         return dispatch({
           type: 'CHANGE_THUMB',
           payload: {

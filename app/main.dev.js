@@ -139,7 +139,7 @@ ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId) => 
         let useRatio = false;
         // frames not match
         if (frameNumberToCapture !== (vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1)) {
-          console.log('########################### Playhead not at correct position: useRatio set to TRUE ###########################');
+          console.log('########################### Playhead not at correct position: set useRatio to TRUE ###########################');
           useRatio = true;
         }
 
@@ -161,7 +161,7 @@ ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId) => 
   });
 });
 
-ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArray, frameNumberArray, relativeFrameCount) => {
+ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArray, frameNumberArray, useRatio) => {
   console.log(fileId);
   console.log(filePath);
   console.log(frameIdArray);
@@ -175,7 +175,7 @@ ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArr
   console.log(`height: ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT)}`);
   console.log(`FPS: ${vid.get(VideoCaptureProperties.CAP_PROP_FPS)}`);
   console.log(`codec: ${vid.get(VideoCaptureProperties.CAP_PROP_FOURCC)}`);
-  console.log(`relativeFrameCount: ${relativeFrameCount}`);
+  console.log(`useRatio: ${useRatio}`);
 
   vid.readAsync((err1) => {
     const read = (frameOffset = 0) => {
@@ -186,9 +186,13 @@ ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArr
         (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1)
       );
 
-      vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberToCapture);
-
-      // console.log(`before readAsync: ${iterator}, frameOffset: ${frameOffset}, ${frameNumberToCapture}/${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
+      if (useRatio) {
+        const positionRatio = ((frameNumberToCapture) * 1.0) / (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1)
+        console.log(`using positionRatio: ${positionRatio}`);
+        vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, positionRatio);
+      } else {
+        vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberToCapture);
+      }
 
       vid.readAsync((err, mat) => {
         console.log(`readAsync: ${iterator}, frameOffset: ${frameOffset}, ${frameNumberToCapture}/${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
@@ -229,8 +233,10 @@ ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArr
 
     if (err1) throw err1;
     let iterator = 0;
-    if (relativeFrameCount) {
-      vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, frameNumberArray[iterator]);
+    if (useRatio) {
+      const positionRatio = ((frameNumberArray[iterator]) * 1.0) / (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1)
+      console.log(`using positionRatio: ${positionRatio}`);
+      vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, positionRatio);
     } else {
       vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberArray[iterator]);
     }
