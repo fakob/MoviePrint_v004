@@ -7,6 +7,7 @@ import Tooltip from 'rc-tooltip';
 import { Button, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List, Label } from 'semantic-ui-react';
 import { addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount } from '../actions';
 import styles from './Settings.css';
+import { MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT } from '../utils/constants';
 
 const SliderWithTooltip = createSliderWithTooltip(Slider);
 
@@ -98,7 +99,11 @@ class SettingsList extends Component {
 
   render() {
     return (
-      <Container>
+      <Container
+        style={{
+          marginBottom: `${MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT}px`,
+        }}
+      >
         <Grid padded inverted>
           <Grid.Row>
             <Grid.Column width={16}>

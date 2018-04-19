@@ -242,6 +242,7 @@ const Thumb = ({
           onFocus={over}
           onBlur={out}
         >
+          {/* {keyObject.altKey ? '-100' : (keyObject.shiftKey ? '-10' : '-1')} */}
           {keyObject.altKey ? '<<<' : (keyObject.shiftKey ? '<<' : '<')}
         </button>
         <button
@@ -278,6 +279,7 @@ const Thumb = ({
           onFocus={over}
           onBlur={out}
         >
+          {/* {keyObject.altKey ? '+100' : (keyObject.shiftKey ? '+10' : '+1')} */}
           {keyObject.altKey ? '>>>' : (keyObject.shiftKey ? '>>' : '>')}
         </button>
         <button
