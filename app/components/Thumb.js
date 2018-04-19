@@ -59,7 +59,7 @@ const Thumb = ({
   onSelect, onToggle, onInPoint, onOutPoint, onSaveThumb, tempId, color,
   onOver, onOut, hidden, thumbImageObjectUrl, aspectRatioInv, thumbInfoRatio,
   controlersAreVisible, thumbWidth, margin, zoomOut, borderRadius, thumbInfoValue, selected,
-  inputRefThumb, onThumbDoubleClick, onBack, onForward
+  inputRefThumb, onThumbDoubleClick, onBack, onForward, keyObject
 }) => {
   function over(event) {
     event.target.style.opacity = 1;
@@ -198,7 +198,7 @@ const Thumb = ({
             transform: `translateX(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
             position: 'absolute',
             bottom: 0,
-            left: '25%',
+            left: '30%',
           }}
           className={`${styles.hoverButton} ${styles.textButton}`}
           onClick={onBack}
@@ -207,7 +207,7 @@ const Thumb = ({
           onFocus={over}
           onBlur={out}
         >
-          {zoomOut ? '<<' : '<'}
+          {keyObject.altKey ? '<<<' : (keyObject.shiftKey ? '<<' : '<')}
         </button>
         <button
           style={{
@@ -234,7 +234,7 @@ const Thumb = ({
             transform: `translateX(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
             position: 'absolute',
             bottom: 0,
-            left: '75%',
+            left: '70%',
           }}
           className={`${styles.hoverButton} ${styles.textButton}`}
           onClick={onForward}
@@ -243,7 +243,7 @@ const Thumb = ({
           onFocus={over}
           onBlur={out}
         >
-          {zoomOut ? '>>' : '>'}
+          {keyObject.altKey ? '>>>' : (keyObject.shiftKey ? '>>' : '>')}
         </button>
         <button
           style={{

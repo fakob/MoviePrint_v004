@@ -240,11 +240,6 @@ export const getNextThumb = (thumbs, thumbId) => {
   return undefined; // return undefined if no thumbs provided
 };
 
-export const getChangeThumbStep = (index) => {
-  const changeThumbStep = [1, 10, 100];
-  return changeThumbStep[index];
-};
-
 export const getVisibleThumbs = (thumbs, filter) => {
   if (thumbs === undefined) {
     return thumbs;

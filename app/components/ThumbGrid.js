@@ -34,6 +34,7 @@ const ThumbGrid = ({
   thumbImages,
   thumbs,
   zoomOut,
+  keyObject
 }) => {
   const fps = (file !== undefined && file.fps !== undefined ? file.fps : 25);
   function getThumbInfoValue(type, frames, framesPerSecond) {
@@ -108,6 +109,7 @@ const ThumbGrid = ({
     thumbArray.map(thumb => (
       <SortableThumb
         zoomOut={zoomOut}
+        keyObject={keyObject}
         scaleValue={scaleValueObject.newScaleValue}
         key={thumb.key}
         index={thumb.index}
@@ -134,8 +136,8 @@ const ThumbGrid = ({
             onSelectClick(thumb.thumbId, thumb.frameNumber);
           }}
         onThumbDoubleClick={onThumbDoubleClick}
-        onBack={showSettings ? null : () => onBackClick(file, thumb.id, thumb.frameNumber)}
-        onForward={showSettings ? null : () => onForwardClick(file, thumb.id, thumb.frameNumber)}
+        onBack={showSettings ? null : () => onBackClick(file, thumb.thumbId, thumb.frameNumber)}
+        onForward={showSettings ? null : () => onForwardClick(file, thumb.thumbId, thumb.frameNumber)}
         onToggle={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => onToggleClick(file.id, thumb.thumbId)}
         onRemove={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?

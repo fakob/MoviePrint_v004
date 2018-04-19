@@ -9,8 +9,9 @@ import {
 } from '../actions';
 import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
-import { getNextThumb, getPreviousThumb, getLowestFrame, getHighestFrame, getChangeThumbStep, getVisibleThumbs } from '../utils/utils';
+import { getNextThumb, getPreviousThumb, getLowestFrame, getHighestFrame, getVisibleThumbs } from '../utils/utils';
 import saveThumb from '../utils/saveThumb';
+import { CHANGE_THUMB_STEP } from '../utils/constants';
 
 class SortedVisibleThumbGrid extends Component {
   constructor(props) {
@@ -130,6 +131,7 @@ class SortedVisibleThumbGrid extends Component {
         containerHeight={this.props.containerHeight || 360}
         zoomOut={this.props.zoomOut}
         scaleValueObject={this.props.scaleValueObject}
+        keyObject={this.props.keyObject}
       />
     );
   }
@@ -195,10 +197,24 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       saveThumb(fileName, frameNumber, frameId);
     },
     onBackClick: (file, thumbId, frameNumber) => {
-      dispatch(changeThumb(file, thumbId, frameNumber - getChangeThumbStep(1)));
+      let stepValue = CHANGE_THUMB_STEP[0];
+      if (ownProps.keyObject.shiftKey) {
+        stepValue = CHANGE_THUMB_STEP[1];
+      }
+      if (ownProps.keyObject.altKey) {
+        stepValue = CHANGE_THUMB_STEP[2];
+      }
+      dispatch(changeThumb(file, thumbId, frameNumber - stepValue));
     },
     onForwardClick: (file, thumbId, frameNumber) => {
-      dispatch(changeThumb(file, thumbId, frameNumber + getChangeThumbStep(1)));
+      let stepValue = CHANGE_THUMB_STEP[0];
+      if (ownProps.keyObject.shiftKey) {
+        stepValue = CHANGE_THUMB_STEP[1];
+      }
+      if (ownProps.keyObject.altKey) {
+        stepValue = CHANGE_THUMB_STEP[2];
+      }
+      dispatch(changeThumb(file, thumbId, frameNumber + stepValue));
     },
     onScrubClick: (file, thumbId, frameNumber) => {
       ownProps.parentMethod(file, thumbId, frameNumber);

@@ -906,6 +906,7 @@ class App extends Component {
 
                           zoomOut={this.props.visibilitySettings.zoomOut}
                           scaleValueObject={this.state.scaleValueObject}
+                          keyObject={this.state.keyObject}
                         />
                       ) :
                       (
