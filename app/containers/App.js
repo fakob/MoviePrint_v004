@@ -92,8 +92,8 @@ const getScaleValueObject = (
   const newMoviePrintHeightBody =
     zoomOutBool ? moviePrintHeightBody * scaleValue : moviePrintHeightBody;
   const newMoviePrintHeight = zoomOutBool ? moviePrintHeight * scaleValue : moviePrintHeight;
-  const newThumbMargin = zoomOutBool ? thumbMargin * scaleValue : thumbMarginForThumbView;
-  const newThumbWidth = zoomOutBool ? thumbWidth * scaleValue : thumbnailWidthForThumbView;
+  const newThumbMargin = Math.floor(zoomOutBool ? thumbMargin * scaleValue : thumbMarginForThumbView);
+  const newThumbWidth = Math.floor(zoomOutBool ? thumbWidth * scaleValue : thumbnailWidthForThumbView);
   const newBorderRadius = zoomOutBool ? borderRadius * scaleValue : borderRadius;
   const newHeaderHeight = zoomOutBool ? headerHeight * scaleValue : headerHeight;
   const newScaleValue = zoomOutBool ? settings.defaultThumbnailScale * scaleValue :

@@ -34,7 +34,7 @@ const DragHandle = SortableHandle(({ width, height }) => {
       // onBlur={out}
       style={{
         width,
-        height,
+        height: Math.floor(height),
       }}
     >
       <img
@@ -42,7 +42,7 @@ const DragHandle = SortableHandle(({ width, height }) => {
         style={{
           width,
           // height: height * 0.8,
-          height,
+          height: Math.floor(height),
         }}
         alt=""
       />
@@ -135,7 +135,7 @@ const Thumb = ({
         width={`${thumbWidth}px`}
         height={`${(thumbWidth * aspectRatioInv)}px`}
         style={{
-          filter: `${controlersAreVisible ? 'brightness(80%)' : ''}`,
+          // filter: `${controlersAreVisible ? 'brightness(80%)' : ''}`,
           borderRadius: `${(selected && !zoomOut) ? 0 : borderRadius}px`,
         }}
       />
@@ -156,8 +156,8 @@ const Thumb = ({
         }}
       >
         <DragHandle
-          width={thumbWidth}
-          height={thumbWidth * aspectRatioInv}
+          width={thumbWidth - 1}
+          height={(thumbWidth * aspectRatioInv) - 1}
         />
         <button
           style={{
@@ -177,11 +177,6 @@ const Thumb = ({
             name={hidden ? 'unhide' : 'hide'}
             className={styles.opaque}
           />
-          {/* <img
-            src={hidden ? show : hide}
-            className={styles.hide}
-            alt=""
-          /> */}
         </button>
         <button
           style={{
@@ -201,11 +196,6 @@ const Thumb = ({
             name="download"
             className={styles.opaque}
           />
-          {/* <img
-            src={save}
-            className={styles.save}
-            alt=""
-          /> */}
         </button>
         <button
           style={{

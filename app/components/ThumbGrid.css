@@ -6,6 +6,7 @@
   overflow: hidden;
   position: relative;
   line-height: 0;
+
 }
 
 .gridHeaderImageAndText {
@@ -39,6 +40,7 @@
     border: 0;
     margin: 4px;
     position: relative;
+    outline:none;
 }
 
 .gridItemSelected {
@@ -70,6 +72,7 @@
   border: 0;
   overflow: auto;
   margin: auto;
+  outline:none;
 }
 
 .frameNumber {
@@ -92,9 +95,9 @@
   left: calc(50% - 72px); */
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) scale(0.95);
   /* width: 144px; */
-  height: 80%;
+  /* height: 80%; */
   opacity: 1;
   cursor: move;
   background-color: transparent;
