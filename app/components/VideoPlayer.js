@@ -5,13 +5,15 @@ import Draggable from 'react-draggable';
 import { Button, Popup } from 'semantic-ui-react';
 import { changeThumb, addDefaultThumbs, addThumb } from '../actions';
 import {
-  VERTICAL_OFFSET_OF_INOUTPOINT_POPUP, MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE
+  VERTICAL_OFFSET_OF_INOUTPOINT_POPUP, MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
+  CHANGE_THUMB_STEP
 } from '../utils/constants'
 import {
   getLowestFrame, getHighestFrame, getChangeThumbStep, getVisibleThumbs,
   mapRange, secondsToTimeCode, limitRange, frameCountToSeconds,
   getNextThumb, getPreviousThumb, secondsToFrameCount
 } from './../utils/utils';
+// import { saveThumb } from './../utils/saveThumb';
 import styles from './VideoPlayer.css';
 import stylesThumb from './ThumbGrid.css';
 
@@ -43,6 +45,7 @@ class VideoPlayer extends Component {
       videoWidth: 640,
     };
 
+    // this.onSaveThumbClick = this.onSaveThumbClick.bind(this);
     this.onInPointClick = this.onInPointClick.bind(this);
     this.onOutPointClick = this.onOutPointClick.bind(this);
     this.onBackClick = this.onBackClick.bind(this);
@@ -96,6 +99,10 @@ class VideoPlayer extends Component {
     }
   }
 
+  // onSaveThumbClick() {
+  //   saveThumb(this.props.file.fileName, frameNumber);
+  // }
+
   onInPointClick() {
     const { store } = this.context;
     const newFrameNumber = mapRange(
@@ -126,12 +133,38 @@ class VideoPlayer extends Component {
     ));
   }
 
-  onBackClick(step) {
-    this.updatePositionWithStep(step);
+  onBackClick(step = undefined) {
+    let stepValue;
+    if (step) {
+      stepValue = step;
+    } else {
+      stepValue = CHANGE_THUMB_STEP[0] * -1;
+      if (this.props.keyObject.shiftKey) {
+        stepValue = CHANGE_THUMB_STEP[1] * -1;
+      }
+      if (this.props.keyObject.altKey) {
+        stepValue = CHANGE_THUMB_STEP[2] * -1;
+      }
+    }
+    console.log(stepValue);
+    this.updatePositionWithStep(stepValue);
   }
 
-  onForwardClick(step) {
-    this.updatePositionWithStep(step);
+  onForwardClick(step = undefined) {
+    let stepValue;
+    if (step) {
+      stepValue = step;
+    } else {
+      stepValue = CHANGE_THUMB_STEP[0];
+      if (this.props.keyObject.shiftKey) {
+        stepValue = CHANGE_THUMB_STEP[1];
+      }
+      if (this.props.keyObject.altKey) {
+        stepValue = CHANGE_THUMB_STEP[2];
+      }
+    }
+    console.log(stepValue);
+    this.updatePositionWithStep(stepValue);
   }
 
   onDurationChange(duration) {
@@ -306,90 +339,112 @@ class VideoPlayer extends Component {
               transform: this.props.showPlaybar ? 'translateY(-64px)' : undefined,
             }}
           >
-            <Popup
-              trigger={
-                <button
-                  className={styles.hoverButton}
-                  onClick={this.onInPointClick}
-                  onMouseOver={over}
-                  onMouseLeave={out}
-                  onFocus={over}
-                  onBlur={out}
-                >
-                  <img
-                    src={inPointButton}
-                    className={styles.inPoint}
-                    alt=""
-                  />
-                </button>
-              }
-              content="Use this frame as In-point"
-              hoverable
-              basic
-              inverted
-              mouseEnterDelay={1000}
-              position="top left"
-              className={stylesThumb.popupThumb}
-              verticalOffset={VERTICAL_OFFSET_OF_INOUTPOINT_POPUP}
-            />
-            <Popup
-              trigger={
-                <button
-                  className={styles.hoverButton}
-                  onClick={this.onApplyClick}
-                  onMouseOver={over}
-                  onMouseLeave={out}
-                  onFocus={over}
-                  onBlur={out}
-                  style={{
-                    display: this.props.selectedThumbId ? 'block' : 'none',
-                  }}
-                >
-                  <img
-                    src={this.props.keyObject.altKey ? add : choose}
-                    className={styles.choose}
-                    alt=""
-                  />
-                </button>
-              }
-              content="Choose this frame as thumb"
-              hoverable
-              basic
-              inverted
-              size="mini"
-              mouseEnterDelay={1000}
-              position="top center"
-              className={stylesThumb.popupThumb}
-              verticalOffset={VERTICAL_OFFSET_OF_INOUTPOINT_POPUP}
-              horizontalOffset={this.state.videoWidth / 2}
-            />
-            <Popup
-              trigger={
-                <button
-                  className={styles.hoverButton}
-                  onClick={this.onOutPointClick}
-                  onMouseOver={over}
-                  onMouseLeave={out}
-                  onFocus={over}
-                  onBlur={out}
-                >
-                  <img
-                    src={outPointButton}
-                    className={styles.outPoint}
-                    alt=""
-                  />
-                </button>
-              }
-              content="Use this frame as Out-point"
-              hoverable
-              basic
-              inverted
-              mouseEnterDelay={1000}
-              position="top right"
-              className={stylesThumb.popupThumb}
-              verticalOffset={VERTICAL_OFFSET_OF_INOUTPOINT_POPUP}
-              horizontalOffset={this.state.videoWidth}
-            />
+            {/* <button
+              style={{
+                transform: 'translate(-50%, 10%)',
+              }}
+              className={`${styles.hoverButton} ${styles.save}`}
+              onClick={onSaveThumb}
+              onMouseOver={over}
+              onMouseLeave={out}
+              onFocus={over}
+              onBlur={out}
+            >
+              <Icon
+                inverted
+                name="download"
+                className={styles.opaque}
+              />
+            </button> */}
+            <button
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                marginLeft: '8px',
+              }}
+              className={`${styles.hoverButton} ${styles.textButton}`}
+              onClick={this.onInPointClick}
+              onMouseOver={over}
+              onMouseLeave={out}
+              onFocus={over}
+              onBlur={out}
+            >
+              IN
+            </button>
+            <button
+              style={{
+                transformOrigin: 'center bottom',
+                transform: 'translateX(-50%)',
+                position: 'absolute',
+                bottom: 0,
+                left: '30%',
+              }}
+              className={`${styles.hoverButton} ${styles.textButton}`}
+              onClick={() => this.onBackClick()}
+              onMouseOver={over}
+              onMouseLeave={out}
+              onFocus={over}
+              onBlur={out}
+            >
+              {this.props.keyObject.altKey ? '<<<' : (this.props.keyObject.shiftKey ? '<<' : '<')}
+            </button>
+            <button
+              className={`${styles.hoverButton} ${styles.textButton}`}
+              onClick={this.onApplyClick}
+              onMouseOver={over}
+              onMouseLeave={out}
+              onFocus={over}
+              onBlur={out}
+              style={{
+                display: this.props.selectedThumbId ? 'block' : 'none',
+                transformOrigin: 'center bottom',
+                transform: 'translateX(-50%)',
+                position: 'absolute',
+                bottom: 0,
+                left: '50%',
+              }}
+            >
+              {this.props.keyObject.altKey ? 'ADD' : 'CHOOSE'}
+              {/* <img
+                src={this.props.keyObject.altKey ? add : choose}
+                className={styles.choose}
+                alt=""
+              /> */}
+            </button>
+            <button
+              style={{
+                transformOrigin: 'center bottom',
+                transform: 'translateX(-50%)',
+                position: 'absolute',
+                bottom: 0,
+                left: '70%',
+              }}
+              className={`${styles.hoverButton} ${styles.textButton}`}
+              onClick={() => this.onForwardClick()}
+              onMouseOver={over}
+              onMouseLeave={out}
+              onFocus={over}
+              onBlur={out}
+            >
+              {this.props.keyObject.altKey ? '>>>' : (this.props.keyObject.shiftKey ? '>>' : '>')}
+            </button>
+            <button
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+                marginRight: '8px',
+              }}
+              className={`${styles.hoverButton} ${styles.textButton}`}
+              onClick={this.onOutPointClick}
+              onMouseOver={over}
+              onMouseLeave={out}
+              onFocus={over}
+              onBlur={out}
+            >
+              OUT
+            </button>
           </div>
         </div>
         <div className={`${styles.controlsWrapper}`}>

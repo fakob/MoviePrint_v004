@@ -111,6 +111,8 @@
 .hoverButton {
   border: 0;
   cursor: pointer;
+  background-color: transparent;
+  outline:none;
 }
 
 .inPoint {
@@ -136,4 +138,11 @@
     transform: translate(-50%, 0%);
     opacity: 0.5;
     /* cursor: col-resize; */
+}
+
+.textButton {
+  font-family: 'Franchise';
+  color: #ffffff;
+  font-size: 50px;
+  opacity: 0.5;
 }

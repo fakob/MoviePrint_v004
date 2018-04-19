@@ -5,7 +5,7 @@ import { ensureDirectoryExistence, getFilePathObject, pad } from './utils';
 const { ipcRenderer } = require('electron');
 const { app } = require('electron').remote;
 
-const saveThumb = (fileName, frameNumber, frameId, saveToFolder = '', overwrite = false) => {
+const saveThumb = (fileName, frameNumber, frameId = undefined, saveToFolder = '', overwrite = false) => {
   // save thumbs in folder with the same name as moviePrint
   let newFolderName = app.getPath('desktop');
   if (saveToFolder) {
