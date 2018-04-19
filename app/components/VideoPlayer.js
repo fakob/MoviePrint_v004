@@ -84,8 +84,8 @@ class VideoPlayer extends Component {
       nextProps.height !== this.props.height ||
       nextProps.width !== this.props.width
     ) {
-      const videoHeight = this.props.height - this.props.controllerHeight;
-      const videoWidth = videoHeight / this.props.aspectRatioInv;
+      const videoHeight = nextProps.height - nextProps.controllerHeight;
+      const videoWidth = videoHeight / nextProps.aspectRatioInv;
       this.setState({
         videoHeight,
         videoWidth
@@ -94,7 +94,6 @@ class VideoPlayer extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    console.log(`${prevProps.selectedThumbId} !== ${this.props.selectedThumbId}`);
     if (prevProps.selectedThumbId !== this.props.selectedThumbId) {
       this.updateTimeFromThumbId(this.props.selectedThumbId);
     }

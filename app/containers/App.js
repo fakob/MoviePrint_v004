@@ -376,7 +376,7 @@ class App extends Component {
             which: event.which
           }
         },
-        console.log(`ctrl:${event.ctrlKey}, shift:${event.shiftKey}, alt:${event.altKey}, meta:${event.metaKey}, keynum:${event.which}`)
+        // console.log(`ctrl:${event.ctrlKey}, shift:${event.shiftKey}, alt:${event.altKey}, meta:${event.metaKey}, keynum:${event.which}`)
       );
     }
   }
@@ -393,7 +393,7 @@ class App extends Component {
             which: undefined
           }
         },
-        console.log('keyup')
+        // console.log('keyup')
       );
     }
   }
