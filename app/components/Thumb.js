@@ -41,7 +41,6 @@ const DragHandle = SortableHandle(({ width, height }) => {
         src={transparent}
         style={{
           width,
-          // height: height * 0.8,
           height: Math.floor(height),
         }}
         alt=""
