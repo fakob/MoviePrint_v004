@@ -6,7 +6,7 @@ import { Button, Popup } from 'semantic-ui-react';
 import { changeThumb, addDefaultThumbs, addThumb } from '../actions';
 import {
   VERTICAL_OFFSET_OF_INOUTPOINT_POPUP, MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
-  CHANGE_THUMB_STEP
+  CHANGE_THUMB_STEP, MOVIEPRINT_COLORS
 } from '../utils/constants'
 import {
   getLowestFrame, getHighestFrame, getChangeThumbStep, getVisibleThumbs,
@@ -182,8 +182,11 @@ class VideoPlayer extends Component {
   }
 
   updatePositionFromTime(currentTime) {
-    this.setState({ currentTime });
-    const xPos = mapRange(currentTime, 0, this.state.duration, 0, this.state.videoWidth, false);
+    // rounds the number with 3 decimals
+    const roundedCurrentTime = Math.round((currentTime * 1000) + Number.EPSILON) / 1000;
+
+    this.setState({ currentTime: roundedCurrentTime });
+    const xPos = mapRange(roundedCurrentTime, 0, this.state.duration, 0, this.state.videoWidth, false);
     this.setState({ playHeadPosition: xPos });
   }
 
@@ -258,6 +261,7 @@ class VideoPlayer extends Component {
   onApplyClick = () => {
     const { store } = this.context;
     const newFrameNumber = secondsToFrameCount(this.state.currentTime, this.props.file.fps);
+    console.log(`${newFrameNumber} = secondsToFrameCount(${this.state.currentTime}, ${this.props.file.fps})`)
     if (this.props.keyObject.altKey) {
       store.dispatch(addThumb(
         this.props.file,
@@ -269,8 +273,8 @@ class VideoPlayer extends Component {
     }
 
     // move selection to next thumb
-    const nextThumbObject = getNextThumb(this.props.thumbs, this.props.selectedThumbId);
-    this.props.selectMethod(nextThumbObject.thumbId, nextThumbObject.frameNumber);
+    // const nextThumbObject = getNextThumb(this.props.thumbs, this.props.selectedThumbId);
+    // this.props.selectMethod(nextThumbObject.thumbId, nextThumbObject.frameNumber);
   }
 
   onCancelClick = () => {
@@ -403,6 +407,7 @@ class VideoPlayer extends Component {
                 position: 'absolute',
                 bottom: 0,
                 left: '50%',
+                color: MOVIEPRINT_COLORS[0]
               }}
             >
               {this.props.keyObject.altKey ? 'ADD' : 'CHOOSE'}

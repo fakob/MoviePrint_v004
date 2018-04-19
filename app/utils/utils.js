@@ -53,6 +53,7 @@ export const getObjectProperty = (fn) => {
 export const mapRange = (value, low1, high1, low2, high2, returnInt = true) => {
   // * 1.0 added to force float division
   let newValue = low2 + ((high2 - low2) * (((value - low1) * 1.0) / (high1 - low1)));
+  newValue = Math.round((newValue * 1000) + Number.EPSILON) / 1000; // rounds the number with 3 decimals
   if (returnInt) {
     newValue = Math.round(newValue);
   }

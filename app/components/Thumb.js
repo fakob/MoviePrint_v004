@@ -282,6 +282,7 @@ Thumb.defaultProps = {
   onInPoint: null,
   onOutPoint: null,
   onSaveThumb: null,
+  keyObject: {}
 };
 
 Thumb.propTypes = {
@@ -291,6 +292,7 @@ Thumb.propTypes = {
   controlersAreVisible: PropTypes.bool,
   hidden: PropTypes.bool,
   inputRefThumb: PropTypes.object,
+  keyObject: PropTypes.object,
   margin: PropTypes.number.isRequired,
   onInPoint: PropTypes.func,
   onOut: PropTypes.func,

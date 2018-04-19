@@ -288,7 +288,7 @@ export const updateFrameNumber = (fileId, thumbId, frameNumber) => {
 
 export const updateThumbImage = (fileId, thumbId, frameId, base64, frameNumber, isPosterFrame = 0) =>
   ((dispatch, getState) => {
-    console.log('inside updateThumbImage');
+    console.log(`inside updateThumbImage frameNumber=${frameNumber}`);
     if (base64 === '') {
       console.log('base64 empty');
     } else {
