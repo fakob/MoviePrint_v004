@@ -801,6 +801,7 @@ class App extends Component {
                     onToggleShowHiddenThumbsClick={this.onToggleShowHiddenThumbsClick}
                     onThumbInfoClick={this.onThumbInfoClick}
                     openDialog={() => this.dropzoneRef.open()}
+                    zoom={this.state.zoom}
                   />
                   <div
                     className={`${styles.SiteContent}`}
