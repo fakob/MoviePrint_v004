@@ -44,9 +44,22 @@
 }
 
 .gridItemSelected {
-  outline-style: solid;
+  /* outline-style: solid;
   outline-color: #FF5006;
+  background-color: #FF5006; */
+  /* box-shadow: 5px 0px 0px 0px #FF5006 */
+}
+
+.gridItemSelected:after {
+  content: "";
   background-color: #FF5006;
+  position: absolute;
+  width: 5px;
+  height: 100%;
+  top: 0;
+  right: 0;
+  display: block;
+  transform: translateX(10px);
 }
 
 .gridItem:hover {
