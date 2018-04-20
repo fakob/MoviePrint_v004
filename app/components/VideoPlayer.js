@@ -282,7 +282,10 @@ class VideoPlayer extends Component {
           newThumbId
         ));
       }
-      this.props.selectMethod(newThumbId, newFrameNumber);
+      // delay selection so it waits for add thumb to be ready
+      setTimeout(() => {
+        this.props.selectMethod(newThumbId, newFrameNumber);
+      }, 500);
     } else { // if normal set new thumb
       store.dispatch(changeThumb(this.props.file, this.props.selectedThumbId, newFrameNumber));
     }
