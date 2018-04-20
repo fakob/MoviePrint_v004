@@ -167,11 +167,16 @@ export const setDefaultSaveOptionIncludeIndividual = (defaultSaveOptionIncludeIn
 
 // thumbs
 
-export const addThumb = (file, frameNumber, index) => {
+export const addThumb = (file, frameNumber, index, thumbId = uuidV4()) => {
   return (dispatch) => {
     console.log('inside addThumb');
     const frameId = uuidV4();
-    const thumbId = uuidV4();
+    // let thumbId;
+    // if (presetThumbId) {
+    //   thumbId = presetThumbId;
+    // } else {
+    //   thumbId = uuidV4();
+    // }
     const newFrameNumberWithinBoundaries = limitRange(frameNumber, 0, file.frameCount - 1);
 
     imageDB.frameList.where('[fileId+frameNumber]').equals([file.id, newFrameNumberWithinBoundaries]).toArray().then((frames) => {

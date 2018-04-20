@@ -100,7 +100,9 @@ const Thumb = ({
 
   function onThumbDoubleClickWithStop(e) {
     e.stopPropagation();
-    onSelect();
+    if (showMoviePrintView) {
+      onSelect();
+    }
     onThumbDoubleClick();
   }
 
@@ -115,182 +117,200 @@ const Thumb = ({
       onKeyPress={onSelect}
       onDoubleClick={onThumbDoubleClickWithStop}
       id={`thumb${tempId}`}
-      className={`${styles.gridItem} ${(selected && !showMoviePrintView) ? styles.gridItemSelected : ''}`}
+      className={`${styles.gridItem} ${(!showMoviePrintView && selected && !(keyObject.altKey || keyObject.shiftKey)) ? styles.gridItemSelected : ''}`}
       width={`${thumbWidth}px`}
       height={`${(thumbWidth * aspectRatioInv)}px`}
       style={{
         opacity: hidden ? '0.5' : '1',
         width: thumbWidth,
         margin: `${margin}px`,
-        outlineWidth: `${(selected && !showMoviePrintView) ? margin : 0}px`,
+        outlineWidth: `${margin}px`,
         borderRadius: `${(selected && !showMoviePrintView) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: thumbImageObjectUrl !== undefined ? undefined : color,
       }}
-    >
-      <img
-        src={thumbImageObjectUrl !== undefined ? thumbImageObjectUrl : transparent}
-        id={`thumbImage${tempId}`}
-        className={styles.image}
-        alt=""
-        width={`${thumbWidth}px`}
-        height={`${(thumbWidth * aspectRatioInv)}px`}
-        style={{
-          // filter: `${controlersAreVisible ? 'brightness(80%)' : ''}`,
-          borderRadius: `${(selected && !showMoviePrintView) ? 0 : borderRadius}px`,
-        }}
-      />
-      {thumbInfoValue !== undefined &&
-        <div
-          className={styles.frameNumber}
-          style={{
-            transformOrigin: 'left top',
-            transform: `scale(${(thumbInfoRatio * thumbWidth * aspectRatioInv) / 10})`,
-          }}
-        >
-          {thumbInfoValue}
-        </div>
-      }
-      <div
-        style={{
-          display: controlersAreVisible ? 'block' : 'none'
-        }}
       >
-        <DragHandle
-          width={thumbWidth - 1}
-          height={(thumbWidth * aspectRatioInv) - 1}
+      <div>
+        <img
+          src={thumbImageObjectUrl !== undefined ? thumbImageObjectUrl : transparent}
+          id={`thumbImage${tempId}`}
+          className={styles.image}
+          alt=""
+          width={`${thumbWidth}px`}
+          height={`${(thumbWidth * aspectRatioInv)}px`}
+          style={{
+            // filter: `${controlersAreVisible ? 'brightness(80%)' : ''}`,
+            borderRadius: `${(selected && !showMoviePrintView) ? 0 : borderRadius}px`,
+          }}
         />
-        <button
+        {thumbInfoValue !== undefined &&
+          <div
+            className={styles.frameNumber}
+            style={{
+              transformOrigin: 'left top',
+              transform: `scale(${(thumbInfoRatio * thumbWidth * aspectRatioInv) / 10})`,
+            }}
+          >
+            {thumbInfoValue}
+          </div>
+        }
+        <div
           style={{
-            display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-            transformOrigin: 'center top',
-            transform: `translate(-50%, 10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+            display: controlersAreVisible ? 'block' : 'none'
           }}
-          className={`${styles.hoverButton} ${styles.hide}`}
-          onClick={onToggleWithStop}
-          onMouseOver={over}
-          onMouseLeave={out}
-          onFocus={over}
-          onBlur={out}
         >
-          <Icon
-            inverted
-            name={hidden ? 'unhide' : 'hide'}
-            className={styles.opaque}
+          <DragHandle
+            width={thumbWidth - 1}
+            height={(thumbWidth * aspectRatioInv) - 1}
           />
-        </button>
-        <button
-          style={{
-            display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-            transformOrigin: 'top right',
-            transform: `translate(-50%, 10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-          }}
-          className={`${styles.hoverButton} ${styles.save}`}
-          onClick={onSaveThumbWithStop}
-          onMouseOver={over}
-          onMouseLeave={out}
-          onFocus={over}
-          onBlur={out}
-        >
-          <Icon
-            inverted
-            name="download"
-            className={styles.opaque}
+          <button
+            style={{
+              display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+              transformOrigin: 'center top',
+              transform: `translate(-50%, 10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+            }}
+            className={`${styles.hoverButton} ${styles.hide}`}
+            onClick={onToggleWithStop}
+            onMouseOver={over}
+            onMouseLeave={out}
+            onFocus={over}
+            onBlur={out}
+          >
+            <Icon
+              inverted
+              name={hidden ? 'unhide' : 'hide'}
+              className={styles.opaque}
+            />
+          </button>
+          <button
+            style={{
+              display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+              transformOrigin: 'top right',
+              transform: `translate(-50%, 10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+            }}
+            className={`${styles.hoverButton} ${styles.save}`}
+            onClick={onSaveThumbWithStop}
+            onMouseOver={over}
+            onMouseLeave={out}
+            onFocus={over}
+            onBlur={out}
+          >
+            <Icon
+              inverted
+              name="download"
+              className={styles.opaque}
+            />
+          </button>
+          <button
+            style={{
+              display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+              transformOrigin: 'left bottom',
+              transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              marginLeft: '8px',
+            }}
+            className={`${styles.hoverButton} ${styles.textButton}`}
+            onClick={onInPointWithStop}
+            onMouseOver={over}
+            onMouseLeave={out}
+            onFocus={over}
+            onBlur={out}
+          >
+            IN
+          </button>
+          <button
+            style={{
+              display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+              transformOrigin: 'center bottom',
+              transform: `translateX(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+              position: 'absolute',
+              bottom: 0,
+              left: '30%',
+            }}
+            className={`${styles.hoverButton} ${styles.textButton}`}
+            onClick={onBackWithStop}
+            onMouseOver={over}
+            onMouseLeave={out}
+            onFocus={over}
+            onBlur={out}
+          >
+            {/* {keyObject.altKey ? '-100' : (keyObject.shiftKey ? '-10' : '-1')} */}
+            {keyObject.altKey ? '<<<' : (keyObject.shiftKey ? '<<' : '<')}
+          </button>
+          <button
+            style={{
+              display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+              transformOrigin: 'center bottom',
+              transform: `translateX(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+              position: 'absolute',
+              bottom: 0,
+              left: '50%',
+            }}
+            className={`${styles.hoverButton} ${styles.textButton}`}
+            onClick={onThumbDoubleClickWithStop}
+            onMouseOver={over}
+            onMouseLeave={out}
+            onFocus={over}
+            onBlur={out}
+          >
+            {showMoviePrintView ? 'EDIT' : 'BACK'}
+          </button>
+          <button
+            style={{
+              display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+              transformOrigin: 'center bottom',
+              transform: `translateX(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+              position: 'absolute',
+              bottom: 0,
+              left: '70%',
+            }}
+            className={`${styles.hoverButton} ${styles.textButton}`}
+            onClick={onForwardWithStop}
+            onMouseOver={over}
+            onMouseLeave={out}
+            onFocus={over}
+            onBlur={out}
+          >
+            {/* {keyObject.altKey ? '+100' : (keyObject.shiftKey ? '+10' : '+1')} */}
+            {keyObject.altKey ? '>>>' : (keyObject.shiftKey ? '>>' : '>')}
+          </button>
+          <button
+            style={{
+              display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+              transformOrigin: 'right bottom',
+              transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+              position: 'absolute',
+              bottom: 0,
+              right: 0,
+              marginRight: '8px',
+            }}
+            className={`${styles.hoverButton} ${styles.textButton}`}
+            onClick={onOutPointWithStop}
+            onMouseOver={over}
+            onMouseLeave={out}
+            onFocus={over}
+            onBlur={out}
+          >
+            OUT
+          </button>
+        </div>
+        {!showMoviePrintView && selected && (keyObject.altKey || keyObject.shiftKey) &&
+          <div
+            style={{
+              content: '',
+              backgroundColor: '#FF5006',
+              position: 'absolute',
+              width: `${margin * 0.5}px`,
+              height: `${(thumbWidth * aspectRatioInv) + (margin * 2)}px`,
+              top: (margin * -1.0),
+              left: `${(!keyObject.altKey && keyObject.shiftKey) ? 0 : undefined}`,
+              right: `${keyObject.altKey ? 0 : undefined}`,
+              display: 'block',
+              transform: `translateX(${margin * (keyObject.altKey ? 1.25 : -1.25)}px)`,
+            }}
           />
-        </button>
-        <button
-          style={{
-            display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-            transformOrigin: 'left bottom',
-            transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            marginLeft: '8px',
-          }}
-          className={`${styles.hoverButton} ${styles.textButton}`}
-          onClick={onInPointWithStop}
-          onMouseOver={over}
-          onMouseLeave={out}
-          onFocus={over}
-          onBlur={out}
-        >
-          IN
-        </button>
-        <button
-          style={{
-            display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-            transformOrigin: 'center bottom',
-            transform: `translateX(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-            position: 'absolute',
-            bottom: 0,
-            left: '30%',
-          }}
-          className={`${styles.hoverButton} ${styles.textButton}`}
-          onClick={onBackWithStop}
-          onMouseOver={over}
-          onMouseLeave={out}
-          onFocus={over}
-          onBlur={out}
-        >
-          {/* {keyObject.altKey ? '-100' : (keyObject.shiftKey ? '-10' : '-1')} */}
-          {keyObject.altKey ? '<<<' : (keyObject.shiftKey ? '<<' : '<')}
-        </button>
-        <button
-          style={{
-            display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-            transformOrigin: 'center bottom',
-            transform: `translateX(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-            position: 'absolute',
-            bottom: 0,
-            left: '50%',
-          }}
-          className={`${styles.hoverButton} ${styles.textButton}`}
-          onClick={onThumbDoubleClickWithStop}
-          onMouseOver={over}
-          onMouseLeave={out}
-          onFocus={over}
-          onBlur={out}
-        >
-          {showMoviePrintView ? 'EDIT' : 'BACK'}
-        </button>
-        <button
-          style={{
-            display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-            transformOrigin: 'center bottom',
-            transform: `translateX(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-            position: 'absolute',
-            bottom: 0,
-            left: '70%',
-          }}
-          className={`${styles.hoverButton} ${styles.textButton}`}
-          onClick={onForwardWithStop}
-          onMouseOver={over}
-          onMouseLeave={out}
-          onFocus={over}
-          onBlur={out}
-        >
-          {/* {keyObject.altKey ? '+100' : (keyObject.shiftKey ? '+10' : '+1')} */}
-          {keyObject.altKey ? '>>>' : (keyObject.shiftKey ? '>>' : '>')}
-        </button>
-        <button
-          style={{
-            display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-            transformOrigin: 'right bottom',
-            transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-            position: 'absolute',
-            bottom: 0,
-            right: 0,
-            marginRight: '8px',
-          }}
-          className={`${styles.hoverButton} ${styles.textButton}`}
-          onClick={onOutPointWithStop}
-          onMouseOver={over}
-          onMouseLeave={out}
-          onFocus={over}
-          onBlur={out}
-        >
-          OUT
-        </button>
+        }
       </div>
     </div>
   );

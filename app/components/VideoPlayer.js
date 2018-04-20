@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Button } from 'semantic-ui-react';
+import uuidV4 from 'uuid/v4';
 import { changeThumb, addDefaultThumbs, addThumb } from '../actions';
 import {
   VERTICAL_OFFSET_OF_INOUTPOINT_POPUP, MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
@@ -12,7 +13,6 @@ import {
   mapRange, secondsToTimeCode, limitRange, frameCountToSeconds,
   getNextThumb, getPreviousThumb, secondsToFrameCount
 } from './../utils/utils';
-// import { saveThumb } from './../utils/saveThumb';
 import styles from './VideoPlayer.css';
 
 const pathModule = require('path');
@@ -264,20 +264,28 @@ class VideoPlayer extends Component {
   onApplyClick = () => {
     const { store } = this.context;
     const newFrameNumber = secondsToFrameCount(this.state.currentTime, this.props.file.fps);
-    console.log(`${newFrameNumber} = secondsToFrameCount(${this.state.currentTime}, ${this.props.file.fps})`)
-    if (this.props.keyObject.altKey) {
-      store.dispatch(addThumb(
-        this.props.file,
-        newFrameNumber,
-        this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index + 1
-      ));
-    } else {
+    console.log(`${newFrameNumber} = secondsToFrameCount(${this.state.currentTime}, ${this.props.file.fps})`);
+    if (this.props.keyObject.altKey || this.props.keyObject.shiftKey) {
+      const newThumbId = uuidV4();
+      if (this.props.keyObject.altKey) {
+        store.dispatch(addThumb(
+          this.props.file,
+          newFrameNumber,
+          this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index + 1,
+          newThumbId
+        ));
+      } else { // if shiftKey
+        store.dispatch(addThumb(
+          this.props.file,
+          newFrameNumber,
+          this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index,
+          newThumbId
+        ));
+      }
+      this.props.selectMethod(newThumbId, newFrameNumber);
+    } else { // if normal set new thumb
       store.dispatch(changeThumb(this.props.file, this.props.selectedThumbId, newFrameNumber));
     }
-
-    // move selection to next thumb
-    // const nextThumbObject = getNextThumb(this.props.thumbs, this.props.selectedThumbId);
-    // this.props.selectMethod(nextThumbObject.thumbId, nextThumbObject.frameNumber);
   }
 
   onCancelClick = () => {
@@ -418,12 +426,7 @@ class VideoPlayer extends Component {
                 color: MOVIEPRINT_COLORS[0]
               }}
             >
-              {this.props.keyObject.altKey ? 'ADD' : 'CHOOSE'}
-              {/* <img
-                src={this.props.keyObject.altKey ? add : choose}
-                className={styles.choose}
-                alt=""
-              /> */}
+              {this.props.keyObject.altKey ? 'ADD AFTER' : (this.props.keyObject.shiftKey ? 'ADD BEFORE' : 'SET')}
             </button>
             <button
               style={{
