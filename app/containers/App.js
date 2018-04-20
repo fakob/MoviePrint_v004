@@ -27,7 +27,7 @@ import {
   showPlaybar, hidePlaybar, updateFileDetailUseRatio
 } from '../actions';
 import {
-  MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT
+  MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT, ZOOM_SCALE
 } from '../utils/constants';
 
 const { ipcRenderer } = require('electron');
@@ -44,7 +44,7 @@ const setColumnAndThumbCount = (that, columnCount, thumbCount) => {
 
 const getScaleValueObject = (
   file, settings, columnCount = 3, thumbCount = 3,
-  containerWidth, containerHeight, showMoviePrintViewBool
+  containerWidth, containerHeight, showMoviePrintViewBool, zoomScale
 ) => {
   const movieWidth = (file !== undefined && file.width !== undefined ? file.width : 1280);
   const movieHeight = (file !== undefined && file.height !== undefined ? file.height : 720);
@@ -65,6 +65,7 @@ const getScaleValueObject = (
   const moviePrintHeightBody = rowCount * thumbnailHeightPlusMargin;
   const moviePrintHeight = headerHeight + (thumbMargin * 2) + moviePrintHeightBody;
 
+  // for thumbView
   const videoHeight = ((containerHeight * 2) / 3) - settings.defaultVideoPlayerControllerHeight;
   const videoWidth = videoHeight / aspectRatioInv;
   let videoPlayerHeight = videoHeight + settings.defaultVideoPlayerControllerHeight;
@@ -85,15 +86,15 @@ const getScaleValueObject = (
 
   const scaleValueWidth = containerWidth / moviePrintWidth;
   const scaleValueHeight = containerHeight / moviePrintHeight;
-  const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * generalScale;
+  const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * generalScale * zoomScale;
   // console.log(scaleValue);
   const newMoviePrintWidth =
     showMoviePrintViewBool ? moviePrintWidth * scaleValue : moviePrintWidthForThumbView;
   const newMoviePrintHeightBody =
     showMoviePrintViewBool ? moviePrintHeightBody * scaleValue : moviePrintHeightBody;
   const newMoviePrintHeight = showMoviePrintViewBool ? moviePrintHeight * scaleValue : moviePrintHeight;
-  const newThumbMargin = Math.floor(showMoviePrintViewBool ? thumbMargin * scaleValue : thumbMarginForThumbView);
-  const newThumbWidth = Math.floor(showMoviePrintViewBool ? thumbWidth * scaleValue : thumbnailWidthForThumbView);
+  const newThumbMargin = showMoviePrintViewBool ? thumbMargin * scaleValue : thumbMarginForThumbView;
+  const newThumbWidth = showMoviePrintViewBool ? thumbWidth * scaleValue : thumbnailWidthForThumbView;
   const newBorderRadius = showMoviePrintViewBool ? borderRadius * scaleValue : borderRadius;
   const newHeaderHeight = showMoviePrintViewBool ? headerHeight * scaleValue : headerHeight;
   const newScaleValue = showMoviePrintViewBool ? settings.defaultThumbnailScale * scaleValue :
@@ -211,7 +212,8 @@ class App extends Component {
         // this.state.columnCount, this.state.thumbCount,
         this.state.columnCountTemp, this.state.thumbCountTemp,
         this.state.containerWidth, this.state.containerHeight,
-        this.props.visibilitySettings.showMoviePrintView
+        this.props.visibilitySettings.showMoviePrintView,
+        this.state.zoom ? ZOOM_SCALE : 1
       )
     });
   }
@@ -328,6 +330,7 @@ class App extends Component {
       prevProps.settings.defaultShowHeader !== this.props.settings.defaultShowHeader ||
       prevProps.settings.defaultRoundedCorners !== this.props.settings.defaultRoundedCorners ||
       prevState.outputScaleCompensator !== this.state.outputScaleCompensator ||
+      prevState.zoom !== this.state.zoom ||
       prevProps.visibilitySettings.showMoviePrintView !== this.props.visibilitySettings.showMoviePrintView ||
       prevState.columnCountTemp !== this.state.columnCountTemp ||
       prevState.thumbCountTemp !== this.state.thumbCountTemp ||
@@ -438,7 +441,8 @@ class App extends Component {
       this.props.file, this.props.settings,
       this.state.columnCountTemp, this.state.thumbCountTemp,
       this.state.containerWidth, this.state.containerHeight,
-      this.props.visibilitySettings.showMoviePrintView
+      this.props.visibilitySettings.showMoviePrintView,
+      this.state.zoom ? ZOOM_SCALE : 1
     );
     this.setState(
       {
@@ -887,7 +891,7 @@ class App extends Component {
                       ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
                       className={`${styles.ItemMain} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainRightAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainEdit : ''} ${!this.props.visibilitySettings.showMoviePrintView ? styles.ItemMainTopAnim : ''}`}
                       style={{
-                        width: this.props.visibilitySettings.showMoviePrintView ? undefined : this.state.scaleValueObject.newMoviePrintWidth,
+                        width: (this.props.visibilitySettings.showMoviePrintView && !this.state.zoom) ? undefined : this.state.scaleValueObject.newMoviePrintWidth,
                         marginTop: this.props.visibilitySettings.showMoviePrintView ? undefined :
                           `${this.state.scaleValueObject.videoPlayerHeight +
                             (this.props.settings.defaultBorderMargin * 2)}px`,
@@ -918,7 +922,6 @@ class App extends Component {
                           showMoviePrintView={this.props.visibilitySettings.showMoviePrintView}
                           scaleValueObject={this.state.scaleValueObject}
                           keyObject={this.state.keyObject}
-                          zoom={this.state.zoom}
                         />
                       ) :
                       (
