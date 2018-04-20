@@ -57,7 +57,7 @@ const DragHandle = SortableHandle(({ width, height }) => {
 const Thumb = ({
   onSelect, onToggle, onInPoint, onOutPoint, onSaveThumb, tempId, color,
   onOver, onOut, hidden, thumbImageObjectUrl, aspectRatioInv, thumbInfoRatio,
-  controlersAreVisible, thumbWidth, margin, zoomOut, borderRadius, thumbInfoValue, selected,
+  controlersAreVisible, thumbWidth, margin, showMoviePrintView, borderRadius, thumbInfoValue, selected,
   inputRefThumb, onThumbDoubleClick, onBack, onForward, keyObject
 }) => {
   function over(event) {
@@ -114,15 +114,15 @@ const Thumb = ({
       onKeyPress={onSelect}
       onDoubleClick={onThumbDoubleClickWithStop}
       id={`thumb${tempId}`}
-      className={`${styles.gridItem} ${(selected && !zoomOut) ? styles.gridItemSelected : ''}`}
+      className={`${styles.gridItem} ${(selected && !showMoviePrintView) ? styles.gridItemSelected : ''}`}
       width={`${thumbWidth}px`}
       height={`${(thumbWidth * aspectRatioInv)}px`}
       style={{
         opacity: hidden ? '0.5' : '1',
         width: thumbWidth,
         margin: `${margin}px`,
-        outlineWidth: `${(selected && !zoomOut) ? margin : 0}px`,
-        borderRadius: `${(selected && !zoomOut) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
+        outlineWidth: `${(selected && !showMoviePrintView) ? margin : 0}px`,
+        borderRadius: `${(selected && !showMoviePrintView) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: thumbImageObjectUrl !== undefined ? undefined : color,
       }}
     >
@@ -135,7 +135,7 @@ const Thumb = ({
         height={`${(thumbWidth * aspectRatioInv)}px`}
         style={{
           // filter: `${controlersAreVisible ? 'brightness(80%)' : ''}`,
-          borderRadius: `${(selected && !zoomOut) ? 0 : borderRadius}px`,
+          borderRadius: `${(selected && !showMoviePrintView) ? 0 : borderRadius}px`,
         }}
       />
       {thumbInfoValue !== undefined &&
@@ -250,7 +250,7 @@ const Thumb = ({
           onFocus={over}
           onBlur={out}
         >
-          {zoomOut ? 'EDIT' : 'BACK'}
+          {showMoviePrintView ? 'EDIT' : 'BACK'}
         </button>
         <button
           style={{
@@ -334,7 +334,7 @@ Thumb.propTypes = {
   thumbInfoRatio: PropTypes.number.isRequired,
   thumbInfoValue: PropTypes.string,
   thumbWidth: PropTypes.number.isRequired,
-  zoomOut: PropTypes.bool.isRequired,
+  showMoviePrintView: PropTypes.bool.isRequired,
 };
 
 export default Thumb;

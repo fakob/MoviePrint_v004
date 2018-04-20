@@ -19,7 +19,7 @@ import saveMoviePrint from '../utils/saveMoviePrint';
 import styles from './App.css';
 import {
   setNewMovieList, showMovielist, hideMovielist, showSettings, hideSettings,
-  zoomIn, zoomOut, addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
+  showThumbView, showMoviePrintView, addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
   setVisibilityFilter, setCurrentFileId, updateFileColumnCount,
   updateFileDetails, clearThumbs, updateThumbImage, setDefaultMarginRatio, setDefaultShowHeader,
   setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat,
@@ -44,7 +44,7 @@ const setColumnAndThumbCount = (that, columnCount, thumbCount) => {
 
 const getScaleValueObject = (
   file, settings, columnCount = 3, thumbCount = 3,
-  containerWidth, containerHeight, zoomOutBool
+  containerWidth, containerHeight, showMoviePrintViewBool
 ) => {
   const movieWidth = (file !== undefined && file.width !== undefined ? file.width : 1280);
   const movieHeight = (file !== undefined && file.height !== undefined ? file.height : 720);
@@ -88,15 +88,15 @@ const getScaleValueObject = (
   const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * generalScale;
   // console.log(scaleValue);
   const newMoviePrintWidth =
-    zoomOutBool ? moviePrintWidth * scaleValue : moviePrintWidthForThumbView;
+    showMoviePrintViewBool ? moviePrintWidth * scaleValue : moviePrintWidthForThumbView;
   const newMoviePrintHeightBody =
-    zoomOutBool ? moviePrintHeightBody * scaleValue : moviePrintHeightBody;
-  const newMoviePrintHeight = zoomOutBool ? moviePrintHeight * scaleValue : moviePrintHeight;
-  const newThumbMargin = Math.floor(zoomOutBool ? thumbMargin * scaleValue : thumbMarginForThumbView);
-  const newThumbWidth = Math.floor(zoomOutBool ? thumbWidth * scaleValue : thumbnailWidthForThumbView);
-  const newBorderRadius = zoomOutBool ? borderRadius * scaleValue : borderRadius;
-  const newHeaderHeight = zoomOutBool ? headerHeight * scaleValue : headerHeight;
-  const newScaleValue = zoomOutBool ? settings.defaultThumbnailScale * scaleValue :
+    showMoviePrintViewBool ? moviePrintHeightBody * scaleValue : moviePrintHeightBody;
+  const newMoviePrintHeight = showMoviePrintViewBool ? moviePrintHeight * scaleValue : moviePrintHeight;
+  const newThumbMargin = Math.floor(showMoviePrintViewBool ? thumbMargin * scaleValue : thumbMarginForThumbView);
+  const newThumbWidth = Math.floor(showMoviePrintViewBool ? thumbWidth * scaleValue : thumbnailWidthForThumbView);
+  const newBorderRadius = showMoviePrintViewBool ? borderRadius * scaleValue : borderRadius;
+  const newHeaderHeight = showMoviePrintViewBool ? headerHeight * scaleValue : headerHeight;
+  const newScaleValue = showMoviePrintViewBool ? settings.defaultThumbnailScale * scaleValue :
     settings.defaultThumbnailScale;
 
   const scaleValueObject = {
@@ -209,7 +209,7 @@ class App extends Component {
         // this.state.columnCount, this.state.thumbCount,
         this.state.columnCountTemp, this.state.thumbCountTemp,
         this.state.containerWidth, this.state.containerHeight,
-        this.props.visibilitySettings.zoomOut
+        this.props.visibilitySettings.showMoviePrintView
       )
     });
   }
@@ -326,7 +326,7 @@ class App extends Component {
       prevProps.settings.defaultShowHeader !== this.props.settings.defaultShowHeader ||
       prevProps.settings.defaultRoundedCorners !== this.props.settings.defaultRoundedCorners ||
       prevState.outputScaleCompensator !== this.state.outputScaleCompensator ||
-      prevProps.visibilitySettings.zoomOut !== this.props.visibilitySettings.zoomOut ||
+      prevProps.visibilitySettings.showMoviePrintView !== this.props.visibilitySettings.showMoviePrintView ||
       prevState.columnCountTemp !== this.state.columnCountTemp ||
       prevState.thumbCountTemp !== this.state.thumbCountTemp ||
       prevState.columnCount !== this.state.columnCount ||
@@ -436,7 +436,7 @@ class App extends Component {
       this.props.file, this.props.settings,
       this.state.columnCountTemp, this.state.thumbCountTemp,
       this.state.containerWidth, this.state.containerHeight,
-      this.props.visibilitySettings.zoomOut
+      this.props.visibilitySettings.showMoviePrintView
     );
     this.setState(
       {
@@ -551,17 +551,17 @@ class App extends Component {
 
   switchToPrintView() {
     const { store } = this.context;
-    store.dispatch(zoomOut());
+    store.dispatch(showMoviePrintView());
   }
 
   onViewToggle() {
     const { store } = this.context;
-    if (this.props.visibilitySettings.zoomOut) {
+    if (this.props.visibilitySettings.showMoviePrintView) {
       this.hideSettings();
       this.hideMovielist();
-      store.dispatch(zoomIn());
+      store.dispatch(showThumbView());
     } else {
-      store.dispatch(zoomOut());
+      store.dispatch(showMoviePrintView());
     }
   }
 
@@ -833,7 +833,7 @@ class App extends Component {
                         onThumbnailScaleClick={this.onThumbnailScaleClick}
                       />
                     </div>
-                    {!this.props.visibilitySettings.zoomOut &&
+                    {!this.props.visibilitySettings.showMoviePrintView &&
                       <div
                         className={`${styles.ItemVideoPlayer} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''}`}
                         style={{
@@ -876,13 +876,13 @@ class App extends Component {
                     }
                     <div
                       ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
-                      className={`${styles.ItemMain} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainRightAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainEdit : ''} ${!this.props.visibilitySettings.zoomOut ? styles.ItemMainTopAnim : ''}`}
+                      className={`${styles.ItemMain} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainRightAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainEdit : ''} ${!this.props.visibilitySettings.showMoviePrintView ? styles.ItemMainTopAnim : ''}`}
                       style={{
-                        width: this.props.visibilitySettings.zoomOut ? undefined : this.state.scaleValueObject.newMoviePrintWidth,
-                        marginTop: this.props.visibilitySettings.zoomOut ? undefined :
+                        width: this.props.visibilitySettings.showMoviePrintView ? undefined : this.state.scaleValueObject.newMoviePrintWidth,
+                        marginTop: this.props.visibilitySettings.showMoviePrintView ? undefined :
                           `${this.state.scaleValueObject.videoPlayerHeight +
                             (this.props.settings.defaultBorderMargin * 2)}px`,
-                        minHeight: this.props.visibilitySettings.zoomOut ? `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)` : undefined
+                        minHeight: this.props.visibilitySettings.showMoviePrintView ? `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)` : undefined
                       }}
                     >
                       { this.props.file ? (
@@ -906,7 +906,7 @@ class App extends Component {
                           thumbCount={this.state.thumbCountTemp}
                           reCapture={this.state.reCapture}
 
-                          zoomOut={this.props.visibilitySettings.zoomOut}
+                          showMoviePrintView={this.props.visibilitySettings.showMoviePrintView}
                           scaleValueObject={this.state.scaleValueObject}
                           keyObject={this.state.keyObject}
                         />
@@ -919,7 +919,7 @@ class App extends Component {
                           }}
                         >
                           <div
-                            className={`${styles.ItemMainStartupItem} ${this.props.visibilitySettings.zoomOut ? '' : styles.hiddenItem}`}
+                            className={`${styles.ItemMainStartupItem} ${this.props.visibilitySettings.showMoviePrintView ? '' : styles.hiddenItem}`}
                           >
                             DROP MOVIES
                           </div>
@@ -955,12 +955,12 @@ class App extends Component {
                                 thumbCount={this.state.thumbCountTemp}
                                 reCapture={this.state.reCapture}
 
-                                zoomOut={this.props.visibilitySettings.zoomOut}
+                                showMoviePrintView={this.props.visibilitySettings.showMoviePrintView}
                                 scaleValueObject={this.state.scaleValueObject}
                               />
                             </div>
                             <div
-                              className={`${this.props.visibilitySettings.zoomOut ? '' : styles.hiddenItem}`}
+                              className={`${this.props.visibilitySettings.showMoviePrintView ? '' : styles.hiddenItem}`}
                               style={{
                                 position: 'absolute',
                                 top: '50%',
@@ -972,7 +972,7 @@ class App extends Component {
                             </div>
                           </div>
                           <div
-                            className={`${styles.ItemMainStartupItem} ${this.props.visibilitySettings.zoomOut ? '' : styles.hiddenItem}`}
+                            className={`${styles.ItemMainStartupItem} ${this.props.visibilitySettings.showMoviePrintView ? '' : styles.hiddenItem}`}
                           >
                             SAVE MOVIEPRINT
                           </div>
@@ -996,7 +996,7 @@ class App extends Component {
                     icon="labeled"
                     size="mini"
                   >
-                    {this.props.visibilitySettings.zoomOut &&
+                    {this.props.visibilitySettings.showMoviePrintView &&
                       <Menu.Item
                         name="save"
                         onClick={this.onSaveMoviePrint}
@@ -1026,12 +1026,12 @@ class App extends Component {
                         className={styles.FixedActionMenuFlex}
                       >
                         <Icon
-                          name={(this.props.visibilitySettings.zoomOut) ? 'picture' : 'block layout'}
+                          name={(this.props.visibilitySettings.showMoviePrintView) ? 'picture' : 'block layout'}
                         />
-                        {(this.props.visibilitySettings.zoomOut) ? 'Thumb view' : 'Print view'}
+                        {(this.props.visibilitySettings.showMoviePrintView) ? 'Thumb view' : 'Print view'}
                       </Menu.Item>
                     }
-                    {this.props.visibilitySettings.zoomOut &&
+                    {this.props.visibilitySettings.showMoviePrintView &&
                       <Menu.Item
                         name="edit"
                         onClick={(this.props.visibilitySettings.showSettings === false) ? this.showSettings : this.hideSettings}
@@ -1043,7 +1043,7 @@ class App extends Component {
                         {(this.props.visibilitySettings.showSettings === false) ? 'Customise look' : 'Hide'}
                       </Menu.Item>
                     }
-                    {!this.props.visibilitySettings.zoomOut &&
+                    {!this.props.visibilitySettings.showMoviePrintView &&
                       <Menu.Item
                         name="playbar"
                         onClick={this.onTogglePlaybar}

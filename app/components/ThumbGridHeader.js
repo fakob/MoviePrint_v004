@@ -5,7 +5,7 @@ import styles from './ThumbGrid.css';
 import movieprint from './../img/Thumb_MOVIEPRINT.png';
 
 const ThumbGridHeader = ({
-  zoomOut, filePath, fileName, headerHeight, thumbMargin, scaleValue
+  showMoviePrintView, filePath, fileName, headerHeight, thumbMargin, scaleValue
 }) => {
   const headerMarginRatioTop = 0.25; // 30% of height
   const headerImageRatio = 0.5; // 50% of height
@@ -57,7 +57,7 @@ ThumbGridHeader.defaultProps = {
 };
 
 ThumbGridHeader.propTypes = {
-  zoomOut: PropTypes.bool.isRequired,
+  showMoviePrintView: PropTypes.bool.isRequired,
   filePath: PropTypes.string.isRequired,
   fileName: PropTypes.string.isRequired,
   headerHeight: PropTypes.number.isRequired,

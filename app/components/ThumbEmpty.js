@@ -9,22 +9,22 @@ import transparent from './../img/Thumb_TRANSPARENT.png';
 const ThumbEmpty = ({
   onSelect, onToggle, onInPoint, onOutPoint, onBack, onForward, tempId, color, scaleValue,
   onOver, onOut, onScrub, hidden, thumbImageObjectUrl, aspectRatioInv, thumbInfoRatio,
-  controlersAreVisible, thumbWidth, margin, zoomOut, borderRadius, thumbInfoValue, selected,
+  controlersAreVisible, thumbWidth, margin, showMoviePrintView, borderRadius, thumbInfoValue, selected,
   inputRefThumb, onThumbDoubleClick
 }) => {
 
   return (
     <div
       onDoubleClick={onThumbDoubleClick}
-      className={`${styles.gridItem} ${(selected && !zoomOut) ? styles.gridItemSelected : ''}`}
+      className={`${styles.gridItem} ${(selected && !showMoviePrintView) ? styles.gridItemSelected : ''}`}
       width={`${thumbWidth}px`}
       height={`${(thumbWidth * aspectRatioInv)}px`}
       style={{
         opacity: hidden ? '0.2' : '1',
         width: thumbWidth,
         margin: `${margin}px`,
-        outlineWidth: `${(selected && !zoomOut) ? margin : 0}px`,
-        borderRadius: `${(selected && !zoomOut) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
+        outlineWidth: `${(selected && !showMoviePrintView) ? margin : 0}px`,
+        borderRadius: `${(selected && !showMoviePrintView) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: thumbImageObjectUrl !== undefined ? undefined : color,
       }}
     >
@@ -39,7 +39,7 @@ const ThumbEmpty = ({
         height={`${(thumbWidth * aspectRatioInv)}px`}
         style={{
           filter: `${controlersAreVisible ? 'brightness(80%)' : ''}`,
-          borderRadius: `${(selected && !zoomOut) ? 0 : borderRadius}px`,
+          borderRadius: `${(selected && !showMoviePrintView) ? 0 : borderRadius}px`,
         }}
       />
     </div>
@@ -51,7 +51,7 @@ ThumbEmpty.defaultProps = {
 };
 
 ThumbEmpty.propTypes = {
-  // zoomOut: PropTypes.bool,
+  // showMoviePrintView: PropTypes.bool,
   // aspectRatioInv: PropTypes.number,
   // thumbWidth: PropTypes.number,
   // margin: PropTypes.number,

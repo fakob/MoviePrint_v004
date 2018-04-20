@@ -7,7 +7,7 @@ const initialStateJSON = {
     showMovielist: false,
     showSettings: false,
     showPlaybar: false,
-    zoomOut: true,
+    showMoviePrintView: true,
   },
   thumbsObjUrls: {},
   undoGroup: {

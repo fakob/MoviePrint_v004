@@ -20,12 +20,16 @@ const visibilitySettings = (state = {}, action) => {
       return { ...state, showPlaybar: true };
     case 'HIDE_PLAYBAR':
       return { ...state, showPlaybar: false };
-    case 'TOGGLE_ZOOM_OUT':
-      return { ...state, zoomOut: !state.zoomOut };
-    case 'ZOOM_OUT':
-      return { ...state, zoomOut: true };
-    case 'ZOOM_IN':
-      return { ...state, zoomOut: false };
+    case 'SHOW_MOVIEPRINT_VIEW':
+      return { ...state, showMoviePrintView: true };
+    case 'SHOW_THUMB_VIEW':
+      return { ...state, showMoviePrintView: false };
+    // case 'TOGGLE_ZOOM_OUT':
+    //   return { ...state, zoomOut: !state.zoomOut };
+    // case 'ZOOM_OUT':
+    //   return { ...state, zoomOut: true };
+    // case 'ZOOM_IN':
+    //   return { ...state, zoomOut: false };
     default:
       return state;
   }

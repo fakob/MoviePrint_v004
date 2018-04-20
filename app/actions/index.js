@@ -66,23 +66,35 @@ export const hidePlaybar = () => {
   };
 };
 
-export const toggleZoomOut = () => {
+export const showMoviePrintView = () => {
   return {
-    type: 'TOGGLE_ZOOM_OUT'
+    type: 'SHOW_MOVIEPRINT_VIEW'
   };
 };
 
-export const zoomOut = () => {
+export const showThumbView = () => {
   return {
-    type: 'ZOOM_OUT'
+    type: 'SHOW_THUMB_VIEW'
   };
 };
 
-export const zoomIn = () => {
-  return {
-    type: 'ZOOM_IN'
-  };
-};
+// export const toggleZoomOut = () => {
+//   return {
+//     type: 'TOGGLE_ZOOM_OUT'
+//   };
+// };
+
+// export const zoomOut = () => {
+//   return {
+//     type: 'ZOOM_OUT'
+//   };
+// };
+
+// export const zoomIn = () => {
+//   return {
+//     type: 'ZOOM_IN'
+//   };
+// };
 
 // settings
 

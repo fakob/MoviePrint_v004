@@ -33,7 +33,7 @@ const ThumbGrid = ({
   thumbCount,
   thumbImages,
   thumbs,
-  zoomOut,
+  showMoviePrintView,
   keyObject
 }) => {
   const fps = (file !== undefined && file.fps !== undefined ? file.fps : 25);
@@ -55,7 +55,7 @@ const ThumbGrid = ({
 
   thumbGridHeaderComponent = (
     <ThumbGridHeader
-      zoomOut={zoomOut}
+      showMoviePrintView={showMoviePrintView}
       fileName={file.name || ''}
       filePath={file.path || ''}
       headerHeight={scaleValueObject.newHeaderHeight}
@@ -108,7 +108,7 @@ const ThumbGrid = ({
   thumbGridComponent = (
     thumbArray.map(thumb => (
       <SortableThumb
-        zoomOut={zoomOut}
+        showMoviePrintView={showMoviePrintView}
         keyObject={keyObject}
         scaleValue={scaleValueObject.newScaleValue}
         key={thumb.key}
@@ -159,7 +159,7 @@ const ThumbGrid = ({
       }}
       id="ThumbGrid"
     >
-      {settings.defaultShowHeader && zoomOut && thumbGridHeaderComponent}
+      {settings.defaultShowHeader && showMoviePrintView && thumbGridHeaderComponent}
       {thumbGridComponent}
     </div>
   );
@@ -192,7 +192,7 @@ ThumbGrid.propTypes = {
   showSettings: PropTypes.bool.isRequired,
   scaleValueObject: PropTypes.object.isRequired,
   settings: PropTypes.object.isRequired,
-  zoomOut: PropTypes.bool.isRequired,
+  showMoviePrintView: PropTypes.bool.isRequired,
   onSelectClick: PropTypes.func.isRequired,
   onToggleClick: PropTypes.func.isRequired,
   onRemoveClick: PropTypes.func.isRequired,

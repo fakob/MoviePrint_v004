@@ -5,7 +5,7 @@ import { arrayMove } from 'react-sortable-hoc';
 import scrollIntoView from 'scroll-into-view';
 import {
   toggleThumb, updateOrder, removeThumb, updateObjectUrlsFromThumbList,
-  changeThumb, addDefaultThumbs, zoomIn, zoomOut
+  changeThumb, addDefaultThumbs, showThumbView, showMoviePrintView
 } from '../actions';
 import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
@@ -45,7 +45,7 @@ class SortedVisibleThumbGrid extends Component {
       this.scrollThumbIntoView();
     }
     // only delay when switching to thumbView
-    if (prevProps.zoomOut !== this.props.zoomOut && prevProps.zoomOut) {
+    if (prevProps.showMoviePrintView !== this.props.showMoviePrintView && prevProps.showMoviePrintView) {
       setTimeout(() => {
         this.scrollThumbIntoView();
       }, 500);
@@ -129,7 +129,7 @@ class SortedVisibleThumbGrid extends Component {
         reCapture={this.props.reCapture}
         containerWidth={this.props.containerWidth || 640}
         containerHeight={this.props.containerHeight || 360}
-        zoomOut={this.props.zoomOut}
+        showMoviePrintView={this.props.showMoviePrintView}
         scaleValueObject={this.props.scaleValueObject}
         keyObject={this.props.keyObject}
       />
@@ -161,10 +161,10 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     // onViewToggle: () => {
     //   console.log(ownProps);
-    //   if (ownProps.zoomOut) {
-    //     dispatch(zoomIn());
+    //   if (ownProps.showMoviePrintView) {
+    //     dispatch(showThumbView());
     //   } else {
-    //     dispatch(zoomOut());
+    //     dispatch(showMoviePrintView());
     //   }
     // },
     onToggleClick: (fileId, thumbId) => {
