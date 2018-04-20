@@ -23,9 +23,9 @@ const Footer = ({
         inverted
         // widths={3}
       >
-        <Menu.Item>
+        {/* <Menu.Item>
           {file.name}
-        </Menu.Item>
+        </Menu.Item> */}
         <Menu.Menu position="right">
           {showMoviePrintView &&
             <Menu.Item

@@ -201,14 +201,3 @@
 .opaque {
   opacity: 1 !important;
 }
-
-.popupThumb {
-  border-radius: 0 !important;
-  background-color: rgba(30, 30, 30, 0.5) !important;
-  color: rgba(238, 238, 238, 0.5) !important;
-  margin-bottom: 0 !important;
-  padding: .3em .8em !important;
-  font-family: 'Franchise', 'Roboto Condensed' !important;
-  font-weight: 100 !important;
-  font-size: 12 !important;
-}

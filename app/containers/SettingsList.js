@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Slider, { Handle, createSliderWithTooltip } from 'rc-slider';
 import Tooltip from 'rc-tooltip';
-import { Button, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List, Message } from 'semantic-ui-react';
+import { Button, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List, Message, Popup } from 'semantic-ui-react';
 import { addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount } from '../actions';
 import styles from './Settings.css';
 import { MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT } from '../utils/constants';
@@ -210,14 +210,25 @@ class SettingsList extends Component {
           <Grid.Row>
             <Grid.Column width={4} />
             <Grid.Column width={12}>
-              <Button
-                fluid
-                color="orange"
-                disabled={(this.props.thumbCount === this.props.thumbCountTemp)}
-                onClick={this.props.onApplyClick}
-              >
-                  Apply
-              </Button>
+              <Popup
+                trigger={
+                  <Button
+                    fluid
+                    color="orange"
+                    disabled={(this.props.thumbCount === this.props.thumbCountTemp)}
+                    onClick={this.props.onApplyClick}
+                  >
+                      Apply
+                  </Button>
+                }
+                // className={styles.popupThumb}
+                style={{
+                  position: 'fixed',
+                  bottom: 0,
+                  left: '50%'
+                }}
+                content="Add users to your feed"
+              />
             </Grid.Column>
           </Grid.Row>
           <Divider inverted />

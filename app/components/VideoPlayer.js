@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Button } from 'semantic-ui-react';
+import { Popup } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
 import { changeThumb, addDefaultThumbs, addThumb } from '../actions';
 import {
@@ -14,6 +14,7 @@ import {
   getNextThumb, getPreviousThumb, secondsToFrameCount
 } from './../utils/utils';
 import styles from './VideoPlayer.css';
+import stylesPop from './Popup.css';
 
 const pathModule = require('path');
 
@@ -395,23 +396,29 @@ class VideoPlayer extends Component {
             >
               IN
             </button>
-            <button
-              style={{
-                transformOrigin: 'center bottom',
-                transform: 'translateX(-50%)',
-                position: 'absolute',
-                bottom: 0,
-                left: '30%',
-              }}
-              className={`${styles.hoverButton} ${styles.textButton}`}
-              onClick={() => this.onBackClick()}
-              onMouseOver={over}
-              onMouseLeave={out}
-              onFocus={over}
-              onBlur={out}
-            >
-              {this.props.keyObject.altKey ? '<<<' : (this.props.keyObject.shiftKey ? '<<' : '<')}
-            </button>
+            <Popup
+              trigger={
+                <button
+                  style={{
+                    transformOrigin: 'center bottom',
+                    transform: 'translateX(-50%)',
+                    position: 'absolute',
+                    bottom: 0,
+                    left: '30%',
+                  }}
+                  className={`${styles.hoverButton} ${styles.textButton}`}
+                  onClick={() => this.onBackClick()}
+                  onMouseOver={over}
+                  onMouseLeave={out}
+                  onFocus={over}
+                  onBlur={out}
+                >
+                  {this.props.keyObject.altKey ? '<<<' : (this.props.keyObject.shiftKey ? '<<' : '<')}
+                </button>
+              }
+              className={stylesPop.popup}
+              content="Move 1 frame back (Shift = 10, Alt = 100)"
+            />
             <button
               className={`${styles.hoverButton} ${styles.textButton}`}
               onClick={this.onApplyClick}
