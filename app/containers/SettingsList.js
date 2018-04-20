@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Slider, { Handle, createSliderWithTooltip } from 'rc-slider';
 import Tooltip from 'rc-tooltip';
-import { Button, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List, Label } from 'semantic-ui-react';
+import { Button, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List, Message } from 'semantic-ui-react';
 import { addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount } from '../actions';
 import styles from './Settings.css';
 import { MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT } from '../utils/constants';
@@ -107,23 +107,23 @@ class SettingsList extends Component {
         <Grid padded inverted>
           <Grid.Row>
             <Grid.Column width={16}>
-              <Statistic inverted size="small">
+              <Statistic inverted size="tiny">
                 <Statistic.Value>{this.props.columnCountTemp}</Statistic.Value>
                 <Statistic.Label>{(this.props.columnCountTemp === 1) ? 'Column' : 'Columns'}</Statistic.Label>
               </Statistic>
-              <Statistic inverted size="small">
+              <Statistic inverted size="tiny">
                 <Statistic.Value>×</Statistic.Value>
               </Statistic>
-              <Statistic inverted size="small">
+              <Statistic inverted size="tiny">
                 <Statistic.Value>{this.props.rowCountTemp}</Statistic.Value>
                 <Statistic.Label>{(this.props.rowCountTemp === 1) ? 'Row' : 'Rows'}</Statistic.Label>
               </Statistic>
-              <Statistic inverted size="small">
+              <Statistic inverted size="tiny">
                 <Statistic.Value>{(this.props.columnCountTemp * this.props.rowCountTemp ===
                   this.props.thumbCountTemp) ? '=' : '≈'}
                 </Statistic.Value>
               </Statistic>
-              <Statistic inverted size="small" color={(this.props.reCapture) ? 'orange' : undefined}>
+              <Statistic inverted size="tiny" color={(this.props.reCapture) ? 'orange' : undefined}>
                 <Statistic.Value>{this.props.thumbCountTemp}</Statistic.Value>
                 <Statistic.Label>{(this.props.reCapture) ? 'Count' : 'Count'}</Statistic.Label>
               </Statistic>
@@ -194,13 +194,26 @@ class SettingsList extends Component {
               />
             </Grid.Column>
           </Grid.Row>
+          { (this.props.thumbCount !== this.props.thumbCountTemp) &&
+            <Grid.Row>
+              <Grid.Column width={4} />
+              <Grid.Column width={12}>
+                <Message
+                  color="orange"
+                  size="mini"
+                >
+                  Applying a new grid will overwrite your previously selected thumbs. Don&apos;t worry, this can be undone.
+                </Message>
+              </Grid.Column>
+            </Grid.Row>
+          }
           <Grid.Row>
             <Grid.Column width={4} />
             <Grid.Column width={12}>
               <Button
                 fluid
                 color="orange"
-                disabled={!this.props.reCapture}
+                disabled={(this.props.thumbCount === this.props.thumbCountTemp)}
                 onClick={this.props.onApplyClick}
               >
                   Apply

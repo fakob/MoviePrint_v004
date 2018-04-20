@@ -130,7 +130,7 @@ class App extends Component {
       thumbCountTemp: undefined,
       columnCount: undefined,
       thumbCount: undefined,
-      reCapture: false,
+      reCapture: true,
       colorArray: undefined,
       scaleValueObject: undefined,
       savingMoviePrint: false,
@@ -822,6 +822,7 @@ class App extends Component {
                         file={this.props.file}
                         columnCountTemp={this.state.columnCountTemp}
                         thumbCountTemp={this.state.thumbCountTemp}
+                        thumbCount={this.state.thumbCount}
                         rowCountTemp={Math.ceil(this.state.thumbCountTemp /
                           this.state.columnCountTemp)}
                         columnCount={this.state.columnCount}
