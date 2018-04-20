@@ -216,6 +216,9 @@
     "semantic-ui-react": "^0.79.1",
     "source-map-support": "^0.5.3"
   },
+  "optionalDependencies": {
+    "7zip-bin-mac": "^1.0.1"
+  },
   "devEngines": {
     "node": ">=7.x",
     "npm": ">=4.x",
