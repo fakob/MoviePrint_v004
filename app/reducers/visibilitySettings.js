@@ -14,12 +14,6 @@ const visibilitySettings = (state = {}, action) => {
       return { ...state, showSettings: true };
     case 'HIDE_SETTINGS':
       return { ...state, showSettings: false };
-    case 'TOGGLE_PLAYBAR':
-      return { ...state, showPlaybar: !state.showPlaybar };
-    case 'SHOW_PLAYBAR':
-      return { ...state, showPlaybar: true };
-    case 'HIDE_PLAYBAR':
-      return { ...state, showPlaybar: false };
     case 'SHOW_MOVIEPRINT_VIEW':
       return { ...state, showMoviePrintView: true };
     case 'SHOW_THUMB_VIEW':

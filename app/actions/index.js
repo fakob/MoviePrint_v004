@@ -48,24 +48,6 @@ export const hideSettings = () => {
   };
 };
 
-export const togglePlaybar = () => {
-  return {
-    type: 'TOGGLE_PLAYBAR'
-  };
-};
-
-export const showPlaybar = () => {
-  return {
-    type: 'SHOW_PLAYBAR'
-  };
-};
-
-export const hidePlaybar = () => {
-  return {
-    type: 'HIDE_PLAYBAR'
-  };
-};
-
 export const showMoviePrintView = () => {
   return {
     type: 'SHOW_MOVIEPRINT_VIEW'

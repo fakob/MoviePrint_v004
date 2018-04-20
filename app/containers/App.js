@@ -24,7 +24,7 @@ import {
   updateFileDetails, clearThumbs, updateThumbImage, setDefaultMarginRatio, setDefaultShowHeader,
   setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat,
   setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
-  showPlaybar, hidePlaybar, updateFileDetailUseRatio
+  updateFileDetailUseRatio
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT, ZOOM_SCALE
@@ -161,7 +161,6 @@ class App extends Component {
     this.hideSettings = this.hideSettings.bind(this);
     this.onShowThumbs = this.onShowThumbs.bind(this);
     this.onViewToggle = this.onViewToggle.bind(this);
-    this.onTogglePlaybar = this.onTogglePlaybar.bind(this);
     this.switchToPrintView = this.switchToPrintView.bind(this);
     this.onSaveMoviePrint = this.onSaveMoviePrint.bind(this);
 
@@ -571,15 +570,6 @@ class App extends Component {
     }
   }
 
-  onTogglePlaybar() {
-    const { store } = this.context;
-    if (this.props.visibilitySettings.showPlaybar) {
-      store.dispatch(hidePlaybar());
-    } else {
-      store.dispatch(showPlaybar());
-    }
-  }
-
   onSaveMoviePrint() {
     this.setState(
       { savingMoviePrint: true },
@@ -863,7 +853,6 @@ class App extends Component {
                             width={this.state.scaleValueObject.videoPlayerWidth}
                             controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
                             selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
-                            showPlaybar={this.props.visibilitySettings.showPlaybar}
                             frameNumber={this.state.selectedThumbObject ? this.state.selectedThumbObject.frameNumber : 0}
                             selectMethod={this.onSelectMethod}
                             keyObject={this.state.keyObject}
@@ -1003,99 +992,6 @@ class App extends Component {
                     showMoviePrintView={this.props.visibilitySettings.showMoviePrintView}
                   />
                 </div>
-                {/* <Sticky
-                  className={`${styles.FixedActionMenuRight} ${styles.ItemSettings} ${this.props.visibilitySettings.showSettings ? styles.ItemSettingsAnim : ''}`}
-                >
-                  <Menu
-                    compact
-                    icon="labeled"
-                    size="mini"
-                  >
-                    {this.props.visibilitySettings.showMoviePrintView &&
-                      <Menu.Item
-                        name="save"
-                        onClick={this.onSaveMoviePrint}
-                        color="orange"
-                        active={!this.state.savingMoviePrint}
-                        className={styles.FixedActionMenuFlex}
-                        disabled={this.state.savingMoviePrint}
-                      >
-                        { this.state.savingMoviePrint ?
-                          <Loader
-                            active
-                            inline
-                            size="small"
-                          />
-                          :
-                          <Icon
-                            name="save"
-                          />
-                        }
-                        Save MoviePrint
-                      </Menu.Item>
-                    }
-                    {!this.props.visibilitySettings.showSettings &&
-                      <Menu.Item
-                        name="zoom"
-                        onClick={this.onViewToggle}
-                        className={styles.FixedActionMenuFlex}
-                      >
-                        <Icon
-                          name={(this.props.visibilitySettings.showMoviePrintView) ? 'picture' : 'block layout'}
-                        />
-                        {(this.props.visibilitySettings.showMoviePrintView) ? 'Thumb view' : 'Print view'}
-                      </Menu.Item>
-                    }
-                    {this.props.visibilitySettings.showMoviePrintView &&
-                      <Menu.Item
-                        name="edit"
-                        onClick={(this.props.visibilitySettings.showSettings === false) ? this.showSettings : this.hideSettings}
-                        className={styles.FixedActionMenuFlex}
-                      >
-                        <Icon
-                          name={(this.props.visibilitySettings.showSettings === false) ? 'edit' : 'edit'}
-                        />
-                        {(this.props.visibilitySettings.showSettings === false) ? 'Customise look' : 'Hide'}
-                      </Menu.Item>
-                    }
-                    {!this.props.visibilitySettings.showMoviePrintView &&
-                      <Menu.Item
-                        name="playbar"
-                        onClick={this.onTogglePlaybar}
-                        className={styles.FixedActionMenuFlex}
-                      >
-                        <Icon
-                          name={(this.props.visibilitySettings.showPlaybar === false) ? 'video' : 'video'}
-                        />
-                        {(this.props.visibilitySettings.showPlaybar === false) ? 'Show playbar' : 'Hide playbar'}
-                      </Menu.Item>
-                    }
-                  </Menu>
-                </Sticky>
-                <Sticky
-                  className={`${styles.FixedActionMenuLeft} ${styles.ItemMovielist} ${this.props.visibilitySettings.showMovielist ? styles.ItemMovielistAnim : ''}`}
-                >
-                  <Menu
-                    compact
-                    icon="labeled"
-                    size="mini"
-                  >
-
-                    {true &&
-                      <Menu.Item
-                        name="list"
-                        onClick={this.toggleMovielist}
-                        className={styles.FixedActionMenuFlex}
-                      >
-                        <Icon
-                          name="list"
-                        />
-                        {(this.props.visibilitySettings.showMovielist === false) ? 'Movies' : 'Hide'}
-                      </Menu.Item>
-                    }
-
-                  </Menu>
-                </Sticky> */}
                 { dropzoneActive &&
                   <div
                     className={`${styles.dropzoneshow} ${isDragAccept ? styles.dropzoneshowAccept : ''} ${isDragReject ? styles.dropzoneshowReject : ''}`}

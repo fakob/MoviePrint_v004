@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import Draggable from 'react-draggable';
-import { Button, Popup } from 'semantic-ui-react';
+import { Button } from 'semantic-ui-react';
 import { changeThumb, addDefaultThumbs, addThumb } from '../actions';
 import {
   VERTICAL_OFFSET_OF_INOUTPOINT_POPUP, MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
@@ -15,20 +14,6 @@ import {
 } from './../utils/utils';
 // import { saveThumb } from './../utils/saveThumb';
 import styles from './VideoPlayer.css';
-import stylesThumb from './ThumbGrid.css';
-
-import inPointButton from './../img/Thumb_IN.png';
-import outPointButton from './../img/Thumb_OUT.png';
-import back from './../img/Thumb_BACK.png';
-import forward from './../img/Thumb_FORWARD.png';
-import choose from './../img/Thumb_CHOOSE.png';
-import add from './../img/Thumb_ADD.png';
-import scrub from './../img/Thumb_SCRUB.png';
-import handleWide from './../img/Thumb_HANDLE_wide.png';
-import hide from './../img/Thumb_HIDE.png';
-import show from './../img/Thumb_SHOW.png';
-import empty from './../img/Thumb_EMPTY.png';
-import transparent from './../img/Thumb_TRANSPARENT.png';
 
 const pathModule = require('path');
 
@@ -43,6 +28,7 @@ class VideoPlayer extends Component {
       mouseStartDragInsideTimeline: false,
       videoHeight: 360,
       videoWidth: 640,
+      showPlaybar: false
     };
 
     // this.onSaveThumbClick = this.onSaveThumbClick.bind(this);
@@ -55,6 +41,8 @@ class VideoPlayer extends Component {
     this.updateTimeFromThumbId = this.updateTimeFromThumbId.bind(this);
     this.updatePositionFromTime = this.updatePositionFromTime.bind(this);
     this.onVideoError = this.onVideoError.bind(this);
+    this.onShowPlaybar = this.onShowPlaybar.bind(this);
+    this.onHidePlaybar = this.onHidePlaybar.bind(this);
 
     this.onTimelineClick = this.onTimelineClick.bind(this);
     this.onTimelineDrag = this.onTimelineDrag.bind(this);
@@ -102,6 +90,22 @@ class VideoPlayer extends Component {
   // onSaveThumbClick() {
   //   saveThumb(this.props.file.fileName, frameNumber);
   // }
+
+  onShowPlaybar() {
+    if (!this.state.showPlaybar) {
+      this.setState({
+        showPlaybar: true
+      });
+    }
+  }
+
+  onHidePlaybar() {
+    if (this.state.showPlaybar) {
+      this.setState({
+        showPlaybar: false
+      });
+    }
+  }
 
   onInPointClick() {
     const { store } = this.context;
@@ -318,7 +322,9 @@ class VideoPlayer extends Component {
           <video
             ref={(el) => { this.video = el; }}
             className={`${styles.video}`}
-            controls={this.props.showPlaybar ? 'true' : undefined}
+            onMouseOver={this.onShowPlaybar}
+            onMouseOut={this.onHidePlaybar}
+            controls={this.state.showPlaybar ? 'true' : undefined}
             muted
             src={`${pathModule.dirname(this.props.path)}/${encodeURIComponent(pathModule.basename(this.props.path))}` || ''}
             width={this.state.videoWidth}
@@ -339,26 +345,9 @@ class VideoPlayer extends Component {
             className={`${styles.overVideoButtonWrapper}`}
             style={{
               // display: this.props.selectedThumbId ? 'block' : 'none',
-              transform: this.props.showPlaybar ? 'translateY(-64px)' : undefined,
+              transform: this.state.showPlaybar ? 'translateY(-64px)' : undefined,
             }}
           >
-            {/* <button
-              style={{
-                transform: 'translate(-50%, 10%)',
-              }}
-              className={`${styles.hoverButton} ${styles.save}`}
-              onClick={onSaveThumb}
-              onMouseOver={over}
-              onMouseLeave={out}
-              onFocus={over}
-              onBlur={out}
-            >
-              <Icon
-                inverted
-                name="download"
-                className={styles.opaque}
-              />
-            </button> */}
             <button
               style={{
                 position: 'absolute',

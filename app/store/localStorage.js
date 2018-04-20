@@ -6,7 +6,6 @@ const initialStateJSON = {
     visibilityFilter: 'SHOW_VISIBLE',
     showMovielist: false,
     showSettings: false,
-    showPlaybar: false,
     showMoviePrintView: true,
   },
   thumbsObjUrls: {},
