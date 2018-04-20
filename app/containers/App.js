@@ -763,10 +763,11 @@ class App extends Component {
     return (
       <ErrorBoundary>
         <Dropzone
+          ref={(el) => { this.dropzoneRef = el; }}
           disableClick
           disablePreview
           style={{ position: 'relative' }}
-          accept={accept}
+          accept={this.state.accept}
           onDrop={this.onDrop.bind(this)}
           onDragEnter={this.onDragEnter.bind(this)}
           onDragLeave={this.onDragLeave.bind(this)}
@@ -786,6 +787,7 @@ class App extends Component {
                     toggleSettings={this.toggleSettings}
                     onToggleShowHiddenThumbsClick={this.onToggleShowHiddenThumbsClick}
                     onThumbInfoClick={this.onThumbInfoClick}
+                    openDialog={() => this.dropzoneRef.open()}
                   />
                   <div
                     className={`${styles.SiteContent}`}

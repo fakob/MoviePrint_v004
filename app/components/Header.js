@@ -8,7 +8,8 @@ import styles from './Menu.css';
 
 const Header = ({
   file, visibilitySettings, toggleMovielist, toggleSettings,
-  onToggleShowHiddenThumbsClick, settings, onThumbInfoClick
+  onToggleShowHiddenThumbsClick, settings, onThumbInfoClick,
+  openDialog
 }) => {
 
   const thumbInfoOptions = [
@@ -37,9 +38,14 @@ const Header = ({
           />
           {(visibilitySettings.showMovielist === false) ? 'Show Movie list' : 'Hide Movie list'}
         </Menu.Item>
-        <Menu.Item>
-          {file.name}
+        <Menu.Item
+          onClick={openDialog}
+        >
+          Open Movie
         </Menu.Item>
+        {/* <Menu.Item>
+          {file.name}
+        </Menu.Item> */}
         <Menu.Menu position="right">
           <Menu.Item
             onClick={onToggleShowHiddenThumbsClick}
