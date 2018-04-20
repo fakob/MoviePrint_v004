@@ -44,7 +44,7 @@ class SortedVisibleThumbGrid extends Component {
     if (prevProps.selectedThumbId !== this.props.selectedThumbId) {
       this.scrollThumbIntoView();
     }
-    // only delay when switching to thumbView
+    // delay when switching to thumbView so it waits for the view to be ready
     if ((prevProps.showMoviePrintView !== this.props.showMoviePrintView) && prevProps.showMoviePrintView) {
       setTimeout(() => {
         this.scrollThumbIntoView();
