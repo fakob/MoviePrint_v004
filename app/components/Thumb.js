@@ -100,6 +100,7 @@ const Thumb = ({
 
   function onThumbDoubleClickWithStop(e) {
     e.stopPropagation();
+    onSelect();
     onThumbDoubleClick();
   }
 
