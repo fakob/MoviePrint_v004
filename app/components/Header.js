@@ -49,7 +49,7 @@ const Header = ({
           {file.name}
         </Menu.Item> */}
         <Menu.Menu position="right">
-          {file && visibilitySettings.showMoviePrintView &&
+          {file && visibilitySettings.showMoviePrintView && !visibilitySettings.showSettings &&
             <Menu.Item
               onClick={toggleZoom}
             >

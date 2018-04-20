@@ -178,6 +178,7 @@ class App extends Component {
     this.onShowHeaderClick = this.onShowHeaderClick.bind(this);
     this.onRoundedCornersClick = this.onRoundedCornersClick.bind(this);
     this.toggleZoom = this.toggleZoom.bind(this);
+    this.disableZoom = this.disableZoom.bind(this);
     this.onToggleShowHiddenThumbsClick = this.onToggleShowHiddenThumbsClick.bind(this);
     this.onShowHiddenThumbsClick = this.onShowHiddenThumbsClick.bind(this);
     this.onThumbInfoClick = this.onThumbInfoClick.bind(this);
@@ -530,6 +531,7 @@ class App extends Component {
       ),
     );
     this.switchToPrintView();
+    this.disableZoom();
   }
 
   hideSettings() {
@@ -700,6 +702,12 @@ class App extends Component {
   toggleZoom = () => {
     this.setState({
       zoom: !this.state.zoom
+    });
+  };
+
+  disableZoom = () => {
+    this.setState({
+      zoom: false
     });
   };
 
