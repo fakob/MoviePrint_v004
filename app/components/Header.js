@@ -9,7 +9,7 @@ import styles from './Menu.css';
 const Header = ({
   file, visibilitySettings, toggleMovielist, toggleSettings,
   onToggleShowHiddenThumbsClick, settings, onThumbInfoClick,
-  openDialog
+  openDialog, toggleZoom
 }) => {
 
   const thumbInfoOptions = [
@@ -47,6 +47,14 @@ const Header = ({
           {file.name}
         </Menu.Item> */}
         <Menu.Menu position="right">
+          <Menu.Item
+            onClick={toggleZoom}
+          >
+            <Icon
+              name="zoom"
+            />
+            Zoom
+          </Menu.Item>
           <Menu.Item
             onClick={onToggleShowHiddenThumbsClick}
           >

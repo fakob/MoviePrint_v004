@@ -143,7 +143,8 @@ class App extends Component {
         ctrlKey: false,
         metaKey: false,
         which: undefined
-      }
+      },
+      zoom: false
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -176,6 +177,7 @@ class App extends Component {
     this.onChangeMargin = this.onChangeMargin.bind(this);
     this.onShowHeaderClick = this.onShowHeaderClick.bind(this);
     this.onRoundedCornersClick = this.onRoundedCornersClick.bind(this);
+    this.toggleZoom = this.toggleZoom.bind(this);
     this.onToggleShowHiddenThumbsClick = this.onToggleShowHiddenThumbsClick.bind(this);
     this.onShowHiddenThumbsClick = this.onShowHiddenThumbsClick.bind(this);
     this.onThumbInfoClick = this.onThumbInfoClick.bind(this);
@@ -701,6 +703,12 @@ class App extends Component {
     store.dispatch(setDefaultRoundedCorners(value));
   };
 
+  toggleZoom = () => {
+    this.setState({
+      zoom: !this.state.zoom
+    });
+  };
+
   onToggleShowHiddenThumbsClick = () => {
     const { store } = this.context;
     if (this.props.visibilitySettings.visibilityFilter === 'SHOW_ALL') {
@@ -785,6 +793,7 @@ class App extends Component {
                     file={this.props.file}
                     toggleMovielist={this.toggleMovielist}
                     toggleSettings={this.toggleSettings}
+                    toggleZoom={this.toggleZoom}
                     onToggleShowHiddenThumbsClick={this.onToggleShowHiddenThumbsClick}
                     onThumbInfoClick={this.onThumbInfoClick}
                     openDialog={() => this.dropzoneRef.open()}
@@ -909,6 +918,7 @@ class App extends Component {
                           showMoviePrintView={this.props.visibilitySettings.showMoviePrintView}
                           scaleValueObject={this.state.scaleValueObject}
                           keyObject={this.state.keyObject}
+                          zoom={this.state.zoom}
                         />
                       ) :
                       (

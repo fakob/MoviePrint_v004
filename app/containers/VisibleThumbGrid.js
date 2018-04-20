@@ -132,6 +132,7 @@ class SortedVisibleThumbGrid extends Component {
         showMoviePrintView={this.props.showMoviePrintView}
         scaleValueObject={this.props.scaleValueObject}
         keyObject={this.props.keyObject}
+        zoom={this.props.zoom}
       />
     );
   }

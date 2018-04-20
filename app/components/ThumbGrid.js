@@ -34,7 +34,8 @@ const ThumbGrid = ({
   thumbImages,
   thumbs,
   showMoviePrintView,
-  keyObject
+  keyObject,
+  zoom
 }) => {
   const fps = (file !== undefined && file.fps !== undefined ? file.fps : 25);
   function getThumbInfoValue(type, frames, framesPerSecond) {
@@ -156,6 +157,8 @@ const ThumbGrid = ({
       className={styles.grid}
       style={{
         width: scaleValueObject.newMoviePrintWidth,
+        transform: zoom ? 'scale(2)' : undefined,
+        transformOrigin: zoom ? 'left top' : undefined
       }}
       id="ThumbGrid"
     >
