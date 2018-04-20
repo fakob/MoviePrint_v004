@@ -986,6 +986,7 @@ class App extends Component {
                     file={this.props.file}
                     onSaveMoviePrint={this.onSaveMoviePrint}
                     savingMoviePrint={this.state.savingMoviePrint}
+                    showMoviePrintView={this.props.visibilitySettings.showMoviePrintView}
                   />
                 </div>
                 {/* <Sticky

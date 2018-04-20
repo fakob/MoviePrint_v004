@@ -8,7 +8,7 @@ import styles from './Menu.css';
 
 const Footer = ({
   file, visibilitySettings, toggleMovielist, toggleSettings, onSaveMoviePrint,
-  savingMoviePrint
+  savingMoviePrint, showMoviePrintView
 }) => {
 
   return (
@@ -27,27 +27,29 @@ const Footer = ({
           {file.name}
         </Menu.Item>
         <Menu.Menu position="right">
-          <Menu.Item
-            name="save"
-            onClick={onSaveMoviePrint}
-            color="orange"
-            active={!savingMoviePrint}
-            // className={styles.FixedActionMenuFlex}
-            disabled={savingMoviePrint}
-          >
-            { savingMoviePrint ?
-              <Loader
-                active
-                inline
-                size="small"
-              />
-              :
-              <Icon
-                name="save"
-              />
-            }
-            Save MoviePrint
-          </Menu.Item>
+          {showMoviePrintView &&
+            <Menu.Item
+              name="save"
+              onClick={onSaveMoviePrint}
+              color="orange"
+              active={!savingMoviePrint}
+              // className={styles.FixedActionMenuFlex}
+              disabled={savingMoviePrint}
+            >
+              { savingMoviePrint ?
+                <Loader
+                  active
+                  inline
+                  size="small"
+                />
+                :
+                <Icon
+                  name="save"
+                />
+              }
+              Save MoviePrint
+            </Menu.Item>
+          }
         </Menu.Menu>
       </Menu>
     </div>
