@@ -41,7 +41,7 @@ const Header = ({
         <Menu.Item
           onClick={openDialog}
         >
-          Open Movie
+          Open Movies
         </Menu.Item>
         {/* <Menu.Item>
           {file.name}
