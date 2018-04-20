@@ -30,14 +30,16 @@ const Header = ({
         inverted
         // widths={3}
       >
-        <Menu.Item
-          onClick={toggleMovielist}
-        >
-          <Icon
-            name="list"
-          />
-          {(visibilitySettings.showMovielist === false) ? 'Show Movie list' : 'Hide Movie list'}
-        </Menu.Item>
+        {file &&
+          <Menu.Item
+            onClick={toggleMovielist}
+          >
+            <Icon
+              name="list"
+            />
+            {(visibilitySettings.showMovielist === false) ? 'Show Movie list' : 'Hide Movie list'}
+          </Menu.Item>
+        }
         <Menu.Item
           onClick={openDialog}
         >
@@ -47,29 +49,35 @@ const Header = ({
           {file.name}
         </Menu.Item> */}
         <Menu.Menu position="right">
-          <Menu.Item
-            onClick={toggleZoom}
-          >
-            <Icon
-              name={zoom ? 'zoom out' : 'zoom in'}
+          {file &&
+            <Menu.Item
+              onClick={toggleZoom}
+            >
+              <Icon
+                name={zoom ? 'zoom out' : 'zoom in'}
+              />
+              {zoom ? 'Zoom out' : 'Zoom in'}
+            </Menu.Item>
+          }
+          {file &&
+            <Menu.Item
+              onClick={onToggleShowHiddenThumbsClick}
+            >
+              <Icon
+                name={(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'unhide' : 'hide'}
+              />
+              {(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'Hide thumbs' : 'Show thumbs'}
+            </Menu.Item>
+          }
+          {file &&
+            <Dropdown
+              text="Show info"
+              item
+              options={thumbInfoOptions}
+              value={settings.defaultThumbInfo}
+              onChange={(e, { value }) => onThumbInfoClick(value)}
             />
-            {zoom ? 'Zoom out' : 'Zoom in'}
-          </Menu.Item>
-          <Menu.Item
-            onClick={onToggleShowHiddenThumbsClick}
-          >
-            <Icon
-              name={(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'unhide' : 'hide'}
-            />
-            {(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'Hide thumbs' : 'Show thumbs'}
-          </Menu.Item>
-          <Dropdown
-            text="Show info"
-            item
-            options={thumbInfoOptions}
-            value={settings.defaultThumbInfo}
-            onChange={(e, { value }) => onThumbInfoClick(value)}
-          />
+          }
           <Menu.Item
             onClick={toggleSettings}
           >
@@ -85,9 +93,7 @@ const Header = ({
 };
 
 Header.defaultProps = {
-  file: {
-    name: 'I am a default name'
-  }
+  file: undefined
 };
 
 Header.propTypes = {
