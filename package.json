@@ -182,9 +182,9 @@
     "stylelint-config-standard": "^18.0.0",
     "uglifyjs-webpack-plugin": "1.2.5",
     "url-loader": "^1.0.1",
-    "webpack": "^3.10.0",
+    "webpack": "3.11.0",
     "webpack-bundle-analyzer": "^2.9.2",
-    "webpack-dev-server": "^2.11.1",
+    "webpack-dev-server": "2.11.2",
     "webpack-merge": "^4.1.1"
   },
   "dependencies": {
@@ -208,7 +208,7 @@
     "react-router-dom": "^4.2.2",
     "react-router-redux": "^5.0.0-alpha.6",
     "react-sortable-hoc": "^0.6.8",
-    "redux": "^3.7.2",
+    "redux": "3.7.2",
     "redux-thunk": "^2.2.0",
     "redux-undo": "^1.0.0-beta9-9-5",
     "scroll-into-view": "^1.9.3",
