@@ -28,18 +28,14 @@
 }
 
 .controlsWrapper button, .rightMenu button, .leftMenu button {
-  background: black;
+  /* background: black; */
   border-radius: .3em;
-  color: rgba(0, 0, 0, 0.7);
+  /* color: rgba(0, 0, 0, 0.7); */
   fontSize: 60%;
   vertical-align: middle;
-  padding: .2em .4em;
-  margin: 0 .5em;
+  /* padding: .2em .4em; */
+  /* margin: 0 .5em; */
   border: none;
-}
-
-.controlsWrapper button:active, .rightMenu button:active, .leftMenu button:active  {
-  background: #ccc;
 }
 
 .controlsWrapper {
@@ -142,9 +138,9 @@
 }
 
 .textButton {
-  font-family: 'Franchise';
+  font-family: 'Franchise', 'Roboto Condensed';
   color: #ffffff;
   font-size: 30px;
   opacity: 0.5;
-  text-shadow: 1px 1px 80px rgba(0,0,0,0.6);
+  /* text-shadow: 1px 1px 80px rgba(0,0,0,0.6); */
 }

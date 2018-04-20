@@ -341,13 +341,33 @@ class VideoPlayer extends Component {
           >
             {secondsToTimeCode(this.state.currentTime, this.props.file.fps)}
           </div>
+        </div>
+        <div className={`${styles.controlsWrapper}`}>
           <div
-            className={`${styles.overVideoButtonWrapper}`}
-            style={{
-              // display: this.props.selectedThumbId ? 'block' : 'none',
-              transform: this.state.showPlaybar ? 'translateY(-64px)' : undefined,
-            }}
+            id="timeLine"
+            className={`${styles.timelineWrapper}`}
+            onClick={this.onTimelineClick}
+            onMouseDown={this.onTimelineDrag}
+            onMouseUp={this.onTimelineDragStop}
+            onMouseMove={this.onTimelineMouseOver}
+            onMouseLeave={this.onTimelineExit}
+            ref={(el) => { this.timeLine = el; }}
           >
+            <div
+              className={`${styles.timelinePlayhead}`}
+              style={{
+                left: playHeadPosition,
+              }}
+            />
+            <div
+              className={`${styles.timelineCut}`}
+              style={{
+                left: inPointPositionOnTimeline,
+                width: cutWidthOnTimeLine
+              }}
+            />
+          </div>
+          <div className={`${styles.buttonWrapper}`}>
             <button
               style={{
                 position: 'absolute',
@@ -438,35 +458,7 @@ class VideoPlayer extends Component {
             >
               OUT
             </button>
-          </div>
-        </div>
-        <div className={`${styles.controlsWrapper}`}>
-          <div
-            id="timeLine"
-            className={`${styles.timelineWrapper}`}
-            onClick={this.onTimelineClick}
-            onMouseDown={this.onTimelineDrag}
-            onMouseUp={this.onTimelineDragStop}
-            onMouseMove={this.onTimelineMouseOver}
-            onMouseLeave={this.onTimelineExit}
-            ref={(el) => { this.timeLine = el; }}
-          >
-            <div
-              className={`${styles.timelinePlayhead}`}
-              style={{
-                left: playHeadPosition,
-              }}
-            />
-            <div
-              className={`${styles.timelineCut}`}
-              style={{
-                left: inPointPositionOnTimeline,
-                width: cutWidthOnTimeLine
-              }}
-            />
-          </div>
-          <div className={`${styles.buttonWrapper}`}>
-            <Button.Group
+            {/* <Button.Group
               size="mini"
               compact
               style={{
@@ -505,7 +497,7 @@ class VideoPlayer extends Component {
                 content="+100"
                 onClick={() => this.onForwardClick(100)}
               />
-            </Button.Group>
+            </Button.Group> */}
           </div>
         </div>
       </div>
