@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Menu, Dropdown, Icon } from 'semantic-ui-react';
+import { Menu, Dropdown, Icon, Popup } from 'semantic-ui-react';
 import {
   MENU_HEADER_HEIGHT
 } from '../utils/constants';
 import styles from './Menu.css';
+import stylesPop from './Popup.css';
 
 const Header = ({
   file, visibilitySettings, toggleMovielist, toggleSettings,
@@ -31,61 +32,98 @@ const Header = ({
         // widths={3}
       >
         {file &&
-          <Menu.Item
-            onClick={toggleMovielist}
-          >
-            <Icon
-              name="list"
-            />
-            {(visibilitySettings.showMovielist === false) ? 'Show Movie list' : 'Hide Movie list'}
-          </Menu.Item>
+          <Popup
+            trigger={
+              <Menu.Item
+                onClick={toggleMovielist}
+              >
+                <Icon
+                  name="list"
+                />
+                {(visibilitySettings.showMovielist === false) ? 'Show Movie list' : 'Hide Movie list'}
+              </Menu.Item>
+            }
+            className={stylesPop.popup}
+            content={(visibilitySettings.showMovielist === false) ? 'Show Movie list' : 'Hide Movie list'}
+          />
         }
-        <Menu.Item
-          onClick={openDialog}
-        >
-          Open Movies
-        </Menu.Item>
+        <Popup
+          trigger={
+            <Menu.Item
+              onClick={openDialog}
+            >
+              Open Movies
+            </Menu.Item>
+          }
+          className={stylesPop.popup}
+          content="Open one or more movies"
+        />
         {/* <Menu.Item>
           {file.name}
         </Menu.Item> */}
         <Menu.Menu position="right">
           {file && visibilitySettings.showMoviePrintView && !visibilitySettings.showSettings &&
-            <Menu.Item
-              onClick={toggleZoom}
-            >
-              <Icon
-                name={zoom ? 'zoom out' : 'zoom in'}
-              />
-              {zoom ? 'Zoom out' : 'Zoom in'}
-            </Menu.Item>
-          }
-          {file &&
-            <Menu.Item
-              onClick={onToggleShowHiddenThumbsClick}
-            >
-              <Icon
-                name={(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'unhide' : 'hide'}
-              />
-              {(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'Hide thumbs' : 'Show thumbs'}
-            </Menu.Item>
-          }
-          {file &&
-            <Dropdown
-              text="Show info"
-              item
-              options={thumbInfoOptions}
-              value={settings.defaultThumbInfo}
-              onChange={(e, { value }) => onThumbInfoClick(value)}
+            <Popup
+              trigger={
+                <Menu.Item
+                  onClick={toggleZoom}
+                >
+                  <Icon
+                    name={zoom ? 'zoom out' : 'zoom in'}
+                  />
+                  {zoom ? 'Zoom out' : 'Zoom in'}
+                </Menu.Item>
+              }
+              className={stylesPop.popup}
+              content={zoom ? 'Zoom out' : 'Zoom in'}
+              position="top left"
             />
           }
-          <Menu.Item
-            onClick={toggleSettings}
-          >
-            <Icon
-              name="edit"
+          {file &&
+            <Popup
+              trigger={
+                <Menu.Item
+                  onClick={onToggleShowHiddenThumbsClick}
+                >
+                  <Icon
+                    name={(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'unhide' : 'hide'}
+                  />
+                  {(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'Hide thumbs' : 'Show thumbs'}
+                </Menu.Item>
+              }
+              className={stylesPop.popup}
+              content={(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'Show all thumbs' : 'Show only visible thumbs'}
             />
-            {(visibilitySettings.showSettings === false) ? 'More settings' : 'Hide settings'}
-          </Menu.Item>
+          }
+          {file &&
+            <Popup
+              trigger={
+                <Dropdown
+                  text="Show info"
+                  item
+                  options={thumbInfoOptions}
+                  value={settings.defaultThumbInfo}
+                  onChange={(e, { value }) => onThumbInfoClick(value)}
+                />
+              }
+              className={stylesPop.popup}
+              content="Show framenumber or timecode"
+            />
+          }
+          <Popup
+            trigger={
+              <Menu.Item
+                onClick={toggleSettings}
+              >
+                <Icon
+                  name="edit"
+                />
+                {(visibilitySettings.showSettings === false) ? 'More settings' : 'Hide settings'}
+              </Menu.Item>
+            }
+            className={stylesPop.popup}
+            content={(visibilitySettings.showSettings === false) ? 'More settings' : 'Hide settings'}
+          />
         </Menu.Menu>
       </Menu>
     </div>
