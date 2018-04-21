@@ -380,22 +380,28 @@ class VideoPlayer extends Component {
             />
           </div>
           <div className={`${styles.buttonWrapper}`}>
-            <button
-              style={{
-                position: 'absolute',
-                bottom: 0,
-                left: 0,
-                marginLeft: '8px',
-              }}
-              className={`${styles.hoverButton} ${styles.textButton}`}
-              onClick={this.onInPointClick}
-              onMouseOver={over}
-              onMouseLeave={out}
-              onFocus={over}
-              onBlur={out}
-            >
-              IN
-            </button>
+            <Popup
+              trigger={
+                <button
+                  style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    marginLeft: '8px',
+                  }}
+                  className={`${styles.hoverButton} ${styles.textButton}`}
+                  onClick={this.onInPointClick}
+                  onMouseOver={over}
+                  onMouseLeave={out}
+                  onFocus={over}
+                  onBlur={out}
+                >
+                  IN
+                </button>
+              }
+              className={stylesPop.popup}
+              content="Set this thumb as new IN-point"
+            />
             <Popup
               trigger={
                 <button
@@ -419,98 +425,76 @@ class VideoPlayer extends Component {
               className={stylesPop.popup}
               content="Move 1 frame back (Shift = 10, Alt = 100)"
             />
-            <button
-              className={`${styles.hoverButton} ${styles.textButton}`}
-              onClick={this.onApplyClick}
-              onMouseOver={over}
-              onMouseLeave={out}
-              onFocus={over}
-              onBlur={out}
-              style={{
-                display: this.props.selectedThumbId ? 'block' : 'none',
-                transformOrigin: 'center bottom',
-                transform: 'translateX(-50%)',
-                position: 'absolute',
-                bottom: 0,
-                left: '50%',
-                color: MOVIEPRINT_COLORS[0]
-              }}
-            >
-              {this.props.keyObject.altKey ? 'ADD AFTER' : (this.props.keyObject.shiftKey ? 'ADD BEFORE' : 'SET')}
-            </button>
-            <button
-              style={{
-                transformOrigin: 'center bottom',
-                transform: 'translateX(-50%)',
-                position: 'absolute',
-                bottom: 0,
-                left: '70%',
-              }}
-              className={`${styles.hoverButton} ${styles.textButton}`}
-              onClick={() => this.onForwardClick()}
-              onMouseOver={over}
-              onMouseLeave={out}
-              onFocus={over}
-              onBlur={out}
-            >
-              {this.props.keyObject.altKey ? '>>>' : (this.props.keyObject.shiftKey ? '>>' : '>')}
-            </button>
-            <button
-              style={{
-                position: 'absolute',
-                bottom: 0,
-                right: 0,
-                marginRight: '8px',
-              }}
-              className={`${styles.hoverButton} ${styles.textButton}`}
-              onClick={this.onOutPointClick}
-              onMouseOver={over}
-              onMouseLeave={out}
-              onFocus={over}
-              onBlur={out}
-            >
-              OUT
-            </button>
-            {/* <Button.Group
-              size="mini"
-              compact
-              style={{
-                marginRight: '20px'
-              }}
-            >
-              <Button
-                content="-100"
-                onClick={() => this.onBackClick(-100)}
-              />
-              <Button
-                content="-10"
-                onClick={() => this.onBackClick(-10)}
-              />
-              <Button
-                content="-1"
-                onClick={() => this.onBackClick(-1)}
-              />
-            </Button.Group>
-            <Button.Group
-              size="mini"
-              compact
-              style={{
-                marginLeft: '20px'
-              }}
-            >
-              <Button
-                content="+1"
-                onClick={() => this.onForwardClick(1)}
-              />
-              <Button
-                content="+10"
-                onClick={() => this.onForwardClick(10)}
-              />
-              <Button
-                content="+100"
-                onClick={() => this.onForwardClick(100)}
-              />
-            </Button.Group> */}
+            <Popup
+              trigger={
+                <button
+                  className={`${styles.hoverButton} ${styles.textButton}`}
+                  onClick={this.onApplyClick}
+                  onMouseOver={over}
+                  onMouseLeave={out}
+                  onFocus={over}
+                  onBlur={out}
+                  style={{
+                    display: this.props.selectedThumbId ? 'block' : 'none',
+                    transformOrigin: 'center bottom',
+                    transform: 'translateX(-50%)',
+                    position: 'absolute',
+                    bottom: 0,
+                    left: '50%',
+                    color: MOVIEPRINT_COLORS[0]
+                  }}
+                >
+                  {this.props.keyObject.altKey ? 'ADD AFTER' : (this.props.keyObject.shiftKey ? 'ADD BEFORE' : 'SET')}
+                </button>
+              }
+              className={stylesPop.popup}
+              content={this.props.keyObject.altKey ? 'Add a new thumb after selection' : (this.props.keyObject.shiftKey ? 'Add a new thumb before selection' : 'Set the selected thumb to use this frame (Shift = Add before, Alt = Add after)')}
+            />
+            <Popup
+              trigger={
+                <button
+                  style={{
+                    transformOrigin: 'center bottom',
+                    transform: 'translateX(-50%)',
+                    position: 'absolute',
+                    bottom: 0,
+                    left: '70%',
+                  }}
+                  className={`${styles.hoverButton} ${styles.textButton}`}
+                  onClick={() => this.onForwardClick()}
+                  onMouseOver={over}
+                  onMouseLeave={out}
+                  onFocus={over}
+                  onBlur={out}
+                >
+                  {this.props.keyObject.altKey ? '>>>' : (this.props.keyObject.shiftKey ? '>>' : '>')}
+                </button>
+              }
+              className={stylesPop.popup}
+              content="Move 1 frame forward (Shift = 10, Alt = 100)"
+            />
+            <Popup
+              trigger={
+                <button
+                  style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    right: 0,
+                    marginRight: '8px',
+                  }}
+                  className={`${styles.hoverButton} ${styles.textButton}`}
+                  onClick={this.onOutPointClick}
+                  onMouseOver={over}
+                  onMouseLeave={out}
+                  onFocus={over}
+                  onBlur={out}
+                >
+                  OUT
+                </button>
+              }
+              className={stylesPop.popup}
+              content="Set this thumb as new OUT-point"
+            />
           </div>
         </div>
       </div>
