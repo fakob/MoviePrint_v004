@@ -45,6 +45,7 @@ const Header = ({
             }
             className={stylesPop.popup}
             content={(visibilitySettings.showMovielist === false) ? 'Show Movie list' : 'Hide Movie list'}
+            keepInViewPort={false}
           />
         }
         <Popup
@@ -57,6 +58,7 @@ const Header = ({
           }
           className={stylesPop.popup}
           content="Open one or more movies"
+          keepInViewPort={false}
         />
         {/* <Menu.Item>
           {file.name}
@@ -76,7 +78,7 @@ const Header = ({
               }
               className={stylesPop.popup}
               content={zoom ? 'Zoom out' : 'Zoom in'}
-              position="top left"
+              keepInViewPort={false}
             />
           }
           {file &&
@@ -93,6 +95,7 @@ const Header = ({
               }
               className={stylesPop.popup}
               content={(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'Show all thumbs' : 'Show only visible thumbs'}
+              keepInViewPort={false}
             />
           }
           {file &&
@@ -107,7 +110,8 @@ const Header = ({
                 />
               }
               className={stylesPop.popup}
-              content="Show framenumber or timecode"
+              content="Show frames or timecode"
+              keepInViewPort={false}
             />
           }
           <Popup
@@ -123,6 +127,7 @@ const Header = ({
             }
             className={stylesPop.popup}
             content={(visibilitySettings.showSettings === false) ? 'More settings' : 'Hide settings'}
+            keepInViewPort={false}
           />
         </Menu.Menu>
       </Menu>
