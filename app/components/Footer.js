@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Menu, Dropdown, Icon, Loader } from 'semantic-ui-react';
+import { Menu, Popup, Icon, Loader } from 'semantic-ui-react';
 import {
   MENU_FOOTER_HEIGHT
 } from '../utils/constants';
 import styles from './Menu.css';
+import stylesPop from './Popup.css';
 
 const Footer = ({
   file, visibilitySettings, toggleMovielist, toggleSettings, onSaveMoviePrint,
@@ -28,27 +29,34 @@ const Footer = ({
         </Menu.Item> */}
         <Menu.Menu position="right">
           {showMoviePrintView &&
-            <Menu.Item
-              name="save"
-              onClick={onSaveMoviePrint}
-              color="orange"
-              active={!savingMoviePrint}
-              // className={styles.FixedActionMenuFlex}
-              disabled={savingMoviePrint}
-            >
-              { savingMoviePrint ?
-                <Loader
-                  active
-                  inline
-                  size="small"
-                />
-                :
-                <Icon
+            <Popup
+              trigger={
+                <Menu.Item
                   name="save"
-                />
+                  onClick={onSaveMoviePrint}
+                  color="orange"
+                  active={!savingMoviePrint}
+                  // className={styles.FixedActionMenuFlex}
+                  disabled={savingMoviePrint}
+                >
+                  { savingMoviePrint ?
+                    <Loader
+                      active
+                      inline
+                      size="small"
+                    />
+                    :
+                    <Icon
+                      name="save"
+                    />
+                  }
+                  Save MoviePrint
+                </Menu.Item>
               }
-              Save MoviePrint
-            </Menu.Item>
+              className={stylesPop.popup}
+              content="Save MoviePrint"
+              keepInViewPort={false}
+            />
           }
         </Menu.Menu>
       </Menu>

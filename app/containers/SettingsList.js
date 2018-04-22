@@ -7,6 +7,7 @@ import Tooltip from 'rc-tooltip';
 import { Button, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List, Message, Popup } from 'semantic-ui-react';
 import { addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount } from '../actions';
 import styles from './Settings.css';
+import stylesPop from '../components/Popup.css';
 import { MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT } from '../utils/constants';
 
 const SliderWithTooltip = createSliderWithTooltip(Slider);
@@ -221,13 +222,9 @@ class SettingsList extends Component {
                       Apply
                   </Button>
                 }
-                // className={styles.popupThumb}
-                style={{
-                  position: 'fixed',
-                  bottom: 0,
-                  left: '50%'
-                }}
-                content="Add users to your feed"
+                className={stylesPop.popup}
+                content="Apply new grid for MoviePrint"
+                keepInViewPort={false}
               />
             </Grid.Column>
           </Grid.Row>
