@@ -131,7 +131,7 @@ ipcMain.on('send-get-file-details', (event, fileId, filePath, posterFrameId, las
   event.sender.send('receive-get-file-details', fileId, filePath, posterFrameId, lastItem, vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT), vid.get(VideoCaptureProperties.CAP_PROP_FPS), vid.get(VideoCaptureProperties.CAP_PROP_FOURCC));
 });
 
-ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId) => {
+ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId, lastItem) => {
   console.log('send-get-poster-frame');
   console.log(fileId);
   console.log(filePath);
@@ -154,7 +154,7 @@ ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId) => 
 
         if (mat.empty === false) {
           const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // maybe change to .png?
-          event.sender.send('receive-get-poster-frame', fileId, posterFrameId, outBase64, vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES), useRatio);
+          event.sender.send('receive-get-poster-frame', fileId, filePath, posterFrameId, lastItem, outBase64, vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES), useRatio);
         }
         // iterator += 1;
         // if (iterator < frameNumberArray.length) {
@@ -170,12 +170,15 @@ ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId) => 
   });
 });
 
-ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio) => {
-  console.log('send-get-in-and-outpoint');
+ipcMain.on('send-get-inpoint', (event, fileId, filePath, useRatio) => {
+  console.log('send-get-inpoint');
   console.log(fileId);
   console.log(filePath);
   const vid = new opencv.VideoCapture(filePath);
   const searchForward = true;
+
+  const threshold = 15;
+  let lastMean = 0; // Mean pixel intensity of the *last* frame we processed.
 
   vid.readAsync((err1) => {
     const read = (frame = 0) => {
@@ -195,10 +198,32 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio) => {
       }
 
       vid.readAsync((err, mat) => {
-        console.log(`readAsync: ${iterator}, frame: ${frame}, ${frameNumberToCapture}/${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
+        console.log(`readAsync: frame: ${frame}, ${frameNumberToCapture}/${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
 
+        const frameMean = mat.mean();
+
+        // Detect fade in from black.
+        if ((frameMean >= threshold) && (lastMean < threshold)) {
+          console.log(`Detected fade in at ${VideoCaptureProperties.CAP_PROP_POS_MSEC} (frame ${VideoCaptureProperties.CAP_PROP_POS_FRAMES}).`);
+        } else if ((frameMean < threshold) && (lastMean >= threshold)) { // Detect fade out to black.
+          console.log(`Detected fade in at ${VideoCaptureProperties.CAP_PROP_POS_MSEC} (frame ${VideoCaptureProperties.CAP_PROP_POS_FRAMES}).`);
+        }
+
+        lastMean = frameMean; // Store current mean to compare in next iteration.
         if (mat.empty === false) {
-          const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // maybe change to .png?
+          console.log('Mat not empty');
+          console.log(mat.mean());
+          console.log(mat.at(200, 100));
+          console.log(`lastMean ${lastMean} (frame ${frame})`);
+        }
+        // iterator += 1;
+        // iterator += 1;
+        if (frame < (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1)) {
+          read(frame + 1);
+        }
+
+        // if (mat.empty === false) {
+          // const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // maybe change to .png?
           // event.sender.send(
           //   'receive-get-thumbs', fileId, thumbIdArray[iterator], frameIdArray[iterator], outBase64,
           //   vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1
@@ -207,30 +232,38 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio) => {
           // if (iterator < frameNumberArray.length) {
           //   read();
           // }
-          console.log(`Found inpoint: ${frameNumberToCapture}`);
-        } else {
-          console.log('frame is empty');
-          if (searchForward ? (frame < searchLimit) : ((vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - searchLimit) > frame)) {
-
-          }
-          if (Math.abs(frame) < (searchForward ? searchLimit : (vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - searchLimit))) {
-            if (searchForward) {
-              console.log('will try to read one frame forward');
-              read(frame + 1);
-            } else {
-              console.log('will try to read one frame backward');
-              read(frame - 1);
-            }
-          } else {
-            if (searchForward) {
-              console.log('Found no Inpoint');
-            } else {
-              console.log('Found no Outpoint');
-            }
-          }
-        }
+          // console.log(`Found inpoint: ${frameNumberToCapture}`);
+        // } else {
+        //   console.log('frame is empty');
+          // if (frame < searchLimit) {
+          //   if (searchForward) {
+          //     console.log('will try to read one frame forward');
+          //     read(frame + 1);
+          //   } else {
+          //     console.log('will try to read one frame backward');
+          //     read(frame - 1);
+          //   }
+          // } else {
+          //   if (searchForward) {
+          //     console.log('Found no Inpoint');
+          //   } else {
+          //     console.log('Found no Outpoint');
+          //   }
+          // }
+        // }
       });
     };
+
+    let iterator = 0;
+    if (err1) throw err1;
+    if (useRatio) {
+      // const positionRatio = ((frameNumberArray[iterator]) * 1.0) / (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1)
+      // console.log(`using positionRatio: ${positionRatio}`);
+      vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, iterator);
+    } else {
+      vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, iterator);
+    }
+    read();
   });
 });
 

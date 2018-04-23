@@ -224,6 +224,17 @@ class App extends Component {
     ipcRenderer.on('receive-get-file-details', (event, fileId, filePath, posterFrameId, lastItem, frameCount, width, height, fps, fourCC) => {
       store.dispatch(updateFileDetails(fileId, frameCount, width, height, fps, fourCC));
       ipcRenderer.send('send-get-poster-frame', fileId, filePath, posterFrameId);
+    });
+
+    ipcRenderer.on('receive-get-thumbs', (event, fileId, thumbId, frameId, base64, frameNumber) => {
+      store.dispatch(updateThumbImage(fileId, thumbId, frameId, base64, frameNumber));
+    });
+
+    // poster frames don't have thumbId
+    ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, lastItem, posterFrameId, base64, frameNumber, useRatio) => {
+      store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
+      store.dispatch(updateThumbImage(fileId, '', posterFrameId, base64, frameNumber, 1));
+      // ipcRenderer.send('send-get-inpoint', fileId, filePath, useRatio);
       if (lastItem) {
         console.log('I am the lastItem');
         store.dispatch(setCurrentFileId(store.getState().undoGroup.present.files[0].id));
@@ -234,16 +245,6 @@ class App extends Component {
           store.getState().undoGroup.present.settings.defaultThumbCount
         ));
       }
-    });
-
-    ipcRenderer.on('receive-get-thumbs', (event, fileId, thumbId, frameId, base64, frameNumber) => {
-      store.dispatch(updateThumbImage(fileId, thumbId, frameId, base64, frameNumber));
-    });
-
-    // poster frames don't have thumbId
-    ipcRenderer.on('receive-get-poster-frame', (event, fileId, posterFrameId, base64, frameNumber, useRatio) => {
-      store.dispatch(updateThumbImage(fileId, '', posterFrameId, base64, frameNumber, 1));
-      store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
     });
 
     ipcRenderer.on('received-saved-file', (event, path) => {
