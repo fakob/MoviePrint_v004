@@ -124,6 +124,7 @@ ipcMain.on('send-get-file-details', (event, fileId, filePath, posterFrameId, las
 });
 
 ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId) => {
+  console.log('send-get-poster-frame');
   console.log(fileId);
   console.log(filePath);
   const vid = new opencv.VideoCapture(filePath);
@@ -161,7 +162,70 @@ ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId) => 
   });
 });
 
+ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio) => {
+  console.log('send-get-in-and-outpoint');
+  console.log(fileId);
+  console.log(filePath);
+  const vid = new opencv.VideoCapture(filePath);
+  const searchForward = true;
+
+  vid.readAsync((err1) => {
+    const read = (frame = 0) => {
+      // limit frameNumberToCapture between 0 and movie length
+      const frameNumberToCapture = limitRange(
+        frame,
+        0,
+        (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1)
+      );
+
+      if (useRatio) {
+        const positionRatio = ((frameNumberToCapture) * 1.0) / (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1)
+        console.log(`using positionRatio: ${positionRatio}`);
+        vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, positionRatio);
+      } else {
+        vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberToCapture);
+      }
+
+      vid.readAsync((err, mat) => {
+        console.log(`readAsync: ${iterator}, frame: ${frame}, ${frameNumberToCapture}/${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
+
+        if (mat.empty === false) {
+          const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // maybe change to .png?
+          // event.sender.send(
+          //   'receive-get-thumbs', fileId, thumbIdArray[iterator], frameIdArray[iterator], outBase64,
+          //   vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1
+          // );
+          // iterator += 1;
+          // if (iterator < frameNumberArray.length) {
+          //   read();
+          // }
+          console.log(`Found inpoint: ${frameNumberToCapture}`);
+        } else {
+          console.log('frame is empty');
+          if (searchForward ? (frame < searchLimit) : ((vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - searchLimit) > frame)) {
+
+          }
+          if (Math.abs(frame) < (searchForward ? searchLimit : (vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - searchLimit))) {
+            if (searchForward) {
+              console.log('will try to read one frame forward');
+              read(frame + 1);
+            } else {
+              console.log('will try to read one frame backward');
+              read(frame - 1);
+            }
+          } else {
+            if (searchForward) {
+              console.log('Found no Inpoint');
+            } else {
+              console.log('Found no Outpoint');
+            }
+          }
+        }
+      });
+    };
+
 ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArray, frameNumberArray, useRatio) => {
+  console.log('send-get-thumbs');
   console.log(fileId);
   console.log(filePath);
   console.log(frameIdArray);
