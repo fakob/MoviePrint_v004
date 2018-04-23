@@ -24,6 +24,7 @@
   line-height: 14px;
   padding: 1px;
   color: #000000;
+  -webkit-user-select:none;
   /*opacity: 0.5;*/
 }
 
@@ -110,6 +111,7 @@
   cursor: pointer;
   background-color: transparent;
   outline:none;
+  -webkit-user-select:none;
 }
 
 .inPoint {
@@ -142,5 +144,6 @@
   color: #ffffff;
   font-size: 30px;
   opacity: 0.5;
+  -webkit-user-select:none;
   /* text-shadow: 1px 1px 80px rgba(0,0,0,0.6); */
 }

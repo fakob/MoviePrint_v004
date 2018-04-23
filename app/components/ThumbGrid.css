@@ -41,6 +41,7 @@
     margin: 4px;
     position: relative;
     outline:none;
+    -webkit-user-select:none;
 }
 
 .gridItemSelected {
@@ -196,6 +197,7 @@
   cursor: pointer;
   background-color: transparent;
   outline:none;
+  -webkit-user-select:none;
 }
 
 .opaque {
