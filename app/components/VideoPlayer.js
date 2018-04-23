@@ -143,9 +143,9 @@ class VideoPlayer extends Component {
     if (step) {
       stepValue = step;
     } else {
-      stepValue = CHANGE_THUMB_STEP[0] * -1;
+      stepValue = CHANGE_THUMB_STEP[1] * -1;
       if (this.props.keyObject.shiftKey) {
-        stepValue = CHANGE_THUMB_STEP[1] * -1;
+        stepValue = CHANGE_THUMB_STEP[0] * -1;
       }
       if (this.props.keyObject.altKey) {
         stepValue = CHANGE_THUMB_STEP[2] * -1;
@@ -160,9 +160,9 @@ class VideoPlayer extends Component {
     if (step) {
       stepValue = step;
     } else {
-      stepValue = CHANGE_THUMB_STEP[0];
+      stepValue = CHANGE_THUMB_STEP[1];
       if (this.props.keyObject.shiftKey) {
-        stepValue = CHANGE_THUMB_STEP[1];
+        stepValue = CHANGE_THUMB_STEP[0];
       }
       if (this.props.keyObject.altKey) {
         stepValue = CHANGE_THUMB_STEP[2];
@@ -419,11 +419,11 @@ class VideoPlayer extends Component {
                   onFocus={over}
                   onBlur={out}
                 >
-                  {this.props.keyObject.altKey ? '<<<' : (this.props.keyObject.shiftKey ? '<<' : '<')}
+                  {this.props.keyObject.altKey ? '<<<' : (this.props.keyObject.shiftKey ? '<' : '<<')}
                 </button>
               }
               className={stylesPop.popup}
-              content="Move 1 frame back (Shift = 10, Alt = 100)"
+              content="Move 10 frame back (Shift = 1, Alt = 100)"
             />
             <Popup
               trigger={
@@ -467,11 +467,11 @@ class VideoPlayer extends Component {
                   onFocus={over}
                   onBlur={out}
                 >
-                  {this.props.keyObject.altKey ? '>>>' : (this.props.keyObject.shiftKey ? '>>' : '>')}
+                  {this.props.keyObject.altKey ? '>>>' : (this.props.keyObject.shiftKey ? '>' : '>>')}
                 </button>
               }
               className={stylesPop.popup}
-              content="Move 1 frame forward (Shift = 10, Alt = 100)"
+              content="Move 10 frame forward (Shift = 1, Alt = 100)"
             />
             <Popup
               trigger={

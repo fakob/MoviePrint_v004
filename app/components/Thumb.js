@@ -251,11 +251,11 @@ const Thumb = ({
                 onBlur={out}
               >
                 {/* {keyObject.altKey ? '-100' : (keyObject.shiftKey ? '-10' : '-1')} */}
-                {keyObject.altKey ? '<<<' : (keyObject.shiftKey ? '<<' : '<')}
+                {keyObject.altKey ? '<<<' : (keyObject.shiftKey ? '<' : '<<')}
               </button>
             }
             className={stylesPop.popup}
-            content="Move 1 frame back (Shift = 10, Alt = 100)"
+            content="Move 10 frame back (Shift = 1, Alt = 100)"
           />
           <Popup
             trigger={
@@ -300,11 +300,11 @@ const Thumb = ({
                 onBlur={out}
               >
                 {/* {keyObject.altKey ? '+100' : (keyObject.shiftKey ? '+10' : '+1')} */}
-                {keyObject.altKey ? '>>>' : (keyObject.shiftKey ? '>>' : '>')}
+                {keyObject.altKey ? '>>>' : (keyObject.shiftKey ? '>' : '>>')}
               </button>
             }
             className={stylesPop.popup}
-            content="Move 1 frame forward (Shift = 10, Alt = 100)"
+            content="Move 10 frame forward (Shift = 1, Alt = 100)"
           />
           <Popup
             trigger={
