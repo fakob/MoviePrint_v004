@@ -103,8 +103,6 @@ class SortedVisibleThumbGrid extends Component {
         onInPointClick={this.props.onInPointClick}
         onOutPointClick={this.props.onOutPointClick}
         onSaveThumbClick={this.props.onSaveThumbClick}
-        onBackClick={this.props.onBackClick}
-        onForwardClick={this.props.onForwardClick}
         onScrubClick={this.props.onScrubClick}
         onMouseOverResult={(thumbId) => {
           this.controlersVisible = thumbId;

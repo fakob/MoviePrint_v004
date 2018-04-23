@@ -331,6 +331,30 @@ class VideoPlayer extends Component {
             height: this.state.videoHeight,
           }}
         >
+          <Popup
+            trigger={
+              <button
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  right: 0,
+                  marginTop: '8px',
+                  marginRight: '8px',
+                  zIndex: 1,
+                }}
+                className={`${styles.hoverButton} ${styles.textButton}`}
+                onClick={this.props.onThumbDoubleClick}
+                onMouseOver={over}
+                onMouseLeave={out}
+                onFocus={over}
+                onBlur={out}
+              >
+                BACK
+              </button>
+            }
+            className={stylesPop.popup}
+            content="Back to MoviePrint view"
+          />
           <video
             ref={(el) => { this.video = el; }}
             className={`${styles.video}`}

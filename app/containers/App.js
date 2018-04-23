@@ -863,6 +863,7 @@ class App extends Component {
                             controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
                             selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
                             frameNumber={this.state.selectedThumbObject ? this.state.selectedThumbObject.frameNumber : 0}
+                            onThumbDoubleClick={this.onViewToggle}
                             selectMethod={this.onSelectMethod}
                             keyObject={this.state.keyObject}
                           />
