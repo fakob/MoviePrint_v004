@@ -223,6 +223,8 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio) => {
         }
       });
     };
+  });
+});
 
 ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArray, frameNumberArray, useRatio) => {
   console.log('send-get-thumbs');
