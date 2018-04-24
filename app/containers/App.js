@@ -225,7 +225,7 @@ class App extends Component {
 
     ipcRenderer.on('receive-get-file-details', (event, fileId, filePath, posterFrameId, lastItem, frameCount, width, height, fps, fourCC) => {
       store.dispatch(updateFileDetails(fileId, frameCount, width, height, fps, fourCC));
-      ipcRenderer.send('send-get-poster-frame', fileId, filePath, posterFrameId);
+      ipcRenderer.send('send-get-poster-frame', fileId, filePath, posterFrameId, lastItem);
     });
 
     ipcRenderer.on('receive-get-thumbs', (event, fileId, thumbId, frameId, base64, frameNumber) => {
@@ -233,7 +233,7 @@ class App extends Component {
     });
 
     // poster frames don't have thumbId
-    ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, lastItem, posterFrameId, base64, frameNumber, useRatio) => {
+    ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, base64, frameNumber, useRatio, lastItem) => {
       store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
       store.dispatch(updateThumbImage(fileId, '', posterFrameId, base64, frameNumber, 1));
       // ipcRenderer.send('send-get-inpoint', fileId, filePath, useRatio);

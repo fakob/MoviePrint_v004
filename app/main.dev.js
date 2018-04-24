@@ -154,7 +154,7 @@ ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId, las
 
         if (mat.empty === false) {
           const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // maybe change to .png?
-          event.sender.send('receive-get-poster-frame', fileId, filePath, posterFrameId, lastItem, outBase64, vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES), useRatio);
+          event.sender.send('receive-get-poster-frame', fileId, filePath, posterFrameId, outBase64, vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES), useRatio, lastItem);
         }
         // iterator += 1;
         // if (iterator < frameNumberArray.length) {
