@@ -42,6 +42,7 @@ const ThumbGridHeader = ({
             className={styles.gridHeaderTextName}
             style={{
               fontSize: `${headerHeight * textRatio * 1.5}px`,
+              lineHeight: `${(headerHeight * textRatio * 1.5) + 10}px`,
               // letterSpacing: `${1.2 * scaleValue}px`,
             }}
           >
