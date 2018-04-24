@@ -2,29 +2,13 @@
 import { app, Menu, shell, BrowserWindow } from 'electron';
 import { clearCache } from './utils/utils';
 
-// const clearCache = (win) => {
-//   win.webContents.session.getCacheSize((cacheSizeBefore) => {
-//     console.log(`cacheSize before: ${cacheSizeBefore}`);
-//     // clear HTTP cache
-//     win.webContents.session.clearCache(() => {
-//       // then clear data of web storages
-//       win.webContents.session.clearStorageData(() => {
-//         // then print cacheSize
-//         win.webContents.session.getCacheSize((cacheSizeAfter) => {
-//           console.log(`cacheSize after: ${cacheSizeAfter}`);
-//           // and reload to use initialStateJSON
-//           win.webContents.reload();
-//         });
-//       });
-//     });
-//   });
-// };
-
 export default class MenuBuilder {
   mainWindow: BrowserWindow;
+  creditsWindow: BrowserWindow;
 
-  constructor(mainWindow: BrowserWindow) {
+  constructor(mainWindow: BrowserWindow, creditsWindow: BrowserWindow) {
     this.mainWindow = mainWindow;
+    this.creditsWindow = creditsWindow;
   }
 
   buildMenu() {
@@ -90,6 +74,7 @@ export default class MenuBuilder {
     const subMenuViewDev = {
       label: 'View',
       submenu: [
+        { label: 'Credits', click: () => { this.creditsWindow.show(); } },
         { label: 'Clear cache', accelerator: 'Shift+Alt+Command+C', click: () => { clearCache(this.mainWindow); } },
         { label: 'Reload', accelerator: 'Command+R', click: () => { this.mainWindow.webContents.reload(); } },
         { label: 'Toggle Full Screen', accelerator: 'Ctrl+Command+F', click: () => { this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen()); } },
