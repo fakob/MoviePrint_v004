@@ -12,8 +12,8 @@ const initialStateJSON = {
   undoGroup: {
     settings: {
       defaultThumbCountMax: 400,
-      defaultThumbCount: 9,
-      defaultColumnCount: 3,
+      defaultThumbCount: 16,
+      defaultColumnCount: 4,
       defaultThumbnailScale: 0.25,
       defaultMarginRatio: 0.02,
       defaultMarginSliderFactor: 200.0,

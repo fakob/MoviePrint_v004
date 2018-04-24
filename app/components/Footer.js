@@ -28,7 +28,7 @@ const Footer = ({
           {file.name}
         </Menu.Item> */}
         <Menu.Menu position="right">
-          {showMoviePrintView &&
+          {file && showMoviePrintView &&
             <Popup
               trigger={
                 <Menu.Item
@@ -47,7 +47,7 @@ const Footer = ({
                     />
                     :
                     <Icon
-                      name="save"
+                      name="download"
                     />
                   }
                   Save MoviePrint
@@ -65,9 +65,6 @@ const Footer = ({
 };
 
 Footer.defaultProps = {
-  file: {
-    name: 'I am a default name'
-  }
 };
 
 Footer.propTypes = {

@@ -30,6 +30,8 @@ import {
   MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT, ZOOM_SCALE
 } from '../utils/constants';
 
+import steps from '../img/MoviePrint-steps.svg';
+
 const { ipcRenderer } = require('electron');
 const { dialog } = require('electron').remote;
 
@@ -899,7 +901,7 @@ class App extends Component {
                         minHeight: this.props.visibilitySettings.showMoviePrintView ? `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)` : undefined
                       }}
                     >
-                      { this.props.file ? (
+                      { (this.props.file || this.props.visibilitySettings.showSettings) ? (
                         <SortedVisibleThumbGrid
                           inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                           // inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
@@ -928,68 +930,18 @@ class App extends Component {
                       (
                         <div
                           className={styles.ItemMainStartupContainer}
-                          style={{
-                            // flex: '1 auto',
-                          }}
                         >
-                          <div
-                            className={`${styles.ItemMainStartupItem} ${this.props.visibilitySettings.showMoviePrintView ? '' : styles.hiddenItem}`}
-                          >
-                            DROP MOVIES
-                          </div>
-                          <div
-                            className={styles.ItemMainStartupItem}
+                          <img
+                            src={steps}
                             style={{
-                              flexGrow: 3,
-                              position: 'relative',
+                              width: `calc(100vw - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)`,
+                              height: `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)`,
+                              maxWidth: 1000,
+                              maxHeight: 500,
+                              margin: 'auto'
                             }}
-                          >
-                            <div
-                              style={{
-                                opacity: '0.3',
-                              }}
-                            >
-                              <SortedVisibleThumbGrid
-                                inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
-                                // inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
-                                showSettings={this.props.visibilitySettings.showSettings}
-
-                                containerHeight={this.state.containerHeight}
-                                containerWidth={this.state.containerWidth}
-                                selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
-                                selectMethod={this.onSelectMethod}
-                                onThumbDoubleClick={this.onViewToggle}
-                                parentMethod={this.openModal}
-
-                                colorArray={this.state.colorArray}
-                                columnCount={this.props.visibilitySettings.showSettings ?
-                                  this.state.columnCountTemp :
-                                  (this.props.file ? this.props.file.columnCount || this.state.columnCountTemp :
-                                    this.state.columnCountTemp)}
-                                thumbCount={this.state.thumbCountTemp}
-                                reCapture={this.state.reCapture}
-
-                                showMoviePrintView={this.props.visibilitySettings.showMoviePrintView}
-                                scaleValueObject={this.state.scaleValueObject}
-                              />
-                            </div>
-                            <div
-                              className={`${this.props.visibilitySettings.showMoviePrintView ? '' : styles.hiddenItem}`}
-                              style={{
-                                position: 'absolute',
-                                top: '50%',
-                                left: '50%',
-                                transform: 'translate(-50%, -50%)',
-                              }}
-                            >
-                              CUSTOMISE LOOK
-                            </div>
-                          </div>
-                          <div
-                            className={`${styles.ItemMainStartupItem} ${this.props.visibilitySettings.showMoviePrintView ? '' : styles.hiddenItem}`}
-                          >
-                            SAVE MOVIEPRINT
-                          </div>
+                            alt=""
+                          />
                         </div>
                       )
                       }

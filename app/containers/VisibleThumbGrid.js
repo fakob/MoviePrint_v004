@@ -112,13 +112,11 @@ class SortedVisibleThumbGrid extends Component {
           this.setState({
             thumbsToDim: getPreviousThumbs(thumbs, thumbId)
           });
-          // console.log(getPreviousThumbs(thumbs, thumbId));
         }}
         onHoverOutPointEvent={(thumbs, thumbId) => {
           this.setState({
             thumbsToDim: getNextThumbs(thumbs, thumbId)
           });
-          // console.log(getNextThumbs(thumbs, thumbId));
         }}
         onMouseOverResult={(thumbId) => {
           this.controlersVisible = thumbId;

@@ -407,7 +407,7 @@ class SettingsList extends Component {
                   <Checkbox
                     label={
                       <label className={styles.label}>
-                        Include individual thumbs
+                        Include individual frames
                       </label>
                     }
                     checked={this.props.settings.defaultSaveOptionIncludeIndividual}

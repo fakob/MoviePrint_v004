@@ -11,7 +11,7 @@ import {
 import styles from './ThumbGrid.css';
 import stylesPop from './Popup.css';
 
-import transparent from './../img/Thumb_TRANSPARENT.png';
+import transparent from '../img/Thumb_TRANSPARENT.png';
 
 const DragHandle = SortableHandle(({ width, height }) => {
   // function over(event) {
