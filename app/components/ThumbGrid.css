@@ -192,6 +192,12 @@
   opacity: 0.5;
 }
 
+.dim {
+  transition: opacity 0.3s;
+  opacity: 0.2 !important;
+  transition-delay: 0.5s;
+}
+
 .hoverButton {
   border: 0;
   cursor: pointer;

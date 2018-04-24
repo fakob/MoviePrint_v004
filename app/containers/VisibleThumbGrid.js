@@ -9,13 +9,16 @@ import {
 } from '../actions';
 import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
-import { getNextThumb, getPreviousThumb, getLowestFrame, getHighestFrame, getVisibleThumbs } from '../utils/utils';
+import { getNextThumbs, getPreviousThumbs, getLowestFrame, getHighestFrame, getVisibleThumbs } from '../utils/utils';
 import saveThumb from '../utils/saveThumb';
 import { CHANGE_THUMB_STEP } from '../utils/constants';
 
 class SortedVisibleThumbGrid extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      thumbsToDim: []
+    }
     console.log(React.version);
     // this.scrollIntoViewElement = null;
     this.scrollIntoViewElement = React.createRef();
@@ -90,6 +93,7 @@ class SortedVisibleThumbGrid extends Component {
         showSettings={this.props.showSettings}
         colorArray={this.props.colorArray}
         thumbs={this.props.thumbs}
+        thumbsToDim={this.state.thumbsToDim}
         thumbImages={this.props.thumbImages}
         file={this.props.file}
         settings={this.props.settings}
@@ -104,12 +108,27 @@ class SortedVisibleThumbGrid extends Component {
         onOutPointClick={this.props.onOutPointClick}
         onSaveThumbClick={this.props.onSaveThumbClick}
         onScrubClick={this.props.onScrubClick}
+        onHoverInPointEvent={(thumbs, thumbId) => {
+          this.setState({
+            thumbsToDim: getPreviousThumbs(thumbs, thumbId)
+          });
+          // console.log(getPreviousThumbs(thumbs, thumbId));
+        }}
+        onHoverOutPointEvent={(thumbs, thumbId) => {
+          this.setState({
+            thumbsToDim: getNextThumbs(thumbs, thumbId)
+          });
+          // console.log(getNextThumbs(thumbs, thumbId));
+        }}
         onMouseOverResult={(thumbId) => {
           this.controlersVisible = thumbId;
           this.forceUpdate();
         }}
         onMouseOutResult={() => {
           this.controlersVisible = 'false';
+          this.setState({
+            thumbsToDim: []
+          });
         }}
         onSortEnd={
           this.onSortEnd.bind(this)

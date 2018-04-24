@@ -33,8 +33,11 @@ const ThumbGrid = ({
   thumbCount,
   thumbImages,
   thumbs,
+  thumbsToDim,
   showMoviePrintView,
-  keyObject
+  keyObject,
+  onHoverInPointEvent,
+  onHoverOutPointEvent
 }) => {
   const fps = (file !== undefined && file.fps !== undefined ? file.fps : 25);
   function getThumbInfoValue(type, frames, framesPerSecond) {
@@ -113,6 +116,7 @@ const ThumbGrid = ({
         scaleValue={scaleValueObject.newScaleValue}
         key={thumb.key}
         index={thumb.index}
+        dim={(thumbsToDim.find((thumbToDim) => thumbToDim.thumbId === thumb.thumbId))}
         inputRefThumb={(selectedThumbId === thumb.thumbId) ?
           inputRefThumb : undefined} // for the thumb scrollIntoView function
         tempId={thumb.index}
@@ -142,6 +146,10 @@ const ThumbGrid = ({
           null : () => onToggleClick(file.id, thumb.thumbId)}
         onRemove={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => onRemoveClick(file.id, thumb.thumbId)}
+        onHoverInPoint={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
+          null : () => onHoverInPointEvent(thumbArray, thumb.thumbId)}
+        onHoverOutPoint={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
+          null : () => onHoverOutPointEvent(thumbArray, thumb.thumbId)}
         onInPoint={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => onInPointClick(file, thumbArray, thumb.thumbId, thumb.frameNumber)}
         onOutPoint={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?

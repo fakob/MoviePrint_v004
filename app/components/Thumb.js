@@ -18,7 +18,7 @@ const DragHandle = SortableHandle(({ width, height }) => {
   //   event.target.style.opacity = 1;
   // }
   // function out(event) {
-  //   event.target.style.opacity = 0.3;
+  //   event.target.style.opacity = 0.2;
   // }
   return (
     <button
@@ -53,14 +53,15 @@ const Thumb = ({
   onSelect, onToggle, onInPoint, onOutPoint, onSaveThumb, tempId, color,
   onOver, onOut, hidden, thumbImageObjectUrl, aspectRatioInv, thumbInfoRatio,
   controlersAreVisible, thumbWidth, margin, showMoviePrintView, borderRadius, thumbInfoValue, selected,
-  inputRefThumb, onThumbDoubleClick, onBack, onForward, keyObject
+  inputRefThumb, onThumbDoubleClick, onBack, onForward, keyObject, onHoverInPoint,
+  onHoverOutPoint, dim
 }) => {
   function over(event) {
     event.target.style.opacity = 1;
   }
 
   function out(event) {
-    event.target.style.opacity = 0.5;
+    event.target.style.opacity = 0.2;
   }
 
   function onToggleWithStop(e) {
@@ -71,6 +72,18 @@ const Thumb = ({
   function onSaveThumbWithStop(e) {
     e.stopPropagation();
     onSaveThumb();
+  }
+
+  function onHoverInPointWithStop(e) {
+    e.stopPropagation();
+    e.target.style.opacity = 1;
+    onHoverInPoint();
+  }
+
+  function onHoverOutPointWithStop(e) {
+    e.stopPropagation();
+    e.target.style.opacity = 1;
+    onHoverOutPoint();
   }
 
   function onInPointWithStop(e) {
@@ -116,7 +129,6 @@ const Thumb = ({
       width={`${thumbWidth}px`}
       height={`${(thumbWidth * aspectRatioInv)}px`}
       style={{
-        opacity: hidden ? '0.5' : '1',
         width: thumbWidth,
         margin: `${margin}px`,
         outlineWidth: `${margin}px`,
@@ -128,12 +140,13 @@ const Thumb = ({
         <img
           src={thumbImageObjectUrl !== undefined ? thumbImageObjectUrl : transparent}
           id={`thumbImage${tempId}`}
-          className={styles.image}
+          className={`${styles.image} ${dim ? styles.dim : ''}`}
           alt=""
           width={`${thumbWidth}px`}
           height={`${(thumbWidth * aspectRatioInv)}px`}
           style={{
-            // filter: `${controlersAreVisible ? 'brightness(80%)' : ''}`,
+            filter: `${controlersAreVisible ? 'brightness(80%)' : ''}`,
+            opacity: hidden ? '0.2' : '1',
             borderRadius: `${(selected && !showMoviePrintView) ? 0 : borderRadius}px`,
           }}
         />
@@ -174,6 +187,7 @@ const Thumb = ({
               >
                 <Icon
                   inverted
+                  size="large"
                   name={hidden ? 'unhide' : 'hide'}
                   className={styles.opaque}
                 />
@@ -207,130 +221,134 @@ const Thumb = ({
             className={stylesPop.popup}
             content="Save thumb"
           />
-          <Popup
-            trigger={
-              <button
-                style={{
-                  display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-                  transformOrigin: 'left bottom',
-                  transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  marginLeft: '8px',
-                }}
-                className={`${styles.hoverButton} ${styles.textButton}`}
-                onClick={onInPointWithStop}
-                onMouseOver={over}
-                onMouseLeave={out}
-                onFocus={over}
-                onBlur={out}
-              >
-                IN
-              </button>
-            }
-            className={stylesPop.popup}
-            content="Set this thumb as new IN-point"
-          />
-          <Popup
-            trigger={
-              <button
-                style={{
-                  display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-                  transformOrigin: 'center bottom',
-                  transform: `translateX(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                  position: 'absolute',
-                  bottom: 0,
-                  left: '30%',
-                }}
-                className={`${styles.hoverButton} ${styles.textButton}`}
-                onClick={onBackWithStop}
-                onMouseOver={over}
-                onMouseLeave={out}
-                onFocus={over}
-                onBlur={out}
-              >
-                {/* {keyObject.altKey ? '-100' : (keyObject.shiftKey ? '-10' : '-1')} */}
-                {keyObject.altKey ? '<<<' : (keyObject.shiftKey ? '<' : '<<')}
-              </button>
-            }
-            className={stylesPop.popup}
-            content="Move 10 frame back (Shift = 1, Alt = 100)"
-          />
-          <Popup
-            trigger={
-              <button
-                style={{
-                  display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-                  transformOrigin: 'center bottom',
-                  transform: `translateX(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                  position: 'absolute',
-                  bottom: 0,
-                  left: '50%',
-                }}
-                className={`${styles.hoverButton} ${styles.textButton}`}
-                onClick={onThumbDoubleClickWithStop}
-                onMouseOver={over}
-                onMouseLeave={out}
-                onFocus={over}
-                onBlur={out}
-              >
-                {showMoviePrintView ? 'EDIT' : 'BACK'}
-              </button>
-            }
-            className={stylesPop.popup}
-            content={showMoviePrintView ? 'Edit thumb' : 'Back to MoviePrint view'}
-          />
-          <Popup
-            trigger={
-              <button
-                style={{
-                  display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-                  transformOrigin: 'center bottom',
-                  transform: `translateX(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                  position: 'absolute',
-                  bottom: 0,
-                  left: '70%',
-                }}
-                className={`${styles.hoverButton} ${styles.textButton}`}
-                onClick={onForwardWithStop}
-                onMouseOver={over}
-                onMouseLeave={out}
-                onFocus={over}
-                onBlur={out}
-              >
-                {/* {keyObject.altKey ? '+100' : (keyObject.shiftKey ? '+10' : '+1')} */}
-                {keyObject.altKey ? '>>>' : (keyObject.shiftKey ? '>' : '>>')}
-              </button>
-            }
-            className={stylesPop.popup}
-            content="Move 10 frame forward (Shift = 1, Alt = 100)"
-          />
-          <Popup
-            trigger={
-              <button
-                style={{
-                  display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-                  transformOrigin: 'right bottom',
-                  transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                  position: 'absolute',
-                  bottom: 0,
-                  right: 0,
-                  marginRight: '8px',
-                }}
-                className={`${styles.hoverButton} ${styles.textButton}`}
-                onClick={onOutPointWithStop}
-                onMouseOver={over}
-                onMouseLeave={out}
-                onFocus={over}
-                onBlur={out}
-              >
-                OUT
-              </button>
-            }
-            className={stylesPop.popup}
-            content="Set this thumb as new OUT-point"
-          />
+          {!hidden &&
+            <div>
+              <Popup
+                trigger={
+                  <button
+                    style={{
+                      display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+                      transformOrigin: 'left bottom',
+                      transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      marginLeft: '8px',
+                    }}
+                    className={`${styles.hoverButton} ${styles.textButton}`}
+                    onClick={onInPointWithStop}
+                    onMouseOver={onHoverInPointWithStop}
+                    onMouseLeave={out}
+                    onFocus={over}
+                    onBlur={out}
+                  >
+                    IN
+                  </button>
+                }
+                className={stylesPop.popup}
+                content="Set this thumb as new IN-point"
+              />
+              <Popup
+                trigger={
+                  <button
+                    style={{
+                      display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+                      transformOrigin: 'center bottom',
+                      transform: `translateX(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+                      position: 'absolute',
+                      bottom: 0,
+                      left: '30%',
+                    }}
+                    className={`${styles.hoverButton} ${styles.textButton}`}
+                    onClick={onBackWithStop}
+                    onMouseOver={over}
+                    onMouseLeave={out}
+                    onFocus={over}
+                    onBlur={out}
+                  >
+                    {/* {keyObject.altKey ? '-100' : (keyObject.shiftKey ? '-10' : '-1')} */}
+                    {keyObject.altKey ? '<<<' : (keyObject.shiftKey ? '<' : '<<')}
+                  </button>
+                }
+                className={stylesPop.popup}
+                content="Move 10 frame back (Shift = 1, Alt = 100)"
+              />
+              <Popup
+                trigger={
+                  <button
+                    style={{
+                      display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+                      transformOrigin: 'center bottom',
+                      transform: `translateX(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+                      position: 'absolute',
+                      bottom: 0,
+                      left: '50%',
+                    }}
+                    className={`${styles.hoverButton} ${styles.textButton}`}
+                    onClick={onThumbDoubleClickWithStop}
+                    onMouseOver={over}
+                    onMouseLeave={out}
+                    onFocus={over}
+                    onBlur={out}
+                  >
+                    {showMoviePrintView ? 'EDIT' : 'BACK'}
+                  </button>
+                }
+                className={stylesPop.popup}
+                content={showMoviePrintView ? 'Edit thumb' : 'Back to MoviePrint view'}
+              />
+              <Popup
+                trigger={
+                  <button
+                    style={{
+                      display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+                      transformOrigin: 'center bottom',
+                      transform: `translateX(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+                      position: 'absolute',
+                      bottom: 0,
+                      left: '70%',
+                    }}
+                    className={`${styles.hoverButton} ${styles.textButton}`}
+                    onClick={onForwardWithStop}
+                    onMouseOver={over}
+                    onMouseLeave={out}
+                    onFocus={over}
+                    onBlur={out}
+                  >
+                    {/* {keyObject.altKey ? '+100' : (keyObject.shiftKey ? '+10' : '+1')} */}
+                    {keyObject.altKey ? '>>>' : (keyObject.shiftKey ? '>' : '>>')}
+                  </button>
+                }
+                className={stylesPop.popup}
+                content="Move 10 frame forward (Shift = 1, Alt = 100)"
+              />
+              <Popup
+                trigger={
+                  <button
+                    style={{
+                      display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+                      transformOrigin: 'right bottom',
+                      transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+                      position: 'absolute',
+                      bottom: 0,
+                      right: 0,
+                      marginRight: '8px',
+                    }}
+                    className={`${styles.hoverButton} ${styles.textButton}`}
+                    onClick={onOutPointWithStop}
+                    onMouseOver={onHoverOutPointWithStop}
+                    onMouseLeave={out}
+                    onFocus={over}
+                    onBlur={out}
+                  >
+                    OUT
+                  </button>
+                }
+                className={stylesPop.popup}
+                content="Set this thumb as new OUT-point"
+              />
+            </div>
+        }
         </div>
         {!showMoviePrintView && selected && (keyObject.altKey || keyObject.shiftKey) &&
           <div
