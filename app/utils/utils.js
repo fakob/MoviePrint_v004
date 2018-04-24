@@ -219,9 +219,8 @@ export const getPreviousThumbs = (thumbs, thumbId) => {
   if (thumbs) {
     if (thumbId) {
       const currentIndex = thumbs.find((thumb) => thumb.thumbId === thumbId).index;
-      // const newIndex = ((currentIndex - 1) >= 0) ? (currentIndex - 1) : (thumbs.length - 1);
-      // console.log(thumbs[newIndex]);
-      return thumbs.slice(0, currentIndex);
+      return thumbs.filter((thumb) => ((thumb.hidden === false) &&
+        (thumb.index < currentIndex)));
     }
     return thumbs; // return last item if no thumbId provided
   }
@@ -232,9 +231,8 @@ export const getNextThumbs = (thumbs, thumbId) => {
   if (thumbs) {
     if (thumbId) {
       const currentIndex = thumbs.find((thumb) => thumb.thumbId === thumbId).index;
-      // const newIndex = ((currentIndex + 1) < thumbs.length) ? (currentIndex + 1) : 0;
-      // console.log(thumbs[newIndex]);
-      return thumbs.slice(currentIndex + 1);
+      return thumbs.filter((thumb) => ((thumb.hidden === false) &&
+        (thumb.index > currentIndex)));
     }
     return thumbs; // return last item if no thumbId provided
   }
