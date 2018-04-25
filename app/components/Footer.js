@@ -36,14 +36,12 @@ const Footer = ({
                   onClick={onSaveMoviePrint}
                   color="orange"
                   active={!savingMoviePrint}
-                  // className={styles.FixedActionMenuFlex}
-                  disabled={savingMoviePrint}
+                  // disabled={savingMoviePrint}
                 >
                   { savingMoviePrint ?
-                    <Loader
-                      active
-                      inline
-                      size="small"
+                    <Icon
+                      loading
+                      name="certificate"
                     />
                     :
                     <Icon
