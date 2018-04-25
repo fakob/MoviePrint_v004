@@ -847,6 +847,7 @@ class App extends Component {
                         onOverwriteClick={this.onOverwriteClick}
                         onIncludeIndividualClick={this.onIncludeIndividualClick}
                         onThumbnailScaleClick={this.onThumbnailScaleClick}
+                        scaleValueObject={this.state.scaleValueObject}
                       />
                     </div>
                     {!this.props.visibilitySettings.showMoviePrintView &&

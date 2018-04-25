@@ -29,9 +29,10 @@ const handle = (props) => {
   );
 };
 
-const thumbnailScale = (file = { width: 1920, height: 1080 }) => {
+const thumbnailScale = (file = { width: 1920, height: 1080 }, scaleValueObject) => {
+  console.log(scaleValueObject.newMoviePrintWidth);
   return [
-    { value: 1, text: `${file.width}×${file.height} – 1/1` },
+    { value: 1, text: `${file.width}×${file.height} – 1/1 - ${scaleValueObject.newMoviePrintWidth}` },
     { value: 0.5, text: `${file.width * 0.5}×${file.height * 0.5} – 1/2` },
     { value: 0.25, text: `${file.width * 0.25}×${file.height * 0.25} – 1/4` },
     { value: 0.125, text: `${file.width * 0.125}×${file.height * 0.125} – 1/8` },
@@ -380,7 +381,7 @@ class SettingsList extends Component {
                 placeholder="Select..."
                 selection
                 // search
-                options={thumbnailScale(this.props.file)}
+                options={thumbnailScale(this.props.file, this.props.scaleValueObject)}
                 defaultValue={this.props.settings.defaultThumbnailScale}
                 onChange={this.onChangeThumbnailScale}
               />
