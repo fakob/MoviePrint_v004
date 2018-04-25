@@ -104,17 +104,18 @@ app.on('ready', async () => {
   });
 
   creditsWindow = new BrowserWindow({
-    height: 185,
-    resizable: false,
     width: 270,
+    height: 360,
+    resizable: true,
     title: 'Credits',
     minimizable: false,
     fullscreenable: false
   });
   creditsWindow.hide();
   creditsWindow.loadURL(`file://${__dirname}/credits.html`);
-  creditsWindow.on('closed', () => {
+  creditsWindow.on('close', (event) => {
     creditsWindow.hide();
+    event.preventDefault();
   });
 
   // workerWindow = new BrowserWindow();
