@@ -60,6 +60,7 @@ const installExtensions = async () => {
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
+  console.log('window-all-closed');
   if (process.platform !== 'darwin') {
     app.quit();
   }
@@ -98,7 +99,9 @@ app.on('ready', async () => {
   // });
 
   mainWindow.on('closed', () => {
+    console.log('mainWindow.on(closed');
     mainWindow = null;
+    console.log(creditsWindow);
     creditsWindow = null;
     // workerWindow = null;
   });
@@ -114,8 +117,10 @@ app.on('ready', async () => {
   creditsWindow.hide();
   creditsWindow.loadURL(`file://${__dirname}/credits.html`);
   creditsWindow.on('close', (event) => {
-    creditsWindow.hide();
-    event.preventDefault();
+    if (mainWindow) {
+      creditsWindow.hide();
+      event.preventDefault();
+    }
   });
 
   // workerWindow = new BrowserWindow();
