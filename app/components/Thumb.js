@@ -54,7 +54,7 @@ const Thumb = ({
   onOver, onOut, hidden, thumbImageObjectUrl, aspectRatioInv, thumbInfoRatio,
   controlersAreVisible, thumbWidth, margin, showMoviePrintView, borderRadius, thumbInfoValue, selected,
   inputRefThumb, onThumbDoubleClick, onBack, onForward, keyObject, onHoverInPoint,
-  onHoverOutPoint, dim
+  onHoverOutPoint, dim, onLeaveInOut
 }) => {
   function over(event) {
     event.target.style.opacity = 1;
@@ -85,6 +85,13 @@ const Thumb = ({
     e.target.style.opacity = 1;
     onHoverOutPoint();
   }
+
+  function onLeaveInOutWithStop(e) {
+    e.stopPropagation();
+    e.target.style.opacity = 0.2;
+    onLeaveInOut();
+  }
+
 
   function onInPointWithStop(e) {
     e.stopPropagation();
@@ -238,7 +245,7 @@ const Thumb = ({
                     className={`${styles.hoverButton} ${styles.textButton}`}
                     onClick={onInPointWithStop}
                     onMouseOver={onHoverInPointWithStop}
-                    onMouseLeave={out}
+                    onMouseLeave={onLeaveInOutWithStop}
                     onFocus={over}
                     onBlur={out}
                   >
@@ -337,7 +344,7 @@ const Thumb = ({
                     className={`${styles.hoverButton} ${styles.textButton}`}
                     onClick={onOutPointWithStop}
                     onMouseOver={onHoverOutPointWithStop}
-                    onMouseLeave={out}
+                    onMouseLeave={onLeaveInOutWithStop}
                     onFocus={over}
                     onBlur={out}
                   >

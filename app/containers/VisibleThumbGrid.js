@@ -108,14 +108,19 @@ class SortedVisibleThumbGrid extends Component {
         onOutPointClick={this.props.onOutPointClick}
         onSaveThumbClick={this.props.onSaveThumbClick}
         onScrubClick={this.props.onScrubClick}
-        onHoverInPointEvent={(thumbs, thumbId) => {
+        onHoverInPointResult={(thumbs, thumbId) => {
           this.setState({
             thumbsToDim: getPreviousThumbs(thumbs, thumbId)
           });
         }}
-        onHoverOutPointEvent={(thumbs, thumbId) => {
+        onHoverOutPointResult={(thumbs, thumbId) => {
           this.setState({
             thumbsToDim: getNextThumbs(thumbs, thumbId)
+          });
+        }}
+        onLeaveInOutResult={() => {
+          this.setState({
+            thumbsToDim: []
           });
         }}
         onMouseOverResult={(thumbId) => {
