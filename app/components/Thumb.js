@@ -56,12 +56,14 @@ const Thumb = ({
   inputRefThumb, onThumbDoubleClick, onBack, onForward, keyObject, onHoverInPoint,
   onHoverOutPoint, dim, onLeaveInOut
 }) => {
-  function over(event) {
-    event.target.style.opacity = 1;
+  function over(e) {
+    e.stopPropagation();
+    e.target.style.opacity = 1;
   }
 
-  function out(event) {
-    event.target.style.opacity = 0.2;
+  function out(e) {
+    e.stopPropagation();
+    e.target.style.opacity = 0.2;
   }
 
   function onToggleWithStop(e) {
@@ -184,20 +186,25 @@ const Thumb = ({
                   display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
                   transformOrigin: 'center top',
                   transform: `translate(-50%, 10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+                  position: 'absolute',
+                  top: 0,
+                  left: '50%',
                 }}
-                className={`${styles.hoverButton} ${styles.hide}`}
+                // className={`${styles.hoverButton} ${styles.hide}`}
+                className={`${styles.hoverButton} ${styles.textButton}`}
                 onClick={onToggleWithStop}
                 onMouseOver={over}
                 onMouseLeave={out}
                 onFocus={over}
                 onBlur={out}
               >
-                <Icon
+                {hidden ? 'SHOW' : 'HIDE'}
+                {/* <Icon
                   inverted
                   size="large"
                   name={hidden ? 'unhide' : 'hide'}
                   className={styles.opaque}
-                />
+                /> */}
               </button>
             }
             className={stylesPop.popup}
@@ -209,20 +216,27 @@ const Thumb = ({
                 style={{
                   display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
                   transformOrigin: 'top right',
-                  transform: `translate(-50%, 10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+                  transform: `translateY(10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+                  position: 'absolute',
+                  top: 0,
+                  right: 0,
+                  marginRight: '8px',
                 }}
-                className={`${styles.hoverButton} ${styles.save}`}
+                // className={`${styles.hoverButton} ${styles.save}`}
+                className={`${styles.hoverButton} ${styles.textButton}`}
                 onClick={onSaveThumbWithStop}
                 onMouseOver={over}
                 onMouseLeave={out}
                 onFocus={over}
                 onBlur={out}
               >
-                <Icon
+                SAVE
+                {/* <Icon
                   inverted
+                  bordered
                   name="download"
                   className={styles.opaque}
-                />
+                /> */}
               </button>
             }
             className={stylesPop.popup}
@@ -253,7 +267,7 @@ const Thumb = ({
                   </button>
                 }
                 className={stylesPop.popup}
-                content="Set this thumb as new IN-point"
+                content={<span>Set this thumb as new <mark>IN-point</mark></span>}
               />
               <Popup
                 trigger={
@@ -278,7 +292,7 @@ const Thumb = ({
                   </button>
                 }
                 className={stylesPop.popup}
-                content="Move 10 frame back (Shift = 1, Alt = 100)"
+                content={<span>Move 10 frames back | with <mark>SHIFT</mark> move 1 frame | with <mark>ALT</mark> move 100 frames</span>}
               />
               <Popup
                 trigger={
@@ -327,7 +341,7 @@ const Thumb = ({
                   </button>
                 }
                 className={stylesPop.popup}
-                content="Move 10 frame forward (Shift = 1, Alt = 100)"
+                content={<span>Move 10 frames forward | with <mark>SHIFT</mark> move 1 frame | with <mark>ALT</mark> move 100 frames</span>}
               />
               <Popup
                 trigger={
@@ -352,7 +366,7 @@ const Thumb = ({
                   </button>
                 }
                 className={stylesPop.popup}
-                content="Set this thumb as new OUT-point"
+                content={<span>Set this thumb as new <mark>OUT-point</mark></span>}
               />
             </div>
         }

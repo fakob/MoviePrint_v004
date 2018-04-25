@@ -447,7 +447,7 @@ class VideoPlayer extends Component {
                 </button>
               }
               className={stylesPop.popup}
-              content="Move 10 frame back (Shift = 1, Alt = 100)"
+              content={<span>Move 10 frames back | with <mark>SHIFT</mark> move 1 frame | with <mark>ALT</mark> move 100 frames</span>}
             />
             <Popup
               trigger={
@@ -468,11 +468,11 @@ class VideoPlayer extends Component {
                     color: MOVIEPRINT_COLORS[0]
                   }}
                 >
-                  {this.props.keyObject.altKey ? 'ADD AFTER' : (this.props.keyObject.shiftKey ? 'ADD BEFORE' : 'SET')}
+                  {this.props.keyObject.altKey ? 'ADD AFTER' : (this.props.keyObject.shiftKey ? 'ADD BEFORE' : 'CHANGE')}
                 </button>
               }
               className={stylesPop.popup}
-              content={this.props.keyObject.altKey ? 'Add a new thumb after selection' : (this.props.keyObject.shiftKey ? 'Add a new thumb before selection' : 'Set the selected thumb to use this frame (Shift = Add before, Alt = Add after)')}
+              content={this.props.keyObject.altKey ? (<span>Add a new thumb <mark>after</mark> selection</span>) : (this.props.keyObject.shiftKey ? (<span>Add a new thumb <mark>before</mark> selection</span>) : (<span>Change the thumb to use this frame | with <mark>SHIFT</mark> add a thumb before selection | with <mark>ALT</mark> add a thumb after selection</span>))}
             />
             <Popup
               trigger={
@@ -495,7 +495,7 @@ class VideoPlayer extends Component {
                 </button>
               }
               className={stylesPop.popup}
-              content="Move 10 frame forward (Shift = 1, Alt = 100)"
+              content={<span>Move 10 frames forward | with <mark>SHIFT</mark> move 1 frame | with <mark>ALT</mark> move 100 frames</span>}
             />
             <Popup
               trigger={

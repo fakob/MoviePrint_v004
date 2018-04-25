@@ -24,3 +24,16 @@ body {
 label {
   color: white;
 }
+
+mark {
+  background-color: rgba(255, 80, 6, 0.4);
+  color: white;
+}
+
+mark::before {
+  content: '\00a0\00a0';
+}
+
+mark::after {
+  content: '\00a0\00a0';
+}
