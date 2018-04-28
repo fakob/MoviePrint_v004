@@ -3,8 +3,8 @@
 
 
 "@types/node@>6":
-  version "9.6.6"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-9.6.6.tgz#439b91f9caf3983cad2eef1e11f6bedcbf9431d2"
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.0.0.tgz#c40f8e07dce607d3ef25a626b93a6a7cdcf97881"
 
 ansi-regex@^2.0.0:
   version "2.1.1"
@@ -108,8 +108,8 @@ opencv-build@^0.0.12:
     npmlog "^4.1.2"
 
 opencv4nodejs@^4.1.0:
-  version "4.2.1"
-  resolved "https://registry.yarnpkg.com/opencv4nodejs/-/opencv4nodejs-4.2.1.tgz#548c4452edc076f992def68d03dda2050ebbaad1"
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/opencv4nodejs/-/opencv4nodejs-4.4.0.tgz#3b607f4f834bc4528d20f4b8b998878ec4c11dec"
   dependencies:
     macro-inferno "^0.2.1"
     nan "^2.7.0"
@@ -135,8 +135,8 @@ readable-stream@^2.0.6:
     util-deprecate "~1.0.1"
 
 safe-buffer@~5.1.0, safe-buffer@~5.1.1:
-  version "5.1.1"
-  resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.1.1.tgz#893312af69b2123def71f57889001671eeb2c853"
+  version "5.1.2"
+  resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.1.2.tgz#991ec69d296e0313747d59bdfd2b745c35f8828d"
 
 set-blocking@~2.0.0:
   version "2.0.0"
