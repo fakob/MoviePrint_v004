@@ -113,8 +113,8 @@ app.on('ready', async () => {
   });
 
   creditsWindow = new BrowserWindow({
-    width: 270,
-    height: 360,
+    width: 660,
+    height: 660,
     resizable: true,
     title: 'Credits',
     minimizable: false,

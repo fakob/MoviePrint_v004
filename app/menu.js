@@ -47,6 +47,7 @@ export default class MenuBuilder {
       label: 'Electron',
       submenu: [
         { label: 'About MoviePrint_v004', selector: 'orderFrontStandardAboutPanel:' },
+        { label: 'Credits', click: () => { this.creditsWindow.show(); } },
         { type: 'separator' },
         { label: 'Services', submenu: [] },
         { type: 'separator' },
@@ -74,8 +75,6 @@ export default class MenuBuilder {
     const subMenuViewDev = {
       label: 'View',
       submenu: [
-        { label: 'Main window', click: () => { this.mainWindow.show(); } },
-        { label: 'Credits', click: () => { this.creditsWindow.show(); } },
         { label: 'Clear cache', accelerator: 'Shift+Alt+Command+C', click: () => { clearCache(this.mainWindow); } },
         { label: 'Reload', accelerator: 'Command+R', click: () => { this.mainWindow.webContents.reload(); } },
         { label: 'Toggle Full Screen', accelerator: 'Ctrl+Command+F', click: () => { this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen()); } },
@@ -94,6 +93,7 @@ export default class MenuBuilder {
     const subMenuWindow = {
       label: 'Window',
       submenu: [
+        { label: 'Main window', click: () => { this.mainWindow.show(); } },
         { label: 'Minimize', accelerator: 'Command+M', selector: 'performMiniaturize:' },
         { label: 'Close', accelerator: 'Command+W', selector: 'performClose:' },
         { type: 'separator' },
