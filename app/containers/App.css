@@ -89,13 +89,12 @@
 }
 
 .ItemVideoPlayer {
-  transition: margin 0.5s ease;
+  transition: all 0.5s ease;
   position: fixed;
   left: 50%;
   right: auto;
   bottom: auto;
   margin-right: -50%;
-  transform: translate(-50%);
 }
 
 .ItemMainEdit {

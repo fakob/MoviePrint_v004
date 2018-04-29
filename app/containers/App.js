@@ -850,47 +850,49 @@ class App extends Component {
                         scaleValueObject={this.state.scaleValueObject}
                       />
                     </div>
-                    {!this.props.visibilitySettings.showMoviePrintView &&
-                      <div
-                        className={`${styles.ItemVideoPlayer} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''}`}
-                        style={{
-                          top: `${MENU_HEADER_HEIGHT + this.props.settings.defaultBorderMargin}px`
-                        }}
-                      >
-                        { this.props.file ? (
-                          <VideoPlayer
-                            ref={(el) => { this.videoPlayer = el; }}
-                            path={this.props.file ? (this.props.file.path || '') : ''}
+                    <div
+                      className={`${styles.ItemVideoPlayer} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''}`}
+                      style={{
+                        top: `${MENU_HEADER_HEIGHT + this.props.settings.defaultBorderMargin}px`,
+                        transform: !this.props.visibilitySettings.showMoviePrintView ? 'translate(-50%, 0px)' : `translate(-50%, ${(this.state.scaleValueObject.videoPlayerHeight + this.props.settings.defaultVideoPlayerControllerHeight) * -1}px)`,
+                        overflow: !this.props.visibilitySettings.showMoviePrintView ? 'visible' : 'hidden'
+                      }}
+                    >
+                      { this.props.file ? (
+                        <VideoPlayer
+                          // visible={!this.props.visibilitySettings.showMoviePrintView}
+                          ref={(el) => { this.videoPlayer = el; }}
+                          path={this.props.file ? (this.props.file.path || '') : ''}
+                          aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
+                          height={this.state.scaleValueObject.videoPlayerHeight}
+                          width={this.state.scaleValueObject.videoPlayerWidth}
+                          controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
+                          selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
+                          frameNumber={this.state.selectedThumbObject ? this.state.selectedThumbObject.frameNumber : 0}
+                          onThumbDoubleClick={this.onViewToggle}
+                          selectMethod={this.onSelectMethod}
+                          keyObject={this.state.keyObject}
+                        />
+                      ) :
+                      (
+                        <div
+                          style={{
+                            opacity: '0.3',
+                            // overflow: !this.props.visibilitySettings.showMoviePrintView ? 'visible' : 'hidden'
+                          }}
+                        >
+                          <ThumbEmpty
+                            color={(this.state.colorArray !== undefined ? this.state.colorArray[0] : undefined)}
+                            thumbImageObjectUrl={undefined}
                             aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
-                            height={this.state.scaleValueObject.videoPlayerHeight}
-                            width={this.state.scaleValueObject.videoPlayerWidth}
-                            controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
-                            selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
-                            frameNumber={this.state.selectedThumbObject ? this.state.selectedThumbObject.frameNumber : 0}
-                            onThumbDoubleClick={this.onViewToggle}
-                            selectMethod={this.onSelectMethod}
-                            keyObject={this.state.keyObject}
+                            thumbWidth={this.state.scaleValueObject.videoPlayerWidth}
+                            borderRadius={this.state.scaleValueObject.newBorderRadius}
+                            margin={this.state.scaleValueObject.newThumbMargin}
                           />
-                        ) :
-                        (
-                          <div
-                            style={{
-                              opacity: '0.3',
-                            }}
-                          >
-                            <ThumbEmpty
-                              color={(this.state.colorArray !== undefined ? this.state.colorArray[0] : undefined)}
-                              thumbImageObjectUrl={undefined}
-                              aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
-                              thumbWidth={this.state.scaleValueObject.videoPlayerWidth}
-                              borderRadius={this.state.scaleValueObject.newBorderRadius}
-                              margin={this.state.scaleValueObject.newThumbMargin}
-                            />
-                          </div>
-                        )
-                        }
-                      </div>
-                    }
+                        </div>
+                      )
+                      }
+                    </div>
                     <div
                       ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
                       className={`${styles.ItemMain} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainRightAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainEdit : ''} ${!this.props.visibilitySettings.showMoviePrintView ? styles.ItemMainTopAnim : ''}`}

@@ -214,12 +214,7 @@ class VideoPlayer extends Component {
       console.log(currentTime);
       this.setState({ playHeadPosition: xPos });
       this.setState({ currentTime });
-      // set currentTime of video needs to wait for videoplayer to be ready
-      this.video.addEventListener('canplay', function handler() {
-        this.video.currentTime = currentTime;
-        // remove event listener right away
-        this.video.removeEventListener('canplay', handler);
-      }.bind(this));
+      this.video.currentTime = currentTime;
     }
   }
 
@@ -332,6 +327,7 @@ class VideoPlayer extends Component {
         <div
           className={`${styles.player}`}
           style={{
+            // overflow: this.props.visible ? 'visible' : 'hidden',
             width: this.state.videoWidth,
             height: this.state.videoHeight,
           }}
