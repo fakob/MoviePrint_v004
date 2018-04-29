@@ -198,7 +198,7 @@ class VideoPlayer extends Component {
   updateTimeFromThumbId(thumbId) {
     console.log(thumbId);
     console.log(this.props.thumbs);
-    if (thumbId || this.props.thumbs) {
+    if (this.props.thumbs || thumbId) {
       let xPos = 0;
       let currentTime = 0;
       if (thumbId) {
