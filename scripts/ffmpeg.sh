@@ -11,7 +11,7 @@ libavcodecFile=$ffmpegDir"libavcodec.dylib"
 
 # create ffmpeg folder and copy files
 mkdir -p $ffmpegDir
-cp /usr/local/Cellar/ffmpeg/3.4.2/lib/* $ffmpegDir
+cp -nv /usr/local/Cellar/ffmpeg/3.4.2/lib/* $ffmpegDir
 
 # for libopencv_videoio add rpath and change the absolute ffmpeg paths to use rpath
 install_name_tool -add_rpath @loader_path/../../../../../dist/ffmpeg $libopencv_videoioFile
