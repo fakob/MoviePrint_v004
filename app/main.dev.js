@@ -25,6 +25,7 @@ const searchLimit = 100; // how long to go forward or backward to find a none-em
 
 
 let mainWindow = null;
+let appAboutToQuit = false;
 let creditsWindow = null;
 // let workerWindow = null;
 
@@ -56,6 +57,11 @@ const installExtensions = async () => {
 /**
  * Add event listeners...
  */
+
+app.on('before-quit', () => {
+  // set variable so windows know that they should close and not hide
+  appAboutToQuit = true;
+});
 
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
@@ -98,12 +104,12 @@ app.on('ready', async () => {
   //   mainWindow.focus();
   // });
 
-  mainWindow.on('closed', () => {
-    console.log('mainWindow.on(closed');
-    mainWindow = null;
-    console.log(creditsWindow);
-    creditsWindow = null;
-    // workerWindow = null;
+  mainWindow.on('close', (event) => {
+    // only hide window and prevent default if app not quitting
+    if (!appAboutToQuit) {
+      mainWindow.hide();
+      event.preventDefault();
+    }
   });
 
   creditsWindow = new BrowserWindow({
@@ -116,8 +122,10 @@ app.on('ready', async () => {
   });
   creditsWindow.hide();
   creditsWindow.loadURL(`file://${__dirname}/credits.html`);
+
   creditsWindow.on('close', (event) => {
-    if (mainWindow) {
+    // only hide window and prevent default if app not quitting
+    if (!appAboutToQuit) {
       creditsWindow.hide();
       event.preventDefault();
     }

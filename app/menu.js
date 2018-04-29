@@ -74,6 +74,7 @@ export default class MenuBuilder {
     const subMenuViewDev = {
       label: 'View',
       submenu: [
+        { label: 'Main window', click: () => { this.mainWindow.show(); } },
         { label: 'Credits', click: () => { this.creditsWindow.show(); } },
         { label: 'Clear cache', accelerator: 'Shift+Alt+Command+C', click: () => { clearCache(this.mainWindow); } },
         { label: 'Reload', accelerator: 'Command+R', click: () => { this.mainWindow.webContents.reload(); } },
