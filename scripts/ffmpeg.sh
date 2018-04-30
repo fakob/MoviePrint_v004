@@ -2,7 +2,7 @@
 # ffmpeg_version=3.4.2
 
 # variables
-moviePrintDir=/Users/fakob/_jakob/work/fakob_MoviePrintApp_130515/03_Programming/02_Setups/05_Electron/MoviePrint_v004/
+moviePrintDir=$PWD"/"
 ffmpegDir=$moviePrintDir"app/dist/ffmpeg/"
 ffmpegFiles=$ffmpegDir"*.dylib"
 opencvLibDir=$moviePrintDir"app/node_modules/opencv-build/opencv/build/lib/"
