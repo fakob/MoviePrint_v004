@@ -167,7 +167,7 @@ ThumbGrid.defaultProps = {
 };
 
 ThumbGrid.propTypes = {
-  colorArray: PropTypes.object.isRequired,
+  colorArray: PropTypes.array.isRequired,
   controlersAreVisibleId: PropTypes.string,
   file: PropTypes.shape({
     id: PropTypes.string,
@@ -203,7 +203,7 @@ ThumbGrid.propTypes = {
     hidden: PropTypes.bool.isRequired,
     frameNumber: PropTypes.number.isRequired
   }).isRequired),
-  thumbsToDim: PropTypes.object,
+  thumbsToDim: PropTypes.array,
 };
 
 const SortableThumbGrid = SortableContainer(ThumbGrid);
