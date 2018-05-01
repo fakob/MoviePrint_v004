@@ -3,30 +3,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { SortableHandle } from 'react-sortable-hoc';
-import { Icon, Popup } from 'semantic-ui-react';
-import {
-  MINIMUM_WIDTH_TO_SHRINK_HOVER, MINIMUM_WIDTH_TO_SHOW_HOVER,
-  VERTICAL_OFFSET_OF_INOUTPOINT_POPUP
-} from '../utils/constants';
+import { Popup } from 'semantic-ui-react';
+import { MINIMUM_WIDTH_TO_SHRINK_HOVER, MINIMUM_WIDTH_TO_SHOW_HOVER } from '../utils/constants';
 import styles from './ThumbGrid.css';
 import stylesPop from './Popup.css';
 
 import transparent from '../img/Thumb_TRANSPARENT.png';
 
-const DragHandle = SortableHandle(({ width, height }) => {
-  // function over(event) {
-  //   event.target.style.opacity = 1;
-  // }
-  // function out(event) {
-  //   event.target.style.opacity = 0.2;
-  // }
-  return (
+const DragHandle = SortableHandle(({ width, height }) =>
+  (
     <button
       className={`${styles.dragHandleButton}`}
-      // onMouseOver={over}
-      // onMouseLeave={out}
-      // onFocus={over}
-      // onBlur={out}
       style={{
         width,
         height: Math.floor(height),
@@ -40,21 +27,39 @@ const DragHandle = SortableHandle(({ width, height }) => {
         }}
         alt=""
       />
-      {/* <img
-        src={handleWide}
-        className={styles.dragHandleIcon}
-        alt=""
-      /> */}
     </button>
-  );
-});
+  ));
 
 const Thumb = ({
-  onSelect, onToggle, onInPoint, onOutPoint, onSaveThumb, tempId, color,
-  onOver, onOut, hidden, thumbImageObjectUrl, aspectRatioInv, thumbInfoRatio,
-  controlersAreVisible, thumbWidth, margin, showMoviePrintView, borderRadius, thumbInfoValue, selected,
-  inputRefThumb, onThumbDoubleClick, onBack, onForward, keyObject, onHoverInPoint,
-  onHoverOutPoint, dim, onLeaveInOut
+  aspectRatioInv,
+  borderRadius,
+  color,
+  controlersAreVisible,
+  dim,
+  hidden,
+  index,
+  inputRefThumb,
+  keyObject,
+  margin,
+  onBack,
+  onForward,
+  onHoverInPoint,
+  onHoverOutPoint,
+  onInPoint,
+  onLeaveInOut,
+  onOut,
+  onOutPoint,
+  onOver,
+  onSaveThumb,
+  onSelect,
+  onThumbDoubleClick,
+  onToggle,
+  selected,
+  showMoviePrintView,
+  thumbImageObjectUrl,
+  thumbInfoRatio,
+  thumbInfoValue,
+  thumbWidth,
 }) => {
   function over(e) {
     e.stopPropagation();
@@ -126,6 +131,8 @@ const Thumb = ({
   return (
     <div
       ref={inputRefThumb}
+      role="button"
+      tabIndex={index}
       onMouseOver={onOver}
       onMouseLeave={onOut}
       onFocus={onOver}
@@ -133,7 +140,7 @@ const Thumb = ({
       onClick={onSelect}
       onKeyPress={onSelect}
       onDoubleClick={onThumbDoubleClickWithStop}
-      id={`thumb${tempId}`}
+      id={`thumb${index}`}
       className={`${styles.gridItem} ${(!showMoviePrintView && selected && !(keyObject.altKey || keyObject.shiftKey)) ? styles.gridItemSelected : ''}`}
       width={`${thumbWidth}px`}
       height={`${(thumbWidth * aspectRatioInv)}px`}
@@ -144,11 +151,11 @@ const Thumb = ({
         borderRadius: `${(selected && !showMoviePrintView) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: thumbImageObjectUrl !== undefined ? undefined : color,
       }}
-      >
+    >
       <div>
         <img
           src={thumbImageObjectUrl !== undefined ? thumbImageObjectUrl : transparent}
-          id={`thumbImage${tempId}`}
+          id={`thumbImage${index}`}
           className={`${styles.image} ${dim ? styles.dim : ''}`}
           alt=""
           width={`${thumbWidth}px`}
@@ -163,7 +170,6 @@ const Thumb = ({
           <div
             className={styles.frameNumber}
             style={{
-              transformOrigin: 'left top',
               transform: `scale(${(thumbInfoRatio * thumbWidth * aspectRatioInv) / 10})`,
             }}
           >
@@ -176,7 +182,7 @@ const Thumb = ({
           }}
         >
           <DragHandle
-            width={thumbWidth - 1}
+            width={thumbWidth - 1} // shrink it to prevent rounding issues
             height={(thumbWidth * aspectRatioInv) - 1}
           />
           <Popup
@@ -190,7 +196,6 @@ const Thumb = ({
                   top: 0,
                   left: '50%',
                 }}
-                // className={`${styles.hoverButton} ${styles.hide}`}
                 className={`${styles.hoverButton} ${styles.textButton}`}
                 onClick={onToggleWithStop}
                 onMouseOver={over}
@@ -199,12 +204,6 @@ const Thumb = ({
                 onBlur={out}
               >
                 {hidden ? 'SHOW' : 'HIDE'}
-                {/* <Icon
-                  inverted
-                  size="large"
-                  name={hidden ? 'unhide' : 'hide'}
-                  className={styles.opaque}
-                /> */}
               </button>
             }
             className={stylesPop.popup}
@@ -222,7 +221,6 @@ const Thumb = ({
                   right: 0,
                   marginRight: '8px',
                 }}
-                // className={`${styles.hoverButton} ${styles.save}`}
                 className={`${styles.hoverButton} ${styles.textButton}`}
                 onClick={onSaveThumbWithStop}
                 onMouseOver={over}
@@ -231,12 +229,6 @@ const Thumb = ({
                 onBlur={out}
               >
                 SAVE
-                {/* <Icon
-                  inverted
-                  bordered
-                  name="download"
-                  className={styles.opaque}
-                /> */}
               </button>
             }
             className={stylesPop.popup}
@@ -287,7 +279,6 @@ const Thumb = ({
                     onFocus={over}
                     onBlur={out}
                   >
-                    {/* {keyObject.altKey ? '-100' : (keyObject.shiftKey ? '-10' : '-1')} */}
                     {keyObject.altKey ? '<<<' : (keyObject.shiftKey ? '<' : '<<')}
                   </button>
                 }
@@ -336,7 +327,6 @@ const Thumb = ({
                     onFocus={over}
                     onBlur={out}
                   >
-                    {/* {keyObject.altKey ? '+100' : (keyObject.shiftKey ? '+10' : '+1')} */}
                     {keyObject.altKey ? '>>>' : (keyObject.shiftKey ? '>' : '>>')}
                   </button>
                 }
@@ -393,19 +383,25 @@ const Thumb = ({
 };
 
 Thumb.defaultProps = {
-  selected: false,
   controlersAreVisible: false,
+  dim: undefined,
   hidden: false,
+  keyObject: {},
+  onBack: null,
+  onForward: null,
+  onHoverInPoint: null,
+  onHoverOutPoint: null,
+  onInPoint: null,
+  onLeaveInOut: null,
+  onOut: null,
+  onOutPoint: null,
+  onOver: null,
+  onSaveThumb: null,
+  onSelect: null,
+  onToggle: null,
+  selected: false,
   thumbImageObjectUrl: undefined,
   thumbInfoValue: undefined,
-  onSelect: null,
-  onOut: null,
-  onOver: null,
-  onToggle: null,
-  onInPoint: null,
-  onOutPoint: null,
-  onSaveThumb: null,
-  keyObject: {}
 };
 
 Thumb.propTypes = {
@@ -413,25 +409,31 @@ Thumb.propTypes = {
   borderRadius: PropTypes.number.isRequired,
   color: PropTypes.string.isRequired,
   controlersAreVisible: PropTypes.bool,
+  dim: PropTypes.object,
   hidden: PropTypes.bool,
   inputRefThumb: PropTypes.object,
   keyObject: PropTypes.object,
   margin: PropTypes.number.isRequired,
+  onBack: PropTypes.func,
+  onForward: PropTypes.func,
+  onHoverInPoint: PropTypes.func,
+  onHoverOutPoint: PropTypes.func,
   onInPoint: PropTypes.func,
+  onLeaveInOut: PropTypes.func,
   onOut: PropTypes.func,
   onOutPoint: PropTypes.func,
-  onSaveThumb: PropTypes.func,
   onOver: PropTypes.func,
+  onSaveThumb: PropTypes.func,
   onSelect: PropTypes.func,
   onThumbDoubleClick: PropTypes.func.isRequired,
   onToggle: PropTypes.func,
   selected: PropTypes.bool,
-  tempId: PropTypes.number.isRequired,
+  showMoviePrintView: PropTypes.bool.isRequired,
+  index: PropTypes.number.isRequired,
   thumbImageObjectUrl: PropTypes.string,
   thumbInfoRatio: PropTypes.number.isRequired,
   thumbInfoValue: PropTypes.string,
   thumbWidth: PropTypes.number.isRequired,
-  showMoviePrintView: PropTypes.bool.isRequired,
 };
 
 export default Thumb;

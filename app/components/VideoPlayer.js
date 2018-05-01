@@ -5,7 +5,7 @@ import { Popup } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
 import { changeThumb, addDefaultThumbs, addThumb } from '../actions';
 import {
-  VERTICAL_OFFSET_OF_INOUTPOINT_POPUP, MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
+  MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
   CHANGE_THUMB_STEP, MOVIEPRINT_COLORS
 } from '../utils/constants'
 import {

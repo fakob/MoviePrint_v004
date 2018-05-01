@@ -120,7 +120,6 @@ const ThumbGrid = ({
         dim={(thumbsToDim.find((thumbToDim) => thumbToDim.thumbId === thumb.thumbId))}
         inputRefThumb={(selectedThumbId === thumb.thumbId) ?
           inputRefThumb : undefined} // for the thumb scrollIntoView function
-        tempId={thumb.index}
         color={(colorArray !== undefined ? colorArray[thumb.index] : undefined)}
         thumbImageObjectUrl={thumb.thumbImageObjectUrl ||
           getObjectProperty(() => thumbImages[thumb.frameId].objectUrl)}
