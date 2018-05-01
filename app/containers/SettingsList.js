@@ -30,7 +30,7 @@ const handle = (props) => {
 };
 
 const thumbnailScale = (file = { width: 1920, height: 1080 }, scaleValueObject) => {
-  console.log(scaleValueObject.newMoviePrintWidth);
+  // console.log(scaleValueObject.newMoviePrintWidth);
   return [
     { value: 1, text: `${file.width}×${file.height} – 1/1 - ${scaleValueObject.newMoviePrintWidth}` },
     { value: 0.5, text: `${file.width * 0.5}×${file.height * 0.5} – 1/2` },

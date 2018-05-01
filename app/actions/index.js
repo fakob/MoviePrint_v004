@@ -336,7 +336,7 @@ export const updateThumbObjectUrlFromDB = (fileId, thumbId, frameId, isPosterFra
     console.log('inside updateThumbObjectUrlFromDB');
     console.log(frameId);
     return imageDB.frameList.where('frameId').equals(frameId).toArray().then((frames) => {
-      console.log(frames[0]);
+      // console.log(frames[0]);
       if (isPosterFrame) {
         return dispatch({
           type: 'UPDATE_OBJECTURL_FROM_POSTERFRAME',
