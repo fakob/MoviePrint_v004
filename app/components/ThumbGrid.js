@@ -13,32 +13,31 @@ const SortableThumb = SortableElement(Thumb);
 const ThumbGrid = ({
   colorArray,
   controlersAreVisibleId,
-  showSettings,
   file,
   inputRefThumb,
-  onInPointClick,
+  keyObject,
   onBackClick,
   onForwardClick,
+  onHoverInPointResult,
+  onHoverOutPointResult,
+  onInPointClick,
+  onLeaveInOutResult,
   onMouseOutResult,
   onMouseOverResult,
   onOutPointClick,
   onSaveThumbClick,
-  onRemoveClick,
   onSelectClick,
   onThumbDoubleClick,
   onToggleClick,
   scaleValueObject,
   selectedThumbId,
   settings,
+  showMoviePrintView,
+  showSettings,
   thumbCount,
   thumbImages,
   thumbs,
   thumbsToDim,
-  showMoviePrintView,
-  keyObject,
-  onHoverInPointResult,
-  onHoverOutPointResult,
-  onLeaveInOutResult
 }) => {
   const fps = (file !== undefined && file.fps !== undefined ? file.fps : 25);
   let thumbGridHeaderComponent = null;
@@ -96,7 +95,6 @@ const ThumbGrid = ({
       <SortableThumb
         showMoviePrintView={showMoviePrintView}
         keyObject={keyObject}
-        scaleValue={scaleValueObject.newScaleValue}
         key={thumb.key}
         index={thumb.index}
         dim={(thumbsToDim.find((thumbToDim) => thumbToDim.thumbId === thumb.thumbId))}
@@ -113,7 +111,6 @@ const ThumbGrid = ({
         thumbInfoRatio={settings.defaultThumbInfoRatio}
         hidden={thumb.hidden}
         controlersAreVisible={showSettings ? undefined : (thumb.thumbId === controlersAreVisibleId)}
-        disabled={showSettings}
         selected={selectedThumbId ? (selectedThumbId === thumb.thumbId) : false}
         onOver={showSettings ? null : () => onMouseOverResult(thumb.thumbId)}
         onOut={showSettings ? null : () => onMouseOutResult()}
@@ -129,8 +126,6 @@ const ThumbGrid = ({
           null : () => onForwardClick(file, thumb.thumbId, thumb.frameNumber)}
         onToggle={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => onToggleClick(file.id, thumb.thumbId)}
-        onRemove={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
-          null : () => onRemoveClick(file.id, thumb.thumbId)}
         onHoverInPoint={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => onHoverInPointResult(thumbArray, thumb.thumbId)}
         onHoverOutPoint={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
@@ -185,7 +180,6 @@ ThumbGrid.propTypes = {
   onMouseOutResult: PropTypes.func.isRequired,
   onMouseOverResult: PropTypes.func.isRequired,
   onOutPointClick: PropTypes.func.isRequired,
-  onRemoveClick: PropTypes.func.isRequired,
   onSaveThumbClick: PropTypes.func.isRequired,
   onSelectClick: PropTypes.func.isRequired,
   onThumbDoubleClick: PropTypes.func.isRequired,

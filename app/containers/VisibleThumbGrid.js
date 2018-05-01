@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import { arrayMove } from 'react-sortable-hoc';
 import scrollIntoView from 'scroll-into-view';
 import {
-  toggleThumb, updateOrder, removeThumb, updateObjectUrlsFromThumbList,
-  changeThumb, addDefaultThumbs, showThumbView, showMoviePrintView
+  toggleThumb, updateOrder, updateObjectUrlsFromThumbList,
+  changeThumb, addDefaultThumbs
 } from '../actions';
 import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
@@ -18,9 +18,8 @@ class SortedVisibleThumbGrid extends Component {
     super(props);
     this.state = {
       thumbsToDim: []
-    }
-    console.log(React.version);
-    // this.scrollIntoViewElement = null;
+    };
+
     this.scrollIntoViewElement = React.createRef();
 
     this.scrollThumbIntoView = this.scrollThumbIntoView.bind(this);
@@ -40,15 +39,17 @@ class SortedVisibleThumbGrid extends Component {
             .thumbs).map((a) => a.frameId)
         ));
       }
+      return true;
     });
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     if (prevProps.selectedThumbId !== this.props.selectedThumbId) {
       this.scrollThumbIntoView();
     }
     // delay when switching to thumbView so it waits for the view to be ready
-    if ((prevProps.showMoviePrintView !== this.props.showMoviePrintView) && prevProps.showMoviePrintView) {
+    if ((prevProps.showMoviePrintView !== this.props.showMoviePrintView) &&
+    prevProps.showMoviePrintView) {
       setTimeout(() => {
         this.scrollThumbIntoView();
       }, 500);
@@ -89,7 +90,6 @@ class SortedVisibleThumbGrid extends Component {
       <SortableThumbGrid
         ref={this.props.inputRef} // for the saveMoviePrint function
         inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
-        // inputRefThumb={this.props.inputRefThumb} // for the thumb scrollIntoView function
         showSettings={this.props.showSettings}
         colorArray={this.props.colorArray}
         thumbs={this.props.thumbs}
@@ -98,16 +98,19 @@ class SortedVisibleThumbGrid extends Component {
         file={this.props.file}
         settings={this.props.settings}
         selectedThumbId={this.props.selectedThumbId}
+        thumbCount={this.props.thumbCount}
+        showMoviePrintView={this.props.showMoviePrintView}
+        scaleValueObject={this.props.scaleValueObject}
+        keyObject={this.props.keyObject}
+
         onSelectClick={this.onSelectClick}
         onThumbDoubleClick={this.props.onThumbDoubleClick}
         onToggleClick={this.props.onToggleClick}
-        onRemoveClick={this.props.onRemoveClick}
         onBackClick={this.props.onBackClick}
         onForwardClick={this.props.onForwardClick}
         onInPointClick={this.props.onInPointClick}
         onOutPointClick={this.props.onOutPointClick}
         onSaveThumbClick={this.props.onSaveThumbClick}
-        onScrubClick={this.props.onScrubClick}
         onHoverInPointResult={(thumbs, thumbId) => {
           this.setState({
             thumbsToDim: getPreviousThumbs(thumbs, thumbId)
@@ -133,25 +136,16 @@ class SortedVisibleThumbGrid extends Component {
             thumbsToDim: []
           });
         }}
-        onSortEnd={
-          this.onSortEnd.bind(this)
-        }
+
         useDragHandle
         axis="xy"
-        // pressDelay={250}
         distance={1}
         helperClass={styles.whileDragging}
         controlersAreVisibleId={this.controlersVisible}
-        useWindowAsScrollContainer={true}
-
-        columnCount={this.props.columnCount}
-        thumbCount={this.props.thumbCount}
-        reCapture={this.props.reCapture}
-        containerWidth={this.props.containerWidth || 640}
-        containerHeight={this.props.containerHeight || 360}
-        showMoviePrintView={this.props.showMoviePrintView}
-        scaleValueObject={this.props.scaleValueObject}
-        keyObject={this.props.keyObject}
+        useWindowAsScrollContainer
+        onSortEnd={
+          this.onSortEnd.bind(this)
+        }
       />
     );
   }
@@ -179,19 +173,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
-    // onViewToggle: () => {
-    //   console.log(ownProps);
-    //   if (ownProps.showMoviePrintView) {
-    //     dispatch(showThumbView());
-    //   } else {
-    //     dispatch(showMoviePrintView());
-    //   }
-    // },
     onToggleClick: (fileId, thumbId) => {
       dispatch(toggleThumb(fileId, thumbId));
-    },
-    onRemoveClick: (fileId, thumbId) => {
-      dispatch(removeThumb(fileId, thumbId));
     },
     onInPointClick: (file, thumbs, thumbId, frameNumber) => {
       dispatch(addDefaultThumbs(
@@ -208,12 +191,8 @@ const mapDispatchToProps = (dispatch, ownProps) => {
         getLowestFrame(thumbs),
         frameNumber
       ));
-      // getPreviousThumb(thumbs, thumbId);
     },
     onSaveThumbClick: (fileName, frameNumber, frameId) => {
-      console.log(fileName);
-      console.log(frameNumber);
-      console.log(frameId);
       saveThumb(fileName, frameNumber, frameId);
     },
     onBackClick: (file, thumbId, frameNumber) => {
@@ -235,15 +214,49 @@ const mapDispatchToProps = (dispatch, ownProps) => {
         stepValue = CHANGE_THUMB_STEP[2];
       }
       dispatch(changeThumb(file, thumbId, frameNumber + stepValue));
-    },
-    onScrubClick: (file, thumbId, frameNumber) => {
-      ownProps.parentMethod(file, thumbId, frameNumber);
     }
   };
 };
 
 SortedVisibleThumbGrid.contextTypes = {
   store: PropTypes.object,
+};
+
+SortedVisibleThumbGrid.defaultProps = {
+  thumbs: [],
+  file: {}
+};
+
+SortedVisibleThumbGrid.propTypes = {
+  colorArray: PropTypes.array.isRequired,
+  file: PropTypes.shape({
+    id: PropTypes.string,
+    width: PropTypes.number,
+    height: PropTypes.number,
+  }),
+  inputRef: PropTypes.func.isRequired,
+  keyObject: PropTypes.object.isRequired,
+  onBackClick: PropTypes.func.isRequired,
+  onForwardClick: PropTypes.func.isRequired,
+  onInPointClick: PropTypes.func.isRequired,
+  onOutPointClick: PropTypes.func.isRequired,
+  onSaveThumbClick: PropTypes.func.isRequired,
+  onThumbDoubleClick: PropTypes.func.isRequired,
+  onToggleClick: PropTypes.func.isRequired,
+  scaleValueObject: PropTypes.object.isRequired,
+  selectedThumbId: PropTypes.string,
+  selectMethod: PropTypes.func.isRequired,
+  settings: PropTypes.object.isRequired,
+  showMoviePrintView: PropTypes.bool.isRequired,
+  showSettings: PropTypes.bool.isRequired,
+  thumbCount: PropTypes.number.isRequired,
+  thumbImages: PropTypes.object,
+  thumbs: PropTypes.arrayOf(PropTypes.shape({
+    thumbId: PropTypes.string.isRequired,
+    index: PropTypes.number.isRequired,
+    hidden: PropTypes.bool.isRequired,
+    frameNumber: PropTypes.number.isRequired
+  }).isRequired),
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SortedVisibleThumbGrid);

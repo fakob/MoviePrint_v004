@@ -897,7 +897,9 @@ class App extends Component {
                       ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
                       className={`${styles.ItemMain} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainRightAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainEdit : ''} ${!this.props.visibilitySettings.showMoviePrintView ? styles.ItemMainTopAnim : ''}`}
                       style={{
-                        width: (this.props.visibilitySettings.showMoviePrintView && !this.state.zoom) ? undefined : this.state.scaleValueObject.newMoviePrintWidth,
+                        width: (this.props.visibilitySettings.showMoviePrintView &&
+                          !this.state.zoom)
+                        ? undefined : this.state.scaleValueObject.newMoviePrintWidth,
                         marginTop: this.props.visibilitySettings.showMoviePrintView ? undefined :
                           `${this.state.scaleValueObject.videoPlayerHeight +
                             (this.props.settings.defaultBorderMargin * 2)}px`,
@@ -907,23 +909,15 @@ class App extends Component {
                       { (this.props.file || this.props.visibilitySettings.showSettings) ? (
                         <SortedVisibleThumbGrid
                           inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
-                          // inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
                           showSettings={this.props.visibilitySettings.showSettings}
 
-                          containerHeight={this.state.containerHeight}
-                          containerWidth={this.state.containerWidth}
-                          selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
+                          selectedThumbId={this.state.selectedThumbObject ?
+                            this.state.selectedThumbObject.thumbId : undefined}
                           selectMethod={this.onSelectMethod}
                           onThumbDoubleClick={this.onViewToggle}
-                          parentMethod={this.openModal}
 
                           colorArray={this.state.colorArray}
-                          columnCount={this.props.visibilitySettings.showSettings ?
-                            this.state.columnCountTemp :
-                            (this.props.file ? this.props.file.columnCount || this.state.columnCountTemp :
-                              this.state.columnCountTemp)}
                           thumbCount={this.state.thumbCountTemp}
-                          reCapture={this.state.reCapture}
 
                           showMoviePrintView={this.props.visibilitySettings.showMoviePrintView}
                           scaleValueObject={this.state.scaleValueObject}
