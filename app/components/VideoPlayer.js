@@ -308,7 +308,8 @@ class VideoPlayer extends Component {
 
   onVideoError = () => {
     console.log('onVideoError');
-    console.log(this);
+    // console.log(this);
+    this.onDurationChange(frameCountToSeconds(this.props.file.frameCount));
     this.setState({
       loadVideo: false
     });
@@ -316,7 +317,7 @@ class VideoPlayer extends Component {
 
   onLoadedData = () => {
     console.log('onLoadedData');
-    console.log(this);
+    // console.log(this);
     this.setState({
       loadVideo: true
     });
