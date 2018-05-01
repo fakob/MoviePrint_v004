@@ -128,17 +128,32 @@ const Thumb = ({
     onThumbDoubleClick();
   }
 
+  function onSelectWithStop(e) {
+    e.stopPropagation();
+    onSelect();
+  }
+
+  function onOverWithStop(e) {
+    e.stopPropagation();
+    onOver();
+  }
+
+  function onOutWithStop(e) {
+    e.stopPropagation();
+    onOut();
+  }
+
   return (
     <div
       ref={inputRefThumb}
       role="button"
       tabIndex={index}
-      onMouseOver={onOver}
-      onMouseLeave={onOut}
-      onFocus={onOver}
-      onBlur={onOut}
-      onClick={onSelect}
-      onKeyPress={onSelect}
+      onMouseOver={onOverWithStop}
+      onMouseLeave={onOutWithStop}
+      onFocus={onOverWithStop}
+      onBlur={onOutWithStop}
+      onClick={onSelectWithStop}
+      onKeyPress={onSelectWithStop}
       onDoubleClick={onThumbDoubleClickWithStop}
       id={`thumb${index}`}
       className={`${styles.gridItem} ${(!showMoviePrintView && selected && !(keyObject.altKey || keyObject.shiftKey)) ? styles.gridItemSelected : ''}`}
@@ -181,10 +196,12 @@ const Thumb = ({
             display: controlersAreVisible ? 'block' : 'none'
           }}
         >
-          <DragHandle
-            width={thumbWidth - 1} // shrink it to prevent rounding issues
-            height={(thumbWidth * aspectRatioInv) - 1}
-          />
+          {showMoviePrintView &&
+            <DragHandle
+              width={thumbWidth - 1} // shrink it to prevent rounding issues
+              height={(thumbWidth * aspectRatioInv) - 1}
+            />
+          }
           <Popup
             trigger={
               <button
