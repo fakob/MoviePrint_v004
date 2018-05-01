@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-// import keydown from 'react-keydown';
-import { Sticky, Menu, Icon, Loader } from 'semantic-ui-react';
 import Dropzone from 'react-dropzone';
 
 import '../app.global.css';
@@ -26,9 +24,7 @@ import {
   setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
   updateFileDetailUseRatio
 } from '../actions';
-import {
-  MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT, ZOOM_SCALE
-} from '../utils/constants';
+import { MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT, ZOOM_SCALE } from '../utils/constants';
 
 import steps from '../img/MoviePrint-steps.svg';
 
@@ -326,15 +322,18 @@ class App extends Component {
     this.updatecontainerWidthAndHeight();
 
     // update scaleValue when these parameter change
-    if (((prevProps.file === undefined || this.props.file === undefined) ? false : (prevProps.file.width !== this.props.file.width)) ||
-      ((prevProps.file === undefined || this.props.file === undefined) ? false : (prevProps.file.height !== this.props.file.height)) ||
+    if (((prevProps.file === undefined || this.props.file === undefined) ?
+      false : (prevProps.file.width !== this.props.file.width)) ||
+      ((prevProps.file === undefined || this.props.file === undefined) ?
+        false : (prevProps.file.height !== this.props.file.height)) ||
       prevProps.settings.defaultThumbnailScale !== this.props.settings.defaultThumbnailScale ||
       prevProps.settings.defaultMarginRatio !== this.props.settings.defaultMarginRatio ||
       prevProps.settings.defaultShowHeader !== this.props.settings.defaultShowHeader ||
       prevProps.settings.defaultRoundedCorners !== this.props.settings.defaultRoundedCorners ||
       prevState.outputScaleCompensator !== this.state.outputScaleCompensator ||
       prevState.zoom !== this.state.zoom ||
-      prevProps.visibilitySettings.showMoviePrintView !== this.props.visibilitySettings.showMoviePrintView ||
+      prevProps.visibilitySettings.showMoviePrintView !==
+        this.props.visibilitySettings.showMoviePrintView ||
       prevState.columnCountTemp !== this.state.columnCountTemp ||
       prevState.thumbCountTemp !== this.state.thumbCountTemp ||
       prevState.columnCount !== this.state.columnCount ||
@@ -374,35 +373,29 @@ class App extends Component {
           break;
         default:
       }
-      this.setState(
-        {
-          keyObject: {
-            shiftKey: event.shiftKey,
-            altKey: event.altKey,
-            ctrlKey: event.ctrlKey,
-            metaKey: event.metaKey,
-            which: event.which
-          }
-        },
-        // console.log(`ctrl:${event.ctrlKey}, shift:${event.shiftKey}, alt:${event.altKey}, meta:${event.metaKey}, keynum:${event.which}`)
-      );
+      this.setState({
+        keyObject: {
+          shiftKey: event.shiftKey,
+          altKey: event.altKey,
+          ctrlKey: event.ctrlKey,
+          metaKey: event.metaKey,
+          which: event.which
+        }
+      });
     }
   }
 
   handleKeyUp(event) {
     if (event) {
-      this.setState(
-        {
-          keyObject: {
-            shiftKey: false,
-            altKey: false,
-            ctrlKey: false,
-            metaKey: false,
-            which: undefined
-          }
-        },
-        // console.log('keyup')
-      );
+      this.setState({
+        keyObject: {
+          shiftKey: false,
+          altKey: false,
+          ctrlKey: false,
+          metaKey: false,
+          which: undefined
+        }
+      });
     }
   }
 
@@ -420,7 +413,6 @@ class App extends Component {
 
   onDrop(files) {
     this.setState({
-      files,
       dropzoneActive: false
     });
     const { store } = this.context;
@@ -867,8 +859,10 @@ class App extends Component {
                           height={this.state.scaleValueObject.videoPlayerHeight}
                           width={this.state.scaleValueObject.videoPlayerWidth}
                           controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
-                          selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
-                          frameNumber={this.state.selectedThumbObject ? this.state.selectedThumbObject.frameNumber : 0}
+                          selectedThumbId={this.state.selectedThumbObject ?
+                            this.state.selectedThumbObject.thumbId : undefined}
+                          frameNumber={this.state.selectedThumbObject ?
+                            this.state.selectedThumbObject.frameNumber : 0}
                           onThumbDoubleClick={this.onViewToggle}
                           selectMethod={this.onSelectMethod}
                           keyObject={this.state.keyObject}
@@ -878,11 +872,11 @@ class App extends Component {
                         <div
                           style={{
                             opacity: '0.3',
-                            // overflow: !this.props.visibilitySettings.showMoviePrintView ? 'visible' : 'hidden'
                           }}
                         >
                           <ThumbEmpty
-                            color={(this.state.colorArray !== undefined ? this.state.colorArray[0] : undefined)}
+                            color={(this.state.colorArray !== undefined ?
+                              this.state.colorArray[0] : undefined)}
                             thumbImageObjectUrl={undefined}
                             aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
                             thumbWidth={this.state.scaleValueObject.videoPlayerWidth}
@@ -997,6 +991,28 @@ const mapStateToProps = state => {
 
 App.contextTypes = {
   store: PropTypes.object
+};
+
+App.defaultProps = {
+  currentFileId: undefined,
+  file: {},
+  thumbs: [],
+  thumbsByFileId: {},
+};
+
+App.propTypes = {
+  currentFileId: PropTypes.string,
+  file: PropTypes.shape({
+    id: PropTypes.string,
+    width: PropTypes.number,
+    height: PropTypes.number,
+    columnCount: PropTypes.number,
+    path: PropTypes.string,
+  }),
+  settings: PropTypes.object.isRequired,
+  thumbs: PropTypes.array,
+  thumbsByFileId: PropTypes.object,
+  visibilitySettings: PropTypes.object.isRequired,
 };
 
 export default connect(mapStateToProps)(App);
