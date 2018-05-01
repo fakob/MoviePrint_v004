@@ -35,7 +35,8 @@ class VideoPlayer extends Component {
       mouseStartDragInsideTimeline: false,
       videoHeight: 360,
       videoWidth: 640,
-      showPlaybar: false
+      showPlaybar: false,
+      loadVideo: false,
     };
 
     // this.onSaveThumbClick = this.onSaveThumbClick.bind(this);
@@ -48,6 +49,7 @@ class VideoPlayer extends Component {
     this.updateTimeFromThumbId = this.updateTimeFromThumbId.bind(this);
     this.updatePositionFromTime = this.updatePositionFromTime.bind(this);
     this.onVideoError = this.onVideoError.bind(this);
+    this.onLoadedData = this.onLoadedData.bind(this);
     this.onShowPlaybar = this.onShowPlaybar.bind(this);
     this.onHidePlaybar = this.onHidePlaybar.bind(this);
 
@@ -83,6 +85,11 @@ class VideoPlayer extends Component {
       this.setState({
         videoHeight,
         videoWidth
+      });
+    }
+    if (nextProps.file.path !== this.props.file.path) {
+      this.setState({
+        loadVideo: true
       });
     }
   }
@@ -187,7 +194,9 @@ class VideoPlayer extends Component {
     const currentTimePlusStep = this.state.currentTime +
       frameCountToSeconds(step, this.props.file.fps);
     this.updatePositionFromTime(currentTimePlusStep);
-    this.video.currentTime = currentTimePlusStep;
+    if (this.state.loadVideo) {
+      this.video.currentTime = currentTimePlusStep;
+    }
   }
 
   updatePositionFromTime(currentTime) {
@@ -221,7 +230,9 @@ class VideoPlayer extends Component {
       }
       this.setState({ playHeadPosition: xPos });
       this.setState({ currentTime });
-      this.video.currentTime = currentTime;
+      if (this.state.loadVideo) {
+        this.video.currentTime = currentTime;
+      }
     }
   }
 
@@ -231,7 +242,9 @@ class VideoPlayer extends Component {
       const currentTime = mapRange(xPos, 0, this.state.videoWidth, 0, this.state.duration, false);
       console.log(`${currentTime} : ${xPos} : ${this.state.videoWidth} : ${this.state.duration}`);
       this.setState({ currentTime });
-      this.video.currentTime = currentTime;
+      if (this.state.loadVideo) {
+        this.video.currentTime = currentTime;
+      }
     }
   }
 
@@ -296,6 +309,17 @@ class VideoPlayer extends Component {
   onVideoError = () => {
     console.log('onVideoError');
     console.log(this);
+    this.setState({
+      loadVideo: false
+    });
+  }
+
+  onLoadedData = () => {
+    console.log('onLoadedData');
+    console.log(this);
+    this.setState({
+      loadVideo: true
+    });
   }
 
   render() {
@@ -353,24 +377,49 @@ class VideoPlayer extends Component {
             className={stylesPop.popup}
             content="Back to MoviePrint view"
           />
-          <video
-            ref={(el) => { this.video = el; }}
-            className={`${styles.video}`}
-            onMouseOver={this.onShowPlaybar}
-            onFocus={this.onShowPlaybar}
-            onMouseOut={this.onHidePlaybar}
-            onBlur={this.onHidePlaybar}
-            controls={this.state.showPlaybar ? 'true' : undefined}
-            muted
-            src={this.props.file ? `${pathModule.dirname(this.props.file.path)}/${encodeURIComponent(pathModule.basename(this.props.file.path))}` || '' : ''}
-            width={this.state.videoWidth}
-            height={this.state.videoHeight}
-            onDurationChange={e => this.onDurationChange(e.target.duration)}
-            onTimeUpdate={e => this.updatePositionFromTime(e.target.currentTime)}
-            onError={this.onVideoError}
-          >
-            <track kind="captions" />
-          </video>
+          {this.state.loadVideo ?
+            <video
+              ref={(el) => { this.video = el; }}
+              className={`${styles.video}`}
+              onMouseOver={this.onShowPlaybar}
+              onFocus={this.onShowPlaybar}
+              onMouseOut={this.onHidePlaybar}
+              onBlur={this.onHidePlaybar}
+              controls={this.state.showPlaybar ? 'true' : undefined}
+              muted
+              src={this.props.file ? `${pathModule.dirname(this.props.file.path)}/${encodeURIComponent(pathModule.basename(this.props.file.path))}` || '' : ''}
+              width={this.state.videoWidth}
+              height={this.state.videoHeight}
+              onDurationChange={e => this.onDurationChange(e.target.duration)}
+              onTimeUpdate={e => this.updatePositionFromTime(e.target.currentTime)}
+              onLoadedData={this.onLoadedData}
+              onError={this.onVideoError}
+            >
+              <track kind="captions" />
+            </video>
+            :
+            <div
+              style={{
+                backgroundColor: '#111111',
+                width: this.state.videoWidth,
+                height: this.state.videoHeight
+              }}
+            >
+              <div
+                className={styles.textButton}
+                style={{
+                  transformOrigin: 'center center',
+                  transform: 'translate(-50%, -50%)',
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  textAlign: 'center',
+                }}
+              >
+                NO PLAYER AVAILABE
+              </div>
+            </div>
+          }
           <div
             id="currentTimeDisplay"
             className={styles.frameNumberOrTimeCode}
