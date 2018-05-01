@@ -197,6 +197,19 @@ export const getFilePathObject = (
   return pathR.parse(newFilePathAndName);
 };
 
+export const getThumbInfoValue = (type, frames, framesPerSecond) => {
+  switch (type) {
+    case 'frames':
+      return pad(frames, 4);
+    case 'timecode':
+      return frameCountToTimeCode(frames, framesPerSecond);
+    case 'hideInfo':
+      return undefined;
+    default:
+      return undefined;
+  }
+};
+
 export const getLowestFrame = (thumbs) => {
   if (thumbs) {
     return thumbs.reduce(

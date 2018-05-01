@@ -6,7 +6,7 @@ import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import Thumb from './Thumb';
 import ThumbGridHeader from './ThumbGridHeader';
 import styles from './ThumbGrid.css';
-import { mapRange, frameCountToTimeCode, pad, getObjectProperty } from './../utils/utils';
+import { mapRange, getObjectProperty, getThumbInfoValue } from './../utils/utils';
 
 const SortableThumb = SortableElement(Thumb);
 
@@ -41,19 +41,6 @@ const ThumbGrid = ({
   onLeaveInOutResult
 }) => {
   const fps = (file !== undefined && file.fps !== undefined ? file.fps : 25);
-  function getThumbInfoValue(type, frames, framesPerSecond) {
-    switch (type) {
-      case 'frames':
-        return pad(frames, 4);
-      case 'timecode':
-        return frameCountToTimeCode(frames, framesPerSecond);
-      case 'hideInfo':
-        return undefined;
-      default:
-        return undefined;
-    }
-  }
-
   let thumbGridHeaderComponent = null;
   let thumbGridComponent = null;
 
@@ -83,18 +70,15 @@ const ThumbGrid = ({
       let tempThumbObject = {
         id: String(mappedIterator),
       };
-      // console.log(thumbs);
       if (thumbs.length === 0) {
         tempThumbObject = {
           key: String(i),
           index: i,
-          // thumbId: String(i),
         };
       } else if (thumbs.length === tempArrayLength) {
         tempThumbObject = thumbs[i];
       } else {
         if ((thumbImages !== undefined) &&
-          // thumbImages[thumbs[mappedIterator].frameId] &&
           (i === 0 || i === (tempArrayLength - 1))
         ) {
           tempThumbObject = thumbs[mappedIterator];
@@ -102,13 +86,11 @@ const ThumbGrid = ({
         tempThumbObject.key = i;
         tempThumbObject.index = i;
       }
-      // console.log(`${i} : ${mappedIterator}`);
       thumbArray[i] = tempThumbObject;
     }
   } else {
     thumbArray = thumbs;
   }
-  // console.log(controlersAreVisibleId);
   thumbGridComponent = (
     thumbArray.map(thumb => (
       <SortableThumb
@@ -136,13 +118,15 @@ const ThumbGrid = ({
         onOver={showSettings ? null : () => onMouseOverResult(thumb.thumbId)}
         onOut={showSettings ? null : () => onMouseOutResult()}
         onLeaveInOut={showSettings ? null : () => onLeaveInOutResult()}
+        onThumbDoubleClick={onThumbDoubleClick}
         onSelect={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => {
             onSelectClick(thumb.thumbId, thumb.frameNumber);
           }}
-        onThumbDoubleClick={onThumbDoubleClick}
-        onBack={showSettings ? null : () => onBackClick(file, thumb.thumbId, thumb.frameNumber)}
-        onForward={showSettings ? null : () => onForwardClick(file, thumb.thumbId, thumb.frameNumber)}
+        onBack={showSettings ?
+          null : () => onBackClick(file, thumb.thumbId, thumb.frameNumber)}
+        onForward={showSettings ?
+          null : () => onForwardClick(file, thumb.thumbId, thumb.frameNumber)}
         onToggle={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => onToggleClick(file.id, thumb.thumbId)}
         onRemove={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
@@ -178,39 +162,48 @@ ThumbGrid.defaultProps = {
   controlersAreVisibleId: 'false',
   selectedThumbId: undefined,
   thumbs: [],
+  thumbsToDim: [],
   file: {}
 };
 
 ThumbGrid.propTypes = {
+  colorArray: PropTypes.object.isRequired,
+  controlersAreVisibleId: PropTypes.string,
+  file: PropTypes.shape({
+    id: PropTypes.string,
+    width: PropTypes.number,
+    height: PropTypes.number,
+  }),
+  inputRefThumb: PropTypes.object.isRequired,
+  keyObject: PropTypes.object.isRequired,
+  onBackClick: PropTypes.func.isRequired,
+  onForwardClick: PropTypes.func.isRequired,
+  onHoverInPointResult: PropTypes.func.isRequired,
+  onHoverOutPointResult: PropTypes.func.isRequired,
+  onInPointClick: PropTypes.func.isRequired,
+  onLeaveInOutResult: PropTypes.func.isRequired,
+  onMouseOutResult: PropTypes.func.isRequired,
+  onMouseOverResult: PropTypes.func.isRequired,
+  onOutPointClick: PropTypes.func.isRequired,
+  onRemoveClick: PropTypes.func.isRequired,
+  onSaveThumbClick: PropTypes.func.isRequired,
+  onSelectClick: PropTypes.func.isRequired,
+  onThumbDoubleClick: PropTypes.func.isRequired,
+  onToggleClick: PropTypes.func.isRequired,
+  scaleValueObject: PropTypes.object.isRequired,
+  selectedThumbId: PropTypes.string,
+  settings: PropTypes.object.isRequired,
+  showMoviePrintView: PropTypes.bool.isRequired,
+  showSettings: PropTypes.bool.isRequired,
+  thumbCount: PropTypes.number.isRequired,
+  thumbImages: PropTypes.object,
   thumbs: PropTypes.arrayOf(PropTypes.shape({
     thumbId: PropTypes.string.isRequired,
     index: PropTypes.number.isRequired,
     hidden: PropTypes.bool.isRequired,
     frameNumber: PropTypes.number.isRequired
   }).isRequired),
-  thumbImages: PropTypes.object,
-  inputRefThumb: PropTypes.object,
-  file: PropTypes.shape({
-    id: PropTypes.string,
-    width: PropTypes.number,
-    height: PropTypes.number,
-  }),
-  controlersAreVisibleId: PropTypes.string,
-  selectedThumbId: PropTypes.string,
-  thumbCount: PropTypes.number.isRequired,
-  showSettings: PropTypes.bool.isRequired,
-  scaleValueObject: PropTypes.object.isRequired,
-  settings: PropTypes.object.isRequired,
-  showMoviePrintView: PropTypes.bool.isRequired,
-  onSelectClick: PropTypes.func.isRequired,
-  onToggleClick: PropTypes.func.isRequired,
-  onRemoveClick: PropTypes.func.isRequired,
-  onInPointClick: PropTypes.func.isRequired,
-  onOutPointClick: PropTypes.func.isRequired,
-  onSaveThumbClick: PropTypes.func.isRequired,
-  onThumbDoubleClick: PropTypes.func.isRequired,
-  onMouseOverResult: PropTypes.func.isRequired,
-  onMouseOutResult: PropTypes.func.isRequired,
+  thumbsToDim: PropTypes.object,
 };
 
 const SortableThumbGrid = SortableContainer(ThumbGrid);
