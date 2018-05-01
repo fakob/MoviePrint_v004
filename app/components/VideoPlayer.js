@@ -1,3 +1,5 @@
+/* eslint no-param-reassign: "error" */
+
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -7,11 +9,15 @@ import { changeThumb, addDefaultThumbs, addThumb } from '../actions';
 import {
   MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
   CHANGE_THUMB_STEP, MOVIEPRINT_COLORS
-} from '../utils/constants'
+} from '../utils/constants';
 import {
-  getLowestFrame, getHighestFrame, getChangeThumbStep, getVisibleThumbs,
-  mapRange, secondsToTimeCode, limitRange, frameCountToSeconds,
-  getNextThumb, getPreviousThumb, secondsToFrameCount
+  frameCountToSeconds,
+  getHighestFrame,
+  getLowestFrame,
+  getVisibleThumbs,
+  mapRange,
+  secondsToFrameCount,
+  secondsToTimeCode,
 } from './../utils/utils';
 import styles from './VideoPlayer.css';
 import stylesPop from './Popup.css';
@@ -51,16 +57,15 @@ class VideoPlayer extends Component {
     this.onTimelineMouseOver = this.onTimelineMouseOver.bind(this);
     this.onTimelineExit = this.onTimelineExit.bind(this);
     this.onApplyClick = this.onApplyClick.bind(this);
-    this.onCancelClick = this.onCancelClick.bind(this);
   }
 
-  componentWillMount(prevProps) {
+  componentWillMount() {
     const videoHeight = this.props.height - this.props.controllerHeight;
     const videoWidth = videoHeight / this.props.aspectRatioInv;
     this.setState({
       videoHeight,
       videoWidth
-    })
+    });
   }
 
   componentDidMount() {
@@ -87,10 +92,6 @@ class VideoPlayer extends Component {
       this.updateTimeFromThumbId(this.props.selectedThumbId);
     }
   }
-
-  // onSaveThumbClick() {
-  //   saveThumb(this.props.file.fileName, frameNumber);
-  // }
 
   onShowPlaybar() {
     if (!this.state.showPlaybar) {
@@ -139,16 +140,17 @@ class VideoPlayer extends Component {
   }
 
   onBackClick(step = undefined) {
+    const [stepValue0, stepValue1, stepValue2] = CHANGE_THUMB_STEP;
     let stepValue;
     if (step) {
       stepValue = step;
     } else {
-      stepValue = CHANGE_THUMB_STEP[1] * -1;
+      stepValue = stepValue1 * -1;
       if (this.props.keyObject.shiftKey) {
-        stepValue = CHANGE_THUMB_STEP[0] * -1;
+        stepValue = stepValue0 * -1;
       }
       if (this.props.keyObject.altKey) {
-        stepValue = CHANGE_THUMB_STEP[2] * -1;
+        stepValue = stepValue2 * -1;
       }
     }
     console.log(stepValue);
@@ -156,16 +158,17 @@ class VideoPlayer extends Component {
   }
 
   onForwardClick(step = undefined) {
+    const [stepValue0, stepValue1, stepValue2] = CHANGE_THUMB_STEP;
     let stepValue;
     if (step) {
       stepValue = step;
     } else {
-      stepValue = CHANGE_THUMB_STEP[1];
+      stepValue = stepValue1;
       if (this.props.keyObject.shiftKey) {
-        stepValue = CHANGE_THUMB_STEP[0];
+        stepValue = stepValue0;
       }
       if (this.props.keyObject.altKey) {
-        stepValue = CHANGE_THUMB_STEP[2];
+        stepValue = stepValue2;
       }
     }
     console.log(stepValue);
@@ -181,23 +184,28 @@ class VideoPlayer extends Component {
   }
 
   updatePositionWithStep(step) {
-    const currentTimePlusStep = this.state.currentTime + frameCountToSeconds(step, this.props.file.fps);
+    const currentTimePlusStep = this.state.currentTime +
+      frameCountToSeconds(step, this.props.file.fps);
     this.updatePositionFromTime(currentTimePlusStep);
     this.video.currentTime = currentTimePlusStep;
   }
 
   updatePositionFromTime(currentTime) {
-    // rounds the number with 3 decimals
-    const roundedCurrentTime = Math.round((currentTime * 1000) + Number.EPSILON) / 1000;
+    if (currentTime) {
+      // rounds the number with 3 decimals
+      const roundedCurrentTime = Math.round((currentTime * 1000) + Number.EPSILON) / 1000;
 
-    this.setState({ currentTime: roundedCurrentTime });
-    const xPos = mapRange(roundedCurrentTime, 0, this.state.duration, 0, this.state.videoWidth, false);
-    this.setState({ playHeadPosition: xPos });
+      this.setState({ currentTime: roundedCurrentTime });
+      const xPos = mapRange(
+        roundedCurrentTime,
+        0, this.state.duration,
+        0, this.state.videoWidth, false
+      );
+      this.setState({ playHeadPosition: xPos });
+    }
   }
 
   updateTimeFromThumbId(thumbId) {
-    console.log(thumbId);
-    console.log(this.props.thumbs);
     if (this.props.thumbs || thumbId) {
       let xPos = 0;
       let currentTime = 0;
@@ -211,7 +219,6 @@ class VideoPlayer extends Component {
           currentTime = frameCountToSeconds(frameNumberOfThumb, this.props.file.fps);
         }
       }
-      console.log(currentTime);
       this.setState({ playHeadPosition: xPos });
       this.setState({ currentTime });
       this.video.currentTime = currentTime;
@@ -219,44 +226,38 @@ class VideoPlayer extends Component {
   }
 
   updateTimeFromPosition(xPos) {
-    this.setState({ playHeadPosition: xPos });
-    const currentTime = mapRange(xPos, 0, this.state.videoWidth, 0, this.state.duration, false);
-    // console.log(`${currentTime} : ${this.props.positionRatio} : ${this.state.duration}`);
-    this.setState({ currentTime });
-    this.video.currentTime = currentTime;
+    if (xPos) {
+      this.setState({ playHeadPosition: xPos });
+      const currentTime = mapRange(xPos, 0, this.state.videoWidth, 0, this.state.duration, false);
+      console.log(`${currentTime} : ${xPos} : ${this.state.videoWidth} : ${this.state.duration}`);
+      this.setState({ currentTime });
+      this.video.currentTime = currentTime;
+    }
   }
 
   onTimelineClick(e) {
     const bounds = this.timeLine.getBoundingClientRect();
     const x = e.clientX - bounds.left;
-    // const y = e.clientY - bounds.top;
-    // console.log('mouse dragging over');
     this.updateTimeFromPosition(x);
-    }
+  }
 
   onTimelineDrag() {
-    // console.log('start dragging');
     this.setState({ mouseStartDragInsideTimeline: true });
   }
 
   onTimelineMouseOver(e) {
-    // console.log('mouse moving over');
     if (this.state.mouseStartDragInsideTimeline) { // check if dragging over timeline
       const bounds = this.timeLine.getBoundingClientRect();
       const x = e.clientX - bounds.left;
-      // const y = e.clientY - bounds.top;
-      // console.log('mouse dragging over');
       this.updateTimeFromPosition(x);
     }
   }
 
   onTimelineDragStop() {
-    // console.log('stopped dragging');
     this.setState({ mouseStartDragInsideTimeline: false });
   }
 
   onTimelineExit() {
-    // console.log('leaving timeline');
     if (this.state.mouseStartDragInsideTimeline) {
       this.setState({ mouseStartDragInsideTimeline: false });
     }
@@ -292,17 +293,12 @@ class VideoPlayer extends Component {
     }
   }
 
-  onCancelClick = () => {
-    this.props.closeModal();
-  }
-
   onVideoError = () => {
     console.log('onVideoError');
     console.log(this);
   }
 
   render() {
-    const dragHandlers = { onStart: this.onStart, onStop: this.onStop };
     const { playHeadPosition } = this.state;
 
     function over(event) {
@@ -315,19 +311,20 @@ class VideoPlayer extends Component {
 
     const inPoint = getLowestFrame(this.props.thumbs);
     const outPoint = getHighestFrame(this.props.thumbs);
-    const inPointPositionOnTimeline = ((this.state.videoWidth * 1.0) / this.props.file.frameCount) * inPoint;
-    const outPointPositionOnTimeline = ((this.state.videoWidth * 1.0) / this.props.file.frameCount) * outPoint;
-    const cutWidthOnTimeLine = Math.max(outPointPositionOnTimeline - inPointPositionOnTimeline, MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE);
+    const inPointPositionOnTimeline =
+      ((this.state.videoWidth * 1.0) / this.props.file.frameCount) * inPoint;
+    const outPointPositionOnTimeline =
+      ((this.state.videoWidth * 1.0) / this.props.file.frameCount) * outPoint;
+    const cutWidthOnTimeLine = Math.max(
+      outPointPositionOnTimeline - inPointPositionOnTimeline,
+      MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE
+    );
 
-    // console.log(inPoint);
-    // console.log(outPoint);
-    // console.log(this.state.mouseStartDragInsideTimeline);
     return (
       <div>
         <div
           className={`${styles.player}`}
           style={{
-            // overflow: this.props.visible ? 'visible' : 'hidden',
             width: this.state.videoWidth,
             height: this.state.videoHeight,
           }}
@@ -360,7 +357,9 @@ class VideoPlayer extends Component {
             ref={(el) => { this.video = el; }}
             className={`${styles.video}`}
             onMouseOver={this.onShowPlaybar}
+            onFocus={this.onShowPlaybar}
             onMouseOut={this.onHidePlaybar}
+            onBlur={this.onHidePlaybar}
             controls={this.state.showPlaybar ? 'true' : undefined}
             muted
             src={`${pathModule.dirname(this.props.path)}/${encodeURIComponent(pathModule.basename(this.props.path))}` || ''}
@@ -554,6 +553,50 @@ VideoPlayer.contextTypes = {
   positionRatio: PropTypes.number,
   setNewFrame: PropTypes.func,
   closeModal: PropTypes.func,
+};
+
+VideoPlayer.defaultProps = {
+  // currentFileId: undefined,
+  file: {
+    id: undefined,
+    width: 640,
+    height: 360,
+    columnCount: 4,
+    frameCount: 16,
+    fps: 25,
+    path: undefined,
+  },
+  height: 360,
+  path: undefined,
+  selectedThumbId: undefined,
+  width: 640,
+  thumbs: undefined,
+  // thumbsByFileId: {},
+};
+
+VideoPlayer.propTypes = {
+  aspectRatioInv: PropTypes.number.isRequired,
+  controllerHeight: PropTypes.number.isRequired,
+  file: PropTypes.shape({
+    id: PropTypes.string,
+    width: PropTypes.number,
+    height: PropTypes.number,
+    columnCount: PropTypes.number,
+    frameCount: PropTypes.number,
+    fps: PropTypes.number,
+    path: PropTypes.string,
+  }),
+  height: PropTypes.number,
+  keyObject: PropTypes.object.isRequired,
+  onThumbDoubleClick: PropTypes.func.isRequired,
+  path: PropTypes.string,
+  selectedThumbId: PropTypes.string,
+  selectMethod: PropTypes.func.isRequired,
+  width: PropTypes.number,
+  // settings: PropTypes.object.isRequired,
+  thumbs: PropTypes.array,
+  // thumbsByFileId: PropTypes.object,
+  // visibilitySettings: PropTypes.object.isRequired,
 };
 
 export default connect(mapStateToProps)(VideoPlayer);

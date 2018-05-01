@@ -28,6 +28,7 @@ const initialStateJSON = {
       defaultSaveOptionOverwrite: false,
       defaultSaveOptionIncludeIndividual: false,
       defaultVideoPlayerHeight: 360,
+      defaultVideoPlayerWidth: 640,
       defaultVideoPlayerControllerHeight: 64,
       defaultBorderMargin: 24,
     },
