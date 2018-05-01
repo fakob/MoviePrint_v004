@@ -216,22 +216,22 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       console.log(frameId);
       saveThumb(fileName, frameNumber, frameId);
     },
-    onBackClick: (file, thumbId, frameNumber, keys) => {
+    onBackClick: (file, thumbId, frameNumber) => {
       let stepValue = CHANGE_THUMB_STEP[1];
-      if (keys.shiftKey) {
+      if (ownProps.keyObject.shiftKey) {
         stepValue = CHANGE_THUMB_STEP[0];
       }
-      if (keys.altKey) {
+      if (ownProps.keyObject.altKey) {
         stepValue = CHANGE_THUMB_STEP[2];
       }
       dispatch(changeThumb(file, thumbId, frameNumber - stepValue));
     },
-    onForwardClick: (file, thumbId, frameNumber, keys) => {
+    onForwardClick: (file, thumbId, frameNumber) => {
       let stepValue = CHANGE_THUMB_STEP[1];
-      if (keys.shiftKey) {
+      if (ownProps.keyObject.shiftKey) {
         stepValue = CHANGE_THUMB_STEP[0];
       }
-      if (keys.altKey) {
+      if (ownProps.keyObject.altKey) {
         stepValue = CHANGE_THUMB_STEP[2];
       }
       dispatch(changeThumb(file, thumbId, frameNumber + stepValue));

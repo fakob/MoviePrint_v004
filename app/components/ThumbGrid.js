@@ -142,8 +142,8 @@ const ThumbGrid = ({
             onSelectClick(thumb.thumbId, thumb.frameNumber);
           }}
         onThumbDoubleClick={onThumbDoubleClick}
-        onBack={showSettings ? null : (keys) => onBackClick(file, thumb.thumbId, thumb.frameNumber, keys)}
-        onForward={showSettings ? null : (keys) => onForwardClick(file, thumb.thumbId, thumb.frameNumber, keys)}
+        onBack={showSettings ? null : () => onBackClick(file, thumb.thumbId, thumb.frameNumber)}
+        onForward={showSettings ? null : () => onForwardClick(file, thumb.thumbId, thumb.frameNumber)}
         onToggle={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => onToggleClick(file.id, thumb.thumbId)}
         onRemove={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?

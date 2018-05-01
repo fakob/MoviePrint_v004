@@ -107,24 +107,12 @@ const Thumb = ({
 
   function onForwardWithStop(e) {
     e.stopPropagation();
-    const keys = {
-      shiftKey: e.shiftKey,
-      altKey: e.altKey,
-      ctrlKey: e.ctrlKey,
-      metaKey: e.metaKey
-    };
-    onForward(keys);
+    onForward();
   }
 
   function onBackWithStop(e) {
     e.stopPropagation();
-    const keys = {
-      shiftKey: e.shiftKey,
-      altKey: e.altKey,
-      ctrlKey: e.ctrlKey,
-      metaKey: e.metaKey
-    };
-    onBack(keys);
+    onBack();
   }
 
   function onThumbDoubleClickWithStop(e) {
