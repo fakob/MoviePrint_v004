@@ -11,14 +11,12 @@ const thumb = (state = {}, action, index) => {
         frameNumber: action.frameNumberArray[index],
         fileId: action.fileId,
         index,
-        text: action.text,
         hidden: false,
       };
     case 'ADD_THUMB_WITH_DETECT_FACE':
       return {
         thumbId: action.thumbId,
         index: action.index,
-        text: action.text,
         hidden: false,
       };
     case 'CHANGE_THUMB':

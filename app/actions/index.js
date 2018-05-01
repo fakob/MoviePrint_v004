@@ -191,7 +191,6 @@ export const addThumb = (file, frameNumber, index, thumbId = uuidV4()) => {
             frameNumber,
             fileId: file.id,
             index,
-            text: file.name,
             hidden: false,
           }
         });
@@ -204,7 +203,6 @@ export const addThumb = (file, frameNumber, index, thumbId = uuidV4()) => {
           frameNumber,
           fileId: file.id,
           index,
-          text: file.name,
           hidden: false,
         }
       });
@@ -412,7 +410,6 @@ export const addDefaultThumbs = (file, amount = 20, start = 10, stop = file.fram
       fileId: file.id,
       width: file.width,
       height: file.height,
-      text: file.name,
     });
   };
 };
@@ -460,7 +457,6 @@ export const changeThumb = (file, thumbId, newFrameNumber) => {
 //     dispatch({
 //       type: 'ADD_THUMB_WITH_DETECT_FACE',
 //       id: tempId,
-//       text: file.name + ' ' + index,
 //       index,
 //       objectUrl: file.objectUrl
 //     });
