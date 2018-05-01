@@ -362,7 +362,7 @@ class VideoPlayer extends Component {
             onBlur={this.onHidePlaybar}
             controls={this.state.showPlaybar ? 'true' : undefined}
             muted
-            src={`${pathModule.dirname(this.props.path)}/${encodeURIComponent(pathModule.basename(this.props.path))}` || ''}
+            src={this.props.file ? `${pathModule.dirname(this.props.file.path)}/${encodeURIComponent(pathModule.basename(this.props.file.path))}` || '' : ''}
             width={this.state.videoWidth}
             height={this.state.videoHeight}
             onDurationChange={e => this.onDurationChange(e.target.duration)}
@@ -548,7 +548,6 @@ const mapStateToProps = state => {
 
 VideoPlayer.contextTypes = {
   store: PropTypes.object,
-  path: PropTypes.string,
   thumbId: PropTypes.number,
   positionRatio: PropTypes.number,
   setNewFrame: PropTypes.func,
@@ -564,10 +563,9 @@ VideoPlayer.defaultProps = {
     columnCount: 4,
     frameCount: 16,
     fps: 25,
-    path: undefined,
+    path: '',
   },
   height: 360,
-  path: undefined,
   selectedThumbId: undefined,
   width: 640,
   thumbs: undefined,
@@ -589,7 +587,6 @@ VideoPlayer.propTypes = {
   height: PropTypes.number,
   keyObject: PropTypes.object.isRequired,
   onThumbDoubleClick: PropTypes.func.isRequired,
-  path: PropTypes.string,
   selectedThumbId: PropTypes.string,
   selectMethod: PropTypes.func.isRequired,
   width: PropTypes.number,
