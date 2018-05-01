@@ -477,7 +477,9 @@ export const setNewMovieList = (files, settings) => {
     console.log('inside setNewMovieList');
     const newFiles = [];
     Object.keys(files).map((key) => {
-      if (files[key].type.match('video.*')) {
+      // file match needs to be in sync with onDrop() and accept in App.js !!!
+      if (files[key].type.match('video.*') ||
+        files[key].name.match(/.divx|.mkv|.ogg|.VOB/i)) {
         const tempId = uuidV4();
         const fileToAdd = {
           id: tempId,

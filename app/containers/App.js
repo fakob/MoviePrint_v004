@@ -134,7 +134,8 @@ class App extends Component {
       savingMoviePrint: false,
       selectedThumbObject: undefined,
       outputScaleCompensator: 1,
-      accept: 'video/*',
+      // file match needs to be in sync with setMovieList() and onDrop() !!!
+      accept: 'video/*,.divx,.mkv,.ogg,.VOB,',
       dropzoneActive: false,
       keyObject: {
         shiftKey: false,
@@ -418,7 +419,9 @@ class App extends Component {
     const { store } = this.context;
     const { settings } = store.getState().undoGroup.present;
     console.log('Files dropped: ', files);
-    if (Array.from(files).some(file => file.type.match('video.*'))) {
+    // file match needs to be in sync with setMovieList() and accept !!!
+    if (Array.from(files).some(file => (file.type.match('video.*') ||
+      file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
       store.dispatch(setNewMovieList(files, settings));
     }
     return false;
