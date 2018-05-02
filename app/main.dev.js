@@ -27,7 +27,7 @@ const searchLimit = 100; // how long to go forward or backward to find a none-em
 let mainWindow = null;
 let appAboutToQuit = false;
 let creditsWindow = null;
-// let workerWindow = null;
+let workerWindow = null;
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -131,10 +131,10 @@ app.on('ready', async () => {
     }
   });
 
-  // workerWindow = new BrowserWindow();
-  // // workerWindow.hide();
-  // workerWindow.webContents.openDevTools();
-  // workerWindow.loadURL(`file://${__dirname}/worker.html`);
+  workerWindow = new BrowserWindow();
+  // workerWindow.hide();
+  workerWindow.webContents.openDevTools();
+  workerWindow.loadURL(`file://${__dirname}/worker.html`);
 
   const menuBuilder = new MenuBuilder(mainWindow, creditsWindow);
   menuBuilder.buildMenu();

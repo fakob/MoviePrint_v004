@@ -41,8 +41,11 @@
       "dist/",
       "node_modules/",
       "app.html",
-      "main.prod.js",
-      "main.prod.js.map",
+      "worker.html",
+      "renderer.prod.js",
+      "renderer.prod.js.map",
+      "worker.prod.js",
+      "worker.prod.js.map",
       "package.json",
       "!node_modules/opencv-build/opencv/opencv",
       "!node_modules/opencv-build/opencv/opencv_contrib"
