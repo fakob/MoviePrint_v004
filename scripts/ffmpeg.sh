@@ -12,6 +12,9 @@ libavcodecFile=$ffmpegDir"libavcodec.dylib"
 # create ffmpeg folder and copy files
 mkdir -p $ffmpegDir
 cp -nv /usr/local/Cellar/ffmpeg/3.4.2/lib/* $ffmpegDir
+cp -nv /usr/local/Cellar/x264/r2854/lib/* $ffmpegDir
+cp -nv /usr/local/Cellar/lame/3.100/lib/* $ffmpegDir
+# cp -nv /usr/local/Cellar/xvid/1.3.5/lib/* $ffmpegDir
 
 # for libopencv_videoio add rpath and change the absolute ffmpeg paths to use rpath
 install_name_tool -add_rpath @loader_path/../../../../../dist/ffmpeg $libopencv_videoioFile
@@ -35,5 +38,7 @@ do
       install_name_tool -change /usr/local/Cellar/ffmpeg/3.4.2/lib/libavcodec.57.dylib @rpath/libavcodec.57.dylib $f
       install_name_tool -change /usr/local/Cellar/ffmpeg/3.4.2/lib/libswresample.2.dylib @rpath/libswresample.2.dylib $f
       install_name_tool -change /usr/local/Cellar/ffmpeg/3.4.2/lib/libavutil.55.dylib @rpath/libavutil.55.dylib $f
+      install_name_tool -change /usr/local/opt/x264/lib/libx264.152.dylib @rpath/libx264.152.dylib $f
+      install_name_tool -change /usr/local/opt/lame/lib/libmp3lame.0.dylib @rpath/libmp3lame.0.dylib $f
   fi
 done
