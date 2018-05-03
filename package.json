@@ -41,6 +41,7 @@
       "dist/",
       "node_modules/",
       "app.html",
+      "credits.html",
       "worker.html",
       "renderer.prod.js",
       "renderer.prod.js.map",
