@@ -26,7 +26,8 @@ class SortedVisibleThumbGrid extends Component {
     this.onSelectClick = this.onSelectClick.bind(this);
   }
 
-  componentDidMount() {
+  // componentDidMount() {
+  componentWillMount() {
     console.log(this.props);
     const { store } = this.context;
     this.unsubscribe = store.subscribe(() => this.forceUpdate());

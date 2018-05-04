@@ -143,7 +143,7 @@ export const saveBlob = (blob, fileName) => {
   reader.onload = () => {
     if (reader.readyState === 2) {
       const buffer = Buffer.from(reader.result);
-      ipcRenderer.send('send-save-file', fileName, buffer);
+      ipcRenderer.send('send-save-file', fileName, buffer, true);
       console.log(`Saving ${JSON.stringify({ fileName, size: blob.size })}`);
     }
   };

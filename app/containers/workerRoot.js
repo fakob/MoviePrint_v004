@@ -21,7 +21,14 @@ class WorkerRoot extends Component {
     // this.onSaveMoviePrint = this.onSaveMoviePrint.bind(this);
   }
 
+
   componentDidMount() {
+    ipcRenderer.on('action-saved-MoviePrint-done', (event) => {
+      this.setState({
+        savingMoviePrint: false
+      });
+    });
+
     ipcRenderer.on('action-save-MoviePrint', (event, data) => {
       this.setState({
         savingMoviePrint: true,
@@ -32,10 +39,11 @@ class WorkerRoot extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (!prevState.savingMoviePrint && this.state.savingMoviePrint) {
-      setTimeout(
-        () => saveMoviePrint(this.state.data.elementId, this.state.data.exportPath, this.state.data.file, this.state.data.scale, this.state.data.outputFormat, this.state.data.overwrite, this.state.data.saveIndividualThumbs, this.state.data.thumbs)
-        , 5000
-      );
+      // setTimeout(
+        // () => saveMoviePrint(this.state.data.elementId, this.state.data.exportPath, this.state.data.file, this.state.data.scale, this.state.data.outputFormat, this.state.data.overwrite, this.state.data.saveIndividualThumbs, this.state.data.thumbs)
+        // , 5000
+      // );
+      saveMoviePrint(this.state.data.elementId, this.state.data.exportPath, this.state.data.file, this.state.data.scale, this.state.data.outputFormat, this.state.data.overwrite, this.state.data.saveIndividualThumbs, this.state.data.thumbs);
     }
   }
 

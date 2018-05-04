@@ -144,12 +144,15 @@ ipcMain.on('request-save-MoviePrint', (event, arg) => {
   workerWindow.webContents.send('action-save-MoviePrint', arg);
 });
 
-ipcMain.on('send-save-file', (event, filePath, buffer) => {
+ipcMain.on('send-save-file', (event, filePath, buffer, saveMoviePrint = false) => {
   fs.writeFile(filePath, buffer, err => {
     if (err) {
       event.sender.send('received-saved-file-error', err.message);
     } else {
       event.sender.send('received-saved-file', filePath);
+    }
+    if (saveMoviePrint) {
+      workerWindow.webContents.send('action-saved-MoviePrint-done');
     }
   });
 });
