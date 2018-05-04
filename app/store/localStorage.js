@@ -15,7 +15,7 @@ import {
   DEFAULT_ROUNDED_CORNERS,
   DEFAULT_THUMB_INFO,
   DEFAULT_THUMB_INFO_RATIO,
-  DEFAULT_OUTPUT_PATH,
+  // DEFAULT_OUTPUT_PATH,
   DEFAULT_OUTPUT_FORMAT,
   DEFAULT_SAVE_OPTION_OVERWRITE,
   DEFAULT_SAVE_OPTION_INCLUDE_INDIVIDUAL,
@@ -24,6 +24,8 @@ import {
   DEFAULT_VIDEO_PLAYER_CONTROLLER_HEIGHT,
   DEFAULT_BORDER_MARGIN,
 } from '../utils/constants';
+
+const { app } = require('electron').remote;
 
 // needs to have the same file structure as in combineReducers
 const initialStateJSON = {
@@ -48,7 +50,7 @@ const initialStateJSON = {
       defaultRoundedCorners: DEFAULT_ROUNDED_CORNERS,
       defaultThumbInfo: DEFAULT_THUMB_INFO,
       defaultThumbInfoRatio: DEFAULT_THUMB_INFO_RATIO,
-      defaultOutputPath: DEFAULT_OUTPUT_PATH,
+      defaultOutputPath: app.getPath('desktop'),
       defaultOutputFormat: DEFAULT_OUTPUT_FORMAT,
       defaultSaveOptionOverwrite: DEFAULT_SAVE_OPTION_OVERWRITE,
       defaultSaveOptionIncludeIndividual: DEFAULT_SAVE_OPTION_INCLUDE_INDIVIDUAL,
