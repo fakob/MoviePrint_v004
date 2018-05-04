@@ -1,14 +1,61 @@
 // @flow
 import React, { Component } from 'react';
 import { Provider, connect } from 'react-redux';
-
 import '../app.global.css';
 import styles from './App.css';
 import SortedVisibleThumbGrid from '../containers/VisibleThumbGrid';
-import { getVisibleThumbs, getScaleValueObject, getMoviePrintColor } from '../utils/utils';
+import { getVisibleThumbs, getScaleValueObject, getMoviePrintColor, getColumnCount } from '../utils/utils';
+import saveMoviePrint from '../utils/saveMoviePrint';
+
+const { ipcRenderer } = require('electron');
 
 // export default function WorkerRoot({ store }: RootType) {
 class WorkerRoot extends Component {
+  constructor() {
+    super();
+    this.state = {
+      savingMoviePrint: false,
+      data: {}
+    };
+
+    // this.onSaveMoviePrint = this.onSaveMoviePrint.bind(this);
+  }
+
+  componentDidMount() {
+    ipcRenderer.on('action-save-MoviePrint', (event, data) => {
+      this.setState({
+        savingMoviePrint: true,
+        data
+      });
+    });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (!prevState.savingMoviePrint && this.state.savingMoviePrint) {
+      setTimeout(
+        () => saveMoviePrint(this.state.data.elementId, this.state.data.exportPath, this.state.data.file, this.state.data.scale, this.state.data.outputFormat, this.state.data.overwrite, this.state.data.saveIndividualThumbs, this.state.data.thumbs)
+        , 5000
+      );
+    }
+  }
+
+  // onSaveMoviePrint() {
+  //   this.setState(
+  //     { savingMoviePrint: true },
+  //     ipcRenderer.send('send-get-poster-frame', fileId, filePath, posterFrameId, lastItem)
+  //     saveMoviePrint(
+  //       'ThumbGrid',
+  //       this.props.settings.defaultOutputPath,
+  //       this.props.file,
+  //       this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
+  //       this.props.settings.defaultOutputFormat,
+  //       this.props.settings.defaultSaveOptionOverwrite,
+  //       this.props.settings.defaultSaveOptionIncludeIndividual,
+  //       this.props.thumbs
+  //     )
+  //   );
+  // }
+
   render() {
     return (
       <Provider store={this.props.store}>
@@ -19,17 +66,15 @@ class WorkerRoot extends Component {
             width: `${this.props.scaleValueObject.newMoviePrintWidth}px`
           }}
         >
-          {this.props.file &&
+          {this.state.savingMoviePrint &&
             <SortedVisibleThumbGrid
               inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
               showSettings={false}
 
               selectedThumbId={undefined}
-              // selectMethod={this.onSelectMethod}
-              // onThumbDoubleClick={this.onViewToggle}
 
               colorArray={this.props.colorArray}
-              thumbCount={this.props.file.thumbCount}
+              thumbCount={this.props.thumbCount}
 
               showMoviePrintView
               scaleValueObject={this.props.scaleValueObject}
@@ -59,8 +104,16 @@ const mapStateToProps = state => {
       .find((file) => file.id === tempCurrentFileId),
     settings: state.undoGroup.present.settings,
     visibilitySettings: state.visibilitySettings,
-    defaultThumbCount: state.undoGroup.present.settings.defaultThumbCount,
-    defaultColumnCount: state.undoGroup.present.settings.defaultColumnCount,
+    thumbCount: getColumnCount(
+      state.undoGroup.present.files.find((file) => file.id === tempCurrentFileId),
+      state.undoGroup.present.settings
+    ),
+    // columnCount: getThumbsCount(
+    //   state.undoGroup.present.files.find((file) => file.id === tempCurrentFileId),
+    //   this.props.thumbsByFileId,
+    //   state.undoGroup.present.settings,
+    //   state.visibilitySettings.visibilityFilter
+    // ),
     thumbsByFileId: state.undoGroup.present.thumbsByFileId,
     colorArray: getMoviePrintColor(state.undoGroup.present.settings.defaultThumbCountMax),
     scaleValueObject: getScaleValueObject(

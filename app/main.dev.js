@@ -140,6 +140,10 @@ app.on('ready', async () => {
   menuBuilder.buildMenu();
 });
 
+ipcMain.on('request-save-MoviePrint', (event, arg) => {
+  workerWindow.webContents.send('action-save-MoviePrint', arg);
+});
+
 ipcMain.on('send-save-file', (event, filePath, buffer) => {
   fs.writeFile(filePath, buffer, err => {
     if (err) {

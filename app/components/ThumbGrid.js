@@ -182,7 +182,7 @@ ThumbGrid.propTypes = {
   onOutPointClick: PropTypes.func.isRequired,
   onSaveThumbClick: PropTypes.func.isRequired,
   onSelectClick: PropTypes.func.isRequired,
-  onThumbDoubleClick: PropTypes.func.isRequired,
+  onThumbDoubleClick: PropTypes.func,
   onToggleClick: PropTypes.func.isRequired,
   scaleValueObject: PropTypes.object.isRequired,
   selectedThumbId: PropTypes.string,

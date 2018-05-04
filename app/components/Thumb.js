@@ -443,7 +443,7 @@ Thumb.propTypes = {
   onOver: PropTypes.func,
   onSaveThumb: PropTypes.func,
   onSelect: PropTypes.func,
-  onThumbDoubleClick: PropTypes.func.isRequired,
+  onThumbDoubleClick: PropTypes.func,
   onToggle: PropTypes.func,
   selected: PropTypes.bool,
   showMoviePrintView: PropTypes.bool.isRequired,

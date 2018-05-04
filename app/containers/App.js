@@ -13,7 +13,7 @@ import Footer from '../components/Footer';
 import VideoPlayer from '../components/VideoPlayer';
 import ThumbEmpty from '../components/ThumbEmpty';
 import { getLowestFrame, getHighestFrame, getVisibleThumbs, getColumnCount, getThumbsCount, getMoviePrintColor, getScaleValueObject } from '../utils/utils';
-import saveMoviePrint from '../utils/saveMoviePrint';
+// import saveMoviePrint from '../utils/saveMoviePrint';
 import styles from './App.css';
 import {
   setNewMovieList, showMovielist, hideMovielist, showSettings, hideSettings,
@@ -493,18 +493,21 @@ class App extends Component {
   }
 
   onSaveMoviePrint() {
+    const data = {
+      elementId: 'ThumbGrid',
+      exportPath: this.props.settings.defaultOutputPath,
+      file: this.props.file,
+      scale: 1,
+      // scale: this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
+      outputFormat: this.props.settings.defaultOutputFormat,
+      overwrite: this.props.settings.defaultSaveOptionOverwrite,
+      saveIndividualThumbs: this.props.settings.defaultSaveOptionIncludeIndividual,
+      thumbs: this.props.thumbs
+    };
+    console.log(data);
     this.setState(
       { savingMoviePrint: true },
-      saveMoviePrint(
-        'ThumbGrid',
-        this.props.settings.defaultOutputPath,
-        this.props.file,
-        this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
-        this.props.settings.defaultOutputFormat,
-        this.props.settings.defaultSaveOptionOverwrite,
-        this.props.settings.defaultSaveOptionIncludeIndividual,
-        this.props.thumbs
-      )
+      ipcRenderer.send('request-save-MoviePrint', data)
     );
   }
 
