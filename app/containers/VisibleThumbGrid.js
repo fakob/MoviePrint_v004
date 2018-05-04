@@ -87,15 +87,24 @@ class SortedVisibleThumbGrid extends Component {
   };
 
   render() {
+    const { store } = this.context;
+    const state = store.getState();
     return (
       <SortableThumbGrid
         ref={this.props.inputRef} // for the saveMoviePrint function
         inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
         showSettings={this.props.showSettings}
         colorArray={this.props.colorArray}
-        thumbs={this.props.thumbs}
+        thumbs={getVisibleThumbs(
+          (state.undoGroup.present
+            .thumbsByFileId[this.props.file.id] === undefined)
+            ? undefined : state.undoGroup.present
+              .thumbsByFileId[this.props.file.id].thumbs,
+          state.visibilitySettings.visibilityFilter
+        )}
         thumbsToDim={this.state.thumbsToDim}
-        thumbImages={this.props.thumbImages}
+        thumbImages={(state.thumbsObjUrls[this.props.file.id] === undefined)
+          ? undefined : state.thumbsObjUrls[this.props.file.id]}
         file={this.props.file}
         settings={this.props.settings}
         selectedThumbId={this.props.selectedThumbId}
@@ -153,20 +162,20 @@ class SortedVisibleThumbGrid extends Component {
 }
 
 const mapStateToProps = state => {
-  const tempThumbs = (state.undoGroup.present
-    .thumbsByFileId[state.undoGroup.present.settings.currentFileId] === undefined)
-    ? undefined : state.undoGroup.present
-      .thumbsByFileId[state.undoGroup.present.settings.currentFileId].thumbs;
+  // const tempThumbs = (state.undoGroup.present
+  //   .thumbsByFileId[state.undoGroup.present.settings.currentFileId] === undefined)
+  //   ? undefined : state.undoGroup.present
+  //     .thumbsByFileId[state.undoGroup.present.settings.currentFileId].thumbs;
   return {
-    thumbs: getVisibleThumbs(
-      tempThumbs,
-      state.visibilitySettings.visibilityFilter
-    ),
-    thumbImages: (state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId] === undefined)
-      ? undefined : state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId],
-    files: state.undoGroup.present.files,
-    file: state.undoGroup.present.files.find((file) =>
-      file.id === state.undoGroup.present.settings.currentFileId),
+    // thumbs: getVisibleThumbs(
+    //   tempThumbs,
+    //   state.visibilitySettings.visibilityFilter
+    // ),
+    // thumbImages: (state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId] === undefined)
+    //   ? undefined : state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId],
+    // files: state.undoGroup.present.files,
+    // file: state.undoGroup.present.files.find((file) =>
+    //   file.id === state.undoGroup.present.settings.currentFileId),
     settings: state.undoGroup.present.settings,
     visibilitySettings: state.visibilitySettings
   };

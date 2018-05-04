@@ -831,7 +831,7 @@ class App extends Component {
                         <SortedVisibleThumbGrid
                           inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                           showSettings={this.props.visibilitySettings.showSettings}
-
+                          file={this.props.file}
                           selectedThumbId={this.state.selectedThumbObject ?
                             this.state.selectedThumbObject.thumbId : undefined}
                           selectMethod={this.onSelectMethod}
