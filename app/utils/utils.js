@@ -319,3 +319,81 @@ export const getThumbsCount = (file, thumbsByFileId, settings, visibilityFilter)
   }
   return thumbsByFileId[file.id].thumbs.length;
 };
+
+export const getScaleValueObject = (
+  file, settings, columnCount = 3, thumbCount = 3,
+  containerWidth, containerHeight, showMoviePrintViewBool, zoomScale
+) => {
+  const movieWidth = (file !== undefined && file.width !== undefined ? file.width : 1280);
+  const movieHeight = (file !== undefined && file.height !== undefined ? file.height : 720);
+  const aspectRatioInv = (movieHeight * 1.0) / movieWidth;
+  const rowCount = Math.ceil(thumbCount / columnCount);
+  const headerHeight = settings.defaultShowHeader ? movieHeight *
+    settings.defaultHeaderHeightRatio * settings.defaultThumbnailScale : 0;
+  const thumbWidth = movieWidth * settings.defaultThumbnailScale;
+  const thumbMargin = movieWidth * settings.defaultMarginRatio * settings.defaultThumbnailScale;
+  const borderRadius = settings.defaultRoundedCorners ? movieWidth *
+    settings.defaultBorderRadiusRatio * settings.defaultThumbnailScale : 0;
+  const generalScale = 0.95;
+
+  const thumbnailWidthPlusMargin = thumbWidth + (thumbMargin * 2);
+  const thumbnailHeightPlusMargin = thumbnailWidthPlusMargin * aspectRatioInv;
+
+  const moviePrintWidth = columnCount * thumbnailWidthPlusMargin;
+  const moviePrintHeightBody = rowCount * thumbnailHeightPlusMargin;
+  const moviePrintHeight = headerHeight + (thumbMargin * 2) + moviePrintHeightBody;
+
+  // for thumbView
+  const videoHeight = ((containerHeight * 2) / 3) - settings.defaultVideoPlayerControllerHeight;
+  const videoWidth = videoHeight / aspectRatioInv;
+  let videoPlayerHeight = videoHeight + settings.defaultVideoPlayerControllerHeight;
+  let videoPlayerWidth = videoWidth;
+  if (videoWidth > containerWidth) {
+    videoPlayerWidth = containerWidth - (settings.defaultBorderMargin * 2);
+    videoPlayerHeight = (videoPlayerWidth * aspectRatioInv) +
+      settings.defaultVideoPlayerControllerHeight;
+  }
+  const thumbnailHeightForThumbView =
+    ((videoPlayerHeight / 2) - (settings.defaultBorderMargin * 3));
+  const thumbnailWidthForThumbView = thumbnailHeightForThumbView / aspectRatioInv;
+  const thumbMarginForThumbView = thumbnailWidthForThumbView * settings.defaultMarginRatio;
+  const thumbnailWidthPlusMarginForThumbView =
+    thumbnailWidthForThumbView + (thumbMarginForThumbView * 2);
+  const moviePrintWidthForThumbView =
+    thumbCount * thumbnailWidthPlusMarginForThumbView; // only one row
+
+  const scaleValueWidth = containerWidth / moviePrintWidth;
+  const scaleValueHeight = containerHeight / moviePrintHeight;
+  const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * generalScale * zoomScale;
+  // console.log(scaleValue);
+  const newMoviePrintWidth =
+    showMoviePrintViewBool ? moviePrintWidth * scaleValue : moviePrintWidthForThumbView;
+  const newMoviePrintHeightBody =
+    showMoviePrintViewBool ? moviePrintHeightBody * scaleValue : moviePrintHeightBody;
+  const newMoviePrintHeight = showMoviePrintViewBool ? moviePrintHeight * scaleValue : moviePrintHeight;
+  const newThumbMargin = showMoviePrintViewBool ? thumbMargin * scaleValue : thumbMarginForThumbView;
+  const newThumbWidth = showMoviePrintViewBool ? thumbWidth * scaleValue : thumbnailWidthForThumbView;
+  const newBorderRadius = showMoviePrintViewBool ? borderRadius * scaleValue : borderRadius;
+  const newHeaderHeight = showMoviePrintViewBool ? headerHeight * scaleValue : headerHeight;
+  const newScaleValue = showMoviePrintViewBool ? settings.defaultThumbnailScale * scaleValue :
+    settings.defaultThumbnailScale;
+
+  const scaleValueObject = {
+    containerWidth,
+    containerHeight,
+    aspectRatioInv,
+    movieWidth,
+    movieHeight,
+    newMoviePrintWidth,
+    newMoviePrintHeight,
+    newMoviePrintHeightBody,
+    newThumbMargin,
+    newThumbWidth,
+    newBorderRadius,
+    newHeaderHeight,
+    newScaleValue,
+    videoPlayerHeight,
+    videoPlayerWidth,
+  };
+  return scaleValueObject;
+};
