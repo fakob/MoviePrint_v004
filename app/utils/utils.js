@@ -1,5 +1,6 @@
 import pathR from 'path';
 import fsR from 'fs';
+import { DEFAULT_THUMB_COUNT, DEFAULT_COLUMN_COUNT, DEFAULT_MOVIE_WIDTH, DEFAULT_MOVIE_HEIGHT } from './constants';
 
 const randomColor = require('randomcolor');
 const { ipcRenderer } = require('electron');
@@ -321,11 +322,11 @@ export const getThumbsCount = (file, thumbsByFileId, settings, visibilityFilter)
 };
 
 export const getScaleValueObject = (
-  file, settings, columnCount = 3, thumbCount = 3,
+  file, settings, columnCount = DEFAULT_COLUMN_COUNT, thumbCount = DEFAULT_THUMB_COUNT,
   containerWidth, containerHeight, showMoviePrintViewBool, zoomScale
 ) => {
-  const movieWidth = (file !== undefined && file.width !== undefined ? file.width : 1280);
-  const movieHeight = (file !== undefined && file.height !== undefined ? file.height : 720);
+  const movieWidth = (file !== undefined && file.width !== undefined ? file.width : DEFAULT_MOVIE_WIDTH);
+  const movieHeight = (file !== undefined && file.height !== undefined ? file.height : DEFAULT_MOVIE_HEIGHT);
   const aspectRatioInv = (movieHeight * 1.0) / movieWidth;
   const rowCount = Math.ceil(thumbCount / columnCount);
   const headerHeight = settings.defaultShowHeader ? movieHeight *
