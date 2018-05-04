@@ -321,9 +321,10 @@ export const getThumbsCount = (file, thumbsByFileId, settings, visibilityFilter)
   return thumbsByFileId[file.id].thumbs.length;
 };
 
+// showMoviePrintView should be true when saveMoviePrint is true
 export const getScaleValueObject = (
   file, settings, columnCount = DEFAULT_COLUMN_COUNT, thumbCount = DEFAULT_THUMB_COUNT,
-  containerWidth, containerHeight, showMoviePrintViewBool, zoomScale
+  containerWidth, containerHeight, showMoviePrintView, zoomScale, saveMoviePrint = false
 ) => {
   const movieWidth = (file !== undefined && file.width !== undefined ? file.width : DEFAULT_MOVIE_WIDTH);
   const movieHeight = (file !== undefined && file.height !== undefined ? file.height : DEFAULT_MOVIE_HEIGHT);
@@ -362,21 +363,26 @@ export const getScaleValueObject = (
     thumbnailWidthForThumbView + (thumbMarginForThumbView * 2);
   const moviePrintWidthForThumbView =
     thumbCount * thumbnailWidthPlusMarginForThumbView; // only one row
+    // for thumbView
 
   const scaleValueWidth = containerWidth / moviePrintWidth;
   const scaleValueHeight = containerHeight / moviePrintHeight;
-  const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * generalScale * zoomScale;
+
+  // if saveMoviePrint, don't rescale to fit container
+  const scaleValue = saveMoviePrint ?
+    zoomScale : Math.min(scaleValueWidth, scaleValueHeight) * generalScale * zoomScale;
   // console.log(scaleValue);
+
   const newMoviePrintWidth =
-    showMoviePrintViewBool ? moviePrintWidth * scaleValue : moviePrintWidthForThumbView;
+    showMoviePrintView ? moviePrintWidth * scaleValue : moviePrintWidthForThumbView;
   const newMoviePrintHeightBody =
-    showMoviePrintViewBool ? moviePrintHeightBody * scaleValue : moviePrintHeightBody;
-  const newMoviePrintHeight = showMoviePrintViewBool ? moviePrintHeight * scaleValue : moviePrintHeight;
-  const newThumbMargin = showMoviePrintViewBool ? thumbMargin * scaleValue : thumbMarginForThumbView;
-  const newThumbWidth = showMoviePrintViewBool ? thumbWidth * scaleValue : thumbnailWidthForThumbView;
-  const newBorderRadius = showMoviePrintViewBool ? borderRadius * scaleValue : borderRadius;
-  const newHeaderHeight = showMoviePrintViewBool ? headerHeight * scaleValue : headerHeight;
-  const newScaleValue = showMoviePrintViewBool ? settings.defaultThumbnailScale * scaleValue :
+    showMoviePrintView ? moviePrintHeightBody * scaleValue : moviePrintHeightBody;
+  const newMoviePrintHeight = showMoviePrintView ? moviePrintHeight * scaleValue : moviePrintHeight;
+  const newThumbMargin = showMoviePrintView ? thumbMargin * scaleValue : thumbMarginForThumbView;
+  const newThumbWidth = showMoviePrintView ? thumbWidth * scaleValue : thumbnailWidthForThumbView;
+  const newBorderRadius = showMoviePrintView ? borderRadius * scaleValue : borderRadius;
+  const newHeaderHeight = showMoviePrintView ? headerHeight * scaleValue : headerHeight;
+  const newScaleValue = showMoviePrintView ? settings.defaultThumbnailScale * scaleValue :
     settings.defaultThumbnailScale;
 
   const scaleValueObject = {
