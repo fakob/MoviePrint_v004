@@ -135,12 +135,18 @@ const Thumb = ({
 
   function onOverWithStop(e) {
     e.stopPropagation();
-    onOver();
+    // check if function is not null (passed from thumbgrid)
+    if (onOver) {
+      onOver();
+    }
   }
 
   function onOutWithStop(e) {
     e.stopPropagation();
-    onOut();
+    // check if function is not null (passed from thumbgrid)
+    if (onOut) {
+      onOut();
+    }
   }
 
   return (
