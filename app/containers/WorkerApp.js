@@ -18,8 +18,7 @@ class WorkerApp extends Component {
     this.state = {
       savingMoviePrint: false,
       data: {},
-      imageUrlsReady: false,
-      imageUrls: []
+      thumbObjectUrls: []
     };
 
     // this.onSaveMoviePrint = this.onSaveMoviePrint.bind(this);
@@ -40,12 +39,12 @@ class WorkerApp extends Component {
   //           console.log(thumb[0].fileId);
   //           const tempObjectURL = window.URL.createObjectURL(thumb[0].data);
   //           let mapping = {id: a.id, objectUrl: tempObjectURL};
-  //           let newUrls = self.state.imageUrls.slice();
+  //           let newUrls = self.state.thumbObjectUrls.slice();
   //           newUrls.push(mapping);
   //           console.log(mapping);
   //
   //           self.setState({
-  //             imageUrls: newUrls
+  //             thumbObjectUrls: newUrls
   //           });
   //         });
   //       });
@@ -58,7 +57,9 @@ class WorkerApp extends Component {
 
     ipcRenderer.on('action-saved-MoviePrint-done', (event) => {
       this.setState({
-        savingMoviePrint: false
+        data: {},
+        thumbObjectUrls: [],
+        savingMoviePrint: false,
       });
     });
 
@@ -81,7 +82,8 @@ class WorkerApp extends Component {
         return objectUrlsArray;
       }).then((objectUrlsArray) => {
         this.setState({
-          imageUrls: objectUrlsArray,
+          thumbObjectUrls: objectUrlsArray,
+          savingMoviePrint: true
         });
       }
       );
@@ -92,59 +94,21 @@ class WorkerApp extends Component {
     });
   }
 
-  // shouldComponentUpdate(nextProps, nextState) {
-  //   const { store } = this.context;
-  //
-  //   console.log('componentWillReceiveProps');
-  //   console.log(this.state.data);
-  //
-  //   console.log(store.getState().undoGroup.present
-  //     .thumbsByFileId[this.state.data.id]
-  //     .thumbs);
-
-  // Object.values(store.getState().undoGroup.present
-  //   .thumbsByFileId[this.state.data.id]
-  //   .thumbs).map((t) => {
-  //   console.log(t.id);
-  //   return imageDB.thumbList.where('id').equals(t.id).toArray().then((thumb) => {
-  //     console.log(thumb[0].fileId);
-  //     const tempObjectURL = window.URL.createObjectURL(thumb[0].data);
-  //     let mapping = {id: t.id, objectUrl: tempObjectURL};
-  //     let newUrls = self.state.imageUrls.slice();
-  //     newUrls.push(mapping);
-  //     console.log(mapping);
-  //
-  //     self.setState({
-  //       imageUrlsReady: true,
-  //       imageUrls: newUrls
-  //     });
-  //   });
-  // });
-  // }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (!prevState.savingMoviePrint && this.state.savingMoviePrint) {
-      console.log(this.state.data.file);
-      saveMoviePrint(this.state.data.elementId, this.state.data.exportPath, this.state.data.file, this.state.data.scale, this.state.data.outputFormat, this.state.data.overwrite, this.state.data.saveIndividualThumbs, this.state.data.thumbs);
+  componentDidUpdate() {
+    if (this.state.savingMoviePrint) {
+      console.log('componentDidUpdate and savingMoviePrint true');
+      saveMoviePrint(
+        this.state.data.elementId,
+        this.state.data.exportPath,
+        this.state.data.file,
+        this.state.data.scale,
+        this.state.data.outputFormat,
+        this.state.data.overwrite,
+        this.state.data.saveIndividualThumbs,
+        this.state.data.thumbs
+      );
     }
   }
-
-  // onSaveMoviePrint() {
-  //   this.setState(
-  //     { savingMoviePrint: true },
-  //     ipcRenderer.send('send-get-poster-frame', fileId, filePath, posterFrameId, lastItem)
-  //     saveMoviePrint(
-  //       'ThumbGrid',
-  //       this.props.settings.defaultOutputPath,
-  //       this.props.file,
-  //       this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
-  //       this.props.settings.defaultOutputFormat,
-  //       this.props.settings.defaultSaveOptionOverwrite,
-  //       this.props.settings.defaultSaveOptionIncludeIndividual,
-  //       this.props.thumbs
-  //     )
-  //   );
-  // }
 
   render() {
     const { store } = this.context;
@@ -172,7 +136,7 @@ class WorkerApp extends Component {
               showSettings={false}
               file={this.state.data.file}
               thumbs={this.state.data.thumbs}
-              thumbImages={this.props.thumbImages}
+              thumbImages={this.state.thumbObjectUrls}
               selectedThumbId={undefined}
 
               colorArray={getMoviePrintColor(state.undoGroup.present.settings.defaultThumbCountMax)}
