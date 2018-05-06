@@ -1,6 +1,5 @@
 // @flow
 import React, { Component } from 'react';
-import { Provider, connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import imageDB from './../utils/db';
 import '../app.global.css';
@@ -11,7 +10,6 @@ import saveMoviePrint from '../utils/saveMoviePrint';
 
 const { ipcRenderer } = require('electron');
 
-// export default function WorkerApp({ store }: RootType) {
 class WorkerApp extends Component {
   constructor() {
     super();
@@ -20,8 +18,6 @@ class WorkerApp extends Component {
       data: {},
       thumbObjectUrls: {}
     };
-
-    // this.onSaveMoviePrint = this.onSaveMoviePrint.bind(this);
   }
 
   componentDidMount() {
@@ -34,9 +30,9 @@ class WorkerApp extends Component {
     });
 
     ipcRenderer.on('action-save-MoviePrint', (event, data) => {
-      console.log(data);
+      // console.log(data);
       const arrayOfFrameIds = data.thumbs.map(thumb => thumb.frameId);
-      console.log(arrayOfFrameIds);
+      // console.log(arrayOfFrameIds);
       // const arrayOfFrameNumbersFromDB = imageDB.thumbList.where('id').equals(arrayOfFrameIds)
       imageDB.frameList.where('frameId').anyOf(arrayOfFrameIds).toArray().then((thumbs) => {
         console.log(thumbs);
@@ -48,7 +44,7 @@ class WorkerApp extends Component {
           );
           return tempObject;
         }, {});
-        console.log(objectUrlsObject);
+        // console.log(objectUrlsObject);
         return objectUrlsObject;
       }).then((objectUrlsObject) => {
         this.setState({
@@ -128,16 +124,4 @@ class WorkerApp extends Component {
   }
 }
 
-const mapStateToProps = state => {
-  // const tempCurrentFileId = state.undoGroup.present.settings.currentFileId;
-  return {
-    // thumbImages: (state.thumbsObjUrls[tempCurrentFileId] === undefined)
-    //   ? undefined : state.thumbsObjUrls[tempCurrentFileId],
-  };
-};
-
-WorkerApp.contextTypes = {
-  store: PropTypes.object,
-};
-
-export default connect(mapStateToProps)(WorkerApp);
+export default WorkerApp;
