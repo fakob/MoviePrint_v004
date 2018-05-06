@@ -132,8 +132,8 @@ app.on('ready', async () => {
   });
 
   workerWindow = new BrowserWindow();
-  // workerWindow.hide();
-  workerWindow.webContents.openDevTools();
+  workerWindow.hide();
+  // workerWindow.webContents.openDevTools();
   workerWindow.loadURL(`file://${__dirname}/worker.html`);
 
   const menuBuilder = new MenuBuilder(mainWindow, creditsWindow);
