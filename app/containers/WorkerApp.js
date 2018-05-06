@@ -63,7 +63,7 @@ class WorkerApp extends Component {
         this.state.data.elementId,
         this.state.data.settings.defaultOutputPath,
         this.state.data.file,
-        this.state.data.scale,
+        1, // scale
         this.state.data.settings.defaultOutputFormat,
         this.state.data.settings.defaultSaveOptionOverwrite,
         this.state.data.settings.defaultSaveOptionIncludeIndividual,

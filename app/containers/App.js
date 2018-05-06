@@ -497,7 +497,7 @@ class App extends Component {
     const data = {
       elementId: 'ThumbGrid',
       file: this.props.file,
-      scale: 1,
+      // scale: 1,
       moviePrintWidth: this.props.settings.defaultMoviePrintWidth,
       // scale: this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
       thumbs: this.props.thumbs,
