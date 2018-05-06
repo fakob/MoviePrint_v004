@@ -18,39 +18,11 @@ class WorkerApp extends Component {
     this.state = {
       savingMoviePrint: false,
       data: {},
-      thumbObjectUrls: []
+      thumbObjectUrls: {}
     };
 
     // this.onSaveMoviePrint = this.onSaveMoviePrint.bind(this);
   }
-
-  // componentDidMount() {
-  //   const self = this;
-  //   console.log(this.props);
-  //   const { store } = this.context;
-  //   store.getState().undoGroup.present.files.map((singleFile) => {
-  //     console.log(singleFile);
-  //     if (store.getState().undoGroup.present.thumbsByFileId[singleFile.id] !== undefined) {
-  //       Object.values(store.getState().undoGroup.present
-  //         .thumbsByFileId[singleFile.id]
-  //         .thumbs).map((a) => {
-  //         console.log(a.id);
-  //         return imageDB.thumbList.where('id').equals(a.id).toArray().then((thumb) => {
-  //           console.log(thumb[0].fileId);
-  //           const tempObjectURL = window.URL.createObjectURL(thumb[0].data);
-  //           let mapping = {id: a.id, objectUrl: tempObjectURL};
-  //           let newUrls = self.state.thumbObjectUrls.slice();
-  //           newUrls.push(mapping);
-  //           console.log(mapping);
-  //
-  //           self.setState({
-  //             thumbObjectUrls: newUrls
-  //           });
-  //         });
-  //       });
-  //     }
-  //   });
-
 
   componentDidMount() {
     const { store } = this.context;
@@ -58,7 +30,7 @@ class WorkerApp extends Component {
     ipcRenderer.on('action-saved-MoviePrint-done', (event) => {
       this.setState({
         data: {},
-        thumbObjectUrls: [],
+        thumbObjectUrls: {},
         savingMoviePrint: false,
       });
     });
@@ -74,23 +46,23 @@ class WorkerApp extends Component {
       // const arrayOfFrameNumbersFromDB = imageDB.thumbList.where('id').equals(arrayOfFrameIds)
       imageDB.frameList.where('frameId').anyOf(arrayOfFrameIds).toArray().then((thumbs) => {
         console.log(thumbs);
-        const objectUrlsArray = thumbs.map(thumb => {
-          const objectUrl = window.URL.createObjectURL(thumb.data);
-          return objectUrl;
-        });
-        console.log(objectUrlsArray);
-        return objectUrlsArray;
-      }).then((objectUrlsArray) => {
+        const objectUrlsObject = thumbs.reduce((previous, current) => {
+          // console.log(previous);
+          // console.log(current.frameId);
+          const tempObject = Object.assign({}, previous,
+            { [current.frameId]: { objectUrl: window.URL.createObjectURL(current.data) } }
+          );
+          return tempObject;
+        }, {});
+        console.log(objectUrlsObject);
+        return objectUrlsObject;
+      }).then((objectUrlsObject) => {
         this.setState({
-          thumbObjectUrls: objectUrlsArray,
+          data,
+          thumbObjectUrls: objectUrlsObject,
           savingMoviePrint: true
         });
-      }
-      );
-      // this.setState({
-      //   savingMoviePrint: true,
-      //   data
-      // });
+      });
     });
   }
 
@@ -162,45 +134,10 @@ class WorkerApp extends Component {
 }
 
 const mapStateToProps = state => {
-  const tempCurrentFileId = state.undoGroup.present.settings.currentFileId;
-  // const tempThumbs = (state.undoGroup.present
-  //   .thumbsByFileId[tempCurrentFileId] === undefined)
-  //   ? undefined : state.undoGroup.present
-  //     .thumbsByFileId[tempCurrentFileId].thumbs;
+  // const tempCurrentFileId = state.undoGroup.present.settings.currentFileId;
   return {
-    thumbImages: (state.thumbsObjUrls[tempCurrentFileId] === undefined)
-      ? undefined : state.thumbsObjUrls[tempCurrentFileId],
-    // thumbs: getVisibleThumbs(
-    //   tempThumbs,
-    //   state.visibilitySettings.visibilityFilter
-    // ),
-    // currentFileId: tempCurrentFileId,
-    // files: state.undoGroup.present.files,
-    // file: state.undoGroup.present.files
-    //   .find((file) => file.id === tempCurrentFileId),
-    // settings: state.undoGroup.present.settings,
-    // visibilitySettings: state.visibilitySettings,
-    // thumbCount: getColumnCount(
-    //   state.undoGroup.present.files.find((file) => file.id === tempCurrentFileId),
-    //   state.undoGroup.present.settings
-    // ),
-    // columnCount: getThumbsCount(
-    //   state.undoGroup.present.files.find((file) => file.id === tempCurrentFileId),
-    //   this.props.thumbsByFileId,
-    //   state.undoGroup.present.settings,
-    //   state.visibilitySettings.visibilityFilter
-    // ),
-    // thumbsByFileId: state.undoGroup.present.thumbsByFileId,
-    // colorArray: getMoviePrintColor(state.undoGroup.present.settings.defaultThumbCountMax),
-    // scaleValueObject: getScaleValueObject(
-    //   state.undoGroup.present.files.find((file) => file.id === tempCurrentFileId),
-    //   state.undoGroup.present.settings,
-    //   state.undoGroup.present.files.find((file) => file.id === tempCurrentFileId).columnCount, state.undoGroup.present.files.find((file) => file.id === tempCurrentFileId).thumbCount,
-    //   1360, 800, // values not needed for saveMoviePrint
-    //   state.visibilitySettings.showMoviePrintView,
-    //   1,
-    //   true
-    // )
+    // thumbImages: (state.thumbsObjUrls[tempCurrentFileId] === undefined)
+    //   ? undefined : state.thumbsObjUrls[tempCurrentFileId],
   };
 };
 
