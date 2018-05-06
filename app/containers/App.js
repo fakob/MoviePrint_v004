@@ -927,7 +927,7 @@ App.contextTypes = {
 
 App.defaultProps = {
   currentFileId: undefined,
-  file: {},
+  file: undefined,
   thumbs: [],
   thumbsByFileId: {},
 };
