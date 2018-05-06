@@ -338,7 +338,7 @@ export const getScaleValueObject = (
   columnCount = DEFAULT_COLUMN_COUNT,
   thumbCount = DEFAULT_THUMB_COUNT,
   containerWidth,
-  containerHeight,
+  containerHeight = 99999, // very high value so it is not taken into account when not set
   showMoviePrintView,
   zoomScale,
   onlyUseZoomScale = false,

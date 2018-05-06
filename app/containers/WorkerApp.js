@@ -84,10 +84,11 @@ class WorkerApp extends Component {
                 this.state.data.file,
                 this.state.data.settings,
                 this.state.data.file.columnCount, this.state.data.file.thumbCount,
-                1360, 800, // values not needed when onlyUseZoomScale is true
+                this.state.data.moviePrintWidth, undefined,
                 this.state.data.visibilitySettings.showMoviePrintView,
                 1,
-                true
+                false,
+                1
               ).newMoviePrintWidth}px`
             }}
           >
@@ -110,10 +111,11 @@ class WorkerApp extends Component {
                 this.state.data.file,
                 this.state.data.settings,
                 this.state.data.file.columnCount, this.state.data.file.thumbCount,
-                1360, 800, // values not needed when onlyUseZoomScale is true
+                this.state.data.moviePrintWidth, undefined,
                 this.state.data.visibilitySettings.showMoviePrintView,
                 1,
-                true
+                false,
+                1
               )}
               keyObject={{}}
             />
