@@ -8,7 +8,9 @@ import { Button, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid,
 import { addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount } from '../actions';
 import styles from './Settings.css';
 import stylesPop from '../components/Popup.css';
-import { MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT } from '../utils/constants';
+import { MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT, DEFAULT_THUMB_COUNT,
+  DEFAULT_COLUMN_COUNT, DEFAULT_MOVIE_WIDTH, DEFAULT_MOVIE_HEIGHT } from '../utils/constants';
+import { getScaleValueObject } from '../utils/utils';
 
 const SliderWithTooltip = createSliderWithTooltip(Slider);
 
@@ -37,6 +39,33 @@ const thumbnailScale = (file = { width: 1920, height: 1080 }, scaleValueObject) 
     { value: 0.25, text: `${file.width * 0.25}×${file.height * 0.25} – 1/4` },
     { value: 0.125, text: `${file.width * 0.125}×${file.height * 0.125} – 1/8` },
     // { value: 0.0625, text: '1/16' },
+  ];
+};
+
+const outputSize = (file = {
+  width: DEFAULT_MOVIE_WIDTH,
+  height: DEFAULT_MOVIE_HEIGHT,
+}, columnCountTemp, thumbCountTemp, settings, visibilitySettings) => {
+  const newScaleValueObject = getScaleValueObject(
+    file,
+    settings,
+    columnCountTemp, thumbCountTemp,
+    1360, 800, // values not needed when onlyUseZoomScale is true
+    visibilitySettings.showMoviePrintView,
+    1,
+    true
+  );
+  const moviePrintSize = [
+    { width: 4096, height: Math.round(4096 * newScaleValueObject.newMoviePrintAspectRatioInv) },
+    { width: 3072, height: Math.round(3072 * newScaleValueObject.newMoviePrintAspectRatioInv) },
+    { width: 2048, height: Math.round(2048 * newScaleValueObject.newMoviePrintAspectRatioInv) },
+    { width: 1024, height: Math.round(1024 * newScaleValueObject.newMoviePrintAspectRatioInv) },
+  ];
+  return [
+    { value: moviePrintSize[3].width, text: `${moviePrintSize[3].width}px (×${moviePrintSize[3].height}px)` },
+    { value: moviePrintSize[2].width, text: `${moviePrintSize[2].width}px (×${moviePrintSize[2].height}px)` },
+    { value: moviePrintSize[1].width, text: `${moviePrintSize[1].width}px (×${moviePrintSize[1].height}px)` },
+    { value: moviePrintSize[0].width, text: `${moviePrintSize[0].width}px (×${moviePrintSize[0].height}px)` },
   ];
 };
 
@@ -359,20 +388,20 @@ class SettingsList extends Component {
           </Grid.Row>
           <Grid.Row>
             <Grid.Column width={4}>
-              Output format
+              Output size
             </Grid.Column>
             <Grid.Column width={12}>
               <Dropdown
                 placeholder="Select..."
                 selection
                 // search
-                options={outputFormatOptions}
-                defaultValue={this.props.settings.defaultOutputFormat}
-                onChange={this.onChangeOutputFormat}
+                options={outputSize(this.props.file, this.props.columnCountTemp, this.props.thumbCountTemp, this.props.settings, this.props.visibilitySettings)}
+                // defaultValue={this.props.settings.defaultThumbnailScale}
+                // onChange={this.onChangeThumbnailScale}
               />
             </Grid.Column>
           </Grid.Row>
-          <Grid.Row>
+          {/* <Grid.Row>
             <Grid.Column width={4}>
               Thumb size
             </Grid.Column>
@@ -384,6 +413,21 @@ class SettingsList extends Component {
                 options={thumbnailScale(this.props.file, this.props.scaleValueObject)}
                 defaultValue={this.props.settings.defaultThumbnailScale}
                 onChange={this.onChangeThumbnailScale}
+              />
+            </Grid.Column>
+          </Grid.Row> */}
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Output format
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <Dropdown
+                placeholder="Select..."
+                selection
+                // search
+                options={outputFormatOptions}
+                defaultValue={this.props.settings.defaultOutputFormat}
+                onChange={this.onChangeOutputFormat}
               />
             </Grid.Column>
           </Grid.Row>

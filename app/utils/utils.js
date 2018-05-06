@@ -321,10 +321,10 @@ export const getThumbsCount = (file, thumbsByFileId, settings, visibilityFilter)
   return thumbsByFileId[file.id].thumbs.length;
 };
 
-// showMoviePrintView should be true when saveMoviePrint is true
+// showMoviePrintView should be true when onlyUseZoomScale is true
 export const getScaleValueObject = (
   file, settings, columnCount = DEFAULT_COLUMN_COUNT, thumbCount = DEFAULT_THUMB_COUNT,
-  containerWidth, containerHeight, showMoviePrintView, zoomScale, saveMoviePrint = false
+  containerWidth, containerHeight, showMoviePrintView, zoomScale, onlyUseZoomScale = false
 ) => {
   const movieWidth = (file !== undefined && file.width !== undefined ? file.width : DEFAULT_MOVIE_WIDTH);
   const movieHeight = (file !== undefined && file.height !== undefined ? file.height : DEFAULT_MOVIE_HEIGHT);
@@ -368,8 +368,8 @@ export const getScaleValueObject = (
   const scaleValueWidth = containerWidth / moviePrintWidth;
   const scaleValueHeight = containerHeight / moviePrintHeight;
 
-  // if saveMoviePrint, don't rescale to fit container
-  const scaleValue = saveMoviePrint ?
+  // if onlyUseZoomScale, don't rescale to fit container
+  const scaleValue = onlyUseZoomScale ?
     zoomScale : Math.min(scaleValueWidth, scaleValueHeight) * generalScale * zoomScale;
   // console.log(scaleValue);
 
@@ -378,6 +378,7 @@ export const getScaleValueObject = (
   const newMoviePrintHeightBody =
     showMoviePrintView ? moviePrintHeightBody * scaleValue : moviePrintHeightBody;
   const newMoviePrintHeight = showMoviePrintView ? moviePrintHeight * scaleValue : moviePrintHeight;
+  const newMoviePrintAspectRatioInv = (newMoviePrintHeight * 1.0) / newMoviePrintWidth;
   const newThumbMargin = showMoviePrintView ? thumbMargin * scaleValue : thumbMarginForThumbView;
   const newThumbWidth = showMoviePrintView ? thumbWidth * scaleValue : thumbnailWidthForThumbView;
   const newBorderRadius = showMoviePrintView ? borderRadius * scaleValue : borderRadius;
@@ -394,6 +395,7 @@ export const getScaleValueObject = (
     newMoviePrintWidth,
     newMoviePrintHeight,
     newMoviePrintHeightBody,
+    newMoviePrintAspectRatioInv,
     newThumbMargin,
     newThumbWidth,
     newBorderRadius,

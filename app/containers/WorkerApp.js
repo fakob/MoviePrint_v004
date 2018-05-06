@@ -84,7 +84,7 @@ class WorkerApp extends Component {
                 this.state.data.file,
                 this.state.data.settings,
                 this.state.data.file.columnCount, this.state.data.file.thumbCount,
-                1360, 800, // values not needed for saveMoviePrint
+                1360, 800, // values not needed when onlyUseZoomScale is true
                 this.state.data.visibilitySettings.showMoviePrintView,
                 1,
                 true
@@ -110,7 +110,7 @@ class WorkerApp extends Component {
                 this.state.data.file,
                 this.state.data.settings,
                 this.state.data.file.columnCount, this.state.data.file.thumbCount,
-                1360, 800, // values not needed for saveMoviePrint
+                1360, 800, // values not needed when onlyUseZoomScale is true
                 this.state.data.visibilitySettings.showMoviePrintView,
                 1,
                 true
