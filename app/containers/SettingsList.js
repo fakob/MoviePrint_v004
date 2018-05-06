@@ -50,10 +50,9 @@ const outputSize = (file = {
     file,
     settings,
     columnCountTemp, thumbCountTemp,
-    1360, 800, // values not needed when onlyUseZoomScale is true
+    4096, undefined,
     visibilitySettings.showMoviePrintView,
-    1,
-    true
+    1
   );
   const moviePrintSize = [
     { width: 4096, height: Math.round(4096 * newScaleValueObject.newMoviePrintAspectRatioInv) },

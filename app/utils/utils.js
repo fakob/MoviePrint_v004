@@ -321,17 +321,6 @@ export const getThumbsCount = (file, thumbsByFileId, settings, visibilityFilter)
   return thumbsByFileId[file.id].thumbs.length;
 };
 
-// export const getMoviePrintSizes = (
-//   file,
-//   settings,
-//   columnCount = DEFAULT_COLUMN_COUNT,
-//   thumbCount = DEFAULT_THUMB_COUNT,
-//   generalScale = 0.95
-// ) => {
-//
-// }
-
-// showMoviePrintView should be true when onlyUseZoomScale is true
 export const getScaleValueObject = (
   file,
   settings,
@@ -340,9 +329,7 @@ export const getScaleValueObject = (
   containerWidth,
   containerHeight = 99999, // very high value so it is not taken into account when not set
   showMoviePrintView,
-  zoomScale,
-  onlyUseZoomScale = false,
-  generalScale = 0.95
+  zoomScale
 ) => {
   const movieWidth = (file !== undefined && file.width !== undefined ? file.width : DEFAULT_MOVIE_WIDTH);
   const movieHeight = (file !== undefined && file.height !== undefined ? file.height : DEFAULT_MOVIE_HEIGHT);
@@ -384,9 +371,7 @@ export const getScaleValueObject = (
   const scaleValueWidth = containerWidth / moviePrintWidth;
   const scaleValueHeight = containerHeight / moviePrintHeight;
 
-  // if onlyUseZoomScale, don't rescale to fit container
-  const scaleValue = onlyUseZoomScale ?
-    zoomScale : Math.min(scaleValueWidth, scaleValueHeight) * generalScale * zoomScale;
+  const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * zoomScale;
   // console.log(scaleValue);
 
   const newMoviePrintWidth =

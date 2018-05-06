@@ -86,8 +86,6 @@ class WorkerApp extends Component {
                 this.state.data.file.columnCount, this.state.data.file.thumbCount,
                 this.state.data.moviePrintWidth, undefined,
                 this.state.data.visibilitySettings.showMoviePrintView,
-                1,
-                false,
                 1
               ).newMoviePrintWidth}px`
             }}
@@ -113,8 +111,6 @@ class WorkerApp extends Component {
                 this.state.data.file.columnCount, this.state.data.file.thumbCount,
                 this.state.data.moviePrintWidth, undefined,
                 this.state.data.visibilitySettings.showMoviePrintView,
-                1,
-                false,
                 1
               )}
               keyObject={{}}

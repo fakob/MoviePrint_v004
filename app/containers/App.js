@@ -134,7 +134,7 @@ class App extends Component {
         this.state.columnCountTemp, this.state.thumbCountTemp,
         this.state.containerWidth, this.state.containerHeight,
         this.props.visibilitySettings.showMoviePrintView,
-        this.state.zoom ? ZOOM_SCALE : 1
+        this.state.zoom ? ZOOM_SCALE : 0.95
       )
     });
   }
@@ -363,7 +363,7 @@ class App extends Component {
       this.state.columnCountTemp, this.state.thumbCountTemp,
       this.state.containerWidth, this.state.containerHeight,
       this.props.visibilitySettings.showMoviePrintView,
-      this.state.zoom ? ZOOM_SCALE : 1
+      this.state.zoom ? ZOOM_SCALE : 0.95
     );
     this.setState(
       {
