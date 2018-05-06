@@ -108,6 +108,13 @@ export const setDefaultThumbnailScale = (defaultThumbnailScale) => {
   };
 };
 
+export const setDefaultMoviePrintWidth = (defaultMoviePrintWidth) => {
+  return {
+    type: 'SET_DEFAULT_MOVIEPRINT_WIDTH',
+    defaultMoviePrintWidth
+  };
+};
+
 export const setDefaultMarginRatio = (defaultMarginRatio) => {
   return {
     type: 'SET_DEFAULT_MARGIN',

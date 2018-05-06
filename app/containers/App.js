@@ -22,7 +22,7 @@ import {
   updateFileDetails, clearThumbs, updateThumbImage, setDefaultMarginRatio, setDefaultShowHeader,
   setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat,
   setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
-  updateFileDetailUseRatio
+  setDefaultMoviePrintWidth, updateFileDetailUseRatio
 } from '../actions';
 import { MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT, ZOOM_SCALE } from '../utils/constants';
 
@@ -250,6 +250,7 @@ class App extends Component {
       ((prevProps.file === undefined || this.props.file === undefined) ?
         false : (prevProps.file.height !== this.props.file.height)) ||
       prevProps.settings.defaultThumbnailScale !== this.props.settings.defaultThumbnailScale ||
+      prevProps.settings.defaultMoviePrintWidth !== this.props.settings.defaultMoviePrintWidth ||
       prevProps.settings.defaultMarginRatio !== this.props.settings.defaultMarginRatio ||
       prevProps.settings.defaultShowHeader !== this.props.settings.defaultShowHeader ||
       prevProps.settings.defaultRoundedCorners !== this.props.settings.defaultRoundedCorners ||
@@ -497,6 +498,7 @@ class App extends Component {
       elementId: 'ThumbGrid',
       file: this.props.file,
       scale: 1,
+      moviePrintWidth: this.props.settings.defaultMoviePrintWidth,
       // scale: this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
       thumbs: this.props.thumbs,
       settings: this.props.settings,
@@ -689,6 +691,11 @@ class App extends Component {
     store.dispatch(setDefaultThumbnailScale(value));
   };
 
+  onMoviePrintWidthClick = (value) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultMoviePrintWidth(value));
+  };
+
   render() {
     const { accept, dropzoneActive } = this.state;
 
@@ -766,6 +773,7 @@ class App extends Component {
                         onOverwriteClick={this.onOverwriteClick}
                         onIncludeIndividualClick={this.onIncludeIndividualClick}
                         onThumbnailScaleClick={this.onThumbnailScaleClick}
+                        onMoviePrintWidthClick={this.onMoviePrintWidthClick}
                         scaleValueObject={this.state.scaleValueObject}
                       />
                     </div>

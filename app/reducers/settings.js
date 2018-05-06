@@ -10,6 +10,8 @@ const settings = (state = {}, action) => {
       return { ...state, defaultColumnCount: action.defaultColumnCount };
     case 'SET_DEFAULT_THUMBNAIL_SCALE':
       return { ...state, defaultThumbnailScale: action.defaultThumbnailScale };
+    case 'SET_DEFAULT_MOVIEPRINT_WIDTH':
+      return { ...state, defaultMoviePrintWidth: action.defaultMoviePrintWidth };
     case 'SET_DEFAULT_MARGIN':
       return { ...state, defaultMarginRatio: action.defaultMarginRatio };
     case 'SET_DEFAULT_SHOW_HEADER':

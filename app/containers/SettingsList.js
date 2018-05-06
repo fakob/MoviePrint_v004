@@ -90,6 +90,7 @@ class SettingsList extends Component {
     this.onChangeOverwrite = this.onChangeOverwrite.bind(this);
     this.onChangeIncludeIndividual = this.onChangeIncludeIndividual.bind(this);
     this.onChangeThumbnailScale = this.onChangeThumbnailScale.bind(this);
+    this.onChangeMoviePrintWidth = this.onChangeMoviePrintWidth.bind(this);
   }
 
   onChangeReCapture = (e, { checked }) => {
@@ -126,6 +127,10 @@ class SettingsList extends Component {
 
   onChangeThumbnailScale = (e, { value }) => {
     this.props.onThumbnailScaleClick(value);
+  }
+
+  onChangeMoviePrintWidth = (e, { value }) => {
+    this.props.onMoviePrintWidthClick(value);
   }
 
   render() {
@@ -396,8 +401,8 @@ class SettingsList extends Component {
                 selection
                 // search
                 options={outputSize(this.props.file, this.props.columnCountTemp, this.props.thumbCountTemp, this.props.settings, this.props.visibilitySettings)}
-                // defaultValue={this.props.settings.defaultThumbnailScale}
-                // onChange={this.onChangeThumbnailScale}
+                defaultValue={this.props.settings.defaultMoviePrintWidth}
+                onChange={this.onChangeMoviePrintWidth}
               />
             </Grid.Column>
           </Grid.Row>
