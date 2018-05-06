@@ -373,6 +373,7 @@ export const getScaleValueObject = (
   const thumbnailHeightForThumbView =
     ((videoPlayerHeight / 2) - (settings.defaultBorderMargin * 3));
   const thumbnailWidthForThumbView = thumbnailHeightForThumbView / movieAspectRatioInv;
+  const borderRadiusForThumbView = thumbnailWidthForThumbView * settings.defaultBorderRadiusRatio;
   const thumbMarginForThumbView = thumbnailWidthForThumbView * settings.defaultMarginRatio;
   const thumbnailWidthPlusMarginForThumbView =
     thumbnailWidthForThumbView + (thumbMarginForThumbView * 2);
@@ -396,7 +397,7 @@ export const getScaleValueObject = (
   const newMoviePrintAspectRatioInv = (newMoviePrintHeight * 1.0) / newMoviePrintWidth;
   const newThumbMargin = showMoviePrintView ? thumbMargin * scaleValue : thumbMarginForThumbView;
   const newThumbWidth = showMoviePrintView ? thumbWidth * scaleValue : thumbnailWidthForThumbView;
-  const newBorderRadius = showMoviePrintView ? borderRadius * scaleValue : borderRadius;
+  const newBorderRadius = showMoviePrintView ? borderRadius * scaleValue : borderRadiusForThumbView;
   const newHeaderHeight = showMoviePrintView ? headerHeight * scaleValue : headerHeight;
   const newScaleValue = showMoviePrintView ? settings.defaultThumbnailScale * scaleValue :
     settings.defaultThumbnailScale;
