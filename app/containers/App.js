@@ -832,6 +832,8 @@ class App extends Component {
                           inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                           showSettings={this.props.visibilitySettings.showSettings}
                           file={this.props.file}
+                          thumbs={this.props.thumbs}
+                          thumbImages={this.props.thumbImages}
                           selectedThumbId={this.state.selectedThumbObject ?
                             this.state.selectedThumbObject.thumbId : undefined}
                           selectMethod={this.onSelectMethod}
@@ -904,6 +906,8 @@ const mapStateToProps = state => {
       tempThumbs,
       state.visibilitySettings.visibilityFilter
     ),
+    thumbImages: (state.thumbsObjUrls[tempCurrentFileId] === undefined)
+      ? undefined : state.thumbsObjUrls[tempCurrentFileId],
     currentFileId: tempCurrentFileId,
     files: state.undoGroup.present.files,
     file: state.undoGroup.present.files

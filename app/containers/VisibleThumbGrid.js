@@ -87,24 +87,17 @@ class SortedVisibleThumbGrid extends Component {
   };
 
   render() {
-    const { store } = this.context;
-    const state = store.getState();
+    // const { store } = this.context;
+    // const state = store.getState();
     return (
       <SortableThumbGrid
         ref={this.props.inputRef} // for the saveMoviePrint function
         inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
         showSettings={this.props.showSettings}
         colorArray={this.props.colorArray}
-        thumbs={getVisibleThumbs(
-          (state.undoGroup.present
-            .thumbsByFileId[this.props.file.id] === undefined)
-            ? undefined : state.undoGroup.present
-              .thumbsByFileId[this.props.file.id].thumbs,
-          state.visibilitySettings.visibilityFilter
-        )}
+        thumbs={this.props.thumbs}
+        thumbImages={this.props.thumbImages}
         thumbsToDim={this.state.thumbsToDim}
-        thumbImages={(state.thumbsObjUrls[this.props.file.id] === undefined)
-          ? undefined : state.thumbsObjUrls[this.props.file.id]}
         file={this.props.file}
         settings={this.props.settings}
         selectedThumbId={this.props.selectedThumbId}

@@ -88,6 +88,8 @@ class WorkerApp extends Component {
               inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
               showSettings={false}
               file={this.state.data.file}
+              thumbs={this.state.data.thumbs}
+              thumbImages={this.props.thumbImages}
               selectedThumbId={undefined}
 
               colorArray={getMoviePrintColor(state.undoGroup.present.settings.defaultThumbCountMax)}
@@ -113,12 +115,14 @@ class WorkerApp extends Component {
 }
 
 const mapStateToProps = state => {
-  // const tempCurrentFileId = state.undoGroup.present.settings.currentFileId;
+  const tempCurrentFileId = state.undoGroup.present.settings.currentFileId;
   // const tempThumbs = (state.undoGroup.present
   //   .thumbsByFileId[tempCurrentFileId] === undefined)
   //   ? undefined : state.undoGroup.present
   //     .thumbsByFileId[tempCurrentFileId].thumbs;
   return {
+    thumbImages: (state.thumbsObjUrls[tempCurrentFileId] === undefined)
+      ? undefined : state.thumbsObjUrls[tempCurrentFileId],
     // thumbs: getVisibleThumbs(
     //   tempThumbs,
     //   state.visibilitySettings.visibilityFilter
