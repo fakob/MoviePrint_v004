@@ -28,7 +28,7 @@ class SortedVisibleThumbGrid extends Component {
 
   // componentDidMount() {
   componentWillMount() {
-    console.log(this.props);
+    // console.log(this.props);
     const { store } = this.context;
     this.unsubscribe = store.subscribe(() => this.forceUpdate());
     store.getState().undoGroup.present.files.map((singleFile) => {

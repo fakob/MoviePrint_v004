@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import { Provider, connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import imageDB from './../utils/db';
 import '../app.global.css';
 import styles from './App.css';
 import SortedVisibleThumbGrid from '../containers/VisibleThumbGrid';
@@ -16,14 +17,45 @@ class WorkerApp extends Component {
     super();
     this.state = {
       savingMoviePrint: false,
-      data: {}
+      data: {},
+      imageUrlsReady: false,
+      imageUrls: []
     };
 
     // this.onSaveMoviePrint = this.onSaveMoviePrint.bind(this);
   }
 
+  // componentDidMount() {
+  //   const self = this;
+  //   console.log(this.props);
+  //   const { store } = this.context;
+  //   store.getState().undoGroup.present.files.map((singleFile) => {
+  //     console.log(singleFile);
+  //     if (store.getState().undoGroup.present.thumbsByFileId[singleFile.id] !== undefined) {
+  //       Object.values(store.getState().undoGroup.present
+  //         .thumbsByFileId[singleFile.id]
+  //         .thumbs).map((a) => {
+  //         console.log(a.id);
+  //         return imageDB.thumbList.where('id').equals(a.id).toArray().then((thumb) => {
+  //           console.log(thumb[0].fileId);
+  //           const tempObjectURL = window.URL.createObjectURL(thumb[0].data);
+  //           let mapping = {id: a.id, objectUrl: tempObjectURL};
+  //           let newUrls = self.state.imageUrls.slice();
+  //           newUrls.push(mapping);
+  //           console.log(mapping);
+  //
+  //           self.setState({
+  //             imageUrls: newUrls
+  //           });
+  //         });
+  //       });
+  //     }
+  //   });
+
 
   componentDidMount() {
+    const { store } = this.context;
+
     ipcRenderer.on('action-saved-MoviePrint-done', (event) => {
       this.setState({
         savingMoviePrint: false
@@ -32,12 +64,63 @@ class WorkerApp extends Component {
 
     ipcRenderer.on('action-save-MoviePrint', (event, data) => {
       console.log(data.file);
-      this.setState({
-        savingMoviePrint: true,
-        data
-      });
+      console.log(store.getState().undoGroup.present
+        .thumbsByFileId[data.file.id]
+        .thumbs);
+      const arrayOfFrameIds = store.getState().undoGroup.present.thumbsByFileId[data.file.id]
+        .thumbs.map(thumb => thumb.frameId);
+      console.log(arrayOfFrameIds);
+      // const arrayOfFrameNumbersFromDB = imageDB.thumbList.where('id').equals(arrayOfFrameIds)
+      imageDB.frameList.where('frameId').anyOf(arrayOfFrameIds).toArray().then((thumbs) => {
+        console.log(thumbs);
+        const objectUrlsArray = thumbs.map(thumb => {
+          const objectUrl = window.URL.createObjectURL(thumb.data);
+          return objectUrl;
+        });
+        console.log(objectUrlsArray);
+        return objectUrlsArray;
+      }).then((objectUrlsArray) => {
+        this.setState({
+          imageUrls: objectUrlsArray,
+        });
+      }
+      );
+      // this.setState({
+      //   savingMoviePrint: true,
+      //   data
+      // });
     });
   }
+
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   const { store } = this.context;
+  //
+  //   console.log('componentWillReceiveProps');
+  //   console.log(this.state.data);
+  //
+  //   console.log(store.getState().undoGroup.present
+  //     .thumbsByFileId[this.state.data.id]
+  //     .thumbs);
+
+  // Object.values(store.getState().undoGroup.present
+  //   .thumbsByFileId[this.state.data.id]
+  //   .thumbs).map((t) => {
+  //   console.log(t.id);
+  //   return imageDB.thumbList.where('id').equals(t.id).toArray().then((thumb) => {
+  //     console.log(thumb[0].fileId);
+  //     const tempObjectURL = window.URL.createObjectURL(thumb[0].data);
+  //     let mapping = {id: t.id, objectUrl: tempObjectURL};
+  //     let newUrls = self.state.imageUrls.slice();
+  //     newUrls.push(mapping);
+  //     console.log(mapping);
+  //
+  //     self.setState({
+  //       imageUrlsReady: true,
+  //       imageUrls: newUrls
+  //     });
+  //   });
+  // });
+  // }
 
   componentDidUpdate(prevProps, prevState) {
     if (!prevState.savingMoviePrint && this.state.savingMoviePrint) {
