@@ -495,13 +495,9 @@ class App extends Component {
   onSaveMoviePrint() {
     const data = {
       elementId: 'ThumbGrid',
-      exportPath: this.props.settings.defaultOutputPath,
       file: this.props.file,
       scale: 1,
       // scale: this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
-      outputFormat: this.props.settings.defaultOutputFormat,
-      overwrite: this.props.settings.defaultSaveOptionOverwrite,
-      saveIndividualThumbs: this.props.settings.defaultSaveOptionIncludeIndividual,
       thumbs: this.props.thumbs,
       settings: this.props.settings,
       visibilitySettings: this.props.visibilitySettings,

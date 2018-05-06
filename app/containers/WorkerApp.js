@@ -25,8 +25,6 @@ class WorkerApp extends Component {
   }
 
   componentDidMount() {
-    const { store } = this.context;
-
     ipcRenderer.on('action-saved-MoviePrint-done', (event) => {
       this.setState({
         data: {},
@@ -36,12 +34,8 @@ class WorkerApp extends Component {
     });
 
     ipcRenderer.on('action-save-MoviePrint', (event, data) => {
-      console.log(data.file);
-      console.log(store.getState().undoGroup.present
-        .thumbsByFileId[data.file.id]
-        .thumbs);
-      const arrayOfFrameIds = store.getState().undoGroup.present.thumbsByFileId[data.file.id]
-        .thumbs.map(thumb => thumb.frameId);
+      console.log(data);
+      const arrayOfFrameIds = data.thumbs.map(thumb => thumb.frameId);
       console.log(arrayOfFrameIds);
       // const arrayOfFrameNumbersFromDB = imageDB.thumbList.where('id').equals(arrayOfFrameIds)
       imageDB.frameList.where('frameId').anyOf(arrayOfFrameIds).toArray().then((thumbs) => {
@@ -83,8 +77,6 @@ class WorkerApp extends Component {
   }
 
   render() {
-    // const { store } = this.context;
-    // const state = store.getState();
     return (
       <div>
         {this.state.savingMoviePrint &&

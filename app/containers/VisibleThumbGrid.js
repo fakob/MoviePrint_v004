@@ -101,7 +101,6 @@ class SortedVisibleThumbGrid extends Component {
         visibilitySettings={this.props.visibilitySettings}
         thumbsToDim={this.state.thumbsToDim}
         file={this.props.file}
-        settings={this.props.settings}
         selectedThumbId={this.props.selectedThumbId}
         thumbCount={this.props.thumbCount}
         showMoviePrintView={this.props.showMoviePrintView}
@@ -171,8 +170,8 @@ const mapStateToProps = state => {
     // files: state.undoGroup.present.files,
     // file: state.undoGroup.present.files.find((file) =>
     //   file.id === state.undoGroup.present.settings.currentFileId),
-    settings: state.undoGroup.present.settings,
-    visibilitySettings: state.visibilitySettings
+    // settings: state.undoGroup.present.settings,
+    // visibilitySettings: state.visibilitySettings
   };
 };
 
