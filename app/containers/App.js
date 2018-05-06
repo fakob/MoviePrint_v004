@@ -502,7 +502,10 @@ class App extends Component {
       outputFormat: this.props.settings.defaultOutputFormat,
       overwrite: this.props.settings.defaultSaveOptionOverwrite,
       saveIndividualThumbs: this.props.settings.defaultSaveOptionIncludeIndividual,
-      thumbs: this.props.thumbs
+      thumbs: this.props.thumbs,
+      settings: this.props.settings,
+      visibilitySettings: this.props.visibilitySettings,
+
     };
     console.log(data);
     this.setState(
@@ -834,6 +837,8 @@ class App extends Component {
                           file={this.props.file}
                           thumbs={this.props.thumbs}
                           thumbImages={this.props.thumbImages}
+                          settings={this.props.settings}
+                          visibilitySettings={this.props.visibilitySettings}
                           selectedThumbId={this.state.selectedThumbObject ?
                             this.state.selectedThumbObject.thumbId : undefined}
                           selectMethod={this.onSelectMethod}

@@ -97,6 +97,8 @@ class SortedVisibleThumbGrid extends Component {
         colorArray={this.props.colorArray}
         thumbs={this.props.thumbs}
         thumbImages={this.props.thumbImages}
+        settings={this.props.settings}
+        visibilitySettings={this.props.visibilitySettings}
         thumbsToDim={this.state.thumbsToDim}
         file={this.props.file}
         settings={this.props.settings}

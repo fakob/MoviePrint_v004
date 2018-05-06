@@ -71,20 +71,20 @@ class WorkerApp extends Component {
       console.log('componentDidUpdate and savingMoviePrint true');
       saveMoviePrint(
         this.state.data.elementId,
-        this.state.data.exportPath,
+        this.state.data.settings.defaultOutputPath,
         this.state.data.file,
         this.state.data.scale,
-        this.state.data.outputFormat,
-        this.state.data.overwrite,
-        this.state.data.saveIndividualThumbs,
+        this.state.data.settings.defaultOutputFormat,
+        this.state.data.settings.defaultSaveOptionOverwrite,
+        this.state.data.settings.defaultSaveOptionIncludeIndividual,
         this.state.data.thumbs
       );
     }
   }
 
   render() {
-    const { store } = this.context;
-    const state = store.getState();
+    // const { store } = this.context;
+    // const state = store.getState();
     return (
       <div>
         {this.state.savingMoviePrint &&
@@ -94,10 +94,10 @@ class WorkerApp extends Component {
             style={{
               width: `${getScaleValueObject(
                 this.state.data.file,
-                state.undoGroup.present.settings,
+                this.state.data.settings,
                 this.state.data.file.columnCount, this.state.data.file.thumbCount,
                 1360, 800, // values not needed for saveMoviePrint
-                state.visibilitySettings.showMoviePrintView,
+                this.state.data.visibilitySettings.showMoviePrintView,
                 1,
                 true
               ).newMoviePrintWidth}px`
@@ -109,18 +109,21 @@ class WorkerApp extends Component {
               file={this.state.data.file}
               thumbs={this.state.data.thumbs}
               thumbImages={this.state.thumbObjectUrls}
+              settings={this.state.data.settings}
+              visibilitySettings={this.state.data.visibilitySettings}
+
               selectedThumbId={undefined}
 
-              colorArray={getMoviePrintColor(state.undoGroup.present.settings.defaultThumbCountMax)}
+              colorArray={getMoviePrintColor(this.state.data.settings.defaultThumbCountMax)}
               thumbCount={this.state.data.file.thumbCount}
 
               showMoviePrintView
               scaleValueObject={getScaleValueObject(
                 this.state.data.file,
-                state.undoGroup.present.settings,
+                this.state.data.settings,
                 this.state.data.file.columnCount, this.state.data.file.thumbCount,
                 1360, 800, // values not needed for saveMoviePrint
-                state.visibilitySettings.showMoviePrintView,
+                this.state.data.visibilitySettings.showMoviePrintView,
                 1,
                 true
               )}
