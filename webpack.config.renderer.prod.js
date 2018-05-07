@@ -173,12 +173,16 @@ export default merge.smart(baseConfig, {
       NODE_ENV: 'production'
     }),
 
+    new webpack.optimize.CommonsChunkPlugin({
+      children: true,
+    }),
+
     new UglifyJSPlugin({
       parallel: true,
       sourceMap: true
     }),
 
-    new ExtractTextPlugin('style.css'),
+    new ExtractTextPlugin('[name].css'),
 
     new BundleAnalyzerPlugin({
       analyzerMode: process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
