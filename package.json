@@ -43,6 +43,8 @@
       "app.html",
       "credits.html",
       "worker.html",
+      "main.prod.js",
+      "main.prod.js.map",
       "renderer.prod.js",
       "renderer.prod.js.map",
       "worker.prod.js",
