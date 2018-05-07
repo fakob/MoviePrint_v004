@@ -26,8 +26,9 @@ class SortedVisibleThumbGrid extends Component {
     this.onSelectClick = this.onSelectClick.bind(this);
   }
 
-  componentDidMount() {
-    console.log(this.props);
+  // componentDidMount() {
+  componentWillMount() {
+    // console.log(this.props);
     const { store } = this.context;
     this.unsubscribe = store.subscribe(() => this.forceUpdate());
     store.getState().undoGroup.present.files.map((singleFile) => {
@@ -86,6 +87,8 @@ class SortedVisibleThumbGrid extends Component {
   };
 
   render() {
+    // const { store } = this.context;
+    // const state = store.getState();
     return (
       <SortableThumbGrid
         ref={this.props.inputRef} // for the saveMoviePrint function
@@ -93,10 +96,11 @@ class SortedVisibleThumbGrid extends Component {
         showSettings={this.props.showSettings}
         colorArray={this.props.colorArray}
         thumbs={this.props.thumbs}
-        thumbsToDim={this.state.thumbsToDim}
         thumbImages={this.props.thumbImages}
-        file={this.props.file}
         settings={this.props.settings}
+        visibilitySettings={this.props.visibilitySettings}
+        thumbsToDim={this.state.thumbsToDim}
+        file={this.props.file}
         selectedThumbId={this.props.selectedThumbId}
         thumbCount={this.props.thumbCount}
         showMoviePrintView={this.props.showMoviePrintView}
@@ -152,22 +156,22 @@ class SortedVisibleThumbGrid extends Component {
 }
 
 const mapStateToProps = state => {
-  const tempThumbs = (state.undoGroup.present
-    .thumbsByFileId[state.undoGroup.present.settings.currentFileId] === undefined)
-    ? undefined : state.undoGroup.present
-      .thumbsByFileId[state.undoGroup.present.settings.currentFileId].thumbs;
+  // const tempThumbs = (state.undoGroup.present
+  //   .thumbsByFileId[state.undoGroup.present.settings.currentFileId] === undefined)
+  //   ? undefined : state.undoGroup.present
+  //     .thumbsByFileId[state.undoGroup.present.settings.currentFileId].thumbs;
   return {
-    thumbs: getVisibleThumbs(
-      tempThumbs,
-      state.visibilitySettings.visibilityFilter
-    ),
-    thumbImages: (state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId] === undefined)
-      ? undefined : state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId],
-    files: state.undoGroup.present.files,
-    file: state.undoGroup.present.files.find((file) =>
-      file.id === state.undoGroup.present.settings.currentFileId),
-    settings: state.undoGroup.present.settings,
-    visibilitySettings: state.visibilitySettings
+    // thumbs: getVisibleThumbs(
+    //   tempThumbs,
+    //   state.visibilitySettings.visibilityFilter
+    // ),
+    // thumbImages: (state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId] === undefined)
+    //   ? undefined : state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId],
+    // files: state.undoGroup.present.files,
+    // file: state.undoGroup.present.files.find((file) =>
+    //   file.id === state.undoGroup.present.settings.currentFileId),
+    // settings: state.undoGroup.present.settings,
+    // visibilitySettings: state.visibilitySettings
   };
 };
 
@@ -243,11 +247,11 @@ SortedVisibleThumbGrid.propTypes = {
   onInPointClick: PropTypes.func.isRequired,
   onOutPointClick: PropTypes.func.isRequired,
   onSaveThumbClick: PropTypes.func.isRequired,
-  onThumbDoubleClick: PropTypes.func.isRequired,
+  onThumbDoubleClick: PropTypes.func,
   onToggleClick: PropTypes.func.isRequired,
   scaleValueObject: PropTypes.object.isRequired,
   selectedThumbId: PropTypes.string,
-  selectMethod: PropTypes.func.isRequired,
+  selectMethod: PropTypes.func,
   settings: PropTypes.object.isRequired,
   showMoviePrintView: PropTypes.bool.isRequired,
   showSettings: PropTypes.bool.isRequired,

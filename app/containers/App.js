@@ -13,7 +13,7 @@ import Footer from '../components/Footer';
 import VideoPlayer from '../components/VideoPlayer';
 import ThumbEmpty from '../components/ThumbEmpty';
 import { getLowestFrame, getHighestFrame, getVisibleThumbs, getColumnCount, getThumbsCount, getMoviePrintColor, getScaleValueObject } from '../utils/utils';
-import saveMoviePrint from '../utils/saveMoviePrint';
+// import saveMoviePrint from '../utils/saveMoviePrint';
 import styles from './App.css';
 import {
   setNewMovieList, showMovielist, hideMovielist, showSettings, hideSettings,
@@ -22,7 +22,7 @@ import {
   updateFileDetails, clearThumbs, updateThumbImage, setDefaultMarginRatio, setDefaultShowHeader,
   setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat,
   setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
-  updateFileDetailUseRatio
+  setDefaultMoviePrintWidth, updateFileDetailUseRatio
 } from '../actions';
 import { MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT, ZOOM_SCALE } from '../utils/constants';
 
@@ -134,7 +134,7 @@ class App extends Component {
         this.state.columnCountTemp, this.state.thumbCountTemp,
         this.state.containerWidth, this.state.containerHeight,
         this.props.visibilitySettings.showMoviePrintView,
-        this.state.zoom ? ZOOM_SCALE : 1
+        this.state.zoom ? ZOOM_SCALE : 0.95
       )
     });
   }
@@ -250,6 +250,7 @@ class App extends Component {
       ((prevProps.file === undefined || this.props.file === undefined) ?
         false : (prevProps.file.height !== this.props.file.height)) ||
       prevProps.settings.defaultThumbnailScale !== this.props.settings.defaultThumbnailScale ||
+      prevProps.settings.defaultMoviePrintWidth !== this.props.settings.defaultMoviePrintWidth ||
       prevProps.settings.defaultMarginRatio !== this.props.settings.defaultMarginRatio ||
       prevProps.settings.defaultShowHeader !== this.props.settings.defaultShowHeader ||
       prevProps.settings.defaultRoundedCorners !== this.props.settings.defaultRoundedCorners ||
@@ -362,7 +363,7 @@ class App extends Component {
       this.state.columnCountTemp, this.state.thumbCountTemp,
       this.state.containerWidth, this.state.containerHeight,
       this.props.visibilitySettings.showMoviePrintView,
-      this.state.zoom ? ZOOM_SCALE : 1
+      this.state.zoom ? ZOOM_SCALE : 0.95
     );
     this.setState(
       {
@@ -493,18 +494,21 @@ class App extends Component {
   }
 
   onSaveMoviePrint() {
+    const data = {
+      elementId: 'ThumbGrid',
+      file: this.props.file,
+      // scale: 1,
+      moviePrintWidth: this.props.settings.defaultMoviePrintWidth,
+      // scale: this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
+      thumbs: this.props.thumbs,
+      settings: this.props.settings,
+      visibilitySettings: this.props.visibilitySettings,
+
+    };
+    console.log(data);
     this.setState(
       { savingMoviePrint: true },
-      saveMoviePrint(
-        'ThumbGrid',
-        this.props.settings.defaultOutputPath,
-        this.props.file,
-        this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
-        this.props.settings.defaultOutputFormat,
-        this.props.settings.defaultSaveOptionOverwrite,
-        this.props.settings.defaultSaveOptionIncludeIndividual,
-        this.props.thumbs
-      )
+      ipcRenderer.send('request-save-MoviePrint', data)
     );
   }
 
@@ -687,6 +691,11 @@ class App extends Component {
     store.dispatch(setDefaultThumbnailScale(value));
   };
 
+  onMoviePrintWidthClick = (value) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultMoviePrintWidth(value));
+  };
+
   render() {
     const { accept, dropzoneActive } = this.state;
 
@@ -764,6 +773,7 @@ class App extends Component {
                         onOverwriteClick={this.onOverwriteClick}
                         onIncludeIndividualClick={this.onIncludeIndividualClick}
                         onThumbnailScaleClick={this.onThumbnailScaleClick}
+                        onMoviePrintWidthClick={this.onMoviePrintWidthClick}
                         scaleValueObject={this.state.scaleValueObject}
                       />
                     </div>
@@ -828,7 +838,11 @@ class App extends Component {
                         <SortedVisibleThumbGrid
                           inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                           showSettings={this.props.visibilitySettings.showSettings}
-
+                          file={this.props.file}
+                          thumbs={this.props.thumbs}
+                          thumbImages={this.props.thumbImages}
+                          settings={this.props.settings}
+                          visibilitySettings={this.props.visibilitySettings}
                           selectedThumbId={this.state.selectedThumbObject ?
                             this.state.selectedThumbObject.thumbId : undefined}
                           selectMethod={this.onSelectMethod}
@@ -901,6 +915,8 @@ const mapStateToProps = state => {
       tempThumbs,
       state.visibilitySettings.visibilityFilter
     ),
+    thumbImages: (state.thumbsObjUrls[tempCurrentFileId] === undefined)
+      ? undefined : state.thumbsObjUrls[tempCurrentFileId],
     currentFileId: tempCurrentFileId,
     files: state.undoGroup.present.files,
     file: state.undoGroup.present.files
@@ -919,7 +935,7 @@ App.contextTypes = {
 
 App.defaultProps = {
   currentFileId: undefined,
-  file: {},
+  file: undefined,
   thumbs: [],
   thumbsByFileId: {},
 };
