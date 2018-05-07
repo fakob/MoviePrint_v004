@@ -66,7 +66,8 @@ class VideoPlayer extends Component {
     const videoWidth = videoHeight / this.props.aspectRatioInv;
     this.setState({
       videoHeight,
-      videoWidth
+      videoWidth,
+      loadVideo: true
     });
   }
 
@@ -75,6 +76,7 @@ class VideoPlayer extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    // console.log('VideoPlayer - componentWillReceiveProps');
     if (
       nextProps.aspectRatioInv !== this.props.aspectRatioInv ||
       nextProps.height !== this.props.height ||
@@ -85,11 +87,6 @@ class VideoPlayer extends Component {
       this.setState({
         videoHeight,
         videoWidth
-      });
-    }
-    if (nextProps.file.path !== this.props.file.path) {
-      this.setState({
-        loadVideo: true
       });
     }
   }
@@ -588,9 +585,6 @@ const mapStateToProps = state => {
     ),
     thumbImages: (state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId] === undefined)
       ? undefined : state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId],
-    files: state.undoGroup.present.files,
-    file: state.undoGroup.present.files.find((file) =>
-      file.id === state.undoGroup.present.settings.currentFileId),
     settings: state.undoGroup.present.settings,
     visibilitySettings: state.visibilitySettings
   };

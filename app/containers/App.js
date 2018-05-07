@@ -789,6 +789,7 @@ class App extends Component {
                         <VideoPlayer
                           // visible={!this.props.visibilitySettings.showMoviePrintView}
                           ref={(el) => { this.videoPlayer = el; }}
+                          file={this.props.file}
                           aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
                           height={this.state.scaleValueObject.videoPlayerHeight}
                           width={this.state.scaleValueObject.videoPlayerWidth}
