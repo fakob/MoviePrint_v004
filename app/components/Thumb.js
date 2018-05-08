@@ -12,22 +12,28 @@ import transparent from '../img/Thumb_TRANSPARENT.png';
 
 const DragHandle = SortableHandle(({ width, height }) =>
   (
-    <button
-      className={`${styles.dragHandleButton}`}
-      style={{
-        width,
-        height: Math.floor(height),
-      }}
-    >
-      <img
-        src={transparent}
-        style={{
-          width,
-          height: Math.floor(height),
-        }}
-        alt=""
-      />
-    </button>
+    <Popup
+      trigger={
+        <button
+          className={`${styles.dragHandleButton}`}
+          style={{
+            width,
+            height: Math.floor(height),
+          }}
+        >
+          <img
+            src={transparent}
+            style={{
+              width,
+              height: Math.floor(height),
+            }}
+            alt=""
+          />
+        </button>
+      }
+      className={stylesPop.popup}
+      content="Drag thumb"
+    />
   ));
 
 const Thumb = ({
