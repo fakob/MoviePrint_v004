@@ -110,7 +110,7 @@ const ThumbGrid = ({
         thumbInfoValue={getThumbInfoValue(settings.defaultThumbInfo, thumb.frameNumber, fps)}
         thumbInfoRatio={settings.defaultThumbInfoRatio}
         hidden={thumb.hidden}
-        controlersAreVisible={showSettings ? undefined : (thumb.thumbId === controlersAreVisibleId)}
+        controlersAreVisible={showSettings ? false : (thumb.thumbId === controlersAreVisibleId)}
         selected={selectedThumbId ? (selectedThumbId === thumb.thumbId) : false}
         onOver={showSettings ? null : () => onMouseOverResult(thumb.thumbId)}
         onOut={showSettings ? null : () => onMouseOutResult()}
