@@ -89,6 +89,12 @@ class VideoPlayer extends Component {
         videoWidth
       });
     }
+    if (nextProps.file.path !== this.props.file.path) {
+      this.setState({
+        loadVideo: true
+      });
+    }
+
   }
 
   componentDidUpdate(prevProps) {
