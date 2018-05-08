@@ -826,8 +826,7 @@ class App extends Component {
                       ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
                       className={`${styles.ItemMain} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainRightAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainEdit : ''} ${!this.props.visibilitySettings.showMoviePrintView ? styles.ItemMainTopAnim : ''}`}
                       style={{
-                        width: (this.props.visibilitySettings.showMoviePrintView &&
-                          !this.state.zoom)
+                        width: this.props.visibilitySettings.showMoviePrintView
                         ? undefined : this.state.scaleValueObject.newMoviePrintWidth,
                         marginTop: this.props.visibilitySettings.showMoviePrintView ? undefined :
                           `${this.state.scaleValueObject.videoPlayerHeight +
