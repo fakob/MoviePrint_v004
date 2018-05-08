@@ -144,6 +144,7 @@ const ThumbGrid = ({
       className={styles.grid}
       style={{
         width: scaleValueObject.newMoviePrintWidth,
+        marginLeft: showMoviePrintView ? undefined : (scaleValueObject.newThumbWidth / 4),
       }}
       id="ThumbGrid"
     >

@@ -361,11 +361,11 @@ export const getScaleValueObject = (
     ((videoPlayerHeight / 2) - (settings.defaultBorderMargin * 3));
   const thumbnailWidthForThumbView = thumbnailHeightForThumbView / movieAspectRatioInv;
   const borderRadiusForThumbView = thumbnailWidthForThumbView * settings.defaultBorderRadiusRatio;
-  const thumbMarginForThumbView = thumbnailWidthForThumbView * settings.defaultMarginRatio;
+  const thumbMarginForThumbView = Math.max(2, thumbnailWidthForThumbView * settings.defaultMarginRatio);
   const thumbnailWidthPlusMarginForThumbView =
     thumbnailWidthForThumbView + (thumbMarginForThumbView * 2);
   const moviePrintWidthForThumbView =
-    thumbCount * thumbnailWidthPlusMarginForThumbView; // only one row
+    (thumbCount * thumbnailWidthPlusMarginForThumbView) + (thumbnailWidthForThumbView / 2); // only one row
     // for thumbView
 
   const scaleValueWidth = containerWidth / moviePrintWidth;

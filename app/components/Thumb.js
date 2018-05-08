@@ -167,8 +167,8 @@ const Thumb = ({
       height={`${(thumbWidth * aspectRatioInv)}px`}
       style={{
         width: thumbWidth,
-        margin: `${margin}px`,
-        outlineWidth: `${margin}px`,
+        margin: `${showMoviePrintView ? margin : Math.max(1, margin)}px`,
+        outlineWidth: `${showMoviePrintView ? margin : Math.max(1, margin)}px`,
         borderRadius: `${(selected && !showMoviePrintView) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: thumbImageObjectUrl !== undefined ? undefined : color,
       }}
@@ -390,13 +390,13 @@ const Thumb = ({
               content: '',
               backgroundColor: '#FF5006',
               position: 'absolute',
-              width: `${margin * 0.5}px`,
-              height: `${(thumbWidth * aspectRatioInv) + (margin * 2)}px`,
-              top: (margin * -1.0),
+              width: `${Math.max(1, margin * 0.5)}px`,
+              height: `${(thumbWidth * aspectRatioInv) + (Math.max(1, margin * 2))}px`,
+              top: (Math.max(1, margin * -1.0)),
               left: `${(!keyObject.altKey && keyObject.shiftKey) ? 0 : undefined}`,
               right: `${keyObject.altKey ? 0 : undefined}`,
               display: 'block',
-              transform: `translateX(${margin * (keyObject.altKey ? 1.25 : -1.25)}px)`,
+              transform: `translateX(${Math.max(1, margin) * (keyObject.altKey ? 1.25 : -1.25)}px)`,
             }}
           />
         }
