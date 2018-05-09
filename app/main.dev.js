@@ -136,7 +136,15 @@ app.on('ready', async () => {
   // workerWindow.webContents.openDevTools();
   workerWindow.loadURL(`file://${__dirname}/worker.html`);
 
-  const menuBuilder = new MenuBuilder(mainWindow, creditsWindow);
+  workerWindow.on('close', (event) => {
+    // only hide window and prevent default if app not quitting
+    if (!appAboutToQuit) {
+      workerWindow.hide();
+      event.preventDefault();
+    }
+  });
+
+  const menuBuilder = new MenuBuilder(mainWindow, creditsWindow, workerWindow);
   menuBuilder.buildMenu();
 });
 

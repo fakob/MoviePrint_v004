@@ -5,10 +5,12 @@ import { clearCache } from './utils/utils';
 export default class MenuBuilder {
   mainWindow: BrowserWindow;
   creditsWindow: BrowserWindow;
+  workerWindow: BrowserWindow;
 
-  constructor(mainWindow: BrowserWindow, creditsWindow: BrowserWindow) {
+  constructor(mainWindow: BrowserWindow, creditsWindow: BrowserWindow, workerWindow: BrowserWindow) {
     this.mainWindow = mainWindow;
     this.creditsWindow = creditsWindow;
+    this.workerWindow = workerWindow;
   }
 
   buildMenu() {
@@ -78,7 +80,9 @@ export default class MenuBuilder {
         { label: 'Clear cache', accelerator: 'Shift+Alt+Command+C', click: () => { clearCache(this.mainWindow); } },
         { label: 'Reload', accelerator: 'Command+R', click: () => { this.mainWindow.webContents.reload(); } },
         { label: 'Toggle Full Screen', accelerator: 'Ctrl+Command+F', click: () => { this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen()); } },
-        { label: 'Toggle Developer Tools', accelerator: 'Alt+Command+I', click: () => { this.mainWindow.toggleDevTools(); } }
+        { label: 'Toggle Developer Tools', accelerator: 'Alt+Command+I', click: () => { this.mainWindow.toggleDevTools(); } },
+        { label: 'Toggle Developer Tools for Worker', accelerator: 'Alt+Command+J', click: () => { this.workerWindow.toggleDevTools(); } },
+        { label: 'Show Worker', click: () => { this.workerWindow.show(); } }
       ]
     };
     const subMenuViewProd = {
@@ -87,7 +91,9 @@ export default class MenuBuilder {
         { label: 'Clear cache', accelerator: 'Shift+Alt+Command+C', click: () => { clearCache(this.mainWindow); } },
         { label: 'Reload', accelerator: 'Command+R', click: () => { this.mainWindow.webContents.reload(); } },
         { label: 'Toggle Full Screen', accelerator: 'Ctrl+Command+F', click: () => { this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen()); } },
-        { label: 'Toggle Developer Tools', accelerator: 'Alt+Command+I', click: () => { this.mainWindow.toggleDevTools(); } }
+        { label: 'Toggle Developer Tools', accelerator: 'Alt+Command+I', click: () => { this.mainWindow.toggleDevTools(); } },
+        { label: 'Toggle Developer Tools for Worker', accelerator: 'Alt+Command+J', click: () => { this.workerWindow.toggleDevTools(); } },
+        { label: 'Show Worker', click: () => { this.workerWindow.show(); } }
       ]
     };
     const subMenuWindow = {
