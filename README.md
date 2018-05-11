@@ -1,30 +1,34 @@
-Alpha release of
-
-![MoviePrint](resources/icon.png)
+![MoviePrint](resources/icons/128x128.png)
 
 A tool which lets you create screenshots of entire movies in an instant.
 <br/>
 
-* Drag in one or more movies
-* Customise the look of your MoviePrint
-* Define desired In- and Outpoints
-* Choose each frame individually
-* Move the frames in the order you like
-* Save your MoviePrint
+* Customise the look of your MoviePrint (Rows, Columns, Frame, Timecode…)
+* Define the desired In- and Outpoints
+* Choose each thumb individually
+* Add more thumbs in between
+* Rearrange the order of the thumbs
+* Save all chosen thumbs as stills
+* ~~Batch processing of multiple movies~~
+
+![MoviePrint_v004 screencast](http://movieprint.fakob.com/wp-content/uploads/2018/05/fakob_Showreel2014_v006.mp4_MoviePrint-copy-1.png)
+
+[![MoviePrint_v004 screencast](http://img.youtube.com/vi/1lVYPiAgXzE/0.jpg)](http://www.youtube.com/watch?v=T-1lVYPiAgXzE)
+
+[Watch screencast](http://www.youtube.com/watch?v=T-1lVYPiAgXzE)
 
 The current version is using opencv as my roadmap includes utilising computer vision algorithms.
 
-old version - http://www.fakob.com/2014/movieprint-an-osx-tool/
+---
+## OSX release
+new alpha release - https://github.com/fakob/MoviePrint_v004/releases
 
-based on
-##### electron-react-boilerplate
-https://github.com/chentsulin/electron-react-boilerplate
+old version (2014) - http://www.fakob.com/2014/movieprint-an-osx-tool/
 
-A Boilerplate for Scalable Cross-Platform Desktop Apps
-<br/>
-[Electron](http://electron.atom.io/) application boilerplate based on [React](https://facebook.github.io/react/), [Redux](https://github.com/reactjs/redux), [React Router](https://github.com/reactjs/react-router), [Webpack](http://webpack.github.io/docs/), [React Transform HMR](https://github.com/gaearon/react-transform-hmr) for rapid application development.
+---
+MoviePrint_v004 is based on [electron-react-boilerplate](https://github.com/chentsulin/electron-react-boilerplate)
 
-##### Install
+#### For development
 
 * For details check electron-react-boilerplate description
 
@@ -44,10 +48,10 @@ $ yarn
 ##### Run
 
 ```bash
-$ npm start
+$ npm run dev
 ```
 
-## Packaging
+##### Packaging
 
 To package the app for your local platform:
 
