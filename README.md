@@ -15,7 +15,7 @@ A tool which lets you create screenshots of entire movies in an instant.
 
 [![MoviePrint_v004 screencast](http://img.youtube.com/vi/1lVYPiAgXzE/0.jpg)](http://www.youtube.com/watch?v=T-1lVYPiAgXzE)
 
-[Watch screencast](http://www.youtube.com/watch?v=T-1lVYPiAgXzE)
+[Watch screencast](http://www.youtube.com/watch?v=1lVYPiAgXzE)
 
 The current version is using opencv as my roadmap includes utilising computer vision algorithms.
 
@@ -30,7 +30,8 @@ MoviePrint_v004 is based on [electron-react-boilerplate](https://github.com/chen
 
 #### For development
 
-* For details check electron-react-boilerplate description
+* The app was only tested on Mac OSX. Running and building it on other platforms might require additional changes to the code. Especially when it comes to linking and packaging the libraries.
+* For other details check electron-react-boilerplate description
 
 First, clone the repo via git:
 
