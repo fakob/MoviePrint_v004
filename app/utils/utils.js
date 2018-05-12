@@ -1,6 +1,9 @@
 import pathR from 'path';
 import fsR from 'fs';
-import { DEFAULT_THUMB_COUNT, DEFAULT_COLUMN_COUNT, DEFAULT_MOVIE_WIDTH, DEFAULT_MOVIE_HEIGHT } from './constants';
+import {
+  DEFAULT_THUMB_COUNT, DEFAULT_COLUMN_COUNT, DEFAULT_MOVIE_WIDTH, DEFAULT_MOVIE_HEIGHT,
+  SHOW_PAPER_ADJUSTMENT_SCALE
+} from './constants';
 
 const randomColor = require('randomcolor');
 const { ipcRenderer } = require('electron');
@@ -372,8 +375,10 @@ export const getScaleValueObject = (
 
   let newContainerWidth = containerWidth;
   let newContainerHeight = containerHeight;
+  let showPaperAdjustmentScale = 1;
   console.log(`settings.defaultPaperAspectRatioInv|moviePrintAspectRatioInv ${settings.defaultPaperAspectRatioInv}|${moviePrintAspectRatioInv}`);
   if (settings.defaultShowPaper) {
+    showPaperAdjustmentScale = SHOW_PAPER_ADJUSTMENT_SCALE;
     if (settings.defaultPaperAspectRatioInv > moviePrintAspectRatioInv) {
       // newContainerWidth = containerHeight / settings.defaultPaperAspectRatioInv;
       newContainerHeight = containerWidth * moviePrintAspectRatioInv;
@@ -387,7 +392,7 @@ export const getScaleValueObject = (
   const scaleValueWidth = newContainerWidth / moviePrintWidth;
   const scaleValueHeight = newContainerHeight / moviePrintHeight;
 
-  const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * zoomScale;
+  const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * zoomScale * showPaperAdjustmentScale;
   // console.log(scaleValue);
 
   const newMoviePrintWidth =

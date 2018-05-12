@@ -44,6 +44,7 @@ export const MENU_HEADER_HEIGHT = 35;
 export const MENU_FOOTER_HEIGHT = 35;
 
 export const ZOOM_SCALE = 2;
+export const SHOW_PAPER_ADJUSTMENT_SCALE = 0.9;
 
 export const DEFAULT_MOVIE_WIDTH = 1920;
 export const DEFAULT_MOVIE_HEIGHT = 1080;

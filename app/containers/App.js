@@ -24,7 +24,7 @@ import {
   setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
   setDefaultMoviePrintWidth, updateFileDetailUseRatio
 } from '../actions';
-import { MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT, ZOOM_SCALE } from '../utils/constants';
+import { MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT, ZOOM_SCALE, SHOW_PAPER_ADJUSTMENT_SCALE } from '../utils/constants';
 
 import steps from '../img/MoviePrint-steps.svg';
 import paperBorderPortrait from '../img/PaperBorder-portrait.svg';
@@ -833,10 +833,11 @@ class App extends Component {
                           `${this.state.scaleValueObject.videoPlayerHeight +
                             (this.props.settings.defaultBorderMargin * 2)}px`,
                         minHeight: this.props.visibilitySettings.showMoviePrintView ? `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)` : undefined,
-                        backgroundImage: `url(${paperBorderPortrait})`,
+                        // backgroundImage: `url(${paperBorderPortrait})`,
+                        backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${this.state.scaleValueObject.newMoviePrintWidth}' height='${this.state.scaleValueObject.newMoviePrintWidth * this.props.settings.defaultPaperAspectRatioInv}'><rect width='${this.state.scaleValueObject.newMoviePrintWidth}' height='${this.state.scaleValueObject.newMoviePrintWidth * this.props.settings.defaultPaperAspectRatioInv}' style='fill:rgba(255,255,255,1);stroke-width:0;stroke:rgb(0,0,0)' /></svg>")`,
                         backgroundRepeat: 'no-repeat',
-                        backgroundPosition: 'center center',
-                        backgroundSize: 'contain'
+                        backgroundPosition: 'center 49%',
+                        backgroundSize: `${SHOW_PAPER_ADJUSTMENT_SCALE * 100}%`
                       }}
                     >
                       { (this.props.file || this.props.visibilitySettings.showSettings) ? (
