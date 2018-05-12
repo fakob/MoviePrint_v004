@@ -55,12 +55,16 @@ const outputSize = (file = {
     1
   );
   const moviePrintSize = [
+    { width: 16384, height: Math.round(16384 * newScaleValueObject.newMoviePrintAspectRatioInv) },
+    { width: 8192, height: Math.round(8192 * newScaleValueObject.newMoviePrintAspectRatioInv) },
     { width: 4096, height: Math.round(4096 * newScaleValueObject.newMoviePrintAspectRatioInv) },
     { width: 3072, height: Math.round(3072 * newScaleValueObject.newMoviePrintAspectRatioInv) },
     { width: 2048, height: Math.round(2048 * newScaleValueObject.newMoviePrintAspectRatioInv) },
     { width: 1024, height: Math.round(1024 * newScaleValueObject.newMoviePrintAspectRatioInv) },
   ];
   return [
+    { value: moviePrintSize[5].width, text: `${moviePrintSize[5].width}px (×${moviePrintSize[5].height}px)` },
+    { value: moviePrintSize[4].width, text: `${moviePrintSize[4].width}px (×${moviePrintSize[4].height}px)` },
     { value: moviePrintSize[3].width, text: `${moviePrintSize[3].width}px (×${moviePrintSize[3].height}px)` },
     { value: moviePrintSize[2].width, text: `${moviePrintSize[2].width}px (×${moviePrintSize[2].height}px)` },
     { value: moviePrintSize[1].width, text: `${moviePrintSize[1].width}px (×${moviePrintSize[1].height}px)` },
@@ -465,6 +469,12 @@ class SettingsList extends Component {
                 </List.Item>
               </List>
             </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            &nbsp;
+          </Grid.Row>
+          <Grid.Row>
+            &nbsp;
           </Grid.Row>
         </Grid>
       </Container>
