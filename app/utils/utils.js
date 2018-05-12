@@ -332,7 +332,8 @@ export const getScaleValueObject = (
   containerWidth,
   containerHeight = 99999, // very high value so it is not taken into account when not set
   showMoviePrintView,
-  zoomScale
+  zoomScale,
+  showPaperPreview = false
 ) => {
   const movieWidth = (file !== undefined && file.width !== undefined ? file.width : DEFAULT_MOVIE_WIDTH);
   const movieHeight = (file !== undefined && file.height !== undefined ? file.height : DEFAULT_MOVIE_HEIGHT);
@@ -377,7 +378,7 @@ export const getScaleValueObject = (
   let newContainerHeight = containerHeight;
   let showPaperAdjustmentScale = 1;
   console.log(`settings.defaultPaperAspectRatioInv|moviePrintAspectRatioInv ${settings.defaultPaperAspectRatioInv}|${moviePrintAspectRatioInv}`);
-  if (settings.defaultShowPaper) {
+  if (showPaperPreview) {
     showPaperAdjustmentScale = SHOW_PAPER_ADJUSTMENT_SCALE;
     if (settings.defaultPaperAspectRatioInv > moviePrintAspectRatioInv) {
       // newContainerWidth = containerHeight / settings.defaultPaperAspectRatioInv;

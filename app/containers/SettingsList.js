@@ -84,6 +84,7 @@ class SettingsList extends Component {
     //   thumbInfo: 'frames',
     // };
 
+    this.onChangeShowPaperPreview = this.onChangeShowPaperPreview.bind(this);
     this.onChangeReCapture = this.onChangeReCapture.bind(this);
     this.onChangeShowHeader = this.onChangeShowHeader.bind(this);
     this.onChangeRoundedCorners = this.onChangeRoundedCorners.bind(this);
@@ -94,6 +95,10 @@ class SettingsList extends Component {
     this.onChangeIncludeIndividual = this.onChangeIncludeIndividual.bind(this);
     this.onChangeThumbnailScale = this.onChangeThumbnailScale.bind(this);
     this.onChangeMoviePrintWidth = this.onChangeMoviePrintWidth.bind(this);
+  }
+
+  onChangeShowPaperPreview = (e, { checked }) => {
+    this.props.onShowPaperPreviewClick(checked);
   }
 
   onChangeReCapture = (e, { checked }) => {
@@ -144,6 +149,28 @@ class SettingsList extends Component {
         }}
       >
         <Grid padded inverted>
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Paper preview
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <Checkbox
+                // toggle
+                label={
+                  <label className={styles.label}>
+                    Show Paper Preview
+                  </label>
+                }
+                // checked={this.state.checkBoxChecked}
+                checked={this.props.settings.defaultShowPaperPreview}
+                onChange={this.onChangeShowPaperPreview}
+                // style={{
+                //   color: '#eeeeee',
+                //   fontFamily: 'Roboto Condensed',
+                // }}
+              />
+            </Grid.Column>
+          </Grid.Row>
           <Grid.Row>
             <Grid.Column width={16}>
               <Statistic inverted size="tiny">

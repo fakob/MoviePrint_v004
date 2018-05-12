@@ -36,7 +36,7 @@ export const DEFAULT_VIDEO_PLAYER_HEIGHT = 360;
 export const DEFAULT_VIDEO_PLAYER_WIDTH = 640;
 export const DEFAULT_VIDEO_PLAYER_CONTROLLER_HEIGHT = 64;
 export const DEFAULT_BORDER_MARGIN = 24;
-export const DEFAULT_SHOW_PAPER = true;
+export const DEFAULT_SHOW_PAPER_PREVIEW = true;
 export const DEFAULT_PAPER_ASPECTRATIOINV = 1.41;
 // end initialStateJSON
 

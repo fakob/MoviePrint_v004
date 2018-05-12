@@ -171,6 +171,13 @@ export const setDefaultSaveOptionIncludeIndividual = (defaultSaveOptionIncludeIn
   };
 };
 
+export const setDefaultShowPaperPreview = (defaultShowPaperPreview) => {
+  return {
+    type: 'SET_DEFAULT_SHOW_PAPER_PREVIEW',
+    defaultShowPaperPreview
+  };
+};
+
 
 // thumbs
 

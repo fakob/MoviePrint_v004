@@ -22,12 +22,11 @@ import {
   updateFileDetails, clearThumbs, updateThumbImage, setDefaultMarginRatio, setDefaultShowHeader,
   setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat,
   setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
-  setDefaultMoviePrintWidth, updateFileDetailUseRatio
+  setDefaultMoviePrintWidth, updateFileDetailUseRatio, setDefaultShowPaperPreview
 } from '../actions';
 import { MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT, ZOOM_SCALE, SHOW_PAPER_ADJUSTMENT_SCALE } from '../utils/constants';
 
 import steps from '../img/MoviePrint-steps.svg';
-import paperBorderPortrait from '../img/PaperBorder-portrait.svg';
 
 const { ipcRenderer } = require('electron');
 const { dialog } = require('electron').remote;
@@ -92,6 +91,7 @@ class App extends Component {
     this.onChangeRow = this.onChangeRow.bind(this);
     this.onChangeColumn = this.onChangeColumn.bind(this);
     this.onChangeColumnAndApply = this.onChangeColumnAndApply.bind(this);
+    this.onShowPaperPreviewClick = this.onShowPaperPreviewClick.bind(this);
     this.onReCaptureClick = this.onReCaptureClick.bind(this);
     this.onApplyClick = this.onApplyClick.bind(this);
     this.onCancelClick = this.onCancelClick.bind(this);
@@ -135,7 +135,8 @@ class App extends Component {
         this.state.columnCountTemp, this.state.thumbCountTemp,
         this.state.containerWidth, this.state.containerHeight,
         this.props.visibilitySettings.showMoviePrintView,
-        this.state.zoom ? ZOOM_SCALE : 0.95
+        this.state.zoom ? ZOOM_SCALE : 0.95,
+        this.props.settings.defaultShowPaperPreview
       )
     });
   }
@@ -255,6 +256,7 @@ class App extends Component {
       prevProps.settings.defaultMarginRatio !== this.props.settings.defaultMarginRatio ||
       prevProps.settings.defaultShowHeader !== this.props.settings.defaultShowHeader ||
       prevProps.settings.defaultRoundedCorners !== this.props.settings.defaultRoundedCorners ||
+      prevProps.settings.defaultShowPaperPreview !== this.props.settings.defaultShowPaperPreview ||
       prevState.outputScaleCompensator !== this.state.outputScaleCompensator ||
       prevState.zoom !== this.state.zoom ||
       prevProps.visibilitySettings.showMoviePrintView !==
@@ -358,13 +360,14 @@ class App extends Component {
   }
 
   updateScaleValue() {
-    // console.log(`inside updateScaleValue and containerWidth: ${this.state.containerWidth}`);
+    console.log(`inside updateScaleValue and containerWidth: ${this.state.containerWidth}`);
     const scaleValueObject = getScaleValueObject(
       this.props.file, this.props.settings,
       this.state.columnCountTemp, this.state.thumbCountTemp,
       this.state.containerWidth, this.state.containerHeight,
       this.props.visibilitySettings.showMoviePrintView,
-      this.state.zoom ? ZOOM_SCALE : 0.95
+      this.state.zoom ? ZOOM_SCALE : 0.95,
+      this.props.settings.defaultShowPaperPreview
     );
     this.setState(
       {
@@ -547,6 +550,11 @@ class App extends Component {
       ));
     }
     this.updateScaleValue();
+  };
+
+  onShowPaperPreviewClick = (checked) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultShowPaperPreview(checked));
   };
 
   onReCaptureClick = (checked) => {
@@ -761,6 +769,7 @@ class App extends Component {
                         onChangeColumn={this.onChangeColumn}
                         onChangeColumnAndApply={this.onChangeColumnAndApply}
                         onChangeRow={this.onChangeRow}
+                        onShowPaperPreviewClick={this.onShowPaperPreviewClick}
                         onReCaptureClick={this.onReCaptureClick}
                         onApplyClick={this.onApplyClick}
                         onCancelClick={this.onCancelClick}
@@ -834,10 +843,10 @@ class App extends Component {
                             (this.props.settings.defaultBorderMargin * 2)}px`,
                         minHeight: this.props.visibilitySettings.showMoviePrintView ? `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)` : undefined,
                         // backgroundImage: `url(${paperBorderPortrait})`,
-                        backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${this.state.scaleValueObject.newMoviePrintWidth}' height='${this.state.scaleValueObject.newMoviePrintWidth * this.props.settings.defaultPaperAspectRatioInv}'><rect width='${this.state.scaleValueObject.newMoviePrintWidth}' height='${this.state.scaleValueObject.newMoviePrintWidth * this.props.settings.defaultPaperAspectRatioInv}' style='fill:rgba(255,255,255,1);stroke-width:0;stroke:rgb(0,0,0)' /></svg>")`,
-                        backgroundRepeat: 'no-repeat',
-                        backgroundPosition: 'center 49%',
-                        backgroundSize: `${SHOW_PAPER_ADJUSTMENT_SCALE * 100}%`
+                        backgroundImage: this.props.settings.defaultShowPaperPreview ? `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${this.state.scaleValueObject.newMoviePrintWidth}' height='${this.state.scaleValueObject.newMoviePrintWidth * this.props.settings.defaultPaperAspectRatioInv}'><rect width='${this.state.scaleValueObject.newMoviePrintWidth}' height='${this.state.scaleValueObject.newMoviePrintWidth * this.props.settings.defaultPaperAspectRatioInv}' style='fill:rgba(255,255,255,1);stroke-width:0;stroke:rgb(0,0,0)' /></svg>")` : undefined,
+                        backgroundRepeat: this.props.settings.defaultShowPaperPreview ? 'no-repeat' : undefined,
+                        backgroundPosition: this.props.settings.defaultShowPaperPreview ? 'center 49%' : undefined,
+                        backgroundSize: this.props.settings.defaultShowPaperPreview ? `${SHOW_PAPER_ADJUSTMENT_SCALE * 100}%` : undefined
                       }}
                     >
                       { (this.props.file || this.props.visibilitySettings.showSettings) ? (
