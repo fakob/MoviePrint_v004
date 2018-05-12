@@ -178,6 +178,13 @@ export const setDefaultShowPaperPreview = (defaultShowPaperPreview) => {
   };
 };
 
+export const setDefaultPaperAspectRatioInv = (defaultPaperAspectRatioInv) => {
+  return {
+    type: 'SET_DEFAULT_PAPER_ASPECT_RATIO_INV',
+    defaultPaperAspectRatioInv
+  };
+};
+
 
 // thumbs
 

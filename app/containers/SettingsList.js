@@ -72,6 +72,17 @@ const outputSize = (file = {
   ];
 };
 
+const paperLayouts = [
+  { value: 0.71, text: 'A0-A5 (Landscape)' },
+  { value: 1.41, text: 'A0-A5 (Portrait)' },
+  { value: 0.77, text: 'Letter (Landscape)' },
+  { value: 1.29, text: 'Letter (Portrait)' },
+  { value: 0.61, text: 'Legal (Landscape)' },
+  { value: 1.65, text: 'Legal (Portrait)' },
+  { value: 0.65, text: 'Tabloid (Landscape)' },
+  { value: 1.55, text: 'Tabloid (Portrait)' },
+];
+
 const outputFormatOptions = [
   { value: 'png', text: 'PNG' },
   { value: 'jpg', text: 'JPG' },
@@ -84,6 +95,7 @@ class SettingsList extends Component {
     //   thumbInfo: 'frames',
     // };
 
+    this.onChangePaperAspectRatio = this.onChangePaperAspectRatio.bind(this);
     this.onChangeShowPaperPreview = this.onChangeShowPaperPreview.bind(this);
     this.onChangeReCapture = this.onChangeReCapture.bind(this);
     this.onChangeShowHeader = this.onChangeShowHeader.bind(this);
@@ -99,6 +111,10 @@ class SettingsList extends Component {
 
   onChangeShowPaperPreview = (e, { checked }) => {
     this.props.onShowPaperPreviewClick(checked);
+  }
+
+  onChangePaperAspectRatio = (e, { value }) => {
+    this.props.onPaperAspectRatioClick(value);
   }
 
   onChangeReCapture = (e, { checked }) => {
@@ -149,28 +165,6 @@ class SettingsList extends Component {
         }}
       >
         <Grid padded inverted>
-          <Grid.Row>
-            <Grid.Column width={4}>
-              Paper preview
-            </Grid.Column>
-            <Grid.Column width={12}>
-              <Checkbox
-                // toggle
-                label={
-                  <label className={styles.label}>
-                    Show Paper Preview
-                  </label>
-                }
-                // checked={this.state.checkBoxChecked}
-                checked={this.props.settings.defaultShowPaperPreview}
-                onChange={this.onChangeShowPaperPreview}
-                // style={{
-                //   color: '#eeeeee',
-                //   fontFamily: 'Roboto Condensed',
-                // }}
-              />
-            </Grid.Column>
-          </Grid.Row>
           <Grid.Row>
             <Grid.Column width={16}>
               <Statistic inverted size="tiny">
@@ -290,6 +284,39 @@ class SettingsList extends Component {
                 className={stylesPop.popup}
                 content="Apply new grid for MoviePrint"
                 keepInViewPort={false}
+              />
+            </Grid.Column>
+          </Grid.Row>
+          <Divider inverted />
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Preview
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <Checkbox
+                label={
+                  <label className={styles.label}>
+                    Show Paper Preview
+                  </label>
+                }
+                checked={this.props.settings.defaultShowPaperPreview}
+                onChange={this.onChangeShowPaperPreview}
+              />
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Layout
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <Dropdown
+                placeholder="Select..."
+                selection
+                // search
+                disabled={!this.props.settings.defaultShowPaperPreview}
+                options={paperLayouts}
+                defaultValue={this.props.settings.defaultPaperAspectRatioInv}
+                onChange={this.onChangePaperAspectRatio}
               />
             </Grid.Column>
           </Grid.Row>
