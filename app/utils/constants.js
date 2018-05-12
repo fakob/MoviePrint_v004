@@ -36,12 +36,15 @@ export const DEFAULT_VIDEO_PLAYER_HEIGHT = 360;
 export const DEFAULT_VIDEO_PLAYER_WIDTH = 640;
 export const DEFAULT_VIDEO_PLAYER_CONTROLLER_HEIGHT = 64;
 export const DEFAULT_BORDER_MARGIN = 24;
+export const DEFAULT_SHOW_PAPER_PREVIEW = false;
+export const DEFAULT_PAPER_ASPECTRATIOINV = 0.71;
 // end initialStateJSON
 
 export const MENU_HEADER_HEIGHT = 35;
 export const MENU_FOOTER_HEIGHT = 35;
 
 export const ZOOM_SCALE = 2;
+export const SHOW_PAPER_ADJUSTMENT_SCALE = 0.9;
 
 export const DEFAULT_MOVIE_WIDTH = 1920;
 export const DEFAULT_MOVIE_HEIGHT = 1080;

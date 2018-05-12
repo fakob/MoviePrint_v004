@@ -55,18 +55,33 @@ const outputSize = (file = {
     1
   );
   const moviePrintSize = [
+    { width: 16384, height: Math.round(16384 * newScaleValueObject.newMoviePrintAspectRatioInv) },
+    { width: 8192, height: Math.round(8192 * newScaleValueObject.newMoviePrintAspectRatioInv) },
     { width: 4096, height: Math.round(4096 * newScaleValueObject.newMoviePrintAspectRatioInv) },
     { width: 3072, height: Math.round(3072 * newScaleValueObject.newMoviePrintAspectRatioInv) },
     { width: 2048, height: Math.round(2048 * newScaleValueObject.newMoviePrintAspectRatioInv) },
     { width: 1024, height: Math.round(1024 * newScaleValueObject.newMoviePrintAspectRatioInv) },
   ];
   return [
+    { value: moviePrintSize[5].width, text: `${moviePrintSize[5].width}px (×${moviePrintSize[5].height}px)` },
+    { value: moviePrintSize[4].width, text: `${moviePrintSize[4].width}px (×${moviePrintSize[4].height}px)` },
     { value: moviePrintSize[3].width, text: `${moviePrintSize[3].width}px (×${moviePrintSize[3].height}px)` },
     { value: moviePrintSize[2].width, text: `${moviePrintSize[2].width}px (×${moviePrintSize[2].height}px)` },
     { value: moviePrintSize[1].width, text: `${moviePrintSize[1].width}px (×${moviePrintSize[1].height}px)` },
     { value: moviePrintSize[0].width, text: `${moviePrintSize[0].width}px (×${moviePrintSize[0].height}px)` },
   ];
 };
+
+const paperLayouts = [
+  { value: 0.71, text: 'A0-A5 (Landscape)' },
+  { value: 1.41, text: 'A0-A5 (Portrait)' },
+  { value: 0.77, text: 'Letter (Landscape)' },
+  { value: 1.29, text: 'Letter (Portrait)' },
+  { value: 0.61, text: 'Legal (Landscape)' },
+  { value: 1.65, text: 'Legal (Portrait)' },
+  { value: 0.65, text: 'Tabloid (Landscape)' },
+  { value: 1.55, text: 'Tabloid (Portrait)' },
+];
 
 const outputFormatOptions = [
   { value: 'png', text: 'PNG' },
@@ -80,6 +95,8 @@ class SettingsList extends Component {
     //   thumbInfo: 'frames',
     // };
 
+    this.onChangePaperAspectRatio = this.onChangePaperAspectRatio.bind(this);
+    this.onChangeShowPaperPreview = this.onChangeShowPaperPreview.bind(this);
     this.onChangeReCapture = this.onChangeReCapture.bind(this);
     this.onChangeShowHeader = this.onChangeShowHeader.bind(this);
     this.onChangeRoundedCorners = this.onChangeRoundedCorners.bind(this);
@@ -90,6 +107,14 @@ class SettingsList extends Component {
     this.onChangeIncludeIndividual = this.onChangeIncludeIndividual.bind(this);
     this.onChangeThumbnailScale = this.onChangeThumbnailScale.bind(this);
     this.onChangeMoviePrintWidth = this.onChangeMoviePrintWidth.bind(this);
+  }
+
+  onChangeShowPaperPreview = (e, { checked }) => {
+    this.props.onShowPaperPreviewClick(checked);
+  }
+
+  onChangePaperAspectRatio = (e, { value }) => {
+    this.props.onPaperAspectRatioClick(value);
   }
 
   onChangeReCapture = (e, { checked }) => {
@@ -259,6 +284,39 @@ class SettingsList extends Component {
                 className={stylesPop.popup}
                 content="Apply new grid for MoviePrint"
                 keepInViewPort={false}
+              />
+            </Grid.Column>
+          </Grid.Row>
+          <Divider inverted />
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Preview
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <Checkbox
+                label={
+                  <label className={styles.label}>
+                    Show Paper Preview
+                  </label>
+                }
+                checked={this.props.settings.defaultShowPaperPreview}
+                onChange={this.onChangeShowPaperPreview}
+              />
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Layout
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <Dropdown
+                placeholder="Select..."
+                selection
+                // search
+                disabled={!this.props.settings.defaultShowPaperPreview}
+                options={paperLayouts}
+                defaultValue={this.props.settings.defaultPaperAspectRatioInv}
+                onChange={this.onChangePaperAspectRatio}
               />
             </Grid.Column>
           </Grid.Row>
@@ -465,6 +523,12 @@ class SettingsList extends Component {
                 </List.Item>
               </List>
             </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            &nbsp;
+          </Grid.Row>
+          <Grid.Row>
+            &nbsp;
           </Grid.Row>
         </Grid>
       </Container>

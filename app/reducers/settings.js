@@ -31,6 +31,10 @@ const settings = (state = {}, action) => {
         ...state,
         defaultSaveOptionIncludeIndividual: action.defaultSaveOptionIncludeIndividual
       };
+    case 'SET_DEFAULT_SHOW_PAPER_PREVIEW':
+      return { ...state, defaultShowPaperPreview: action.defaultShowPaperPreview };
+    case 'SET_DEFAULT_PAPER_ASPECT_RATIO_INV':
+      return { ...state, defaultPaperAspectRatioInv: action.defaultPaperAspectRatioInv };
     default:
       return state;
   }

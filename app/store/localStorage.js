@@ -24,6 +24,8 @@ import {
   DEFAULT_VIDEO_PLAYER_WIDTH,
   DEFAULT_VIDEO_PLAYER_CONTROLLER_HEIGHT,
   DEFAULT_BORDER_MARGIN,
+  DEFAULT_SHOW_PAPER_PREVIEW,
+  DEFAULT_PAPER_ASPECTRATIOINV,
 } from '../utils/constants';
 
 const { app } = require('electron').remote;
@@ -60,6 +62,8 @@ const initialStateJSON = {
       defaultVideoPlayerWidth: DEFAULT_VIDEO_PLAYER_WIDTH,
       defaultVideoPlayerControllerHeight: DEFAULT_VIDEO_PLAYER_CONTROLLER_HEIGHT,
       defaultBorderMargin: DEFAULT_BORDER_MARGIN,
+      defaultShowPaperPreview: DEFAULT_SHOW_PAPER_PREVIEW,
+      defaultPaperAspectRatioInv: DEFAULT_PAPER_ASPECTRATIOINV,
     },
     thumbsByFileId: [],
     files: []
