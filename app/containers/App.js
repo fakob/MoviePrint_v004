@@ -27,6 +27,7 @@ import {
 import { MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT, ZOOM_SCALE } from '../utils/constants';
 
 import steps from '../img/MoviePrint-steps.svg';
+import paperBorderPortrait from '../img/PaperBorder-portrait.svg';
 
 const { ipcRenderer } = require('electron');
 const { dialog } = require('electron').remote;
@@ -831,7 +832,11 @@ class App extends Component {
                         marginTop: this.props.visibilitySettings.showMoviePrintView ? undefined :
                           `${this.state.scaleValueObject.videoPlayerHeight +
                             (this.props.settings.defaultBorderMargin * 2)}px`,
-                        minHeight: this.props.visibilitySettings.showMoviePrintView ? `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)` : undefined
+                        minHeight: this.props.visibilitySettings.showMoviePrintView ? `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)` : undefined,
+                        backgroundImage: `url(${paperBorderPortrait})`,
+                        backgroundRepeat: 'no-repeat',
+                        backgroundPosition: 'center center',
+                        backgroundSize: 'contain'
                       }}
                     >
                       { (this.props.file || this.props.visibilitySettings.showSettings) ? (
