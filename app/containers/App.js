@@ -852,11 +852,11 @@ class App extends Component {
                             (this.props.settings.defaultBorderMargin * 2)}px`,
                         minHeight: this.props.visibilitySettings.showMoviePrintView ? `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)` : undefined,
                         // backgroundImage: `url(${paperBorderPortrait})`,
-                        backgroundImage: (this.props.file && this.props.visibilitySettings.showMoviePrintView && this.props.settings.defaultShowPaperPreview) ?
+                        backgroundImage: ((this.props.visibilitySettings.showSettings && this.props.settings.defaultShowPaperPreview) ||
+                          (this.props.file && this.props.visibilitySettings.showMoviePrintView && this.props.settings.defaultShowPaperPreview)) ?
                           `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${(this.props.settings.defaultPaperAspectRatioInv < this.state.scaleValueObject.moviePrintAspectRatioInv) ? (this.state.scaleValueObject.newMoviePrintHeight / this.props.settings.defaultPaperAspectRatioInv) : this.state.scaleValueObject.newMoviePrintWidth}' height='${(this.props.settings.defaultPaperAspectRatioInv < this.state.scaleValueObject.moviePrintAspectRatioInv) ? this.state.scaleValueObject.newMoviePrintHeight : (this.state.scaleValueObject.newMoviePrintWidth * this.props.settings.defaultPaperAspectRatioInv)}' style='background-color: rgba(255,255,255,${this.props.visibilitySettings.showSettings ? 1 : 0.02});'></svg>")` : undefined,
-                        backgroundRepeat: (this.props.file && this.props.settings.defaultShowPaperPreview) ? 'no-repeat' : undefined,
-                        backgroundPosition: (this.props.file && this.props.settings.defaultShowPaperPreview) ? 'center center' : undefined,
-                        // backgroundSize: (this.props.file && this.props.settings.defaultShowPaperPreview) ? `${SHOW_PAPER_ADJUSTMENT_SCALE * 100}% ${SHOW_PAPER_ADJUSTMENT_SCALE * 100}%` : undefined // rgba(255,255,255,${this.props.visibilitySettings.showSettings ? 1 : 0});stroke-width:0.2;stroke:rgb(255,255,255)
+                        backgroundRepeat: 'no-repeat',
+                        backgroundPosition: 'center center',
                       }}
                     >
                       { (this.props.file || this.props.visibilitySettings.showSettings) ? (
