@@ -78,7 +78,7 @@
 }
 
 .ItemMain {
-  overflow-x: scroll;
+  overflow-x: auto;
   transition: margin 0.5s ease;
   clear: both;
   display: flex;
