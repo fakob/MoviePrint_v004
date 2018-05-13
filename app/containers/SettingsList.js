@@ -296,7 +296,7 @@ class SettingsList extends Component {
               <Checkbox
                 label={
                   <label className={styles.label}>
-                    Show Paper Preview
+                    Show paper preview
                   </label>
                 }
                 checked={this.props.settings.defaultShowPaperPreview}
@@ -350,7 +350,7 @@ class SettingsList extends Component {
                   <Checkbox
                     label={
                       <label className={styles.label}>
-                        Show Header
+                        Show header
                       </label>
                     }
                     checked={this.props.settings.defaultShowHeader}
@@ -361,7 +361,7 @@ class SettingsList extends Component {
                   <Checkbox
                     label={
                       <label className={styles.label}>
-                        Rounded Corners
+                        Rounded corners
                       </label>
                     }
                     checked={this.props.settings.defaultRoundedCorners}
