@@ -220,22 +220,27 @@ ipcMain.on('send-get-inpoint', (event, fileId, filePath, useRatio) => {
   console.log(fileId);
   console.log(filePath);
   const vid = new opencv.VideoCapture(filePath);
-  const searchForward = true;
+  const videoLength = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1;
+  console.log(videoLength);
+  let searchForward = true;
+  const searchLength = 300;
+  let iterator = 0;
 
   const threshold = 15;
   let lastMean = 0; // Mean pixel intensity of the *last* frame we processed.
 
   vid.readAsync((err1) => {
-    const read = (frame = 0) => {
+    const read = (forwardDirection, frame = 0) => {
+      iterator += 1;
       // limit frameNumberToCapture between 0 and movie length
       const frameNumberToCapture = limitRange(
         frame,
         0,
-        (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1)
+        videoLength
       );
 
       if (useRatio) {
-        const positionRatio = ((frameNumberToCapture) * 1.0) / (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1)
+        const positionRatio = ((frameNumberToCapture) * 1.0) / videoLength
         console.log(`using positionRatio: ${positionRatio}`);
         vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, positionRatio);
       } else {
@@ -243,72 +248,53 @@ ipcMain.on('send-get-inpoint', (event, fileId, filePath, useRatio) => {
       }
 
       vid.readAsync((err, mat) => {
-        console.log(`readAsync: frame: ${frame}, ${frameNumberToCapture}/${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
+        console.log(`readAsync: iterator: ${iterator}, frame: ${frame}, ${frameNumberToCapture}/${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
 
-        const frameMean = mat.mean();
+        const frameMean = mat.mean().w;
+        // console.log(frameMean.w);
+        // console.log(frameMean.x);
+        // console.log(frameMean.y);
+        // console.log(frameMean.z);
+        // console.log(frameMean.mul(3));
+        // console.log(frameMean.mean());
 
         // Detect fade in from black.
-        if ((frameMean >= threshold) && (lastMean < threshold)) {
-          console.log(`Detected fade in at ${VideoCaptureProperties.CAP_PROP_POS_MSEC} (frame ${VideoCaptureProperties.CAP_PROP_POS_FRAMES}).`);
+        if (forwardDirection) {
+          if ((frameMean >= threshold) && (lastMean < threshold)) {
+            console.log(`Detected fade in at ${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)} (frame ${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)}).`);
+          }
         } else if ((frameMean < threshold) && (lastMean >= threshold)) { // Detect fade out to black.
-          console.log(`Detected fade in at ${VideoCaptureProperties.CAP_PROP_POS_MSEC} (frame ${VideoCaptureProperties.CAP_PROP_POS_FRAMES}).`);
+          console.log(`Detected fade out at ${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)} (frame ${VideoCaptureProperties.CAP_PROP_POS_FRAMES}).`);
         }
 
         lastMean = frameMean; // Store current mean to compare in next iteration.
         if (mat.empty === false) {
-          console.log('Mat not empty');
-          console.log(mat.mean());
-          console.log(mat.at(200, 100));
-          console.log(`lastMean ${lastMean} (frame ${frame})`);
+          // console.log('Mat not empty');
+          // console.log(mat.channels);
+          // console.log(mat.type);
+          // console.log(mat.depth);
+          // console.log(mat.mean());
+          // console.log(mat.mean().mean());
+          // console.log(`lastMean ${lastMean} (frame ${frame})`);
         }
-        // iterator += 1;
-        // iterator += 1;
-        if (frame < (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1)) {
-          read(frame + 1);
+        if (forwardDirection ? (frame < searchLength) : (frame > (videoLength - searchLength))) {
+          read(forwardDirection, forwardDirection ? (frame + 1) : (frame - 1));
         }
-
-        // if (mat.empty === false) {
-          // const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // maybe change to .png?
-          // event.sender.send(
-          //   'receive-get-thumbs', fileId, thumbIdArray[iterator], frameIdArray[iterator], outBase64,
-          //   vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1
-          // );
-          // iterator += 1;
-          // if (iterator < frameNumberArray.length) {
-          //   read();
-          // }
-          // console.log(`Found inpoint: ${frameNumberToCapture}`);
-        // } else {
-        //   console.log('frame is empty');
-          // if (frame < searchLimit) {
-          //   if (searchForward) {
-          //     console.log('will try to read one frame forward');
-          //     read(frame + 1);
-          //   } else {
-          //     console.log('will try to read one frame backward');
-          //     read(frame - 1);
-          //   }
-          // } else {
-          //   if (searchForward) {
-          //     console.log('Found no Inpoint');
-          //   } else {
-          //     console.log('Found no Outpoint');
-          //   }
-          // }
-        // }
       });
+      iterator -= 1;
+      if (iterator === 0) {
+        console.log('done recursion');
+      }
     };
 
-    let iterator = 0;
+    const startFrame = 0;
     if (err1) throw err1;
     if (useRatio) {
-      // const positionRatio = ((frameNumberArray[iterator]) * 1.0) / (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1)
-      // console.log(`using positionRatio: ${positionRatio}`);
-      vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, iterator);
+      vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, startFrame);
     } else {
-      vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, iterator);
+      vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, startFrame);
     }
-    read();
+    read(searchForward, 0); // get inPoint
   });
 });
 
