@@ -10,7 +10,7 @@ const saveMoviePrint = (
   console.log(file);
   const node = document.getElementById(elementId);
 
-  const newFilePathObject = getFilePathObject(file.name, '_MoviePrint', outputFormat, exportPath, overwrite);
+  const newFilePathObject = getFilePathObject(file.name, '-MoviePrint', outputFormat, exportPath, overwrite);
   const newFilePathAndName = pathR.join(
     newFilePathObject.dir,
     newFilePathObject.base

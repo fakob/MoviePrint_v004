@@ -189,8 +189,8 @@ export const getFilePathObject = (
   if (!overwrite) {
     if (fsR.existsSync(newFilePathAndName)) {
       for (let i = 1; i < 1000; i += 1) {
-        newFileName = fileName !== undefined ? `${fileName}${postfix} copy ${i}.${outputFormat}` :
-          `MoviePrint copy ${i}.${outputFormat}`;
+        newFileName = fileName !== undefined ? `${fileName}${postfix} edit ${i}.${outputFormat}` :
+          `MoviePrint edit ${i}.${outputFormat}`;
         newFilePathAndName = pathR.join(exportPath, newFileName);
         if (!fsR.existsSync(newFilePathAndName)) {
           break;
