@@ -374,31 +374,33 @@ export const getScaleValueObject = (
     (thumbCount * thumbnailWidthPlusMarginForThumbView) + (thumbnailWidthForThumbView / 2); // only one row
     // for thumbView
 
-  let newContainerWidth = containerWidth;
-  let newContainerHeight = containerHeight;
+  // let newContainerWidth = containerWidth;
+  // let newContainerHeight = containerHeight;
+  let paperMoviePrintWidth = moviePrintWidth;
+  let paperMoviePrintHeight = moviePrintHeight;
   let showPaperAdjustmentScale = 1;
   console.log(`settings.defaultPaperAspectRatioInv|moviePrintAspectRatioInv ${settings.defaultPaperAspectRatioInv}|${moviePrintAspectRatioInv}`);
   if (showPaperPreview) {
     showPaperAdjustmentScale = SHOW_PAPER_ADJUSTMENT_SCALE;
-    if (settings.defaultPaperAspectRatioInv > moviePrintAspectRatioInv) {
-      // newContainerWidth = containerHeight / settings.defaultPaperAspectRatioInv;
-      newContainerHeight = containerWidth * moviePrintAspectRatioInv;
-      console.log(`containerWidth|newContainerWidth ${containerWidth}|${newContainerWidth}`);
+    if (settings.defaultPaperAspectRatioInv < moviePrintAspectRatioInv) {
+      // paperMoviePrintHeight = paperMoviePrintWidth * moviePrintAspectRatioInv;
+      paperMoviePrintWidth = paperMoviePrintHeight / settings.defaultPaperAspectRatioInv;
+      console.log(`calculate new paperMoviePrintWidth ${paperMoviePrintWidth}`);
     } else {
-      newContainerHeight = containerWidth * settings.defaultPaperAspectRatioInv;
-      console.log(`containerHeight|newContainerHeight ${containerHeight}|${newContainerHeight}`);
+      paperMoviePrintHeight = paperMoviePrintWidth * settings.defaultPaperAspectRatioInv;
+      console.log(`calculate new paperMoviePrintHeight ${paperMoviePrintHeight}`);
     }
   }
 
-  const scaleValueWidth = newContainerWidth / moviePrintWidth;
-  const scaleValueHeight = newContainerHeight / moviePrintHeight;
+  const scaleValueWidth = containerWidth / (showPaperPreview ? paperMoviePrintWidth : moviePrintWidth);
+  const scaleValueHeight = containerHeight / (showPaperPreview ? paperMoviePrintHeight : moviePrintHeight);
 
   const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * zoomScale * showPaperAdjustmentScale;
-  // console.log(scaleValue);
 
   const newMoviePrintWidth =
     showMoviePrintView ? moviePrintWidth * scaleValue : moviePrintWidthForThumbView;
-  const newMoviePrintHeight = showMoviePrintView ? moviePrintHeight * scaleValue : moviePrintHeight;
+  const newMoviePrintHeight = showMoviePrintView ? (newMoviePrintWidth * moviePrintAspectRatioInv) : moviePrintHeight;
+  // const newMoviePrintHeight = showMoviePrintView ? moviePrintHeight * scaleValue : moviePrintHeight;
   const newMoviePrintAspectRatioInv = (newMoviePrintHeight * 1.0) / newMoviePrintWidth;
   const newThumbMargin = showMoviePrintView ? thumbMargin * scaleValue : thumbMarginForThumbView;
   const newThumbWidth = showMoviePrintView ? thumbWidth * scaleValue : thumbnailWidthForThumbView;
@@ -406,6 +408,7 @@ export const getScaleValueObject = (
   const newHeaderHeight = showMoviePrintView ? headerHeight * scaleValue : headerHeight;
   const newScaleValue = showMoviePrintView ? settings.defaultThumbnailScale * scaleValue :
     settings.defaultThumbnailScale;
+  console.log(`moviePrintAspectRatioInv|newMoviePrintAspectRatioInv ${moviePrintAspectRatioInv}|${newMoviePrintAspectRatioInv}`);
 
   const scaleValueObject = {
     aspectRatioInv: movieAspectRatioInv,
@@ -420,5 +423,6 @@ export const getScaleValueObject = (
     videoPlayerHeight,
     videoPlayerWidth,
   };
+  console.log(scaleValueObject);
   return scaleValueObject;
 };
