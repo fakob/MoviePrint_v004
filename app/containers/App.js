@@ -161,7 +161,7 @@ class App extends Component {
     ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, base64, frameNumber, useRatio, lastItem) => {
       store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
       store.dispatch(updateThumbImage(fileId, '', posterFrameId, base64, frameNumber, 1));
-      ipcRenderer.send('send-get-inpoint', fileId, filePath, useRatio);
+      ipcRenderer.send('send-get-in-and-outpoint', fileId, filePath, useRatio);
       if (lastItem) {
         console.log('I am the lastItem');
         store.dispatch(setCurrentFileId(store.getState().undoGroup.present.files[0].id));
