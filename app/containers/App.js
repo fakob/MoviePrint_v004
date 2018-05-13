@@ -138,7 +138,7 @@ class App extends Component {
         this.state.containerWidth, this.state.containerHeight,
         this.props.visibilitySettings.showMoviePrintView,
         this.state.zoom ? ZOOM_SCALE : 0.95,
-        this.props.settings.defaultShowPaperPreview
+        this.state.zoom ? false : this.props.settings.defaultShowPaperPreview
       )
     });
   }
@@ -370,7 +370,7 @@ class App extends Component {
       this.state.containerWidth, this.state.containerHeight,
       this.props.visibilitySettings.showMoviePrintView,
       this.state.zoom ? ZOOM_SCALE : 0.95,
-      this.props.settings.defaultShowPaperPreview
+      this.state.zoom ? false : this.props.settings.defaultShowPaperPreview
     );
     this.setState(
       {
@@ -845,7 +845,7 @@ class App extends Component {
                       ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
                       className={`${styles.ItemMain} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainRightAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainEdit : ''} ${!this.props.visibilitySettings.showMoviePrintView ? styles.ItemMainTopAnim : ''}`}
                       style={{
-                        width: this.props.visibilitySettings.showMoviePrintView
+                        width: (this.props.visibilitySettings.showSettings || (this.props.visibilitySettings.showMoviePrintView && !this.state.zoom))
                           ? undefined : this.state.scaleValueObject.newMoviePrintWidth,
                         marginTop: this.props.visibilitySettings.showMoviePrintView ? undefined :
                           `${this.state.scaleValueObject.videoPlayerHeight +
