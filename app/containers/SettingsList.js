@@ -55,12 +55,12 @@ const outputSize = (file = {
     1
   );
   const moviePrintSize = [
-    { width: 16384, height: Math.round(16384 * newScaleValueObject.newMoviePrintAspectRatioInv) },
-    { width: 8192, height: Math.round(8192 * newScaleValueObject.newMoviePrintAspectRatioInv) },
-    { width: 4096, height: Math.round(4096 * newScaleValueObject.newMoviePrintAspectRatioInv) },
-    { width: 3072, height: Math.round(3072 * newScaleValueObject.newMoviePrintAspectRatioInv) },
-    { width: 2048, height: Math.round(2048 * newScaleValueObject.newMoviePrintAspectRatioInv) },
-    { width: 1024, height: Math.round(1024 * newScaleValueObject.newMoviePrintAspectRatioInv) },
+    { width: 16384, height: Math.round(16384 * newScaleValueObject.moviePrintAspectRatioInv) },
+    { width: 8192, height: Math.round(8192 * newScaleValueObject.moviePrintAspectRatioInv) },
+    { width: 4096, height: Math.round(4096 * newScaleValueObject.moviePrintAspectRatioInv) },
+    { width: 3072, height: Math.round(3072 * newScaleValueObject.moviePrintAspectRatioInv) },
+    { width: 2048, height: Math.round(2048 * newScaleValueObject.moviePrintAspectRatioInv) },
+    { width: 1024, height: Math.round(1024 * newScaleValueObject.moviePrintAspectRatioInv) },
   ];
   return [
     { value: moviePrintSize[5].width, text: `${moviePrintSize[5].width}px (×${moviePrintSize[5].height}px)` },
