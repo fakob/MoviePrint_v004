@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone';
+import { TransitionablePortal, Segment } from 'semantic-ui-react';
 
 import '../app.global.css';
 import FileList from '../containers/FileList';
@@ -15,6 +16,7 @@ import ThumbEmpty from '../components/ThumbEmpty';
 import { getLowestFrame, getHighestFrame, getVisibleThumbs, getColumnCount, getThumbsCount, getMoviePrintColor, getScaleValueObject } from '../utils/utils';
 // import saveMoviePrint from '../utils/saveMoviePrint';
 import styles from './App.css';
+import stylesPop from './../components/Popup.css';
 import {
   setNewMovieList, showMovielist, hideMovielist, showSettings, hideSettings,
   showThumbView, showMoviePrintView, addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
@@ -854,7 +856,7 @@ class App extends Component {
                         // backgroundImage: `url(${paperBorderPortrait})`,
                         backgroundImage: ((this.props.visibilitySettings.showSettings && this.props.settings.defaultShowPaperPreview) ||
                           (this.props.file && this.props.visibilitySettings.showMoviePrintView && this.props.settings.defaultShowPaperPreview)) ?
-                          `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${(this.props.settings.defaultPaperAspectRatioInv < this.state.scaleValueObject.moviePrintAspectRatioInv) ? (this.state.scaleValueObject.newMoviePrintHeight / this.props.settings.defaultPaperAspectRatioInv) : this.state.scaleValueObject.newMoviePrintWidth}' height='${(this.props.settings.defaultPaperAspectRatioInv < this.state.scaleValueObject.moviePrintAspectRatioInv) ? this.state.scaleValueObject.newMoviePrintHeight : (this.state.scaleValueObject.newMoviePrintWidth * this.props.settings.defaultPaperAspectRatioInv)}' style='background-color: rgba(255,255,255,${this.props.visibilitySettings.showSettings ? 1 : 0.02});'></svg>")` : undefined,
+                          `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${(this.props.settings.defaultPaperAspectRatioInv < this.state.scaleValueObject.moviePrintAspectRatioInv) ? (this.state.scaleValueObject.newMoviePrintHeight / this.props.settings.defaultPaperAspectRatioInv) : this.state.scaleValueObject.newMoviePrintWidth}' height='${(this.props.settings.defaultPaperAspectRatioInv < this.state.scaleValueObject.moviePrintAspectRatioInv) ? this.state.scaleValueObject.newMoviePrintHeight : (this.state.scaleValueObject.newMoviePrintWidth * this.props.settings.defaultPaperAspectRatioInv)}' style='background-color: rgba(245,245,245,${this.props.visibilitySettings.showSettings ? 1 : 0.02});'></svg>")` : undefined,
                         backgroundRepeat: 'no-repeat',
                         backgroundPosition: 'center center',
                       }}
@@ -901,6 +903,28 @@ class App extends Component {
                       }
                     </div>
                   </div>
+                  <TransitionablePortal
+                    // onClose={this.handleClose}
+                    open={this.state.savingMoviePrint}
+                    // open
+                    transition={{
+                      animation: 'fade up',
+                      duration: 600,
+                    }}
+                    closeOnDocumentClick={false}
+                    closeOnEscape={false}
+                    closeOnPortalMouseLeave={false}
+                    closeOnRootNodeClick={false}
+                    closeOnTriggerBlur={false}
+                    closeOnTriggerClick={false}
+                    closeOnTriggerMouseLeave={false}
+                  >
+                    <Segment
+                      className={stylesPop.toast}
+                    >
+                      Saving MoviePrint
+                    </Segment>
+                  </TransitionablePortal>
                   <Footer
                     visibilitySettings={this.props.visibilitySettings}
                     file={this.props.file}
