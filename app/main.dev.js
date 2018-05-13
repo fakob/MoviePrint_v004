@@ -251,7 +251,7 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio) => {
       vid.readAsync((err, mat) => {
         // console.log(`readAsync: iterator: ${iterator}, frame: ${frame}, ${frameNumberToCapture}/${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
 
-        const frameMean = mat.mean().w;
+        const frameMean = mat.mean().w; // temporarily take mean only from w channel until this is fixed https://github.com/justadudewhohacks/opencv4nodejs/issues/282
         // console.log(frameMean.w);
         // console.log(frameMean.x);
         // console.log(frameMean.y);
