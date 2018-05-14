@@ -13,9 +13,9 @@ A tool which lets you create screenshots of entire movies in an instant.
 
 ![MoviePrint_v004 screencast](http://movieprint.fakob.com/wp-content/uploads/2018/05/fakob_Showreel2014_v006.mp4_MoviePrint-copy-1.png)
 
-[![MoviePrint_v004 screencast](http://img.youtube.com/vi/1lVYPiAgXzE/0.jpg)](http://www.youtube.com/watch?v=T-1lVYPiAgXzE)
+[![MoviePrint_v004 screencast](http://img.youtube.com/vi/1Ya0UrIXfD8/0.jpg)](http://www.youtube.com/watch?v=T-1Ya0UrIXfD8)
 
-[Watch screencast](http://www.youtube.com/watch?v=1lVYPiAgXzE)
+[Watch screencast](http://www.youtube.com/watch?v=1Ya0UrIXfD8)
 
 The current version is using opencv as my roadmap includes utilising computer vision algorithms.
 
