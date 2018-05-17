@@ -25,7 +25,7 @@ import {
   setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat,
   setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
   setDefaultMoviePrintWidth, updateFileDetailUseRatio, setDefaultShowPaperPreview,
-  setDefaultPaperAspectRatioInv
+  setDefaultPaperAspectRatioInv, updateInOutPoint
 } from '../actions';
 import { MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT, ZOOM_SCALE, SHOW_PAPER_ADJUSTMENT_SCALE } from '../utils/constants';
 
@@ -158,6 +158,7 @@ class App extends Component {
     });
 
     ipcRenderer.on('receive-get-in-and-outpoint', (event, fileId, fadeInPoint, fadeOutPoint) => {
+      store.dispatch(updateInOutPoint(fileId, fadeInPoint, fadeOutPoint));
       console.log(`${fileId}, ${fadeInPoint}, ${fadeOutPoint}`);
     });
 

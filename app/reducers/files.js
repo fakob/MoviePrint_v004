@@ -41,6 +41,14 @@ const file = (state = {}, type, payload, index) => {
         fps: payload.fps,
         fourCC: payload.fourCC
       });
+    case 'UPDATE_IN_OUT_POINT':
+      if (state.id !== payload.fileId) {
+        return state;
+      }
+      return Object.assign({}, state, {
+        fadeInPoint: payload.fadeInPoint,
+        fadeOutPoint: payload.fadeOutPoint
+      });
     case 'UPDATE_OBJECTURL_FROM_POSTERFRAME':
       if (state.posterFrameId !== payload.frameId) {
         return state;
@@ -81,6 +89,7 @@ const files = (state = [], { type, payload }) => {
       );
     case 'UPDATE_MOVIE_LIST_ITEM_USERATIO':
     case 'UPDATE_MOVIE_LIST_ITEM':
+    case 'UPDATE_IN_OUT_POINT':
       return state.map((t, index) =>
         file(t, type, payload, index)
       );

@@ -305,6 +305,20 @@ export const updateFileDetails = (fileId, frameCount, width, height, fps, fourCC
   };
 };
 
+export const updateInOutPoint = (fileId, fadeInPoint, fadeOutPoint) => {
+  return (dispatch) => {
+    console.log('inside updateInOutPoint');
+    dispatch({
+      type: 'UPDATE_IN_OUT_POINT',
+      payload: {
+        fileId,
+        fadeInPoint,
+        fadeOutPoint
+      }
+    });
+  };
+};
+
 export const updateFrameNumber = (fileId, thumbId, frameNumber) => {
   console.log('inside updateFrameNumber');
   return {
