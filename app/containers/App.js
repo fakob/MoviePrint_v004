@@ -167,9 +167,13 @@ class App extends Component {
         store.dispatch(setCurrentFileId(store.getState().undoGroup.present.files[0].id));
         this.updateScaleValue(); // so the aspect ratio of the thumbs are correct after drag
         store.dispatch(clearThumbs());
+        console.log(store.getState().undoGroup.present.files[0]);
+        console.log(store.getState().undoGroup.present.files[0].fadeInPoint);
         store.dispatch(addDefaultThumbs(
           store.getState().undoGroup.present.files[0],
-          store.getState().undoGroup.present.settings.defaultThumbCount
+          store.getState().undoGroup.present.settings.defaultThumbCount,
+          store.getState().undoGroup.present.files[0].fadeInPoint,
+          store.getState().undoGroup.present.files[0].fadeOutPoint,
         ));
       }
     });
