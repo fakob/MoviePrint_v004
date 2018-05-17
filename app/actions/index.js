@@ -545,13 +545,11 @@ export const setNewMovieList = (files, settings) => {
           payload: newFiles,
         });
         const newFilesLength = newFiles.length;
+        let firstItem = true;
         newFiles.map((file, index) => {
-          let lastItem = false;
           console.log(`${newFilesLength} : ${index}`);
-          if (newFilesLength === index + 1) {
-            lastItem = true;
-          }
-          ipcRenderer.send('send-get-file-details', file.id, file.path, file.posterFrameId, lastItem);
+          ipcRenderer.send('send-get-file-details', file.id, file.path, file.posterFrameId, firstItem);
+          firstItem = false;
         });
       });
   };

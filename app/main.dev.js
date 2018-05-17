@@ -165,7 +165,7 @@ ipcMain.on('send-save-file', (event, filePath, buffer, saveMoviePrint = false) =
   });
 });
 
-ipcMain.on('send-get-file-details', (event, fileId, filePath, posterFrameId, lastItem) => {
+ipcMain.on('send-get-file-details', (event, fileId, filePath, posterFrameId, firstItem) => {
   console.log(fileId);
   console.log(filePath);
   const vid = new opencv.VideoCapture(filePath);
@@ -173,10 +173,10 @@ ipcMain.on('send-get-file-details', (event, fileId, filePath, posterFrameId, las
   console.log(`height: ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT)}`);
   console.log(`FPS: ${vid.get(VideoCaptureProperties.CAP_PROP_FPS)}`);
   console.log(`codec: ${vid.get(VideoCaptureProperties.CAP_PROP_FOURCC)}`);
-  event.sender.send('receive-get-file-details', fileId, filePath, posterFrameId, lastItem, vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT), vid.get(VideoCaptureProperties.CAP_PROP_FPS), vid.get(VideoCaptureProperties.CAP_PROP_FOURCC));
+  event.sender.send('receive-get-file-details', fileId, filePath, posterFrameId, firstItem, vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT), vid.get(VideoCaptureProperties.CAP_PROP_FPS), vid.get(VideoCaptureProperties.CAP_PROP_FOURCC));
 });
 
-ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId, lastItem) => {
+ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId, firstItem) => {
   console.log('send-get-poster-frame');
   console.log(fileId);
   console.log(filePath);
@@ -199,7 +199,7 @@ ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId, las
 
         if (mat.empty === false) {
           const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // maybe change to .png?
-          event.sender.send('receive-get-poster-frame', fileId, filePath, posterFrameId, outBase64, vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES), useRatio, lastItem);
+          event.sender.send('receive-get-poster-frame', fileId, filePath, posterFrameId, outBase64, vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES), useRatio, firstItem);
         }
         // iterator += 1;
         // if (iterator < frameNumberArray.length) {
@@ -215,7 +215,7 @@ ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId, las
   });
 });
 
-ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, lastItem) => {
+ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, firstItem) => {
   console.log('send-get-in-and-outpoint');
   console.log(fileId);
   console.log(filePath);
@@ -291,20 +291,22 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, lastI
             fadeInPoint = 0;
             fadeInDetectionDone = true;
           }
-        } else if (forwardDirection && fadeInDetectionDone) {
-          console.log('switch to detecting fadeOut');
-          lastMean = 0; // reset lastMean
-          read(false, videoLength); // run only once after fade in detected
         } else if (!forwardDirection && !fadeOutDetectionDone) {
           if (frame > (videoLength - searchLength)) {
             read(false, frame - 1);
           } else {
-            console.log('No fade in detected');
+            console.log('No fade out detected');
             fadeOutPoint = videoLength;
             fadeOutDetectionDone = true;
           }
-        } else if (fadeInDetectionDone && fadeOutDetectionDone) {
-          event.sender.send('receive-get-in-and-outpoint', fileId, fadeInPoint, fadeOutPoint, lastItem);
+        }
+        if (forwardDirection && fadeInDetectionDone) {
+          console.log('switch to detecting fadeOut');
+          lastMean = 0; // reset lastMean
+          read(false, videoLength); // run only once after fade in detected
+        }
+        if (fadeInDetectionDone && fadeOutDetectionDone) {
+          event.sender.send('receive-get-in-and-outpoint', fileId, fadeInPoint, fadeOutPoint, firstItem);
         }
       });
       iterator -= 1;

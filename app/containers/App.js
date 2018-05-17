@@ -148,32 +148,33 @@ class App extends Component {
   componentDidMount() {
     const { store } = this.context;
 
-    ipcRenderer.on('receive-get-file-details', (event, fileId, filePath, posterFrameId, lastItem, frameCount, width, height, fps, fourCC) => {
+    ipcRenderer.on('receive-get-file-details', (event, fileId, filePath, posterFrameId, firstItem, frameCount, width, height, fps, fourCC) => {
       store.dispatch(updateFileDetails(fileId, frameCount, width, height, fps, fourCC));
-      ipcRenderer.send('send-get-poster-frame', fileId, filePath, posterFrameId, lastItem);
+      ipcRenderer.send('send-get-poster-frame', fileId, filePath, posterFrameId, firstItem);
     });
 
     // poster frames don't have thumbId
-    ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, base64, frameNumber, useRatio, lastItem) => {
+    ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, base64, frameNumber, useRatio, firstItem) => {
       store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
       store.dispatch(updateThumbImage(fileId, '', posterFrameId, base64, frameNumber, 1));
-      ipcRenderer.send('send-get-in-and-outpoint', fileId, filePath, useRatio, lastItem);
+      ipcRenderer.send('send-get-in-and-outpoint', fileId, filePath, useRatio, firstItem);
     });
 
-    ipcRenderer.on('receive-get-in-and-outpoint', (event, fileId, fadeInPoint, fadeOutPoint, lastItem) => {
+    ipcRenderer.on('receive-get-in-and-outpoint', (event, fileId, fadeInPoint, fadeOutPoint, firstItem) => {
       store.dispatch(updateInOutPoint(fileId, fadeInPoint, fadeOutPoint));
-      if (lastItem) {
-        console.log('I am the lastItem');
-        store.dispatch(setCurrentFileId(store.getState().undoGroup.present.files[0].id));
+      if (firstItem) {
+        console.log('I am the firstItem');
+        const firstFile = store.getState().undoGroup.present.files.find((file) => file.id === fileId);
+        store.dispatch(setCurrentFileId(firstFile.id));
         this.updateScaleValue(); // so the aspect ratio of the thumbs are correct after drag
         store.dispatch(clearThumbs());
-        console.log(store.getState().undoGroup.present.files[0]);
-        console.log(store.getState().undoGroup.present.files[0].fadeInPoint);
+        console.log(firstFile);
+        // console.log(firstFile.fadeInPoint);
         store.dispatch(addDefaultThumbs(
-          store.getState().undoGroup.present.files[0],
+          firstFile,
           store.getState().undoGroup.present.settings.defaultThumbCount,
-          store.getState().undoGroup.present.files[0].fadeInPoint,
-          store.getState().undoGroup.present.files[0].fadeOutPoint,
+          fadeInPoint,
+          fadeOutPoint,
         ));
       }
     });
