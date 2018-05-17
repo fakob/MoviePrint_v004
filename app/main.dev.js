@@ -219,7 +219,7 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, first
   console.log('send-get-in-and-outpoint');
   console.log(fileId);
   console.log(filePath);
-  console.time('inPointDetection');
+  console.time(`inPointDetection-${fileId}`);
   const vid = new opencv.VideoCapture(filePath);
   const videoLength = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1;
   const searchForward = true;
@@ -269,7 +269,7 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, first
           // console.log(`${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)}: ${frameMean}`);
           if ((frameMean >= threshold) && (lastMean < threshold)) {
             console.log(`Detected fade in at ${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)} (frame ${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)})`);
-            console.timeEnd('inPointDetection');
+            console.timeEnd(`inPointDetection-${fileId}`);
             fadeInPoint = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES);
             fadeInDetectionDone = true;
           }
@@ -278,7 +278,7 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, first
           // console.log(`${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)}: ${frameMean}`);
           if ((frameMean >= threshold) && (lastMean < threshold)) { // Detect fade to black (reverse)
             console.log(`Detected fade out at ${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)} (frame ${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)})`);
-            console.timeEnd('outPointDetection');
+            console.timeEnd(`outPointDetection-${fileId}`);
             fadeOutPoint = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
             fadeOutDetectionDone = true;
           }
@@ -291,8 +291,8 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, first
           if (frame < searchLength) {
             read(true, frame + 1);
           } else {
+            console.timeEnd(`inPointDetection-${fileId}`);
             console.log('No fade in detected');
-            console.timeEnd('inPointDetection');
             fadeInPoint = 0;
             fadeInDetectionDone = true;
           }
@@ -300,15 +300,15 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, first
           if (frame > (videoLength - searchLength)) {
             read(false, frame - 1);
           } else {
+            console.timeEnd(`outPointDetection-${fileId}`);
             console.log('No fade out detected');
-            console.timeEnd('outPointDetection');
             fadeOutPoint = videoLength;
             fadeOutDetectionDone = true;
           }
         }
         if (forwardDirection && fadeInDetectionDone) {
           console.log('switch to detecting fadeOut');
-          console.time('outPointDetection');
+          console.time(`outPointDetection-${fileId}`);
           lastMean = 0; // reset lastMean
           read(false, videoLength); // run only once after fade in detected
         }
