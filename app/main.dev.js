@@ -215,7 +215,7 @@ ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId, las
   });
 });
 
-ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio) => {
+ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, lastItem) => {
   console.log('send-get-in-and-outpoint');
   console.log(fileId);
   console.log(filePath);
@@ -304,7 +304,7 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio) => {
             fadeOutDetectionDone = true;
           }
         } else if (fadeInDetectionDone && fadeOutDetectionDone) {
-          event.sender.send('receive-get-in-and-outpoint', fileId, fadeInPoint, fadeOutPoint);
+          event.sender.send('receive-get-in-and-outpoint', fileId, fadeInPoint, fadeOutPoint, lastItem);
         }
       });
       iterator -= 1;
