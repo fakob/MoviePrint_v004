@@ -223,7 +223,7 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, first
   const videoLength = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1;
   const searchForward = true;
   const searchLength = 300;
-  let iterator = 0;
+  // let iterator = 0;
   let fadeInDetectionDone = false;
   let fadeOutDetectionDone = false;
   let fadeInPoint;
@@ -234,7 +234,7 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, first
 
   vid.readAsync((err1) => {
     const read = (forwardDirection, frame = 0) => {
-      iterator += 1;
+      // iterator += 1;
       // limit frameNumberToCapture between 0 and movie length
       const frameNumberToCapture = limitRange(
         frame,
@@ -263,6 +263,7 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, first
 
         // Detect fade in from black.
         if (forwardDirection && !fadeInDetectionDone) {
+          console.log(`${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)}: ${frameMean}`);
           // console.log(`(${frameMean} >= ${threshold}) && (${lastMean} < ${threshold})`);
           if ((frameMean >= threshold) && (lastMean < threshold)) {
             console.log(`Detected fade in at ${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)} (frame ${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)})`);
@@ -271,11 +272,12 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, first
           }
         }
         if (!forwardDirection && !fadeOutDetectionDone) {
+          console.log(`${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)}: ${frameMean}`);
           // console.log(`(${frameMean} < ${threshold}) && (${lastMean} >= ${threshold})`);
           if ((frameMean >= threshold) && (lastMean < threshold)) { // Detect fade to black (reverse)
           // if ((frameMean < threshold) && (lastMean >= threshold)) { // Detect fade out black (forward)
             console.log(`Detected fade out at ${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)} (frame ${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)})`);
-            fadeOutPoint = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES);
+            fadeOutPoint = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
             fadeOutDetectionDone = true;
           }
         }
@@ -309,10 +311,10 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, first
           event.sender.send('receive-get-in-and-outpoint', fileId, fadeInPoint, fadeOutPoint, firstItem);
         }
       });
-      iterator -= 1;
-      if (iterator === 0) {
-        console.log('done recursion');
-      }
+      // iterator -= 1;
+      // if (iterator === 0) {
+      //   console.log('done recursion');
+      // }
     };
 
     const startFrame = 0;
