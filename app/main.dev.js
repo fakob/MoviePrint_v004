@@ -224,8 +224,10 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio) => {
   const searchForward = true;
   const searchLength = 300;
   let iterator = 0;
-  let fadeInDetected = false;
-  let fadeOutDetected = false;
+  let fadeInDetectionDone = false;
+  let fadeOutDetectionDone = false;
+  let fadeInPoint;
+  let fadeOutPoint;
 
   const threshold = 15;
   let lastMean = 0; // Mean pixel intensity of the *last* frame we processed.
@@ -260,37 +262,49 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio) => {
         // console.log(frameMean.mean());
 
         // Detect fade in from black.
-        if (forwardDirection && !fadeInDetected) {
+        if (forwardDirection && !fadeInDetectionDone) {
           // console.log(`(${frameMean} >= ${threshold}) && (${lastMean} < ${threshold})`);
           if ((frameMean >= threshold) && (lastMean < threshold)) {
             console.log(`Detected fade in at ${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)} (frame ${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)})`);
-            fadeInDetected = true;
+            fadeInPoint = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES);
+            fadeInDetectionDone = true;
           }
         }
-        if (!forwardDirection && !fadeOutDetected) {
+        if (!forwardDirection && !fadeOutDetectionDone) {
           // console.log(`(${frameMean} < ${threshold}) && (${lastMean} >= ${threshold})`);
           if ((frameMean >= threshold) && (lastMean < threshold)) { // Detect fade to black (reverse)
           // if ((frameMean < threshold) && (lastMean >= threshold)) { // Detect fade out black (forward)
             console.log(`Detected fade out at ${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)} (frame ${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)})`);
-            fadeOutDetected = true;
+            fadeOutPoint = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES);
+            fadeOutDetectionDone = true;
           }
         }
         lastMean = frameMean; // store current mean to compare in next iteration
         if (mat.empty === false) {
           // console.log('Mat not empty');
         }
-        if (forwardDirection && !fadeInDetected) {
+        if (forwardDirection && !fadeInDetectionDone) {
           if (frame < searchLength) {
             read(true, frame + 1);
+          } else {
+            console.log('No fade in detected');
+            fadeInPoint = 0;
+            fadeInDetectionDone = true;
           }
-        } else if (forwardDirection && fadeInDetected) {
+        } else if (forwardDirection && fadeInDetectionDone) {
           console.log('switch to detecting fadeOut');
           lastMean = 0; // reset lastMean
           read(false, videoLength); // run only once after fade in detected
-        } else if (!forwardDirection && !fadeOutDetected) {
+        } else if (!forwardDirection && !fadeOutDetectionDone) {
           if (frame > (videoLength - searchLength)) {
             read(false, frame - 1);
+          } else {
+            console.log('No fade in detected');
+            fadeOutPoint = videoLength;
+            fadeOutDetectionDone = true;
           }
+        } else if (fadeInDetectionDone && fadeOutDetectionDone) {
+          event.sender.send('receive-get-in-and-outpoint', fileId, fadeInPoint, fadeOutPoint);
         }
       });
       iterator -= 1;

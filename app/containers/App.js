@@ -157,6 +157,10 @@ class App extends Component {
       store.dispatch(updateThumbImage(fileId, thumbId, frameId, base64, frameNumber));
     });
 
+    ipcRenderer.on('receive-get-in-and-outpoint', (event, fileId, fadeInPoint, fadeOutPoint) => {
+      console.log(`${fileId}, ${fadeInPoint}, ${fadeOutPoint}`);
+    });
+
     // poster frames don't have thumbId
     ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, base64, frameNumber, useRatio, lastItem) => {
       store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
