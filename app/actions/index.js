@@ -551,6 +551,7 @@ export const setNewMovieList = (files, settings) => {
           ipcRenderer.send('send-get-file-details', file.id, file.path, file.posterFrameId, firstItem);
           firstItem = false;
         });
+        return newFiles;
       });
   };
 };

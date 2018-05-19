@@ -69,7 +69,8 @@ class App extends Component {
         metaKey: false,
         which: undefined
       },
-      zoom: false
+      zoom: false,
+      filesToLoad: []
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -147,6 +148,8 @@ class App extends Component {
 
   componentDidMount() {
     const { store } = this.context;
+
+
 
     ipcRenderer.on('receive-get-file-details', (event, fileId, filePath, posterFrameId, firstItem, frameCount, width, height, fps, fourCC) => {
       store.dispatch(updateFileDetails(fileId, frameCount, width, height, fps, fourCC));
@@ -362,7 +365,9 @@ class App extends Component {
     // file match needs to be in sync with setMovieList() and accept !!!
     if (Array.from(files).some(file => (file.type.match('video.*') ||
       file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
-      store.dispatch(setNewMovieList(files, settings));
+      store.dispatch(setNewMovieList(files, settings)).then((response) => {
+        console.log(response);
+      });
     }
     return false;
   }
