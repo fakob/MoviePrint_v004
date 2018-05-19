@@ -530,7 +530,8 @@ export const setNewMovieList = (files, settings) => {
         };
         newFiles.push(fileToAdd);
       }
-      return newFiles;
+      // return a copy of the array
+      return newFiles.slice();
     });
     dispatch({
       type: 'CLEAR_CURRENT_FILEID',
@@ -543,13 +544,6 @@ export const setNewMovieList = (files, settings) => {
         dispatch({
           type: 'LOAD_MOVIE_LIST_FROM_DROP',
           payload: newFiles,
-        });
-        const newFilesLength = newFiles.length;
-        let firstItem = true;
-        newFiles.map((file, index) => {
-          console.log(`${newFilesLength} : ${index}`);
-          ipcRenderer.send('send-get-file-details', file.id, file.path, file.posterFrameId, firstItem);
-          firstItem = false;
         });
         return newFiles;
       });

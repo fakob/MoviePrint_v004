@@ -165,7 +165,7 @@ ipcMain.on('send-save-file', (event, filePath, buffer, saveMoviePrint = false) =
   });
 });
 
-ipcMain.on('send-get-file-details', (event, fileId, filePath, posterFrameId, firstItem) => {
+ipcMain.on('send-get-file-details', (event, fileId, filePath, posterFrameId) => {
   console.log(fileId);
   console.log(filePath);
   const vid = new opencv.VideoCapture(filePath);
@@ -173,10 +173,10 @@ ipcMain.on('send-get-file-details', (event, fileId, filePath, posterFrameId, fir
   console.log(`height: ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT)}`);
   console.log(`FPS: ${vid.get(VideoCaptureProperties.CAP_PROP_FPS)}`);
   console.log(`codec: ${vid.get(VideoCaptureProperties.CAP_PROP_FOURCC)}`);
-  event.sender.send('receive-get-file-details', fileId, filePath, posterFrameId, firstItem, vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT), vid.get(VideoCaptureProperties.CAP_PROP_FPS), vid.get(VideoCaptureProperties.CAP_PROP_FOURCC));
+  event.sender.send('receive-get-file-details', fileId, filePath, posterFrameId, vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT), vid.get(VideoCaptureProperties.CAP_PROP_FPS), vid.get(VideoCaptureProperties.CAP_PROP_FOURCC));
 });
 
-ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId, firstItem) => {
+ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId) => {
   console.log('send-get-poster-frame');
   console.log(fileId);
   console.log(filePath);
@@ -199,7 +199,7 @@ ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId, fir
 
         if (mat.empty === false) {
           const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // maybe change to .png?
-          event.sender.send('receive-get-poster-frame', fileId, filePath, posterFrameId, outBase64, vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES), useRatio, firstItem);
+          event.sender.send('receive-get-poster-frame', fileId, filePath, posterFrameId, outBase64, vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES), useRatio);
         }
         // iterator += 1;
         // if (iterator < frameNumberArray.length) {
@@ -215,7 +215,7 @@ ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId, fir
   });
 });
 
-ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, firstItem) => {
+ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio) => {
   console.log('send-get-in-and-outpoint');
   console.log(fileId);
   console.log(filePath);
@@ -313,7 +313,7 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, first
           read(false, videoLength); // run only once after fade in detected
         }
         if (fadeInDetectionDone && fadeOutDetectionDone) {
-          event.sender.send('receive-get-in-and-outpoint', fileId, fadeInPoint, fadeOutPoint, firstItem);
+          event.sender.send('receive-get-in-and-outpoint', fileId, fadeInPoint, fadeOutPoint);
         }
       });
     };

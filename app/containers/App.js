@@ -151,21 +151,23 @@ class App extends Component {
 
 
 
-    ipcRenderer.on('receive-get-file-details', (event, fileId, filePath, posterFrameId, firstItem, frameCount, width, height, fps, fourCC) => {
+    ipcRenderer.on('receive-get-file-details', (event, fileId, filePath, posterFrameId, frameCount, width, height, fps, fourCC) => {
       store.dispatch(updateFileDetails(fileId, frameCount, width, height, fps, fourCC));
-      ipcRenderer.send('send-get-poster-frame', fileId, filePath, posterFrameId, firstItem);
+      ipcRenderer.send('send-get-poster-frame', fileId, filePath, posterFrameId);
     });
 
     // poster frames don't have thumbId
-    ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, base64, frameNumber, useRatio, firstItem) => {
+    ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, base64, frameNumber, useRatio) => {
       store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
       store.dispatch(updateThumbImage(fileId, '', posterFrameId, base64, frameNumber, 1));
-      ipcRenderer.send('send-get-in-and-outpoint', fileId, filePath, useRatio, firstItem);
+      ipcRenderer.send('send-get-in-and-outpoint', fileId, filePath, useRatio);
     });
 
-    ipcRenderer.on('receive-get-in-and-outpoint', (event, fileId, fadeInPoint, fadeOutPoint, firstItem) => {
+    ipcRenderer.on('receive-get-in-and-outpoint', (event, fileId, fadeInPoint, fadeOutPoint) => {
       store.dispatch(updateInOutPoint(fileId, fadeInPoint, fadeOutPoint));
-      if (firstItem) {
+      // load thumbs for first item only until currentFileId is set
+      console.log(this.props.currentFileId);
+      if (this.props.currentFileId === undefined) {
         console.log('I am the firstItem');
         const firstFile = store.getState().undoGroup.present.files.find((file) => file.id === fileId);
         store.dispatch(setCurrentFileId(firstFile.id));
@@ -179,6 +181,15 @@ class App extends Component {
           fadeInPoint,
           fadeOutPoint,
         ));
+      }
+      if (this.state.filesToLoad.length > 0) {
+        // state should be immutable, therefor
+        // make a copy with slice, then remove the first item with shift, then set new state
+        const copyOfFilesToLoad = this.state.filesToLoad.slice();
+        copyOfFilesToLoad.shift();
+        this.setState({
+          filesToLoad: copyOfFilesToLoad
+        });
       }
     });
 
@@ -256,6 +267,14 @@ class App extends Component {
         console.log(newThumbCount);
       }
     }
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if ((nextState.filesToLoad.length !== 0) &&
+      (this.state.filesToLoad.length !== nextState.filesToLoad.length)) {
+      ipcRenderer.send('send-get-file-details', nextState.filesToLoad[0].id, nextState.filesToLoad[0].path, nextState.filesToLoad[0].posterFrameId);
+    }
+    return true;
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -366,7 +385,13 @@ class App extends Component {
     if (Array.from(files).some(file => (file.type.match('video.*') ||
       file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
       store.dispatch(setNewMovieList(files, settings)).then((response) => {
+        this.setState({
+          filesToLoad: response
+        });
         console.log(response);
+        return response;
+      }).catch((error) => {
+        console.log(error);
       });
     }
     return false;
