@@ -216,8 +216,7 @@ ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId) => 
   });
 });
 
-ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio) => {
-  console.time(`${fileId}-inOutPointDetection`);
+ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detectInOutPoint) => {
   console.log('send-get-in-and-outpoint');
   console.log(fileId);
   console.log(filePath);
@@ -225,113 +224,120 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio) => {
   const vid = new opencv.VideoCapture(filePath);
   const videoLength = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1;
 
-  const searchLength = IN_OUT_POINT_SEARCH_LENGTH;
-  const threshold = IN_OUT_POINT_SEARCH_THRESHOLD;
+  if (detectInOutPoint) {
+    console.time(`${fileId}-inOutPointDetection`);
 
-  const searchForward = true;
-  let fadeInDetectionDone = false;
-  let fadeOutDetectionDone = false;
-  let fadeInPoint;
-  let fadeOutPoint;
+    const searchLength = IN_OUT_POINT_SEARCH_LENGTH;
+    const threshold = IN_OUT_POINT_SEARCH_THRESHOLD;
 
-  let lastMean = 0; // Mean pixel intensity of the *last* frame we processed.
+    const searchForward = true;
+    let fadeInDetectionDone = false;
+    let fadeOutDetectionDone = false;
+    let fadeInPoint;
+    let fadeOutPoint;
 
-  vid.readAsync((err1) => {
-    const read = (forwardDirection, frame = 0) => {
-      // limit frameNumberToCapture between 0 and movie length
-      const frameNumberToCapture = limitRange(
-        frame,
-        0,
-        videoLength
-      );
+    let lastMean = 0; // Mean pixel intensity of the *last* frame we processed.
 
+    vid.readAsync((err1) => {
+      const read = (forwardDirection, frame = 0) => {
+        // limit frameNumberToCapture between 0 and movie length
+        const frameNumberToCapture = limitRange(
+          frame,
+          0,
+          videoLength
+        );
+
+        if (useRatio) {
+          const positionRatio = ((frameNumberToCapture) * 1.0) / videoLength;
+          console.log(`using positionRatio: ${positionRatio}`);
+          vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, positionRatio);
+        } else {
+          vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberToCapture);
+        }
+
+        vid.readAsync((err, mat) => {
+          // console.log(`readAsync: frame: ${frame}, ${frameNumberToCapture}/${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
+
+          // console.time('meanCalculation');
+          // const frameMean = mat.resizeToMax(256).mean().w; // temporarily take mean only from w channel until this is fixed https://github.com/justadudewhohacks/opencv4nodejs/issues/282
+          const frameMean = mat.mean().w; // temporarily take mean only from w channel until this is fixed https://github.com/justadudewhohacks/opencv4nodejs/issues/282
+          // console.timeEnd('meanCalculation');
+
+          // console.log(frameMean.w);
+          // console.log(frameMean.x);
+          // console.log(frameMean.y);
+          // console.log(frameMean.z);
+          // console.log(frameMean.mul(3));
+          // console.log(frameMean.mean());
+
+          // Detect fade in from black.
+          if (forwardDirection && !fadeInDetectionDone) {
+            console.log(`${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)}: ${frameMean}`);
+            if ((frameMean >= threshold) && (lastMean < threshold)) {
+              console.log(`Detected fade in at ${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)} (frame ${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)})`);
+              console.timeEnd(`${fileId}-inPointDetection`);
+              fadeInPoint = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES);
+              fadeInDetectionDone = true;
+            }
+          }
+          if (!forwardDirection && !fadeOutDetectionDone) {
+            // console.log(`${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)}: ${frameMean}`);
+            if ((frameMean >= threshold) && (lastMean < threshold)) { // Detect fade to black (reverse)
+              console.log(`Detected fade out at ${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)} (frame ${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)})`);
+              console.timeEnd(`${fileId}-outPointDetection`);
+              fadeOutPoint = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
+              fadeOutDetectionDone = true;
+            }
+          }
+          lastMean = frameMean; // store current mean to compare in next iteration
+          if (mat.empty === false) {
+            // console.log('Mat not empty');
+          }
+          if (forwardDirection && !fadeInDetectionDone) {
+            if (frame < searchLength) {
+              read(true, frame + 1);
+            } else {
+              console.timeEnd(`${fileId}-inPointDetection`);
+              console.log('No fade in detected');
+              fadeInPoint = 0;
+              fadeInDetectionDone = true;
+            }
+          } else if (!forwardDirection && !fadeOutDetectionDone) {
+            if (frame > (videoLength - searchLength)) {
+              read(false, frame - 1);
+            } else {
+              console.timeEnd(`${fileId}-outPointDetection`);
+              console.log('No fade out detected');
+              fadeOutPoint = videoLength;
+              fadeOutDetectionDone = true;
+            }
+          }
+          if (forwardDirection && fadeInDetectionDone) {
+            console.log('switch to detecting fadeOut');
+            console.time(`${fileId}-outPointDetection`);
+            lastMean = 0; // reset lastMean
+            read(false, videoLength); // run only once after fade in detected
+          }
+          if (fadeInDetectionDone && fadeOutDetectionDone) {
+            console.timeEnd(`${fileId}-inOutPointDetection`);
+            event.sender.send('receive-get-in-and-outpoint', fileId, fadeInPoint, fadeOutPoint);
+          }
+        });
+      };
+
+      const startFrame = 0;
+      if (err1) throw err1;
       if (useRatio) {
-        const positionRatio = ((frameNumberToCapture) * 1.0) / videoLength;
-        console.log(`using positionRatio: ${positionRatio}`);
-        vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, positionRatio);
+        vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, startFrame);
       } else {
-        vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberToCapture);
+        vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, startFrame);
       }
-
-      vid.readAsync((err, mat) => {
-        // console.log(`readAsync: frame: ${frame}, ${frameNumberToCapture}/${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
-
-        // console.time('meanCalculation');
-        // const frameMean = mat.resizeToMax(256).mean().w; // temporarily take mean only from w channel until this is fixed https://github.com/justadudewhohacks/opencv4nodejs/issues/282
-        const frameMean = mat.mean().w; // temporarily take mean only from w channel until this is fixed https://github.com/justadudewhohacks/opencv4nodejs/issues/282
-        // console.timeEnd('meanCalculation');
-
-        // console.log(frameMean.w);
-        // console.log(frameMean.x);
-        // console.log(frameMean.y);
-        // console.log(frameMean.z);
-        // console.log(frameMean.mul(3));
-        // console.log(frameMean.mean());
-
-        // Detect fade in from black.
-        if (forwardDirection && !fadeInDetectionDone) {
-          console.log(`${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)}: ${frameMean}`);
-          if ((frameMean >= threshold) && (lastMean < threshold)) {
-            console.log(`Detected fade in at ${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)} (frame ${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)})`);
-            console.timeEnd(`${fileId}-inPointDetection`);
-            fadeInPoint = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES);
-            fadeInDetectionDone = true;
-          }
-        }
-        if (!forwardDirection && !fadeOutDetectionDone) {
-          // console.log(`${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)}: ${frameMean}`);
-          if ((frameMean >= threshold) && (lastMean < threshold)) { // Detect fade to black (reverse)
-            console.log(`Detected fade out at ${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)} (frame ${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)})`);
-            console.timeEnd(`${fileId}-outPointDetection`);
-            fadeOutPoint = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
-            fadeOutDetectionDone = true;
-          }
-        }
-        lastMean = frameMean; // store current mean to compare in next iteration
-        if (mat.empty === false) {
-          // console.log('Mat not empty');
-        }
-        if (forwardDirection && !fadeInDetectionDone) {
-          if (frame < searchLength) {
-            read(true, frame + 1);
-          } else {
-            console.timeEnd(`${fileId}-inPointDetection`);
-            console.log('No fade in detected');
-            fadeInPoint = 0;
-            fadeInDetectionDone = true;
-          }
-        } else if (!forwardDirection && !fadeOutDetectionDone) {
-          if (frame > (videoLength - searchLength)) {
-            read(false, frame - 1);
-          } else {
-            console.timeEnd(`${fileId}-outPointDetection`);
-            console.log('No fade out detected');
-            fadeOutPoint = videoLength;
-            fadeOutDetectionDone = true;
-          }
-        }
-        if (forwardDirection && fadeInDetectionDone) {
-          console.log('switch to detecting fadeOut');
-          console.time(`${fileId}-outPointDetection`);
-          lastMean = 0; // reset lastMean
-          read(false, videoLength); // run only once after fade in detected
-        }
-        if (fadeInDetectionDone && fadeOutDetectionDone) {
-          console.timeEnd(`${fileId}-inOutPointDetection`);
-          event.sender.send('receive-get-in-and-outpoint', fileId, fadeInPoint, fadeOutPoint);
-        }
-      });
-    };
-
-    const startFrame = 0;
-    if (err1) throw err1;
-    if (useRatio) {
-      vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, startFrame);
-    } else {
-      vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, startFrame);
-    }
-    read(searchForward, 0); // get inPoint
-  });
+      read(searchForward, 0); // get inPoint
+    });
+  } else {
+    console.log('in-out-point-detection DEACTIVATED');
+    event.sender.send('receive-get-in-and-outpoint', fileId, 0, videoLength);
+  }
 });
 
 ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArray, frameNumberArray, useRatio) => {

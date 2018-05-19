@@ -27,14 +27,20 @@ import {
   setDefaultMoviePrintWidth, updateFileDetailUseRatio, setDefaultShowPaperPreview,
   setDefaultPaperAspectRatioInv, updateInOutPoint
 } from '../actions';
-import { MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT, ZOOM_SCALE, SHOW_PAPER_ADJUSTMENT_SCALE } from '../utils/constants';
+import {
+  MENU_HEADER_HEIGHT,
+  MENU_FOOTER_HEIGHT,
+  ZOOM_SCALE,
+  IN_OUT_POINT_DETECTION_ACTIVE
+} from '../utils/constants';
 
 import steps from '../img/MoviePrint-steps.svg';
 
 const { ipcRenderer } = require('electron');
 const { dialog } = require('electron').remote;
 
-const setColumnAndThumbCount = (that, columnCount, thumbCount) => {
+const setColumnAndThumbCount = (that,
+  columnCount, thumbCount) => {
   that.setState({
     columnCountTemp: columnCount,
     thumbCountTemp: thumbCount,
@@ -160,7 +166,7 @@ class App extends Component {
     ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, base64, frameNumber, useRatio) => {
       store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
       store.dispatch(updateThumbImage(fileId, '', posterFrameId, base64, frameNumber, 1));
-      ipcRenderer.send('send-get-in-and-outpoint', fileId, filePath, useRatio);
+      ipcRenderer.send('send-get-in-and-outpoint', fileId, filePath, useRatio, IN_OUT_POINT_DETECTION_ACTIVE);
     });
 
     ipcRenderer.on('receive-get-in-and-outpoint', (event, fileId, fadeInPoint, fadeOutPoint) => {
