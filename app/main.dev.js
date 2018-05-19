@@ -15,6 +15,7 @@ import { app, BrowserWindow, ipcMain, globalShortcut, shell } from 'electron';
 import path from 'path';
 import fs from 'fs';
 
+import { IN_OUT_POINT_SEARCH_LENGTH, IN_OUT_POINT_SEARCH_THRESHOLD } from './utils/mainConstants';
 import MenuBuilder from './menu';
 import VideoCaptureProperties from './utils/videoCaptureProperties';
 import { limitRange } from './utils/utilsForMain';
@@ -222,14 +223,16 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio) => {
   console.time(`inPointDetection-${fileId}`);
   const vid = new opencv.VideoCapture(filePath);
   const videoLength = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1;
+
+  const searchLength = IN_OUT_POINT_SEARCH_LENGTH;
+  const threshold = IN_OUT_POINT_SEARCH_THRESHOLD;
+
   const searchForward = true;
-  const searchLength = 300;
   let fadeInDetectionDone = false;
   let fadeOutDetectionDone = false;
   let fadeInPoint;
   let fadeOutPoint;
 
-  const threshold = 30; // previous 15
   let lastMean = 0; // Mean pixel intensity of the *last* frame we processed.
 
   vid.readAsync((err1) => {
@@ -266,7 +269,7 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio) => {
 
         // Detect fade in from black.
         if (forwardDirection && !fadeInDetectionDone) {
-          // console.log(`${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)}: ${frameMean}`);
+          console.log(`${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)}: ${frameMean}`);
           if ((frameMean >= threshold) && (lastMean < threshold)) {
             console.log(`Detected fade in at ${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)} (frame ${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)})`);
             console.timeEnd(`inPointDetection-${fileId}`);
@@ -331,20 +334,9 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio) => {
 
 ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArray, frameNumberArray, useRatio) => {
   console.log('send-get-thumbs');
-  console.log(fileId);
   console.log(filePath);
-  console.log(frameIdArray);
-  // opencv.VideoStream(path.resolve(__dirname, './fingers.mov'), function (err, im) {
-  // When opening a file, the full path must be passed to opencv
-  // const vid = new opencv.VideoCapture(path.resolve(__dirname, './FrameTestMovie_v001.mov'));
-  // const vid = new opencv.VideoCapture(path.resolve(__dirname, './FrameTestMovie_v001.mp4'));
-  const vid = new opencv.VideoCapture(filePath);
-  console.log(`frameCount: ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
-  console.log(`width: ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH)}`);
-  console.log(`height: ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT)}`);
-  console.log(`FPS: ${vid.get(VideoCaptureProperties.CAP_PROP_FPS)}`);
-  console.log(`codec: ${vid.get(VideoCaptureProperties.CAP_PROP_FOURCC)}`);
   console.log(`useRatio: ${useRatio}`);
+  const vid = new opencv.VideoCapture(filePath);
 
   vid.readAsync((err1) => {
     const read = (frameOffset = 0) => {
@@ -357,7 +349,7 @@ ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArr
 
       if (useRatio) {
         const positionRatio = ((frameNumberToCapture) * 1.0) / (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1)
-        console.log(`using positionRatio: ${positionRatio}`);
+        // console.log(`using positionRatio: ${positionRatio}`);
         vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, positionRatio);
       } else {
         vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberToCapture);
@@ -404,7 +396,7 @@ ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArr
     let iterator = 0;
     if (useRatio) {
       const positionRatio = ((frameNumberArray[iterator]) * 1.0) / (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1)
-      console.log(`using positionRatio: ${positionRatio}`);
+      // console.log(`using positionRatio: ${positionRatio}`);
       vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, positionRatio);
     } else {
       vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberArray[iterator]);
