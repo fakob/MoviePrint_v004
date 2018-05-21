@@ -41,7 +41,9 @@ class SortedFileList extends Component {
                   .thumbsByFileId[file.id] === undefined) {
                   store.dispatch(addDefaultThumbs(
                       file,
-                      state.undoGroup.present.settings.defaultThumbCount
+                      state.undoGroup.present.settings.defaultThumbCount,
+                      file.fadeInPoint,
+                      file.fadeOutPoint
                     ));
                   console.log(`FileListElement clicked: ${file.name}`);
                 }

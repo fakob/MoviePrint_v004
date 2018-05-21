@@ -25,16 +25,22 @@ import {
   setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat,
   setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
   setDefaultMoviePrintWidth, updateFileDetailUseRatio, setDefaultShowPaperPreview,
-  setDefaultPaperAspectRatioInv
+  setDefaultPaperAspectRatioInv, updateInOutPoint
 } from '../actions';
-import { MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT, ZOOM_SCALE, SHOW_PAPER_ADJUSTMENT_SCALE } from '../utils/constants';
+import {
+  MENU_HEADER_HEIGHT,
+  MENU_FOOTER_HEIGHT,
+  ZOOM_SCALE,
+  IN_OUT_POINT_DETECTION_ACTIVE
+} from '../utils/constants';
 
 import steps from '../img/MoviePrint-steps.svg';
 
 const { ipcRenderer } = require('electron');
 const { dialog } = require('electron').remote;
 
-const setColumnAndThumbCount = (that, columnCount, thumbCount) => {
+const setColumnAndThumbCount = (that,
+  columnCount, thumbCount) => {
   that.setState({
     columnCountTemp: columnCount,
     thumbCountTemp: thumbCount,
@@ -69,7 +75,8 @@ class App extends Component {
         metaKey: false,
         which: undefined
       },
-      zoom: false
+      zoom: false,
+      filesToLoad: []
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -148,30 +155,52 @@ class App extends Component {
   componentDidMount() {
     const { store } = this.context;
 
-    ipcRenderer.on('receive-get-file-details', (event, fileId, filePath, posterFrameId, lastItem, frameCount, width, height, fps, fourCC) => {
+
+
+    ipcRenderer.on('receive-get-file-details', (event, fileId, filePath, posterFrameId, frameCount, width, height, fps, fourCC) => {
       store.dispatch(updateFileDetails(fileId, frameCount, width, height, fps, fourCC));
-      ipcRenderer.send('send-get-poster-frame', fileId, filePath, posterFrameId, lastItem);
+      ipcRenderer.send('send-get-poster-frame', fileId, filePath, posterFrameId);
+    });
+
+    // poster frames don't have thumbId
+    ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, base64, frameNumber, useRatio) => {
+      store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
+      store.dispatch(updateThumbImage(fileId, '', posterFrameId, base64, frameNumber, 1));
+      ipcRenderer.send('send-get-in-and-outpoint', fileId, filePath, useRatio, IN_OUT_POINT_DETECTION_ACTIVE);
+    });
+
+    ipcRenderer.on('receive-get-in-and-outpoint', (event, fileId, fadeInPoint, fadeOutPoint) => {
+      store.dispatch(updateInOutPoint(fileId, fadeInPoint, fadeOutPoint));
+      // load thumbs for first item only until currentFileId is set
+      console.log(this.props.currentFileId);
+      if (this.props.currentFileId === undefined) {
+        console.log('I am the firstItem');
+        const firstFile = store.getState().undoGroup.present.files.find((file) => file.id === fileId);
+        store.dispatch(setCurrentFileId(firstFile.id));
+        this.updateScaleValue(); // so the aspect ratio of the thumbs are correct after drag
+        store.dispatch(clearThumbs());
+        console.log(firstFile);
+        // console.log(firstFile.fadeInPoint);
+        store.dispatch(addDefaultThumbs(
+          firstFile,
+          store.getState().undoGroup.present.settings.defaultThumbCount,
+          fadeInPoint,
+          fadeOutPoint,
+        ));
+      }
+      if (this.state.filesToLoad.length > 0) {
+        // state should be immutable, therefor
+        // make a copy with slice, then remove the first item with shift, then set new state
+        const copyOfFilesToLoad = this.state.filesToLoad.slice();
+        copyOfFilesToLoad.shift();
+        this.setState({
+          filesToLoad: copyOfFilesToLoad
+        });
+      }
     });
 
     ipcRenderer.on('receive-get-thumbs', (event, fileId, thumbId, frameId, base64, frameNumber) => {
       store.dispatch(updateThumbImage(fileId, thumbId, frameId, base64, frameNumber));
-    });
-
-    // poster frames don't have thumbId
-    ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, base64, frameNumber, useRatio, lastItem) => {
-      store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
-      store.dispatch(updateThumbImage(fileId, '', posterFrameId, base64, frameNumber, 1));
-      // ipcRenderer.send('send-get-inpoint', fileId, filePath, useRatio);
-      if (lastItem) {
-        console.log('I am the lastItem');
-        store.dispatch(setCurrentFileId(store.getState().undoGroup.present.files[0].id));
-        this.updateScaleValue(); // so the aspect ratio of the thumbs are correct after drag
-        store.dispatch(clearThumbs());
-        store.dispatch(addDefaultThumbs(
-          store.getState().undoGroup.present.files[0],
-          store.getState().undoGroup.present.settings.defaultThumbCount
-        ));
-      }
     });
 
     ipcRenderer.on('received-saved-file', (event, path) => {
@@ -244,6 +273,14 @@ class App extends Component {
         console.log(newThumbCount);
       }
     }
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if ((nextState.filesToLoad.length !== 0) &&
+      (this.state.filesToLoad.length !== nextState.filesToLoad.length)) {
+      ipcRenderer.send('send-get-file-details', nextState.filesToLoad[0].id, nextState.filesToLoad[0].path, nextState.filesToLoad[0].posterFrameId);
+    }
+    return true;
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -353,7 +390,15 @@ class App extends Component {
     // file match needs to be in sync with setMovieList() and accept !!!
     if (Array.from(files).some(file => (file.type.match('video.*') ||
       file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
-      store.dispatch(setNewMovieList(files, settings));
+      store.dispatch(setNewMovieList(files, settings)).then((response) => {
+        this.setState({
+          filesToLoad: response
+        });
+        console.log(response);
+        return response;
+      }).catch((error) => {
+        console.log(error);
+      });
     }
     return false;
   }

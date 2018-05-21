@@ -305,6 +305,20 @@ export const updateFileDetails = (fileId, frameCount, width, height, fps, fourCC
   };
 };
 
+export const updateInOutPoint = (fileId, fadeInPoint, fadeOutPoint) => {
+  return (dispatch) => {
+    console.log('inside updateInOutPoint');
+    dispatch({
+      type: 'UPDATE_IN_OUT_POINT',
+      payload: {
+        fileId,
+        fadeInPoint,
+        fadeOutPoint
+      }
+    });
+  };
+};
+
 export const updateFrameNumber = (fileId, thumbId, frameNumber) => {
   console.log('inside updateFrameNumber');
   return {
@@ -516,7 +530,8 @@ export const setNewMovieList = (files, settings) => {
         };
         newFiles.push(fileToAdd);
       }
-      return newFiles;
+      // return a copy of the array
+      return newFiles.slice();
     });
     dispatch({
       type: 'CLEAR_CURRENT_FILEID',
@@ -530,15 +545,7 @@ export const setNewMovieList = (files, settings) => {
           type: 'LOAD_MOVIE_LIST_FROM_DROP',
           payload: newFiles,
         });
-        const newFilesLength = newFiles.length;
-        newFiles.map((file, index) => {
-          let lastItem = false;
-          console.log(`${newFilesLength} : ${index}`);
-          if (newFilesLength === index + 1) {
-            lastItem = true;
-          }
-          ipcRenderer.send('send-get-file-details', file.id, file.path, file.posterFrameId, lastItem);
-        });
+        return newFiles;
       });
   };
 };
