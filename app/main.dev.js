@@ -249,7 +249,7 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
 
         if (useRatio) {
           const positionRatio = ((frameNumberToCapture) * 1.0) / videoLength;
-          console.log(`using positionRatio: ${positionRatio}`);
+          // console.log(`using positionRatio: ${positionRatio}`);
           vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, positionRatio);
         } else {
           vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberToCapture);
@@ -266,7 +266,7 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
 
             // Detect fade in from black.
             if (forwardDirection && !fadeInDetectionDone) {
-              console.log(`${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)}: ${frameMean}`);
+              // console.log(`${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)}: ${frameMean}`);
               if ((frameMean >= threshold) && (lastMean < threshold)) {
                 console.log(`Detected fade in at ${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)} (frame ${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES)})`);
                 console.timeEnd(`${fileId}-inPointDetection`);
@@ -293,7 +293,7 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
             } else {
               console.timeEnd(`${fileId}-inPointDetection`);
               console.log('No fade in detected');
-              fadeInPoint = 0;
+              fadeInPoint = searchLength;
               fadeInDetectionDone = true;
             }
           } else if (!forwardDirection && !fadeOutDetectionDone) {
@@ -302,7 +302,7 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
             } else {
               console.timeEnd(`${fileId}-outPointDetection`);
               console.log('No fade out detected');
-              fadeOutPoint = videoLength;
+              fadeOutPoint = (videoLength - searchLength);
               fadeOutDetectionDone = true;
             }
           }
