@@ -76,7 +76,8 @@ class App extends Component {
         which: undefined
       },
       zoom: false,
-      filesToLoad: []
+      filesToLoad: [],
+      progressMessage: undefined
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -155,7 +156,17 @@ class App extends Component {
   componentDidMount() {
     const { store } = this.context;
 
-
+    ipcRenderer.on('progress', (event, fileId, status, message) => {
+      this.setState({
+        progressMessage: message
+      }, () => {
+        setTimeout(() => {
+          this.setState({
+            progressMessage: undefined
+          });
+        }, 5000);
+      });
+    });
 
     ipcRenderer.on('receive-get-file-details', (event, fileId, filePath, posterFrameId, frameCount, width, height, fps, fourCC) => {
       store.dispatch(updateFileDetails(fileId, frameCount, width, height, fps, fourCC));
@@ -949,8 +960,8 @@ class App extends Component {
                     </div>
                   </div>
                   <TransitionablePortal
-                    // onClose={this.handleClose}
-                    open={this.state.savingMoviePrint}
+                    // onClose={this.setState({ progressMessage: undefined })}
+                    open={this.state.progressMessage !== undefined}
                     // open
                     transition={{
                       animation: 'fade up',
@@ -967,7 +978,7 @@ class App extends Component {
                     <Segment
                       className={stylesPop.toast}
                     >
-                      Saving MoviePrint
+                      {this.state.progressMessage}
                     </Segment>
                   </TransitionablePortal>
                   <Footer
