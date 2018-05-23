@@ -248,12 +248,14 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
           videoLength
         );
 
-        if (useRatio) {
-          const positionRatio = ((frameNumberToCapture) * 1.0) / videoLength;
-          // console.log(`using positionRatio: ${positionRatio}`);
-          vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, positionRatio);
-        } else {
-          vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberToCapture);
+        if (!forwardDirection) {
+          if (useRatio) {
+            const positionRatio = ((frameNumberToCapture) * 1.0) / videoLength;
+            // console.log(`using positionRatio: ${positionRatio}`);
+            vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, positionRatio);
+          } else {
+            vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberToCapture);
+          }
         }
 
         vid.readAsync((err, mat) => {
