@@ -169,12 +169,18 @@ ipcMain.on('send-save-file', (event, filePath, buffer, saveMoviePrint = false) =
 ipcMain.on('send-get-file-details', (event, fileId, filePath, posterFrameId) => {
   console.log(fileId);
   console.log(filePath);
-  const vid = new opencv.VideoCapture(filePath);
-  console.log(`width: ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH)}`);
-  console.log(`height: ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT)}`);
-  console.log(`FPS: ${vid.get(VideoCaptureProperties.CAP_PROP_FPS)}`);
-  console.log(`codec: ${vid.get(VideoCaptureProperties.CAP_PROP_FOURCC)}`);
-  event.sender.send('receive-get-file-details', fileId, filePath, posterFrameId, vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT), vid.get(VideoCaptureProperties.CAP_PROP_FPS), vid.get(VideoCaptureProperties.CAP_PROP_FOURCC));
+  try {
+    const vid = new opencv.VideoCapture(filePath);
+    console.log(`width: ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH)}`);
+    console.log(`height: ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT)}`);
+    console.log(`FPS: ${vid.get(VideoCaptureProperties.CAP_PROP_FPS)}`);
+    console.log(`codec: ${vid.get(VideoCaptureProperties.CAP_PROP_FOURCC)}`);
+    event.sender.send('receive-get-file-details', fileId, filePath, posterFrameId, vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT), vid.get(VideoCaptureProperties.CAP_PROP_FPS), vid.get(VideoCaptureProperties.CAP_PROP_FOURCC));
+  } catch (e) {
+    event.sender.send('failed-to-open-file', fileId);
+    event.sender.send('progressMessage', fileId, 'error', `Failed to open ${filePath}`, 3000);
+    console.log(e);
+  }
 });
 
 ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId) => {

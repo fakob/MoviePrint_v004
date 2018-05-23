@@ -221,6 +221,18 @@ class App extends Component {
       }
     });
 
+    ipcRenderer.on('failed-to-open-file', (event, fileId) => {
+      if (this.state.filesToLoad.length > 0) {
+        // state should be immutable, therefor
+        // make a copy with slice, then remove the first item with shift, then set new state
+        const copyOfFilesToLoad = this.state.filesToLoad.slice();
+        copyOfFilesToLoad.shift();
+        this.setState({
+          filesToLoad: copyOfFilesToLoad
+        });
+      }
+    });
+
     ipcRenderer.on('receive-get-thumbs', (event, fileId, thumbId, frameId, base64, frameNumber) => {
       store.dispatch(updateThumbImage(fileId, thumbId, frameId, base64, frameNumber));
     });
