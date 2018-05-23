@@ -79,7 +79,7 @@ class App extends Component {
       filesToLoad: [],
       progressMessage: undefined,
       showMessage: false,
-      progressBarPercentage: 0
+      progressBarPercentage: 100
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -816,6 +816,37 @@ class App extends Component {
                     openDialog={() => this.dropzoneRef.open()}
                     zoom={this.state.zoom}
                   />
+                  <TransitionablePortal
+                    // onClose={this.setState({ progressMessage: undefined })}
+                    // open={true}
+                    open={this.state.progressBarPercentage < 100}
+                    // open
+                    transition={{
+                      animation: 'fade up',
+                      duration: 600,
+                    }}
+                    closeOnDocumentClick={false}
+                    closeOnEscape={false}
+                    closeOnPortalMouseLeave={false}
+                    closeOnRootNodeClick={false}
+                    closeOnTriggerBlur={false}
+                    closeOnTriggerClick={false}
+                    closeOnTriggerMouseLeave={false}
+                  >
+                    <Progress
+                      percent={this.state.progressBarPercentage}
+                      size="tiny"
+                      indicating
+                      // progress
+                      style={{
+                        position: 'absolute',
+                        bottom: MENU_FOOTER_HEIGHT,
+                        width: '100%',
+                        zIndex: 1000,
+                        margin: 0
+                      }}
+                    />
+                  </TransitionablePortal>
                   <div
                     className={`${styles.SiteContent}`}
                     ref={(el) => { this.siteContent = el; }}
@@ -992,12 +1023,6 @@ class App extends Component {
                       {this.state.progressMessage}
                     </Segment>
                   </TransitionablePortal>
-                  <Progress
-                    percent={this.state.progressBarPercentage}
-                    size="tiny"
-                    indicating
-                    progress
-                  />
                   <Footer
                     visibilitySettings={this.props.visibilitySettings}
                     file={this.props.file}
