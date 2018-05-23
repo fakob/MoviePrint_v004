@@ -81,8 +81,14 @@ const files = (state = [], { type, payload }) => {
       return [];
     case 'LOAD_MOVIE_LIST_FROM_DROP':
       return Object.keys(payload).map((t, index) =>
-        file(t, type, payload, index)
-      );
+        file(t, type, payload, index));
+    case 'REMOVE_MOVIE_LIST_ITEM': {
+      const newArray = state.slice();
+      const indexOfItemToRemove =
+        newArray.findIndex((singleFile) => singleFile.id === payload.fileId);
+      newArray.splice(indexOfItemToRemove, 1);
+      return newArray;
+    }
     case 'UPDATE_COLUMNCOUNT_OF_MOVIE_LIST_ITEM':
       return state.map((t, index) =>
         file(t, type, payload, index)

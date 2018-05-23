@@ -262,6 +262,18 @@ export const removeThumb = (currentFileId, thumbId) => {
   };
 };
 
+export const removeMovieListItem = (fileId) => {
+  return (dispatch) => {
+    console.log('inside removeMovieListItem');
+    dispatch({
+      type: 'REMOVE_MOVIE_LIST_ITEM',
+      payload: {
+        fileId
+      }
+    });
+  };
+};
+
 export const updateFileColumnCount = (fileId, columnCount) => {
   return (dispatch) => {
     console.log('inside updateFileColumnCount');

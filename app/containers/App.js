@@ -25,7 +25,7 @@ import {
   setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat,
   setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
   setDefaultMoviePrintWidth, updateFileDetailUseRatio, setDefaultShowPaperPreview,
-  setDefaultPaperAspectRatioInv, updateInOutPoint
+  setDefaultPaperAspectRatioInv, updateInOutPoint, removeMovieListItem
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -230,6 +230,9 @@ class App extends Component {
         this.setState({
           filesToLoad: copyOfFilesToLoad
         });
+        store.dispatch(removeMovieListItem(
+          fileId,
+        ));
       }
     });
 
