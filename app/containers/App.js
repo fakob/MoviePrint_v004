@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone';
-import { TransitionablePortal, Segment } from 'semantic-ui-react';
+import { TransitionablePortal, Segment, Progress } from 'semantic-ui-react';
 
 import '../app.global.css';
 import FileList from '../containers/FileList';
@@ -77,7 +77,9 @@ class App extends Component {
       },
       zoom: false,
       filesToLoad: [],
-      progressMessage: undefined
+      progressMessage: undefined,
+      showMessage: false,
+      progressBarPercentage: 0
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -156,15 +158,24 @@ class App extends Component {
   componentDidMount() {
     const { store } = this.context;
 
-    ipcRenderer.on('progress', (event, fileId, status, message) => {
+    ipcRenderer.on('progress', (event, fileId, progressBarPercentage) => {
       this.setState({
-        progressMessage: message
+        progressBarPercentage: Math.ceil(progressBarPercentage)
+      });
+    });
+
+    ipcRenderer.on('progressMessage', (event, fileId, status, message, time) => {
+      this.setState({
+        progressMessage: message,
+        showMessage: true
       }, () => {
-        setTimeout(() => {
-          this.setState({
-            progressMessage: undefined
-          });
-        }, 5000);
+        if (time) {
+          setTimeout(() => {
+            this.setState({
+              showMessage: false
+            });
+          }, time);
+        }
       });
     });
 
@@ -961,7 +972,7 @@ class App extends Component {
                   </div>
                   <TransitionablePortal
                     // onClose={this.setState({ progressMessage: undefined })}
-                    open={this.state.progressMessage !== undefined}
+                    open={this.state.showMessage}
                     // open
                     transition={{
                       animation: 'fade up',
@@ -981,6 +992,12 @@ class App extends Component {
                       {this.state.progressMessage}
                     </Segment>
                   </TransitionablePortal>
+                  <Progress
+                    percent={this.state.progressBarPercentage}
+                    size="tiny"
+                    indicating
+                    progress
+                  />
                   <Footer
                     visibilitySettings={this.props.visibilitySettings}
                     file={this.props.file}
