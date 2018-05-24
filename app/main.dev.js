@@ -234,6 +234,91 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
     console.time(`${fileId}-inOutPointDetection`);
     event.sender.send('progressMessage', fileId, 'info', 'Detecting in and outpoint');
 
+    const searchLength = Math.min(IN_OUT_POINT_SEARCH_LENGTH, videoLength / 2);
+    const threshold = IN_OUT_POINT_SEARCH_THRESHOLD;
+
+    let fadeInPoint;
+    let fadeOutPoint;
+    const meanArray = [];
+
+    // let lastMean = 0; // Mean pixel intensity of the *last* frame we processed.
+
+    vid.readAsync((err1) => {
+      const read = () => {
+        vid.readAsync((err, mat) => {
+          const frame = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES);
+          console.log(`readAsync: frame:${frame} (${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
+
+          if (mat.empty === false) {
+            // console.time('meanCalculation');
+            // const frameMean = mat.rescale(0.5).mean().w; // temporarily take mean only from w channel until this is fixed https://github.com/justadudewhohacks/opencv4nodejs/issues/282
+            const frameMean = mat.mean().w; // temporarily take mean only from w channel until this is fixed https://github.com/justadudewhohacks/opencv4nodejs/issues/282
+            // console.timeEnd('meanCalculation');
+            meanArray.push({
+              frame: vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1,
+              mean: frameMean
+            });
+          }
+
+          if ((frame < searchLength) || ((frame >= (videoLength - searchLength)) && (frame <= videoLength))) {
+            event.sender.send('progress', fileId, ((iterator / (searchLength * 2)) * 100)); // first half of progress
+            iterator += 1;
+            read();
+          } else if ((frame >= searchLength) && (frame < (videoLength - searchLength))) {
+            console.log('resetting playhead');
+            if (useRatio) {
+              const positionRatio = ((videoLength - searchLength) * 1.0) / videoLength;
+              vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, positionRatio);
+            } else {
+              vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, (videoLength - searchLength));
+            }
+            read();
+          } else if (frame > videoLength) {
+            console.log(meanArray);
+            const filteredArray = meanArray.filter((entry) => entry.mean > threshold);
+            fadeInPoint = filteredArray.shift().frame < searchLength ?
+              filteredArray.shift().frame : searchLength;
+            fadeOutPoint = ((filteredArray.pop().frame >= (videoLength - searchLength)) && (frame <= videoLength)) ?
+              filteredArray.pop().frame : (videoLength - searchLength);
+            console.log(filteredArray.shift());
+            console.log(filteredArray.pop());
+
+            console.timeEnd(`${fileId}-inOutPointDetection`);
+            event.sender.send('progress', fileId, 100); // set to full
+            event.sender.send('progressMessage', fileId, 'info', 'In and Outpoint detection finished', 3000);
+            event.sender.send('receive-get-in-and-outpoint', fileId, fadeInPoint, fadeOutPoint);
+          }
+        });
+      };
+
+      const startFrame = 0;
+      let iterator = 0;
+      if (err1) throw err1;
+      if (useRatio) {
+        vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, startFrame);
+      } else {
+        vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, startFrame);
+      }
+      read(); // start reading frames
+    });
+  } else {
+    console.log('in-out-point-detection DEACTIVATED');
+    event.sender.send('receive-get-in-and-outpoint', fileId, 0, videoLength);
+  }
+});
+
+ipcMain.on('send-get-in-and-outpoint-old', (event, fileId, filePath, useRatio, detectInOutPoint) => {
+  console.log('send-get-in-and-outpoint');
+  console.log(fileId);
+  console.log(filePath);
+  console.time(`${fileId}-inPointDetection`);
+  const vid = new opencv.VideoCapture(filePath);
+  const videoLength = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1;
+
+  if (detectInOutPoint) {
+    console.time(`${fileId}-inOutPointDetection`);
+    event.sender.send('progressMessage', fileId, 'info', 'Detecting in and outpoint');
+
     const searchLength = IN_OUT_POINT_SEARCH_LENGTH;
     const threshold = IN_OUT_POINT_SEARCH_THRESHOLD;
 
