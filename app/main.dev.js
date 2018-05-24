@@ -274,14 +274,15 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
             }
             read();
           } else if (frame > videoLength) {
-            console.log(meanArray);
+            // console.log(meanArray);
             const filteredArray = meanArray.filter((entry) => entry.mean > threshold);
-            fadeInPoint = filteredArray.shift().frame < searchLength ?
+            console.log(filteredArray);
+            fadeInPoint = ((filteredArray.length !== 0) && (filteredArray.shift().frame < searchLength)) ?
               filteredArray.shift().frame : searchLength;
-            fadeOutPoint = ((filteredArray.pop().frame >= (videoLength - searchLength)) && (frame <= videoLength)) ?
+            fadeOutPoint = ((filteredArray.length !== 0) && (filteredArray.pop().frame >= (videoLength - searchLength)) && (frame <= videoLength)) ?
               filteredArray.pop().frame : (videoLength - searchLength);
-            console.log(filteredArray.shift());
-            console.log(filteredArray.pop());
+            // console.log(filteredArray.shift());
+            // console.log(filteredArray.pop());
 
             console.timeEnd(`${fileId}-inOutPointDetection`);
             event.sender.send('progress', fileId, 100); // set to full
