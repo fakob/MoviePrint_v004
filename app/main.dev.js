@@ -237,9 +237,11 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
     const searchLength = Math.min(IN_OUT_POINT_SEARCH_LENGTH, videoLength / 2);
     const threshold = IN_OUT_POINT_SEARCH_THRESHOLD;
 
+    let searchInpoint = true;
+    const meanArrayIn = [];
+    const meanArrayOut = [];
     let fadeInPoint;
     let fadeOutPoint;
-    const meanArray = [];
 
     // let lastMean = 0; // Mean pixel intensity of the *last* frame we processed.
 
@@ -251,13 +253,35 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
 
           if (mat.empty === false) {
             // console.time('meanCalculation');
-            // const frameMean = mat.rescale(0.5).mean().w; // temporarily take mean only from w channel until this is fixed https://github.com/justadudewhohacks/opencv4nodejs/issues/282
-            const frameMean = mat.mean().w; // temporarily take mean only from w channel until this is fixed https://github.com/justadudewhohacks/opencv4nodejs/issues/282
+            const frameMean = mat.rescale(0.25).mean().w; // temporarily take mean only from w channel until this is fixed https://github.com/justadudewhohacks/opencv4nodejs/issues/282
+            // const frameMean = mat.mean().w; // temporarily take mean only from w channel until this is fixed https://github.com/justadudewhohacks/opencv4nodejs/issues/282
+
+            // // single axis for 1D hist
+            // const binCount = 17;
+            // const getHistAxis = channel => ([
+            //   {
+            //     channel,
+            //     bins: binCount,
+            //     ranges: [0, 256]
+            //   }
+            // ]);
+            // const matHSV = mat.cvtColor(opencv.COLOR_BGR2HSV);
+            // const frameHist = opencv.calcHist(matHSV, getHistAxis(2));
+            // console.log(frameHist.at(0));
+            // console.log(frameHist.at(0) > (binCount * 256));
+
             // console.timeEnd('meanCalculation');
-            meanArray.push({
-              frame: vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1,
-              mean: frameMean
-            });
+            if (searchInpoint) {
+              meanArrayIn.push({
+                frame: vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1,
+                mean: frameMean
+              });
+            } else {
+              meanArrayOut.push({
+                frame: vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1,
+                mean: frameMean
+              });
+            }
           }
 
           if ((frame < searchLength) || ((frame >= (videoLength - searchLength)) && (frame <= videoLength))) {
@@ -265,6 +289,7 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
             iterator += 1;
             read();
           } else if ((frame >= searchLength) && (frame < (videoLength - searchLength))) {
+            searchInpoint = false; // done searching inPoint
             console.log('resetting playhead');
             if (useRatio) {
               const positionRatio = ((videoLength - searchLength) * 1.0) / videoLength;
@@ -275,16 +300,33 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
             read();
           } else if (frame > videoLength) {
             // console.log(meanArray);
-            const filteredArray = meanArray.filter((entry) => entry.mean > threshold);
-            console.log(filteredArray);
-            fadeInPoint = ((filteredArray.length !== 0) && (filteredArray.shift().frame < searchLength)) ?
-              filteredArray.shift().frame : searchLength;
-            fadeOutPoint = ((filteredArray.length !== 0) && (filteredArray.pop().frame >= (videoLength - searchLength)) && (frame <= videoLength)) ?
-              filteredArray.pop().frame : (videoLength - searchLength);
+            const filteredArrayIn = meanArrayIn.filter((entry) => entry.mean > threshold);
+            const filteredArrayOut = meanArrayOut.filter((entry) => entry.mean > threshold);
+              console.log(meanArrayIn.reduce((prev, current) => {
+                let largerObject = ((prev.mean > current.mean) ? prev : current);
+                if (prev.frameThreshold === undefined) {
+                  largerObject = ((current.mean > threshold) ? { ...largerObject, ...{ frameThreshold: current.frame } } : largerObject);
+                } else {
+                  largerObject = { ...largerObject, ...{ frameThreshold: prev.frameThreshold } };
+                }
+                // console.log(largerObject);
+                // console.log(`prev.frame: ${prev.frame} - prev.frameThreshold: ${prev.frameThreshold}`)
+                return largerObject;
+              }, { frame: 0, mean: 0 }));
+            console.log(meanArrayOut.reduce((prev, current) => ((prev.mean > current.mean) ? prev : current)));
+            console.log(filteredArrayIn);
+            console.log(filteredArrayOut);
+
+            fadeInPoint = (filteredArrayIn.length !== 0) ?
+              filteredArrayIn.shift().frame : meanArrayIn.reduce((prev, current) => ((prev.mean > current.mean) ? prev : current)).frame;
+            fadeOutPoint = (filteredArrayOut.length !== 0) ?
+              filteredArrayOut.pop().frame : meanArrayOut.reduce((prev, current) => ((prev.mean > current.mean) ? prev : current)).frame;
             // console.log(filteredArray.shift());
             // console.log(filteredArray.pop());
 
             console.timeEnd(`${fileId}-inOutPointDetection`);
+            console.log(`fadeInPoint: ${fadeInPoint}`);
+            console.log(`fadeOutPoint: ${fadeOutPoint}`);
             event.sender.send('progress', fileId, 100); // set to full
             event.sender.send('progressMessage', fileId, 'info', 'In and Outpoint detection finished', 3000);
             event.sender.send('receive-get-in-and-outpoint', fileId, fadeInPoint, fadeOutPoint);
