@@ -243,8 +243,6 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
     let fadeInPoint;
     let fadeOutPoint;
 
-    let lastMean = 0; // Mean pixel intensity of the *last* frame we processed.
-
     vid.readAsync((err1) => {
       const read = () => {
         vid.readAsync((err, mat) => {
@@ -253,8 +251,9 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
           let frameMean = 0;
           if (mat.empty === false) {
             // console.time('meanCalculation');
-            frameMean = mat.rescale(0.25).mean().w; // temporarily take mean only from w channel until this is fixed https://github.com/justadudewhohacks/opencv4nodejs/issues/282
-            // const frameMean = mat.mean().w; // temporarily take mean only from w channel until this is fixed https://github.com/justadudewhohacks/opencv4nodejs/issues/282
+            // scale to quarter of size, convert to HSV, calculate mean, get only V channel
+            frameMean = mat.rescale(0.25).cvtColor(opencv.COLOR_BGR2HSV).mean().y;
+            // console.timeEnd('meanCalculation');
 
             // // single axis for 1D hist
             // const binCount = 17;
@@ -270,7 +269,6 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
             // console.log(frameHist.at(0));
             // console.log(frameHist.at(0) > (binCount * 256));
 
-            // console.timeEnd('meanCalculation');
             if (searchInpoint) {
               meanArrayIn.push({
                 frame: vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1,
