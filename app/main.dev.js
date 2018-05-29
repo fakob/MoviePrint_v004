@@ -232,6 +232,8 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
 
   if (detectInOutPoint) {
     console.time(`${fileId}-inOutPointDetection`);
+    const timeBeforeInOutPointDetection = Date.now();
+
     event.sender.send('progressMessage', fileId, 'info', 'Detecting in and outpoint');
 
     const searchLength = Math.min(IN_OUT_POINT_SEARCH_LENGTH, videoLength / 2);
@@ -327,11 +329,12 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
             fadeOutPoint = (meanArrayOutReduced.frameThreshold !== undefined) ?
               meanArrayOutReduced.frameThreshold : meanArrayOutReduced.frame;
 
+            const timeAfterInOutPointDetection = Date.now();
             console.timeEnd(`${fileId}-inOutPointDetection`);
             console.log(`fadeInPoint: ${fadeInPoint}`);
             console.log(`fadeOutPoint: ${fadeOutPoint}`);
             event.sender.send('progress', fileId, 100); // set to full
-            event.sender.send('progressMessage', fileId, 'info', 'In and Outpoint detection finished', 3000);
+            event.sender.send('progressMessage', fileId, 'info', `In and Outpoint detection finished - ${timeAfterInOutPointDetection - timeBeforeInOutPointDetection}`, 3000);
             event.sender.send('receive-get-in-and-outpoint', fileId, fadeInPoint, fadeOutPoint);
           }
         });
