@@ -243,17 +243,17 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
     let fadeInPoint;
     let fadeOutPoint;
 
-    // let lastMean = 0; // Mean pixel intensity of the *last* frame we processed.
+    let lastMean = 0; // Mean pixel intensity of the *last* frame we processed.
 
     vid.readAsync((err1) => {
       const read = () => {
         vid.readAsync((err, mat) => {
           const frame = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES);
           console.log(`readAsync: frame:${frame} (${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
-
+          let frameMean = 0;
           if (mat.empty === false) {
             // console.time('meanCalculation');
-            const frameMean = mat.rescale(0.25).mean().w; // temporarily take mean only from w channel until this is fixed https://github.com/justadudewhohacks/opencv4nodejs/issues/282
+            frameMean = mat.rescale(0.25).mean().w; // temporarily take mean only from w channel until this is fixed https://github.com/justadudewhohacks/opencv4nodejs/issues/282
             // const frameMean = mat.mean().w; // temporarily take mean only from w channel until this is fixed https://github.com/justadudewhohacks/opencv4nodejs/issues/282
 
             // // single axis for 1D hist
@@ -283,12 +283,9 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
               });
             }
           }
-
-          if ((frame < searchLength) || ((frame >= (videoLength - searchLength)) && (frame <= videoLength))) {
-            event.sender.send('progress', fileId, ((iterator / (searchLength * 2)) * 100)); // first half of progress
-            iterator += 1;
-            read();
-          } else if ((frame >= searchLength) && (frame < (videoLength - searchLength))) {
+          if ((searchInpoint && (frameMean >= threshold)) ||
+            ((frame >= searchLength) && (frame < (videoLength - searchLength)))) {
+            // only run if still searching inpoint and frameMean over threshold or done scanning inpoint
             searchInpoint = false; // done searching inPoint
             console.log('resetting playhead');
             if (useRatio) {
@@ -297,6 +294,10 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
             } else {
               vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, (videoLength - searchLength));
             }
+            read();
+          } else if ((frame < searchLength) || ((frame >= (videoLength - searchLength)) && (frame <= videoLength))) {
+            event.sender.send('progress', fileId, ((iterator / (searchLength * 2)) * 100)); // first half of progress
+            iterator += 1;
             read();
           } else if (frame > videoLength) {
             const meanArrayInReduced = meanArrayIn.reduce((prev, current) => {
@@ -319,8 +320,8 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
               }
               return largerObject;
             }, { frame: videoLength, mean: 0 });
-            // console.log(meanArrayInReduced);
-            // console.log(meanArrayOutReduced);
+            console.log(meanArrayInReduced);
+            console.log(meanArrayOutReduced);
 
             // use frame when threshold is reached and if undefined use frame with highest mean
             fadeInPoint = (meanArrayInReduced.frameThreshold !== undefined) ?
