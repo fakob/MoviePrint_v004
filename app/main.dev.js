@@ -299,30 +299,34 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
             }
             read();
           } else if (frame > videoLength) {
-            // console.log(meanArray);
-            const filteredArrayIn = meanArrayIn.filter((entry) => entry.mean > threshold);
-            const filteredArrayOut = meanArrayOut.filter((entry) => entry.mean > threshold);
-              console.log(meanArrayIn.reduce((prev, current) => {
-                let largerObject = ((prev.mean > current.mean) ? prev : current);
-                if (prev.frameThreshold === undefined) {
-                  largerObject = ((current.mean > threshold) ? { ...largerObject, ...{ frameThreshold: current.frame } } : largerObject);
-                } else {
-                  largerObject = { ...largerObject, ...{ frameThreshold: prev.frameThreshold } };
-                }
-                // console.log(largerObject);
-                // console.log(`prev.frame: ${prev.frame} - prev.frameThreshold: ${prev.frameThreshold}`)
-                return largerObject;
-              }, { frame: 0, mean: 0 }));
-            console.log(meanArrayOut.reduce((prev, current) => ((prev.mean > current.mean) ? prev : current)));
-            console.log(filteredArrayIn);
-            console.log(filteredArrayOut);
+            const meanArrayInReduced = meanArrayIn.reduce((prev, current) => {
+              let largerObject = ((prev.mean > current.mean) ? prev : current);
+              if (prev.frameThreshold === undefined) {
+                largerObject = ((current.mean > threshold) ?
+                  { ...largerObject, ...{ frameThreshold: current.frame } } : largerObject);
+              } else {
+                largerObject = { ...largerObject, ...{ frameThreshold: prev.frameThreshold } };
+              }
+              return largerObject;
+            }, { frame: 0, mean: 0 });
+            const meanArrayOutReduced = meanArrayOut.reduceRight((prev, current) => {
+              let largerObject = ((prev.mean > current.mean) ? prev : current);
+              if (prev.frameThreshold === undefined) {
+                largerObject = ((current.mean > threshold) ?
+                  { ...largerObject, ...{ frameThreshold: current.frame } } : largerObject);
+              } else {
+                largerObject = { ...largerObject, ...{ frameThreshold: prev.frameThreshold } };
+              }
+              return largerObject;
+            }, { frame: videoLength, mean: 0 });
+            // console.log(meanArrayInReduced);
+            // console.log(meanArrayOutReduced);
 
-            fadeInPoint = (filteredArrayIn.length !== 0) ?
-              filteredArrayIn.shift().frame : meanArrayIn.reduce((prev, current) => ((prev.mean > current.mean) ? prev : current)).frame;
-            fadeOutPoint = (filteredArrayOut.length !== 0) ?
-              filteredArrayOut.pop().frame : meanArrayOut.reduce((prev, current) => ((prev.mean > current.mean) ? prev : current)).frame;
-            // console.log(filteredArray.shift());
-            // console.log(filteredArray.pop());
+            // use frame when threshold is reached and if undefined use frame with highest mean
+            fadeInPoint = (meanArrayInReduced.frameThreshold !== undefined) ?
+              meanArrayInReduced.frameThreshold : meanArrayInReduced.frame;
+            fadeOutPoint = (meanArrayOutReduced.frameThreshold !== undefined) ?
+              meanArrayOutReduced.frameThreshold : meanArrayOutReduced.frame;
 
             console.timeEnd(`${fileId}-inOutPointDetection`);
             console.log(`fadeInPoint: ${fadeInPoint}`);
