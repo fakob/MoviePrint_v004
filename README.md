@@ -9,6 +9,7 @@ A tool which lets you create screenshots of entire movies in an instant.
 * Add more thumbs in between
 * Rearrange the order of the thumbs
 * Save all chosen thumbs as stills
+* Automatic In and Outpoint detection (still experimental! deactivated by default)
 * ~~Batch processing of multiple movies~~
 
 The current version is using opencv as my roadmap includes utilising computer vision algorithms.
