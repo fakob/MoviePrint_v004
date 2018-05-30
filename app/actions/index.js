@@ -349,7 +349,7 @@ export const updateThumbImage = (fileId, thumbId, frameId, base64, frameNumber, 
     if (base64 === '') {
       console.log('base64 empty');
     } else {
-      fetch(`data:image/png;base64,${base64}`)
+      fetch(`data:image/jpeg;base64,${base64}`)
         .then(response => {
           if (response.ok) {
             return response.blob();

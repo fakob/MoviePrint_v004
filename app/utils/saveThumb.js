@@ -13,7 +13,7 @@ const saveThumb = (fileName, frameNumber, frameId = undefined, saveToFolder = ''
     ensureDirectoryExistence(newFolderName);
   }
 
-  const newFilePathObject = getFilePathObject(fileName, `-frame${pad(frameNumber, 6)}`, 'png', newFolderName, overwrite);
+  const newFilePathObject = getFilePathObject(fileName, `-frame${pad(frameNumber, 6)}`, 'jpg', newFolderName, overwrite);
   const newFilePathAndName = pathR.join(
     newFilePathObject.dir,
     newFilePathObject.base
