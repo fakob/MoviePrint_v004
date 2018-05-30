@@ -38,6 +38,7 @@ export const DEFAULT_VIDEO_PLAYER_CONTROLLER_HEIGHT = 64;
 export const DEFAULT_BORDER_MARGIN = 24;
 export const DEFAULT_SHOW_PAPER_PREVIEW = false;
 export const DEFAULT_PAPER_ASPECTRATIOINV = 0.71;
+export const DEFAULT_DETECT_INOUTPOINT = false;
 // end initialStateJSON
 
 export const MENU_HEADER_HEIGHT = 35;
@@ -56,5 +57,3 @@ export const MINIMUM_WIDTH_TO_SHOW_HOVER = 100; // if smaller then do not show h
 export const MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE = 2; // heightOfInOutPointButtons
 
 export const CHANGE_THUMB_STEP = [1, 10, 100];
-
-export const IN_OUT_POINT_DETECTION_ACTIVE = true;

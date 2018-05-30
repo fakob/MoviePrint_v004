@@ -26,6 +26,7 @@ import {
   DEFAULT_BORDER_MARGIN,
   DEFAULT_SHOW_PAPER_PREVIEW,
   DEFAULT_PAPER_ASPECTRATIOINV,
+  DEFAULT_DETECT_INOUTPOINT,
 } from '../utils/constants';
 
 const { app } = require('electron').remote;
@@ -64,6 +65,7 @@ const initialStateJSON = {
       defaultBorderMargin: DEFAULT_BORDER_MARGIN,
       defaultShowPaperPreview: DEFAULT_SHOW_PAPER_PREVIEW,
       defaultPaperAspectRatioInv: DEFAULT_PAPER_ASPECTRATIOINV,
+      defaultDetectInOutPoint: DEFAULT_DETECT_INOUTPOINT,
     },
     thumbsByFileId: [],
     files: []

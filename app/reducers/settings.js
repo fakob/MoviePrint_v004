@@ -35,6 +35,8 @@ const settings = (state = {}, action) => {
       return { ...state, defaultShowPaperPreview: action.defaultShowPaperPreview };
     case 'SET_DEFAULT_PAPER_ASPECT_RATIO_INV':
       return { ...state, defaultPaperAspectRatioInv: action.defaultPaperAspectRatioInv };
+    case 'SET_DEFAULT_DETECT_INOUTPOINT':
+      return { ...state, defaultDetectInOutPoint: action.defaultDetectInOutPoint };
     default:
       return state;
   }

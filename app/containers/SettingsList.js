@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import Slider, { Handle, createSliderWithTooltip } from 'rc-slider';
 import Tooltip from 'rc-tooltip';
 import { Button, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List, Message, Popup } from 'semantic-ui-react';
-import { addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount } from '../actions';
 import styles from './Settings.css';
 import stylesPop from '../components/Popup.css';
 import { MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT, DEFAULT_THUMB_COUNT,
@@ -98,6 +97,7 @@ class SettingsList extends Component {
 
     this.onChangePaperAspectRatio = this.onChangePaperAspectRatio.bind(this);
     this.onChangeShowPaperPreview = this.onChangeShowPaperPreview.bind(this);
+    this.onChangeDetectInOutPoint = this.onChangeDetectInOutPoint.bind(this);
     this.onChangeReCapture = this.onChangeReCapture.bind(this);
     this.onChangeShowHeader = this.onChangeShowHeader.bind(this);
     this.onChangeRoundedCorners = this.onChangeRoundedCorners.bind(this);
@@ -116,6 +116,10 @@ class SettingsList extends Component {
 
   onChangePaperAspectRatio = (e, { value }) => {
     this.props.onPaperAspectRatioClick(value);
+  }
+
+  onChangeDetectInOutPoint = (e, { checked }) => {
+    this.props.onDetectInOutPointClick(checked);
   }
 
   onChangeReCapture = (e, { checked }) => {
@@ -525,11 +529,27 @@ class SettingsList extends Component {
               </List>
             </Grid.Column>
           </Grid.Row>
+          <Divider inverted />
           <Grid.Row>
-            &nbsp;
+            <Grid.Column width={16}>
+              Experimental
+            </Grid.Column>
           </Grid.Row>
           <Grid.Row>
-            &nbsp;
+            <Grid.Column width={4}>
+              Import options
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <Checkbox
+                label={
+                  <label className={styles.label}>
+                    Automatic detection of In and Outpoint
+                  </label>
+                }
+                checked={this.props.settings.defaultDetectInOutPoint}
+                onChange={this.onChangeDetectInOutPoint}
+              />
+            </Grid.Column>
           </Grid.Row>
         </Grid>
       </Container>

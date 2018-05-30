@@ -185,6 +185,13 @@ export const setDefaultPaperAspectRatioInv = (defaultPaperAspectRatioInv) => {
   };
 };
 
+export const setDefaultDetectInOutPoint = (defaultDetectInOutPoint) => {
+  return {
+    type: 'SET_DEFAULT_DETECT_INOUTPOINT',
+    defaultDetectInOutPoint
+  };
+};
+
 
 // thumbs
 

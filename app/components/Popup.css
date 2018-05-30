@@ -12,6 +12,7 @@
   border: none !important;
   max-width: none !important;
   /* transform: translateX(-50%) !important; */
+  /* padding: 0.5em 0.5em !important; */
 }
 
 .popup::before {
@@ -30,7 +31,7 @@
   bottom: 0 !important;
   border: none !important;
   max-width: none !important;
-  transform: translateX(-50%);
+  transform: translateX(-50%) !important;
   z-index: 1000;
   padding: 0.5em 0.5em !important;
 }

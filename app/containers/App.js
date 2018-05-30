@@ -25,13 +25,12 @@ import {
   setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat,
   setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
   setDefaultMoviePrintWidth, updateFileDetailUseRatio, setDefaultShowPaperPreview,
-  setDefaultPaperAspectRatioInv, updateInOutPoint, removeMovieListItem
+  setDefaultPaperAspectRatioInv, updateInOutPoint, removeMovieListItem, setDefaultDetectInOutPoint
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
   MENU_FOOTER_HEIGHT,
   ZOOM_SCALE,
-  IN_OUT_POINT_DETECTION_ACTIVE
 } from '../utils/constants';
 
 import steps from '../img/MoviePrint-steps.svg';
@@ -106,6 +105,7 @@ class App extends Component {
     this.onChangeColumnAndApply = this.onChangeColumnAndApply.bind(this);
     this.onShowPaperPreviewClick = this.onShowPaperPreviewClick.bind(this);
     this.onPaperAspectRatioClick = this.onPaperAspectRatioClick.bind(this);
+    this.onDetectInOutPointClick = this.onDetectInOutPointClick.bind(this);
     this.onReCaptureClick = this.onReCaptureClick.bind(this);
     this.onApplyClick = this.onApplyClick.bind(this);
     this.onCancelClick = this.onCancelClick.bind(this);
@@ -188,7 +188,7 @@ class App extends Component {
     ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, base64, frameNumber, useRatio) => {
       store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
       store.dispatch(updateThumbImage(fileId, '', posterFrameId, base64, frameNumber, 1));
-      ipcRenderer.send('send-get-in-and-outpoint', fileId, filePath, useRatio, IN_OUT_POINT_DETECTION_ACTIVE);
+      ipcRenderer.send('send-get-in-and-outpoint', fileId, filePath, useRatio, store.getState().undoGroup.present.settings.defaultDetectInOutPoint);
     });
 
     ipcRenderer.on('receive-get-in-and-outpoint', (event, fileId, fadeInPoint, fadeOutPoint) => {
@@ -659,6 +659,11 @@ class App extends Component {
     store.dispatch(setDefaultPaperAspectRatioInv(value));
   };
 
+  onDetectInOutPointClick = (value) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultDetectInOutPoint(value));
+  };
+
   onReCaptureClick = (checked) => {
     console.log(`${this.state.columnCount} : ${this.state.columnCountTemp} || ${this.state.thumbCount} : ${this.state.thumbCountTemp}`);
     if (!checked) {
@@ -860,6 +865,7 @@ class App extends Component {
                   >
                     <Progress
                       percent={this.state.progressBarPercentage}
+                      attached="bottom"
                       size="tiny"
                       indicating
                       // progress
@@ -904,6 +910,7 @@ class App extends Component {
                         onChangeRow={this.onChangeRow}
                         onShowPaperPreviewClick={this.onShowPaperPreviewClick}
                         onPaperAspectRatioClick={this.onPaperAspectRatioClick}
+                        onDetectInOutPointClick={this.onDetectInOutPointClick}
                         onReCaptureClick={this.onReCaptureClick}
                         onApplyClick={this.onApplyClick}
                         onCancelClick={this.onCancelClick}
