@@ -54,6 +54,15 @@ const installExtensions = async () => {
     .catch(console.log);
 };
 
+const setPosition = (vid, frameNumberToCapture, useRatio) => {
+  if (useRatio) {
+    const positionRatio = ((frameNumberToCapture) * 1.0) / (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1)
+    // console.log(`using positionRatio: ${positionRatio}`);
+    vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, positionRatio);
+  } else {
+    vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberToCapture);
+  }
+};
 
 /**
  * Add event listeners...
@@ -193,7 +202,7 @@ ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId) => 
   vid.readAsync((err1, mat1) => {
     const read = function read() {
 
-      vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberToCapture);
+      setPosition(vid, frameNumberToCapture, false);
       vid.readAsync((err, mat) => {
         console.log(`${frameNumberToCapture}/${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
 
@@ -217,7 +226,7 @@ ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId) => 
 
     if (err1) throw err1;
     // let iterator = 0;
-    vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberToCapture);
+    setPosition(vid, frameNumberToCapture, false);
     read();
   });
 });
@@ -282,24 +291,27 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
                 mean: frameMean
               });
             }
-          }
-          if ((searchInpoint && (frameMean >= threshold)) ||
-            ((frame >= searchLength) && (frame < (videoLength - searchLength)))) {
-            // only run if still searching inpoint and frameMean over threshold or done scanning inpoint
-            searchInpoint = false; // done searching inPoint
-            console.log('resetting playhead');
-            if (useRatio) {
-              const positionRatio = ((videoLength - searchLength) * 1.0) / videoLength;
-              vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, positionRatio);
-            } else {
-              vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, (videoLength - searchLength));
+
+            if ((searchInpoint && (frameMean >= threshold)) ||
+              ((frame >= searchLength) && (frame < (videoLength - searchLength)))) {
+              // only run if still searching inpoint and frameMean over threshold or done scanning inpoint
+              searchInpoint = false; // done searching inPoint
+              console.log('resetting playhead');
+              setPosition(vid, (videoLength - searchLength), useRatio);
+              read();
+            } else if ((frame < searchLength) || ((frame >= (videoLength - searchLength)) && (frame <= videoLength))) {
+              // half the amount of ipc events
+              if (iterator % 2) {
+                const progressBarPercentage = ((iterator / (searchLength * 2)) * 100);
+                event.sender.send('progress', fileId, progressBarPercentage); // first half of progress
+              }
+              iterator += 1;
+              read();
             }
-            read();
-          } else if ((frame < searchLength) || ((frame >= (videoLength - searchLength)) && (frame <= videoLength))) {
-            event.sender.send('progress', fileId, ((iterator / (searchLength * 2)) * 100)); // first half of progress
-            iterator += 1;
-            read();
-          } else if (frame > videoLength) {
+          } else {
+            console.error(`empty frame: iterator:${iterator} frame:${frame} (${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
+          }
+          if (frame > videoLength || mat.empty === true) {
             const meanArrayInReduced = meanArrayIn.reduce((prev, current) => {
               let largerObject = ((prev.mean > current.mean) ? prev : current);
               if (prev.frameThreshold === undefined) {
@@ -334,8 +346,10 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
             console.log(`fadeInPoint: ${fadeInPoint}`);
             console.log(`fadeOutPoint: ${fadeOutPoint}`);
             event.sender.send('progress', fileId, 100); // set to full
-            event.sender.send('progressMessage', fileId, 'info', `In and Outpoint detection finished - ${timeAfterInOutPointDetection - timeBeforeInOutPointDetection}`, 3000);
+            event.sender.send('progressMessage', fileId, 'info', `In and Outpoint detection finished - ${timeAfterInOutPointDetection - timeBeforeInOutPointDetection}ms`, 3000);
             event.sender.send('receive-get-in-and-outpoint', fileId, fadeInPoint, fadeOutPoint);
+          } else {
+            console.error(`something wrong: iterator:${iterator} frame:${frame} (${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
           }
         });
       };
@@ -343,11 +357,7 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
       const startFrame = 0;
       let iterator = 0;
       if (err1) throw err1;
-      if (useRatio) {
-        vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, startFrame);
-      } else {
-        vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, startFrame);
-      }
+      setPosition(vid, startFrame, useRatio);
       read(); // start reading frames
     });
   } else {
@@ -371,13 +381,7 @@ ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArr
         (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1)
       );
 
-      if (useRatio) {
-        const positionRatio = ((frameNumberToCapture) * 1.0) / (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1)
-        // console.log(`using positionRatio: ${positionRatio}`);
-        vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, positionRatio);
-      } else {
-        vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberToCapture);
-      }
+      setPosition(vid, frameNumberToCapture, useRatio);
 
       vid.readAsync((err, mat) => {
         console.log(`readAsync: ${iterator}, frameOffset: ${frameOffset}, ${frameNumberToCapture}/${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
@@ -418,13 +422,7 @@ ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArr
 
     if (err1) throw err1;
     let iterator = 0;
-    if (useRatio) {
-      const positionRatio = ((frameNumberArray[iterator]) * 1.0) / (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1)
-      // console.log(`using positionRatio: ${positionRatio}`);
-      vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, positionRatio);
-    } else {
-      vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberArray[iterator]);
-    }
+    setPosition(vid, frameNumberArray[iterator], useRatio);
     read();
   });
 });
