@@ -175,6 +175,13 @@ ipcMain.on('send-save-file', (event, filePath, buffer, saveMoviePrint = false) =
   });
 });
 
+ipcMain.on('send-save-file-error', (event, saveMoviePrint = false) => {
+  mainWindow.webContents.send('received-saved-file-error', 'MoviePrint could not be saved due to sizelimit (width + size > 32767)');
+  if (saveMoviePrint) {
+    workerWindow.webContents.send('action-saved-MoviePrint-done');
+  }
+});
+
 ipcMain.on('send-get-file-details', (event, fileId, filePath, posterFrameId) => {
   console.log(fileId);
   console.log(filePath);

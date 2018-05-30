@@ -54,6 +54,7 @@ const outputSize = (file = {
     visibilitySettings.showMoviePrintView,
     1
   );
+  const sizeLimit = 32767; // due to browser limitations https://html2canvas.hertzen.com/faq
   const moviePrintSize = [
     { width: 16384, height: Math.round(16384 * newScaleValueObject.moviePrintAspectRatioInv) },
     { width: 8192, height: Math.round(8192 * newScaleValueObject.moviePrintAspectRatioInv) },
@@ -63,12 +64,12 @@ const outputSize = (file = {
     { width: 1024, height: Math.round(1024 * newScaleValueObject.moviePrintAspectRatioInv) },
   ];
   return [
-    { value: moviePrintSize[5].width, text: `${moviePrintSize[5].width}px (×${moviePrintSize[5].height}px)` },
-    { value: moviePrintSize[4].width, text: `${moviePrintSize[4].width}px (×${moviePrintSize[4].height}px)` },
-    { value: moviePrintSize[3].width, text: `${moviePrintSize[3].width}px (×${moviePrintSize[3].height}px)` },
-    { value: moviePrintSize[2].width, text: `${moviePrintSize[2].width}px (×${moviePrintSize[2].height}px)` },
-    { value: moviePrintSize[1].width, text: `${moviePrintSize[1].width}px (×${moviePrintSize[1].height}px)` },
-    { value: moviePrintSize[0].width, text: `${moviePrintSize[0].width}px (×${moviePrintSize[0].height}px)` },
+    { value: moviePrintSize[5].width, text: `${moviePrintSize[5].width}px (×${moviePrintSize[5].height}px)`, disabled: ((moviePrintSize[5].width + moviePrintSize[5].height) > sizeLimit) },
+    { value: moviePrintSize[4].width, text: `${moviePrintSize[4].width}px (×${moviePrintSize[4].height}px)`, disabled: ((moviePrintSize[4].width + moviePrintSize[4].height) > sizeLimit) },
+    { value: moviePrintSize[3].width, text: `${moviePrintSize[3].width}px (×${moviePrintSize[3].height}px)`, disabled: ((moviePrintSize[3].width + moviePrintSize[3].height) > sizeLimit) },
+    { value: moviePrintSize[2].width, text: `${moviePrintSize[2].width}px (×${moviePrintSize[2].height}px)`, disabled: ((moviePrintSize[2].width + moviePrintSize[2].height) > sizeLimit) },
+    { value: moviePrintSize[1].width, text: `${moviePrintSize[1].width}px (×${moviePrintSize[1].height}px)`, disabled: ((moviePrintSize[1].width + moviePrintSize[1].height) > sizeLimit) },
+    { value: moviePrintSize[0].width, text: `${moviePrintSize[0].width}px (×${moviePrintSize[0].height}px)`, disabled: ((moviePrintSize[0].width + moviePrintSize[0].height) > sizeLimit) },
   ];
 };
 

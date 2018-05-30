@@ -26,10 +26,11 @@
   font-weight: 100 !important;
   font-size: 12px !important;
   position: fixed !important;
-  left: 45%;
+  left: 50%;
   bottom: 0 !important;
   border: none !important;
   max-width: none !important;
-  /* transform: translateX(-50%); */
+  transform: translateX(-50%);
   z-index: 1000;
+  padding: 0.5em 0.5em !important;
 }

@@ -150,7 +150,11 @@ export const saveBlob = (blob, fileName) => {
       console.log(`Saving ${JSON.stringify({ fileName, size: blob.size })}`);
     }
   };
-  reader.readAsArrayBuffer(blob);
+  try {
+    reader.readAsArrayBuffer(blob);
+  } catch (e) {
+    ipcRenderer.send('send-save-file-error', true);
+  }
 };
 
 export const getMimeType = (outputFormat) => {
