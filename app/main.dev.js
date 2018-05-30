@@ -22,7 +22,7 @@ import { limitRange } from './utils/utilsForMain';
 
 const opencv = require('opencv4nodejs');
 
-const searchLimit = 100; // how long to go forward or backward to find a none-empty frame
+const searchLimit = 25; // how long to go forward or backward to find a none-empty frame
 
 
 let mainWindow = null;
@@ -201,7 +201,6 @@ ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId) => 
   const frameNumberToCapture = Math.floor(vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) / 2); // capture frame in the middle
   vid.readAsync((err1, mat1) => {
     const read = function read() {
-
       setPosition(vid, frameNumberToCapture, false);
       vid.readAsync((err, mat) => {
         console.log(`${frameNumberToCapture}/${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
@@ -400,8 +399,8 @@ ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArr
           console.log('frame is empty');
           // assumption is that the we might find frames forward or backward which work
           if (Math.abs(frameOffset) < searchLimit) {
-            // if frameNumberToCapture is in first halfe of the movie go forward else backward
-            if (frameNumberToCapture < (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) / 2)) {
+            // if frameNumberToCapture is close to the end go backward else go forward
+            if (frameNumberToCapture < (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - searchLimit)) {
               console.log('will try to read one frame forward');
               read(frameOffset + 1);
             } else {
@@ -415,6 +414,9 @@ ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArr
               vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1
             );
             iterator += 1;
+            if (iterator < frameNumberArray.length) {
+              read();
+            }
           }
         }
       });
