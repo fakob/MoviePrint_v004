@@ -210,7 +210,7 @@ export const addThumb = (file, frameNumber, index, thumbId = uuidV4()) => {
     imageDB.frameList.where('[fileId+frameNumber]').equals([file.id, newFrameNumberWithinBoundaries]).toArray().then((frames) => {
       console.log(frames.length);
       if (frames.length === 0) {
-        ipcRenderer.send('send-get-thumbs', file.id, file.path, [thumbId], [frameId], [newFrameNumberWithinBoundaries], file.useRatio);
+        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, [thumbId], [frameId], [newFrameNumberWithinBoundaries], file.useRatio);
         return dispatch({
           type: 'ADD_THUMB',
           payload: {
@@ -454,8 +454,8 @@ export const addDefaultThumbs = (file, amount = 20, start = 10, stop = file.fram
     // imageDB.frameList.where('fileId').equals(file.id).toArray().then((frames) => {
     // });
 
-    ipcRenderer.send('send-get-thumbs', file.id, file.path, thumbIdArray, frameIdArray, frameNumberArray, file.useRatio);
-    // ipcRenderer.send('send-get-thumbs', file.id, file.path, frameIdArray, frameNumberArray);
+    ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, thumbIdArray, frameIdArray, frameNumberArray, file.useRatio);
+    // ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, frameIdArray, frameNumberArray);
     dispatch({
       type: 'ADD_DEFAULT_THUMBS',
       thumbIdArray,
@@ -477,7 +477,7 @@ export const changeThumb = (file, thumbId, newFrameNumber) => {
     imageDB.frameList.where('[fileId+frameNumber]').equals([file.id, newFrameNumberWithinBoundaries]).toArray().then((frames) => {
       console.log(frames.length);
       if (frames.length === 0) {
-        ipcRenderer.send('send-get-thumbs', file.id, file.path, [thumbId], [newFrameId], [newFrameNumberWithinBoundaries], file.useRatio);
+        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, [thumbId], [newFrameId], [newFrameNumberWithinBoundaries], file.useRatio);
         return dispatch({
           type: 'CHANGE_THUMB',
           payload: {

@@ -181,14 +181,14 @@ class App extends Component {
 
     ipcRenderer.on('receive-get-file-details', (event, fileId, filePath, posterFrameId, frameCount, width, height, fps, fourCC) => {
       store.dispatch(updateFileDetails(fileId, frameCount, width, height, fps, fourCC));
-      ipcRenderer.send('send-get-poster-frame', fileId, filePath, posterFrameId);
+      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-poster-frame', fileId, filePath, posterFrameId);
     });
 
     // poster frames don't have thumbId
     ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, base64, frameNumber, useRatio) => {
       store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
       store.dispatch(updateThumbImage(fileId, '', posterFrameId, base64, frameNumber, 1));
-      ipcRenderer.send('send-get-in-and-outpoint', fileId, filePath, useRatio, store.getState().undoGroup.present.settings.defaultDetectInOutPoint);
+      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-in-and-outpoint', fileId, filePath, useRatio, store.getState().undoGroup.present.settings.defaultDetectInOutPoint);
     });
 
     ipcRenderer.on('receive-get-in-and-outpoint', (event, fileId, fadeInPoint, fadeOutPoint) => {
@@ -325,7 +325,7 @@ class App extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     if ((nextState.filesToLoad.length !== 0) &&
       (this.state.filesToLoad.length !== nextState.filesToLoad.length)) {
-      ipcRenderer.send('send-get-file-details', nextState.filesToLoad[0].id, nextState.filesToLoad[0].path, nextState.filesToLoad[0].posterFrameId);
+      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', nextState.filesToLoad[0].id, nextState.filesToLoad[0].path, nextState.filesToLoad[0].posterFrameId);
     }
     return true;
   }

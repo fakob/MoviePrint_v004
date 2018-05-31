@@ -52,6 +52,7 @@
       "app.html",
       "credits.html",
       "worker.html",
+      "worker_opencv.html",
       "main.prod.js",
       "main.prod.js.map",
       "renderer.prod.js",

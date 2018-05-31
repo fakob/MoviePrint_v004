@@ -7,10 +7,11 @@ export default class MenuBuilder {
   creditsWindow: BrowserWindow;
   workerWindow: BrowserWindow;
 
-  constructor(mainWindow: BrowserWindow, creditsWindow: BrowserWindow, workerWindow: BrowserWindow) {
+  constructor(mainWindow: BrowserWindow, creditsWindow: BrowserWindow, workerWindow: BrowserWindow, opencvWorkerWindow: BrowserWindow) {
     this.mainWindow = mainWindow;
     this.creditsWindow = creditsWindow;
     this.workerWindow = workerWindow;
+    this.opencvWorkerWindow = opencvWorkerWindow;
   }
 
   buildMenu() {
@@ -92,6 +93,7 @@ export default class MenuBuilder {
         { label: 'Reload', accelerator: 'Command+R', click: () => { this.mainWindow.webContents.reload(); } },
         { label: 'Toggle Developer Tools', accelerator: 'Alt+Command+I', click: () => { this.mainWindow.toggleDevTools(); } },
         { label: 'Toggle Developer Tools for Worker', accelerator: 'Alt+Command+J', click: () => { this.workerWindow.toggleDevTools(); } },
+        { label: 'Toggle Developer Tools for Opencv Worker', accelerator: 'Alt+Command+J', click: () => { this.opencvWorkerWindow.toggleDevTools(); } },
         { label: 'Show Worker', click: () => { this.workerWindow.show(); } }
       ]
     };
@@ -104,6 +106,7 @@ export default class MenuBuilder {
         { label: 'Reload', accelerator: 'Command+R', click: () => { this.mainWindow.webContents.reload(); } },
         { label: 'Toggle Developer Tools', accelerator: 'Alt+Command+I', click: () => { this.mainWindow.toggleDevTools(); } },
         { label: 'Toggle Developer Tools for Worker', accelerator: 'Alt+Command+J', click: () => { this.workerWindow.toggleDevTools(); } },
+        { label: 'Toggle Developer Tools for Opencv Worker', accelerator: 'Alt+Command+J', click: () => { this.opencvWorkerWindow.toggleDevTools(); } },
         { label: 'Show Worker', click: () => { this.workerWindow.show(); } }
       ]
     };
