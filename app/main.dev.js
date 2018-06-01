@@ -14,7 +14,6 @@ import { app, BrowserWindow, ipcMain, globalShortcut, shell } from 'electron';
 import path from 'path';
 import fs from 'fs';
 
-import { IN_OUT_POINT_SEARCH_LENGTH, IN_OUT_POINT_SEARCH_THRESHOLD } from './utils/mainConstants';
 import MenuBuilder from './menu';
 
 let mainWindow = null;
