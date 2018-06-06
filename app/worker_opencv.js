@@ -1,58 +1,42 @@
-/* eslint global-require: 0, flowtype-errors/show-errors: 0 */
-
-/**
- * This module executes inside of electron's main process. You can start
- * electron renderer process from here and communicate with the other processes
- * through IPC.
- *
- * When running `npm run build` or `npm run build-main`, this file is compiled to
- * `./app/main.prod.js` using webpack. This gives us some performance wins.
- *
- * @flow
- */
-import { app, BrowserWindow, ipcMain, globalShortcut, shell } from 'electron';
-// import opencv from 'opencv';
-import path from 'path';
-import fs from 'fs';
-
-import { IN_OUT_POINT_SEARCH_LENGTH, IN_OUT_POINT_SEARCH_THRESHOLD } from './utils/mainConstants';
-import MenuBuilder from './menu';
 import VideoCaptureProperties from './utils/videoCaptureProperties';
 import { limitRange } from './utils/utilsForMain';
+import { IN_OUT_POINT_SEARCH_LENGTH, IN_OUT_POINT_SEARCH_THRESHOLD } from './utils/mainConstants';
 
 const opencv = require('opencv4nodejs');
 
 const searchLimit = 25; // how long to go forward or backward to find a none-empty frame
+const { ipcRenderer } = require('electron');
 
+console.log('I am the opencvWorkerWindow');
 
-let mainWindow = null;
-let appAboutToQuit = false;
-let creditsWindow = null;
-let workerWindow = null;
+window.addEventListener('error', event => {
+  console.error(event.error);
+  event.preventDefault();
+});
 
-if (process.env.NODE_ENV === 'production') {
-  const sourceMapSupport = require('source-map-support');
-  sourceMapSupport.install();
-}
+window.addEventListener('uncaughtException', event => {
+  console.error(event.error);
+  event.preventDefault();
+});
 
-if (
-  process.env.NODE_ENV === 'development' ||
-  process.env.DEBUG_PROD === 'true'
-) {
-  require('electron-debug')();
-  const p = path.join(__dirname, '..', 'app', 'node_modules');
-  require('module').globalPaths.push(p);
-}
+window.addEventListener('unhandledrejection', event => {
+  console.error(event.error);
+  event.preventDefault();
+});
 
-const installExtensions = async () => {
-  const installer = require('electron-devtools-installer');
-  const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-  const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
+// handle crashes and kill events
+process.on('uncaughtException', (err) => {
+  // log the message and stack trace
+  console.error(err);
+  // fs.writeFileSync('crash.log', err + "\n" + err.stack);
+});
 
-  return Promise.all(
-    extensions.map(name => installer.default(installer[name], forceDownload))
-  ).catch(console.log);
-};
+// handle crashes and kill events
+process.on('SIGTERM', (err) => {
+  // log the message and stack trace
+  console.error(err);
+  // fs.writeFileSync('shutdown.log', 'Received SIGTERM signal');
+});
 
 const setPosition = (vid, frameNumberToCapture, useRatio) => {
   if (useRatio) {
@@ -64,127 +48,11 @@ const setPosition = (vid, frameNumberToCapture, useRatio) => {
   }
 };
 
-/**
- * Add event listeners...
- */
+// ipcRenderer.on('message-from-mainWindow-to-opencvWorkerWindow', (event, ...args) => {
+//   console.log(...args);
+// });
 
-app.on('before-quit', () => {
-  // set variable so windows know that they should close and not hide
-  appAboutToQuit = true;
-});
-
-app.on('window-all-closed', () => {
-  // Respect the OSX convention of having the application in memory even
-  // after all windows have been closed
-  console.log('window-all-closed');
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-app.on('ready', async () => {
-  if (
-    process.env.NODE_ENV === 'development' ||
-    process.env.DEBUG_PROD === 'true'
-  ) {
-    await installExtensions();
-  }
-
-  mainWindow = new BrowserWindow({
-    backgroundColor: '#1e1e1e',
-    show: false,
-    width: 1366,
-    height: 768
-  });
-
-  mainWindow.loadURL(`file://${__dirname}/app.html`);
-
-  // @TODO: Use 'ready-to-show' event
-  //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
-  mainWindow.once('ready-to-show', () => {
-    if (!mainWindow) {
-      throw new Error('"mainWindow" is not defined');
-    }
-    mainWindow.show();
-    mainWindow.focus();
-  });
-  // mainWindow.webContents.on('did-finish-load', () => {
-  //   if (!mainWindow) {
-  //     throw new Error('"mainWindow" is not defined');
-  //   }
-  //   mainWindow.show();
-  //   mainWindow.focus();
-  // });
-
-  mainWindow.on('close', (event) => {
-    // only hide window and prevent default if app not quitting
-    if (!appAboutToQuit) {
-      mainWindow.hide();
-      event.preventDefault();
-    }
-  });
-
-  creditsWindow = new BrowserWindow({
-    width: 660,
-    height: 660,
-    resizable: true,
-    title: 'Credits',
-    minimizable: false,
-    fullscreenable: false
-  });
-  creditsWindow.hide();
-  creditsWindow.loadURL(`file://${__dirname}/credits.html`);
-
-  creditsWindow.on('close', (event) => {
-    // only hide window and prevent default if app not quitting
-    if (!appAboutToQuit) {
-      creditsWindow.hide();
-      event.preventDefault();
-    }
-  });
-
-  workerWindow = new BrowserWindow();
-  workerWindow.hide();
-  // workerWindow.webContents.openDevTools();
-  workerWindow.loadURL(`file://${__dirname}/worker.html`);
-
-  workerWindow.on('close', (event) => {
-    // only hide window and prevent default if app not quitting
-    if (!appAboutToQuit) {
-      workerWindow.hide();
-      event.preventDefault();
-    }
-  });
-
-  const menuBuilder = new MenuBuilder(mainWindow, creditsWindow, workerWindow);
-  menuBuilder.buildMenu();
-});
-
-ipcMain.on('request-save-MoviePrint', (event, arg) => {
-  workerWindow.webContents.send('action-save-MoviePrint', arg);
-});
-
-ipcMain.on('send-save-file', (event, filePath, buffer, saveMoviePrint = false) => {
-  fs.writeFile(filePath, buffer, err => {
-    if (err) {
-      mainWindow.webContents.send('received-saved-file-error', err.message);
-    } else {
-      mainWindow.webContents.send('received-saved-file', filePath);
-    }
-    if (saveMoviePrint) {
-      workerWindow.webContents.send('action-saved-MoviePrint-done');
-    }
-  });
-});
-
-ipcMain.on('send-save-file-error', (event, saveMoviePrint = false) => {
-  mainWindow.webContents.send('received-saved-file-error', 'MoviePrint could not be saved due to sizelimit (width + size > 32767)');
-  if (saveMoviePrint) {
-    workerWindow.webContents.send('action-saved-MoviePrint-done');
-  }
-});
-
-ipcMain.on('send-get-file-details', (event, fileId, filePath, posterFrameId) => {
+ipcRenderer.on('send-get-file-details', (event, fileId, filePath, posterFrameId) => {
   console.log(fileId);
   console.log(filePath);
   try {
@@ -193,15 +61,15 @@ ipcMain.on('send-get-file-details', (event, fileId, filePath, posterFrameId) => 
     console.log(`height: ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT)}`);
     console.log(`FPS: ${vid.get(VideoCaptureProperties.CAP_PROP_FPS)}`);
     console.log(`codec: ${vid.get(VideoCaptureProperties.CAP_PROP_FOURCC)}`);
-    event.sender.send('receive-get-file-details', fileId, filePath, posterFrameId, vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT), vid.get(VideoCaptureProperties.CAP_PROP_FPS), vid.get(VideoCaptureProperties.CAP_PROP_FOURCC));
+    ipcRenderer.send('message-from-opencvWorkerWindow-to-mainWindow', 'receive-get-file-details', fileId, filePath, posterFrameId, vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH), vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT), vid.get(VideoCaptureProperties.CAP_PROP_FPS), vid.get(VideoCaptureProperties.CAP_PROP_FOURCC));
   } catch (e) {
-    event.sender.send('failed-to-open-file', fileId);
-    event.sender.send('progressMessage', fileId, 'error', `Failed to open ${filePath}`, 3000);
+    ipcRenderer.send('message-from-opencvWorkerWindow-to-mainWindow', 'failed-to-open-file', fileId);
+    ipcRenderer.send('message-from-opencvWorkerWindow-to-mainWindow', 'progressMessage', fileId, 'error', `Failed to open ${filePath}`, 3000);
     console.log(e);
   }
 });
 
-ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId) => {
+ipcRenderer.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId) => {
   console.log('send-get-poster-frame');
   console.log(fileId);
   console.log(filePath);
@@ -223,7 +91,7 @@ ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId) => 
 
         if (mat.empty === false) {
           const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // maybe change to .png?
-          event.sender.send('receive-get-poster-frame', fileId, filePath, posterFrameId, outBase64, vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES), useRatio);
+          ipcRenderer.send('message-from-opencvWorkerWindow-to-mainWindow', 'receive-get-poster-frame', fileId, filePath, posterFrameId, outBase64, vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES), useRatio);
         }
         // iterator += 1;
         // if (iterator < frameNumberArray.length) {
@@ -239,19 +107,20 @@ ipcMain.on('send-get-poster-frame', (event, fileId, filePath, posterFrameId) => 
   });
 });
 
-ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detectInOutPoint) => {
+ipcRenderer.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detectInOutPoint) => {
   console.log('send-get-in-and-outpoint');
   console.log(fileId);
   console.log(filePath);
   console.time(`${fileId}-inPointDetection`);
   const vid = new opencv.VideoCapture(filePath);
   const videoLength = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1;
+  console.log(videoLength);
 
   if (detectInOutPoint) {
     console.time(`${fileId}-inOutPointDetection`);
     const timeBeforeInOutPointDetection = Date.now();
 
-    event.sender.send('progressMessage', fileId, 'info', 'Detecting in and outpoint');
+    ipcRenderer.send('message-from-opencvWorkerWindow-to-mainWindow', 'progressMessage', fileId, 'info', 'Detecting in and outpoint');
 
     const searchLength = Math.min(IN_OUT_POINT_SEARCH_LENGTH, videoLength / 2);
     const threshold = IN_OUT_POINT_SEARCH_THRESHOLD;
@@ -311,7 +180,7 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
               // half the amount of ipc events
               if (iterator % 2) {
                 const progressBarPercentage = ((iterator / (searchLength * 2)) * 100);
-                event.sender.send('progress', fileId, progressBarPercentage); // first half of progress
+                ipcRenderer.send('message-from-opencvWorkerWindow-to-mainWindow', 'progress', fileId, progressBarPercentage); // first half of progress
               }
               iterator += 1;
               read();
@@ -353,10 +222,13 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
             console.timeEnd(`${fileId}-inOutPointDetection`);
             console.log(`fadeInPoint: ${fadeInPoint}`);
             console.log(`fadeOutPoint: ${fadeOutPoint}`);
-            event.sender.send('progress', fileId, 100); // set to full
-            event.sender.send('progressMessage', fileId, 'info', `In and Outpoint detection finished - ${timeAfterInOutPointDetection - timeBeforeInOutPointDetection}ms`, 3000);
-            event.sender.send('receive-get-in-and-outpoint', fileId, fadeInPoint, fadeOutPoint);
+            ipcRenderer.send('message-from-opencvWorkerWindow-to-mainWindow', 'progress', fileId, 100); // set to full
+            ipcRenderer.send('message-from-opencvWorkerWindow-to-mainWindow', 'progressMessage', fileId, 'info', `In and Outpoint detection finished - ${timeAfterInOutPointDetection - timeBeforeInOutPointDetection}ms`, 3000);
+            ipcRenderer.send('message-from-opencvWorkerWindow-to-mainWindow', 'receive-get-in-and-outpoint', fileId, fadeInPoint, fadeOutPoint);
           } else {
+            console.error(`something wrong: frame:${frame} > videoLength:${videoLength} || mat.empty ${mat.empty}`);
+            console.log(meanArrayIn);
+            console.log(meanArrayOut);
             console.error(`something wrong: iterator:${iterator} frame:${frame} (${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
           }
         });
@@ -370,12 +242,13 @@ ipcMain.on('send-get-in-and-outpoint', (event, fileId, filePath, useRatio, detec
     });
   } else {
     console.log('in-out-point-detection DEACTIVATED');
-    event.sender.send('receive-get-in-and-outpoint', fileId, 0, videoLength);
+    ipcRenderer.send('message-from-opencvWorkerWindow-to-mainWindow', 'receive-get-in-and-outpoint', fileId, 0, videoLength);
   }
 });
 
-ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArray, frameNumberArray, useRatio) => {
+ipcRenderer.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArray, frameNumberArray, useRatio) => {
   console.log('send-get-thumbs');
+  console.log(frameNumberArray);
   console.log(filePath);
   console.log(`useRatio: ${useRatio}`);
   const vid = new opencv.VideoCapture(filePath);
@@ -392,11 +265,13 @@ ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArr
       setPosition(vid, frameNumberToCapture, useRatio);
 
       vid.readAsync((err, mat) => {
+        // debugger;
         console.log(`readAsync: ${iterator}, frameOffset: ${frameOffset}, ${frameNumberToCapture}/${vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`);
 
         if (mat.empty === false) {
           const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // maybe change to .png?
-          event.sender.send(
+          ipcRenderer.send(
+            'message-from-opencvWorkerWindow-to-mainWindow',
             'receive-get-thumbs', fileId, thumbIdArray[iterator], frameIdArray[iterator], outBase64,
             vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1
           );
@@ -418,7 +293,8 @@ ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArr
             }
           } else {
             console.log('still empty, will stop and send an empty frame back');
-            event.sender.send(
+            ipcRenderer.send(
+              'message-from-opencvWorkerWindow-to-mainWindow',
               'receive-get-thumbs', fileId, thumbIdArray[iterator], frameIdArray[iterator], '',
               vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1
             );
@@ -438,25 +314,9 @@ ipcMain.on('send-get-thumbs', (event, fileId, filePath, thumbIdArray, frameIdArr
   });
 });
 
-// // retransmit it to workerWindow
-// ipcMain.on('printPDF', (event: any, content: any) => {
-//   workerWindow.webContents.send('printPDF', content);
-// });
-// // when worker window is ready
-// ipcMain.on('readyToPrintPDF', (event) => {
-//   const pdfPath = path.join(os.tmpdir(), 'print.pdf');
-//   // Use default printing options
-//   setTimeout(() => {
-//     workerWindow.webContents.printToPDF({}, (error, data) => {
-//       if (error) throw error;
-//       fs.writeFile(pdfPath, data, (err) => {
-//         if (err) {
-//           throw err;
-//         }
-//         shell.openItem(pdfPath);
-//         event.sender.send('wrote-pdf', pdfPath);
-//         // workerWindow.webContents.print();
-//       });
-//     });
-//   }, 1000);
-// });
+// render(
+//   <AppContainer>
+//     <WorkerRoot store={store} history={history} />
+//   </AppContainer>,
+//   document.getElementById('worker_opencv')
+// );
