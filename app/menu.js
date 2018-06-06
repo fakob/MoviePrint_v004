@@ -94,7 +94,8 @@ export default class MenuBuilder {
         { label: 'Toggle Developer Tools', accelerator: 'Alt+Command+I', click: () => { this.mainWindow.toggleDevTools(); } },
         { label: 'Toggle Developer Tools for Worker', accelerator: 'Alt+Command+J', click: () => { this.workerWindow.toggleDevTools(); } },
         { label: 'Toggle Developer Tools for Opencv Worker', accelerator: 'Alt+Command+J', click: () => { this.opencvWorkerWindow.toggleDevTools(); } },
-        { label: 'Show Worker', click: () => { this.workerWindow.show(); } }
+        { label: 'Show Worker', click: () => { this.workerWindow.show(); } },
+        { label: 'Show OpenCvWorker', click: () => { this.opencvWorkerWindow.show(); } }
       ]
     };
     const subMenuViewProd = {
@@ -107,7 +108,8 @@ export default class MenuBuilder {
         { label: 'Toggle Developer Tools', accelerator: 'Alt+Command+I', click: () => { this.mainWindow.toggleDevTools(); } },
         { label: 'Toggle Developer Tools for Worker', accelerator: 'Alt+Command+J', click: () => { this.workerWindow.toggleDevTools(); } },
         { label: 'Toggle Developer Tools for Opencv Worker', accelerator: 'Alt+Command+J', click: () => { this.opencvWorkerWindow.toggleDevTools(); } },
-        { label: 'Show Worker', click: () => { this.workerWindow.show(); } }
+        { label: 'Show Worker', click: () => { this.workerWindow.show(); } },
+        { label: 'Show OpenCvWorker', click: () => { this.opencvWorkerWindow.show(); } }
       ]
     };
     const subMenuWindow = {

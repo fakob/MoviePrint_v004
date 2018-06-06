@@ -140,7 +140,7 @@ app.on('ready', async () => {
 
   opencvWorkerWindow = new BrowserWindow();
   opencvWorkerWindow.hide();
-  // opencvWorkerWindow.webContents.openDevTools();
+  opencvWorkerWindow.webContents.openDevTools();
   opencvWorkerWindow.loadURL(`file://${__dirname}/worker_opencv.html`);
 
   opencvWorkerWindow.on('close', (event) => {
