@@ -10,11 +10,13 @@
  *
  * @flow
  */
-import { app, BrowserWindow, ipcMain, globalShortcut, shell } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import fs from 'fs';
 
 import MenuBuilder from './menu';
+
+const { openProcessManager } = require('electron-process-manager');
 
 let mainWindow = null;
 let appAboutToQuit = false;
@@ -90,6 +92,9 @@ app.on('ready', async () => {
     mainWindow.show();
     mainWindow.focus();
   });
+
+  openProcessManager();
+
   // mainWindow.webContents.on('did-finish-load', () => {
   //   if (!mainWindow) {
   //     throw new Error('"mainWindow" is not defined');
@@ -98,7 +103,7 @@ app.on('ready', async () => {
   //   mainWindow.focus();
   // });
 
-  mainWindow.on('close', (event) => {
+  mainWindow.on('close', event => {
     // only hide window and prevent default if app not quitting
     if (!appAboutToQuit) {
       mainWindow.hide();
@@ -117,7 +122,7 @@ app.on('ready', async () => {
   creditsWindow.hide();
   creditsWindow.loadURL(`file://${__dirname}/credits.html`);
 
-  creditsWindow.on('close', (event) => {
+  creditsWindow.on('close', event => {
     // only hide window and prevent default if app not quitting
     if (!appAboutToQuit) {
       creditsWindow.hide();
@@ -130,7 +135,7 @@ app.on('ready', async () => {
   // workerWindow.webContents.openDevTools();
   workerWindow.loadURL(`file://${__dirname}/worker.html`);
 
-  workerWindow.on('close', (event) => {
+  workerWindow.on('close', event => {
     // only hide window and prevent default if app not quitting
     if (!appAboutToQuit) {
       workerWindow.hide();
@@ -143,7 +148,7 @@ app.on('ready', async () => {
   opencvWorkerWindow.webContents.openDevTools();
   opencvWorkerWindow.loadURL(`file://${__dirname}/worker_opencv.html`);
 
-  opencvWorkerWindow.on('close', (event) => {
+  opencvWorkerWindow.on('close', event => {
     // only hide window and prevent default if app not quitting
     if (!appAboutToQuit) {
       opencvWorkerWindow.hide();
@@ -151,7 +156,12 @@ app.on('ready', async () => {
     }
   });
 
-  const menuBuilder = new MenuBuilder(mainWindow, creditsWindow, workerWindow, opencvWorkerWindow);
+  const menuBuilder = new MenuBuilder(
+    mainWindow,
+    creditsWindow,
+    workerWindow,
+    opencvWorkerWindow
+  );
   menuBuilder.buildMenu();
 });
 
@@ -159,37 +169,49 @@ ipcMain.on('request-save-MoviePrint', (event, arg) => {
   workerWindow.webContents.send('action-save-MoviePrint', arg);
 });
 
-ipcMain.on('send-save-file', (event, filePath, buffer, saveMoviePrint = false) => {
-  fs.writeFile(filePath, buffer, err => {
-    if (err) {
-      mainWindow.webContents.send('received-saved-file-error', err.message);
-    } else {
-      mainWindow.webContents.send('received-saved-file', filePath);
-    }
-    if (saveMoviePrint) {
-      workerWindow.webContents.send('action-saved-MoviePrint-done');
-    }
-  });
-});
+ipcMain.on(
+  'send-save-file',
+  (event, filePath, buffer, saveMoviePrint = false) => {
+    fs.writeFile(filePath, buffer, err => {
+      if (err) {
+        mainWindow.webContents.send('received-saved-file-error', err.message);
+      } else {
+        mainWindow.webContents.send('received-saved-file', filePath);
+      }
+      if (saveMoviePrint) {
+        workerWindow.webContents.send('action-saved-MoviePrint-done');
+      }
+    });
+  }
+);
 
 ipcMain.on('send-save-file-error', (event, saveMoviePrint = false) => {
-  mainWindow.webContents.send('received-saved-file-error', 'MoviePrint could not be saved due to sizelimit (width + size > 32767)');
+  mainWindow.webContents.send(
+    'received-saved-file-error',
+    'MoviePrint could not be saved due to sizelimit (width + size > 32767)'
+  );
   if (saveMoviePrint) {
     workerWindow.webContents.send('action-saved-MoviePrint-done');
   }
 });
 
-ipcMain.on('message-from-mainWindow-to-opencvWorkerWindow', (e, ipcName, ...args) => {
-  console.log(`passing ipc message ${ipcName}`);
-  // console.log(...args);
-  opencvWorkerWindow.webContents.send(ipcName, ...args);
-});
+ipcMain.on(
+  'message-from-mainWindow-to-opencvWorkerWindow',
+  (e, ipcName, ...args) => {
+    console.log(`passing ipc message ${ipcName}`);
+    // console.log(...args);
+    opencvWorkerWindow.webContents.send(ipcName, ...args);
+  }
+);
 
-ipcMain.on('message-from-opencvWorkerWindow-to-mainWindow', (e, ipcName, ...args) => {
-  console.log(`passing ipc message ${ipcName}`);
-  // console.log(...args);
-  mainWindow.webContents.send(ipcName, ...args);
-});
+ipcMain.on(
+  'message-from-opencvWorkerWindow-to-mainWindow',
+  (e, ipcName, ...args) => {
+    console.log(`passing ipc message ${ipcName}`);
+    // console.log(...args);
+    mainWindow.webContents.send(ipcName, ...args);
+  }
+);
 
 // // retransmit it to workerWindow
 // ipcMain.on('printPDF', (event: any, content: any) => {
