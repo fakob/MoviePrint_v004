@@ -198,7 +198,9 @@ ipcMain.on('send-save-file-error', (event, saveMoviePrint = false) => {
 ipcMain.on(
   'message-from-mainWindow-to-opencvWorkerWindow',
   (e, ipcName, ...args) => {
-    console.log(`passing ipc message ${ipcName}`);
+    console.log(
+      `passing ipc message ${ipcName} from mainWindow to opencvWorkerWindow`
+    );
     // console.log(...args);
     opencvWorkerWindow.webContents.send(ipcName, ...args);
   }
@@ -207,7 +209,9 @@ ipcMain.on(
 ipcMain.on(
   'message-from-opencvWorkerWindow-to-mainWindow',
   (e, ipcName, ...args) => {
-    console.log(`passing ipc message ${ipcName}`);
+    console.log(
+      `passing ipc message ${ipcName} from opencvWorkerWindow to mainWindow`
+    );
     // console.log(...args);
     mainWindow.webContents.send(ipcName, ...args);
   }
