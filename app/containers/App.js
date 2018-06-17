@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone';
-import { TransitionablePortal, Segment, Progress } from 'semantic-ui-react';
+import { TransitionablePortal, Segment, Progress, Modal, Embed } from 'semantic-ui-react';
 
 import '../app.global.css';
 import FileList from '../containers/FileList';
@@ -78,7 +78,8 @@ class App extends Component {
       filesToLoad: [],
       progressMessage: undefined,
       showMessage: false,
-      progressBarPercentage: 100
+      progressBarPercentage: 100,
+      showFeedbackForm: false
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -95,6 +96,7 @@ class App extends Component {
     this.onShowThumbs = this.onShowThumbs.bind(this);
     this.onViewToggle = this.onViewToggle.bind(this);
     this.switchToPrintView = this.switchToPrintView.bind(this);
+    this.onOpenFeedbackForm = this.onOpenFeedbackForm.bind(this);
     this.onSaveMoviePrint = this.onSaveMoviePrint.bind(this);
 
     this.updatecontainerWidthAndHeight = this.updatecontainerWidthAndHeight.bind(this);
@@ -613,6 +615,13 @@ class App extends Component {
     );
   }
 
+  onOpenFeedbackForm() {
+    console.log('onOpenFeedbackForm');
+    this.setState(
+      { showFeedbackForm: true }
+    )
+  }
+
   onChangeRow = (value) => {
     this.setState({ thumbCountTemp: this.state.columnCountTemp * value });
     this.updateScaleValue();
@@ -1055,9 +1064,54 @@ class App extends Component {
                       {this.state.progressMessage}
                     </Segment>
                   </TransitionablePortal>
+                  <Modal
+                    open={this.state.showFeedbackForm}
+                    onClose={() => this.setState({ showFeedbackForm: false})}
+                    closeIcon
+                    // basic
+                    size='fullscreen'
+                    style={{
+                      marginTop: 0,
+                      height: '80vh',
+                    }}
+                  >
+                    <Modal.Content
+                      // scrolling
+                      style={{
+                        // overflow: 'auto',
+                        height: '80vh',
+                      }}
+                    >
+                      <Embed
+                        style={{
+                          // overflow: 'auto',
+                          height: '100%',
+                        }}
+                        defaultActive
+                        // icon='right circle arrow'
+                        // placeholder='/assets/images/image-16by9.png'
+                        url='http://movieprint.fakob.com/feedback-for-movieprint-app/'
+                        iframe={{
+                          allowFullScreen: true,
+                          scrolling: 'yes',
+                          style: {
+                            // width: '100%',
+                            // height: '80vh',
+                          },
+                        }}
+                      />
+                    </Modal.Content>
+                    <Modal.Actions>
+                      {/* <Button primary>
+                        Proceed <Icon name='right chevron' />
+                      </Button> */}
+                    </Modal.Actions>
+                  </Modal>
                   <Footer
                     visibilitySettings={this.props.visibilitySettings}
                     file={this.props.file}
+                    onOpenFeedbackForm={this.onOpenFeedbackForm}
+                    showFeedbackForm={this.state.showFeedbackForm}
                     onSaveMoviePrint={this.onSaveMoviePrint}
                     savingMoviePrint={this.state.savingMoviePrint}
                     showMoviePrintView={this.props.visibilitySettings.showMoviePrintView}
