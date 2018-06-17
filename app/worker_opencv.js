@@ -412,8 +412,9 @@ ipcRenderer.on(
   }
 );
 
+// read sync test
 ipcRenderer.on(
-  'send-get-thumbs',
+  'send-get-thumbs-sync',
   (
     event,
     fileId,
@@ -445,105 +446,25 @@ ipcRenderer.on(
           )}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`
         );
         opencv.imshow('a window name', frame);
-        // const outBase64 = opencv.imencode('.jpg', frame).toString('base64'); // maybe change to .png?
-        // ipcRenderer.send(
-        //   'message-from-opencvWorkerWindow-to-mainWindow',
-        //   'receive-get-thumbs',
-        //   fileId,
-        //   thumbIdArray[i],
-        //   frameIdArray[i],
-        //   outBase64,
-        //   vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1
-        // );
+        const outBase64 = opencv.imencode('.jpg', frame).toString('base64'); // maybe change to .png?
+        ipcRenderer.send(
+          'message-from-opencvWorkerWindow-to-mainWindow',
+          'receive-get-thumbs',
+          fileId,
+          thumbIdArray[i],
+          frameIdArray[i],
+          outBase64,
+          vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1
+        );
         opencv.waitKey(10);
       }
     }
-
-    // vid.readAsync(err1 => {
-    //   const read = (frameOffset = 0) => {
-    //     // limit frameNumberToCapture between 0 and movie length
-    //     const frameNumberToCapture = limitRange(
-    //       frameNumberArray[iterator] + frameOffset,
-    //       0,
-    //       vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1
-    //     );
-    //
-    //     setPosition(vid, frameNumberToCapture, useRatio);
-    //
-    //     vid.readAsync((err, mat) => {
-    //       // debugger;
-    //       console.log(
-    //         `readAsync: ${iterator}, frameOffset: ${frameOffset}, ${frameNumberToCapture}/${vid.get(
-    //           VideoCaptureProperties.CAP_PROP_POS_FRAMES
-    //         ) - 1}(${vid.get(
-    //           VideoCaptureProperties.CAP_PROP_POS_MSEC
-    //         )}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`
-    //       );
-    //
-    //       if (mat.empty === false) {
-    //         opencv.imshow('a window name', mat);
-    //         const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // maybe change to .png?
-    //         ipcRenderer.send(
-    //           'message-from-opencvWorkerWindow-to-mainWindow',
-    //           'receive-get-thumbs',
-    //           fileId,
-    //           thumbIdArray[iterator],
-    //           frameIdArray[iterator],
-    //           outBase64,
-    //           vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1
-    //         );
-    //         iterator += 1;
-    //         if (iterator < frameNumberArray.length) {
-    //           read();
-    //         }
-    //       } else {
-    //         console.log('frame is empty');
-    //         // assumption is that the we might find frames forward or backward which work
-    //         if (Math.abs(frameOffset) < searchLimit) {
-    //           // if frameNumberToCapture is close to the end go backward else go forward
-    //           if (
-    //             frameNumberToCapture <
-    //             vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) -
-    //               searchLimit
-    //           ) {
-    //             console.log('will try to read one frame forward');
-    //             read(frameOffset + 1);
-    //           } else {
-    //             console.log('will try to read one frame backward');
-    //             read(frameOffset - 1);
-    //           }
-    //         } else {
-    //           console.log(
-    //             'still empty, will stop and send an empty frame back'
-    //           );
-    //           ipcRenderer.send(
-    //             'message-from-opencvWorkerWindow-to-mainWindow',
-    //             'receive-get-thumbs',
-    //             fileId,
-    //             thumbIdArray[iterator],
-    //             frameIdArray[iterator],
-    //             '',
-    //             vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1
-    //           );
-    //           iterator += 1;
-    //           if (iterator < frameNumberArray.length) {
-    //             read();
-    //           }
-    //         }
-    //       }
-    //     });
-    //   };
-    //
-    //   if (err1) throw err1;
-    //   // let iterator = 0;
-    //   // setPosition(vid, frameNumberArray[iterator], useRatio);
-    //   // read();
-    // });
   }
 );
 
+// read async
 ipcRenderer.on(
-  'send-get-thumbs-old',
+  'send-get-thumbs',
   (
     event,
     fileId,
