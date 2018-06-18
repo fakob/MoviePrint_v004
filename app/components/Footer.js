@@ -9,7 +9,7 @@ import stylesPop from './Popup.css';
 
 const Footer = ({
   file, visibilitySettings, toggleMovielist, toggleSettings, onSaveMoviePrint,
-  savingMoviePrint, showMoviePrintView
+  savingMoviePrint, showMoviePrintView, showFeedbackForm, onOpenFeedbackForm
 }) => {
 
   return (
@@ -28,6 +28,25 @@ const Footer = ({
           {file.name}
         </Menu.Item> */}
         <Menu.Menu position="right">
+          <Popup
+            trigger={
+              <Menu.Item
+                name="send"
+                onClick={onOpenFeedbackForm}
+                // color="orange"
+                // active={!savingMoviePrint}
+                // disabled={savingMoviePrint}
+              >
+                <Icon
+                  name="mail"
+                />
+                Share Feedback
+              </Menu.Item>
+            }
+            className={stylesPop.popup}
+            content="Share Feedback"
+            keepInViewPort={false}
+          />
           {file && showMoviePrintView &&
             <Popup
               trigger={
