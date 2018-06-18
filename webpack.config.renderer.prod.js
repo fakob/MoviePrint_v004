@@ -177,9 +177,9 @@ export default merge.smart(baseConfig, {
       NODE_ENV: 'production'
     }),
 
-    new webpack.optimize.CommonsChunkPlugin({
-      children: true,
-    }),
+    // new webpack.optimize.CommonsChunkPlugin({
+    //   children: true,
+    // }),
 
     new UglifyJSPlugin({
       parallel: true,

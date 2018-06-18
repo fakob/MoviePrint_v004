@@ -2,6 +2,8 @@ const settings = (state = {}, action) => {
   switch (action.type) {
     case 'CLEAR_CURRENT_FILEID':
       return { ...state, currentFileId: undefined };
+    case 'SET_EMAIL_ADDRESS':
+      return { ...state, emailAddress: action.emailAddress };
     case 'SET_CURRENT_FILEID':
       return { ...state, currentFileId: action.fileId };
     case 'SET_DEFAULT_THUMB_COUNT':

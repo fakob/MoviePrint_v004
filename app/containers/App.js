@@ -25,7 +25,8 @@ import {
   setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat,
   setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
   setDefaultMoviePrintWidth, updateFileDetailUseRatio, setDefaultShowPaperPreview,
-  setDefaultPaperAspectRatioInv, updateInOutPoint, removeMovieListItem, setDefaultDetectInOutPoint
+  setDefaultPaperAspectRatioInv, updateInOutPoint, removeMovieListItem, setDefaultDetectInOutPoint,
+  setEmailAddress
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -37,6 +38,7 @@ import steps from '../img/MoviePrint-steps.svg';
 
 const { ipcRenderer } = require('electron');
 const { dialog } = require('electron').remote;
+const { app } = require('electron').remote;
 
 const setColumnAndThumbCount = (that,
   columnCount, thumbCount) => {
@@ -51,6 +53,9 @@ const setColumnAndThumbCount = (that,
 class App extends Component {
   constructor() {
     super();
+
+    this.webviewRef = React.createRef();
+
     this.state = {
       containerHeight: 0,
       containerWidth: 0,
@@ -97,6 +102,7 @@ class App extends Component {
     this.onViewToggle = this.onViewToggle.bind(this);
     this.switchToPrintView = this.switchToPrintView.bind(this);
     this.onOpenFeedbackForm = this.onOpenFeedbackForm.bind(this);
+    this.onCloseFeedbackForm = this.onCloseFeedbackForm.bind(this);
     this.onSaveMoviePrint = this.onSaveMoviePrint.bind(this);
 
     this.updatecontainerWidthAndHeight = this.updatecontainerWidthAndHeight.bind(this);
@@ -372,34 +378,37 @@ class App extends Component {
     // you may also add a filter here to skip keys, that do not have an effect for your app
     // this.props.keyPressAction(event.keyCode);
 
-    const { store } = this.context;
+    // only listen to key events when feedback form is not shown
+    if (!this.state.showFeedbackForm) {
+      const { store } = this.context;
 
-    if (event) {
-      switch (event.which) {
-        case 49: // press 1
-          this.toggleMovielist();
-          break;
-        case 51: // press 3
-          if (store.getState().visibilitySettings.showSettings) {
-            this.onCancelClick();
-          } else {
-            this.showSettings();
-          }
-          break;
-        case 80: // press 'p'
-          this.onSaveMoviePrint();
-          break;
-        default:
-      }
-      this.setState({
-        keyObject: {
-          shiftKey: event.shiftKey,
-          altKey: event.altKey,
-          ctrlKey: event.ctrlKey,
-          metaKey: event.metaKey,
-          which: event.which
+      if (event) {
+        switch (event.which) {
+          case 49: // press 1
+            this.toggleMovielist();
+            break;
+          case 51: // press 3
+            if (store.getState().visibilitySettings.showSettings) {
+              this.onCancelClick();
+            } else {
+              this.showSettings();
+            }
+            break;
+          case 80: // press 'p'
+            this.onSaveMoviePrint();
+            break;
+          default:
         }
-      });
+        this.setState({
+          keyObject: {
+            shiftKey: event.shiftKey,
+            altKey: event.altKey,
+            ctrlKey: event.ctrlKey,
+            metaKey: event.metaKey,
+            which: event.which
+          }
+        });
+      }
     }
   }
 
@@ -622,6 +631,13 @@ class App extends Component {
     )
   }
 
+  onCloseFeedbackForm() {
+    console.log('onCloseFeedbackForm');
+    this.setState(
+      { showFeedbackForm: false }
+    )
+  }
+
   onChangeRow = (value) => {
     this.setState({ thumbCountTemp: this.state.columnCountTemp * value });
     this.updateScaleValue();
@@ -823,6 +839,7 @@ class App extends Component {
 
   render() {
     const { accept, dropzoneActive } = this.state;
+    const { store } = this.context;
 
     return (
       <ErrorBoundary>
@@ -1074,31 +1091,52 @@ class App extends Component {
                       marginTop: 0,
                       height: '80vh',
                     }}
+                    onMount={() => {
+                      setTimeout(() => {
+                        this.webviewRef.current.addEventListener('ipc-message', event => {
+                          console.log(event);
+                          console.log(event.channel);
+                          if (event.channel === 'wpcf7mailsent') {
+                            const rememberEmail = event.args[0].findIndex((argument) => argument.name === 'checkbox-remember-email[]') >= 0;
+                            if (rememberEmail) {
+                              const emailAddressFromForm = event.args[0].find((argument) => argument.name === 'your-email').value;
+                              store.dispatch(setEmailAddress(emailAddressFromForm));
+                            }
+                            this.onCloseFeedbackForm();
+                          }
+                        })
+                        // console.log(this.webviewRef.current.getWebContents());
+                        // this.webviewRef.current.addEventListener('dom-ready', () => {
+                        //   this.webviewRef.current.openDevTools();
+                        // })
+                        // this.webviewRef.current.addEventListener('did-stop-loading', (event) => {
+                        //   console.log(event);
+                        // });
+                        // this.webviewRef.current.addEventListener('did-start-loading', (event) => {
+                        //   console.log(event);
+                        // });
+                      }, 300); // wait a tiny bit until webview is mounted
+                    }}
                   >
                     <Modal.Content
                       // scrolling
                       style={{
                         // overflow: 'auto',
-                        height: '80vh',
+                        // height: '80vh',
                       }}
                     >
-                      <Embed
+                      <webview
+                        autosize='true'
+                        // nodeintegration='true'
+                        // disablewebsecurity='true'
+                        // minheight='80vh'
                         style={{
                           // overflow: 'auto',
-                          height: '100%',
+                          height: '80vh',
                         }}
-                        defaultActive
-                        // icon='right circle arrow'
-                        // placeholder='/assets/images/image-16by9.png'
-                        url='http://movieprint.fakob.com/feedback-for-movieprint-app/'
-                        iframe={{
-                          allowFullScreen: true,
-                          scrolling: 'yes',
-                          style: {
-                            // width: '100%',
-                            // height: '80vh',
-                          },
-                        }}
+                        preload='./webViewPreload.js'
+                        ref={this.webviewRef}
+                        src={`http://movieprint.fakob.com/feedback-for-movieprint-app?app-version=${app.getName()}-${app.getVersion()}&your-email=${this.props.settings.emailAddress}`}
                       />
                     </Modal.Content>
                     <Modal.Actions>

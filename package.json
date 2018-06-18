@@ -59,6 +59,7 @@
       "worker.prod.js",
       "worker.prod.js.map",
       "package.json",
+      "webViewPreload.js",
       "!node_modules/opencv-build/opencv/opencv",
       "!node_modules/opencv-build/opencv/opencv_contrib"
     ],

@@ -66,6 +66,7 @@ const initialStateJSON = {
       defaultShowPaperPreview: DEFAULT_SHOW_PAPER_PREVIEW,
       defaultPaperAspectRatioInv: DEFAULT_PAPER_ASPECTRATIOINV,
       defaultDetectInOutPoint: DEFAULT_DETECT_INOUTPOINT,
+      emailAddress: '',
     },
     thumbsByFileId: [],
     files: []

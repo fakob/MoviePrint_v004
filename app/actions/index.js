@@ -192,6 +192,13 @@ export const setDefaultDetectInOutPoint = (defaultDetectInOutPoint) => {
   };
 };
 
+export const setEmailAddress = (emailAddress) => {
+  return {
+    type: 'SET_EMAIL_ADDRESS',
+    emailAddress
+  };
+};
+
 
 // thumbs
 
