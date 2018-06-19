@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone';
-import { TransitionablePortal, Segment, Progress, Modal, Embed } from 'semantic-ui-react';
+import { TransitionablePortal, Segment, Progress, Modal, Button, Icon } from 'semantic-ui-react';
 
 import '../app.global.css';
 import FileList from '../containers/FileList';
@@ -84,7 +84,8 @@ class App extends Component {
       progressMessage: undefined,
       showMessage: false,
       progressBarPercentage: 100,
-      showFeedbackForm: false
+      showFeedbackForm: false,
+      intendToCloseFeedbackForm: false,
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -1083,8 +1084,10 @@ class App extends Component {
                   </TransitionablePortal>
                   <Modal
                     open={this.state.showFeedbackForm}
-                    onClose={() => this.setState({ showFeedbackForm: false})}
+                    onClose={() => this.setState({ intendToCloseFeedbackForm: true})}
                     closeIcon
+                    closeOnEscape={false}
+                    closeOnRootNodeClick={false}
                     // basic
                     size='fullscreen'
                     style={{
@@ -1131,19 +1134,39 @@ class App extends Component {
                         // disablewebsecurity='true'
                         // minheight='80vh'
                         style={{
-                          // overflow: 'auto',
                           height: '80vh',
                         }}
                         preload='./webViewPreload.js'
                         ref={this.webviewRef}
                         src={`http://movieprint.fakob.com/feedback-for-movieprint-app?app-version=${app.getName()}-${app.getVersion()}&your-email=${this.props.settings.emailAddress}`}
                       />
+                      <Modal
+                        open={this.state.intendToCloseFeedbackForm}
+                        basic
+                        size='mini'
+                        style={{
+                          position: 'absolute',
+                          left: '50%',
+                          top: '50%',
+                          transform: 'translate(-50%, -50%)',
+                          margin: 'auto !important'
+                        }}
+                      >
+                        <Modal.Content>
+                          <p>
+                            Close the feedback form?
+                          </p>
+                        </Modal.Content>
+                        <Modal.Actions>
+                          <Button basic color='red' inverted onClick={() => this.setState({ intendToCloseFeedbackForm: false})}>
+                            <Icon name='remove' /> Cancel
+                          </Button>
+                          <Button color='green' inverted onClick={() => this.setState({ showFeedbackForm: false, intendToCloseFeedbackForm: false})}>
+                            <Icon name='checkmark' /> Close
+                          </Button>
+                        </Modal.Actions>
+                      </Modal>
                     </Modal.Content>
-                    <Modal.Actions>
-                      {/* <Button primary>
-                        Proceed <Icon name='right chevron' />
-                      </Button> */}
-                    </Modal.Actions>
                   </Modal>
                   <Footer
                     visibilitySettings={this.props.visibilitySettings}
