@@ -78,7 +78,8 @@ class App extends Component {
       filesToLoad: [],
       progressMessage: undefined,
       showMessage: false,
-      progressBarPercentage: 100
+      progressBarPercentage: 100,
+      timeBefore: undefined
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -236,8 +237,22 @@ class App extends Component {
       }
     });
 
-    ipcRenderer.on('receive-get-thumbs', (event, fileId, thumbId, frameId, base64, frameNumber) => {
+    ipcRenderer.on('receive-get-thumbs', (event, fileId, thumbId, frameId, base64, frameNumber, lastThumb) => {
       store.dispatch(updateThumbImage(fileId, thumbId, frameId, base64, frameNumber));
+      if (lastThumb) {
+        const timeAfter = Date.now();
+        console.log(timeAfter - this.state.timeBefore);
+        this.setState({
+          progressMessage: `loading time: ${(timeAfter - this.state.timeBefore) / 1000.0}`,
+          showMessage: true
+        }, () => {
+          setTimeout(() => {
+            this.setState({
+              showMessage: false
+            });
+          }, 3000);
+        });
+      }
     });
 
     ipcRenderer.on('received-saved-file', (event, path) => {
@@ -325,6 +340,10 @@ class App extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     if ((nextState.filesToLoad.length !== 0) &&
       (this.state.filesToLoad.length !== nextState.filesToLoad.length)) {
+      const timeBefore = Date.now();
+      this.setState({
+        timeBefore
+      });
       ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', nextState.filesToLoad[0].id, nextState.filesToLoad[0].path, nextState.filesToLoad[0].posterFrameId);
     }
     return true;

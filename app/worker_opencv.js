@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import VideoCaptureProperties from './utils/videoCaptureProperties';
-import { limitRange } from './utils/utilsForMain';
+import { limitRange, setPosition } from './utils/utils';
 import {
   IN_OUT_POINT_SEARCH_LENGTH,
   IN_OUT_POINT_SEARCH_THRESHOLD
@@ -46,19 +46,6 @@ process.on('SIGTERM', err => {
   console.error(err);
   // fs.writeFileSync('shutdown.log', 'Received SIGTERM signal');
 });
-
-const setPosition = (vid, frameNumberToCapture, useRatio) => {
-  if (useRatio) {
-    const positionRatio =
-      frameNumberToCapture *
-      1.0 /
-      (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1);
-    // console.log(`using positionRatio: ${positionRatio}`);
-    vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, positionRatio);
-  } else {
-    vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberToCapture);
-  }
-};
 
 // ipcRenderer.on('message-from-mainWindow-to-opencvWorkerWindow', (event, ...args) => {
 //   console.log(...args);
@@ -414,6 +401,7 @@ ipcRenderer.on(
 
 // read sync test
 ipcRenderer.on(
+  // 'send-get-thumbs',
   'send-get-thumbs-sync',
   (
     event,
@@ -436,6 +424,16 @@ ipcRenderer.on(
       const frame = vid.read();
       if (frame.empty) {
         console.log('frame is empty');
+        ipcRenderer.send(
+          'message-from-opencvWorkerWindow-to-mainWindow',
+          'receive-get-thumbs',
+          fileId,
+          thumbIdArray[i],
+          frameIdArray[i],
+          '',
+          vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1,
+          i === (frameNumberArray.length - 1)
+        );
       } else {
         console.log('frame not empty');
         console.log(
@@ -445,7 +443,7 @@ ipcRenderer.on(
             VideoCaptureProperties.CAP_PROP_POS_MSEC
           )}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`
         );
-        opencv.imshow('a window name', frame);
+        // opencv.imshow('a window name', frame);
         const outBase64 = opencv.imencode('.jpg', frame).toString('base64'); // maybe change to .png?
         ipcRenderer.send(
           'message-from-opencvWorkerWindow-to-mainWindow',
@@ -454,9 +452,10 @@ ipcRenderer.on(
           thumbIdArray[i],
           frameIdArray[i],
           outBase64,
-          vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1
+          vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1,
+          i === (frameNumberArray.length - 1)
         );
-        opencv.waitKey(10);
+        // opencv.waitKey(10);
       }
     }
   }
@@ -464,6 +463,7 @@ ipcRenderer.on(
 
 // read async
 ipcRenderer.on(
+  // 'send-get-thumbs-async',
   'send-get-thumbs',
   (
     event,
@@ -502,7 +502,7 @@ ipcRenderer.on(
           );
 
           if (mat.empty === false) {
-            opencv.imshow('a window name', mat);
+            // opencv.imshow('a window name', mat);
             const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // maybe change to .png?
             ipcRenderer.send(
               'message-from-opencvWorkerWindow-to-mainWindow',
@@ -511,7 +511,8 @@ ipcRenderer.on(
               thumbIdArray[iterator],
               frameIdArray[iterator],
               outBase64,
-              vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1
+              vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1,
+              iterator === (frameNumberArray.length - 1)
             );
             iterator += 1;
             if (iterator < frameNumberArray.length) {
