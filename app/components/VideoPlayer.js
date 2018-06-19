@@ -41,7 +41,7 @@ class VideoPlayer extends Component {
       videoHeight: 360,
       videoWidth: 640,
       showPlaybar: false,
-      loadVideo: false,
+      // loadVideo: false,
       opencvVideo: undefined
     };
 
@@ -74,7 +74,7 @@ class VideoPlayer extends Component {
     this.setState({
       videoHeight,
       videoWidth,
-      loadVideo: true,
+      // loadVideo: true,
       opencvVideo: new opencv.VideoCapture(this.props.file.path),
     });
   }
@@ -99,7 +99,7 @@ class VideoPlayer extends Component {
     }
     if (nextProps.file.path !== this.props.file.path) {
       this.setState({
-        loadVideo: true
+        opencvVideo: new opencv.VideoCapture(nextProps.file.path),
       });
     }
 
