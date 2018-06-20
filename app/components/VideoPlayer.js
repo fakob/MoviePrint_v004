@@ -25,7 +25,7 @@ import {
 import styles from './VideoPlayer.css';
 import stylesPop from './Popup.css';
 
-// const pathModule = require('path');
+const pathModule = require('path');
 const opencv = require('opencv4nodejs');
 
 class VideoPlayer extends Component {
@@ -33,30 +33,33 @@ class VideoPlayer extends Component {
     super(props);
 
     this.state = {
-      // currentTime: 0, // in seconds
+      currentTime: 0, // in seconds
       currentFrame: 0, // in frames
-      // duration: 0, // in seconds
+      duration: 0, // in seconds
       playHeadPosition: 0, // in pixel
       mouseStartDragInsideTimeline: false,
       videoHeight: 360,
       videoWidth: 640,
       showPlaybar: false,
-      // loadVideo: false,
+      loadVideo: false,
       opencvVideo: undefined
     };
 
     // this.onSaveThumbClick = this.onSaveThumbClick.bind(this);
+
+    this.getCurrentFrameNumber = this.getCurrentFrameNumber.bind(this);
     this.onInPointClick = this.onInPointClick.bind(this);
     this.onOutPointClick = this.onOutPointClick.bind(this);
     this.onBackClick = this.onBackClick.bind(this);
     this.onForwardClick = this.onForwardClick.bind(this);
     this.updateOpencvVideoCanvas = this.updateOpencvVideoCanvas.bind(this);
     this.updatePositionWithStep = this.updatePositionWithStep.bind(this);
-    // this.onDurationChange = this.onDurationChange.bind(this);
+    this.onDurationChange = this.onDurationChange.bind(this);
     this.updateTimeFromThumbId = this.updateTimeFromThumbId.bind(this);
     this.updatePositionFromTime = this.updatePositionFromTime.bind(this);
-    // this.onVideoError = this.onVideoError.bind(this);
-    // this.onLoadedData = this.onLoadedData.bind(this);
+    this.updatePositionFromFrame = this.updatePositionFromFrame.bind(this);
+    this.onVideoError = this.onVideoError.bind(this);
+    this.onLoadedData = this.onLoadedData.bind(this);
     this.onShowPlaybar = this.onShowPlaybar.bind(this);
     this.onHidePlaybar = this.onHidePlaybar.bind(this);
 
@@ -74,7 +77,7 @@ class VideoPlayer extends Component {
     this.setState({
       videoHeight,
       videoWidth,
-      // loadVideo: true,
+      loadVideo: true,
       opencvVideo: new opencv.VideoCapture(this.props.file.path),
     });
   }
@@ -99,6 +102,7 @@ class VideoPlayer extends Component {
     }
     if (nextProps.file.path !== this.props.file.path) {
       this.setState({
+        loadVideo: true,
         opencvVideo: new opencv.VideoCapture(nextProps.file.path),
       });
     }
@@ -127,9 +131,23 @@ class VideoPlayer extends Component {
     }
   }
 
+  getCurrentFrameNumber() {
+    let newFrameNumber;
+    if (this.state.loadVideo) {
+      newFrameNumber = mapRange(
+        this.state.currentTime,
+        0, this.state.duration,
+        0, this.props.file.frameCount - 1
+      );
+    } else {
+      newFrameNumber = this.state.currentFrame;
+    }
+    return newFrameNumber
+  }
+
   onInPointClick() {
     const { store } = this.context;
-    const newFrameNumber = this.state.currentFrame;
+    const newFrameNumber = this.getCurrentFrameNumber();
     store.dispatch(addDefaultThumbs(
       this.props.file,
       this.props.thumbs.length,
@@ -140,7 +158,7 @@ class VideoPlayer extends Component {
 
   onOutPointClick() {
     const { store } = this.context;
-    const newFrameNumber = this.state.currentFrame;
+    const newFrameNumber = this.getCurrentFrameNumber();
     store.dispatch(addDefaultThumbs(
       this.props.file,
       this.props.thumbs.length,
@@ -185,13 +203,13 @@ class VideoPlayer extends Component {
     this.updatePositionWithStep(stepValue);
   }
 
-  // onDurationChange(duration) {
-  //   // setState is asynchronious
-  //   // updatePosition needs to wait for setState, therefore it is put into callback of setState
-  //   this.setState({ duration }, () => {
-  //     this.updateTimeFromPosition(this.state.playHeadPosition);
-  //   });
-  // }
+  onDurationChange(duration) {
+    // setState is asynchronious
+    // updatePosition needs to wait for setState, therefore it is put into callback of setState
+    this.setState({ duration }, () => {
+      this.updateTimeFromPosition(this.state.playHeadPosition);
+    });
+  }
 
   updateOpencvVideoCanvas(currentFrame) {
     setPosition(this.state.opencvVideo, currentFrame, this.props.file.useRatio);
@@ -203,12 +221,33 @@ class VideoPlayer extends Component {
   }
 
   updatePositionWithStep(step) {
-    const currentFramePlusStep = this.state.currentFrame + step;
-    this.updatePositionFromTime(currentFramePlusStep);
-    this.updateOpencvVideoCanvas(currentFramePlusStep);
+    if (this.state.loadVideo) {
+      const currentTimePlusStep = this.state.currentTime + frameCountToSeconds(step, this.props.file.fps);
+      this.updatePositionFromTime(currentTimePlusStep);
+      this.video.currentTime = currentTimePlusStep;
+    } else {
+      const currentFramePlusStep = this.getCurrentFrameNumber() + step;
+      this.updatePositionFromFrame(currentFramePlusStep);
+      this.updateOpencvVideoCanvas(currentFramePlusStep);
+    }
   }
 
-  updatePositionFromTime(currentFrame) {
+  updatePositionFromTime(currentTime) {
+    if (currentTime) {
+      // rounds the number with 3 decimals
+      const roundedCurrentTime = Math.round((currentTime * 1000) + Number.EPSILON) / 1000;
+
+      this.setState({ currentTime: roundedCurrentTime });
+         const xPos = mapRange(
+        roundedCurrentTime,
+        0, this.state.duration,
+         0, this.state.videoWidth, false
+       );
+       this.setState({ playHeadPosition: xPos });
+     }
+   }
+
+  updatePositionFromFrame(currentFrame) {
     if (currentFrame) {
       this.setState({ currentFrame });
       const xPos = mapRange(
@@ -217,13 +256,13 @@ class VideoPlayer extends Component {
         0, this.state.videoWidth, false
       );
       this.setState({ playHeadPosition: xPos });
-      this.updateOpencvVideoCanvas(currentFrame);
     }
   }
 
   updateTimeFromThumbId(thumbId) {
     if (this.props.thumbs && thumbId) {
       let xPos = 0;
+      let currentTime = 0;
       let currentFrame = 0;
       if (thumbId) {
         console.log('updateTimeFromThumbId');
@@ -232,22 +271,35 @@ class VideoPlayer extends Component {
           currentFrame = selectedThumb.frameNumber;
           const { frameCount } = this.props.file;
           xPos = mapRange(currentFrame, 0, frameCount - 1, 0, this.state.videoWidth, false);
+          currentTime = frameCountToSeconds(currentFrame, this.props.file.fps);
         }
       }
       this.setState({ playHeadPosition: xPos });
-      this.setState({ currentFrame });
-      this.updateOpencvVideoCanvas(currentFrame);
+      if (this.state.loadVideo) {
+        this.setState({ currentTime });
+        this.video.currentTime = currentTime;
+      } else {
+        this.setState({ currentFrame });
+        this.updateOpencvVideoCanvas(currentFrame);
+      }
     }
   }
 
   updateTimeFromPosition(xPos) {
     if (xPos) {
       this.setState({ playHeadPosition: xPos });
-      const { frameCount } = this.props.file;
-      const currentFrame = mapRange(xPos, 0, this.state.videoWidth, 0, frameCount - 1, false);
-      console.log(`${currentFrame} : ${xPos} : ${this.state.videoWidth} : ${this.state.frameCount - 1}`);
-      this.setState({ currentFrame });
-      this.updateOpencvVideoCanvas(currentFrame);
+      if (this.state.loadVideo) {
+        const currentTime = mapRange(xPos, 0, this.state.videoWidth, 0, this.state.duration, false);
+        console.log(`${currentTime} : ${xPos} : ${this.state.videoWidth} : ${this.state.duration}`);
+        this.setState({ currentTime });
+        this.video.currentTime = currentTime;
+      } else {
+        const { frameCount } = this.props.file;
+        const currentFrame = mapRange(xPos, 0, this.state.videoWidth, 0, frameCount - 1, false);
+        console.log(`${currentFrame} : ${xPos} : ${this.state.videoWidth} : ${this.state.frameCount - 1}`);
+        this.setState({ currentFrame });
+        this.updateOpencvVideoCanvas(currentFrame);
+      }
     }
   }
 
@@ -281,8 +333,14 @@ class VideoPlayer extends Component {
 
   onApplyClick = () => {
     const { store } = this.context;
-    const newFrameNumber = this.state.currentFrame;
-    console.log(`${newFrameNumber}: ${this.state.currentFrame}`);
+    let newFrameNumber;
+    if (this.state.loadVideo) {
+      newFrameNumber = secondsToFrameCount(this.state.currentTime, this.props.file.fps);
+      console.log(`${newFrameNumber} = secondsToFrameCount(${this.state.currentTime}, ${this.props.file.fps})`);
+    } else {
+      newFrameNumber = this.state.currentFrame;
+      console.log(`${newFrameNumber}: ${this.state.currentFrame}`);
+    }
     if (this.props.keyObject.altKey || this.props.keyObject.shiftKey) {
       const newThumbId = uuidV4();
       if (this.props.keyObject.altKey) {
@@ -309,22 +367,22 @@ class VideoPlayer extends Component {
     }
   }
 
-  // onVideoError = () => {
-  //   console.log('onVideoError');
-  //   // console.log(this);
-  //   this.onDurationChange(frameCountToSeconds(this.props.file.frameCount));
-  //   this.setState({
-  //     loadVideo: false
-  //   });
-  // }
+  onVideoError = () => {
+    console.log('onVideoError');
+    // console.log(this);
+    this.onDurationChange(frameCountToSeconds(this.props.file.frameCount));
+    this.setState({
+      loadVideo: false
+    });
+  }
 
-  // onLoadedData = () => {
-  //   console.log('onLoadedData');
-  //   // console.log(this);
-  //   this.setState({
-  //     loadVideo: true
-  //   });
-  // }
+  onLoadedData = () => {
+    console.log('onLoadedData');
+    // console.log(this);
+    this.setState({
+      loadVideo: true
+    });
+  }
 
   render() {
     const { playHeadPosition } = this.state;
@@ -381,8 +439,7 @@ class VideoPlayer extends Component {
             className={stylesPop.popup}
             content="Back to MoviePrint view"
           />
-          <canvas ref={(el) => { this.opencvVideoCanvasRef = el; }} />
-          {/* {this.state.loadVideo ?
+          {this.state.loadVideo ?
             <video
               ref={(el) => { this.video = el; }}
               className={`${styles.video}`}
@@ -403,33 +460,13 @@ class VideoPlayer extends Component {
               <track kind="captions" />
             </video>
             :
-            <div
-              style={{
-                backgroundColor: '#111111',
-                width: this.state.videoWidth,
-                height: this.state.videoHeight
-              }}
-            >
-              <div
-                className={styles.textButton}
-                style={{
-                  transformOrigin: 'center center',
-                  transform: 'translate(-50%, -50%)',
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  textAlign: 'center',
-                }}
-              >
-                NO PLAYER AVAILABE
-              </div>
-            </div>
-          } */}
+            <canvas ref={(el) => { this.opencvVideoCanvasRef = el; }} />
+          }
           <div
             id="currentTimeDisplay"
             className={styles.frameNumberOrTimeCode}
           >
-            {frameCountToTimeCode(this.state.currentFrame, this.props.file.fps)}
+            {this.state.loadVideo ? secondsToTimeCode(this.state.currentTime, this.props.file.fps) : frameCountToTimeCode(this.state.currentFrame, this.props.file.fps)}
           </div>
         </div>
         <div className={`${styles.controlsWrapper}`}>
