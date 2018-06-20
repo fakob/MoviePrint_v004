@@ -44,6 +44,7 @@ const Thumb = ({
   dim,
   hidden,
   index,
+  indexForId,
   inputRefThumb,
   keyObject,
   margin,
@@ -167,7 +168,7 @@ const Thumb = ({
       onClick={onSelectWithStop}
       onKeyPress={onSelectWithStop}
       onDoubleClick={onThumbDoubleClickWithStop}
-      id={`thumb${index}`}
+      id={`thumb${indexForId}`}
       className={`${styles.gridItem} ${(!showMoviePrintView && selected && !(keyObject.altKey || keyObject.shiftKey)) ? styles.gridItemSelected : ''}`}
       width={`${thumbWidth}px`}
       height={`${(thumbWidth * aspectRatioInv)}px`}
@@ -182,7 +183,7 @@ const Thumb = ({
       <div>
         <img
           src={thumbImageObjectUrl !== undefined ? thumbImageObjectUrl : transparent}
-          id={`thumbImage${index}`}
+          id={`thumbImage${indexForId}`}
           className={`${styles.image} ${dim ? styles.dim : ''}`}
           alt=""
           width={`${thumbWidth}px`}
@@ -416,6 +417,7 @@ Thumb.defaultProps = {
   dim: undefined,
   hidden: false,
   index: undefined,
+  indexForId: undefined,
   keyObject: {},
   onBack: null,
   onForward: null,
@@ -460,6 +462,7 @@ Thumb.propTypes = {
   selected: PropTypes.bool,
   showMoviePrintView: PropTypes.bool.isRequired,
   index: PropTypes.number,
+  indexForId: PropTypes.number,
   thumbImageObjectUrl: PropTypes.string,
   thumbInfoRatio: PropTypes.number.isRequired,
   thumbInfoValue: PropTypes.string,

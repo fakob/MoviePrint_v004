@@ -97,6 +97,7 @@ const ThumbGrid = ({
         keyObject={keyObject}
         key={thumb.key}
         index={thumb.index}
+        indexForId={thumb.index}
         dim={(thumbsToDim.find((thumbToDim) => thumbToDim.thumbId === thumb.thumbId))}
         inputRefThumb={(selectedThumbId === thumb.thumbId) ?
           inputRefThumb : undefined} // for the thumb scrollIntoView function
