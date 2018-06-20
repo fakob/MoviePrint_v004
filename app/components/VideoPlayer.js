@@ -42,7 +42,7 @@ class VideoPlayer extends Component {
       videoWidth: 640,
       showPlaybar: false,
       loadVideo: false,
-      opencvVideo: undefined
+      // opencvVideo: undefined
     };
 
     // this.onSaveThumbClick = this.onSaveThumbClick.bind(this);
@@ -78,7 +78,7 @@ class VideoPlayer extends Component {
       videoHeight,
       videoWidth,
       loadVideo: true,
-      opencvVideo: new opencv.VideoCapture(this.props.file.path),
+      // opencvVideo: new opencv.VideoCapture(this.props.file.path),
     });
   }
 
@@ -103,7 +103,7 @@ class VideoPlayer extends Component {
     if (nextProps.file.path !== this.props.file.path) {
       this.setState({
         loadVideo: true,
-        opencvVideo: new opencv.VideoCapture(nextProps.file.path),
+        // opencvVideo: new opencv.VideoCapture(nextProps.file.path),
       });
     }
 
@@ -212,8 +212,8 @@ class VideoPlayer extends Component {
   }
 
   updateOpencvVideoCanvas(currentFrame) {
-    setPosition(this.state.opencvVideo, currentFrame, this.props.file.useRatio);
-    const frame = this.state.opencvVideo.read();
+    setPosition(this.props.opencvVideo, currentFrame, this.props.file.useRatio);
+    const frame = this.props.opencvVideo.read();
     if (!frame.empty) {
       const matResized = frame.resizeToMax(parseInt(this.state.videoWidth, 10));
       renderImage(matResized, this.opencvVideoCanvasRef, opencv);

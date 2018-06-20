@@ -13,7 +13,15 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import VideoPlayer from '../components/VideoPlayer';
 import ThumbEmpty from '../components/ThumbEmpty';
-import { getLowestFrame, getHighestFrame, getVisibleThumbs, getColumnCount, getThumbsCount, getMoviePrintColor, getScaleValueObject } from '../utils/utils';
+import { getLowestFrame,
+  getHighestFrame,
+  getVisibleThumbs,
+  getColumnCount,
+  getThumbsCount,
+  getMoviePrintColor,
+  getScaleValueObject,
+  getObjectProperty
+} from '../utils/utils';
 // import saveMoviePrint from '../utils/saveMoviePrint';
 import styles from './App.css';
 import stylesPop from './../components/Popup.css';
@@ -37,6 +45,7 @@ import steps from '../img/MoviePrint-steps.svg';
 
 const { ipcRenderer } = require('electron');
 const { dialog } = require('electron').remote;
+const opencv = require('opencv4nodejs');
 
 const setColumnAndThumbCount = (that,
   columnCount, thumbCount) => {
@@ -79,7 +88,8 @@ class App extends Component {
       progressMessage: undefined,
       showMessage: false,
       progressBarPercentage: 100,
-      timeBefore: undefined
+      timeBefore: undefined,
+      opencvVideo: undefined,
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -291,6 +301,13 @@ class App extends Component {
   componentWillReceiveProps(nextProps) {
     const { store } = this.context;
     const state = store.getState();
+
+    if (nextProps.file !== undefined &&
+      (getObjectProperty(() => this.props.file.id) !== nextProps.file.id)) {
+      this.setState({
+        opencvVideo: new opencv.VideoCapture(nextProps.file.path),
+      });
+    }
 
     if (this.props.file !== undefined &&
       nextProps.file !== undefined &&
@@ -971,6 +988,7 @@ class App extends Component {
                           onThumbDoubleClick={this.onViewToggle}
                           selectMethod={this.onSelectMethod}
                           keyObject={this.state.keyObject}
+                          opencvVideo={this.state.opencvVideo}
                         />
                       ) :
                       (
