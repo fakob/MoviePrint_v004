@@ -25,7 +25,7 @@ import {
 import styles from './VideoPlayer.css';
 import stylesPop from './Popup.css';
 
-const pathModule = require('path');
+// const pathModule = require('path');
 const opencv = require('opencv4nodejs');
 
 class VideoPlayer extends Component {
@@ -196,8 +196,10 @@ class VideoPlayer extends Component {
   updateOpencvVideoCanvas(currentFrame) {
     setPosition(this.state.opencvVideo, currentFrame, this.props.file.useRatio);
     const frame = this.state.opencvVideo.read();
-    const matResized = frame.resizeToMax(parseInt(this.state.videoWidth, 10));
-    renderImage(matResized, this.opencvVideoCanvasRef, opencv);
+    if (!frame.empty) {
+      const matResized = frame.resizeToMax(parseInt(this.state.videoWidth, 10));
+      renderImage(matResized, this.opencvVideoCanvasRef, opencv);
+    }
   }
 
   updatePositionWithStep(step) {
