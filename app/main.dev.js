@@ -93,15 +93,7 @@ app.on('ready', async () => {
     mainWindow.focus();
   });
 
-  openProcessManager();
-
-  // mainWindow.webContents.on('did-finish-load', () => {
-  //   if (!mainWindow) {
-  //     throw new Error('"mainWindow" is not defined');
-  //   }
-  //   mainWindow.show();
-  //   mainWindow.focus();
-  // });
+  // openProcessManager();
 
   mainWindow.on('close', event => {
     // only hide window and prevent default if app not quitting
@@ -145,7 +137,7 @@ app.on('ready', async () => {
 
   opencvWorkerWindow = new BrowserWindow();
   opencvWorkerWindow.hide();
-  opencvWorkerWindow.webContents.openDevTools();
+  // opencvWorkerWindow.webContents.openDevTools();
   opencvWorkerWindow.loadURL(`file://${__dirname}/worker_opencv.html`);
 
   opencvWorkerWindow.on('close', event => {
