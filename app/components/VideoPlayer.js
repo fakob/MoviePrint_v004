@@ -332,38 +332,41 @@ class VideoPlayer extends Component {
   }
 
   onApplyClick = () => {
-    const { store } = this.context;
-    let newFrameNumber;
-    if (this.state.loadVideo) {
-      newFrameNumber = secondsToFrameCount(this.state.currentTime, this.props.file.fps);
-      console.log(`${newFrameNumber} = secondsToFrameCount(${this.state.currentTime}, ${this.props.file.fps})`);
-    } else {
-      newFrameNumber = this.state.currentFrame;
-      console.log(`${newFrameNumber}: ${this.state.currentFrame}`);
-    }
-    if (this.props.keyObject.altKey || this.props.keyObject.shiftKey) {
-      const newThumbId = uuidV4();
-      if (this.props.keyObject.altKey) {
-        store.dispatch(addThumb(
-          this.props.file,
-          newFrameNumber,
-          this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index + 1,
-          newThumbId
-        ));
-      } else { // if shiftKey
-        store.dispatch(addThumb(
-          this.props.file,
-          newFrameNumber,
-          this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index,
-          newThumbId
-        ));
+    // only do changes if there is a thumb selected
+    if (this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId) !== undefined) {
+      const { store } = this.context;
+      let newFrameNumber;
+      if (this.state.loadVideo) {
+        newFrameNumber = secondsToFrameCount(this.state.currentTime, this.props.file.fps);
+        console.log(`${newFrameNumber} = secondsToFrameCount(${this.state.currentTime}, ${this.props.file.fps})`);
+      } else {
+        newFrameNumber = this.state.currentFrame;
+        console.log(`${newFrameNumber}: ${this.state.currentFrame}`);
       }
-      // delay selection so it waits for add thumb to be ready
-      setTimeout(() => {
-        this.props.selectMethod(newThumbId, newFrameNumber);
-      }, 500);
-    } else { // if normal set new thumb
-      store.dispatch(changeThumb(this.props.file, this.props.selectedThumbId, newFrameNumber));
+      if (this.props.keyObject.altKey || this.props.keyObject.shiftKey) {
+        const newThumbId = uuidV4();
+        if (this.props.keyObject.altKey) {
+          store.dispatch(addThumb(
+            this.props.file,
+            newFrameNumber,
+            this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index + 1,
+            newThumbId
+          ));
+        } else { // if shiftKey
+          store.dispatch(addThumb(
+            this.props.file,
+            newFrameNumber,
+            this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index,
+            newThumbId
+          ));
+        }
+        // delay selection so it waits for add thumb to be ready
+        setTimeout(() => {
+          this.props.selectMethod(newThumbId, newFrameNumber);
+        }, 500);
+      } else { // if normal set new thumb
+        store.dispatch(changeThumb(this.props.file, this.props.selectedThumbId, newFrameNumber));
+      }
     }
   }
 
