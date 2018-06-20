@@ -216,7 +216,7 @@ class VideoPlayer extends Component {
     const frame = this.props.opencvVideo.read();
     if (!frame.empty) {
       const matResized = frame.resizeToMax(parseInt(this.state.videoWidth, 10));
-      renderImage(matResized, this.opencvVideoCanvasRef, opencv);
+      renderImage(matResized, this.opencvVideoPlayerCanvasRef, opencv);
     }
   }
 
@@ -463,7 +463,7 @@ class VideoPlayer extends Component {
               <track kind="captions" />
             </video>
             :
-            <canvas ref={(el) => { this.opencvVideoCanvasRef = el; }} />
+            <canvas ref={(el) => { this.opencvVideoPlayerCanvasRef = el; }} />
           }
           <div
             id="currentTimeDisplay"

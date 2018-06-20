@@ -134,6 +134,7 @@ class App extends Component {
     this.onOverwriteClick = this.onOverwriteClick.bind(this);
     this.onIncludeIndividualClick = this.onIncludeIndividualClick.bind(this);
     this.onThumbnailScaleClick = this.onThumbnailScaleClick.bind(this);
+    this.onMoviePrintWidthClick = this.onMoviePrintWidthClick.bind(this);
   }
 
   componentWillMount() {
@@ -164,6 +165,11 @@ class App extends Component {
         this.state.zoom ? false : this.props.settings.defaultShowPaperPreview
       )
     });
+    if (getObjectProperty(() => this.props.file.id)) {
+      this.setState({
+        opencvVideo: new opencv.VideoCapture(this.props.file.path),
+      });
+    }
   }
 
   componentDidMount() {
@@ -1164,6 +1170,7 @@ App.propTypes = {
     height: PropTypes.number,
     columnCount: PropTypes.number,
     path: PropTypes.string,
+    useRatio: PropTypes.bool,
   }),
   settings: PropTypes.object.isRequired,
   thumbs: PropTypes.array,
