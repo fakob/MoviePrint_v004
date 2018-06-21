@@ -20,7 +20,10 @@ import { getLowestFrame,
   getThumbsCount,
   getMoviePrintColor,
   getScaleValueObject,
-  getObjectProperty
+  getObjectProperty,
+  setPosition,
+  renderImage,
+  mapRange,
 } from '../utils/utils';
 // import saveMoviePrint from '../utils/saveMoviePrint';
 import styles from './App.css';
@@ -33,7 +36,8 @@ import {
   setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat,
   setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
   setDefaultMoviePrintWidth, updateFileDetailUseRatio, setDefaultShowPaperPreview,
-  setDefaultPaperAspectRatioInv, updateInOutPoint, removeMovieListItem, setDefaultDetectInOutPoint
+  setDefaultPaperAspectRatioInv, updateInOutPoint, removeMovieListItem, setDefaultDetectInOutPoint,
+  changeThumb
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -60,6 +64,7 @@ const setColumnAndThumbCount = (that,
 class App extends Component {
   constructor() {
     super();
+    this.opencvVideoCanvasRef = React.createRef();
     this.state = {
       containerHeight: 0,
       containerWidth: 0,
@@ -90,6 +95,10 @@ class App extends Component {
       progressBarPercentage: 100,
       timeBefore: undefined,
       opencvVideo: undefined,
+      showScrubWindow: false,
+      scrubId: undefined,
+      scrubLimitLeft: 0,
+      scrubLimitRight: 10,
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -105,6 +114,9 @@ class App extends Component {
     this.hideSettings = this.hideSettings.bind(this);
     this.onShowThumbs = this.onShowThumbs.bind(this);
     this.onViewToggle = this.onViewToggle.bind(this);
+    this.onScrubWindowMouseOver = this.onScrubWindowMouseOver.bind(this);
+    this.onScrubWindowStop = this.onScrubWindowStop.bind(this);
+    this.onScrubClick = this.onScrubClick.bind(this);
     this.switchToPrintView = this.switchToPrintView.bind(this);
     this.onSaveMoviePrint = this.onSaveMoviePrint.bind(this);
 
@@ -135,6 +147,7 @@ class App extends Component {
     this.onIncludeIndividualClick = this.onIncludeIndividualClick.bind(this);
     this.onThumbnailScaleClick = this.onThumbnailScaleClick.bind(this);
     this.onMoviePrintWidthClick = this.onMoviePrintWidthClick.bind(this);
+    this.updateOpencvVideoCanvas = this.updateOpencvVideoCanvas.bind(this);
   }
 
   componentWillMount() {
@@ -399,6 +412,10 @@ class App extends Component {
     ) {
       this.updateScaleValue();
     }
+
+    if (prevState.showScrubWindow === false && this.state.showScrubWindow === true) {
+      this.updateOpencvVideoCanvas(8613);
+    }
   }
 
   componentWillUnmount() {
@@ -623,6 +640,33 @@ class App extends Component {
   switchToPrintView() {
     const { store } = this.context;
     store.dispatch(showMoviePrintView());
+  }
+
+  onScrubClick(file, thumbId, frameNumber) {
+    const indexOfThumb = this.props.thumbs.findIndex((thumb) => thumb.thumbId === thumbId);
+    const leftFrameNumber = this.props.thumbs[Math.max(0, indexOfThumb - 1)].frameNumber;
+    const rightFrameNumber = this.props.thumbs[Math.min(this.props.thumbs.length - 1, indexOfThumb + 1)].frameNumber;
+    this.setState({
+      showScrubWindow: true,
+      scrubId: thumbId,
+      scrubLimitLeft: Math.min(leftFrameNumber, frameNumber, rightFrameNumber),
+      scrubLimitRight: Math.max(leftFrameNumber, frameNumber, rightFrameNumber),
+    });
+  }
+
+  onScrubWindowMouseOver(e) {
+    const scrubFrameNumber = mapRange(e.clientX, 0, this.state.containerWidth, this.state.scrubLimitLeft, this.state.scrubLimitRight);
+    console.log(scrubFrameNumber);
+    this.updateOpencvVideoCanvas(scrubFrameNumber);
+  }
+
+  onScrubWindowStop(e) {
+    const { store } = this.context;
+    const scrubFrameNumber = mapRange(e.clientX, 0, this.state.containerWidth, this.state.scrubLimitLeft, this.state.scrubLimitRight);
+    store.dispatch(changeThumb(this.props.file, this.state.scrubId, scrubFrameNumber));
+    this.setState({
+      showScrubWindow: false,
+    });
   }
 
   onViewToggle() {
@@ -854,6 +898,26 @@ class App extends Component {
     store.dispatch(setDefaultMoviePrintWidth(value));
   };
 
+  updateOpencvVideoCanvas(currentFrame) {
+    setPosition(this.state.opencvVideo, currentFrame, this.props.file.useRatio);
+    const frame = this.state.opencvVideo.read();
+    if (!frame.empty) {
+      const img = frame.resizeToMax(640);
+      // renderImage(matResized, this.opencvVideoCanvasRef, opencv);
+      const matRGBA = img.channels === 1 ? img.cvtColor(opencv.COLOR_GRAY2RGBA) : img.cvtColor(opencv.COLOR_BGR2RGBA);
+
+      this.opencvVideoCanvasRef.current.height = img.rows;
+      this.opencvVideoCanvasRef.current.width = img.cols;
+      const imgData = new ImageData(
+        new Uint8ClampedArray(matRGBA.getData()),
+        img.cols,
+        img.rows
+      );
+      const ctx = this.opencvVideoCanvasRef.current.getContext('2d');
+      ctx.putImageData(imgData, 0, 0);
+    }
+  }
+
   render() {
     const { accept, dropzoneActive } = this.state;
 
@@ -1046,6 +1110,7 @@ class App extends Component {
                           selectedThumbId={this.state.selectedThumbObject ?
                             this.state.selectedThumbObject.thumbId : undefined}
                           selectMethod={this.onSelectMethod}
+                          onScrubClick={this.onScrubClick}
                           onThumbDoubleClick={this.onViewToggle}
 
                           colorArray={this.state.colorArray}
@@ -1106,6 +1171,21 @@ class App extends Component {
                     showMoviePrintView={this.props.visibilitySettings.showMoviePrintView}
                   />
                 </div>
+                { this.state.showScrubWindow &&
+                  <div
+                    className={styles.scrubWindowBackground}
+                    onMouseMove={this.onScrubWindowMouseOver}
+                    onMouseUp={this.onScrubWindowStop}
+                  >
+                    <canvas
+                      ref={this.opencvVideoCanvasRef}
+                      // ref={(el) => { this.opencvVideoCanvasRef = el; }}
+                      width={640}
+                      height={360}
+                      className={styles.scrubWindow}
+                    />
+                  </div>
+                }
                 { dropzoneActive &&
                   <div
                     className={`${styles.dropzoneshow} ${isDragAccept ? styles.dropzoneshowAccept : ''} ${isDragReject ? styles.dropzoneshowReject : ''}`}

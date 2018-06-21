@@ -52,6 +52,7 @@ const Thumb = ({
   onForward,
   onHoverInPoint,
   onHoverOutPoint,
+  onScrub,
   onInPoint,
   onLeaveInOut,
   onOut,
@@ -106,6 +107,11 @@ const Thumb = ({
     onLeaveInOut();
   }
 
+
+  function onScrubWithStop(e) {
+    e.stopPropagation();
+    onScrub();
+  }
 
   function onInPointWithStop(e) {
     e.stopPropagation();
@@ -271,6 +277,31 @@ const Thumb = ({
                   <button
                     style={{
                       display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+                      transformOrigin: 'center center',
+                      transform: `translate(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      // marginLeft: '8px',
+                    }}
+                    className={`${styles.hoverButton} ${styles.textButton}`}
+                    onClick={onScrubWithStop}
+                    onMouseOver={over}
+                    onMouseLeave={out}
+                    onFocus={over}
+                    onBlur={out}
+                  >
+                    SCRUB
+                  </button>
+                }
+                className={stylesPop.popup}
+                content={<span>Drag the mouse <mark>left and right</mark> to change frame</span>}
+              />
+              <Popup
+                trigger={
+                  <button
+                    style={{
+                      display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
                       transformOrigin: 'left bottom',
                       transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
                       position: 'absolute',
@@ -423,6 +454,7 @@ Thumb.defaultProps = {
   onForward: null,
   onHoverInPoint: null,
   onHoverOutPoint: null,
+  onScrub: null,
   onInPoint: null,
   onLeaveInOut: null,
   onOut: null,
@@ -450,6 +482,8 @@ Thumb.propTypes = {
   onForward: PropTypes.func,
   onHoverInPoint: PropTypes.func,
   onHoverOutPoint: PropTypes.func,
+  onScrub: PropTypes.func,
+  onInPoint: PropTypes.func,
   onInPoint: PropTypes.func,
   onLeaveInOut: PropTypes.func,
   onOut: PropTypes.func,
