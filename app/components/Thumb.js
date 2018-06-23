@@ -333,6 +333,7 @@ const Thumb = ({
                       left: '50%',
                     }}
                     className={`${styles.hoverButton} ${styles.textButton}`}
+                    // onClick={onScrubWithStop}
                     onMouseDown={onScrubWithStop}
                     onMouseOver={over}
                     onMouseLeave={out}

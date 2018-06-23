@@ -667,35 +667,42 @@ class App extends Component {
   }
 
   onScrubWindowMouseOver(e) {
-    const scrubFrameNumber = mapRange(e.clientX, 0, this.state.containerWidth, this.state.scrubThumbLeft.frameNumber, this.state.scrubThumbRight.frameNumber);
-    console.log(scrubFrameNumber);
-    this.updateOpencvVideoCanvas(scrubFrameNumber);
+    if (e.clientY < (MENU_HEADER_HEIGHT + this.state.containerHeight)) {
+      const scrubFrameNumber = mapRange(e.clientX, 0, this.state.containerWidth, this.state.scrubThumbLeft.frameNumber, this.state.scrubThumbRight.frameNumber);
+      console.log(e.clientY);
+      this.updateOpencvVideoCanvas(scrubFrameNumber);
+    } else {
+      this.setState({
+        showScrubWindow: false,
+      });
+    }
   }
 
   onScrubWindowStop(e) {
     const { store } = this.context;
-    const scrubFrameNumber = mapRange(e.clientX, 0, this.state.containerWidth, this.state.scrubThumbLeft.frameNumber, this.state.scrubThumbRight.frameNumber);
-    if (this.state.keyObject.altKey || this.state.keyObject.shiftKey) {
-      const newThumbId = uuidV4();
-      if (this.state.keyObject.altKey) {
-        store.dispatch(addThumb(
-          this.props.file,
-          scrubFrameNumber,
-          this.props.thumbs.find((thumb) => thumb.thumbId === this.state.scrubThumb.thumbId).index + 1,
-          newThumbId
-        ));
-      } else { // if shiftKey
-        store.dispatch(addThumb(
-          this.props.file,
-          scrubFrameNumber,
-          this.props.thumbs.find((thumb) => thumb.thumbId === this.state.scrubThumb.thumbId).index,
-          newThumbId
-        ));
+    if (e.clientY < (MENU_HEADER_HEIGHT + this.state.containerHeight)) {
+      const scrubFrameNumber = mapRange(e.clientX, 0, this.state.containerWidth, this.state.scrubThumbLeft.frameNumber, this.state.scrubThumbRight.frameNumber);
+      if (this.state.keyObject.altKey || this.state.keyObject.shiftKey) {
+        const newThumbId = uuidV4();
+        if (this.state.keyObject.altKey) {
+          store.dispatch(addThumb(
+            this.props.file,
+            scrubFrameNumber,
+            this.props.thumbs.find((thumb) => thumb.thumbId === this.state.scrubThumb.thumbId).index + 1,
+            newThumbId
+          ));
+        } else { // if shiftKey
+          store.dispatch(addThumb(
+            this.props.file,
+            scrubFrameNumber,
+            this.props.thumbs.find((thumb) => thumb.thumbId === this.state.scrubThumb.thumbId).index,
+            newThumbId
+          ));
+        }
+      } else { // if normal set new thumb
+        store.dispatch(changeThumb(this.props.file, this.state.scrubThumb.thumbId, scrubFrameNumber));
       }
-    } else { // if normal set new thumb
-      store.dispatch(changeThumb(this.props.file, this.state.scrubThumb.thumbId, scrubFrameNumber));
     }
-    // store.dispatch(changeThumb(this.props.file, this.state.scrubThumb.thumbId, scrubFrameNumber));
     this.setState({
       showScrubWindow: false,
     });
@@ -1222,7 +1229,9 @@ class App extends Component {
                       <span
                         className={styles.scrubThumbLeft}
                         style={{
-                          backgroundImage: `url(${getObjectProperty(() => this.props.thumbImages[this.state.scrubThumbLeft.frameId].objectUrl) || transparent})`,
+                          backgroundImage: `url(${this.state.keyObject.altKey ?
+                            getObjectProperty(() => this.props.thumbImages[this.state.scrubThumb.frameId].objectUrl) :
+                            getObjectProperty(() => this.props.thumbImages[this.state.scrubThumbLeft.frameId].objectUrl) || transparent})`,
                           height: this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio,
                           width: (this.state.containerWidth -
                             ((this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv)) / 2 -
@@ -1230,13 +1239,15 @@ class App extends Component {
                           marginRight: this.props.settings.defaultScrubWindowMargin,
                         }}
                       />
-                      {(this.state.keyObject.altKey || this.state.keyObject.shiftKey) &&
+                      {this.state.keyObject.ctrlKey &&
                         <div
                           style={{
                             content: '',
-                            backgroundColor: '#FF5006',
+                            backgroundImage: `url(${getObjectProperty(() => this.props.thumbImages[this.state.scrubThumb.frameId].objectUrl)})`,
+                            backgroundSize: 'cover',
+                            opacity: '0.4',
                             position: 'absolute',
-                            width: `${this.props.settings.defaultScrubWindowMargin * 2}px`,
+                            width: (this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv,
                             height: this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio,
                             top: 0,
                             left: this.state.keyObject.altKey ? (this.state.containerWidth -
@@ -1261,7 +1272,9 @@ class App extends Component {
                       <span
                         className={styles.scrubThumbRight}
                         style={{
-                          backgroundImage: `url(${getObjectProperty(() => this.props.thumbImages[this.state.scrubThumbRight.frameId].objectUrl) || transparent})`,
+                          backgroundImage: `url(${this.state.keyObject.shiftKey ?
+                            getObjectProperty(() => this.props.thumbImages[this.state.scrubThumb.frameId].objectUrl) :
+                            getObjectProperty(() => this.props.thumbImages[this.state.scrubThumbRight.frameId].objectUrl) || transparent})`,
                           height: this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio,
                           width: (this.state.containerWidth -
                             ((this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv)) / 2 -
@@ -1269,159 +1282,22 @@ class App extends Component {
                           marginLeft: this.props.settings.defaultScrubWindowMargin,
                         }}
                       />
-                      <div className={`${styles.scrubControlsWrapper}`}>
-                        <div
-                          // id="timeLine"
-                          // className={`${styles.timelineWrapper}`}
-                          // onClick={this.onTimelineClick}
-                          // onMouseDown={this.onTimelineDrag}
-                          // onMouseUp={this.onTimelineDragStop}
-                          // onMouseMove={this.onTimelineMouseOver}
-                          // onMouseLeave={this.onTimelineExit}
-                          // ref={(el) => { this.timeLine = el; }}
-                        >
-                          <div
-                            className={`${styles.scrubTimelinePlayhead}`}
-                            style={{
-                              // left: playHeadPosition,
-                            }}
-                          />
-                          <div
-                            className={`${styles.scrubTimelineCut}`}
-                            style={{
-                              // left: inPointPositionOnTimeline,
-                              // width: cutWidthOnTimeLine
-                            }}
-                          />
-                          {/* <img
-                            src={getObjectProperty(() => this.props.thumbImages[this.state.scrubThumbLeft.frameId].objectUrl) || transparent}
-                            className={styles.scrubThumbLeft}
-                            alt=""
-                          />
-                          <img
-                            src={getObjectProperty(() => this.props.thumbImages[this.state.scrubThumbRight.frameId].objectUrl) || transparent}
-                            className={styles.scrubThumbRight}
-                            alt=""
-                          /> */}
-                        </div>
-                        {/* <div className={`${styles.buttonWrapper}`}>
-                          <Popup
-                            trigger={
-                              <button
-                                style={{
-                                  position: 'absolute',
-                                  bottom: 0,
-                                  left: 0,
-                                  marginLeft: '8px',
-                                }}
-                                className={`${styles.hoverButton} ${styles.textButton}`}
-                                onClick={this.onInPointClick}
-                                onMouseOver={over}
-                                onMouseLeave={out}
-                                onFocus={over}
-                                onBlur={out}
-                              >
-                                IN
-                              </button>
-                            }
-                            className={stylesPop.popup}
-                            content="Set this thumb as new IN-point"
-                          />
-                          <Popup
-                            trigger={
-                              <button
-                                style={{
-                                  transformOrigin: 'center bottom',
-                                  transform: 'translateX(-50%)',
-                                  position: 'absolute',
-                                  bottom: 0,
-                                  left: '30%',
-                                }}
-                                className={`${styles.hoverButton} ${styles.textButton}`}
-                                onClick={() => this.onBackClick()}
-                                onMouseOver={over}
-                                onMouseLeave={out}
-                                onFocus={over}
-                                onBlur={out}
-                              >
-                                {this.props.keyObject.altKey ? '<<<' : (this.props.keyObject.shiftKey ? '<' : '<<')}
-                              </button>
-                            }
-                            className={stylesPop.popup}
-                            content={<span>Move 10 frames back | with <mark>SHIFT</mark> move 1 frame | with <mark>ALT</mark> move 100 frames</span>}
-                          />
-                          <Popup
-                            trigger={
-                              <button
-                                className={`${styles.hoverButton} ${styles.textButton}`}
-                                onClick={this.onApplyClick}
-                                onMouseOver={over}
-                                onMouseLeave={out}
-                                onFocus={over}
-                                onBlur={out}
-                                style={{
-                                  display: this.props.selectedThumbId ? 'block' : 'none',
-                                  transformOrigin: 'center bottom',
-                                  transform: 'translateX(-50%)',
-                                  position: 'absolute',
-                                  bottom: 0,
-                                  left: '50%',
-                                  color: MOVIEPRINT_COLORS[0]
-                                }}
-                              >
-                                {this.props.keyObject.altKey ? 'ADD AFTER' : (this.props.keyObject.shiftKey ? 'ADD BEFORE' : 'CHANGE')}
-                              </button>
-                            }
-                            className={stylesPop.popup}
-                            content={this.props.keyObject.altKey ? (<span>Add a new thumb <mark>after</mark> selection</span>) : (this.props.keyObject.shiftKey ? (<span>Add a new thumb <mark>before</mark> selection</span>) : (<span>Change the thumb to use this frame | with <mark>SHIFT</mark> add a thumb before selection | with <mark>ALT</mark> add a thumb after selection</span>))}
-                          />
-                          <Popup
-                            trigger={
-                              <button
-                                style={{
-                                  transformOrigin: 'center bottom',
-                                  transform: 'translateX(-50%)',
-                                  position: 'absolute',
-                                  bottom: 0,
-                                  left: '70%',
-                                }}
-                                className={`${styles.hoverButton} ${styles.textButton}`}
-                                onClick={() => this.onForwardClick()}
-                                onMouseOver={over}
-                                onMouseLeave={out}
-                                onFocus={over}
-                                onBlur={out}
-                              >
-                                {this.props.keyObject.altKey ? '>>>' : (this.props.keyObject.shiftKey ? '>' : '>>')}
-                              </button>
-                            }
-                            className={stylesPop.popup}
-                            content={<span>Move 10 frames forward | with <mark>SHIFT</mark> move 1 frame | with <mark>ALT</mark> move 100 frames</span>}
-                          />
-                          <Popup
-                            trigger={
-                              <button
-                                style={{
-                                  position: 'absolute',
-                                  bottom: 0,
-                                  right: 0,
-                                  marginRight: '8px',
-                                }}
-                                className={`${styles.hoverButton} ${styles.textButton}`}
-                                onClick={this.onOutPointClick}
-                                onMouseOver={over}
-                                onMouseLeave={out}
-                                onFocus={over}
-                                onBlur={out}
-                              >
-                                OUT
-                              </button>
-                            }
-                            className={stylesPop.popup}
-                            content="Set this thumb as new OUT-point"
-                          />
-                        </div> */}
-                      </div>
+                    </div>
+                    {/* <div
+                      className={`${styles.scrubDescription} ${styles.textButton}`}
+                      style={{
+                        height: `${MENU_HEADER_HEIGHT}px`,
+                      }}
+                    >
+                      {this.state.keyObject.altKey ? 'Add after' : (this.state.keyObject.shiftKey ? 'Add before' : 'Change')}
+                    </div> */}
+                    <div
+                      className={`${styles.scrubCancelBar}`}
+                      style={{
+                        height: `${MENU_FOOTER_HEIGHT}px`,
+                      }}
+                    >
+                      Cancel
                     </div>
                   </div>
                 }

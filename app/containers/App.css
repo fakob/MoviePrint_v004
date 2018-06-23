@@ -240,29 +240,6 @@
   transform: translate(-50%,-50%);
 }
 
-.scrubControlsWrapper {
-  left: 0;
-  right: 0;
-  bottom: 0;
-  /* height: 5.75rem; */
-  /* background: #6b6b6b; */
-  text-align: center;
-  margin-top: 4px;
-}
-
-.scrubTimelineWrapper {
-  width: 100%;
-  position: relative;
-  background-color: #421400;
-  height: 24px;
-}
-
-.scrubTimelineCut {
-  position: absolute;
-  background-color: rgba(255, 80, 6, 0.4);
-  height: 24px;
-}
-
 .scrubThumbLeft {
   /* position: absolute; */
   left: 0;
@@ -285,4 +262,24 @@
   /* height: 24px; */
   /* width: 24px; */
   object-fit: cover;
+}
+
+.scrubCancelBar {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: rgba(100, 0, 0, 1);
+  z-index: 1000;
+  text-align: center;
+  padding-top: 6px;
+}
+
+.scrubDescription {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  /* background-color: #333333; */
+  z-index: 1000;
+  text-align: center;
+  padding-top: 6px;
 }
