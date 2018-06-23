@@ -133,7 +133,7 @@ const ThumbGrid = ({
         onHoverOutPoint={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => onHoverOutPointResult(thumbArray, thumb.thumbId)}
         onScrub={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
-          null : () => onScrubClick(file, thumb.thumbId, thumb.frameNumber)}
+          null : () => onScrubClick(file, thumb)}
         onInPoint={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => onInPointClick(file, thumbArray, thumb.thumbId, thumb.frameNumber)}
         onOutPoint={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?

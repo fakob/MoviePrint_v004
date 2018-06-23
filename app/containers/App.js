@@ -46,6 +46,7 @@ import {
 } from '../utils/constants';
 
 import steps from '../img/MoviePrint-steps.svg';
+import transparent from '../img/Thumb_TRANSPARENT.png';
 
 const { ipcRenderer } = require('electron');
 const { dialog } = require('electron').remote;
@@ -96,7 +97,7 @@ class App extends Component {
       timeBefore: undefined,
       opencvVideo: undefined,
       showScrubWindow: false,
-      scrubId: undefined,
+      scrubThumb: undefined,
       scrubLimitLeft: 0,
       scrubLimitRight: 10,
     };
@@ -642,28 +643,38 @@ class App extends Component {
     store.dispatch(showMoviePrintView());
   }
 
-  onScrubClick(file, thumbId, frameNumber) {
-    const indexOfThumb = this.props.thumbs.findIndex((thumb) => thumb.thumbId === thumbId);
-    const leftFrameNumber = this.props.thumbs[Math.max(0, indexOfThumb - 1)].frameNumber;
-    const rightFrameNumber = this.props.thumbs[Math.min(this.props.thumbs.length - 1, indexOfThumb + 1)].frameNumber;
+  onScrubClick(file, scrubThumb) {
+    // get thumb left and right of scrubThumb
+    const indexOfThumb = this.props.thumbs.findIndex((thumb) => thumb.thumbId === scrubThumb.thumbId);
+    const leftThumb = this.props.thumbs[Math.max(0, indexOfThumb - 1)];
+    const rightThumb = this.props.thumbs[Math.min(this.props.thumbs.length - 1, indexOfThumb + 1)];
+
+    // the three thumbs might not be in ascending order, left has to be lower, right has to be higher
+    // create an array to compare the three thumbs
+    const arrayToCompare = [leftThumb, rightThumb, scrubThumb];
+
+    // copy the first array with slice so I can run it a second time (reduce mutates the array)
+    const scrubThumbLeft = arrayToCompare.slice().reduce((prev, current) => prev.frameNumber < current.frameNumber ? prev : current);
+    const scrubThumbRight = arrayToCompare.reduce((prev, current) => prev.frameNumber > current.frameNumber ? prev : current);
+
     this.setState({
       showScrubWindow: true,
-      scrubId: thumbId,
-      scrubLimitLeft: Math.min(leftFrameNumber, frameNumber, rightFrameNumber),
-      scrubLimitRight: Math.max(leftFrameNumber, frameNumber, rightFrameNumber),
+      scrubThumb,
+      scrubThumbLeft,
+      scrubThumbRight,
     });
   }
 
   onScrubWindowMouseOver(e) {
-    const scrubFrameNumber = mapRange(e.clientX, 0, this.state.containerWidth, this.state.scrubLimitLeft, this.state.scrubLimitRight);
+    const scrubFrameNumber = mapRange(e.clientX, 0, this.state.containerWidth, this.state.scrubThumbLeft.frameNumber, this.state.scrubThumbRight.frameNumber);
     console.log(scrubFrameNumber);
     this.updateOpencvVideoCanvas(scrubFrameNumber);
   }
 
   onScrubWindowStop(e) {
     const { store } = this.context;
-    const scrubFrameNumber = mapRange(e.clientX, 0, this.state.containerWidth, this.state.scrubLimitLeft, this.state.scrubLimitRight);
-    store.dispatch(changeThumb(this.props.file, this.state.scrubId, scrubFrameNumber));
+    const scrubFrameNumber = mapRange(e.clientX, 0, this.state.containerWidth, this.state.scrubThumbLeft.frameNumber, this.state.scrubThumbRight.frameNumber);
+    store.dispatch(changeThumb(this.props.file, this.state.scrubThumb.thumbId, scrubFrameNumber));
     this.setState({
       showScrubWindow: false,
     });
@@ -1177,13 +1188,170 @@ class App extends Component {
                     onMouseMove={this.onScrubWindowMouseOver}
                     onMouseUp={this.onScrubWindowStop}
                   >
-                    <canvas
-                      ref={this.opencvVideoCanvasRef}
-                      // ref={(el) => { this.opencvVideoCanvasRef = el; }}
-                      width={640}
-                      height={360}
+                    <div
                       className={styles.scrubWindow}
-                    />
+                    >
+                      <canvas
+                        ref={this.opencvVideoCanvasRef}
+                        // ref={(el) => { this.opencvVideoCanvasRef = el; }}
+                        width={640}
+                        height={360}
+                        // className={styles.scrubWindow}
+                      />
+                      <div className={`${styles.scrubControlsWrapper}`}>
+                        <div
+                          // id="timeLine"
+                          // className={`${styles.timelineWrapper}`}
+                          // onClick={this.onTimelineClick}
+                          // onMouseDown={this.onTimelineDrag}
+                          // onMouseUp={this.onTimelineDragStop}
+                          // onMouseMove={this.onTimelineMouseOver}
+                          // onMouseLeave={this.onTimelineExit}
+                          // ref={(el) => { this.timeLine = el; }}
+                        >
+                          <div
+                            className={`${styles.scrubTimelinePlayhead}`}
+                            style={{
+                              // left: playHeadPosition,
+                            }}
+                          />
+                          <div
+                            className={`${styles.scrubTimelineCut}`}
+                            style={{
+                              // left: inPointPositionOnTimeline,
+                              // width: cutWidthOnTimeLine
+                            }}
+                          />
+                          <img
+                            src={getObjectProperty(() => this.props.thumbImages[this.state.scrubThumbLeft.frameId].objectUrl) || transparent}
+                            className={styles.scrubThumbLeft}
+                            alt=""
+                          />
+                          <img
+                            src={getObjectProperty(() => this.props.thumbImages[this.state.scrubThumbRight.frameId].objectUrl) || transparent}
+                            className={styles.scrubThumbRight}
+                            alt=""
+                          />
+                        </div>
+                        {/* <div className={`${styles.buttonWrapper}`}>
+                          <Popup
+                            trigger={
+                              <button
+                                style={{
+                                  position: 'absolute',
+                                  bottom: 0,
+                                  left: 0,
+                                  marginLeft: '8px',
+                                }}
+                                className={`${styles.hoverButton} ${styles.textButton}`}
+                                onClick={this.onInPointClick}
+                                onMouseOver={over}
+                                onMouseLeave={out}
+                                onFocus={over}
+                                onBlur={out}
+                              >
+                                IN
+                              </button>
+                            }
+                            className={stylesPop.popup}
+                            content="Set this thumb as new IN-point"
+                          />
+                          <Popup
+                            trigger={
+                              <button
+                                style={{
+                                  transformOrigin: 'center bottom',
+                                  transform: 'translateX(-50%)',
+                                  position: 'absolute',
+                                  bottom: 0,
+                                  left: '30%',
+                                }}
+                                className={`${styles.hoverButton} ${styles.textButton}`}
+                                onClick={() => this.onBackClick()}
+                                onMouseOver={over}
+                                onMouseLeave={out}
+                                onFocus={over}
+                                onBlur={out}
+                              >
+                                {this.props.keyObject.altKey ? '<<<' : (this.props.keyObject.shiftKey ? '<' : '<<')}
+                              </button>
+                            }
+                            className={stylesPop.popup}
+                            content={<span>Move 10 frames back | with <mark>SHIFT</mark> move 1 frame | with <mark>ALT</mark> move 100 frames</span>}
+                          />
+                          <Popup
+                            trigger={
+                              <button
+                                className={`${styles.hoverButton} ${styles.textButton}`}
+                                onClick={this.onApplyClick}
+                                onMouseOver={over}
+                                onMouseLeave={out}
+                                onFocus={over}
+                                onBlur={out}
+                                style={{
+                                  display: this.props.selectedThumbId ? 'block' : 'none',
+                                  transformOrigin: 'center bottom',
+                                  transform: 'translateX(-50%)',
+                                  position: 'absolute',
+                                  bottom: 0,
+                                  left: '50%',
+                                  color: MOVIEPRINT_COLORS[0]
+                                }}
+                              >
+                                {this.props.keyObject.altKey ? 'ADD AFTER' : (this.props.keyObject.shiftKey ? 'ADD BEFORE' : 'CHANGE')}
+                              </button>
+                            }
+                            className={stylesPop.popup}
+                            content={this.props.keyObject.altKey ? (<span>Add a new thumb <mark>after</mark> selection</span>) : (this.props.keyObject.shiftKey ? (<span>Add a new thumb <mark>before</mark> selection</span>) : (<span>Change the thumb to use this frame | with <mark>SHIFT</mark> add a thumb before selection | with <mark>ALT</mark> add a thumb after selection</span>))}
+                          />
+                          <Popup
+                            trigger={
+                              <button
+                                style={{
+                                  transformOrigin: 'center bottom',
+                                  transform: 'translateX(-50%)',
+                                  position: 'absolute',
+                                  bottom: 0,
+                                  left: '70%',
+                                }}
+                                className={`${styles.hoverButton} ${styles.textButton}`}
+                                onClick={() => this.onForwardClick()}
+                                onMouseOver={over}
+                                onMouseLeave={out}
+                                onFocus={over}
+                                onBlur={out}
+                              >
+                                {this.props.keyObject.altKey ? '>>>' : (this.props.keyObject.shiftKey ? '>' : '>>')}
+                              </button>
+                            }
+                            className={stylesPop.popup}
+                            content={<span>Move 10 frames forward | with <mark>SHIFT</mark> move 1 frame | with <mark>ALT</mark> move 100 frames</span>}
+                          />
+                          <Popup
+                            trigger={
+                              <button
+                                style={{
+                                  position: 'absolute',
+                                  bottom: 0,
+                                  right: 0,
+                                  marginRight: '8px',
+                                }}
+                                className={`${styles.hoverButton} ${styles.textButton}`}
+                                onClick={this.onOutPointClick}
+                                onMouseOver={over}
+                                onMouseLeave={out}
+                                onFocus={over}
+                                onBlur={out}
+                              >
+                                OUT
+                              </button>
+                            }
+                            className={stylesPop.popup}
+                            content="Set this thumb as new OUT-point"
+                          />
+                        </div> */}
+                      </div>
+                    </div>
                   </div>
                 }
                 { dropzoneActive &&
