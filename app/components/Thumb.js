@@ -277,31 +277,6 @@ const Thumb = ({
                   <button
                     style={{
                       display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-                      transformOrigin: 'center center',
-                      transform: `translate(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                      position: 'absolute',
-                      top: '50%',
-                      left: '50%',
-                      // marginLeft: '8px',
-                    }}
-                    className={`${styles.hoverButton} ${styles.textButton}`}
-                    onClick={onScrubWithStop}
-                    onMouseOver={over}
-                    onMouseLeave={out}
-                    onFocus={over}
-                    onBlur={out}
-                  >
-                    SCRUB
-                  </button>
-                }
-                className={stylesPop.popup}
-                content={<span>Drag the mouse <mark>left and right</mark> to change frame</span>}
-              />
-              <Popup
-                trigger={
-                  <button
-                    style={{
-                      display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
                       transformOrigin: 'left bottom',
                       transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
                       position: 'absolute',
@@ -358,17 +333,17 @@ const Thumb = ({
                       left: '50%',
                     }}
                     className={`${styles.hoverButton} ${styles.textButton}`}
-                    onClick={onThumbDoubleClickWithStop}
+                    onMouseDown={onScrubWithStop}
                     onMouseOver={over}
                     onMouseLeave={out}
                     onFocus={over}
                     onBlur={out}
                   >
-                    {showMoviePrintView ? 'EDIT' : 'BACK'}
+                    {'<'}|{'>'}
                   </button>
                 }
                 className={stylesPop.popup}
-                content={showMoviePrintView ? 'Edit thumb' : 'Back to MoviePrint view'}
+                content={<span>Click and drag left and right to change the frame (<mark>SHIFT</mark> add new thumb before, <mark>ALT</mark> add new thumb after)</span>}
               />
               <Popup
                 trigger={

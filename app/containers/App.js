@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone';
 import { TransitionablePortal, Segment, Progress } from 'semantic-ui-react';
+import uuidV4 from 'uuid/v4';
 
 import '../app.global.css';
 import FileList from '../containers/FileList';
@@ -37,7 +38,7 @@ import {
   setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
   setDefaultMoviePrintWidth, updateFileDetailUseRatio, setDefaultShowPaperPreview,
   setDefaultPaperAspectRatioInv, updateInOutPoint, removeMovieListItem, setDefaultDetectInOutPoint,
-  changeThumb
+  changeThumb, addThumb
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -674,7 +675,27 @@ class App extends Component {
   onScrubWindowStop(e) {
     const { store } = this.context;
     const scrubFrameNumber = mapRange(e.clientX, 0, this.state.containerWidth, this.state.scrubThumbLeft.frameNumber, this.state.scrubThumbRight.frameNumber);
-    store.dispatch(changeThumb(this.props.file, this.state.scrubThumb.thumbId, scrubFrameNumber));
+    if (this.state.keyObject.altKey || this.state.keyObject.shiftKey) {
+      const newThumbId = uuidV4();
+      if (this.state.keyObject.altKey) {
+        store.dispatch(addThumb(
+          this.props.file,
+          scrubFrameNumber,
+          this.props.thumbs.find((thumb) => thumb.thumbId === this.state.scrubThumb.thumbId).index + 1,
+          newThumbId
+        ));
+      } else { // if shiftKey
+        store.dispatch(addThumb(
+          this.props.file,
+          scrubFrameNumber,
+          this.props.thumbs.find((thumb) => thumb.thumbId === this.state.scrubThumb.thumbId).index,
+          newThumbId
+        ));
+      }
+    } else { // if normal set new thumb
+      store.dispatch(changeThumb(this.props.file, this.state.scrubThumb.thumbId, scrubFrameNumber));
+    }
+    // store.dispatch(changeThumb(this.props.file, this.state.scrubThumb.thumbId, scrubFrameNumber));
     this.setState({
       showScrubWindow: false,
     });
@@ -913,7 +934,10 @@ class App extends Component {
     setPosition(this.state.opencvVideo, currentFrame, this.props.file.useRatio);
     const frame = this.state.opencvVideo.read();
     if (!frame.empty) {
-      const img = frame.resizeToMax(640);
+      const tempWidth = parseInt((this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv, 10);
+      const tempHeight = parseInt(this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio, 10);
+
+      const img = frame.resizeToMax(Math.max(tempWidth, tempHeight));
       // renderImage(matResized, this.opencvVideoCanvasRef, opencv);
       const matRGBA = img.channels === 1 ? img.cvtColor(opencv.COLOR_GRAY2RGBA) : img.cvtColor(opencv.COLOR_BGR2RGBA);
 
@@ -1190,13 +1214,60 @@ class App extends Component {
                   >
                     <div
                       className={styles.scrubWindow}
+                      style={{
+                        height: this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio,
+                        width: this.state.containerWidth,
+                      }}
                     >
-                      <canvas
-                        ref={this.opencvVideoCanvasRef}
-                        // ref={(el) => { this.opencvVideoCanvasRef = el; }}
-                        width={640}
-                        height={360}
-                        // className={styles.scrubWindow}
+                      <span
+                        className={styles.scrubThumbLeft}
+                        style={{
+                          backgroundImage: `url(${getObjectProperty(() => this.props.thumbImages[this.state.scrubThumbLeft.frameId].objectUrl) || transparent})`,
+                          height: this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio,
+                          width: (this.state.containerWidth -
+                            ((this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv)) / 2 -
+                            this.props.settings.defaultScrubWindowMargin,
+                          marginRight: this.props.settings.defaultScrubWindowMargin,
+                        }}
+                      />
+                      {(this.state.keyObject.altKey || this.state.keyObject.shiftKey) &&
+                        <div
+                          style={{
+                            content: '',
+                            backgroundColor: '#FF5006',
+                            position: 'absolute',
+                            width: `${this.props.settings.defaultScrubWindowMargin * 2}px`,
+                            height: this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio,
+                            top: 0,
+                            left: this.state.keyObject.altKey ? (this.state.containerWidth -
+                              ((this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv)) / 2 -
+                              this.props.settings.defaultScrubWindowMargin + (this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv :
+                              (this.state.containerWidth -
+                                ((this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv)) / 2 -
+                                this.props.settings.defaultScrubWindowMargin,
+                          }}
+                        />
+                      }
+                      <span
+                        style={{
+                          width: (this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv,
+                          height: this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio,
+                        }}
+                      >
+                        <canvas
+                          ref={this.opencvVideoCanvasRef}
+                        />
+                      </span>
+                      <span
+                        className={styles.scrubThumbRight}
+                        style={{
+                          backgroundImage: `url(${getObjectProperty(() => this.props.thumbImages[this.state.scrubThumbRight.frameId].objectUrl) || transparent})`,
+                          height: this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio,
+                          width: (this.state.containerWidth -
+                            ((this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv)) / 2 -
+                            this.props.settings.defaultScrubWindowMargin,
+                          marginLeft: this.props.settings.defaultScrubWindowMargin,
+                        }}
                       />
                       <div className={`${styles.scrubControlsWrapper}`}>
                         <div
@@ -1222,7 +1293,7 @@ class App extends Component {
                               // width: cutWidthOnTimeLine
                             }}
                           />
-                          <img
+                          {/* <img
                             src={getObjectProperty(() => this.props.thumbImages[this.state.scrubThumbLeft.frameId].objectUrl) || transparent}
                             className={styles.scrubThumbLeft}
                             alt=""
@@ -1231,7 +1302,7 @@ class App extends Component {
                             src={getObjectProperty(() => this.props.thumbImages[this.state.scrubThumbRight.frameId].objectUrl) || transparent}
                             className={styles.scrubThumbRight}
                             alt=""
-                          />
+                          /> */}
                         </div>
                         {/* <div className={`${styles.buttonWrapper}`}>
                           <Popup
