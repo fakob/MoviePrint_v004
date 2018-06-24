@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone';
 import { TransitionablePortal, Segment, Progress, Modal, Button, Icon } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
+import {Bar, defaults} from 'react-chartjs-2';
 
 import '../app.global.css';
 import FileList from '../containers/FileList';
@@ -54,6 +55,9 @@ const { ipcRenderer } = require('electron');
 const { dialog } = require('electron').remote;
 const { app } = require('electron').remote;
 const opencv = require('opencv4nodejs');
+
+// Disable animating charts by default.
+defaults.global.animation = false;
 
 const setColumnAndThumbCount = (that,
   columnCount, thumbCount) => {
@@ -106,8 +110,16 @@ class App extends Component {
       opencvVideo: undefined,
       showScrubWindow: false,
       scrubThumb: undefined,
-      scrubLimitLeft: 0,
-      scrubLimitRight: 10,
+      chartData: {
+          labels: ["Jakobary", "February", "March", "April", "May", "June", "July"],
+          datasets: [{
+            label: "My First dataset",
+            backgroundColor: 'rgb(0, 99, 132)',
+            borderWidth: '0',
+            borderColor: 'rgb(255, 0, 0)',
+            data: [0, 10, 5, 2, 20, 30, 45],
+          }]
+        },
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -299,6 +311,10 @@ class App extends Component {
           ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-scene-detection', fileId, tempFile.path, tempFile.useRatio);
         }
       }
+    });
+
+    ipcRenderer.on('received-get-scene-detection', (event, chartData) => {
+      this.setState({ chartData });
     });
 
     ipcRenderer.on('received-saved-file', (event, path) => {
@@ -1427,6 +1443,23 @@ class App extends Component {
                     >
                       Cancel
                     </div>
+                  </div>
+                }
+                { DEV_OPENCV_SCENE_DETECTION &&
+                  <div
+                    className={styles.chart}
+                  >
+                    <Bar
+                      data={this.state.chartData}
+                      // width={this.state.containerWidth}
+                      // height={this.state.containerHeight}
+                      options={{
+                        maintainAspectRatio: true,
+                        barPercentage: 1.0,
+                        categoryPercentage: 1.0,
+                        // responsive : true,
+                      }}
+                    />
                   </div>
                 }
                 { dropzoneActive &&

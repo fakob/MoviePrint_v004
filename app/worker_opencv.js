@@ -5,7 +5,6 @@ import { limitRange, setPosition } from './utils/utils';
 import {
   IN_OUT_POINT_SEARCH_LENGTH,
   IN_OUT_POINT_SEARCH_THRESHOLD,
-  DEV_OPENCV_SCENE_DETECTION,
 } from './utils/constants';
 
 process.env.OPENCV4NODEJS_DISABLE_EXTERNAL_MEM_TRACKING = 1;
@@ -441,9 +440,10 @@ ipcRenderer.on(
             // console.time('meanCalculation');
             // scale to quarter of size, convert to HSV, calculate mean, get only V channel
             frameMean = mat
-              .rescale(0.25)
+              .resizeToMax(240)
               .cvtColor(opencv.COLOR_BGR2HSV)
               .mean().y;
+
             // console.timeEnd('meanCalculation');
 
             // // single axis for 1D hist
@@ -476,6 +476,26 @@ ipcRenderer.on(
                   timeBeforeSceneDetection) / vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`;
               console.log(messageToSend);
               console.timeEnd(`${fileId}-sceneDetection`);
+
+              const tempFrameArray = meanArray.map((item) => item.frame);
+              const tempMeanArray = meanArray.map((item) => item.mean);
+              console.log(tempMeanArray);
+              const chartData = {
+                labels: tempFrameArray,
+                datasets: [{
+                label: "My First dataset",
+                backgroundColor: 'rgb(255, 99, 132)',
+                borderColor: 'rgb(255, 99, 132)',
+                data: tempMeanArray,
+                }]
+              };
+              console.log(chartData);
+              ipcRenderer.send(
+                'message-from-opencvWorkerWindow-to-mainWindow',
+                'received-get-scene-detection',
+                chartData
+              );
+
               ipcRenderer.send(
                 'message-from-opencvWorkerWindow-to-mainWindow',
                 'progress',
@@ -490,7 +510,6 @@ ipcRenderer.on(
                 messageToSend,
                 6000
               );
-              console.log(meanArray);
             }
           } else {
             console.timeEnd(`${fileId}-sceneDetection`);
@@ -681,6 +700,8 @@ ipcRenderer.on(
 );
 
 render(
-  <h1>I am the opencv worker window.</h1>,
+  <div>
+    <h1>I am the opencv worker window.</h1>
+  </div>,
   document.getElementById('worker_opencv')
 );

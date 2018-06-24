@@ -212,8 +212,10 @@
   },
   "dependencies": {
     "ajv": "^6.4.0",
+    "chart.js": "^2.7.2",
     "devtron": "^1.4.0",
     "dexie": "^2.0.1",
+    "electron-chartjs": "^1.0.0",
     "electron-debug": "^1.5.0",
     "electron-process-manager": "^0.5.1",
     "electron-unhandled": "^1.1.0",
@@ -223,6 +225,7 @@
     "randomcolor": "^0.5.3",
     "rc-slider": "^8.3.5",
     "react": "^16.4.0",
+    "react-chartjs-2": "^2.7.2",
     "react-dom": "^16.4.0",
     "react-draggable": "^3.0.5",
     "react-dropzone": "^4.2.9",
