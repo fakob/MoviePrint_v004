@@ -44,6 +44,7 @@ import {
   MENU_HEADER_HEIGHT,
   MENU_FOOTER_HEIGHT,
   ZOOM_SCALE,
+  DEV_OPENCV_SCENE_DETECTION,
 } from '../utils/constants';
 
 import steps from '../img/MoviePrint-steps.svg';
@@ -292,6 +293,11 @@ class App extends Component {
             });
           }, 3000);
         });
+        const tempFile = store.getState().undoGroup.present.files.find((file) => file.id === fileId);
+        console.log(tempFile);
+        if (DEV_OPENCV_SCENE_DETECTION) {
+          ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-scene-detection', fileId, tempFile.path, tempFile.useRatio);
+        }
       }
     });
 
@@ -1220,10 +1226,10 @@ class App extends Component {
                     // onClose={this.setState({ progressMessage: undefined })}
                     open={this.state.showMessage}
                     // open
-                    transition={{
-                      animation: 'fade up',
-                      duration: 600,
-                    }}
+                    // transition={{
+                    //   animation: 'fade up',
+                    //   duration: 600,
+                    // }}
                     closeOnDocumentClick={false}
                     closeOnEscape={false}
                     closeOnPortalMouseLeave={false}

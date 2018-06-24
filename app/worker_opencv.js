@@ -4,8 +4,9 @@ import VideoCaptureProperties from './utils/videoCaptureProperties';
 import { limitRange, setPosition } from './utils/utils';
 import {
   IN_OUT_POINT_SEARCH_LENGTH,
-  IN_OUT_POINT_SEARCH_THRESHOLD
-} from './utils/mainConstants';
+  IN_OUT_POINT_SEARCH_THRESHOLD,
+  DEV_OPENCV_SCENE_DETECTION,
+} from './utils/constants';
 
 process.env.OPENCV4NODEJS_DISABLE_EXTERNAL_MEM_TRACKING = 1;
 
@@ -396,6 +397,121 @@ ipcRenderer.on(
         videoLength
       );
     }
+  }
+);
+
+ipcRenderer.on(
+  'send-get-scene-detection',
+  (event, fileId, filePath, useRatio) => {
+    console.log('send-get-scene-detection');
+    console.log(fileId);
+    console.log(filePath);
+    const timeBeforeSceneDetection = Date.now();
+    console.time(`${fileId}-sceneDetection`);
+    const vid = new opencv.VideoCapture(filePath);
+    const videoLength =
+      vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1;
+    console.log(videoLength);
+
+    const threshold = IN_OUT_POINT_SEARCH_THRESHOLD;
+
+    const meanArray = [];
+
+    vid.readAsync(err1 => {
+      const read = () => {
+        vid.readAsync((err, mat) => {
+          const frame = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES);
+          if (iterator % 100 === 0) {
+            const progressBarPercentage =
+              iterator / vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) * 100;
+            ipcRenderer.send(
+              'message-from-opencvWorkerWindow-to-mainWindow',
+              'progress',
+              fileId,
+              progressBarPercentage
+            ); // first half of progress
+            console.log(
+              `readAsync: frame:${frame} (${vid.get(
+                VideoCaptureProperties.CAP_PROP_POS_MSEC
+              )}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`
+            );
+          }
+          let frameMean = 0;
+          if (mat.empty === false) {
+            // console.time('meanCalculation');
+            // scale to quarter of size, convert to HSV, calculate mean, get only V channel
+            frameMean = mat
+              .rescale(0.25)
+              .cvtColor(opencv.COLOR_BGR2HSV)
+              .mean().y;
+            // console.timeEnd('meanCalculation');
+
+            // // single axis for 1D hist
+            // const binCount = 17;
+            // const getHistAxis = channel => ([
+            //   {
+            //     channel,
+            //     bins: binCount,
+            //     ranges: [0, 256]
+            //   }
+            // ]);
+            // const matHSV = mat.cvtColor(opencv.COLOR_BGR2HSV);
+            // const frameHist = opencv.calcHist(matHSV, getHistAxis(2));
+            // console.log(frameHist.at(0));
+            // console.log(frameHist.at(0) > (binCount * 256));
+
+            meanArray.push({
+              frame:
+                vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1,
+              mean: frameMean
+            });
+
+            iterator += 1;
+            if (iterator < vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)) {
+              read();
+            } else {
+              const timeAfterSceneDetection = Date.now();
+              const messageToSend = `Scene detection finished - ${(timeAfterSceneDetection -
+                timeBeforeSceneDetection) / 1000}s - speed: ${(timeAfterSceneDetection -
+                  timeBeforeSceneDetection) / vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`;
+              console.log(messageToSend);
+              console.timeEnd(`${fileId}-sceneDetection`);
+              ipcRenderer.send(
+                'message-from-opencvWorkerWindow-to-mainWindow',
+                'progress',
+                fileId,
+                100
+              ); // set to full
+              ipcRenderer.send(
+                'message-from-opencvWorkerWindow-to-mainWindow',
+                'progressMessage',
+                fileId,
+                'info',
+                messageToSend,
+                6000
+              );
+              console.log(meanArray);
+            }
+          } else {
+            console.timeEnd(`${fileId}-sceneDetection`);
+            console.error(
+              `empty frame: iterator:${iterator} frame:${frame} (${vid.get(
+                VideoCaptureProperties.CAP_PROP_POS_MSEC
+              )}ms) of ${vid.get(
+                VideoCaptureProperties.CAP_PROP_FRAME_COUNT
+              )}`
+            );
+            console.log(meanArray);
+          }
+        });
+      };
+
+      const startFrame = 0;
+      let iterator = 0;
+      if (err1) throw err1;
+      setPosition(vid, startFrame, useRatio);
+      read(); // start reading frames
+    });
   }
 );
 

@@ -60,3 +60,8 @@ export const MINIMUM_WIDTH_TO_SHOW_HOVER = 100; // if smaller then do not show h
 export const MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE = 2; // heightOfInOutPointButtons
 
 export const CHANGE_THUMB_STEP = [1, 10, 100];
+
+export const IN_OUT_POINT_SEARCH_LENGTH = 300;
+export const IN_OUT_POINT_SEARCH_THRESHOLD = 20; // previous 15
+
+export const DEV_OPENCV_SCENE_DETECTION = true;
