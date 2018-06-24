@@ -344,7 +344,7 @@ const Thumb = ({
                   </button>
                 }
                 className={stylesPop.popup}
-                content={<span>Click and drag left and right to change the frame (<mark>SHIFT</mark> add new thumb before, <mark>ALT</mark> add new thumb after)</span>}
+                content={<span>Click and drag left and right to change the frame (<mark>SHIFT</mark> add new thumb before, <mark>ALT</mark> add new thumb after, <mark>CTRL</mark> display original as overlay)</span>}
               />
               <Popup
                 trigger={
