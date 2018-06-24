@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone';
 import { TransitionablePortal, Segment, Progress, Modal, Button, Icon } from 'semantic-ui-react';
+import uuidV4 from 'uuid/v4';
 
 import '../app.global.css';
 import FileList from '../containers/FileList';
@@ -13,7 +14,18 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import VideoPlayer from '../components/VideoPlayer';
 import ThumbEmpty from '../components/ThumbEmpty';
-import { getLowestFrame, getHighestFrame, getVisibleThumbs, getColumnCount, getThumbsCount, getMoviePrintColor, getScaleValueObject } from '../utils/utils';
+import { getLowestFrame,
+  getHighestFrame,
+  getVisibleThumbs,
+  getColumnCount,
+  getThumbsCount,
+  getMoviePrintColor,
+  getScaleValueObject,
+  getObjectProperty,
+  setPosition,
+  renderImage,
+  mapRange,
+} from '../utils/utils';
 // import saveMoviePrint from '../utils/saveMoviePrint';
 import styles from './App.css';
 import stylesPop from './../components/Popup.css';
@@ -26,7 +38,7 @@ import {
   setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
   setDefaultMoviePrintWidth, updateFileDetailUseRatio, setDefaultShowPaperPreview,
   setDefaultPaperAspectRatioInv, updateInOutPoint, removeMovieListItem, setDefaultDetectInOutPoint,
-  setEmailAddress
+  changeThumb, addThumb, setEmailAddress
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -35,10 +47,12 @@ import {
 } from '../utils/constants';
 
 import steps from '../img/MoviePrint-steps.svg';
+import transparent from '../img/Thumb_TRANSPARENT.png';
 
 const { ipcRenderer } = require('electron');
 const { dialog } = require('electron').remote;
 const { app } = require('electron').remote;
+const opencv = require('opencv4nodejs');
 
 const setColumnAndThumbCount = (that,
   columnCount, thumbCount) => {
@@ -55,6 +69,7 @@ class App extends Component {
     super();
 
     this.webviewRef = React.createRef();
+    this.opencvVideoCanvasRef = React.createRef();
 
     this.state = {
       containerHeight: 0,
@@ -86,6 +101,12 @@ class App extends Component {
       progressBarPercentage: 100,
       showFeedbackForm: false,
       intendToCloseFeedbackForm: false,
+      timeBefore: undefined,
+      opencvVideo: undefined,
+      showScrubWindow: false,
+      scrubThumb: undefined,
+      scrubLimitLeft: 0,
+      scrubLimitRight: 10,
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -101,6 +122,9 @@ class App extends Component {
     this.hideSettings = this.hideSettings.bind(this);
     this.onShowThumbs = this.onShowThumbs.bind(this);
     this.onViewToggle = this.onViewToggle.bind(this);
+    this.onScrubWindowMouseOver = this.onScrubWindowMouseOver.bind(this);
+    this.onScrubWindowStop = this.onScrubWindowStop.bind(this);
+    this.onScrubClick = this.onScrubClick.bind(this);
     this.switchToPrintView = this.switchToPrintView.bind(this);
     this.onOpenFeedbackForm = this.onOpenFeedbackForm.bind(this);
     this.onCloseFeedbackForm = this.onCloseFeedbackForm.bind(this);
@@ -132,6 +156,8 @@ class App extends Component {
     this.onOverwriteClick = this.onOverwriteClick.bind(this);
     this.onIncludeIndividualClick = this.onIncludeIndividualClick.bind(this);
     this.onThumbnailScaleClick = this.onThumbnailScaleClick.bind(this);
+    this.onMoviePrintWidthClick = this.onMoviePrintWidthClick.bind(this);
+    this.updateOpencvVideoCanvas = this.updateOpencvVideoCanvas.bind(this);
   }
 
   componentWillMount() {
@@ -162,6 +188,11 @@ class App extends Component {
         this.state.zoom ? false : this.props.settings.defaultShowPaperPreview
       )
     });
+    if (getObjectProperty(() => this.props.file.id)) {
+      this.setState({
+        opencvVideo: new opencv.VideoCapture(this.props.file.path),
+      });
+    }
   }
 
   componentDidMount() {
@@ -190,14 +221,14 @@ class App extends Component {
 
     ipcRenderer.on('receive-get-file-details', (event, fileId, filePath, posterFrameId, frameCount, width, height, fps, fourCC) => {
       store.dispatch(updateFileDetails(fileId, frameCount, width, height, fps, fourCC));
-      ipcRenderer.send('send-get-poster-frame', fileId, filePath, posterFrameId);
+      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-poster-frame', fileId, filePath, posterFrameId);
     });
 
     // poster frames don't have thumbId
     ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, base64, frameNumber, useRatio) => {
       store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
       store.dispatch(updateThumbImage(fileId, '', posterFrameId, base64, frameNumber, 1));
-      ipcRenderer.send('send-get-in-and-outpoint', fileId, filePath, useRatio, store.getState().undoGroup.present.settings.defaultDetectInOutPoint);
+      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-in-and-outpoint', fileId, filePath, useRatio, store.getState().undoGroup.present.settings.defaultDetectInOutPoint);
     });
 
     ipcRenderer.on('receive-get-in-and-outpoint', (event, fileId, fadeInPoint, fadeOutPoint) => {
@@ -245,8 +276,23 @@ class App extends Component {
       }
     });
 
-    ipcRenderer.on('receive-get-thumbs', (event, fileId, thumbId, frameId, base64, frameNumber) => {
+    ipcRenderer.on('receive-get-thumbs', (event, fileId, thumbId, frameId, base64, frameNumber, lastThumb) => {
       store.dispatch(updateThumbImage(fileId, thumbId, frameId, base64, frameNumber));
+      if (lastThumb && this.state.timeBefore !== undefined) {
+        const timeAfter = Date.now();
+        console.log(timeAfter - this.state.timeBefore);
+        this.setState({
+          progressMessage: `loading time: ${(timeAfter - this.state.timeBefore) / 1000.0}`,
+          showMessage: true,
+          timeBefore: undefined,
+        }, () => {
+          setTimeout(() => {
+            this.setState({
+              showMessage: false
+            });
+          }, 3000);
+        });
+      }
     });
 
     ipcRenderer.on('received-saved-file', (event, path) => {
@@ -285,6 +331,13 @@ class App extends Component {
   componentWillReceiveProps(nextProps) {
     const { store } = this.context;
     const state = store.getState();
+
+    if (nextProps.file !== undefined &&
+      (getObjectProperty(() => this.props.file.id) !== nextProps.file.id)) {
+      this.setState({
+        opencvVideo: new opencv.VideoCapture(nextProps.file.path),
+      });
+    }
 
     if (this.props.file !== undefined &&
       nextProps.file !== undefined &&
@@ -334,7 +387,11 @@ class App extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     if ((nextState.filesToLoad.length !== 0) &&
       (this.state.filesToLoad.length !== nextState.filesToLoad.length)) {
-      ipcRenderer.send('send-get-file-details', nextState.filesToLoad[0].id, nextState.filesToLoad[0].path, nextState.filesToLoad[0].posterFrameId);
+      const timeBefore = Date.now();
+      this.setState({
+        timeBefore
+      });
+      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', nextState.filesToLoad[0].id, nextState.filesToLoad[0].path, nextState.filesToLoad[0].posterFrameId);
     }
     return true;
   }
@@ -365,6 +422,10 @@ class App extends Component {
       prevState.thumbCount !== this.state.thumbCount
     ) {
       this.updateScaleValue();
+    }
+
+    if (prevState.showScrubWindow === false && this.state.showScrubWindow === true) {
+      this.updateOpencvVideoCanvas(8613);
     }
   }
 
@@ -593,6 +654,75 @@ class App extends Component {
   switchToPrintView() {
     const { store } = this.context;
     store.dispatch(showMoviePrintView());
+  }
+
+  onScrubClick(file, scrubThumb) {
+    // get thumb left and right of scrubThumb
+    const indexOfThumb = this.props.thumbs.findIndex((thumb) => thumb.thumbId === scrubThumb.thumbId);
+    const leftThumb = this.props.thumbs[Math.max(0, indexOfThumb - 1)];
+    const rightThumb = this.props.thumbs[Math.min(this.props.thumbs.length - 1, indexOfThumb + 1)];
+
+    // the three thumbs might not be in ascending order, left has to be lower, right has to be higher
+    // create an array to compare the three thumbs
+    const arrayToCompare = [leftThumb, rightThumb, scrubThumb];
+
+    // copy the first array with slice so I can run it a second time (reduce mutates the array)
+    const scrubThumbLeft = arrayToCompare.slice().reduce((prev, current) => prev.frameNumber < current.frameNumber ? prev : current);
+    const scrubThumbRight = arrayToCompare.reduce((prev, current) => prev.frameNumber > current.frameNumber ? prev : current);
+
+    this.setState({
+      showScrubWindow: true,
+      scrubThumb,
+      scrubThumbLeft,
+      scrubThumbRight,
+    });
+  }
+
+  onScrubWindowMouseOver(e) {
+    if (e.clientY < (MENU_HEADER_HEIGHT + this.state.containerHeight)) {
+      // depending on if add before (shift) or after (alt) changing the mapping range
+      const tempLeftFrameNumber = this.state.keyObject.altKey ? this.state.scrubThumb.frameNumber : this.state.scrubThumbLeft.frameNumber
+      const tempRightFrameNumber = this.state.keyObject.shiftKey ? this.state.scrubThumb.frameNumber : this.state.scrubThumbRight.frameNumber
+      const scrubFrameNumber = mapRange(e.clientX, 0, this.state.containerWidth, tempLeftFrameNumber, tempRightFrameNumber);
+      this.updateOpencvVideoCanvas(scrubFrameNumber);
+    } else {
+      this.setState({
+        showScrubWindow: false,
+      });
+    }
+  }
+
+  onScrubWindowStop(e) {
+    const { store } = this.context;
+    if (e.clientY < (MENU_HEADER_HEIGHT + this.state.containerHeight)) {
+      // depending on if add before (shift) or after (alt) changing the mapping range
+      const tempLeftFrameNumber = this.state.keyObject.altKey ? this.state.scrubThumb.frameNumber : this.state.scrubThumbLeft.frameNumber
+      const tempRightFrameNumber = this.state.keyObject.shiftKey ? this.state.scrubThumb.frameNumber : this.state.scrubThumbRight.frameNumber
+      const scrubFrameNumber = mapRange(e.clientX, 0, this.state.containerWidth, tempLeftFrameNumber, tempRightFrameNumber);
+      if (this.state.keyObject.altKey || this.state.keyObject.shiftKey) {
+        const newThumbId = uuidV4();
+        if (this.state.keyObject.altKey) {
+          store.dispatch(addThumb(
+            this.props.file,
+            scrubFrameNumber,
+            this.props.thumbs.find((thumb) => thumb.thumbId === this.state.scrubThumb.thumbId).index + 1,
+            newThumbId
+          ));
+        } else { // if shiftKey
+          store.dispatch(addThumb(
+            this.props.file,
+            scrubFrameNumber,
+            this.props.thumbs.find((thumb) => thumb.thumbId === this.state.scrubThumb.thumbId).index,
+            newThumbId
+          ));
+        }
+      } else { // if normal set new thumb
+        store.dispatch(changeThumb(this.props.file, this.state.scrubThumb.thumbId, scrubFrameNumber));
+      }
+    }
+    this.setState({
+      showScrubWindow: false,
+    });
   }
 
   onViewToggle() {
@@ -838,6 +968,29 @@ class App extends Component {
     store.dispatch(setDefaultMoviePrintWidth(value));
   };
 
+  updateOpencvVideoCanvas(currentFrame) {
+    setPosition(this.state.opencvVideo, currentFrame, this.props.file.useRatio);
+    const frame = this.state.opencvVideo.read();
+    if (!frame.empty) {
+      const tempWidth = parseInt((this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv, 10);
+      const tempHeight = parseInt(this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio, 10);
+
+      const img = frame.resizeToMax(Math.max(tempWidth, tempHeight));
+      // renderImage(matResized, this.opencvVideoCanvasRef, opencv);
+      const matRGBA = img.channels === 1 ? img.cvtColor(opencv.COLOR_GRAY2RGBA) : img.cvtColor(opencv.COLOR_BGR2RGBA);
+
+      this.opencvVideoCanvasRef.current.height = img.rows;
+      this.opencvVideoCanvasRef.current.width = img.cols;
+      const imgData = new ImageData(
+        new Uint8ClampedArray(matRGBA.getData()),
+        img.cols,
+        img.rows
+      );
+      const ctx = this.opencvVideoCanvasRef.current.getContext('2d');
+      ctx.putImageData(imgData, 0, 0);
+    }
+  }
+
   render() {
     const { accept, dropzoneActive } = this.state;
     const { store } = this.context;
@@ -868,6 +1021,7 @@ class App extends Component {
                     toggleMovielist={this.toggleMovielist}
                     toggleSettings={this.toggleSettings}
                     toggleZoom={this.toggleZoom}
+                    toggleView={this.onViewToggle}
                     onToggleShowHiddenThumbsClick={this.onToggleShowHiddenThumbsClick}
                     onThumbInfoClick={this.onThumbInfoClick}
                     openDialog={() => this.dropzoneRef.open()}
@@ -979,6 +1133,7 @@ class App extends Component {
                           onThumbDoubleClick={this.onViewToggle}
                           selectMethod={this.onSelectMethod}
                           keyObject={this.state.keyObject}
+                          opencvVideo={this.state.opencvVideo}
                         />
                       ) :
                       (
@@ -1030,6 +1185,7 @@ class App extends Component {
                           selectedThumbId={this.state.selectedThumbObject ?
                             this.state.selectedThumbObject.thumbId : undefined}
                           selectMethod={this.onSelectMethod}
+                          onScrubClick={this.onScrubClick}
                           onThumbDoubleClick={this.onViewToggle}
 
                           colorArray={this.state.colorArray}
@@ -1078,6 +1234,7 @@ class App extends Component {
                   >
                     <Segment
                       className={stylesPop.toast}
+                      size='large'
                     >
                       {this.state.progressMessage}
                     </Segment>
@@ -1178,6 +1335,94 @@ class App extends Component {
                     showMoviePrintView={this.props.visibilitySettings.showMoviePrintView}
                   />
                 </div>
+                { this.state.showScrubWindow &&
+                  <div
+                    className={styles.scrubWindowBackground}
+                    onMouseMove={this.onScrubWindowMouseOver}
+                    onMouseUp={this.onScrubWindowStop}
+                  >
+                    <div
+                      className={styles.scrubWindow}
+                      style={{
+                        height: this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio,
+                        width: this.state.containerWidth,
+                      }}
+                    >
+                      <span
+                        className={styles.scrubThumbLeft}
+                        style={{
+                          backgroundImage: `url(${this.state.keyObject.altKey ?
+                            getObjectProperty(() => this.props.thumbImages[this.state.scrubThumb.frameId].objectUrl) :
+                            getObjectProperty(() => this.props.thumbImages[this.state.scrubThumbLeft.frameId].objectUrl) || transparent})`,
+                          height: this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio,
+                          width: (this.state.containerWidth -
+                            ((this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv)) / 2 -
+                            this.props.settings.defaultScrubWindowMargin,
+                          marginRight: this.props.settings.defaultScrubWindowMargin,
+                        }}
+                      />
+                      {this.state.keyObject.ctrlKey &&
+                        <div
+                          style={{
+                            content: '',
+                            backgroundImage: `url(${getObjectProperty(() => this.props.thumbImages[this.state.scrubThumb.frameId].objectUrl)})`,
+                            backgroundSize: 'cover',
+                            opacity: '0.4',
+                            position: 'absolute',
+                            width: (this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv,
+                            height: this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio,
+                            top: 0,
+                            left: this.state.keyObject.altKey ? (this.state.containerWidth -
+                              ((this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv)) / 2 -
+                              this.props.settings.defaultScrubWindowMargin + (this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv :
+                              (this.state.containerWidth -
+                                ((this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv)) / 2 -
+                                this.props.settings.defaultScrubWindowMargin,
+                          }}
+                        />
+                      }
+                      <span
+                        style={{
+                          width: (this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv,
+                          height: this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio,
+                        }}
+                      >
+                        <canvas
+                          ref={this.opencvVideoCanvasRef}
+                        />
+                      </span>
+                      <span
+                        className={styles.scrubThumbRight}
+                        style={{
+                          backgroundImage: `url(${this.state.keyObject.shiftKey ?
+                            getObjectProperty(() => this.props.thumbImages[this.state.scrubThumb.frameId].objectUrl) :
+                            getObjectProperty(() => this.props.thumbImages[this.state.scrubThumbRight.frameId].objectUrl) || transparent})`,
+                          height: this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio,
+                          width: (this.state.containerWidth -
+                            ((this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv)) / 2 -
+                            this.props.settings.defaultScrubWindowMargin,
+                          marginLeft: this.props.settings.defaultScrubWindowMargin,
+                        }}
+                      />
+                    </div>
+                    {/* <div
+                      className={`${styles.scrubDescription} ${styles.textButton}`}
+                      style={{
+                        height: `${MENU_HEADER_HEIGHT}px`,
+                      }}
+                    >
+                      {this.state.keyObject.altKey ? 'Add after' : (this.state.keyObject.shiftKey ? 'Add before' : 'Change')}
+                    </div> */}
+                    <div
+                      className={`${styles.scrubCancelBar}`}
+                      style={{
+                        height: `${MENU_FOOTER_HEIGHT}px`,
+                      }}
+                    >
+                      Cancel
+                    </div>
+                  </div>
+                }
                 { dropzoneActive &&
                   <div
                     className={`${styles.dropzoneshow} ${isDragAccept ? styles.dropzoneshowAccept : ''} ${isDragReject ? styles.dropzoneshowReject : ''}`}
@@ -1242,6 +1487,7 @@ App.propTypes = {
     height: PropTypes.number,
     columnCount: PropTypes.number,
     path: PropTypes.string,
+    useRatio: PropTypes.bool,
   }),
   settings: PropTypes.object.isRequired,
   thumbs: PropTypes.array,

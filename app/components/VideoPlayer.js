@@ -18,11 +18,15 @@ import {
   mapRange,
   secondsToFrameCount,
   secondsToTimeCode,
+  frameCountToTimeCode,
+  setPosition,
+  renderImage,
 } from './../utils/utils';
 import styles from './VideoPlayer.css';
 import stylesPop from './Popup.css';
 
 const pathModule = require('path');
+const opencv = require('opencv4nodejs');
 
 class VideoPlayer extends Component {
   constructor(props) {
@@ -30,6 +34,7 @@ class VideoPlayer extends Component {
 
     this.state = {
       currentTime: 0, // in seconds
+      currentFrame: 0, // in frames
       duration: 0, // in seconds
       playHeadPosition: 0, // in pixel
       mouseStartDragInsideTimeline: false,
@@ -37,17 +42,22 @@ class VideoPlayer extends Component {
       videoWidth: 640,
       showPlaybar: false,
       loadVideo: false,
+      // opencvVideo: undefined
     };
 
     // this.onSaveThumbClick = this.onSaveThumbClick.bind(this);
+
+    this.getCurrentFrameNumber = this.getCurrentFrameNumber.bind(this);
     this.onInPointClick = this.onInPointClick.bind(this);
     this.onOutPointClick = this.onOutPointClick.bind(this);
     this.onBackClick = this.onBackClick.bind(this);
     this.onForwardClick = this.onForwardClick.bind(this);
+    this.updateOpencvVideoCanvas = this.updateOpencvVideoCanvas.bind(this);
     this.updatePositionWithStep = this.updatePositionWithStep.bind(this);
     this.onDurationChange = this.onDurationChange.bind(this);
     this.updateTimeFromThumbId = this.updateTimeFromThumbId.bind(this);
     this.updatePositionFromTime = this.updatePositionFromTime.bind(this);
+    this.updatePositionFromFrame = this.updatePositionFromFrame.bind(this);
     this.onVideoError = this.onVideoError.bind(this);
     this.onLoadedData = this.onLoadedData.bind(this);
     this.onShowPlaybar = this.onShowPlaybar.bind(this);
@@ -67,7 +77,8 @@ class VideoPlayer extends Component {
     this.setState({
       videoHeight,
       videoWidth,
-      loadVideo: true
+      loadVideo: true,
+      // opencvVideo: new opencv.VideoCapture(this.props.file.path),
     });
   }
 
@@ -91,7 +102,8 @@ class VideoPlayer extends Component {
     }
     if (nextProps.file.path !== this.props.file.path) {
       this.setState({
-        loadVideo: true
+        loadVideo: true,
+        // opencvVideo: new opencv.VideoCapture(nextProps.file.path),
       });
     }
 
@@ -119,13 +131,23 @@ class VideoPlayer extends Component {
     }
   }
 
+  getCurrentFrameNumber() {
+    let newFrameNumber;
+    if (this.state.loadVideo) {
+      newFrameNumber = mapRange(
+        this.state.currentTime,
+        0, this.state.duration,
+        0, this.props.file.frameCount - 1
+      );
+    } else {
+      newFrameNumber = this.state.currentFrame;
+    }
+    return newFrameNumber
+  }
+
   onInPointClick() {
     const { store } = this.context;
-    const newFrameNumber = mapRange(
-      this.state.currentTime,
-      0, this.state.duration,
-      0, this.props.file.frameCount - 1
-    );
+    const newFrameNumber = this.getCurrentFrameNumber();
     store.dispatch(addDefaultThumbs(
       this.props.file,
       this.props.thumbs.length,
@@ -136,11 +158,7 @@ class VideoPlayer extends Component {
 
   onOutPointClick() {
     const { store } = this.context;
-    const newFrameNumber = mapRange(
-      this.state.currentTime,
-      0, this.state.duration,
-      0, this.props.file.frameCount - 1
-    );
+    const newFrameNumber = this.getCurrentFrameNumber();
     store.dispatch(addDefaultThumbs(
       this.props.file,
       this.props.thumbs.length,
@@ -193,12 +211,24 @@ class VideoPlayer extends Component {
     });
   }
 
+  updateOpencvVideoCanvas(currentFrame) {
+    setPosition(this.props.opencvVideo, currentFrame, this.props.file.useRatio);
+    const frame = this.props.opencvVideo.read();
+    if (!frame.empty) {
+      const matResized = frame.resizeToMax(parseInt(this.state.videoWidth, 10));
+      renderImage(matResized, this.opencvVideoPlayerCanvasRef, opencv);
+    }
+  }
+
   updatePositionWithStep(step) {
-    const currentTimePlusStep = this.state.currentTime +
-      frameCountToSeconds(step, this.props.file.fps);
-    this.updatePositionFromTime(currentTimePlusStep);
     if (this.state.loadVideo) {
+      const currentTimePlusStep = this.state.currentTime + frameCountToSeconds(step, this.props.file.fps);
+      this.updatePositionFromTime(currentTimePlusStep);
       this.video.currentTime = currentTimePlusStep;
+    } else {
+      const currentFramePlusStep = this.getCurrentFrameNumber() + step;
+      this.updatePositionFromFrame(currentFramePlusStep);
+      this.updateOpencvVideoCanvas(currentFramePlusStep);
     }
   }
 
@@ -208,9 +238,21 @@ class VideoPlayer extends Component {
       const roundedCurrentTime = Math.round((currentTime * 1000) + Number.EPSILON) / 1000;
 
       this.setState({ currentTime: roundedCurrentTime });
-      const xPos = mapRange(
+         const xPos = mapRange(
         roundedCurrentTime,
         0, this.state.duration,
+         0, this.state.videoWidth, false
+       );
+       this.setState({ playHeadPosition: xPos });
+     }
+   }
+
+  updatePositionFromFrame(currentFrame) {
+    if (currentFrame) {
+      this.setState({ currentFrame });
+      const xPos = mapRange(
+        currentFrame,
+        0, (this.props.file.frameCount - 1),
         0, this.state.videoWidth, false
       );
       this.setState({ playHeadPosition: xPos });
@@ -221,20 +263,24 @@ class VideoPlayer extends Component {
     if (this.props.thumbs && thumbId) {
       let xPos = 0;
       let currentTime = 0;
+      let currentFrame = 0;
       if (thumbId) {
         console.log('updateTimeFromThumbId');
         const selectedThumb = this.props.thumbs.find((thumb) => thumb.thumbId === thumbId);
         if (selectedThumb) {
-          const frameNumberOfThumb = selectedThumb.frameNumber;
+          currentFrame = selectedThumb.frameNumber;
           const { frameCount } = this.props.file;
-          xPos = mapRange(frameNumberOfThumb, 0, frameCount - 1, 0, this.state.videoWidth, false);
-          currentTime = frameCountToSeconds(frameNumberOfThumb, this.props.file.fps);
+          xPos = mapRange(currentFrame, 0, frameCount - 1, 0, this.state.videoWidth, false);
+          currentTime = frameCountToSeconds(currentFrame, this.props.file.fps);
         }
       }
       this.setState({ playHeadPosition: xPos });
-      this.setState({ currentTime });
       if (this.state.loadVideo) {
+        this.setState({ currentTime });
         this.video.currentTime = currentTime;
+      } else {
+        this.setState({ currentFrame });
+        this.updateOpencvVideoCanvas(currentFrame);
       }
     }
   }
@@ -242,11 +288,17 @@ class VideoPlayer extends Component {
   updateTimeFromPosition(xPos) {
     if (xPos) {
       this.setState({ playHeadPosition: xPos });
-      const currentTime = mapRange(xPos, 0, this.state.videoWidth, 0, this.state.duration, false);
-      console.log(`${currentTime} : ${xPos} : ${this.state.videoWidth} : ${this.state.duration}`);
-      this.setState({ currentTime });
       if (this.state.loadVideo) {
+        const currentTime = mapRange(xPos, 0, this.state.videoWidth, 0, this.state.duration, false);
+        // console.log(`${currentTime} : ${xPos} : ${this.state.videoWidth} : ${this.state.duration}`);
+        this.setState({ currentTime });
         this.video.currentTime = currentTime;
+      } else {
+        const { frameCount } = this.props.file;
+        const currentFrame = mapRange(xPos, 0, this.state.videoWidth, 0, frameCount - 1, false);
+        // console.log(`${currentFrame} : ${xPos} : ${this.state.videoWidth} : ${this.state.frameCount - 1}`);
+        this.setState({ currentFrame });
+        this.updateOpencvVideoCanvas(currentFrame);
       }
     }
   }
@@ -280,32 +332,41 @@ class VideoPlayer extends Component {
   }
 
   onApplyClick = () => {
-    const { store } = this.context;
-    const newFrameNumber = secondsToFrameCount(this.state.currentTime, this.props.file.fps);
-    console.log(`${newFrameNumber} = secondsToFrameCount(${this.state.currentTime}, ${this.props.file.fps})`);
-    if (this.props.keyObject.altKey || this.props.keyObject.shiftKey) {
-      const newThumbId = uuidV4();
-      if (this.props.keyObject.altKey) {
-        store.dispatch(addThumb(
-          this.props.file,
-          newFrameNumber,
-          this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index + 1,
-          newThumbId
-        ));
-      } else { // if shiftKey
-        store.dispatch(addThumb(
-          this.props.file,
-          newFrameNumber,
-          this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index,
-          newThumbId
-        ));
+    // only do changes if there is a thumb selected
+    if (this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId) !== undefined) {
+      const { store } = this.context;
+      let newFrameNumber;
+      if (this.state.loadVideo) {
+        newFrameNumber = secondsToFrameCount(this.state.currentTime, this.props.file.fps);
+        console.log(`${newFrameNumber} = secondsToFrameCount(${this.state.currentTime}, ${this.props.file.fps})`);
+      } else {
+        newFrameNumber = this.state.currentFrame;
+        console.log(`${newFrameNumber}: ${this.state.currentFrame}`);
       }
-      // delay selection so it waits for add thumb to be ready
-      setTimeout(() => {
-        this.props.selectMethod(newThumbId, newFrameNumber);
-      }, 500);
-    } else { // if normal set new thumb
-      store.dispatch(changeThumb(this.props.file, this.props.selectedThumbId, newFrameNumber));
+      if (this.props.keyObject.altKey || this.props.keyObject.shiftKey) {
+        const newThumbId = uuidV4();
+        if (this.props.keyObject.altKey) {
+          store.dispatch(addThumb(
+            this.props.file,
+            newFrameNumber,
+            this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index + 1,
+            newThumbId
+          ));
+        } else { // if shiftKey
+          store.dispatch(addThumb(
+            this.props.file,
+            newFrameNumber,
+            this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index,
+            newThumbId
+          ));
+        }
+        // delay selection so it waits for add thumb to be ready
+        setTimeout(() => {
+          this.props.selectMethod(newThumbId, newFrameNumber);
+        }, 500);
+      } else { // if normal set new thumb
+        store.dispatch(changeThumb(this.props.file, this.props.selectedThumbId, newFrameNumber));
+      }
     }
   }
 
@@ -402,33 +463,13 @@ class VideoPlayer extends Component {
               <track kind="captions" />
             </video>
             :
-            <div
-              style={{
-                backgroundColor: '#111111',
-                width: this.state.videoWidth,
-                height: this.state.videoHeight
-              }}
-            >
-              <div
-                className={styles.textButton}
-                style={{
-                  transformOrigin: 'center center',
-                  transform: 'translate(-50%, -50%)',
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  textAlign: 'center',
-                }}
-              >
-                NO PLAYER AVAILABE
-              </div>
-            </div>
+            <canvas ref={(el) => { this.opencvVideoPlayerCanvasRef = el; }} />
           }
           <div
             id="currentTimeDisplay"
             className={styles.frameNumberOrTimeCode}
           >
-            {secondsToTimeCode(this.state.currentTime, this.props.file.fps)}
+            {this.state.loadVideo ? secondsToTimeCode(this.state.currentTime, this.props.file.fps) : frameCountToTimeCode(this.state.currentFrame, this.props.file.fps)}
           </div>
         </div>
         <div className={`${styles.controlsWrapper}`}>
@@ -633,6 +674,7 @@ VideoPlayer.propTypes = {
     frameCount: PropTypes.number,
     fps: PropTypes.number,
     path: PropTypes.string,
+    useRatio: PropTypes.bool,
   }),
   height: PropTypes.number,
   keyObject: PropTypes.object.isRequired,

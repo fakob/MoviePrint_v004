@@ -4,6 +4,7 @@ import {
   DEFAULT_THUMB_COUNT, DEFAULT_COLUMN_COUNT, DEFAULT_MOVIE_WIDTH, DEFAULT_MOVIE_HEIGHT,
   SHOW_PAPER_ADJUSTMENT_SCALE
 } from './constants';
+import VideoCaptureProperties from '../utils/videoCaptureProperties';
 
 const randomColor = require('randomcolor');
 const { ipcRenderer } = require('electron');
@@ -422,3 +423,31 @@ export const getScaleValueObject = (
   // console.log(scaleValueObject);
   return scaleValueObject;
 };
+
+export const setPosition = (vid, frameNumberToCapture, useRatio) => {
+  if (useRatio) {
+    const positionRatio =
+      frameNumberToCapture *
+      1.0 /
+      (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1);
+    // console.log(`using positionRatio: ${positionRatio}`);
+    vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, positionRatio);
+  } else {
+    vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberToCapture);
+  }
+};
+
+
+export const renderImage = (img, canvas, cv) => {
+  const matRGBA = img.channels === 1 ? img.cvtColor(cv.COLOR_GRAY2RGBA) : img.cvtColor(cv.COLOR_BGR2RGBA);
+
+  canvas.height = img.rows;
+  canvas.width = img.cols;
+  const imgData = new ImageData(
+    new Uint8ClampedArray(matRGBA.getData()),
+    img.cols,
+    img.rows
+  );
+  const ctx = canvas.getContext('2d');
+  ctx.putImageData(imgData, 0, 0);
+}

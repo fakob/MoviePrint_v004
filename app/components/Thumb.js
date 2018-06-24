@@ -44,6 +44,7 @@ const Thumb = ({
   dim,
   hidden,
   index,
+  indexForId,
   inputRefThumb,
   keyObject,
   margin,
@@ -51,6 +52,7 @@ const Thumb = ({
   onForward,
   onHoverInPoint,
   onHoverOutPoint,
+  onScrub,
   onInPoint,
   onLeaveInOut,
   onOut,
@@ -105,6 +107,11 @@ const Thumb = ({
     onLeaveInOut();
   }
 
+
+  function onScrubWithStop(e) {
+    e.stopPropagation();
+    onScrub();
+  }
 
   function onInPointWithStop(e) {
     e.stopPropagation();
@@ -167,7 +174,7 @@ const Thumb = ({
       onClick={onSelectWithStop}
       onKeyPress={onSelectWithStop}
       onDoubleClick={onThumbDoubleClickWithStop}
-      id={`thumb${index}`}
+      id={`thumb${indexForId}`}
       className={`${styles.gridItem} ${(!showMoviePrintView && selected && !(keyObject.altKey || keyObject.shiftKey)) ? styles.gridItemSelected : ''}`}
       width={`${thumbWidth}px`}
       height={`${(thumbWidth * aspectRatioInv)}px`}
@@ -182,7 +189,7 @@ const Thumb = ({
       <div>
         <img
           src={thumbImageObjectUrl !== undefined ? thumbImageObjectUrl : transparent}
-          id={`thumbImage${index}`}
+          id={`thumbImage${indexForId}`}
           className={`${styles.image} ${dim ? styles.dim : ''}`}
           alt=""
           width={`${thumbWidth}px`}
@@ -326,17 +333,18 @@ const Thumb = ({
                       left: '50%',
                     }}
                     className={`${styles.hoverButton} ${styles.textButton}`}
-                    onClick={onThumbDoubleClickWithStop}
+                    // onClick={onScrubWithStop}
+                    onMouseDown={onScrubWithStop}
                     onMouseOver={over}
                     onMouseLeave={out}
                     onFocus={over}
                     onBlur={out}
                   >
-                    {showMoviePrintView ? 'EDIT' : 'BACK'}
+                    {'<'}|{'>'}
                   </button>
                 }
                 className={stylesPop.popup}
-                content={showMoviePrintView ? 'Edit thumb' : 'Back to MoviePrint view'}
+                content={<span>Click and drag left and right to change the frame (<mark>SHIFT</mark> add new thumb before, <mark>ALT</mark> add new thumb after, <mark>CTRL</mark> display original as overlay)</span>}
               />
               <Popup
                 trigger={
@@ -416,11 +424,13 @@ Thumb.defaultProps = {
   dim: undefined,
   hidden: false,
   index: undefined,
+  indexForId: undefined,
   keyObject: {},
   onBack: null,
   onForward: null,
   onHoverInPoint: null,
   onHoverOutPoint: null,
+  onScrub: null,
   onInPoint: null,
   onLeaveInOut: null,
   onOut: null,
@@ -448,6 +458,8 @@ Thumb.propTypes = {
   onForward: PropTypes.func,
   onHoverInPoint: PropTypes.func,
   onHoverOutPoint: PropTypes.func,
+  onScrub: PropTypes.func,
+  onInPoint: PropTypes.func,
   onInPoint: PropTypes.func,
   onLeaveInOut: PropTypes.func,
   onOut: PropTypes.func,
@@ -460,6 +472,7 @@ Thumb.propTypes = {
   selected: PropTypes.bool,
   showMoviePrintView: PropTypes.bool.isRequired,
   index: PropTypes.number,
+  indexForId: PropTypes.number,
   thumbImageObjectUrl: PropTypes.string,
   thumbInfoRatio: PropTypes.number.isRequired,
   thumbInfoValue: PropTypes.string,

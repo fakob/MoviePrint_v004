@@ -27,6 +27,9 @@ import {
   DEFAULT_SHOW_PAPER_PREVIEW,
   DEFAULT_PAPER_ASPECTRATIOINV,
   DEFAULT_DETECT_INOUTPOINT,
+  DEFAULT_SCRUB_WINDOW_HEIGHTRATIO,
+  DEFAULT_SCRUB_WINDOW_MINIMUM_HEIGHT,
+  DEFAULT_SCRUB_WINDOW_MARGIN,
 } from '../utils/constants';
 
 const { app } = require('electron').remote;
@@ -66,6 +69,9 @@ const initialStateJSON = {
       defaultShowPaperPreview: DEFAULT_SHOW_PAPER_PREVIEW,
       defaultPaperAspectRatioInv: DEFAULT_PAPER_ASPECTRATIOINV,
       defaultDetectInOutPoint: DEFAULT_DETECT_INOUTPOINT,
+      defaultScrubWindowHeightRatio: DEFAULT_SCRUB_WINDOW_HEIGHTRATIO,
+      defaultScrubWindowMinimumHeight: DEFAULT_SCRUB_WINDOW_MINIMUM_HEIGHT,
+      defaultScrubWindowMargin: DEFAULT_SCRUB_WINDOW_MARGIN,
       emailAddress: '',
     },
     thumbsByFileId: [],

@@ -23,6 +23,7 @@ export default merge.smart(baseConfig, {
   entry: {
     renderer: './app/index',
     worker: './app/worker',
+    worker_opencv: './app/worker_opencv',
   },
 
   output: {

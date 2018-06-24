@@ -28,6 +28,7 @@ const ThumbGrid = ({
   onSaveThumbClick,
   onSelectClick,
   onThumbDoubleClick,
+  onScrubClick,
   onToggleClick,
   scaleValueObject,
   selectedThumbId,
@@ -95,8 +96,9 @@ const ThumbGrid = ({
       <SortableThumb
         showMoviePrintView={showMoviePrintView}
         keyObject={keyObject}
-        key={thumb.key}
+        key={thumb.thumbId}
         index={thumb.index}
+        indexForId={thumb.index}
         dim={(thumbsToDim.find((thumbToDim) => thumbToDim.thumbId === thumb.thumbId))}
         inputRefThumb={(selectedThumbId === thumb.thumbId) ?
           inputRefThumb : undefined} // for the thumb scrollIntoView function
@@ -130,6 +132,8 @@ const ThumbGrid = ({
           null : () => onHoverInPointResult(thumbArray, thumb.thumbId)}
         onHoverOutPoint={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => onHoverOutPointResult(thumbArray, thumb.thumbId)}
+        onScrub={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
+          null : () => onScrubClick(file, thumb)}
         onInPoint={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
           null : () => onInPointClick(file, thumbArray, thumb.thumbId, thumb.frameNumber)}
         onOutPoint={(showSettings || (thumb.thumbId !== controlersAreVisibleId)) ?
@@ -184,6 +188,7 @@ ThumbGrid.propTypes = {
   onSaveThumbClick: PropTypes.func.isRequired,
   onSelectClick: PropTypes.func.isRequired,
   onThumbDoubleClick: PropTypes.func,
+  onScrubClick: PropTypes.func.isRequired,
   onToggleClick: PropTypes.func.isRequired,
   scaleValueObject: PropTypes.object.isRequired,
   selectedThumbId: PropTypes.string,
