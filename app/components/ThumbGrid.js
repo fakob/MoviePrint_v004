@@ -96,7 +96,7 @@ const ThumbGrid = ({
       <SortableThumb
         showMoviePrintView={showMoviePrintView}
         keyObject={keyObject}
-        key={thumb.key}
+        key={thumb.thumbId}
         index={thumb.index}
         indexForId={thumb.index}
         dim={(thumbsToDim.find((thumbToDim) => thumbToDim.thumbId === thumb.thumbId))}
