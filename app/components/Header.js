@@ -10,7 +10,7 @@ import stylesPop from './Popup.css';
 const Header = ({
   file, visibilitySettings, toggleMovielist, toggleSettings,
   onToggleShowHiddenThumbsClick, settings, onThumbInfoClick,
-  openDialog, toggleZoom, zoom
+  openDialog, toggleZoom, zoom, toggleView
 }) => {
 
   const thumbInfoOptions = [
@@ -90,7 +90,7 @@ const Header = ({
                   <Icon
                     name={(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'unhide' : 'hide'}
                   />
-                  {(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'Hide thumbs' : 'Show thumbs'}
+                  {(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'Hide hidden thumbs' : 'Show hidden thumbs'}
                 </Menu.Item>
               }
               className={stylesPop.popup}
@@ -111,6 +111,23 @@ const Header = ({
               }
               className={stylesPop.popup}
               content="Show frames or timecode"
+              keepInViewPort={false}
+            />
+          }
+          {file && !visibilitySettings.showSettings &&
+            <Popup
+              trigger={
+                <Menu.Item
+                  onClick={toggleView}
+                >
+                  <Icon
+                    name={visibilitySettings.showMoviePrintView ? 'youtube play' : 'grid layout'}
+                  />
+                  {visibilitySettings.showMoviePrintView ? 'Player view' : 'Print view'}
+                </Menu.Item>
+              }
+              className={stylesPop.popup}
+              content={visibilitySettings.showMoviePrintView ? 'Switch to player view (some video formats can not be played)' : 'Switch to Print view'}
               keepInViewPort={false}
             />
           }

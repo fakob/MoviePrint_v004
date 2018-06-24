@@ -290,13 +290,13 @@ class VideoPlayer extends Component {
       this.setState({ playHeadPosition: xPos });
       if (this.state.loadVideo) {
         const currentTime = mapRange(xPos, 0, this.state.videoWidth, 0, this.state.duration, false);
-        console.log(`${currentTime} : ${xPos} : ${this.state.videoWidth} : ${this.state.duration}`);
+        // console.log(`${currentTime} : ${xPos} : ${this.state.videoWidth} : ${this.state.duration}`);
         this.setState({ currentTime });
         this.video.currentTime = currentTime;
       } else {
         const { frameCount } = this.props.file;
         const currentFrame = mapRange(xPos, 0, this.state.videoWidth, 0, frameCount - 1, false);
-        console.log(`${currentFrame} : ${xPos} : ${this.state.videoWidth} : ${this.state.frameCount - 1}`);
+        // console.log(`${currentFrame} : ${xPos} : ${this.state.videoWidth} : ${this.state.frameCount - 1}`);
         this.setState({ currentFrame });
         this.updateOpencvVideoCanvas(currentFrame);
       }

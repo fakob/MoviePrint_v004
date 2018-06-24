@@ -270,12 +270,13 @@ class App extends Component {
 
     ipcRenderer.on('receive-get-thumbs', (event, fileId, thumbId, frameId, base64, frameNumber, lastThumb) => {
       store.dispatch(updateThumbImage(fileId, thumbId, frameId, base64, frameNumber));
-      if (lastThumb) {
+      if (lastThumb && this.state.timeBefore !== undefined) {
         const timeAfter = Date.now();
         console.log(timeAfter - this.state.timeBefore);
         this.setState({
           progressMessage: `loading time: ${(timeAfter - this.state.timeBefore) / 1000.0}`,
-          showMessage: true
+          showMessage: true,
+          timeBefore: undefined,
         }, () => {
           setTimeout(() => {
             this.setState({
@@ -994,6 +995,7 @@ class App extends Component {
                     toggleMovielist={this.toggleMovielist}
                     toggleSettings={this.toggleSettings}
                     toggleZoom={this.toggleZoom}
+                    toggleView={this.onViewToggle}
                     onToggleShowHiddenThumbsClick={this.onToggleShowHiddenThumbsClick}
                     onThumbInfoClick={this.onThumbInfoClick}
                     openDialog={() => this.dropzoneRef.open()}
@@ -1206,6 +1208,7 @@ class App extends Component {
                   >
                     <Segment
                       className={stylesPop.toast}
+                      size='large'
                     >
                       {this.state.progressMessage}
                     </Segment>
