@@ -668,8 +668,10 @@ class App extends Component {
 
   onScrubWindowMouseOver(e) {
     if (e.clientY < (MENU_HEADER_HEIGHT + this.state.containerHeight)) {
-      const scrubFrameNumber = mapRange(e.clientX, 0, this.state.containerWidth, this.state.scrubThumbLeft.frameNumber, this.state.scrubThumbRight.frameNumber);
-      console.log(e.clientY);
+      // depending on if add before (shift) or after (alt) changing the mapping range
+      const tempLeftFrameNumber = this.state.keyObject.altKey ? this.state.scrubThumb.frameNumber : this.state.scrubThumbLeft.frameNumber
+      const tempRightFrameNumber = this.state.keyObject.shiftKey ? this.state.scrubThumb.frameNumber : this.state.scrubThumbRight.frameNumber
+      const scrubFrameNumber = mapRange(e.clientX, 0, this.state.containerWidth, tempLeftFrameNumber, tempRightFrameNumber);
       this.updateOpencvVideoCanvas(scrubFrameNumber);
     } else {
       this.setState({
@@ -681,7 +683,10 @@ class App extends Component {
   onScrubWindowStop(e) {
     const { store } = this.context;
     if (e.clientY < (MENU_HEADER_HEIGHT + this.state.containerHeight)) {
-      const scrubFrameNumber = mapRange(e.clientX, 0, this.state.containerWidth, this.state.scrubThumbLeft.frameNumber, this.state.scrubThumbRight.frameNumber);
+      // depending on if add before (shift) or after (alt) changing the mapping range
+      const tempLeftFrameNumber = this.state.keyObject.altKey ? this.state.scrubThumb.frameNumber : this.state.scrubThumbLeft.frameNumber
+      const tempRightFrameNumber = this.state.keyObject.shiftKey ? this.state.scrubThumb.frameNumber : this.state.scrubThumbRight.frameNumber
+      const scrubFrameNumber = mapRange(e.clientX, 0, this.state.containerWidth, tempLeftFrameNumber, tempRightFrameNumber);
       if (this.state.keyObject.altKey || this.state.keyObject.shiftKey) {
         const newThumbId = uuidV4();
         if (this.state.keyObject.altKey) {
