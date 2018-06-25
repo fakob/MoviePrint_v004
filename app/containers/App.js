@@ -39,7 +39,7 @@ import {
   setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
   setDefaultMoviePrintWidth, updateFileDetailUseRatio, setDefaultShowPaperPreview,
   setDefaultPaperAspectRatioInv, updateInOutPoint, removeMovieListItem, setDefaultDetectInOutPoint,
-  changeThumb, addThumb, setEmailAddress
+  changeThumb, addThumb, setEmailAddress, addThumbs
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -313,7 +313,11 @@ class App extends Component {
       }
     });
 
-    ipcRenderer.on('received-get-scene-detection', (event, chartData) => {
+    ipcRenderer.on('received-get-scene-detection', (event, fileId, sceneList, chartData) => {
+      console.log(sceneList);
+      const tempFile = store.getState().undoGroup.present.files.find((file) => file.id === fileId);
+      const frameNumberArray = sceneList.map((item) => item.frame);
+      store.dispatch(addThumbs(tempFile, frameNumberArray))
       this.setState({ chartData });
     });
 

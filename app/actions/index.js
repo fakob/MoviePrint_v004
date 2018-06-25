@@ -475,6 +475,30 @@ export const addDefaultThumbs = (file, amount = 20, start = 10, stop = file.fram
   };
 };
 
+export const addThumbs = (file, frameNumberArray) => {
+  return (dispatch) => {
+    console.log('inside addThumbs');
+    const frameIdArray = frameNumberArray.map(() => uuidV4());
+    const thumbIdArray = frameNumberArray.map(() => uuidV4());
+
+    // maybe add check if thumb is already in imageDB
+    // imageDB.frameList.where('fileId').equals(file.id).toArray().then((frames) => {
+    // });
+
+    ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, thumbIdArray, frameIdArray, frameNumberArray, file.useRatio);
+    // ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, frameIdArray, frameNumberArray);
+    dispatch({
+      type: 'ADD_THUMBS',
+      thumbIdArray,
+      frameIdArray,
+      frameNumberArray,
+      fileId: file.id,
+      width: file.width,
+      height: file.height,
+    });
+  };
+};
+
 export const changeThumb = (file, thumbId, newFrameNumber) => {
   return (dispatch) => {
     console.log('inside changeThumb');

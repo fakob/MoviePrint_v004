@@ -420,7 +420,8 @@ ipcRenderer.on(
 
     const sceneList = [];
     const frameMetrics = [];
-    let lastFrameMean = null;
+    // let lastFrameMean = null;
+    let lastFrameMean = new opencv.Vec(null, null, null, null);;
     let lastSceneCut = null;
 
     vid.readAsync(err1 => {
@@ -446,24 +447,34 @@ ipcRenderer.on(
           if (mat.empty === false) {
             // console.time('meanCalculation');
             // scale to quarter of size, convert to HSV, calculate mean, get only V channel
+            // frameMean = mat
+            //   .resizeToMax(240)
+            //   .cvtColor(opencv.COLOR_BGR2HSV)
+            //   .mean().y;
             frameMean = mat
               .resizeToMax(240)
               .cvtColor(opencv.COLOR_BGR2HSV)
-              .mean().y;
+              .mean();
 
-            const deltaFrameMean = frameMean - lastFrameMean;
+            const deltaFrameMean = frameMean.absdiff(lastFrameMean);
+            const frameHsvAverage = (deltaFrameMean.w + deltaFrameMean.x + deltaFrameMean.y) / 3.0; // w = H, x = S, y = V = brightness
 
-            if (deltaFrameMean >= threshold) {
+            if (frameHsvAverage >= threshold) {
               if (((lastSceneCut === null) || ((frame - lastSceneCut) >= minSceneLen))) {
                 sceneList.push({
                   frame,
                 });
                 lastSceneCut = frame;
+                console.log(sceneList);
               }
             }
-            console.log(`${deltaFrameMean} = ${frameMean} - ${lastFrameMean}`);
+            // console.log(`${frame}: ${deltaFrameMean.y} = ${frameMean.y} - ${lastFrameMean.y}`);
             lastFrameMean = frameMean;
-            console.log(sceneList);
+
+            frameMetrics.push({
+              frame,
+              mean: frameMean.y
+            });
 
             // // process_frame(frameNum, frame_img, frameMetrics, scene_list) {
             // let currHsv;
@@ -531,11 +542,6 @@ ipcRenderer.on(
             // console.log(frameHist.at(0));
             // console.log(frameHist.at(0) > (binCount * 256));
 
-            frameMetrics.push({
-              frame:
-                vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1,
-              mean: frameMean
-            });
           } else {
             console.error(
               `empty frame: iterator:${iterator} frame:${frame} (${vid.get(
@@ -576,6 +582,8 @@ ipcRenderer.on(
             ipcRenderer.send(
               'message-from-opencvWorkerWindow-to-mainWindow',
               'received-get-scene-detection',
+              fileId,
+              sceneList,
               chartData
             );
 

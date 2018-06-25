@@ -4,6 +4,7 @@ const thumb = (state = {}, action, index) => {
       return Object.assign({}, state, {
         index
       });
+    case 'ADD_THUMBS':
     case 'ADD_DEFAULT_THUMBS':
       return {
         thumbId: action.thumbIdArray[index],
@@ -68,6 +69,19 @@ const thumbsByFileId = (state = [], action) => {
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
           thumbs: newArrayReordered
+        }
+      };
+    }
+    case 'ADD_THUMBS': {
+      const currentArray = state[action.fileId].thumbs.slice();
+      const newArray = Object.keys(action.thumbIdArray).map((t, index) =>
+        thumb(undefined, action, index));
+      const combinedArray = currentArray.concat(newArray);
+      return {
+        ...state,
+        [action.fileId]: {
+          ...state[action.fileId],
+          thumbs: combinedArray
         }
       };
     }
