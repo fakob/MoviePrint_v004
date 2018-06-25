@@ -412,14 +412,21 @@ ipcRenderer.on(
       vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1;
     console.log(videoLength);
 
-    const threshold = IN_OUT_POINT_SEARCH_THRESHOLD;
+    // const threshold = IN_OUT_POINT_SEARCH_THRESHOLD;
 
-    const meanArray = [];
+    const threshold = 20.0;
+    const minSceneLen = 15;
+    const lastHsv = null;
+
+    const sceneList = [];
+    const frameMetrics = [];
+    let lastFrameMean = null;
+    let lastSceneCut = null;
 
     vid.readAsync(err1 => {
       const read = () => {
         vid.readAsync((err, mat) => {
-          const frame = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES);
+          const frame = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
           if (iterator % 100 === 0) {
             const progressBarPercentage =
               iterator / vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) * 100;
@@ -444,6 +451,70 @@ ipcRenderer.on(
               .cvtColor(opencv.COLOR_BGR2HSV)
               .mean().y;
 
+            const deltaFrameMean = frameMean - lastFrameMean;
+
+            if (deltaFrameMean >= threshold) {
+              if (((lastSceneCut === null) || ((frame - lastSceneCut) >= minSceneLen))) {
+                sceneList.push({
+                  frame,
+                });
+                lastSceneCut = frame;
+              }
+            }
+            console.log(`${deltaFrameMean} = ${frameMean} - ${lastFrameMean}`);
+            lastFrameMean = frameMean;
+            console.log(sceneList);
+
+            // // process_frame(frameNum, frame_img, frameMetrics, scene_list) {
+            // let currHsv;
+            // let cutDetected = false;
+            // let deltaH;
+            // let deltaHsv;
+            // let deltaHsvAvg
+            // let deltaS;
+            // let deltaV;
+            // let numPixels;
+            //
+            // [deltaHsvAvg, deltaH, deltaS, deltaV] = [0.0, 0.0, 0.0, 0.0];
+            //
+            // numPixels = (frame_img.shape[0] * frame_img.shape[1]);
+            // currHsv = cv2.split(cv2.cvtColor(frame_img, cv2.COLOR_BGR2HSV));
+            // lastHsv = lastHsv;
+            // if ((! lastHsv)) {
+            //     lastHsv = cv2.split(cv2.cvtColor(lastFrame, cv2.COLOR_BGR2HSV));
+            // }
+            // deltaHsv = [(- 1), (- 1), (- 1)];
+            // for (var i = 0, _pj_a = 3; (i < _pj_a); i += 1) {
+            //     numPixels = (currHsv[i].shape[0] * currHsv[i].shape[1]);
+            //     currHsv[i] = currHsv[i].astype(numpy.int32);
+            //     lastHsv[i] = lastHsv[i].astype(numpy.int32);
+                // deltaHsv[i] = (numpy.sum(numpy.abs(currHsv[i] - lastHsv[i])) / Number.parseFloat(numPixels));
+            // }
+            // deltaHsv.append((sum(deltaHsv) / 3.0));
+            // [deltaH, deltaS, deltaV, deltaHsvAvg] = deltaHsv;
+            // frameMetrics[frameNum]["deltaHsvAvg"] = deltaHsvAvg;
+            // frameMetrics[frameNum]["deltaHue"] = deltaH;
+            // frameMetrics[frameNum]["deltaSat"] = deltaS;
+            // frameMetrics[frameNum]["delta_lum"] = deltaV;
+            // lastHsv = currHsv;
+            //
+            // if ((deltaHsvAvg >= threshold)) {
+            //   if (((lastSceneCut === null) || ((frameNum - lastSceneCut) >= minSceneLen))) {
+            //     scene_list.append(frameNum);
+            //     lastSceneCut = frameNum;
+            //     cutDetected = true;
+            //   }
+            // }
+            //
+            // lastFrame = frame_img.copy();
+            // return cutDetected;
+
+
+
+
+
+
+
             // console.timeEnd('meanCalculation');
 
             // // single axis for 1D hist
@@ -460,7 +531,7 @@ ipcRenderer.on(
             // console.log(frameHist.at(0));
             // console.log(frameHist.at(0) > (binCount * 256));
 
-            meanArray.push({
+            frameMetrics.push({
               frame:
                 vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1,
               mean: frameMean
@@ -473,7 +544,7 @@ ipcRenderer.on(
                 VideoCaptureProperties.CAP_PROP_FRAME_COUNT
               )}`
             );
-            meanArray.push({
+            frameMetrics.push({
               frame: iterator,
               mean: undefined
             });
@@ -489,8 +560,8 @@ ipcRenderer.on(
             console.log(messageToSend);
             console.timeEnd(`${fileId}-sceneDetection`);
 
-            const tempFrameArray = meanArray.map((item) => item.frame);
-            const tempMeanArray = meanArray.map((item) => item.mean);
+            const tempFrameArray = frameMetrics.map((item) => item.frame);
+            const tempMeanArray = frameMetrics.map((item) => item.mean);
             console.log(tempMeanArray);
             const chartData = {
               labels: tempFrameArray,
