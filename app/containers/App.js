@@ -1265,8 +1265,8 @@ class App extends Component {
                     open={this.state.showFeedbackForm}
                     onClose={() => this.setState({ intendToCloseFeedbackForm: true})}
                     closeIcon
-                    closeOnEscape={false}
-                    closeOnRootNodeClick={false}
+                    // closeOnEscape={false}
+                    // closeOnRootNodeClick={false}
                     // basic
                     size='fullscreen'
                     style={{
