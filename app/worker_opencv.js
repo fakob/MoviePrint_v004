@@ -465,54 +465,7 @@ ipcRenderer.on(
                 vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1,
               mean: frameMean
             });
-
-            iterator += 1;
-            if (iterator < vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)) {
-              read();
-            } else {
-              const timeAfterSceneDetection = Date.now();
-              const messageToSend = `Scene detection finished - ${(timeAfterSceneDetection -
-                timeBeforeSceneDetection) / 1000}s - speed: ${(timeAfterSceneDetection -
-                  timeBeforeSceneDetection) / vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`;
-              console.log(messageToSend);
-              console.timeEnd(`${fileId}-sceneDetection`);
-
-              const tempFrameArray = meanArray.map((item) => item.frame);
-              const tempMeanArray = meanArray.map((item) => item.mean);
-              console.log(tempMeanArray);
-              const chartData = {
-                labels: tempFrameArray,
-                datasets: [{
-                label: "My First dataset",
-                backgroundColor: 'rgb(255, 99, 132)',
-                borderColor: 'rgb(255, 99, 132)',
-                data: tempMeanArray,
-                }]
-              };
-              console.log(chartData);
-              ipcRenderer.send(
-                'message-from-opencvWorkerWindow-to-mainWindow',
-                'received-get-scene-detection',
-                chartData
-              );
-
-              ipcRenderer.send(
-                'message-from-opencvWorkerWindow-to-mainWindow',
-                'progress',
-                fileId,
-                100
-              ); // set to full
-              ipcRenderer.send(
-                'message-from-opencvWorkerWindow-to-mainWindow',
-                'progressMessage',
-                fileId,
-                'info',
-                messageToSend,
-                6000
-              );
-            }
           } else {
-            console.timeEnd(`${fileId}-sceneDetection`);
             console.error(
               `empty frame: iterator:${iterator} frame:${frame} (${vid.get(
                 VideoCaptureProperties.CAP_PROP_POS_MSEC
@@ -520,7 +473,55 @@ ipcRenderer.on(
                 VideoCaptureProperties.CAP_PROP_FRAME_COUNT
               )}`
             );
-            console.log(meanArray);
+            meanArray.push({
+              frame: iterator,
+              mean: undefined
+            });
+          }
+          iterator += 1;
+          if (iterator < vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)) {
+            read();
+          } else {
+            const timeAfterSceneDetection = Date.now();
+            const messageToSend = `Scene detection finished - ${(timeAfterSceneDetection -
+              timeBeforeSceneDetection) / 1000}s - speed: ${(timeAfterSceneDetection -
+                timeBeforeSceneDetection) / vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`;
+            console.log(messageToSend);
+            console.timeEnd(`${fileId}-sceneDetection`);
+
+            const tempFrameArray = meanArray.map((item) => item.frame);
+            const tempMeanArray = meanArray.map((item) => item.mean);
+            console.log(tempMeanArray);
+            const chartData = {
+              labels: tempFrameArray,
+              datasets: [{
+              label: "My First dataset",
+              backgroundColor: 'rgb(255, 99, 132)',
+              borderColor: 'rgb(255, 99, 132)',
+              data: tempMeanArray,
+              }]
+            };
+            console.log(chartData);
+            ipcRenderer.send(
+              'message-from-opencvWorkerWindow-to-mainWindow',
+              'received-get-scene-detection',
+              chartData
+            );
+
+            ipcRenderer.send(
+              'message-from-opencvWorkerWindow-to-mainWindow',
+              'progress',
+              fileId,
+              100
+            ); // set to full
+            ipcRenderer.send(
+              'message-from-opencvWorkerWindow-to-mainWindow',
+              'progressMessage',
+              fileId,
+              'info',
+              messageToSend,
+              6000
+            );
           }
         });
       };
