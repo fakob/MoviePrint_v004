@@ -1017,6 +1017,8 @@ class App extends Component {
     const { accept, dropzoneActive } = this.state;
     const { store } = this.context;
 
+    const chartHeight = this.state.containerHeight / 4;
+
     return (
       <ErrorBoundary>
         <Dropzone
@@ -1448,11 +1450,14 @@ class App extends Component {
                 { DEV_OPENCV_SCENE_DETECTION &&
                   <div
                     className={styles.chart}
+                    style={{
+                      height: `${chartHeight}px`,
+                    }}
                   >
                     <Bar
                       data={this.state.chartData}
-                      // width={this.state.containerWidth}
-                      // height={this.state.containerHeight}
+                      width={this.state.containerWidth}
+                      height={chartHeight}
                       options={{
                         maintainAspectRatio: true,
                         barPercentage: 1.0,
