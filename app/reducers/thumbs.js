@@ -77,11 +77,17 @@ const thumbsByFileId = (state = [], action) => {
       const newArray = Object.keys(action.thumbIdArray).map((t, index) =>
         thumb(undefined, action, index));
       const combinedArray = currentArray.concat(newArray);
+      const reIndexedArray = combinedArray.map((item, index) => {
+        // console.log(item);
+        // console.log(index);
+        return {...item, index: index}
+      });
+      // console.log(reIndexedArray);
       return {
         ...state,
         [action.fileId]: {
           ...state[action.fileId],
-          thumbs: combinedArray
+          thumbs: reIndexedArray
         }
       };
     }

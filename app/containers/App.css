@@ -286,7 +286,7 @@
 
 .chart {
   position: absolute;
-  top: 0;
+  bottom: 100;
   left: 0;
   width: 100%;
   /* background-color: rgba(100, 0, 0, 0.5); */

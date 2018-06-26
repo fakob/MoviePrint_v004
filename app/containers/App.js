@@ -482,6 +482,11 @@ class App extends Component {
               this.showSettings();
             }
             break;
+          case 83: // press 's'
+            if (DEV_OPENCV_SCENE_DETECTION) {
+              ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-scene-detection', this.props.file.id, this.props.file.path, this.props.file.useRatio);
+            }
+            break;
           case 80: // press 'p'
             this.onSaveMoviePrint();
             break;
