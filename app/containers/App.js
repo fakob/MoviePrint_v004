@@ -111,15 +111,16 @@ class App extends Component {
       showScrubWindow: false,
       scrubThumb: undefined,
       chartData: {
-          labels: ["Jakobary", "February", "March", "April", "May", "June", "July"],
-          datasets: [{
-            label: "My First dataset",
-            backgroundColor: 'rgb(0, 99, 132)',
-            borderWidth: '0',
-            borderColor: 'rgb(255, 0, 0)',
-            data: [0, 10, 5, 2, 20, 30, 45],
-          }]
-        },
+        labels: ["Jakobary", "February", "March", "April", "May", "June", "July"],
+        datasets: [{
+          label: "My First dataset",
+          backgroundColor: 'rgb(0, 99, 132)',
+          borderWidth: '0',
+          borderColor: 'rgb(255, 0, 0)',
+          data: [0, 10, 5, 2, 20, 30, 45],
+        }]
+      },
+      sceneDetectionThreshold: 20.0
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -305,11 +306,11 @@ class App extends Component {
             });
           }, 3000);
         });
-        const tempFile = store.getState().undoGroup.present.files.find((file) => file.id === fileId);
-        console.log(tempFile);
-        if (DEV_OPENCV_SCENE_DETECTION) {
-          ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-scene-detection', fileId, tempFile.path, tempFile.useRatio);
-        }
+        // const tempFile = store.getState().undoGroup.present.files.find((file) => file.id === fileId);
+        // console.log(tempFile);
+        // if (DEV_OPENCV_SCENE_DETECTION) {
+        //   ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-scene-detection', fileId, tempFile.path, tempFile.useRatio, this.state.sceneDetectionThreshold);
+        // }
       }
     });
 
@@ -483,9 +484,19 @@ class App extends Component {
               this.showSettings();
             }
             break;
+          case 65: // press 'a'
+            if (DEV_OPENCV_SCENE_DETECTION) {
+              ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-scene-detection', this.props.file.id, this.props.file.path, this.props.file.useRatio, 10.0);
+            }
+            break;
           case 83: // press 's'
             if (DEV_OPENCV_SCENE_DETECTION) {
-              ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-scene-detection', this.props.file.id, this.props.file.path, this.props.file.useRatio);
+              ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-scene-detection', this.props.file.id, this.props.file.path, this.props.file.useRatio, this.state.sceneDetectionThreshold);
+            }
+            break;
+          case 68: // press 'd'
+            if (DEV_OPENCV_SCENE_DETECTION) {
+              ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-scene-detection', this.props.file.id, this.props.file.path, this.props.file.useRatio, 30.0);
             }
             break;
           case 80: // press 'p'

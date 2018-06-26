@@ -401,7 +401,7 @@ ipcRenderer.on(
 
 ipcRenderer.on(
   'send-get-scene-detection',
-  (event, fileId, filePath, useRatio) => {
+  (event, fileId, filePath, useRatio, threshold = 20.0) => {
     console.log('send-get-scene-detection');
     console.log(fileId);
     console.log(filePath);
@@ -414,7 +414,6 @@ ipcRenderer.on(
 
     // const threshold = IN_OUT_POINT_SEARCH_THRESHOLD;
 
-    const threshold = 20.0;
     const minSceneLen = 15;
     const lastHsv = null;
 
