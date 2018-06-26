@@ -568,13 +568,29 @@ ipcRenderer.on(
             const tempFrameArray = frameMetrics.map((item) => item.frame);
             const tempMeanArray = frameMetrics.map((item) => item.mean);
             console.log(tempMeanArray);
+            // const chartData = {
+            //   labels: tempFrameArray,
+            //   datasets: [{
+            //     label: "Scene detection",
+            //     backgroundColor: 'rgb(255, 99, 132)',
+            //     borderColor: 'rgb(255, 99, 132)',
+            //     data: tempMeanArray,
+            //   }]
+            // };
             const chartData = {
               labels: tempFrameArray,
               datasets: [{
-              label: "My First dataset",
-              backgroundColor: 'rgb(255, 99, 132)',
-              borderColor: 'rgb(255, 99, 132)',
-              data: tempMeanArray,
+                label: "Scene detection",
+                backgroundColor: 'rgb(255, 99, 132)',
+                borderColor: 'rgba(0, 0, 132, 0.2)',
+                data: tempMeanArray,
+                },
+                {
+                  label: "Scene detection threshold",
+                  backgroundColor: 'rgb(0, 255, 0)',
+                  borderColor: 'rgba(255, 255, 255, 0.1)',
+                  data: Array(100).fill(threshold),
+                type: 'line',
               }]
             };
             console.log(chartData);
