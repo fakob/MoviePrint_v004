@@ -73,7 +73,10 @@ const thumbsByFileId = (state = [], action) => {
       };
     }
     case 'ADD_THUMBS': {
-      const currentArray = state[action.fileId].thumbs.slice();
+      let currentArray = [];
+      if (action.clearOldThumbs === false) {
+        currentArray = state[action.fileId].thumbs.slice();
+      }
       const newArray = Object.keys(action.thumbIdArray).map((t, index) =>
         thumb(undefined, action, index));
       const combinedArray = currentArray.concat(newArray);

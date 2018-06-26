@@ -317,7 +317,8 @@ class App extends Component {
       console.log(sceneList);
       const tempFile = store.getState().undoGroup.present.files.find((file) => file.id === fileId);
       const frameNumberArray = sceneList.map((item) => item.frame);
-      store.dispatch(addThumbs(tempFile, frameNumberArray))
+      const clearOldThumbs = true;
+      store.dispatch(addThumbs(tempFile, frameNumberArray, clearOldThumbs));
       this.setState({ chartData });
     });
 

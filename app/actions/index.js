@@ -475,7 +475,7 @@ export const addDefaultThumbs = (file, amount = 20, start = 10, stop = file.fram
   };
 };
 
-export const addThumbs = (file, frameNumberArray) => {
+export const addThumbs = (file, frameNumberArray, clearOldThumbs = false) => {
   return (dispatch) => {
     console.log('inside addThumbs');
     const frameIdArray = frameNumberArray.map(() => uuidV4());
@@ -505,6 +505,7 @@ export const addThumbs = (file, frameNumberArray) => {
       fileId: file.id,
       width: file.width,
       height: file.height,
+      clearOldThumbs,
     });
   };
 };
