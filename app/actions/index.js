@@ -481,22 +481,22 @@ export const addThumbs = (file, frameNumberArray, clearOldThumbs = false) => {
     const frameIdArray = frameNumberArray.map(() => uuidV4());
     const thumbIdArray = frameNumberArray.map(() => uuidV4());
 
-    // // maybe add check if thumb is already in imageDB
-    // // imageDB.frameList.where('fileId').equals(file.id).toArray().then((frames) => {
+    // maybe add check if thumb is already in imageDB
+    // imageDB.frameList.where('fileId').equals(file.id).toArray().then((frames) => {
     // console.log(frameNumberArray);
-    // const fileIdAndFrameNumberArray = frameNumberArray.map((item) => [file.id, item]);
+    const fileIdAndFrameNumberArray = frameNumberArray.map((item) => [file.id, item]);
     // console.log(fileIdAndFrameNumberArray);
-    //
-    // imageDB.frameList.where('[fileId+frameNumber]').equals(fileIdAndFrameNumberArray[0]).toArray().then((frames) => {
-    //   console.log(frames.length);
-    //   console.log(frames);
-    //   // if (frames.length === 0) {
-    //   // }
-    //   return frames;
-    // });
+
+    imageDB.frameList.where('[fileId+frameNumber]').anyOf(fileIdAndFrameNumberArray).toArray().then((frames) => {
+      console.log(frames.length);
+      console.log(frames);
+      return frames;
+    }).catch();
 
     ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, thumbIdArray, frameIdArray, frameNumberArray, file.useRatio);
-    // ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, frameIdArray, frameNumberArray);
+    if (clearOldThumbs) {
+      dispatch(clearThumbs());
+    }
     dispatch({
       type: 'ADD_THUMBS',
       thumbIdArray,
@@ -505,7 +505,6 @@ export const addThumbs = (file, frameNumberArray, clearOldThumbs = false) => {
       fileId: file.id,
       width: file.width,
       height: file.height,
-      clearOldThumbs,
     });
   };
 };

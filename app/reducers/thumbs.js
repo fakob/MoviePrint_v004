@@ -73,8 +73,9 @@ const thumbsByFileId = (state = [], action) => {
       };
     }
     case 'ADD_THUMBS': {
+      // load the current thumb array, if it does not exist it stays empty
       let currentArray = [];
-      if (action.clearOldThumbs === false) {
+      if (state[action.fileId] && state[action.fileId].thumbs) {
         currentArray = state[action.fileId].thumbs.slice();
       }
       const newArray = Object.keys(action.thumbIdArray).map((t, index) =>
