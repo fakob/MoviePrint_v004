@@ -242,7 +242,7 @@ export const addThumb = (file, frameNumber, index, thumbId = uuidV4()) => {
         }
       });
       return dispatch(updateThumbObjectUrlFromDB(file.id, thumbId, frames[0].frameId, false));
-    });
+    }).catch();
   };
 };
 
@@ -432,6 +432,9 @@ export const updateObjectUrlsFromThumbList = (fileId, frameIdArray) => {
           },
         });
       }
+    return true;
+    }).catch((err) => {
+      console.log(err);
     });
   };
 };
@@ -478,11 +481,8 @@ export const addDefaultThumbs = (file, amount = 20, start = 10, stop = file.fram
 export const addThumbs = (file, frameNumberArray, clearOldThumbs = false) => {
   return (dispatch) => {
     console.log('inside addThumbs');
-    const frameIdArray = frameNumberArray.map(() => uuidV4());
-    const thumbIdArray = frameNumberArray.map(() => uuidV4());
 
-    // maybe add check if thumb is already in imageDB
-    // imageDB.frameList.where('fileId').equals(file.id).toArray().then((frames) => {
+    // create compound array to search for both fileId and frameNumber
     // console.log(frameNumberArray);
     const fileIdAndFrameNumberArray = frameNumberArray.map((item) => [file.id, item]);
     // console.log(fileIdAndFrameNumberArray);
@@ -490,21 +490,64 @@ export const addThumbs = (file, frameNumberArray, clearOldThumbs = false) => {
     imageDB.frameList.where('[fileId+frameNumber]').anyOf(fileIdAndFrameNumberArray).toArray().then((frames) => {
       console.log(frames.length);
       console.log(frames);
-      return frames;
-    }).catch();
 
-    ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, thumbIdArray, frameIdArray, frameNumberArray, file.useRatio);
-    if (clearOldThumbs) {
-      dispatch(clearThumbs());
-    }
-    dispatch({
-      type: 'ADD_THUMBS',
-      thumbIdArray,
-      frameIdArray,
-      frameNumberArray,
-      fileId: file.id,
-      width: file.width,
-      height: file.height,
+      // remove duplicates in case there are already some in imageDB
+      const uniqueFrames = frames.filter((item, index, self) =>
+        index === self.findIndex((t) => (
+          t.frameNumber === item.frameNumber
+        ))
+      );
+
+      // extract frameNumbers and frameIds into separate arrays
+      const alreadyExistingFrameNumbersArray = uniqueFrames.map((item) => item.frameNumber);
+      const alreadyExistingFrameIdsArray = uniqueFrames.map((item) => item.frameId);
+
+      // remove the already existing frameNumbers
+      console.log(frameNumberArray);
+      console.log(alreadyExistingFrameNumbersArray);
+      const filteredArray = frameNumberArray.filter(
+        function(e) {
+          return this.indexOf(e) < 0;
+        },
+        alreadyExistingFrameNumbersArray
+      );
+      console.log(filteredArray);
+
+      if (clearOldThumbs) {
+        dispatch(clearThumbs());
+      }
+
+      // if all thumbs already exist skip capturing
+      if (filteredArray.length !== 0) {
+        // add new thumbs
+        const frameIdArray = filteredArray.map(() => uuidV4());
+        const thumbIdArray = filteredArray.map(() => uuidV4());
+        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, thumbIdArray, frameIdArray, filteredArray, file.useRatio);
+        dispatch({
+          type: 'ADD_THUMBS',
+          thumbIdArray,
+          frameIdArray,
+          frameNumberArray: filteredArray,
+          fileId: file.id,
+          width: file.width,
+          height: file.height,
+        });
+      }
+
+      // add thumbs with existing frames in imageDB
+      const thumbIdArray2 = alreadyExistingFrameIdsArray.map(() => uuidV4());
+      dispatch({
+        type: 'ADD_THUMBS',
+        thumbIdArray: thumbIdArray2,
+        frameIdArray: alreadyExistingFrameIdsArray,
+        frameNumberArray: alreadyExistingFrameNumbersArray,
+        fileId: file.id,
+        width: file.width,
+        height: file.height,
+      });
+      return true;
+    }).catch((err) => {
+      console.log(err);
     });
   };
 };
@@ -539,6 +582,8 @@ export const changeThumb = (file, thumbId, newFrameNumber) => {
         }
       });
       return dispatch(updateThumbObjectUrlFromDB(file.id, thumbId, frames[0].frameId, false));
+    }).catch((err) => {
+      console.log(err);
     });
   };
 };
