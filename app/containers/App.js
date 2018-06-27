@@ -45,16 +45,17 @@ import {
   MENU_HEADER_HEIGHT,
   MENU_FOOTER_HEIGHT,
   ZOOM_SCALE,
-  DEV_OPENCV_SCENE_DETECTION,
 } from '../utils/constants';
 
 import steps from '../img/MoviePrint-steps.svg';
 import transparent from '../img/Thumb_TRANSPARENT.png';
 
 const { ipcRenderer } = require('electron');
-const { dialog } = require('electron').remote;
+const { dialog, process } = require('electron').remote;
 const { app } = require('electron').remote;
 const opencv = require('opencv4nodejs');
+
+const DEV_OPENCV_SCENE_DETECTION = process.env.DEV_OPENCV_SCENE_DETECTION === 'true';
 
 // Disable animating charts by default.
 defaults.global.animation = false;
