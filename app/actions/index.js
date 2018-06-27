@@ -448,33 +448,16 @@ export const clearThumbs = () => {
 export const addDefaultThumbs = (file, amount = 20, start = 10, stop = file.frameCount - 1) => {
   return (dispatch) => {
     console.log('inside addDefaultThumbs');
-    console.log(start);
-    console.log(stop);
+    // console.log(start);
+    // console.log(stop);
     // const start = 10;
     // const stop = file.frameCount - 1;
     const startWithBoundaries = limitRange(start, 0, file.frameCount - 1);
     const stopWithBoundaries = limitRange(stop, 0, file.frameCount - 1);
     const frameNumberArray = Array.from(Array(amount).keys())
       .map(x => mapRange(x, 0, amount - 1, startWithBoundaries, stopWithBoundaries));
-    console.log(frameNumberArray);
-    const frameIdArray = frameNumberArray.map(() => uuidV4());
-    const thumbIdArray = frameNumberArray.map(() => uuidV4());
 
-    // maybe add check if thumb is already in imageDB
-    // imageDB.frameList.where('fileId').equals(file.id).toArray().then((frames) => {
-    // });
-
-    ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, thumbIdArray, frameIdArray, frameNumberArray, file.useRatio);
-    // ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, frameIdArray, frameNumberArray);
-    dispatch({
-      type: 'ADD_DEFAULT_THUMBS',
-      thumbIdArray,
-      frameIdArray,
-      frameNumberArray,
-      fileId: file.id,
-      width: file.width,
-      height: file.height,
-    });
+    dispatch(addThumbs(file, frameNumberArray, true));
   };
 };
 
@@ -485,11 +468,10 @@ export const addThumbs = (file, frameNumberArray, clearOldThumbs = false) => {
     // create compound array to search for both fileId and frameNumber
     // console.log(frameNumberArray);
     const fileIdAndFrameNumberArray = frameNumberArray.map((item) => [file.id, item]);
-    // console.log(fileIdAndFrameNumberArray);
 
     imageDB.frameList.where('[fileId+frameNumber]').anyOf(fileIdAndFrameNumberArray).toArray().then((frames) => {
-      console.log(frames.length);
-      console.log(frames);
+      // console.log(frames.length);
+      // console.log(frames);
 
       // remove duplicates in case there are already some in imageDB
       const uniqueFrames = frames.filter((item, index, self) =>
@@ -503,15 +485,15 @@ export const addThumbs = (file, frameNumberArray, clearOldThumbs = false) => {
       const alreadyExistingFrameIdsArray = uniqueFrames.map((item) => item.frameId);
 
       // remove the already existing frameNumbers
-      console.log(frameNumberArray);
-      console.log(alreadyExistingFrameNumbersArray);
+      // console.log(frameNumberArray);
+      // console.log(alreadyExistingFrameNumbersArray);
       const filteredArray = frameNumberArray.filter(
         function(e) {
           return this.indexOf(e) < 0;
         },
         alreadyExistingFrameNumbersArray
       );
-      console.log(filteredArray);
+      // console.log(filteredArray);
 
       if (clearOldThumbs) {
         dispatch(clearThumbs());
