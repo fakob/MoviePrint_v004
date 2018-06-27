@@ -5,7 +5,7 @@ const thumb = (state = {}, action, index) => {
         index
       });
     case 'ADD_THUMBS':
-    case 'ADD_DEFAULT_THUMBS':
+    // case 'ADD_DEFAULT_THUMBS':
       return {
         thumbId: action.thumbIdArray[index],
         frameId: action.frameIdArray[index],
@@ -73,20 +73,26 @@ const thumbsByFileId = (state = [], action) => {
       };
     }
     case 'ADD_THUMBS': {
-      // load the current thumb array, if it does not exist it stays empty
+      // load the current thumbs array, if it does not exist it stays empty
       let currentArray = [];
       if (state[action.fileId] && state[action.fileId].thumbs) {
         currentArray = state[action.fileId].thumbs.slice();
       }
+
+      // create new thumbs array
       const newArray = Object.keys(action.thumbIdArray).map((t, index) =>
         thumb(undefined, action, index));
-      const combinedArray = currentArray.concat(newArray);
+
+      // combine current and new thumbs array
+      let combinedArray = currentArray.concat(newArray);
+
+      // sort and reindex combinedArray
+      console.log(combinedArray.slice());
+      combinedArray.sort((a, b) => a.frameNumber - b.frameNumber);
+      console.log(combinedArray);
       const reIndexedArray = combinedArray.map((item, index) => {
-        // console.log(item);
-        // console.log(index);
         return {...item, index: index}
       });
-      // console.log(reIndexedArray);
       return {
         ...state,
         [action.fileId]: {
@@ -95,16 +101,16 @@ const thumbsByFileId = (state = [], action) => {
         }
       };
     }
-    case 'ADD_DEFAULT_THUMBS':
-      return {
-        ...state,
-        [action.fileId]: {
-          width: action.width,
-          height: action.height,
-          thumbs: Object.keys(action.thumbIdArray).map((t, index) =>
-            thumb(undefined, action, index))
-        }
-      };
+    // case 'ADD_DEFAULT_THUMBS':
+    //   return {
+    //     ...state,
+    //     [action.fileId]: {
+    //       width: action.width,
+    //       height: action.height,
+    //       thumbs: Object.keys(action.thumbIdArray).map((t, index) =>
+    //         thumb(undefined, action, index))
+    //     }
+    //   };
     case 'ADD_THUMB_WITH_DETECT_FACE':
       return [
         ...state,
