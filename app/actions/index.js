@@ -654,11 +654,12 @@ export const updateObjectUrlsFromPosterFrame = () => {
   };
 };
 
-export const updateSceneDetectionData = (fileId, sceneDetectionData) =>
+export const updateSceneDetectionData = (fileId, differenceArray, sceneArray) =>
   ((dispatch) => {
     console.log('inside updateSceneDetectionData');
     imageDB.sceneList.put({
       fileId,
-      data: sceneDetectionData
+      differenceArray,
+      sceneArray,
     })
   });

@@ -312,11 +312,29 @@ class App extends Component {
     });
 
     ipcRenderer.on('received-get-scene-detection', (event, fileId, sceneList, chartData, tempMeanArray) => {
-      console.log(sceneList);
+      // console.log(sceneList);
+
+      const copyOfMeanArray = tempMeanArray.slice();
+      // console.log(copyOfMeanArray);
+      const differenceArray = [];
+      tempMeanArray.reduce((prev, curr) => {
+          differenceArray.push(Math.abs(prev - curr));
+          return curr;
+      }, 0);
+      const sceneArray = []
+      differenceArray.map((value, index) => {
+          if (value > this.state.sceneDetectionThreshold) {
+            sceneArray.push(index);
+          }
+          return true;
+        }
+      );
+      // console.log(sceneArray);
+
       const tempFile = store.getState().undoGroup.present.files.find((file) => file.id === fileId);
       const frameNumberArray = sceneList.map((item) => item.frame);
       const clearOldThumbs = true;
-      store.dispatch(updateSceneDetectionData(fileId, tempMeanArray));
+      store.dispatch(updateSceneDetectionData(fileId, differenceArray, sceneArray));
       store.dispatch(addThumbs(tempFile, frameNumberArray, clearOldThumbs));
       this.setState({ chartData });
     });
