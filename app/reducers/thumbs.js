@@ -87,9 +87,7 @@ const thumbsByFileId = (state = [], action) => {
       let combinedArray = currentArray.concat(newArray);
 
       // sort and reindex combinedArray
-      console.log(combinedArray.slice());
       combinedArray.sort((a, b) => a.frameNumber - b.frameNumber);
-      console.log(combinedArray);
       const reIndexedArray = combinedArray.map((item, index) => {
         return {...item, index: index}
       });

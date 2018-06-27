@@ -653,3 +653,12 @@ export const updateObjectUrlsFromPosterFrame = () => {
       });
   };
 };
+
+export const updateSceneDetectionData = (fileId, sceneDetectionData) =>
+  ((dispatch) => {
+    console.log('inside updateSceneDetectionData');
+    imageDB.sceneList.put({
+      fileId,
+      data: sceneDetectionData
+    })
+  });

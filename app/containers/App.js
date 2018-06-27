@@ -39,7 +39,7 @@ import {
   setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
   setDefaultMoviePrintWidth, updateFileDetailUseRatio, setDefaultShowPaperPreview,
   setDefaultPaperAspectRatioInv, updateInOutPoint, removeMovieListItem, setDefaultDetectInOutPoint,
-  changeThumb, addThumb, setEmailAddress, addThumbs
+  changeThumb, addThumb, setEmailAddress, addThumbs, updateSceneDetectionData
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -111,6 +111,7 @@ class App extends Component {
       opencvVideo: undefined,
       showScrubWindow: false,
       scrubThumb: undefined,
+      showChart: false,
       chartData: {
         labels: ["Jakobary", "February", "March", "April", "May", "June", "July"],
         datasets: [{
@@ -307,19 +308,15 @@ class App extends Component {
             });
           }, 3000);
         });
-        // const tempFile = store.getState().undoGroup.present.files.find((file) => file.id === fileId);
-        // console.log(tempFile);
-        // if (DEV_OPENCV_SCENE_DETECTION) {
-        //   ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-scene-detection', fileId, tempFile.path, tempFile.useRatio, this.state.sceneDetectionThreshold);
-        // }
       }
     });
 
-    ipcRenderer.on('received-get-scene-detection', (event, fileId, sceneList, chartData) => {
+    ipcRenderer.on('received-get-scene-detection', (event, fileId, sceneList, chartData, tempMeanArray) => {
       console.log(sceneList);
       const tempFile = store.getState().undoGroup.present.files.find((file) => file.id === fileId);
       const frameNumberArray = sceneList.map((item) => item.frame);
       const clearOldThumbs = true;
+      store.dispatch(updateSceneDetectionData(fileId, tempMeanArray));
       store.dispatch(addThumbs(tempFile, frameNumberArray, clearOldThumbs));
       this.setState({ chartData });
     });
@@ -454,7 +451,7 @@ class App extends Component {
     }
 
     if (prevState.showScrubWindow === false && this.state.showScrubWindow === true) {
-      this.updateOpencvVideoCanvas(8613);
+      this.updateOpencvVideoCanvas(0);
     }
   }
 
@@ -498,6 +495,13 @@ class App extends Component {
           case 68: // press 'd'
             if (DEV_OPENCV_SCENE_DETECTION) {
               ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-scene-detection', this.props.file.id, this.props.file.path, this.props.file.useRatio, 30.0);
+            }
+            break;
+          case 70: // press 'f'
+            if (DEV_OPENCV_SCENE_DETECTION) {
+              this.setState({
+                showChart: !this.state.showChart
+              });
             }
             break;
           case 80: // press 'p'
@@ -1469,7 +1473,7 @@ class App extends Component {
                     </div>
                   </div>
                 }
-                { DEV_OPENCV_SCENE_DETECTION &&
+                { this.state.showChart &&
                   <div
                     className={styles.chart}
                     style={{

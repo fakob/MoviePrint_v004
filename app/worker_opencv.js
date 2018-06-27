@@ -412,14 +412,10 @@ ipcRenderer.on(
       vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1;
     console.log(videoLength);
 
-    // const threshold = IN_OUT_POINT_SEARCH_THRESHOLD;
-
     const minSceneLen = 15;
-    const lastHsv = null;
 
     const sceneList = [];
     const frameMetrics = [];
-    // let lastFrameMean = null;
     let lastFrameMean = new opencv.Vec(null, null, null, null);;
     let lastSceneCut = null;
 
@@ -444,12 +440,6 @@ ipcRenderer.on(
           }
           let frameMean = 0;
           if (mat.empty === false) {
-            // console.time('meanCalculation');
-            // scale to quarter of size, convert to HSV, calculate mean, get only V channel
-            // frameMean = mat
-            //   .resizeToMax(240)
-            //   .cvtColor(opencv.COLOR_BGR2HSV)
-            //   .mean().y;
             frameMean = mat
               .resizeToMax(240)
               .cvtColor(opencv.COLOR_BGR2HSV)
@@ -474,73 +464,6 @@ ipcRenderer.on(
               frame,
               mean: frameMean.y
             });
-
-            // // process_frame(frameNum, frame_img, frameMetrics, scene_list) {
-            // let currHsv;
-            // let cutDetected = false;
-            // let deltaH;
-            // let deltaHsv;
-            // let deltaHsvAvg
-            // let deltaS;
-            // let deltaV;
-            // let numPixels;
-            //
-            // [deltaHsvAvg, deltaH, deltaS, deltaV] = [0.0, 0.0, 0.0, 0.0];
-            //
-            // numPixels = (frame_img.shape[0] * frame_img.shape[1]);
-            // currHsv = cv2.split(cv2.cvtColor(frame_img, cv2.COLOR_BGR2HSV));
-            // lastHsv = lastHsv;
-            // if ((! lastHsv)) {
-            //     lastHsv = cv2.split(cv2.cvtColor(lastFrame, cv2.COLOR_BGR2HSV));
-            // }
-            // deltaHsv = [(- 1), (- 1), (- 1)];
-            // for (var i = 0, _pj_a = 3; (i < _pj_a); i += 1) {
-            //     numPixels = (currHsv[i].shape[0] * currHsv[i].shape[1]);
-            //     currHsv[i] = currHsv[i].astype(numpy.int32);
-            //     lastHsv[i] = lastHsv[i].astype(numpy.int32);
-                // deltaHsv[i] = (numpy.sum(numpy.abs(currHsv[i] - lastHsv[i])) / Number.parseFloat(numPixels));
-            // }
-            // deltaHsv.append((sum(deltaHsv) / 3.0));
-            // [deltaH, deltaS, deltaV, deltaHsvAvg] = deltaHsv;
-            // frameMetrics[frameNum]["deltaHsvAvg"] = deltaHsvAvg;
-            // frameMetrics[frameNum]["deltaHue"] = deltaH;
-            // frameMetrics[frameNum]["deltaSat"] = deltaS;
-            // frameMetrics[frameNum]["delta_lum"] = deltaV;
-            // lastHsv = currHsv;
-            //
-            // if ((deltaHsvAvg >= threshold)) {
-            //   if (((lastSceneCut === null) || ((frameNum - lastSceneCut) >= minSceneLen))) {
-            //     scene_list.append(frameNum);
-            //     lastSceneCut = frameNum;
-            //     cutDetected = true;
-            //   }
-            // }
-            //
-            // lastFrame = frame_img.copy();
-            // return cutDetected;
-
-
-
-
-
-
-
-            // console.timeEnd('meanCalculation');
-
-            // // single axis for 1D hist
-            // const binCount = 17;
-            // const getHistAxis = channel => ([
-            //   {
-            //     channel,
-            //     bins: binCount,
-            //     ranges: [0, 256]
-            //   }
-            // ]);
-            // const matHSV = mat.cvtColor(opencv.COLOR_BGR2HSV);
-            // const frameHist = opencv.calcHist(matHSV, getHistAxis(2));
-            // console.log(frameHist.at(0));
-            // console.log(frameHist.at(0) > (binCount * 256));
-
           } else {
             console.error(
               `empty frame: iterator:${iterator} frame:${frame} (${vid.get(
@@ -568,15 +491,6 @@ ipcRenderer.on(
             const tempFrameArray = frameMetrics.map((item) => item.frame);
             const tempMeanArray = frameMetrics.map((item) => item.mean);
             console.log(tempMeanArray);
-            // const chartData = {
-            //   labels: tempFrameArray,
-            //   datasets: [{
-            //     label: "Scene detection",
-            //     backgroundColor: 'rgb(255, 99, 132)',
-            //     borderColor: 'rgb(255, 99, 132)',
-            //     data: tempMeanArray,
-            //   }]
-            // };
             const chartData = {
               labels: tempFrameArray,
               datasets: [{
@@ -584,14 +498,7 @@ ipcRenderer.on(
                 backgroundColor: 'rgb(255, 99, 132)',
                 borderColor: 'rgba(0, 0, 132, 0.2)',
                 data: tempMeanArray,
-                },
-                {
-                  label: "Scene detection threshold",
-                  backgroundColor: 'rgb(0, 255, 0)',
-                  borderColor: 'rgba(255, 255, 255, 0.1)',
-                  data: Array(100).fill(threshold),
-                type: 'line',
-              }]
+                }]
             };
             console.log(chartData);
             ipcRenderer.send(
@@ -599,7 +506,8 @@ ipcRenderer.on(
               'received-get-scene-detection',
               fileId,
               sceneList,
-              chartData
+              chartData,
+              tempMeanArray
             );
 
             ipcRenderer.send(
