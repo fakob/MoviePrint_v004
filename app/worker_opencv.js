@@ -491,22 +491,12 @@ ipcRenderer.on(
             const tempFrameArray = frameMetrics.map((item) => item.frame);
             const tempMeanArray = frameMetrics.map((item) => item.mean);
             console.log(tempMeanArray);
-            const chartData = {
-              labels: tempFrameArray,
-              datasets: [{
-                label: "Scene detection",
-                backgroundColor: 'rgb(255, 99, 132)',
-                borderColor: 'rgba(0, 0, 132, 0.2)',
-                data: tempMeanArray,
-                }]
-            };
-            console.log(chartData);
+
             ipcRenderer.send(
               'message-from-opencvWorkerWindow-to-mainWindow',
               'received-get-scene-detection',
               fileId,
               sceneList,
-              chartData,
               tempMeanArray
             );
 

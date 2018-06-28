@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone';
 import { TransitionablePortal, Segment, Progress, Modal, Button, Icon } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
-import {Bar, defaults} from 'react-chartjs-2';
+import {Line, defaults} from 'react-chartjs-2';
 
 import '../app.global.css';
 import FileList from '../containers/FileList';
@@ -311,11 +311,7 @@ class App extends Component {
       }
     });
 
-    ipcRenderer.on('received-get-scene-detection', (event, fileId, sceneList, chartData, tempMeanArray) => {
-      // console.log(sceneList);
-
-      const copyOfMeanArray = tempMeanArray.slice();
-      // console.log(copyOfMeanArray);
+    ipcRenderer.on('received-get-scene-detection', (event, fileId, sceneList, tempMeanArray) => {
       const differenceArray = [];
       tempMeanArray.reduce((prev, curr) => {
           differenceArray.push(Math.abs(prev - curr));
@@ -329,14 +325,24 @@ class App extends Component {
           return true;
         }
       );
-      // console.log(sceneArray);
 
-      const tempFile = store.getState().undoGroup.present.files.find((file) => file.id === fileId);
-      const frameNumberArray = sceneList.map((item) => item.frame);
+      const labels = [...Array(differenceArray.length).keys()].map((x) => String(x));
+      const newChartData = {
+        labels,
+        datasets: [{
+          label: "Scene detection",
+          backgroundColor: 'rgb(255, 255, 255)',
+          pointRadius: 2,
+          data: differenceArray,
+          }]
+      };
+      this.setState({ chartData: newChartData });
+
+      console.log(sceneArray);
+      const tempFile = this.props.files.find((file) => file.id === fileId);
       const clearOldThumbs = true;
       store.dispatch(updateSceneDetectionData(fileId, differenceArray, sceneArray));
-      store.dispatch(addThumbs(tempFile, frameNumberArray, clearOldThumbs));
-      this.setState({ chartData });
+      store.dispatch(addThumbs(tempFile, sceneArray, clearOldThumbs));
     });
 
     ipcRenderer.on('received-saved-file', (event, path) => {
@@ -1498,7 +1504,7 @@ class App extends Component {
                       height: `${chartHeight}px`,
                     }}
                   >
-                    <Bar
+                    <Line
                       data={this.state.chartData}
                       width={this.state.containerWidth}
                       height={chartHeight}
@@ -1506,7 +1512,18 @@ class App extends Component {
                         maintainAspectRatio: true,
                         barPercentage: 1.0,
                         categoryPercentage: 1.0,
-                        // responsive : true,
+                        elements: {
+                          line: {
+                            tension: 0, // disables bezier curves
+                          }
+                        },
+                        animation: {
+                          duration: 0, // general animation time
+                        },
+                        hover: {
+                          animationDuration: 0, // duration of animations when hovering an item
+                        },
+                        responsiveAnimationDuration: 0, // animation duration after a resize
                       }}
                     />
                   </div>
