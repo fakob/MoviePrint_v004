@@ -654,12 +654,24 @@ export const updateObjectUrlsFromPosterFrame = () => {
   };
 };
 
-export const updateSceneDetectionData = (fileId, differenceArray, sceneArray) =>
+export const updateFileScanData = (fileId, meanArray) =>
   ((dispatch) => {
-    console.log('inside updateSceneDetectionData');
-    imageDB.sceneList.put({
+    console.log('inside updateFileScanData');
+    imageDB.fileScanList.put({
       fileId,
-      differenceArray,
-      sceneArray,
+      meanArray,
     })
+  });
+
+export const getFileScanData = (fileId) =>
+  ((dispatch) => {
+    console.log('inside getFileScanData');
+    return imageDB.fileScanList.where('fileId').equals(fileId).toArray()
+      .then((fileScan) => {
+        console.log(fileScan);
+        if (fileScan.length !== 0) {
+          return fileScan[0].meanArray;
+        }
+        return false;
+      })
   });

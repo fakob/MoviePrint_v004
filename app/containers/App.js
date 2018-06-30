@@ -39,7 +39,7 @@ import {
   setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
   setDefaultMoviePrintWidth, updateFileDetailUseRatio, setDefaultShowPaperPreview,
   setDefaultPaperAspectRatioInv, updateInOutPoint, removeMovieListItem, setDefaultDetectInOutPoint,
-  changeThumb, addThumb, setEmailAddress, addThumbs, updateSceneDetectionData
+  changeThumb, addThumb, setEmailAddress, addThumbs, updateFileScanData, getFileScanData
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -122,7 +122,8 @@ class App extends Component {
           data: [0, 10, 5, 2, 20, 30, 45],
         }]
       },
-      sceneDetectionThreshold: 20.0
+      sceneDetectionThreshold: 20.0,
+      fileScanRunning: false,
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -174,6 +175,9 @@ class App extends Component {
     this.onThumbnailScaleClick = this.onThumbnailScaleClick.bind(this);
     this.onMoviePrintWidthClick = this.onMoviePrintWidthClick.bind(this);
     this.updateOpencvVideoCanvas = this.updateOpencvVideoCanvas.bind(this);
+    this.runSceneDetection = this.runSceneDetection.bind(this);
+    this.runFileScan = this.runFileScan.bind(this);
+    this.calculateSceneList = this.calculateSceneList.bind(this);
   }
 
   componentWillMount() {
@@ -311,38 +315,12 @@ class App extends Component {
       }
     });
 
-    ipcRenderer.on('received-get-scene-detection', (event, fileId, sceneList, tempMeanArray) => {
-      const differenceArray = [];
-      tempMeanArray.reduce((prev, curr) => {
-          differenceArray.push(Math.abs(prev - curr));
-          return curr;
-      }, 0);
-      const sceneArray = []
-      differenceArray.map((value, index) => {
-          if (value > this.state.sceneDetectionThreshold) {
-            sceneArray.push(index);
-          }
-          return true;
-        }
-      );
-
-      const labels = [...Array(differenceArray.length).keys()].map((x) => String(x));
-      const newChartData = {
-        labels,
-        datasets: [{
-          label: "Scene detection",
-          backgroundColor: 'rgb(255, 255, 255)',
-          pointRadius: 2,
-          data: differenceArray,
-          }]
-      };
-      this.setState({ chartData: newChartData });
-
-      console.log(sceneArray);
-      const tempFile = this.props.files.find((file) => file.id === fileId);
-      const clearOldThumbs = true;
-      store.dispatch(updateSceneDetectionData(fileId, differenceArray, sceneArray));
-      store.dispatch(addThumbs(tempFile, sceneArray, clearOldThumbs));
+    ipcRenderer.on('received-get-file-scan', (event, fileId, sceneList, meanArray) => {
+      this.setState({
+        fileScanRunning: false,
+      });
+      store.dispatch(updateFileScanData(fileId, meanArray));
+      this.calculateSceneList(fileId, meanArray);
     });
 
     ipcRenderer.on('received-saved-file', (event, path) => {
@@ -508,17 +486,17 @@ class App extends Component {
             break;
           case 65: // press 'a'
             if (DEV_OPENCV_SCENE_DETECTION) {
-              ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-scene-detection', this.props.file.id, this.props.file.path, this.props.file.useRatio, 10.0);
+              this.runSceneDetection(this.props.file, 10.0)
             }
             break;
           case 83: // press 's'
             if (DEV_OPENCV_SCENE_DETECTION) {
-              ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-scene-detection', this.props.file.id, this.props.file.path, this.props.file.useRatio, this.state.sceneDetectionThreshold);
+              this.runSceneDetection(this.props.file, 20.0)
             }
             break;
           case 68: // press 'd'
             if (DEV_OPENCV_SCENE_DETECTION) {
-              ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-scene-detection', this.props.file.id, this.props.file.path, this.props.file.useRatio, 30.0);
+              this.runSceneDetection(this.props.file, 30.0)
             }
             break;
           case 70: // press 'f'
@@ -726,6 +704,87 @@ class App extends Component {
   switchToPrintView() {
     const { store } = this.context;
     store.dispatch(showMoviePrintView());
+  }
+
+  runSceneDetection(file, threshold) {
+    const { store } = this.context;
+    // get meanArray if it is stored else return false
+    store.dispatch(getFileScanData(file.id)).then((meanArray) => {
+      // console.log(meanArray);
+      // if meanArray not stored, runFileScan
+      if (meanArray === false) {
+        this.runFileScan(file, threshold);
+      } else {
+        this.calculateSceneList(file.id, meanArray, threshold);
+      }
+      return true;
+    }).catch(error => {
+      console.log(error);
+    });
+  }
+
+  calculateSceneList(fileId, meanArray, threshold = this.state.sceneDetectionThreshold) {
+    const { store } = this.context;
+    const differenceArray = [];
+    meanArray.reduce((prev, curr) => {
+        differenceArray.push(Math.abs(prev - curr));
+        return curr;
+    }, 0);
+
+    const sceneArray = []
+    differenceArray.map((value, index) => {
+        if (value > threshold) {
+          sceneArray.push(index);
+        }
+        return true;
+      }
+    );
+
+    const labels = [...Array(differenceArray.length).keys()].map((x) => String(x));
+    const newChartData = {
+      labels,
+      datasets: [{
+        label: "Difference",
+        backgroundColor: 'rgb(255, 80, 6)',
+        pointRadius: 2,
+        data: differenceArray,
+      },{
+        label: "Mean",
+        backgroundColor: 'rgba(255, 80, 6, 0.1)',
+        pointRadius: 0,
+        data: meanArray,
+      }]
+    };
+    this.setState({
+      chartData: newChartData,
+    });
+
+    console.log(sceneArray);
+
+    // check if scenes detected
+    if (sceneArray.length !== 0) {
+      const tempFile = this.props.files.find((file) => file.id === fileId);
+      const clearOldThumbs = true;
+      store.dispatch(addThumbs(tempFile, sceneArray, clearOldThumbs));
+    } else {
+      this.setState({
+        progressMessage: 'No scenes detected',
+        showMessage: true,
+      }, () => {
+        setTimeout(() => {
+          this.setState({
+            showMessage: false
+          });
+        }, 3000);
+      });
+    }
+  }
+
+  runFileScan(file, threshold) {
+    if (this.state.fileScanRunning === false) {
+      this.setState({ fileScanRunning: true });
+      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-scan', file.id, file.path, file.useRatio, threshold);
+    }
   }
 
   onScrubClick(file, scrubThumb) {

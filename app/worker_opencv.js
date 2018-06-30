@@ -400,13 +400,13 @@ ipcRenderer.on(
 );
 
 ipcRenderer.on(
-  'send-get-scene-detection',
+  'send-get-file-scan',
   (event, fileId, filePath, useRatio, threshold = 20.0) => {
-    console.log('send-get-scene-detection');
+    console.log('send-get-file-scan');
     console.log(fileId);
     console.log(filePath);
     const timeBeforeSceneDetection = Date.now();
-    console.time(`${fileId}-sceneDetection`);
+    console.time(`${fileId}-fileScanning`);
     const vid = new opencv.VideoCapture(filePath);
     const videoLength =
       vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1;
@@ -482,19 +482,18 @@ ipcRenderer.on(
             read();
           } else {
             const timeAfterSceneDetection = Date.now();
-            const messageToSend = `Scene detection finished - ${(timeAfterSceneDetection -
+            const messageToSend = `File scanning finished - ${(timeAfterSceneDetection -
               timeBeforeSceneDetection) / 1000}s - speed: ${(timeAfterSceneDetection -
                 timeBeforeSceneDetection) / vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`;
             console.log(messageToSend);
-            console.timeEnd(`${fileId}-sceneDetection`);
+            console.timeEnd(`${fileId}-fileScanning`);
 
-            const tempFrameArray = frameMetrics.map((item) => item.frame);
             const tempMeanArray = frameMetrics.map((item) => item.mean);
             console.log(tempMeanArray);
 
             ipcRenderer.send(
               'message-from-opencvWorkerWindow-to-mainWindow',
-              'received-get-scene-detection',
+              'received-get-file-scan',
               fileId,
               sceneList,
               tempMeanArray
