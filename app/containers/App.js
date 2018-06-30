@@ -113,13 +113,11 @@ class App extends Component {
       scrubThumb: undefined,
       showChart: false,
       chartData: {
-        labels: ["Jakobary", "February", "March", "April", "May", "June", "July"],
+        labels: ["Inpoint", "Outpoint"],
         datasets: [{
-          label: "My First dataset",
+          label: "Empty dataset",
           backgroundColor: 'rgb(0, 99, 132)',
-          borderWidth: '0',
-          borderColor: 'rgb(255, 0, 0)',
-          data: [0, 10, 5, 2, 20, 30, 45],
+          data: [0, 0],
         }]
       },
       sceneDetectionThreshold: 20.0,
@@ -486,24 +484,30 @@ class App extends Component {
             break;
           case 65: // press 'a'
             if (DEV_OPENCV_SCENE_DETECTION) {
-              this.runSceneDetection(this.props.file, 10.0)
+              if (this.props.currentFileId) {
+                this.runSceneDetection(this.props.file, 10.0)
+              }
             }
             break;
           case 83: // press 's'
             if (DEV_OPENCV_SCENE_DETECTION) {
-              this.runSceneDetection(this.props.file, 20.0)
-            }
+              if (this.props.currentFileId) {
+                this.runSceneDetection(this.props.file, 20.0)
+              }            }
             break;
           case 68: // press 'd'
             if (DEV_OPENCV_SCENE_DETECTION) {
-              this.runSceneDetection(this.props.file, 30.0)
-            }
+              if (this.props.currentFileId) {
+                this.runSceneDetection(this.props.file, 30.0)
+              }            }
             break;
           case 70: // press 'f'
             if (DEV_OPENCV_SCENE_DETECTION) {
-              this.setState({
-                showChart: !this.state.showChart
-              });
+              if (this.props.currentFileId) {
+                this.setState({
+                  showChart: !this.state.showChart
+                });
+              }
             }
             break;
           case 80: // press 'p'

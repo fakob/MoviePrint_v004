@@ -668,7 +668,7 @@ export const getFileScanData = (fileId) =>
     console.log('inside getFileScanData');
     return imageDB.fileScanList.where('fileId').equals(fileId).toArray()
       .then((fileScan) => {
-        console.log(fileScan);
+        // console.log(fileScan);
         if (fileScan.length !== 0) {
           return fileScan[0].meanArray;
         }
