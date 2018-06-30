@@ -412,7 +412,7 @@ ipcRenderer.on(
       vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1;
     console.log(videoLength);
 
-    const minSceneLen = 15;
+    const minSceneLength = 15;
 
     const sceneList = [];
     const frameMetrics = [];
@@ -449,7 +449,7 @@ ipcRenderer.on(
             const frameHsvAverage = (deltaFrameMean.w + deltaFrameMean.x + deltaFrameMean.y) / 3.0; // w = H, x = S, y = V = brightness
 
             if (frameHsvAverage >= threshold) {
-              if (((lastSceneCut === null) || ((frame - lastSceneCut) >= minSceneLen))) {
+              if (((lastSceneCut === null) || ((frame - lastSceneCut) >= minSceneLength))) {
                 sceneList.push({
                   frame,
                 });

@@ -45,6 +45,7 @@ import {
   MENU_HEADER_HEIGHT,
   MENU_FOOTER_HEIGHT,
   ZOOM_SCALE,
+  SCENE_DETECTION_MIN_SCENE_LENGTH,
 } from '../utils/constants';
 
 import steps from '../img/MoviePrint-steps.svg';
@@ -729,6 +730,8 @@ class App extends Component {
 
   calculateSceneList(fileId, meanArray, threshold = this.state.sceneDetectionThreshold) {
     const { store } = this.context;
+    let lastSceneCut;
+
     const differenceArray = [];
     meanArray.reduce((prev, curr) => {
         differenceArray.push(Math.abs(prev - curr));
@@ -737,8 +740,11 @@ class App extends Component {
 
     const sceneArray = []
     differenceArray.map((value, index) => {
-        if (value > threshold) {
-          sceneArray.push(index);
+        if (value >= threshold) {
+          if (((lastSceneCut === undefined) || ((index - lastSceneCut) >= SCENE_DETECTION_MIN_SCENE_LENGTH))) {
+            sceneArray.push(index);
+            lastSceneCut = index;
+          }
         }
         return true;
       }
