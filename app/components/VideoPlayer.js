@@ -295,7 +295,7 @@ class VideoPlayer extends Component {
         this.video.currentTime = currentTime;
       } else {
         const { frameCount } = this.props.file;
-        const currentFrame = mapRange(xPos, 0, this.state.videoWidth, 0, frameCount - 1, false);
+        const currentFrame = mapRange(xPos, 0, this.state.videoWidth, 0, frameCount - 1);
         // console.log(`${currentFrame} : ${xPos} : ${this.state.videoWidth} : ${this.state.frameCount - 1}`);
         this.setState({ currentFrame });
         this.updateOpencvVideoCanvas(currentFrame);

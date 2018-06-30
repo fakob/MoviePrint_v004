@@ -448,15 +448,27 @@ export const clearThumbs = () => {
 export const addDefaultThumbs = (file, amount = 20, start = 10, stop = file.frameCount - 1) => {
   return (dispatch) => {
     console.log('inside addDefaultThumbs');
-    // console.log(start);
-    // console.log(stop);
-    // const start = 10;
-    // const stop = file.frameCount - 1;
-    const startWithBoundaries = limitRange(start, 0, file.frameCount - 1);
-    const stopWithBoundaries = limitRange(stop, 0, file.frameCount - 1);
-    const frameNumberArray = Array.from(Array(amount).keys())
-      .map(x => mapRange(x, 0, amount - 1, startWithBoundaries, stopWithBoundaries));
 
+    // amount should not be more than the frameCount
+    // stop - start should be at least amount
+    let newStart = start;
+    let newStop = stop;
+    const difference = stop - start;
+    let newAmount = Math.min(amount, file.frameCount - 1);
+    if (difference < amount) {
+      newStop = start + amount;
+      if (newStop > file.frameCount - 1) {
+        newStart = Math.max(0, (file.frameCount - 1) - amount);
+        newStop = newStart + amount;
+      }
+    }
+    // console.log(`${amount} : ${newAmount} : ${start} : ${newStart} : ${stop} : ${newStop} : `)
+
+    const startWithBoundaries = limitRange(newStart, 0, file.frameCount - 1);
+    const stopWithBoundaries = limitRange(newStop, 0, file.frameCount - 1);
+    const frameNumberArray = Array.from(Array(newAmount).keys())
+      .map(x => mapRange(x, 0, newAmount - 1, startWithBoundaries, stopWithBoundaries));
+    console.log(frameNumberArray);
     dispatch(addThumbs(file, frameNumberArray, true));
   };
 };
