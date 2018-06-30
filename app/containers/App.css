@@ -219,7 +219,7 @@
   display: none;
 }
 
-.scrubWindowBackground {
+.scrubContainerBackground {
   /* outline-style: solid;
   outline-color: #0c3158;
   outline-width: 15px;
@@ -234,7 +234,14 @@
   z-index: 999;
 }
 
-.scrubWindow {
+.scrubContainer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}
+
+.scrubInnerContainer {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -251,6 +258,7 @@
   /* height: 24px; */
   /* width: 24px; */
   object-fit: cover;
+  transform: translateY(-50%);
 }
 
 .scrubThumbRight {
@@ -263,6 +271,7 @@
   /* height: 24px; */
   /* width: 24px; */
   object-fit: cover;
+  transform: translateY(-50%);
 }
 
 .scrubCancelBar {

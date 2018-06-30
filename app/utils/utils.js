@@ -378,6 +378,25 @@ export const getScaleValueObject = (
     (thumbCount * thumbnailWidthPlusMarginForThumbView) + (thumbnailWidthForThumbView / 2); // only one row
     // for thumbView
 
+  // for scrubView
+  const scrubContainerHeight = Math.min(
+    Math.floor(containerHeight * settings.defaultScrubContainerMaxHeightRatio),
+    containerWidth * settings.defaultScrubWindowWidthRatio * movieAspectRatioInv
+  )
+  const scrubContainerWidth = containerWidth;
+  const scrubInnerContainerWidth = Math.min(
+    (scrubContainerHeight / movieAspectRatioInv + settings.defaultScrubWindowMargin * 2) * 2,
+    scrubContainerWidth
+  );
+  const scrubMovieHeight = scrubContainerHeight;
+  const scrubMovieWidth = Math.min(
+    Math.floor(scrubInnerContainerWidth * settings.defaultScrubWindowWidthRatio),
+    scrubContainerHeight / movieAspectRatioInv
+  );
+  const scrubInOutMovieWidth = Math.floor((scrubInnerContainerWidth - scrubMovieWidth) / 2 - (settings.defaultScrubWindowMargin * 2));
+  const scrubInOutMovieHeight = Math.floor(scrubInOutMovieWidth * movieAspectRatioInv);
+  // for scrubView
+
   let paperMoviePrintWidth = moviePrintWidth;
   let paperMoviePrintHeight = moviePrintHeight;
   let showPaperAdjustmentScale = 1;
@@ -419,6 +438,13 @@ export const getScaleValueObject = (
     newScaleValue,
     videoPlayerHeight,
     videoPlayerWidth,
+    scrubMovieWidth,
+    scrubMovieHeight,
+    scrubInOutMovieWidth,
+    scrubInOutMovieHeight,
+    scrubContainerHeight,
+    scrubContainerWidth,
+    scrubInnerContainerWidth,
   };
   // console.log(scaleValueObject);
   return scaleValueObject;

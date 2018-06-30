@@ -1044,10 +1044,11 @@ class App extends Component {
     setPosition(this.state.opencvVideo, currentFrame, this.props.file.useRatio);
     const frame = this.state.opencvVideo.read();
     if (!frame.empty) {
-      const tempWidth = parseInt((this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv, 10);
-      const tempHeight = parseInt(this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio, 10);
-
-      const img = frame.resizeToMax(Math.max(tempWidth, tempHeight));
+      const img = frame.resizeToMax(
+        this.state.scaleValueObject.aspectRatioInv < 1 ?
+        parseInt(this.state.scaleValueObject.scrubMovieWidth, 10) :
+        parseInt(this.state.scaleValueObject.scrubMovieHeight, 10)
+      );
       // renderImage(matResized, this.opencvVideoCanvasRef, opencv);
       const matRGBA = img.channels === 1 ? img.cvtColor(opencv.COLOR_GRAY2RGBA) : img.cvtColor(opencv.COLOR_BGR2RGBA);
 
@@ -1411,73 +1412,76 @@ class App extends Component {
                 </div>
                 { this.state.showScrubWindow &&
                   <div
-                    className={styles.scrubWindowBackground}
+                    className={styles.scrubContainerBackground}
                     onMouseMove={this.onScrubWindowMouseOver}
                     onMouseUp={this.onScrubWindowStop}
                   >
                     <div
-                      className={styles.scrubWindow}
+                      className={styles.scrubContainer}
                       style={{
-                        height: this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio,
-                        width: this.state.containerWidth,
+                        height: this.state.scaleValueObject.scrubContainerHeight,
+                        width: this.state.scaleValueObject.scrubContainerWidth,
                       }}
                     >
-                      <span
-                        className={styles.scrubThumbLeft}
+                      <div
+                        className={styles.scrubInnerContainer}
                         style={{
-                          backgroundImage: `url(${this.state.keyObject.altKey ?
-                            getObjectProperty(() => this.props.thumbImages[this.state.scrubThumb.frameId].objectUrl) :
-                            getObjectProperty(() => this.props.thumbImages[this.state.scrubThumbLeft.frameId].objectUrl) || transparent})`,
-                          height: this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio,
-                          width: (this.state.containerWidth -
-                            ((this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv)) / 2 -
-                            this.props.settings.defaultScrubWindowMargin,
-                          marginRight: this.props.settings.defaultScrubWindowMargin,
-                        }}
-                      />
-                      {this.state.keyObject.ctrlKey &&
-                        <div
-                          style={{
-                            content: '',
-                            backgroundImage: `url(${getObjectProperty(() => this.props.thumbImages[this.state.scrubThumb.frameId].objectUrl)})`,
-                            backgroundSize: 'cover',
-                            opacity: '0.4',
-                            position: 'absolute',
-                            width: (this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv,
-                            height: this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio,
-                            top: 0,
-                            left: this.state.keyObject.altKey ? (this.state.containerWidth -
-                              ((this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv)) / 2 -
-                              this.props.settings.defaultScrubWindowMargin + (this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv :
-                              (this.state.containerWidth -
-                                ((this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv)) / 2 -
-                                this.props.settings.defaultScrubWindowMargin,
-                          }}
-                        />
-                      }
-                      <span
-                        style={{
-                          width: (this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv,
-                          height: this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio,
+                          width: this.state.scaleValueObject.scrubInnerContainerWidth,
                         }}
                       >
-                        <canvas
-                          ref={this.opencvVideoCanvasRef}
+                        <span
+                          className={styles.scrubThumbLeft}
+                          style={{
+                            backgroundImage: `url(${this.state.keyObject.altKey ?
+                              getObjectProperty(() => this.props.thumbImages[this.state.scrubThumb.frameId].objectUrl) :
+                              getObjectProperty(() => this.props.thumbImages[this.state.scrubThumbLeft.frameId].objectUrl) || transparent})`,
+                            height: this.state.scaleValueObject.scrubInOutMovieHeight,
+                            width: this.state.scaleValueObject.scrubInOutMovieWidth,
+                            margin: this.props.settings.defaultScrubWindowMargin,
+                          }}
                         />
-                      </span>
-                      <span
-                        className={styles.scrubThumbRight}
-                        style={{
-                          backgroundImage: `url(${this.state.keyObject.shiftKey ?
-                            getObjectProperty(() => this.props.thumbImages[this.state.scrubThumb.frameId].objectUrl) :
-                            getObjectProperty(() => this.props.thumbImages[this.state.scrubThumbRight.frameId].objectUrl) || transparent})`,
-                          height: this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio,
-                          width: (this.state.containerWidth -
-                            ((this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv)) / 2 -
-                            this.props.settings.defaultScrubWindowMargin,
-                          marginLeft: this.props.settings.defaultScrubWindowMargin,
-                        }}
-                      />
+                        {this.state.keyObject.ctrlKey &&
+                          <div
+                            style={{
+                              content: '',
+                              backgroundImage: `url(${getObjectProperty(() => this.props.thumbImages[this.state.scrubThumb.frameId].objectUrl)})`,
+                              backgroundSize: 'cover',
+                              opacity: '0.4',
+                              position: 'absolute',
+                              width: (this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv,
+                              height: this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio,
+                              top: 0,
+                              left: this.state.keyObject.altKey ? (this.state.containerWidth -
+                                ((this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv)) / 2 -
+                                this.props.settings.defaultScrubWindowMargin + (this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv :
+                                (this.state.containerWidth -
+                                  ((this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv)) / 2 -
+                                  this.props.settings.defaultScrubWindowMargin,
+                            }}
+                          />
+                        }
+                        <span
+                          style={{
+                            height: this.state.scaleValueObject.scrubMovieHeight,
+                            width: this.state.scaleValueObject.scrubMovieWidth,
+                          }}
+                        >
+                          <canvas
+                            ref={this.opencvVideoCanvasRef}
+                          />
+                        </span>
+                        <span
+                          className={styles.scrubThumbRight}
+                          style={{
+                            backgroundImage: `url(${this.state.keyObject.shiftKey ?
+                              getObjectProperty(() => this.props.thumbImages[this.state.scrubThumb.frameId].objectUrl) :
+                              getObjectProperty(() => this.props.thumbImages[this.state.scrubThumbRight.frameId].objectUrl) || transparent})`,
+                            height: this.state.scaleValueObject.scrubInOutMovieHeight,
+                            width: this.state.scaleValueObject.scrubInOutMovieWidth,
+                            margin: this.props.settings.defaultScrubWindowMargin,
+                          }}
+                        />
+                      </div>
                     </div>
                     {/* <div
                       className={`${styles.scrubDescription} ${styles.textButton}`}
