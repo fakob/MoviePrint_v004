@@ -486,14 +486,14 @@ class VideoPlayer extends Component {
             <div
               className={`${styles.timelinePlayhead}`}
               style={{
-                left: playHeadPosition,
+                left: Number.isNaN(playHeadPosition) ? 0 : playHeadPosition,
               }}
             />
             <div
               className={`${styles.timelineCut}`}
               style={{
-                left: inPointPositionOnTimeline,
-                width: cutWidthOnTimeLine
+                left: Number.isNaN(inPointPositionOnTimeline) ? 0 : inPointPositionOnTimeline,
+                width: Number.isNaN(cutWidthOnTimeLine) ? 0 : cutWidthOnTimeLine,
               }}
             />
           </div>
