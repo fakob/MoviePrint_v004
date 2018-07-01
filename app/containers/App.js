@@ -758,7 +758,7 @@ class App extends Component {
         data: differenceArray,
       },{
         label: "Mean",
-        backgroundColor: 'rgba(255, 80, 6, 0.1)',
+        backgroundColor: 'rgba(255, 80, 6, 0.2)',
         pointRadius: 0,
         data: meanArray,
       }]
