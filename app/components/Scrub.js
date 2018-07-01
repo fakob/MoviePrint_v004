@@ -185,7 +185,7 @@ Scrub.propTypes = {
   onScrubWindowMouseOver: PropTypes.func.isRequired,
   onScrubWindowStop: PropTypes.func.isRequired,
   settings: PropTypes.object.isRequired,
-  thumbImages: PropTypes.array,
+  thumbImages: PropTypes.object.isRequired,
   containerHeight: PropTypes.number.isRequired,
   containerWidth: PropTypes.number.isRequired,
   scrubThumb: PropTypes.object.isRequired,
