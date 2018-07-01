@@ -4,6 +4,7 @@ import styles from './Scrub.css';
 import {
   getObjectProperty,
   getScrubFrameNumber,
+  mapRange,
 } from '../utils/utils';
 import transparent from '../img/Thumb_TRANSPARENT.png';
 import {
@@ -17,6 +18,9 @@ class Scrub extends Component {
     this.state = {
       scrubLineValue: undefined,
       scrubFrameNumber: undefined,
+      scrubLineOnTimelineValue: undefined,
+      timeLineCutIn: undefined,
+      timeLineCutOut: undefined,
     };
 
     this.onScrubMouseMoveWithStop = this.onScrubMouseMoveWithStop.bind(this);
@@ -24,6 +28,25 @@ class Scrub extends Component {
   }
 
   componentWillMount() {
+    const timeLineCutIn = mapRange(
+      this.props.scrubThumbLeft.frameNumber,
+      0,
+      this.props.file.frameCount,
+      0,
+      this.props.scaleValueObject.scrubInnerContainerWidth
+    );
+    const timeLineCutOut = mapRange(
+      this.props.scrubThumbRight.frameNumber,
+      0,
+      this.props.file.frameCount,
+      0,
+      this.props.scaleValueObject.scrubInnerContainerWidth
+    );
+    this.setState({
+      scrubFrameNumber: this.props.scrubThumb.frameNumber,
+      timeLineCutIn,
+      timeLineCutOut,
+    });
   }
 
   componentDidMount() {
@@ -45,9 +68,17 @@ class Scrub extends Component {
       this.props.scrubThumbLeft,
       this.props.scrubThumbRight,
     );
+    const scrubLineOnTimelineValue = mapRange(
+      scrubFrameNumber,
+      0,
+      this.props.file.frameCount,
+      0,
+      this.props.scaleValueObject.scrubInnerContainerWidth
+    );
     this.setState({
       scrubLineValue: e.clientX,
       scrubFrameNumber,
+      scrubLineOnTimelineValue,
     })
     e.stopPropagation();
     this.props.onScrubWindowMouseOver(e);
@@ -140,11 +171,29 @@ class Scrub extends Component {
             />
           </div>
           <div
-            className={`${styles.scrubLine}`}
+            className={styles.scrubLine}
             style={{
               left: `${this.state.scrubLineValue}px`,
             }}
           />
+          <div
+            id="timeLine"
+            className={`${styles.timelineWrapper}`}
+          >
+            <div
+              className={`${styles.timelinePlayhead}`}
+              style={{
+                left: `${this.state.scrubLineOnTimelineValue}px`,
+              }}
+            />
+            <div
+              className={`${styles.timelineCut}`}
+              style={{
+                left: this.state.timeLineCutIn,
+                width: this.state.timeLineCutOut - this.state.timeLineCutIn,
+              }}
+            />
+          </div>
         </div>
         {/* <div
           className={`${styles.scrubDescription} ${styles.textButton}`}
@@ -155,7 +204,7 @@ class Scrub extends Component {
           {this.props.keyObject.altKey ? 'Add after' : (this.props.keyObject.shiftKey ? 'Add before' : 'Change')}
         </div> */}
         <div
-          className={`${styles.scrubCancelBar}`}
+          className={styles.scrubCancelBar}
           style={{
             height: `${MENU_FOOTER_HEIGHT}px`,
           }}
@@ -174,6 +223,7 @@ Scrub.defaultProps = {
 Scrub.propTypes = {
   file: PropTypes.shape({
     id: PropTypes.string,
+    frameCount: PropTypes.number,
     width: PropTypes.number,
     height: PropTypes.number,
     columnCount: PropTypes.number,

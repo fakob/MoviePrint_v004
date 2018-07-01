@@ -26,7 +26,6 @@ import { getLowestFrame,
   getObjectProperty,
   setPosition,
   getScrubFrameNumber,
-  mapRange,
 } from '../utils/utils';
 // import saveMoviePrint from '../utils/saveMoviePrint';
 import styles from './App.css';
