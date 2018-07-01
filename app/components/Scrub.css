@@ -11,6 +11,7 @@
   overflow: auto; /* Enable scroll if needed */
   background-color: rgba(0,0,0,0.8); /* Black w/ opacity */
   z-index: 999;
+  cursor: col-resize;
 }
 
 .scrubContainer {
@@ -66,6 +67,7 @@
   z-index: 1000;
   text-align: center;
   padding-top: 6px;
+  cursor: pointer;
 }
 
 .scrubDescription {
