@@ -112,7 +112,7 @@ class ThumbGrid extends Component {
             thumbInfoValue={getThumbInfoValue(this.props.settings.defaultThumbInfo, thumb.frameNumber, fps)}
             thumbInfoRatio={this.props.settings.defaultThumbInfoRatio}
             hidden={thumb.hidden}
-            controlersAreVisible={this.props.showSettings ? false : (thumb.thumbId === this.state.controllersVisible)}
+            controllersAreVisible={this.props.showSettings ? false : (thumb.thumbId === this.state.controllersVisible)}
             selected={this.props.selectedThumbId ? (this.props.selectedThumbId === thumb.thumbId) : false}
             onOver={this.props.showSettings ? null : () => {
               // only setState if controllersVisible has changed
@@ -171,7 +171,6 @@ class ThumbGrid extends Component {
 }
 
 ThumbGrid.defaultProps = {
-  controlersAreVisibleId: 'false',
   selectedThumbId: undefined,
   thumbs: [],
   thumbsToDim: [],
@@ -180,7 +179,6 @@ ThumbGrid.defaultProps = {
 
 ThumbGrid.propTypes = {
   colorArray: PropTypes.array.isRequired,
-  controlersAreVisibleId: PropTypes.string,
   file: PropTypes.shape({
     id: PropTypes.string,
     name: PropTypes.string,

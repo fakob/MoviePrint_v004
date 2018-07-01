@@ -356,7 +356,7 @@ export const getScaleValueObject = (
     settings.defaultBorderRadiusRatio * settings.defaultThumbnailScale : 0;
   const thumbnailWidthPlusMargin = thumbWidth + (thumbMargin * 2);
   const thumbnailHeightPlusMargin = (thumbWidth * movieAspectRatioInv) + (thumbMargin * 2);
-  const moviePrintWidth = columnCount * thumbnailWidthPlusMargin;
+  const moviePrintWidth = columnCount * thumbnailWidthPlusMargin + thumbMargin;
   const moviePrintHeightBody = rowCount * thumbnailHeightPlusMargin;
   const moviePrintHeight = headerHeight + (thumbMargin * 2) + moviePrintHeightBody;
   const moviePrintAspectRatioInv = (moviePrintHeight * 1.0) / moviePrintWidth;

@@ -40,7 +40,7 @@ const Thumb = ({
   aspectRatioInv,
   borderRadius,
   color,
-  controlersAreVisible,
+  controllersAreVisible,
   dim,
   hidden,
   index,
@@ -195,7 +195,7 @@ const Thumb = ({
           width={`${thumbWidth}px`}
           height={`${(thumbWidth * aspectRatioInv)}px`}
           style={{
-            filter: `${controlersAreVisible ? 'brightness(80%)' : ''}`,
+            filter: `${controllersAreVisible ? 'brightness(80%)' : ''}`,
             opacity: hidden ? '0.2' : '1',
             borderRadius: `${(selected && !showMoviePrintView) ? 0 : borderRadius}px`,
           }}
@@ -212,7 +212,7 @@ const Thumb = ({
         }
         <div
           style={{
-            display: controlersAreVisible ? 'block' : 'none'
+            display: controllersAreVisible ? 'block' : 'none'
           }}
         >
           {showMoviePrintView &&
@@ -297,7 +297,7 @@ const Thumb = ({
                 className={stylesPop.popup}
                 content={<span>Set this thumb as new <mark>IN-point</mark></span>}
               />
-              <Popup
+              {/* <Popup
                 trigger={
                   <button
                     style={{
@@ -320,7 +320,7 @@ const Thumb = ({
                 }
                 className={stylesPop.popup}
                 content={<span>Move 10 frames back | with <mark>SHIFT</mark> move 1 frame | with <mark>ALT</mark> move 100 frames</span>}
-              />
+              /> */}
               <Popup
                 trigger={
                   <button
@@ -333,8 +333,8 @@ const Thumb = ({
                       left: '50%',
                     }}
                     className={`${styles.hoverButton} ${styles.textButton}`}
-                    onClick={onScrubWithStop}
-                    // onMouseDown={onScrubWithStop}
+                    // onClick={onScrubWithStop}
+                    onMouseDown={onScrubWithStop}
                     onMouseOver={over}
                     onMouseLeave={out}
                     onFocus={over}
@@ -346,7 +346,7 @@ const Thumb = ({
                 className={stylesPop.popup}
                 content={<span>Click and drag left and right to change the frame (<mark>SHIFT</mark> add new thumb before, <mark>ALT</mark> add new thumb after, <mark>CTRL</mark> display original as overlay)</span>}
               />
-              <Popup
+              {/* <Popup
                 trigger={
                   <button
                     style={{
@@ -369,7 +369,7 @@ const Thumb = ({
                 }
                 className={stylesPop.popup}
                 content={<span>Move 10 frames forward | with <mark>SHIFT</mark> move 1 frame | with <mark>ALT</mark> move 100 frames</span>}
-              />
+              /> */}
               <Popup
                 trigger={
                   <button
@@ -414,13 +414,29 @@ const Thumb = ({
             }}
           />
         }
+        {showMoviePrintView && controllersAreVisible && (keyObject.altKey || keyObject.shiftKey) && (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) &&
+          <div
+            style={{
+              content: '',
+              backgroundColor: '#FF5006',
+              position: 'absolute',
+              width: `${Math.max(1, margin * 0.5)}px`,
+              height: `${thumbWidth * aspectRatioInv}px`,
+              // top: (Math.max(1, margin * -1.0)),
+              left: `${(!keyObject.altKey && keyObject.shiftKey) ? 0 : undefined}`,
+              right: `${keyObject.altKey ? 0 : undefined}`,
+              display: 'block',
+              transform: `translateX(${Math.max(1, margin) * (keyObject.altKey ? 1.25 : -1.25)}px)`,
+            }}
+          />
+        }
       </div>
     </div>
   );
 };
 
 Thumb.defaultProps = {
-  controlersAreVisible: false,
+  controllersAreVisible: false,
   dim: undefined,
   hidden: false,
   index: undefined,
@@ -448,7 +464,7 @@ Thumb.propTypes = {
   aspectRatioInv: PropTypes.number.isRequired,
   borderRadius: PropTypes.number.isRequired,
   color: PropTypes.string.isRequired,
-  controlersAreVisible: PropTypes.bool,
+  controllersAreVisible: PropTypes.bool,
   dim: PropTypes.object,
   hidden: PropTypes.bool,
   inputRefThumb: PropTypes.object,

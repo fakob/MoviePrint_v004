@@ -97,7 +97,8 @@ class Scrub extends Component {
       <div
         className={styles.scrubContainerBackground}
         onMouseMove={this.onScrubMouseMoveWithStop}
-        onClick={this.onScrubClickWithStop}
+        onMouseUp={this.onScrubClickWithStop}
+        // onClick={this.onScrubClickWithStop}
       >
         <div
           className={styles.scrubContainer}
@@ -207,7 +208,8 @@ class Scrub extends Component {
         </div> */}
         <div
           className={styles.scrubCancelBar}
-          onClick={this.onScrubClickWithStop}
+          onMouseOver={this.onScrubClickWithStop}
+          // onClick={this.onScrubClickWithStop}
           style={{
             height: `${MENU_FOOTER_HEIGHT}px`,
           }}

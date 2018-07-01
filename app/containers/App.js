@@ -820,16 +820,22 @@ class App extends Component {
   }
 
   onScrubWindowMouseOver(e) {
-    const scrubFrameNumber = getScrubFrameNumber(
-      e.clientX,
-      this.state.keyObject,
-      this.state.scaleValueObject,
-      this.props.file.frameCount,
-      this.state.scrubThumb,
-      this.state.scrubThumbLeft,
-      this.state.scrubThumbRight,
-    );
-    this.updateOpencvVideoCanvas(scrubFrameNumber);
+    if (e.clientY < (MENU_HEADER_HEIGHT + this.state.containerHeight)) {
+      const scrubFrameNumber = getScrubFrameNumber(
+        e.clientX,
+        this.state.keyObject,
+        this.state.scaleValueObject,
+        this.props.file.frameCount,
+        this.state.scrubThumb,
+        this.state.scrubThumbLeft,
+        this.state.scrubThumbRight,
+      );
+      this.updateOpencvVideoCanvas(scrubFrameNumber);
+    } else {
+      this.setState({
+        showScrubWindow: false,
+      });
+    }
   }
 
   onScrubWindowClick(e) {
