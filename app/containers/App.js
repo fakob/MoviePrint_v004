@@ -56,7 +56,7 @@ const { dialog, process } = require('electron').remote;
 const { app } = require('electron').remote;
 const opencv = require('opencv4nodejs');
 
-const DEV_OPENCV_SCENE_DETECTION = process.env.DEV_OPENCV_SCENE_DETECTION === 'true';
+// const DEV_OPENCV_SCENE_DETECTION = process.env.DEV_OPENCV_SCENE_DETECTION === 'true';
 
 // Disable animating charts by default.
 defaults.global.animation = false;
@@ -485,30 +485,14 @@ class App extends Component {
               this.showSettings();
             }
             break;
-          // case 65: // press 'a'
-          //   if (DEV_OPENCV_SCENE_DETECTION) {
-          //     if (this.props.currentFileId) {
-          //       this.runSceneDetection(this.props.file, 10.0)
-          //     }
-          //   }
-          //   break;
           case 83: // press 's'
-            if (DEV_OPENCV_SCENE_DETECTION) {
-              if (this.props.currentFileId) {
-                this.runSceneDetection(this.props.file, 20.0)
-              }            }
+            if (this.props.currentFileId) {
+              this.runSceneDetection(this.props.file, 20.0)
+            }
             break;
-          // case 68: // press 'd'
-          //   if (DEV_OPENCV_SCENE_DETECTION) {
-          //     if (this.props.currentFileId) {
-          //       this.runSceneDetection(this.props.file, 30.0)
-          //     }            }
-          //   break;
           case 70: // press 'f'
-            if (DEV_OPENCV_SCENE_DETECTION) {
-              if (this.props.currentFileId) {
-                this.onToggleDetectionChart();
-              }
+            if (this.props.currentFileId) {
+              this.onToggleDetectionChart();
             }
             break;
           case 80: // press 'p'
