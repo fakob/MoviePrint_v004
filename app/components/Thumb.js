@@ -135,15 +135,19 @@ const Thumb = ({
 
   function onThumbDoubleClickWithStop(e) {
     e.stopPropagation();
-    if (showMoviePrintView) {
-      onSelect();
+    if (controllersAreVisible) {
+      if (showMoviePrintView) {
+        onSelect();
+      }
+      onThumbDoubleClick();
     }
-    onThumbDoubleClick();
   }
 
   function onSelectWithStop(e) {
     e.stopPropagation();
-    onSelect();
+    if (controllersAreVisible) {
+      onSelect();
+    }
   }
 
   function onOverWithStop(e) {
