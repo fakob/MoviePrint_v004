@@ -220,10 +220,11 @@
 }
 
 .chart {
-  position: absolute;
-  /* bottom: 100px; */
-  left: 0;
+  position: fixed; /* Stay in place */
+  left: 50%;
+  top: 50%;
   width: 100%;
-  /* background-color: rgba(100, 0, 0, 0.5); */
-  z-index: 1000 !important;
+  background-color: rgba(0, 0, 0, 1);
+  z-index: 3000 !important;
+  transform: translate(-50%, -50%);
 }

@@ -91,9 +91,9 @@ const outputFormatOptions = [
 class SettingsList extends Component {
   constructor(props) {
     super(props);
-    // this.state = {
-    //   thumbInfo: 'frames',
-    // };
+    this.state = {
+      threshold: 20.0,
+    };
 
     this.onChangePaperAspectRatio = this.onChangePaperAspectRatio.bind(this);
     this.onChangeShowPaperPreview = this.onChangeShowPaperPreview.bind(this);
@@ -548,6 +548,70 @@ class SettingsList extends Component {
                 }
                 checked={this.props.settings.defaultDetectInOutPoint}
                 onChange={this.onChangeDetectInOutPoint}
+              />
+            </Grid.Column>
+          </Grid.Row>
+          <Divider inverted />
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Scene detection
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <Popup
+                trigger={
+                  <Button
+                    fluid
+                    // color="orange"
+                    loading={this.props.fileScanRunning}
+                    disabled={this.props.fileScanRunning}
+                    onClick={() => this.props.runSceneDetection(this.props.file, this.state.threshold)}
+                  >
+                      Run scene detection
+                  </Button>
+                }
+                className={stylesPop.popup}
+                content="Run scene detection (running for the first time might take longer)"
+                keepInViewPort={false}
+              />
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Threshold
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <SliderWithTooltip
+                className={styles.slider}
+                min={5}
+                max={40}
+                defaultValue={this.state.threshold}
+                marks={{
+                  5: '5',
+                  20: '20',
+                  40: '40',
+                }}
+                handle={handle}
+                onChange={(value) => this.setState({ threshold: value })}
+              />
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Detection chart
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <Popup
+                trigger={
+                  <Button
+                    fluid
+                    onClick={this.props.onToggleDetectionChart}
+                  >
+                    {this.props.showChart ? 'Hide detection chart' : 'Show detection chart'}
+                  </Button>
+                }
+                className={stylesPop.popup}
+                content="Show detection chart with mean and difference values per frame"
+                keepInViewPort={false}
               />
             </Grid.Column>
           </Grid.Row>

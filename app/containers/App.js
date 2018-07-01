@@ -177,6 +177,8 @@ class App extends Component {
     this.runSceneDetection = this.runSceneDetection.bind(this);
     this.runFileScan = this.runFileScan.bind(this);
     this.calculateSceneList = this.calculateSceneList.bind(this);
+    this.onToggleDetectionChart = this.onToggleDetectionChart.bind(this);
+    this.onHideDetectionChart = this.onHideDetectionChart.bind(this);
   }
 
   componentWillMount() {
@@ -483,31 +485,29 @@ class App extends Component {
               this.showSettings();
             }
             break;
-          case 65: // press 'a'
-            if (DEV_OPENCV_SCENE_DETECTION) {
-              if (this.props.currentFileId) {
-                this.runSceneDetection(this.props.file, 10.0)
-              }
-            }
-            break;
+          // case 65: // press 'a'
+          //   if (DEV_OPENCV_SCENE_DETECTION) {
+          //     if (this.props.currentFileId) {
+          //       this.runSceneDetection(this.props.file, 10.0)
+          //     }
+          //   }
+          //   break;
           case 83: // press 's'
             if (DEV_OPENCV_SCENE_DETECTION) {
               if (this.props.currentFileId) {
                 this.runSceneDetection(this.props.file, 20.0)
               }            }
             break;
-          case 68: // press 'd'
-            if (DEV_OPENCV_SCENE_DETECTION) {
-              if (this.props.currentFileId) {
-                this.runSceneDetection(this.props.file, 30.0)
-              }            }
-            break;
+          // case 68: // press 'd'
+          //   if (DEV_OPENCV_SCENE_DETECTION) {
+          //     if (this.props.currentFileId) {
+          //       this.runSceneDetection(this.props.file, 30.0)
+          //     }            }
+          //   break;
           case 70: // press 'f'
             if (DEV_OPENCV_SCENE_DETECTION) {
               if (this.props.currentFileId) {
-                this.setState({
-                  showChart: !this.state.showChart
-                });
+                this.onToggleDetectionChart();
               }
             }
             break;
@@ -687,6 +687,7 @@ class App extends Component {
   hideSettings() {
     const { store } = this.context;
     store.dispatch(hideSettings());
+    this.onHideDetectionChart();
   }
 
   toggleSettings() {
@@ -711,7 +712,19 @@ class App extends Component {
     store.dispatch(showMoviePrintView());
   }
 
-  runSceneDetection(file, threshold) {
+  onHideDetectionChart() {
+    this.setState({
+      showChart: false
+    });
+  }
+
+  onToggleDetectionChart() {
+    this.setState({
+      showChart: !this.state.showChart
+    });
+  }
+
+  runSceneDetection(file, threshold = 20.0) {
     const { store } = this.context;
     // get meanArray if it is stored else return false
     store.dispatch(getFileScanData(file.id)).then((meanArray) => {
@@ -1149,7 +1162,8 @@ class App extends Component {
     const { accept, dropzoneActive } = this.state;
     const { store } = this.context;
 
-    const chartHeight = this.state.containerHeight / 4;
+    // const chartHeight = this.state.containerHeight / 4;
+    const chartHeight = 250;
 
     return (
       <ErrorBoundary>
@@ -1263,6 +1277,10 @@ class App extends Component {
                         onThumbnailScaleClick={this.onThumbnailScaleClick}
                         onMoviePrintWidthClick={this.onMoviePrintWidthClick}
                         scaleValueObject={this.state.scaleValueObject}
+                        runSceneDetection={this.runSceneDetection}
+                        fileScanRunning={this.state.fileScanRunning}
+                        showChart={this.state.showChart}
+                        onToggleDetectionChart={this.onToggleDetectionChart}
                       />
                     </div>
                     <div
@@ -1517,10 +1535,12 @@ class App extends Component {
                   >
                     <Line
                       data={this.state.chartData}
-                      width={this.state.containerWidth}
+                      // width={this.state.scaleValueObject.newMoviePrintWidth}
+                      // width={this.state.containerWidth}
                       height={chartHeight}
                       options={{
-                        maintainAspectRatio: true,
+                        responsive: true,
+                        maintainAspectRatio: false,
                         barPercentage: 1.0,
                         categoryPercentage: 1.0,
                         elements: {
