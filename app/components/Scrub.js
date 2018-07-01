@@ -24,7 +24,7 @@ class Scrub extends Component {
     };
 
     this.onScrubMouseMoveWithStop = this.onScrubMouseMoveWithStop.bind(this);
-    this.onScrubMouseUpWithStop = this.onScrubMouseUpWithStop.bind(this);
+    this.onScrubClickWithStop = this.onScrubClickWithStop.bind(this);
   }
 
   componentWillMount() {
@@ -84,9 +84,9 @@ class Scrub extends Component {
     this.props.onScrubWindowMouseOver(e);
   }
 
-  onScrubMouseUpWithStop(e) {
+  onScrubClickWithStop(e) {
     e.stopPropagation();
-    this.props.onScrubWindowStop(e);
+    this.props.onScrubWindowClick(e);
   }
 
   render() {
@@ -95,6 +95,7 @@ class Scrub extends Component {
       <div
         className={styles.scrubContainerBackground}
         onMouseMove={this.onScrubMouseMoveWithStop}
+        onClick={this.onScrubClickWithStop}
       >
         <div
           className={styles.scrubContainer}
@@ -204,7 +205,7 @@ class Scrub extends Component {
         </div> */}
         <div
           className={styles.scrubCancelBar}
-          onClick={this.onScrubMouseUpWithStop}
+          onClick={this.onScrubClickWithStop}
           style={{
             height: `${MENU_FOOTER_HEIGHT}px`,
           }}
@@ -233,7 +234,7 @@ Scrub.propTypes = {
   keyObject: PropTypes.object.isRequired,
   scaleValueObject: PropTypes.object.isRequired,
   onScrubWindowMouseOver: PropTypes.func.isRequired,
-  onScrubWindowStop: PropTypes.func.isRequired,
+  onScrubWindowClick: PropTypes.func.isRequired,
   settings: PropTypes.object.isRequired,
   thumbImages: PropTypes.object.isRequired,
   containerHeight: PropTypes.number.isRequired,

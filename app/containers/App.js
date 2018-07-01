@@ -139,7 +139,7 @@ class App extends Component {
     this.onShowThumbs = this.onShowThumbs.bind(this);
     this.onViewToggle = this.onViewToggle.bind(this);
     this.onScrubWindowMouseOver = this.onScrubWindowMouseOver.bind(this);
-    this.onScrubWindowStop = this.onScrubWindowStop.bind(this);
+    this.onScrubWindowClick = this.onScrubWindowClick.bind(this);
     this.onScrubClick = this.onScrubClick.bind(this);
     this.switchToPrintView = this.switchToPrintView.bind(this);
     this.onOpenFeedbackForm = this.onOpenFeedbackForm.bind(this);
@@ -820,8 +820,6 @@ class App extends Component {
   }
 
   onScrubWindowMouseOver(e) {
-    // if (e.clientY < (MENU_HEADER_HEIGHT + this.state.containerHeight)) {
-
     const scrubFrameNumber = getScrubFrameNumber(
       e.clientX,
       this.state.keyObject,
@@ -831,16 +829,10 @@ class App extends Component {
       this.state.scrubThumbLeft,
       this.state.scrubThumbRight,
     );
-
-      this.updateOpencvVideoCanvas(scrubFrameNumber);
-    // } else {
-    //   this.setState({
-    //     showScrubWindow: false,
-    //   });
-    // }
+    this.updateOpencvVideoCanvas(scrubFrameNumber);
   }
 
-  onScrubWindowStop(e) {
+  onScrubWindowClick(e) {
     const { store } = this.context;
     if (e.clientY < (MENU_HEADER_HEIGHT + this.state.containerHeight)) {
 
@@ -1507,7 +1499,7 @@ class App extends Component {
                     containerWidth={this.state.containerWidth}
                     containerHeight={this.state.containerHeight}
                     onScrubWindowMouseOver={this.onScrubWindowMouseOver}
-                    onScrubWindowStop={this.onScrubWindowStop}
+                    onScrubWindowClick={this.onScrubWindowClick}
                   />
                 }
                 { this.state.showChart &&
