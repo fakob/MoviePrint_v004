@@ -467,7 +467,6 @@ export const setPosition = (vid, frameNumberToCapture, useRatio) => {
   }
 };
 
-
 export const renderImage = (img, canvas, cv) => {
   const matRGBA = img.channels === 1 ? img.cvtColor(cv.COLOR_GRAY2RGBA) : img.cvtColor(cv.COLOR_BGR2RGBA);
 
@@ -480,4 +479,33 @@ export const renderImage = (img, canvas, cv) => {
   );
   const ctx = canvas.getContext('2d');
   ctx.putImageData(imgData, 0, 0);
+}
+
+export const getScrubFrameNumber = (
+  mouseX,
+  keyObject,
+  scaleValueObject,
+  containerWidth,
+  frameCount,
+  scrubThumb,
+  scrubThumbLeft,
+  scrubThumbRight
+) => {
+  let scrubFrameNumber;
+
+  // depending on if scrubbing over ScrubMovie change mapping range
+  // scrubbing over ScrubMovie scrubbs over scene, scrubbing left or right of it scrubs over whole movie
+  // depending on if add before (shift) or after (alt) changing the mapping range
+  const tempLeftFrameNumber = keyObject.altKey ? scrubThumb.frameNumber : scrubThumbLeft.frameNumber
+  const tempRightFrameNumber = keyObject.shiftKey ? scrubThumb.frameNumber : scrubThumbRight.frameNumber
+  const leftOfScrubMovie = (scaleValueObject.scrubInnerContainerWidth - scaleValueObject.scrubMovieWidth) / 2;
+  const rightOfScrubMovie = leftOfScrubMovie + scaleValueObject.scrubMovieWidth;
+  if (mouseX < leftOfScrubMovie) {
+    scrubFrameNumber = mapRange(mouseX, 0, leftOfScrubMovie, 0, tempLeftFrameNumber);
+  } else if (mouseX > rightOfScrubMovie) {
+    scrubFrameNumber = mapRange(mouseX, rightOfScrubMovie, containerWidth, tempRightFrameNumber, frameCount - 1);
+  } else {
+    scrubFrameNumber = mapRange(mouseX, leftOfScrubMovie, rightOfScrubMovie, tempLeftFrameNumber, tempRightFrameNumber);
+  }
+  return scrubFrameNumber;
 }
