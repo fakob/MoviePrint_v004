@@ -9,7 +9,7 @@ import {
 } from '../actions';
 import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
-import { getNextThumbs, getPreviousThumbs, getLowestFrame, getHighestFrame, getVisibleThumbs } from '../utils/utils';
+import { getLowestFrame, getHighestFrame } from '../utils/utils';
 import saveThumb from '../utils/saveThumb';
 import { CHANGE_THUMB_STEP } from '../utils/constants';
 
@@ -17,7 +17,6 @@ class SortedVisibleThumbGrid extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      thumbsToDim: []
     };
 
     this.scrollIntoViewElement = React.createRef();
@@ -99,7 +98,6 @@ class SortedVisibleThumbGrid extends Component {
         thumbImages={this.props.thumbImages}
         settings={this.props.settings}
         visibilitySettings={this.props.visibilitySettings}
-        thumbsToDim={this.state.thumbsToDim}
         file={this.props.file}
         selectedThumbId={this.props.selectedThumbId}
         thumbCount={this.props.thumbCount}
@@ -116,37 +114,11 @@ class SortedVisibleThumbGrid extends Component {
         onInPointClick={this.props.onInPointClick}
         onOutPointClick={this.props.onOutPointClick}
         onSaveThumbClick={this.props.onSaveThumbClick}
-        onHoverInPointResult={(thumbs, thumbId) => {
-          this.setState({
-            thumbsToDim: getPreviousThumbs(thumbs, thumbId)
-          });
-        }}
-        onHoverOutPointResult={(thumbs, thumbId) => {
-          this.setState({
-            thumbsToDim: getNextThumbs(thumbs, thumbId)
-          });
-        }}
-        onLeaveInOutResult={() => {
-          this.setState({
-            thumbsToDim: []
-          });
-        }}
-        onMouseOverResult={(thumbId) => {
-          this.controlersVisible = thumbId;
-          this.forceUpdate();
-        }}
-        onMouseOutResult={() => {
-          this.controlersVisible = 'false';
-          this.setState({
-            thumbsToDim: []
-          });
-        }}
 
         useDragHandle
         axis="xy"
         distance={1}
         helperClass={styles.whileDragging}
-        controlersAreVisibleId={this.controlersVisible}
         useWindowAsScrollContainer
         onSortEnd={
           this.onSortEnd.bind(this)
