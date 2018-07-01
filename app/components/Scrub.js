@@ -100,6 +100,7 @@ class Scrub extends Component {
               />
             }
             <span
+              className={styles.scrubThumb}
               style={{
                 height: this.props.scaleValueObject.scrubMovieHeight,
                 width: this.props.scaleValueObject.scrubMovieWidth,
@@ -108,6 +109,12 @@ class Scrub extends Component {
               <canvas
                 ref={this.props.opencvVideoCanvasRef}
               />
+              <span
+                id="currentTimeDisplay"
+                className={styles.frameNumberOrTimeCode}
+              >
+                {this.state.scrubLineValue}
+              </span>
             </span>
             <span
               className={styles.scrubThumbRight}
@@ -121,6 +128,12 @@ class Scrub extends Component {
               }}
             />
           </div>
+          <div
+            className={`${styles.scrubLine}`}
+            style={{
+              left: `${this.state.scrubLineValue}px`,
+            }}
+          />
         </div>
         {/* <div
           className={`${styles.scrubDescription} ${styles.textButton}`}
@@ -137,14 +150,6 @@ class Scrub extends Component {
           }}
         >
           Cancel
-        </div>
-        <div
-          className={`${styles.scrubLine}`}
-          style={{
-            left: `${this.state.scrubLineValue}px`,
-          }}
-        >
-          {this.state.scrubLineValue}
         </div>
       </div>
     );

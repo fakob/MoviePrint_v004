@@ -27,6 +27,10 @@
   transform: translate(-50%,-50%);
 }
 
+.scrubThumb {
+  position: relative;
+}
+
 .scrubThumbLeft {
   /* position: absolute; */
   left: 0;
@@ -77,7 +81,22 @@
   position: absolute;
   top: 0;
   height: 100%;
-  width: 4px;
+  width: 1px;
   background-color: #FF5006;
   z-index: 2000;
+}
+
+.frameNumberOrTimeCode {
+  position: absolute;
+  /* top: 0; */
+  left: 0;
+  background: #eee;
+  border-radius:2px;
+  font-family: 'Open sans';
+  font-size: 14px;
+  line-height: 14px;
+  padding: 1px;
+  color: #000000;
+  -webkit-user-select:none;
+  /*opacity: 0.5;*/
 }

@@ -823,9 +823,20 @@ class App extends Component {
   onScrubWindowMouseOver(e) {
     if (e.clientY < (MENU_HEADER_HEIGHT + this.state.containerHeight)) {
       // depending on if add before (shift) or after (alt) changing the mapping range
+      const mouseX = e.clientX;
+      let scrubFrameNumber;
+
       const tempLeftFrameNumber = this.state.keyObject.altKey ? this.state.scrubThumb.frameNumber : this.state.scrubThumbLeft.frameNumber
       const tempRightFrameNumber = this.state.keyObject.shiftKey ? this.state.scrubThumb.frameNumber : this.state.scrubThumbRight.frameNumber
-      const scrubFrameNumber = mapRange(e.clientX, 0, this.state.containerWidth, tempLeftFrameNumber, tempRightFrameNumber);
+      const leftOfScrubMovie = (this.state.scaleValueObject.scrubInnerContainerWidth - this.state.scaleValueObject.scrubMovieWidth) / 2;
+      const rightOfScrubMovie = leftOfScrubMovie + this.state.scaleValueObject.scrubMovieWidth;
+      if (mouseX < leftOfScrubMovie) {
+        scrubFrameNumber = mapRange(mouseX, 0, leftOfScrubMovie, 0, tempLeftFrameNumber);
+      } else if (mouseX > rightOfScrubMovie) {
+        scrubFrameNumber = mapRange(mouseX, rightOfScrubMovie, this.state.containerWidth, tempRightFrameNumber, this.props.file.frameCount - 1);
+      } else {
+        scrubFrameNumber = mapRange(mouseX, leftOfScrubMovie, rightOfScrubMovie, tempLeftFrameNumber, tempRightFrameNumber);
+      }
       this.updateOpencvVideoCanvas(scrubFrameNumber);
     } else {
       this.setState({
