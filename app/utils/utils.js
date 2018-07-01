@@ -431,6 +431,8 @@ export const getScaleValueObject = (
     settings.defaultThumbnailScale;
 
   const scaleValueObject = {
+    containerWidth,
+    containerHeight,
     aspectRatioInv: movieAspectRatioInv,
     newMoviePrintWidth,
     newMoviePrintHeight,
@@ -485,7 +487,6 @@ export const getScrubFrameNumber = (
   mouseX,
   keyObject,
   scaleValueObject,
-  containerWidth,
   frameCount,
   scrubThumb,
   scrubThumbLeft,
@@ -503,7 +504,7 @@ export const getScrubFrameNumber = (
   if (mouseX < leftOfScrubMovie) {
     scrubFrameNumber = mapRange(mouseX, 0, leftOfScrubMovie, 0, tempLeftFrameNumber);
   } else if (mouseX > rightOfScrubMovie) {
-    scrubFrameNumber = mapRange(mouseX, rightOfScrubMovie, containerWidth, tempRightFrameNumber, frameCount - 1);
+    scrubFrameNumber = mapRange(mouseX, rightOfScrubMovie, scaleValueObject.containerWidth, tempRightFrameNumber, frameCount - 1);
   } else {
     scrubFrameNumber = mapRange(mouseX, leftOfScrubMovie, rightOfScrubMovie, tempLeftFrameNumber, tempRightFrameNumber);
   }

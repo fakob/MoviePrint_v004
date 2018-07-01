@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import styles from './Scrub.css';
 import {
   getObjectProperty,
+  getScrubFrameNumber,
 } from '../utils/utils';
 import transparent from '../img/Thumb_TRANSPARENT.png';
 import {
@@ -15,6 +16,7 @@ class Scrub extends Component {
 
     this.state = {
       scrubLineValue: undefined,
+      scrubFrameNumber: undefined,
     };
 
     this.onScrubMouseMoveWithStop = this.onScrubMouseMoveWithStop.bind(this);
@@ -34,8 +36,18 @@ class Scrub extends Component {
   }
 
   onScrubMouseMoveWithStop(e) {
+    const scrubFrameNumber = getScrubFrameNumber(
+      e.clientX,
+      this.props.keyObject,
+      this.props.scaleValueObject,
+      this.props.file.frameCount,
+      this.props.scrubThumb,
+      this.props.scrubThumbLeft,
+      this.props.scrubThumbRight,
+    );
     this.setState({
-      scrubLineValue: e.clientX
+      scrubLineValue: e.clientX,
+      scrubFrameNumber,
     })
     e.stopPropagation();
     this.props.onScrubWindowMouseOver(e);
@@ -47,7 +59,6 @@ class Scrub extends Component {
   }
 
   render() {
-
 
     return (
       <div
@@ -113,7 +124,7 @@ class Scrub extends Component {
                 id="currentTimeDisplay"
                 className={styles.frameNumberOrTimeCode}
               >
-                {this.state.scrubLineValue}
+                {this.state.scrubFrameNumber}
               </span>
             </span>
             <span
@@ -161,6 +172,14 @@ Scrub.defaultProps = {
 };
 
 Scrub.propTypes = {
+  file: PropTypes.shape({
+    id: PropTypes.string,
+    width: PropTypes.number,
+    height: PropTypes.number,
+    columnCount: PropTypes.number,
+    path: PropTypes.string,
+    useRatio: PropTypes.bool,
+  }),
   keyObject: PropTypes.object.isRequired,
   scaleValueObject: PropTypes.object.isRequired,
   onScrubWindowMouseOver: PropTypes.func.isRequired,

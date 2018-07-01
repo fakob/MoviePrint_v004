@@ -827,7 +827,6 @@ class App extends Component {
       e.clientX,
       this.state.keyObject,
       this.state.scaleValueObject,
-      this.state.containerWidth,
       this.props.file.frameCount,
       this.state.scrubThumb,
       this.state.scrubThumbLeft,
@@ -850,7 +849,6 @@ class App extends Component {
         e.clientX,
         this.state.keyObject,
         this.state.scaleValueObject,
-        this.state.containerWidth,
         this.props.file.frameCount,
         this.state.scrubThumb,
         this.state.scrubThumbLeft,
@@ -1499,6 +1497,7 @@ class App extends Component {
                 { this.state.showScrubWindow &&
                   <Scrub
                     opencvVideoCanvasRef={this.opencvVideoCanvasRef}
+                    file={this.props.file}
                     settings={this.props.settings}
                     thumbImages={this.props.thumbImages}
                     keyObject={this.state.keyObject}
