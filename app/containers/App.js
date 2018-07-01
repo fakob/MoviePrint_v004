@@ -14,6 +14,7 @@ import ErrorBoundary from '../components/ErrorBoundary';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import VideoPlayer from '../components/VideoPlayer';
+import Scrub from '../components/Scrub';
 import ThumbEmpty from '../components/ThumbEmpty';
 import { getLowestFrame,
   getHighestFrame,
@@ -1480,95 +1481,20 @@ class App extends Component {
                   />
                 </div>
                 { this.state.showScrubWindow &&
-                  <div
-                    className={styles.scrubContainerBackground}
-                    onMouseMove={this.onScrubWindowMouseOver}
-                    onMouseUp={this.onScrubWindowStop}
-                  >
-                    <div
-                      className={styles.scrubContainer}
-                      style={{
-                        height: this.state.scaleValueObject.scrubContainerHeight,
-                        width: this.state.scaleValueObject.scrubContainerWidth,
-                      }}
-                    >
-                      <div
-                        className={styles.scrubInnerContainer}
-                        style={{
-                          width: this.state.scaleValueObject.scrubInnerContainerWidth,
-                        }}
-                      >
-                        <span
-                          className={styles.scrubThumbLeft}
-                          style={{
-                            backgroundImage: `url(${this.state.keyObject.altKey ?
-                              getObjectProperty(() => this.props.thumbImages[this.state.scrubThumb.frameId].objectUrl) :
-                              getObjectProperty(() => this.props.thumbImages[this.state.scrubThumbLeft.frameId].objectUrl) || transparent})`,
-                            height: this.state.scaleValueObject.scrubInOutMovieHeight,
-                            width: this.state.scaleValueObject.scrubInOutMovieWidth,
-                            margin: this.props.settings.defaultScrubWindowMargin,
-                          }}
-                        />
-                        {this.state.keyObject.ctrlKey &&
-                          <div
-                            style={{
-                              content: '',
-                              backgroundImage: `url(${getObjectProperty(() => this.props.thumbImages[this.state.scrubThumb.frameId].objectUrl)})`,
-                              backgroundSize: 'cover',
-                              opacity: '0.4',
-                              position: 'absolute',
-                              width: (this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv,
-                              height: this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio,
-                              top: 0,
-                              left: this.state.keyObject.altKey ? (this.state.containerWidth -
-                                ((this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv)) / 2 -
-                                this.props.settings.defaultScrubWindowMargin + (this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv :
-                                (this.state.containerWidth -
-                                  ((this.state.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.state.scaleValueObject.aspectRatioInv)) / 2 -
-                                  this.props.settings.defaultScrubWindowMargin,
-                            }}
-                          />
-                        }
-                        <span
-                          style={{
-                            height: this.state.scaleValueObject.scrubMovieHeight,
-                            width: this.state.scaleValueObject.scrubMovieWidth,
-                          }}
-                        >
-                          <canvas
-                            ref={this.opencvVideoCanvasRef}
-                          />
-                        </span>
-                        <span
-                          className={styles.scrubThumbRight}
-                          style={{
-                            backgroundImage: `url(${this.state.keyObject.shiftKey ?
-                              getObjectProperty(() => this.props.thumbImages[this.state.scrubThumb.frameId].objectUrl) :
-                              getObjectProperty(() => this.props.thumbImages[this.state.scrubThumbRight.frameId].objectUrl) || transparent})`,
-                            height: this.state.scaleValueObject.scrubInOutMovieHeight,
-                            width: this.state.scaleValueObject.scrubInOutMovieWidth,
-                            margin: this.props.settings.defaultScrubWindowMargin,
-                          }}
-                        />
-                      </div>
-                    </div>
-                    {/* <div
-                      className={`${styles.scrubDescription} ${styles.textButton}`}
-                      style={{
-                        height: `${MENU_HEADER_HEIGHT}px`,
-                      }}
-                    >
-                      {this.state.keyObject.altKey ? 'Add after' : (this.state.keyObject.shiftKey ? 'Add before' : 'Change')}
-                    </div> */}
-                    <div
-                      className={`${styles.scrubCancelBar}`}
-                      style={{
-                        height: `${MENU_FOOTER_HEIGHT}px`,
-                      }}
-                    >
-                      Cancel
-                    </div>
-                  </div>
+                  <Scrub
+                    opencvVideoCanvasRef={this.opencvVideoCanvasRef}
+                    settings={this.props.settings}
+                    thumbImages={this.props.thumbImages}
+                    keyObject={this.state.keyObject}
+                    scrubThumb={this.state.scrubThumb}
+                    scrubThumbLeft={this.state.scrubThumbLeft}
+                    scrubThumbRight={this.state.scrubThumbRight}
+                    scaleValueObject={this.state.scaleValueObject}
+                    containerWidth={this.state.containerWidth}
+                    containerHeight={this.state.containerHeight}
+                    onScrubWindowMouseOver={this.onScrubWindowMouseOver}
+                    onScrubWindowStop={this.onScrubWindowStop}
+                  />
                 }
                 { this.state.showChart &&
                   <div
