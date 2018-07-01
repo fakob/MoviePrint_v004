@@ -72,3 +72,12 @@
   text-align: center;
   padding-top: 6px;
 }
+
+.scrubLine {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background-color: #FF5006;
+  z-index: 2000;
+}

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import styles from './Scrub.css';
 import {
   getObjectProperty,
@@ -8,146 +9,165 @@ import {
   MENU_FOOTER_HEIGHT,
 } from '../utils/constants';
 
-const Scrub = ({
-  keyObject,
-  scaleValueObject,
-  onScrubWindowMouseOver,
-  onScrubWindowStop,
-  settings,
-  thumbImages,
-  containerHeight,
-  containerWidth,
-  scrubThumb,
-  scrubThumbLeft,
-  scrubThumbRight,
-  opencvVideoCanvasRef,
-}) => {
+class Scrub extends Component {
+  constructor(props) {
+    super(props);
 
-  function onScrubMouseMoveWithStop(e) {
-    e.stopPropagation();
-    onScrubWindowMouseOver(e);
+    this.state = {
+      scrubLineValue: undefined,
+    };
+
+    this.onScrubMouseMoveWithStop = this.onScrubMouseMoveWithStop.bind(this);
+    this.onScrubMouseUpWithStop = this.onScrubMouseUpWithStop.bind(this);
   }
 
-  function onScrubMouseUpWithStop(e) {
-    e.stopPropagation();
-    onScrubWindowStop(e);
+  componentWillMount() {
   }
 
-  return (
-    <div
-      className={styles.scrubContainerBackground}
-      onMouseMove={onScrubMouseMoveWithStop}
-      onMouseUp={onScrubMouseUpWithStop}
-    >
+  componentDidMount() {
+  }
+
+  componentWillReceiveProps(nextProps) {
+  }
+
+  componentDidUpdate(prevProps) {
+  }
+
+  onScrubMouseMoveWithStop(e) {
+    this.setState({
+      scrubLineValue: e.clientX
+    })
+    e.stopPropagation();
+    this.props.onScrubWindowMouseOver(e);
+  }
+
+  onScrubMouseUpWithStop(e) {
+    e.stopPropagation();
+    this.props.onScrubWindowStop(e);
+  }
+
+  render() {
+
+
+    return (
       <div
-        className={styles.scrubContainer}
-        style={{
-          height: scaleValueObject.scrubContainerHeight,
-          width: scaleValueObject.scrubContainerWidth,
-        }}
+        className={styles.scrubContainerBackground}
+        onMouseMove={this.onScrubMouseMoveWithStop}
+        onMouseUp={this.onScrubMouseUpWithStop}
       >
         <div
-          className={styles.scrubInnerContainer}
+          className={styles.scrubContainer}
           style={{
-            width: scaleValueObject.scrubInnerContainerWidth,
+            height: this.props.scaleValueObject.scrubContainerHeight,
+            width: this.props.scaleValueObject.scrubContainerWidth,
           }}
         >
-          <span
-            className={styles.scrubThumbLeft}
+          <div
+            className={styles.scrubInnerContainer}
             style={{
-              backgroundImage: `url(${keyObject.altKey ?
-                getObjectProperty(() => thumbImages[scrubThumb.frameId].objectUrl) :
-                getObjectProperty(() => thumbImages[scrubThumbLeft.frameId].objectUrl) || transparent})`,
-              height: scaleValueObject.scrubInOutMovieHeight,
-              width: scaleValueObject.scrubInOutMovieWidth,
-              margin: settings.defaultScrubWindowMargin,
-            }}
-          />
-          {keyObject.ctrlKey &&
-            <div
-              style={{
-                content: '',
-                backgroundImage: `url(${getObjectProperty(() => thumbImages[scrubThumb.frameId].objectUrl)})`,
-                backgroundSize: 'cover',
-                opacity: '0.4',
-                position: 'absolute',
-                width: (containerHeight * settings.defaultScrubWindowHeightRatio) / scaleValueObject.aspectRatioInv,
-                height: containerHeight * settings.defaultScrubWindowHeightRatio,
-                top: 0,
-                left: keyObject.altKey ? (containerWidth -
-                  ((containerHeight * settings.defaultScrubWindowHeightRatio) / scaleValueObject.aspectRatioInv)) / 2 -
-                  settings.defaultScrubWindowMargin + (containerHeight * settings.defaultScrubWindowHeightRatio) / scaleValueObject.aspectRatioInv :
-                  (containerWidth -
-                    ((containerHeight * settings.defaultScrubWindowHeightRatio) / scaleValueObject.aspectRatioInv)) / 2 -
-                    settings.defaultScrubWindowMargin,
-              }}
-            />
-          }
-          <span
-            style={{
-              height: scaleValueObject.scrubMovieHeight,
-              width: scaleValueObject.scrubMovieWidth,
+              width: this.props.scaleValueObject.scrubInnerContainerWidth,
             }}
           >
-            <canvas
-              ref={opencvVideoCanvasRef}
+            <span
+              className={styles.scrubThumbLeft}
+              style={{
+                backgroundImage: `url(${this.props.keyObject.altKey ?
+                  getObjectProperty(() => this.props.thumbImages[this.props.scrubThumb.frameId].objectUrl) :
+                  getObjectProperty(() => this.props.thumbImages[this.props.scrubThumbLeft.frameId].objectUrl) || transparent})`,
+                height: this.props.scaleValueObject.scrubInOutMovieHeight,
+                width: this.props.scaleValueObject.scrubInOutMovieWidth,
+                margin: this.props.settings.defaultScrubWindowMargin,
+              }}
             />
-          </span>
-          <span
-            className={styles.scrubThumbRight}
-            style={{
-              backgroundImage: `url(${keyObject.shiftKey ?
-                getObjectProperty(() => thumbImages[scrubThumb.frameId].objectUrl) :
-                getObjectProperty(() => thumbImages[scrubThumbRight.frameId].objectUrl) || transparent})`,
-              height: scaleValueObject.scrubInOutMovieHeight,
-              width: scaleValueObject.scrubInOutMovieWidth,
-              margin: settings.defaultScrubWindowMargin,
-            }}
-          />
+            {this.props.keyObject.ctrlKey &&
+              <div
+                style={{
+                  content: '',
+                  backgroundImage: `url(${getObjectProperty(() => this.props.thumbImages[this.props.scrubThumb.frameId].objectUrl)})`,
+                  backgroundSize: 'cover',
+                  opacity: '0.4',
+                  position: 'absolute',
+                  width: (this.props.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.props.scaleValueObject.aspectRatioInv,
+                  height: this.props.containerHeight * this.props.settings.defaultScrubWindowHeightRatio,
+                  top: 0,
+                  left: this.props.keyObject.altKey ? (this.props.containerWidth -
+                    ((this.props.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.props.scaleValueObject.aspectRatioInv)) / 2 -
+                    this.props.settings.defaultScrubWindowMargin + (this.props.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.props.scaleValueObject.aspectRatioInv :
+                    (this.props.containerWidth -
+                      ((this.props.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.props.scaleValueObject.aspectRatioInv)) / 2 -
+                      this.props.settings.defaultScrubWindowMargin,
+                }}
+              />
+            }
+            <span
+              style={{
+                height: this.props.scaleValueObject.scrubMovieHeight,
+                width: this.props.scaleValueObject.scrubMovieWidth,
+              }}
+            >
+              <canvas
+                ref={this.props.opencvVideoCanvasRef}
+              />
+            </span>
+            <span
+              className={styles.scrubThumbRight}
+              style={{
+                backgroundImage: `url(${this.props.keyObject.shiftKey ?
+                  getObjectProperty(() => this.props.thumbImages[this.props.scrubThumb.frameId].objectUrl) :
+                  getObjectProperty(() => this.props.thumbImages[this.props.scrubThumbRight.frameId].objectUrl) || transparent})`,
+                height: this.props.scaleValueObject.scrubInOutMovieHeight,
+                width: this.props.scaleValueObject.scrubInOutMovieWidth,
+                margin: this.props.settings.defaultScrubWindowMargin,
+              }}
+            />
+          </div>
+        </div>
+        {/* <div
+          className={`${styles.scrubDescription} ${styles.textButton}`}
+          style={{
+            height: `${MENU_HEADER_HEIGHT}px`,
+          }}
+        >
+          {this.props.keyObject.altKey ? 'Add after' : (this.props.keyObject.shiftKey ? 'Add before' : 'Change')}
+        </div> */}
+        <div
+          className={`${styles.scrubCancelBar}`}
+          style={{
+            height: `${MENU_FOOTER_HEIGHT}px`,
+          }}
+        >
+          Cancel
+        </div>
+        <div
+          className={`${styles.scrubLine}`}
+          style={{
+            left: `${this.state.scrubLineValue}px`,
+          }}
+        >
+          {this.state.scrubLineValue}
         </div>
       </div>
-      {/* <div
-        className={`${styles.scrubDescription} ${styles.textButton}`}
-        style={{
-          height: `${MENU_HEADER_HEIGHT}px`,
-        }}
-      >
-        {keyObject.altKey ? 'Add after' : (keyObject.shiftKey ? 'Add before' : 'Change')}
-      </div> */}
-      <div
-        className={`${styles.scrubCancelBar}`}
-        style={{
-          height: `${MENU_FOOTER_HEIGHT}px`,
-        }}
-      >
-        Cancel
-      </div>
-    </div>
-  );
-};
+    );
+  }
+}
 
 Scrub.defaultProps = {
   // thumbImageObjectUrl: empty,
 };
 
 Scrub.propTypes = {
-  // showMoviePrintView: PropTypes.bool,
-  // aspectRatioInv: PropTypes.number,
-  // thumbWidth: PropTypes.number,
-  // margin: PropTypes.number,
-  // borderRadius: PropTypes.number,
-  // hidden: PropTypes.bool,
-  // controlersAreVisible: PropTypes.bool,
-  // frameNumber: PropTypes.number,
-  // thumbImageObjectUrl: PropTypes.string,
-  // onToggle: PropTypes.func,
-  // onInPoint: PropTypes.func,
-  // onOutPoint: PropTypes.func,
-  // onBack: PropTypes.func,
-  // onForward: PropTypes.func,
-  // onScrub: PropTypes.func,
-  // onOver: PropTypes.func,
-  // onOut: PropTypes.func,
+  keyObject: PropTypes.object.isRequired,
+  scaleValueObject: PropTypes.object.isRequired,
+  onScrubWindowMouseOver: PropTypes.func.isRequired,
+  onScrubWindowStop: PropTypes.func.isRequired,
+  settings: PropTypes.object.isRequired,
+  thumbImages: PropTypes.array,
+  containerHeight: PropTypes.number.isRequired,
+  containerWidth: PropTypes.number.isRequired,
+  scrubThumb: PropTypes.object.isRequired,
+  scrubThumbLeft: PropTypes.object.isRequired,
+  scrubThumbRight: PropTypes.object.isRequired,
+  opencvVideoCanvasRef: PropTypes.object.isRequired,
 };
 
 export default Scrub;
