@@ -1,3 +1,5 @@
+import { deleteProperty } from './../utils/utils';
+
 const thumb = (state = {}, action, index) => {
   switch (action.type) {
     case 'ADD_THUMB':
@@ -206,7 +208,12 @@ const thumbsByFileId = (state = [], action) => {
     //   };
     case 'CLEAR_THUMBS':
       console.log('inside CLEAR_THUMBS');
-      return {};
+      // if fileId is an empty string, then clear all thumbs
+      // else only clear thumbs of specific fileId
+      if (action.fileId === '') {
+        return {};
+      }
+      return deleteProperty(state, action.fileId);
     default:
       return state;
   }

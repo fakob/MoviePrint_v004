@@ -188,6 +188,28 @@ ipcMain.on('send-save-file-error', (event, saveMoviePrint = false) => {
 });
 
 ipcMain.on(
+  'message-from-mainWindow-to-workerWindow',
+  (e, ipcName, ...args) => {
+    console.log(
+      `passing ipc message ${ipcName} from mainWindow to workerWindow`
+    );
+    // console.log(...args);
+    workerWindow.webContents.send(ipcName, ...args);
+  }
+);
+
+ipcMain.on(
+  'message-from-workerWindow-to-mainWindow',
+  (e, ipcName, ...args) => {
+    console.log(
+      `passing ipc message ${ipcName} from workerWindow to mainWindow`
+    );
+    // console.log(...args);
+    mainWindow.webContents.send(ipcName, ...args);
+  }
+);
+
+ipcMain.on(
   'message-from-mainWindow-to-opencvWorkerWindow',
   (e, ipcName, ...args) => {
     console.log(

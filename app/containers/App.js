@@ -123,6 +123,8 @@ class App extends Component {
       },
       sceneDetectionThreshold: 20.0,
       fileScanRunning: false,
+      filesToPrint: [],
+      savingAllMoviePrints: false,
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -145,6 +147,7 @@ class App extends Component {
     this.onOpenFeedbackForm = this.onOpenFeedbackForm.bind(this);
     this.onCloseFeedbackForm = this.onCloseFeedbackForm.bind(this);
     this.onSaveMoviePrint = this.onSaveMoviePrint.bind(this);
+    this.onSaveAllMoviePrints = this.onSaveAllMoviePrints.bind(this);
 
     this.updatecontainerWidthAndHeight = this.updatecontainerWidthAndHeight.bind(this);
     this.updateScaleValue = this.updateScaleValue.bind(this);
@@ -325,10 +328,27 @@ class App extends Component {
     });
 
     ipcRenderer.on('received-saved-file', (event, path) => {
-      setTimeout(
-        this.setState({ savingMoviePrint: false }),
-        1000
-      ); // adding timeout to prevent clicking multiple times
+      if (this.state.savingMoviePrint) {
+        setTimeout(
+          this.setState({ savingMoviePrint: false }),
+          1000
+        ); // adding timeout to prevent clicking multiple times
+      } else if (this.state.savingAllMoviePrints) {
+        if (this.state.filesToPrint.length > 0) {
+          // state should be immutable, therefor
+          // make a copy with slice, then remove the first item with shift, then set new state
+          const copyOfFilesToPrint = this.state.filesToPrint.slice();
+          copyOfFilesToPrint.shift();
+          this.setState({
+            filesToPrint: copyOfFilesToPrint
+          });
+        } else {
+          setTimeout(
+            this.setState({ savingAllMoviePrints: false }),
+            1000
+          ); // adding timeout to prevent clicking multiple times
+        }
+      }
       console.log(`Saved file: ${path}`);
     });
 
@@ -421,6 +441,40 @@ class App extends Component {
         timeBefore
       });
       ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', nextState.filesToLoad[0].id, nextState.filesToLoad[0].path, nextState.filesToLoad[0].posterFrameId);
+    }
+    if ((nextState.filesToPrint.length !== 0) &&
+      (this.state.filesToPrint.length !== nextState.filesToPrint.length)) {
+      const timeBefore = Date.now();
+      this.setState({
+        timeBefore
+      });
+      console.log(nextState.filesToPrint);
+      const fileIdToPrint = nextState.filesToPrint[0];
+      console.log(fileIdToPrint);
+      const tempFile = this.props.files
+        .find((file) => file.id === fileIdToPrint);
+      console.log(tempFile);
+      console.log(this.props.thumbsByFileId);
+      const tempThumbs = this.props.thumbsByFileId[fileIdToPrint].thumbs;
+      console.log(tempThumbs);
+      const data = {
+        elementId: 'ThumbGrid',
+        file: tempFile,
+        // scale: 1,
+        moviePrintWidth: this.props.settings.defaultMoviePrintWidth,
+        // scale: this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
+        thumbs: getVisibleThumbs(
+          tempThumbs,
+          this.props.visibilitySettings.visibilityFilter
+        ),
+        settings: this.props.settings,
+        visibilitySettings: this.props.visibilitySettings,
+      };
+      console.log(data);
+      this.setState(
+        // { savingAllMoviePrints: true },
+        ipcRenderer.send('message-from-mainWindow-to-workerWindow', 'action-save-MoviePrint', data)
+      );
     }
     return true;
   }
@@ -904,6 +958,17 @@ class App extends Component {
       { savingMoviePrint: true },
       ipcRenderer.send('request-save-MoviePrint', data)
     );
+  }
+
+  onSaveAllMoviePrints() {
+    const tempFiles = this.props.files;
+    console.log(tempFiles);
+    const tempFileIds = tempFiles.map(item => item.id);
+    console.log(tempFileIds);
+    this.setState({
+      filesToPrint: tempFileIds,
+      savingAllMoviePrints: true
+    });
   }
 
   onOpenFeedbackForm() {
@@ -1490,7 +1555,9 @@ class App extends Component {
                     onOpenFeedbackForm={this.onOpenFeedbackForm}
                     showFeedbackForm={this.state.showFeedbackForm}
                     onSaveMoviePrint={this.onSaveMoviePrint}
+                    onSaveAllMoviePrints={this.onSaveAllMoviePrints}
                     savingMoviePrint={this.state.savingMoviePrint}
+                    savingAllMoviePrints={this.state.savingAllMoviePrints}
                     showMoviePrintView={this.props.visibilitySettings.showMoviePrintView}
                   />
                 </div>

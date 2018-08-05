@@ -510,3 +510,5 @@ export const getScrubFrameNumber = (
   }
   return scrubFrameNumber;
 }
+
+export const deleteProperty = ({[key]: _, ...newObj}, key) => newObj;

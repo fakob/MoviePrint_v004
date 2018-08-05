@@ -439,9 +439,10 @@ export const updateObjectUrlsFromThumbList = (fileId, frameIdArray) => {
   };
 };
 
-export const clearThumbs = () => {
+export const clearThumbs = (fileId = '') => {
   return {
-    type: 'CLEAR_THUMBS'
+    type: 'CLEAR_THUMBS',
+    fileId
   };
 };
 
@@ -508,7 +509,7 @@ export const addThumbs = (file, frameNumberArray, clearOldThumbs = false) => {
       // console.log(filteredArray);
 
       if (clearOldThumbs) {
-        dispatch(clearThumbs());
+        dispatch(clearThumbs(file.id));
       }
 
       // if all thumbs already exist skip capturing

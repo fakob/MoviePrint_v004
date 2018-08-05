@@ -9,7 +9,8 @@ import stylesPop from './Popup.css';
 
 const Footer = ({
   file, visibilitySettings, toggleMovielist, toggleSettings, onSaveMoviePrint,
-  savingMoviePrint, showMoviePrintView, showFeedbackForm, onOpenFeedbackForm
+  savingMoviePrint, showMoviePrintView, showFeedbackForm, onOpenFeedbackForm,
+  onSaveAllMoviePrints
 }) => {
 
   return (
@@ -47,6 +48,34 @@ const Footer = ({
             content="Share Feedback"
             keepInViewPort={false}
           />
+          {file && showMoviePrintView &&
+            <Popup
+              trigger={
+                <Menu.Item
+                  name="save"
+                  onClick={onSaveAllMoviePrints}
+                  color="blue"
+                  active={!savingMoviePrint}
+                  // disabled={savingMoviePrint}
+                >
+                  { savingMoviePrint ?
+                    <Icon
+                      loading
+                      name="certificate"
+                    />
+                    :
+                    <Icon
+                      name="download"
+                    />
+                  }
+                  Save All MoviePrints
+                </Menu.Item>
+              }
+              className={stylesPop.popup}
+              content="Save the MoviePrints of all Movies"
+              keepInViewPort={false}
+            />
+          }
           {file && showMoviePrintView &&
             <Popup
               trigger={
