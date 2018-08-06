@@ -146,12 +146,12 @@ export const formatBytes = (bytes, decimals) => {
   return `${parseFloat((bytes / (k ** i)).toFixed(dm))} ${sizes[i]}`;
 };
 
-export const saveBlob = (blob, fileName) => {
+export const saveBlob = (blob, fileId, fileName) => {
   const reader = new FileReader();
   reader.onload = () => {
     if (reader.readyState === 2) {
       const buffer = Buffer.from(reader.result);
-      ipcRenderer.send('send-save-file', fileName, buffer, true);
+      ipcRenderer.send('send-save-file', fileId, fileName, buffer, true);
       console.log(`Saving ${JSON.stringify({ fileName, size: blob.size })}`);
     }
   };

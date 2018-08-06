@@ -27,7 +27,7 @@ const saveMoviePrint = (
     scale,
   }).then((canvas) => {
     canvas.toBlob((blob) => {
-      saveBlob(blob, newFilePathAndName);
+      saveBlob(blob, file.id, newFilePathAndName);
     }, getMimeType(outputFormat), qualityArgument);
   });
 

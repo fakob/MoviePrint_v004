@@ -572,6 +572,7 @@ ipcRenderer.on(
         );
         // opencv.imshow('a window name', frame);
         const outBase64 = opencv.imencode('.jpg', frame).toString('base64'); // maybe change to .png?
+        const lastThumb = i === (frameNumberArray.length - 1);
         ipcRenderer.send(
           'message-from-opencvWorkerWindow-to-mainWindow',
           'receive-get-thumbs',
@@ -580,7 +581,7 @@ ipcRenderer.on(
           frameIdArray[i],
           outBase64,
           vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1,
-          i === (frameNumberArray.length - 1)
+          lastThumb
         );
         // opencv.waitKey(10);
       }

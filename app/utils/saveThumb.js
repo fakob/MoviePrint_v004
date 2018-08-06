@@ -27,7 +27,7 @@ const saveThumb = (fileName, frameNumber, frameId = undefined, saveToFolder = ''
     reader.onload = () => {
       if (reader.readyState === 2) {
         const buffer = Buffer.from(reader.result);
-        ipcRenderer.send('send-save-file', newFilePathAndName, buffer);
+        ipcRenderer.send('send-save-file', frameId, newFilePathAndName, buffer);
         console.log(`Saving ${JSON.stringify({ newFilePathAndName, size: frames[0].data.size })}`);
       }
     };

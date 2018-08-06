@@ -125,6 +125,7 @@ class App extends Component {
       fileScanRunning: false,
       filesToPrint: [],
       savingAllMoviePrints: false,
+      filesToGetThumbsFor: [],
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -320,6 +321,22 @@ class App extends Component {
           }, 3000);
         });
       }
+
+      // check if this is the lastThumb of the filesToGetThumbsFor when savingAllMoviePrints
+      if (lastThumb && this.state.savingAllMoviePrints
+        && this.state.filesToGetThumbsFor.length > 0) {
+        if (fileId === this.state.filesToGetThumbsFor[0]) {
+          // remove fileId from filesToGetThumbsFor, then pass it on to filesToPrint array
+
+          // state should be immutable, therefor
+          // remove the right item with filter, then set new state
+          const filesToGetThumbsFor = this.state.filesToGetThumbsFor.filter(item => item !== fileId);
+          this.setState({
+            filesToGetThumbsFor,
+            filesToPrint: [...this.state.filesToPrint, fileId], // immutable way to do push on array
+          });
+        }
+      }
     });
 
     ipcRenderer.on('received-get-file-scan', (event, fileId, sceneList, meanArray) => {
@@ -330,7 +347,7 @@ class App extends Component {
       this.calculateSceneList(fileId, meanArray);
     });
 
-    ipcRenderer.on('received-saved-file', (event, path) => {
+    ipcRenderer.on('received-saved-file', (event, id, path) => {
       if (this.state.savingMoviePrint) {
         setTimeout(
           this.setState({ savingMoviePrint: false }),
@@ -339,11 +356,12 @@ class App extends Component {
       } else if (this.state.savingAllMoviePrints) {
         if (this.state.filesToPrint.length > 0) {
           // state should be immutable, therefor
-          // make a copy with slice, then remove the first item with shift, then set new state
-          const copyOfFilesToPrint = this.state.filesToPrint.slice();
-          copyOfFilesToPrint.shift();
+          // remove the right item with filter, then set new state
+          console.log(this.state.filesToPrint);
+          const filesToPrint = this.state.filesToPrint.filter(item => item !== id);
+          console.log(filesToPrint);
           this.setState({
-            filesToPrint: copyOfFilesToPrint
+            filesToPrint
           });
         } else {
           setTimeout(
@@ -445,6 +463,24 @@ class App extends Component {
       });
       ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', nextState.filesToLoad[0].id, nextState.filesToLoad[0].path, nextState.filesToLoad[0].posterFrameId);
     }
+
+    // run if there was a change in the filesToGetThumbsFor array
+    if ((nextState.filesToGetThumbsFor.length !== 0) &&
+      (this.state.filesToGetThumbsFor.length !== nextState.filesToGetThumbsFor.length)) {
+      // const timeBefore = Date.now();
+      // this.setState({
+      //   timeBefore
+      // });
+      console.log(nextState.filesToGetThumbsFor);
+      const fileIdToGetThumbsFor = nextState.filesToGetThumbsFor[0];
+      console.log(fileIdToGetThumbsFor);
+      const tempFile = this.props.files
+        .find((file) => file.id === fileIdToGetThumbsFor);
+      // console.log(tempFile);
+      this.getThumbsForFile(tempFile);
+    }
+
+    // run if there was a change in the filesToPrint array
     if ((nextState.filesToPrint.length !== 0) &&
       (this.state.filesToPrint.length !== nextState.filesToPrint.length)) {
       const timeBefore = Date.now();
@@ -968,8 +1004,21 @@ class App extends Component {
     console.log(tempFiles);
     const tempFileIds = tempFiles.map(item => item.id);
     console.log(tempFileIds);
+
+    const filesToGetThumbsFor = [];
+    const filesToPrint = [];
+    tempFileIds.forEach(fileId => {
+      if (this.props.thumbsByFileId[fileId] === undefined) {
+        // if no thumbs were found then initiate to getThumbsForFile
+        filesToGetThumbsFor.push(fileId);
+      } else {
+        // if thumbs were found then go directly to filesToPrint
+        filesToPrint.push(fileId);
+      }
+    })
     this.setState({
-      filesToPrint: tempFileIds,
+      filesToGetThumbsFor,
+      filesToPrint,
       savingAllMoviePrints: true
     });
   }
