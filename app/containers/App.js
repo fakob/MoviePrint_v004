@@ -153,6 +153,7 @@ class App extends Component {
     this.updateScaleValue = this.updateScaleValue.bind(this);
 
     this.onFileListElementClick = this.onFileListElementClick.bind(this);
+    this.getThumbsForFile = this.getThumbsForFile.bind(this);
 
     this.onChangeRow = this.onChangeRow.bind(this);
     this.onChangeColumn = this.onChangeColumn.bind(this);
@@ -974,25 +975,32 @@ class App extends Component {
   }
 
   onFileListElementClick(file) {
+    console.log(`FileListElement clicked: ${file.name}`);
     const { store } = this.context;
     store.dispatch(setCurrentFileId(file.id));
+    this.getThumbsForFile(file);
+  }
+
+  getThumbsForFile(file) {
+    console.log(`inside getThumbsForFile: ${file.name}`);
+    const { store } = this.context;
     if (this.props.thumbsByFileId[file.id] === undefined) {
+      console.log(`addDefaultThumbs as no thumbs were found for: ${file.name}`);
       store.dispatch(addDefaultThumbs(
           file,
           this.props.settings.defaultThumbCount,
           file.fadeInPoint,
           file.fadeOutPoint
         ));
-      console.log(`FileListElement clicked: ${file.name}`);
     }
     if (this.props.thumbsObjUrls[file.id] === undefined && this.props
       .thumbsByFileId[file.id] !== undefined) {
+      console.log(`updateObjectUrlsFromThumbList as no objecturls were found for: ${file.name}`);
       store.dispatch(updateObjectUrlsFromThumbList(
           file.id,
           Object.values(this.props.thumbsByFileId[file.id]
             .thumbs).map((a) => a.frameId)
         ));
-      console.log(`FileListElement clicked: ${file.name}`);
     }
   }
 
