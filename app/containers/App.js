@@ -33,7 +33,7 @@ import stylesPop from './../components/Popup.css';
 import {
   setNewMovieList, showMovielist, hideMovielist, showSettings, hideSettings,
   showThumbView, showMoviePrintView, addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
-  setVisibilityFilter, setCurrentFileId, updateFileColumnCount,
+  setVisibilityFilter, setCurrentFileId, updateFileColumnCount, updateObjectUrlsFromThumbList,
   updateFileDetails, clearThumbs, updateThumbImage, setDefaultMarginRatio, setDefaultShowHeader,
   setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat,
   setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
@@ -151,6 +151,8 @@ class App extends Component {
 
     this.updatecontainerWidthAndHeight = this.updatecontainerWidthAndHeight.bind(this);
     this.updateScaleValue = this.updateScaleValue.bind(this);
+
+    this.onFileListElementClick = this.onFileListElementClick.bind(this);
 
     this.onChangeRow = this.onChangeRow.bind(this);
     this.onChangeColumn = this.onChangeColumn.bind(this);
@@ -971,6 +973,29 @@ class App extends Component {
     });
   }
 
+  onFileListElementClick(file) {
+    const { store } = this.context;
+    store.dispatch(setCurrentFileId(file.id));
+    if (this.props.thumbsByFileId[file.id] === undefined) {
+      store.dispatch(addDefaultThumbs(
+          file,
+          this.props.settings.defaultThumbCount,
+          file.fadeInPoint,
+          file.fadeOutPoint
+        ));
+      console.log(`FileListElement clicked: ${file.name}`);
+    }
+    if (this.props.thumbsObjUrls[file.id] === undefined && this.props
+      .thumbsByFileId[file.id] !== undefined) {
+      store.dispatch(updateObjectUrlsFromThumbList(
+          file.id,
+          Object.values(this.props.thumbsByFileId[file.id]
+            .thumbs).map((a) => a.frameId)
+        ));
+      console.log(`FileListElement clicked: ${file.name}`);
+    }
+  }
+
   onOpenFeedbackForm() {
     console.log('onOpenFeedbackForm');
     this.setState(
@@ -1289,7 +1314,9 @@ class App extends Component {
                     <div
                       className={`${styles.ItemSideBar} ${styles.ItemMovielist} ${this.props.visibilitySettings.showMovielist ? styles.ItemMovielistAnim : ''}`}
                     >
-                      <FileList />
+                      <FileList
+                        onFileListElementClick={this.onFileListElementClick}
+                      />
                     </div>
                     <div
                       className={`${styles.ItemSideBar} ${styles.ItemSettings} ${this.props.visibilitySettings.showSettings ? styles.ItemSettingsAnim : ''}`}
@@ -1653,6 +1680,7 @@ const mapStateToProps = state => {
     defaultThumbCount: state.undoGroup.present.settings.defaultThumbCount,
     defaultColumnCount: state.undoGroup.present.settings.defaultColumnCount,
     thumbsByFileId: state.undoGroup.present.thumbsByFileId,
+    thumbsObjUrls: state.undoGroup.present.thumbsObjUrls,
   };
 };
 
@@ -1665,6 +1693,7 @@ App.defaultProps = {
   file: undefined,
   thumbs: [],
   thumbsByFileId: {},
+  thumbsObjUrls: {},
 };
 
 App.propTypes = {
@@ -1680,6 +1709,7 @@ App.propTypes = {
   settings: PropTypes.object.isRequired,
   thumbs: PropTypes.array,
   thumbsByFileId: PropTypes.object,
+  thumbsObjUrls: PropTypes.object,
   visibilitySettings: PropTypes.object.isRequired,
 };
 

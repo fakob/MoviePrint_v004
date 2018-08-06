@@ -3,8 +3,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import FileListElement from '../components/FileListElement';
 import {
-  updateObjectUrlsFromPosterFrame, addDefaultThumbs, setCurrentFileId,
-  updateObjectUrlsFromThumbList,
+  updateObjectUrlsFromPosterFrame,
 } from '../actions';
 import { MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT } from '../utils/constants';
 
@@ -36,27 +35,7 @@ class SortedFileList extends Component {
               {...file}
               index
               onClick={() => {
-                store.dispatch(setCurrentFileId(file.id));
-                if (state.undoGroup.present
-                  .thumbsByFileId[file.id] === undefined) {
-                  store.dispatch(addDefaultThumbs(
-                      file,
-                      state.undoGroup.present.settings.defaultThumbCount,
-                      file.fadeInPoint,
-                      file.fadeOutPoint
-                    ));
-                  console.log(`FileListElement clicked: ${file.name}`);
-                }
-                if (state.thumbsObjUrls[file.id] === undefined && state.undoGroup.present
-                  .thumbsByFileId[file.id] !== undefined) {
-                  store.dispatch(updateObjectUrlsFromThumbList(
-                      file.id,
-                      Object.values(state.undoGroup.present
-                        .thumbsByFileId[file.id]
-                        .thumbs).map((a) => a.frameId)
-                    ));
-                  console.log(`FileListElement clicked: ${file.name}`);
-                }
+                this.props.onFileListElementClick(file);
               }}
               currentFileId={state.undoGroup.present.settings.currentFileId}
             />
