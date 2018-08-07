@@ -125,7 +125,6 @@ class App extends Component {
       fileScanRunning: false,
       filesToPrint: [],
       savingAllMoviePrints: false,
-      filesToGetThumbsFor: [],
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -322,18 +321,27 @@ class App extends Component {
         });
       }
 
-      // check if this is the lastThumb of the filesToGetThumbsFor when savingAllMoviePrints
+      // check if this is the lastThumb of the filesToPrint when savingAllMoviePrints
+      // if so change its status from gettingThumbs to readyForPrinting
       if (lastThumb && this.state.savingAllMoviePrints
-        && this.state.filesToGetThumbsFor.length > 0) {
-        if (fileId === this.state.filesToGetThumbsFor[0]) {
-          // remove fileId from filesToGetThumbsFor, then pass it on to filesToPrint array
-
+        && this.state.filesToPrint.length > 0) {
+        if (this.state.filesToPrint.findIndex(item => item.fileId === fileId && item.status === 'gettingThumbs' ) > -1) {
+          console.log(this.state.filesToPrint);
           // state should be immutable, therefor
-          // remove the right item with filter, then set new state
-          const filesToGetThumbsFor = this.state.filesToGetThumbsFor.filter(item => item !== fileId);
+          const filesToPrint = this.state.filesToPrint.map((item) => {
+            if(item.fileId !== fileId) {
+              // This isn't the item we care about - keep it as-is
+              return item;
+            }
+            // Otherwise, this is the one we want - return an updated value
+            return {
+              ...item,
+              status: 'readyForPrinting'
+            };
+          });
+          console.log(filesToPrint);
           this.setState({
-            filesToGetThumbsFor,
-            filesToPrint: [...this.state.filesToPrint, fileId], // immutable way to do push on array
+            filesToPrint,
           });
         }
       }
@@ -354,14 +362,23 @@ class App extends Component {
           1000
         ); // adding timeout to prevent clicking multiple times
       } else if (this.state.savingAllMoviePrints) {
-        if (this.state.filesToPrint.length > 0) {
-          // state should be immutable, therefor
-          // remove the right item with filter, then set new state
+        if (this.state.filesToPrint.findIndex(item => item.status === 'printing' ) > -1) {
           console.log(this.state.filesToPrint);
-          const filesToPrint = this.state.filesToPrint.filter(item => item !== id);
+          // state should be immutable, therefor
+          const filesToPrint = this.state.filesToPrint.map((item) => {
+            if(item.status !== 'printing') {
+              // This isn't the item we care about - keep it as-is
+              return item;
+            }
+            // Otherwise, this is the one we want - return an updated value
+            return {
+              ...item,
+              status: 'done'
+            };
+          });
           console.log(filesToPrint);
           this.setState({
-            filesToPrint
+            filesToPrint,
           });
         } else {
           setTimeout(
@@ -454,72 +471,116 @@ class App extends Component {
     }
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    if ((nextState.filesToLoad.length !== 0) &&
-      (this.state.filesToLoad.length !== nextState.filesToLoad.length)) {
+  componentDidUpdate(prevProps, prevState) {
+    console.log('App.js componentDidUpdate');
+
+    if ((this.state.filesToLoad.length !== 0) &&
+    (prevState.filesToLoad.length !== this.state.filesToLoad.length)) {
       const timeBefore = Date.now();
       this.setState({
         timeBefore
       });
-      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', nextState.filesToLoad[0].id, nextState.filesToLoad[0].path, nextState.filesToLoad[0].posterFrameId);
-    }
-
-    // run if there was a change in the filesToGetThumbsFor array
-    if ((nextState.filesToGetThumbsFor.length !== 0) &&
-      (this.state.filesToGetThumbsFor.length !== nextState.filesToGetThumbsFor.length)) {
-      // const timeBefore = Date.now();
-      // this.setState({
-      //   timeBefore
-      // });
-      console.log(nextState.filesToGetThumbsFor);
-      const fileIdToGetThumbsFor = nextState.filesToGetThumbsFor[0];
-      console.log(fileIdToGetThumbsFor);
-      const tempFile = this.props.files
-        .find((file) => file.id === fileIdToGetThumbsFor);
-      // console.log(tempFile);
-      this.getThumbsForFile(tempFile);
+      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', this.state.filesToLoad[0].id, this.state.filesToLoad[0].path, this.state.filesToLoad[0].posterFrameId);
     }
 
     // run if there was a change in the filesToPrint array
-    if ((nextState.filesToPrint.length !== 0) &&
-      (this.state.filesToPrint.length !== nextState.filesToPrint.length)) {
-      const timeBefore = Date.now();
-      this.setState({
-        timeBefore
-      });
-      console.log(nextState.filesToPrint);
-      const fileIdToPrint = nextState.filesToPrint[0];
-      console.log(fileIdToPrint);
-      const tempFile = this.props.files
-        .find((file) => file.id === fileIdToPrint);
-      console.log(tempFile);
-      console.log(this.props.thumbsByFileId);
-      const tempThumbs = this.props.thumbsByFileId[fileIdToPrint].thumbs;
-      console.log(tempThumbs);
-      const data = {
-        elementId: 'ThumbGrid',
-        file: tempFile,
-        // scale: 1,
-        moviePrintWidth: this.props.settings.defaultMoviePrintWidth,
-        // scale: this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
-        thumbs: getVisibleThumbs(
-          tempThumbs,
-          this.props.visibilitySettings.visibilityFilter
-        ),
-        settings: this.props.settings,
-        visibilitySettings: this.props.visibilitySettings,
-      };
-      console.log(data);
-      this.setState(
-        // { savingAllMoviePrints: true },
-        ipcRenderer.send('message-from-mainWindow-to-workerWindow', 'action-save-MoviePrint', data)
-      );
-    }
-    return true;
-  }
+    if (this.state.filesToPrint.length !== 0) {
 
-  componentDidUpdate(prevProps, prevState) {
-    console.log('App.js componentDidUpdate');
+      const filesToUpdateStatus = [];
+      // run if there is a file which needsThumbs, but not if there is on already gettingThumbs
+      if ((this.state.filesToPrint.findIndex(item => item.status === 'gettingThumbs' ) === -1) &&
+        (this.state.filesToPrint.findIndex(item => item.status === 'needsThumbs' ) > -1)) {
+        console.log(this.state.filesToPrint);
+        const fileIdToGetThumbsFor = this.state.filesToPrint.find(item => item.status === 'needsThumbs' ).fileId;
+        // console.log(fileIdToGetThumbsFor);
+        const tempFile = this.props.files.find((file) => file.id === fileIdToGetThumbsFor);
+        // console.log(tempFile);
+        this.getThumbsForFile(tempFile);
+        filesToUpdateStatus.push({
+          fileId: fileIdToGetThumbsFor,
+          status: 'gettingThumbs'
+        });
+        // const filesToPrint = this.state.filesToPrint.map((item) => {
+        //   if(fileIdToGetThumbsFor !== item.fileId) {
+        //     // This isn't the item we care about - keep it as-is
+        //     return item;
+        //   }
+        //   // Otherwise, this is the one we want - return an updated value
+        //   return {
+        //     ...item,
+        //     status: 'gettingThumbs'
+        //   };
+        // });
+        // this.setState(
+        //   filesToPrint,
+        // );
+        console.log(filesToUpdateStatus);
+      }
+
+      // run if there is a file readyForPrinting, but not if there is on already printing
+      if ((this.state.filesToPrint.findIndex(item => item.status === 'printing' ) === -1) &&
+        (this.state.filesToPrint.findIndex(item => item.status === 'readyForPrinting' ) > -1)) {
+        const timeBefore = Date.now();
+        this.setState({
+          timeBefore
+        });
+        console.log(this.state.filesToPrint);
+        const fileIdToPrint = this.state.filesToPrint.find(item => item.status === 'readyForPrinting' ).fileId;
+        // console.log(fileIdToPrint);
+        const tempFile = this.props.files
+        .find((file) => file.id === fileIdToPrint);
+        // console.log(tempFile);
+        // console.log(this.props.thumbsByFileId);
+        const tempThumbs = this.props.thumbsByFileId[fileIdToPrint].thumbs;
+        // console.log(tempThumbs);
+        const data = {
+          elementId: 'ThumbGrid',
+          file: tempFile,
+          // scale: 1,
+          moviePrintWidth: this.props.settings.defaultMoviePrintWidth,
+          // scale: this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
+          thumbs: getVisibleThumbs(
+            tempThumbs,
+            this.props.visibilitySettings.visibilityFilter
+          ),
+          settings: this.props.settings,
+          visibilitySettings: this.props.visibilitySettings,
+        };
+        filesToUpdateStatus.push({
+          fileId: fileIdToPrint,
+          status: 'printing'
+        });
+        // const filesToPrint = this.state.filesToPrint.map((item) => {
+        //   if(fileIdToPrint !== item.fileId) {
+        //     // This isn't the item we care about - keep it as-is
+        //     return item;
+        //   }
+        //   // Otherwise, this is the one we want - return an updated value
+        //   return {
+        //     ...item,
+        //     status: 'printing'
+        //   };
+        // });
+        // // console.log(data);
+        console.log(filesToUpdateStatus);
+        ipcRenderer.send('message-from-mainWindow-to-workerWindow', 'action-save-MoviePrint', data);
+      }
+
+      // only update filesToPrint if there is any update
+      if (filesToUpdateStatus.length !== 0) {
+        const filesToPrint = this.state.filesToPrint.map(el => {
+          const found = filesToUpdateStatus.find(s => s.fileId === el.fileId);
+          if (found) {
+            return Object.assign(el, found);
+          }
+          return el;
+        });
+        this.setState({
+          filesToPrint,
+        });
+      }
+    }
+
     this.updatecontainerWidthAndHeight();
 
     // update scaleValue when these parameter change
@@ -1005,19 +1066,23 @@ class App extends Component {
     const tempFileIds = tempFiles.map(item => item.id);
     console.log(tempFileIds);
 
-    const filesToGetThumbsFor = [];
     const filesToPrint = [];
     tempFileIds.forEach(fileId => {
       if (this.props.thumbsByFileId[fileId] === undefined) {
         // if no thumbs were found then initiate to getThumbsForFile
-        filesToGetThumbsFor.push(fileId);
+        filesToPrint.push({
+          fileId,
+          status: 'needsThumbs'
+        });
       } else {
         // if thumbs were found then go directly to filesToPrint
-        filesToPrint.push(fileId);
+        filesToPrint.push({
+          fileId,
+          status: 'readyForPrinting'
+        });
       }
     })
     this.setState({
-      filesToGetThumbsFor,
       filesToPrint,
       savingAllMoviePrints: true
     });

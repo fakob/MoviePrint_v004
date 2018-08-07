@@ -395,7 +395,7 @@ export const updateThumbImage = (fileId, thumbId, frameId, base64, frameNumber, 
 export const updateThumbObjectUrlFromDB = (fileId, thumbId, frameId, isPosterFrame = 0) =>
   (dispatch) => {
     console.log('inside updateThumbObjectUrlFromDB');
-    console.log(frameId);
+    // console.log(frameId);
     return imageDB.frameList.where('frameId').equals(frameId).toArray().then((frames) => {
       // console.log(frames[0]);
       if (isPosterFrame) {
@@ -422,7 +422,7 @@ export const updateObjectUrlsFromThumbList = (fileId, frameIdArray) => {
   return (dispatch) => {
     console.log('inside updateObjectUrlsFromThumbList');
     imageDB.frameList.where('frameId').anyOf(frameIdArray).toArray().then((frames) => {
-      console.log(frames.length);
+      // console.log(frames.length);
       if (frames.length !== 0) {
         dispatch({
           type: 'UPDATE_OBJECTURLS_FROM_THUMBLIST',
