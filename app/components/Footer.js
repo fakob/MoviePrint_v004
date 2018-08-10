@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Menu, Popup, Icon, Loader } from 'semantic-ui-react';
+import { Menu, Popup, Icon, Dropdown } from 'semantic-ui-react';
 import {
   MENU_FOOTER_HEIGHT
 } from '../utils/constants';
@@ -25,18 +25,12 @@ const Footer = ({
         inverted
         // widths={3}
       >
-        {/* <Menu.Item>
-          {file.name}
-        </Menu.Item> */}
         <Menu.Menu position="right">
           <Popup
             trigger={
               <Menu.Item
                 name="send"
                 onClick={onOpenFeedbackForm}
-                // color="orange"
-                // active={!savingMoviePrint}
-                // disabled={savingMoviePrint}
               >
                 <Icon
                   name="mail"
@@ -52,34 +46,7 @@ const Footer = ({
             <Popup
               trigger={
                 <Menu.Item
-                  name="save"
-                  onClick={onSaveAllMoviePrints}
-                  color="blue"
-                  active={!savingMoviePrint}
-                  // disabled={savingMoviePrint}
-                >
-                  { savingMoviePrint ?
-                    <Icon
-                      loading
-                      name="certificate"
-                    />
-                    :
-                    <Icon
-                      name="download"
-                    />
-                  }
-                  Save All MoviePrints
-                </Menu.Item>
-              }
-              className={stylesPop.popup}
-              content="Save the MoviePrints of all Movies"
-              keepInViewPort={false}
-            />
-          }
-          {file && showMoviePrintView &&
-            <Popup
-              trigger={
-                <Menu.Item
+                  // borderless
                   name="save"
                   onClick={onSaveMoviePrint}
                   color="orange"
@@ -101,6 +68,32 @@ const Footer = ({
               }
               className={stylesPop.popup}
               content="Save MoviePrint"
+              keepInViewPort={false}
+            />
+          }
+          {file && showMoviePrintView &&
+            <Popup
+              trigger={
+                <Dropdown
+                  item
+                  floating
+                  pointing="bottom right"
+                  upward
+                  compact
+                  icon="caret down"
+                  color="orange"
+                >
+                  <Dropdown.Menu>
+                    <Dropdown.Item
+                      icon="download"
+                      text="Save All MoviePrints"
+                      onClick={onSaveAllMoviePrints}
+                    />
+                  </Dropdown.Menu>
+                </Dropdown>
+              }
+              className={stylesPop.popup}
+              content="More options"
               keepInViewPort={false}
             />
           }
