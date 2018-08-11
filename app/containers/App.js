@@ -1782,14 +1782,18 @@ class App extends Component {
                   <Container
                     textAlign='center'
                   >
-                    <Loader
-                      active
-                      size='large'
-                      inline='centered'
-                    />
                     <Header as='h2' inverted>
                       Saving MoviePrints for all movies in the Movie list
                     </Header>
+                    <Progress
+                      percent={
+                        ((this.state.filesToPrint.filter(item => item.status === 'done').length + 1.0) /
+                        this.state.filesToPrint.length) * 100
+                      }
+                      size='tiny'
+                      indicating
+                      inverted
+                    />
                     <Divider hidden />
                     <Button
                       color='red'

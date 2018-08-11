@@ -52,6 +52,10 @@ class WorkerApp extends Component {
           thumbObjectUrls: objectUrlsObject,
           savingMoviePrint: true
         });
+        return objectUrlsObject;
+      })
+      .catch(error => {
+        console.log(`There has been a problem with the action-save-MoviePrint operation: ${error.message}`);
       });
     });
   }
