@@ -362,34 +362,38 @@ export const updateThumbImage = (fileId, thumbId, frameId, base64, frameNumber, 
     console.log(`inside updateThumbImage frameNumber=${frameNumber}`);
     if (base64 === '') {
       console.log('base64 empty');
-    } else {
-      fetch(`data:image/jpeg;base64,${base64}`)
-        .then(response => {
-          if (response.ok) {
-            return response.blob();
-          }
-          throw new Error('fetch base64 to blob was not ok.');
-        })
-        .then(blob =>
-          imageDB.frameList.put({
-            frameId,
-            fileId,
-            frameNumber,
-            isPosterFrame,
-            data: blob
-          }))
-        .then(() =>
-          dispatch(updateThumbObjectUrlFromDB(fileId, thumbId, frameId, isPosterFrame)))
-        .catch(error => {
-          console.log(`There has been a problem with your fetch operation: ${error.message}`);
-        });
+      // return a rejected Promise with error message
+      return Promise.reject(new Error('base64 empty'));
+    }
+    return fetch(`data:image/jpeg;base64,${base64}`)
+    .then(response => {
+      if (response.ok) {
+        return response.blob();
+      }
+      throw new Error('fetch base64 to blob was not ok.');
+    })
+    .then(blob =>
+      imageDB.frameList.put({
+        frameId,
+        fileId,
+        frameNumber,
+        isPosterFrame,
+        data: blob
+      }))
+    .then(() =>
+      dispatch(updateThumbObjectUrlFromDB(fileId, thumbId, frameId, isPosterFrame)))
+    .then(() => {
       // only update frameNumber if not posterframe and different
       if (!isPosterFrame &&
         getState().undoGroup.present.thumbsByFileId[fileId].thumbs.find((thumb) =>
-          thumb.thumbId === thumbId).frameNumber !== frameNumber) {
-        dispatch(updateFrameNumber(fileId, thumbId, frameNumber));
-      }
-    }
+        thumb.thumbId === thumbId).frameNumber !== frameNumber) {
+          return dispatch(updateFrameNumber(fileId, thumbId, frameNumber));
+        }
+        return 'isPosterFrame';
+      })
+    .catch(error => {
+      console.log(`There has been a problem with your fetch operation: ${error.message}`);
+    });
   });
 
 export const updateThumbObjectUrlFromDB = (fileId, thumbId, frameId, isPosterFrame = 0) =>

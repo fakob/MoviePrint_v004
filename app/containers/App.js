@@ -304,8 +304,6 @@ class App extends Component {
     });
 
     ipcRenderer.on('receive-get-thumbs', (event, fileId, thumbId, frameId, base64, frameNumber, lastThumb) => {
-      const returnFromUpdateThumbImage = store.dispatch(updateThumbImage(fileId, thumbId, frameId, base64, frameNumber));
-      console.log(returnFromUpdateThumbImage);
       if (lastThumb && this.state.timeBefore !== undefined) {
         const timeAfter = Date.now();
         console.log(timeAfter - this.state.timeBefore);
@@ -321,31 +319,38 @@ class App extends Component {
           }, 3000);
         });
       }
-
-      // check if this is the lastThumb of the filesToPrint when savingAllMoviePrints
-      // if so change its status from gettingThumbs to readyForPrinting
-      if (lastThumb && this.state.savingAllMoviePrints
-        && this.state.filesToPrint.length > 0) {
-        if (this.state.filesToPrint.findIndex(item => item.fileId === fileId && item.status === 'gettingThumbs' ) > -1) {
-          console.log(this.state.filesToPrint);
-          // state should be immutable, therefor
-          const filesToPrint = this.state.filesToPrint.map((item) => {
-            if(item.fileId !== fileId) {
-              // This isn't the item we care about - keep it as-is
-              return item;
+      store.dispatch(updateThumbImage(fileId, thumbId, frameId, base64, frameNumber))
+      .then(() => {
+        // check if this is the lastThumb of the filesToPrint when savingAllMoviePrints
+        // if so change its status from gettingThumbs to readyForPrinting
+        if (lastThumb && this.state.savingAllMoviePrints
+          && this.state.filesToPrint.length > 0) {
+            if (this.state.filesToPrint.findIndex(item => item.fileId === fileId && item.status === 'gettingThumbs' ) > -1) {
+              console.log(this.state.filesToPrint);
+              // state should be immutable, therefor
+              const filesToPrint = this.state.filesToPrint.map((item) => {
+                if(item.fileId !== fileId) {
+                  // This isn't the item we care about - keep it as-is
+                  return item;
+                }
+                // Otherwise, this is the one we want - return an updated value
+                return {
+                  ...item,
+                  status: 'readyForPrinting'
+                };
+              });
+              console.log(filesToPrint);
+              this.setState({
+                filesToPrint,
+              });
             }
-            // Otherwise, this is the one we want - return an updated value
-            return {
-              ...item,
-              status: 'readyForPrinting'
-            };
-          });
-          console.log(filesToPrint);
-          this.setState({
-            filesToPrint,
-          });
-        }
-      }
+          }
+        return true;
+      })
+      .catch(error => {
+        console.log(`There has been a problem with the updateThumbImage dispatch: ${error.message}`);
+      });
+
     });
 
     ipcRenderer.on('received-get-file-scan', (event, fileId, sceneList, meanArray) => {
