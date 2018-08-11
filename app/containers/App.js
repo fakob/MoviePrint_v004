@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone';
-import { TransitionablePortal, Segment, Progress, Modal, Button, Icon } from 'semantic-ui-react';
+import { TransitionablePortal, Segment, Progress, Modal, Button, Icon, Container, Loader, Header, Divider } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
 import {Line, defaults} from 'react-chartjs-2';
 
@@ -11,7 +11,7 @@ import FileList from '../containers/FileList';
 import SettingsList from '../containers/SettingsList';
 import SortedVisibleThumbGrid from '../containers/VisibleThumbGrid';
 import ErrorBoundary from '../components/ErrorBoundary';
-import Header from '../components/Header';
+import HeaderComponent from '../components/HeaderComponent';
 import Footer from '../components/Footer';
 import VideoPlayer from '../components/VideoPlayer';
 import Scrub from '../components/Scrub';
@@ -304,7 +304,8 @@ class App extends Component {
     });
 
     ipcRenderer.on('receive-get-thumbs', (event, fileId, thumbId, frameId, base64, frameNumber, lastThumb) => {
-      store.dispatch(updateThumbImage(fileId, thumbId, frameId, base64, frameNumber));
+      const returnFromUpdateThumbImage = store.dispatch(updateThumbImage(fileId, thumbId, frameId, base64, frameNumber));
+      console.log(returnFromUpdateThumbImage);
       if (lastThumb && this.state.timeBefore !== undefined) {
         const timeAfter = Date.now();
         console.log(timeAfter - this.state.timeBefore);
@@ -362,6 +363,7 @@ class App extends Component {
           1000
         ); // adding timeout to prevent clicking multiple times
       } else if (this.state.savingAllMoviePrints) {
+        // check if the file which was saved has been printing, then set status to done
         if (this.state.filesToPrint.findIndex(item => item.status === 'printing' ) > -1) {
           console.log(this.state.filesToPrint);
           // state should be immutable, therefor
@@ -380,11 +382,11 @@ class App extends Component {
           this.setState({
             filesToPrint,
           });
-        } else {
-          setTimeout(
-            this.setState({ savingAllMoviePrints: false }),
-            1000
-          ); // adding timeout to prevent clicking multiple times
+          // check if all files have been printed, then set savingAllMoviePrints to false
+          if (this.state.filesToPrint.filter(item => item.status === 'done').length ===
+            this.state.filesToPrint.length) {
+              this.setState({ savingAllMoviePrints: false });
+          }
         }
       }
       console.log(`Saved file: ${path}`);
@@ -1381,7 +1383,7 @@ class App extends Component {
             return (
               <div>
                 <div className={`${styles.Site}`}>
-                  <Header
+                  <HeaderComponent
                     visibilitySettings={this.props.visibilitySettings}
                     settings={this.props.settings}
                     file={this.props.file}
@@ -1760,6 +1762,38 @@ class App extends Component {
                     />
                   </div>
                 }
+                <Modal
+                  open={this.state.savingAllMoviePrints}
+                  basic
+                  size='tiny'
+                  style={{
+                    position: 'absolute',
+                    left: '50%',
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    margin: 'auto !important'
+                  }}
+                >
+                  <Container
+                    textAlign='center'
+                  >
+                    <Loader
+                      active
+                      size='large'
+                      inline='centered'
+                    />
+                    <Header as='h2' inverted>
+                      Saving MoviePrints for all movies in the Movie list
+                    </Header>
+                    <Divider hidden />
+                    <Button
+                      color='red'
+                      onClick={() => this.setState({ savingAllMoviePrints: false})}
+                    >
+                      <Icon name='remove' /> Cancel
+                    </Button>
+                  </Container>
+                </Modal>
                 { dropzoneActive &&
                   <div
                     className={`${styles.dropzoneshow} ${isDragAccept ? styles.dropzoneshowAccept : ''} ${isDragReject ? styles.dropzoneshowReject : ''}`}
