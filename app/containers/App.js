@@ -26,6 +26,7 @@ import { getLowestFrame,
   getObjectProperty,
   setPosition,
   getScrubFrameNumber,
+  isEquivalent,
 } from '../utils/utils';
 // import saveMoviePrint from '../utils/saveMoviePrint';
 import styles from './App.css';
@@ -326,7 +327,7 @@ class App extends Component {
         if (lastThumb && this.state.savingAllMoviePrints
           && this.state.filesToPrint.length > 0) {
             if (this.state.filesToPrint.findIndex(item => item.fileId === fileId && item.status === 'gettingThumbs' ) > -1) {
-              console.log(this.state.filesToPrint);
+              // console.log(this.state.filesToPrint);
               // state should be immutable, therefor
               const filesToPrint = this.state.filesToPrint.map((item) => {
                 if(item.fileId !== fileId) {
@@ -339,7 +340,7 @@ class App extends Component {
                   status: 'readyForPrinting'
                 };
               });
-              console.log(filesToPrint);
+              // console.log(filesToPrint);
               this.setState({
                 filesToPrint,
               });
@@ -370,7 +371,7 @@ class App extends Component {
       } else if (this.state.savingAllMoviePrints) {
         // check if the file which was saved has been printing, then set status to done
         if (this.state.filesToPrint.findIndex(item => item.status === 'printing' ) > -1) {
-          console.log(this.state.filesToPrint);
+          // console.log(this.state.filesToPrint);
           // state should be immutable, therefor
           const filesToPrint = this.state.filesToPrint.map((item) => {
             if(item.status !== 'printing') {
@@ -383,13 +384,13 @@ class App extends Component {
               status: 'done'
             };
           });
-          console.log(filesToPrint);
+          // console.log(filesToPrint);
           this.setState({
             filesToPrint,
           });
           // check if all files have been printed, then set savingAllMoviePrints to false
           if (this.state.filesToPrint.filter(item => item.status === 'done').length ===
-            this.state.filesToPrint.length) {
+            this.state.filesToPrint.filter(item => item.status !== 'undefined').length) {
               this.setState({ savingAllMoviePrints: false });
           }
         }
@@ -491,37 +492,36 @@ class App extends Component {
     }
 
     // run if there was a change in the filesToPrint array
-    if (this.state.filesToPrint.length !== 0) {
+    if (this.state.filesToPrint.length !== 0 &&
+      !isEquivalent(this.state.filesToPrint, prevState.filesToPrint)
+    ) {
 
       const filesToUpdateStatus = [];
-      // run if there is a file which needsThumbs, but not if there is on already gettingThumbs
+      // run if there is a file which needsThumbs, but not if there is one already gettingThumbs
       if ((this.state.filesToPrint.findIndex(item => item.status === 'gettingThumbs' ) === -1) &&
         (this.state.filesToPrint.findIndex(item => item.status === 'needsThumbs' ) > -1)) {
         console.log(this.state.filesToPrint);
         const fileIdToGetThumbsFor = this.state.filesToPrint.find(item => item.status === 'needsThumbs' ).fileId;
-        // console.log(fileIdToGetThumbsFor);
+        console.log(fileIdToGetThumbsFor);
         const tempFile = this.props.files.find((file) => file.id === fileIdToGetThumbsFor);
-        // console.log(tempFile);
-        this.getThumbsForFile(tempFile);
-        filesToUpdateStatus.push({
-          fileId: fileIdToGetThumbsFor,
-          status: 'gettingThumbs'
-        });
-        // const filesToPrint = this.state.filesToPrint.map((item) => {
-        //   if(fileIdToGetThumbsFor !== item.fileId) {
-        //     // This isn't the item we care about - keep it as-is
-        //     return item;
-        //   }
-        //   // Otherwise, this is the one we want - return an updated value
-        //   return {
-        //     ...item,
-        //     status: 'gettingThumbs'
-        //   };
-        // });
-        // this.setState(
-        //   filesToPrint,
-        // );
-        console.log(filesToUpdateStatus);
+        console.log(tempFile);
+
+        // check if file could be found within files to cover the following case
+        // files who could be added to the filelist, but then could not be read by opencv get removed again from the FileList
+        if (tempFile !== undefined) {
+          this.getThumbsForFile(tempFile);
+          filesToUpdateStatus.push({
+            fileId: fileIdToGetThumbsFor,
+            status: 'gettingThumbs'
+          });
+        } else {
+          // status of file which could not be found gets set to undefined
+          filesToUpdateStatus.push({
+            fileId: fileIdToGetThumbsFor,
+            status: 'undefined'
+          });
+        }
+        // console.log(filesToUpdateStatus);
       }
 
       // run if there is a file readyForPrinting, but not if there is on already printing
@@ -531,7 +531,7 @@ class App extends Component {
         this.setState({
           timeBefore
         });
-        console.log(this.state.filesToPrint);
+        // console.log(this.state.filesToPrint);
         const fileIdToPrint = this.state.filesToPrint.find(item => item.status === 'readyForPrinting' ).fileId;
         // console.log(fileIdToPrint);
         const tempFile = this.props.files
@@ -557,19 +557,7 @@ class App extends Component {
           fileId: fileIdToPrint,
           status: 'printing'
         });
-        // const filesToPrint = this.state.filesToPrint.map((item) => {
-        //   if(fileIdToPrint !== item.fileId) {
-        //     // This isn't the item we care about - keep it as-is
-        //     return item;
-        //   }
-        //   // Otherwise, this is the one we want - return an updated value
-        //   return {
-        //     ...item,
-        //     status: 'printing'
-        //   };
-        // });
-        // // console.log(data);
-        console.log(filesToUpdateStatus);
+        // console.log(filesToUpdateStatus);
         ipcRenderer.send('message-from-mainWindow-to-workerWindow', 'action-save-MoviePrint', data);
       }
 
@@ -1788,7 +1776,7 @@ class App extends Component {
                     <Progress
                       percent={
                         ((this.state.filesToPrint.filter(item => item.status === 'done').length + 1.0) /
-                        this.state.filesToPrint.length) * 100
+                        this.state.filesToPrint.filter(item => item.status !== 'undefined').length) * 100
                       }
                       size='tiny'
                       indicating
