@@ -1771,8 +1771,17 @@ class App extends Component {
                     textAlign='center'
                   >
                     <Header as='h2' inverted>
-                      Saving MoviePrints for all movies in the Movie list
+                      {`Saving ${this.state.filesToPrint.filter(item => item.status === 'done').length + 1} of ${this.state.filesToPrint.filter(item => item.status !== 'undefined').length} MoviePrints`}
                     </Header>
+                    {`${getObjectProperty(
+                      () => this.props.files.find(
+                      file => file.id === getObjectProperty(
+                          () => this.state.filesToPrint.find(
+                            item => item.status === 'printing'
+                        ).fileId
+                      )
+                    ).name
+                    )}`}
                     <Progress
                       percent={
                         ((this.state.filesToPrint.filter(item => item.status === 'done').length + 1.0) /
