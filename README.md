@@ -9,10 +9,13 @@ A tool which lets you create screenshots of entire movies in an instant.
 * Add more thumbs in between
 * Rearrange the order of the thumbs
 * Save all chosen thumbs as stills
-* Automatic In and Outpoint detection (still experimental! deactivated by default)
-* ~~Batch processing of multiple movies~~
+* Save MoviePrints for all dragged in movies automatically
 
-The current version is using opencv as my roadmap includes utilising computer vision algorithms.
+Experimental
+* Scene detection (using mean difference)
+* Automatic In and Outpoint detection
+
+MoviePrint is using openCV as the roadmap includes utilising computer vision algorithms.
 
 ### Watch screencast
 [![MoviePrint_v004 screencast](http://img.youtube.com/vi/1Ya0UrIXfD8/0.jpg)](http://www.youtube.com/watch?v=1Ya0UrIXfD8)
