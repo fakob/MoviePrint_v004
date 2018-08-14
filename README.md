@@ -15,6 +15,22 @@ Experimental
 * Scene detection (using mean difference)
 * Automatic In and Outpoint detection
 
+### Please give feedback
+As **we are not collecting any data** from you, **we are dependent on you talking to us**. If you have a minute, we would very much appreciate if you tell us
+
+* how you found out about MoviePrint
+* how you use the software
+* what you use MoviePrint images for
+* what you like, what you dislike
+* and anything else you think we should know to make a better product
+
+You can use [this form](http://movieprint.fakob.com/2018/05/alpha-release-is-out/) or the `Share Feedback` button in the app.
+
+### Want to stay updated?
+Do you want to be informed when new features are released? Just write NEWSLETTER in [this form](http://movieprint.fakob.com/2018/05/alpha-release-is-out/) or use the `Share Feedback` button in the app.
+_We will only ever send you MoviePrint related updates._
+
+
 MoviePrint is using openCV as the roadmap includes utilising computer vision algorithms.
 
 ### Watch screencast
@@ -45,13 +61,18 @@ First, clone the repo via git:
 git clone --depth=1 https://github.com/fakob/MoviePrint_v004.git MoviePrint_v004
 ```
 
+Make sure you have cmake installed
+
+```bash
+$ brew install cmake
+```
+
 And then install dependencies with yarn.
 
 ```bash
 $ cd MoviePrint_v004
 $ yarn
 ```
-
 ##### Run
 
 ```bash
