@@ -15,6 +15,8 @@ Experimental
 * Scene detection (using mean difference)
 * Automatic In and Outpoint detection
 
+MoviePrint is using openCV as the roadmap includes utilising computer vision algorithms.
+
 ### Please give feedback
 As **we are not collecting any data** from you, **we are dependent on you talking to us**. If you have a minute, we would very much appreciate if you tell us
 
@@ -30,8 +32,6 @@ You can use [this form](http://movieprint.fakob.com/2018/05/alpha-release-is-out
 Do you want to be informed when new features are released? Just write NEWSLETTER in [this form](http://movieprint.fakob.com/2018/05/alpha-release-is-out/) or use the `Share Feedback` button in the app.
 _We will only ever send you MoviePrint related updates._
 
-
-MoviePrint is using openCV as the roadmap includes utilising computer vision algorithms.
 
 ### Watch screencast
 [![MoviePrint_v004 screencast](http://img.youtube.com/vi/1Ya0UrIXfD8/0.jpg)](http://www.youtube.com/watch?v=1Ya0UrIXfD8)
