@@ -549,3 +549,9 @@ export const isEquivalent = (a, b) => {
     // are considered equivalent
     return true;
 }
+
+export const fourccToString = (fourcc) =>
+  `${String.fromCharCode(fourcc & 0XFF)}${String.fromCharCode((fourcc & 0XFF00) >> 8)}${String.fromCharCode((fourcc & 0XFF0000) >> 16)}${String.fromCharCode((fourcc & 0XFF000000) >> 24)}`
+
+export const roundNumber = (number, decimals = 2) =>
+  Math.round((number * (10 ** decimals)) + Number.EPSILON) / (10 ** decimals); // rounds the number with 3 decimals

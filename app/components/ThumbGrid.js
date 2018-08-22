@@ -17,6 +17,7 @@ import {
   getLowestFrame,
   getHighestFrame,
   getAllFrameNumbers,
+  roundNumber,
 } from './../utils/utils';
 import {
   MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
@@ -51,7 +52,7 @@ class ThumbGrid extends Component {
 
   render() {
     const fps = (this.props.file !== undefined && this.props.file.fps !== undefined ? this.props.file.fps : 25);
-    const fileDetails = this.props.file ? `${frameCountToTimeCode(this.props.file.frameCount, fps)} | ${fps} FPS | ${this.props.file.width} × ${this.props.file.height} | ${formatBytes(this.props.file.size, 1)}` : '';
+    const fileDetails = this.props.file ? `${frameCountToTimeCode(this.props.file.frameCount, fps)} | ${roundNumber(fps)} FPS | ${this.props.file.width} × ${this.props.file.height} | ${formatBytes(this.props.file.size, 1)} | ${this.props.file.fourCC}` : '';
 // 00:06:48:12 (9789 frames) | 23.99 FPS | 1280 x 720 | 39.2 MB
     let thumbArray = this.props.thumbs;
 

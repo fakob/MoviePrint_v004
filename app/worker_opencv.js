@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import VideoCaptureProperties from './utils/videoCaptureProperties';
-import { limitRange, setPosition } from './utils/utils';
+import { limitRange, setPosition, fourccToString } from './utils/utils';
 import {
   IN_OUT_POINT_SEARCH_LENGTH,
   IN_OUT_POINT_SEARCH_THRESHOLD,
@@ -65,7 +65,7 @@ ipcRenderer.on(
         `height: ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT)}`
       );
       console.log(`FPS: ${vid.get(VideoCaptureProperties.CAP_PROP_FPS)}`);
-      console.log(`codec: ${vid.get(VideoCaptureProperties.CAP_PROP_FOURCC)}`);
+      console.log(`codec: ${fourccToString(vid.get(VideoCaptureProperties.CAP_PROP_FOURCC))}`);
       ipcRenderer.send(
         'message-from-opencvWorkerWindow-to-mainWindow',
         'receive-get-file-details',
@@ -76,7 +76,7 @@ ipcRenderer.on(
         vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH),
         vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT),
         vid.get(VideoCaptureProperties.CAP_PROP_FPS),
-        vid.get(VideoCaptureProperties.CAP_PROP_FOURCC)
+        fourccToString(vid.get(VideoCaptureProperties.CAP_PROP_FOURCC))
       );
     } catch (e) {
       ipcRenderer.send(
