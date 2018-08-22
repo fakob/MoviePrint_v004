@@ -224,21 +224,32 @@ export const getThumbInfoValue = (type, frames, framesPerSecond) => {
 };
 
 export const getLowestFrame = (thumbs) => {
-  if (thumbs) {
+  if (thumbs && (thumbs.length > 0)) {
     return thumbs.reduce(
       (min, p) => (p.frameNumber < min ? p.frameNumber : min),
       thumbs[0].frameNumber
     );
   }
+  return undefined;
 };
 
 export const getHighestFrame = (thumbs) => {
-  if (thumbs) {
+  if (thumbs && (thumbs.length > 0)) {
     return thumbs.reduce(
       (max, p) => (p.frameNumber > max ? p.frameNumber : max),
       thumbs[0].frameNumber
     );
   }
+  return undefined;
+};
+
+export const getAllFrameNumbers = (thumbs) => {
+  if (thumbs && (thumbs.length > 0)) {
+    return thumbs.map(
+      thumb => thumb.frameNumber
+    );
+  }
+  return [];
 };
 
 export const getPreviousThumbs = (thumbs, thumbId) => {

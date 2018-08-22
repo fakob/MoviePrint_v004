@@ -6,7 +6,21 @@ import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import Thumb from './Thumb';
 import ThumbGridHeader from './ThumbGridHeader';
 import styles from './ThumbGrid.css';
-import { getNextThumbs, getPreviousThumbs, mapRange, getObjectProperty, getThumbInfoValue, formatBytes, frameCountToTimeCode } from './../utils/utils';
+import {
+  getNextThumbs,
+  getPreviousThumbs,
+  mapRange,
+  getObjectProperty,
+  getThumbInfoValue,
+  formatBytes,
+  frameCountToTimeCode,
+  getLowestFrame,
+  getHighestFrame,
+  getAllFrameNumbers,
+} from './../utils/utils';
+import {
+  MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
+} from './../utils/constants';
 
 const SortableThumb = SortableElement(Thumb);
 
@@ -40,6 +54,26 @@ class ThumbGrid extends Component {
     const fileDetails = this.props.file ? `${frameCountToTimeCode(this.props.file.frameCount, fps)} | ${fps} FPS | ${this.props.file.width} × ${this.props.file.height} | ${formatBytes(this.props.file.size, 1)}` : '';
 // 00:06:48:12 (9789 frames) | 23.99 FPS | 1280 x 720 | 39.2 MB
     let thumbArray = this.props.thumbs;
+
+    const getFrameInPercentage = (frameNumber, frameCount) => {
+      if (frameCount > 1) {
+        return (frameNumber / ((frameCount - 1) * 1.0)) * 100.0;
+      }
+      return 0;
+    }
+
+    // calculate in and outpoint for the timeline in percent
+    const inPoint = getLowestFrame(this.props.thumbs);
+    const outPoint = getHighestFrame(this.props.thumbs);
+    const inPointPositionOnTimeline = getFrameInPercentage(inPoint, this.props.file.frameCount);
+    const outPointPositionOnTimeline = getFrameInPercentage(outPoint, this.props.file.frameCount);
+    const cutWidthOnTimeLine = Math.max(
+      outPointPositionOnTimeline - inPointPositionOnTimeline,
+      MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE
+    );
+    const allFrameNumbersArray = getAllFrameNumbers(this.props.thumbs);
+    const allFrameNumbersInPercentArray = allFrameNumbersArray
+      .map(frameNumber => getFrameInPercentage(frameNumber, this.props.file.frameCount));
 
     if (this.props.showSettings || this.props.thumbs.length === 0) {
       const tempArrayLength = this.props.thumbCount;
@@ -92,6 +126,9 @@ class ThumbGrid extends Component {
             headerHeight={this.props.scaleValueObject.newHeaderHeight}
             thumbMargin={this.props.scaleValueObject.newThumbMargin}
             scaleValue={this.props.scaleValueObject.newScaleValue}
+            inPointPositionOnTimeline={inPointPositionOnTimeline}
+            cutWidthOnTimeLine={cutWidthOnTimeLine}
+            allFrameNumbersInPercentArray={allFrameNumbersInPercentArray}
           />
         }
         {thumbArray.map(thumb => (

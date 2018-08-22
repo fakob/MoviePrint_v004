@@ -6,7 +6,16 @@ import styles from './ThumbGrid.css';
 import movieprint from './../img/MoviePrint-titleimage.svg';
 
 const ThumbGridHeader = ({
-  showMoviePrintView, filePath, fileName, fileDetails, headerHeight, thumbMargin, scaleValue
+  showMoviePrintView,
+  filePath,
+  fileName,
+  fileDetails,
+  headerHeight,
+  thumbMargin,
+  scaleValue,
+  inPointPositionOnTimeline,
+  cutWidthOnTimeLine,
+  allFrameNumbersInPercentArray,
 }) => {
   const headerMarginRatioTop = 0.25; // 25% of height
   const headerImageRatio = 0.5; // 50% of height
@@ -50,8 +59,6 @@ const ThumbGridHeader = ({
             className={styles.gridHeaderTextName}
             style={{
               fontSize: `${headerHeight * textRatio * 1.5}px`,
-              // lineHeight: `${headerHeight * textRatio * 1.8}px`,
-              // letterSpacing: `${1.2 * scaleValue}px`,
             }}
           >
             {fileName}
@@ -73,6 +80,33 @@ const ThumbGridHeader = ({
           >
             {fileDetails}
           </div>
+        </div>
+        <div
+          className={styles.timelineWrapper}
+          style={{
+            height: `${headerHeight * textRatio * 1.2}px`,
+            marginLeft: `${headerHeight * textRatio}px`,
+            marginRight: `${headerHeight * textRatio}px`,
+            marginTop: `${headerHeight * textRatio * 3}px`,
+          }}
+        >
+          <div
+            className={`${styles.timelineCut}`}
+            style={{
+              left: `${inPointPositionOnTimeline}%`,
+              width: `${cutWidthOnTimeLine}%`,
+            }}
+          />
+          {allFrameNumbersInPercentArray.map(frameInPercent => (
+            <div
+              className={`${styles.timelineThumbIndicator}`}
+              style={{
+                left: `${frameInPercent}%`,
+                height: `${headerHeight * textRatio * 1.2}px`,
+              }}
+            />
+            )
+          )}
         </div>
       </div>
     </div>

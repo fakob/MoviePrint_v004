@@ -32,6 +32,24 @@
   letter-spacing: 0.3px;
 }
 
+.timelineWrapper {
+  position: relative;
+  background: rgba(255, 219, 204, 0.2);
+  clear: both;
+}
+
+.timelineCut {
+  position: absolute;
+  background: #E85D22;
+  height: 100%;
+}
+
+.timelineThumbIndicator {
+  position: absolute;
+  min-width: 1px;
+  background: #FFDBCC;
+}
+
 .gridItem {
     float: left;
     /*width: 168px;*/
