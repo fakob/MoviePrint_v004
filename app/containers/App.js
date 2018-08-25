@@ -583,13 +583,7 @@ class App extends Component {
 
     // updatecontainerWidthAndHeight checks if the containerWidth or height has changed
     // and if so calls updateScaleValue
-    // throttling the amount of how often the function is called after each other
-    // fixes an occasional bug when setting a new containerWidth and Height with
-    // setState results in an endless loop of setting the containerWidth and Height
-    // back and forth
-    throttle(() => {
-      this.updatecontainerWidthAndHeight();
-    }, 100);
+    this.updatecontainerWidthAndHeight();
 
     // update scaleValue when these parameter change
     if (((prevProps.file === undefined || this.props.file === undefined) ?
@@ -765,8 +759,8 @@ class App extends Component {
         (this.props.file ? 0 : 700); // for startup
       const containerHeightInner = this.siteContent.clientHeight -
         (this.props.file ? 0 : 100); // for startup
-      if ((Math.abs(this.state.containerHeight - containerHeightInner) > 5) ||
-      (Math.abs(this.state.containerWidth - containerWidthInner) > 5)) {
+      if ((Math.abs(this.state.containerHeight - containerHeightInner) > 10) ||
+      (Math.abs(this.state.containerWidth - containerWidthInner) > 10)) {
         console.log(`new containerWidth: ${containerHeightInner}`);
         console.log(`new containerHeight: ${containerWidthInner}`);
         this.setState({
