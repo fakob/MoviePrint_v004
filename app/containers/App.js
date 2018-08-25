@@ -594,6 +594,9 @@ class App extends Component {
       prevProps.settings.defaultMoviePrintWidth !== this.props.settings.defaultMoviePrintWidth ||
       prevProps.settings.defaultMarginRatio !== this.props.settings.defaultMarginRatio ||
       prevProps.settings.defaultShowHeader !== this.props.settings.defaultShowHeader ||
+      prevProps.settings.defaultShowPathInHeader !== this.props.settings.defaultShowPathInHeader ||
+      prevProps.settings.defaultShowDetailsInHeader !== this.props.settings.defaultShowDetailsInHeader ||
+      prevProps.settings.defaultShowTimelineInHeader !== this.props.settings.defaultShowTimelineInHeader ||
       prevProps.settings.defaultRoundedCorners !== this.props.settings.defaultRoundedCorners ||
       prevProps.settings.defaultShowPaperPreview !== this.props.settings.defaultShowPaperPreview ||
       prevProps.settings.defaultPaperAspectRatioInv !== this.props.settings.defaultPaperAspectRatioInv ||

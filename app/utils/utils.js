@@ -359,8 +359,11 @@ export const getScaleValueObject = (
   const movieHeight = (file !== undefined && file.height !== undefined ? file.height : DEFAULT_MOVIE_HEIGHT);
   const movieAspectRatioInv = (movieHeight * 1.0) / movieWidth;
   const rowCount = Math.ceil(thumbCount / columnCount);
+  const headerHeightMultiplier = 1 + ((settings.defaultShowPathInHeader + settings.defaultShowDetailsInHeader + settings.defaultShowTimelineInHeader) / 3.0);
   const headerHeight = settings.defaultShowHeader ? movieHeight *
-    settings.defaultHeaderHeightRatio * settings.defaultThumbnailScale : 0;
+    settings.defaultHeaderHeightRatio * headerHeightMultiplier * settings.defaultThumbnailScale : 0;
+  const logoHeight = movieHeight * settings.defaultHeaderHeightRatio * settings.defaultThumbnailScale;
+
   const thumbWidth = movieWidth * settings.defaultThumbnailScale;
   const thumbMargin = movieWidth * settings.defaultMarginRatio * settings.defaultThumbnailScale;
   const borderRadius = settings.defaultRoundedCorners ? movieWidth *
@@ -438,6 +441,7 @@ export const getScaleValueObject = (
   const newThumbWidth = showMoviePrintView ? thumbWidth * scaleValue : thumbnailWidthForThumbView;
   const newBorderRadius = showMoviePrintView ? borderRadius * scaleValue : borderRadiusForThumbView;
   const newHeaderHeight = showMoviePrintView ? headerHeight * scaleValue : headerHeight;
+  const newLogoHeight = showMoviePrintView ? logoHeight * scaleValue : logoHeight;
   const newScaleValue = showMoviePrintView ? settings.defaultThumbnailScale * scaleValue :
     settings.defaultThumbnailScale;
 
@@ -452,6 +456,7 @@ export const getScaleValueObject = (
     newThumbWidth,
     newBorderRadius,
     newHeaderHeight,
+    newLogoHeight,
     newScaleValue,
     videoPlayerHeight,
     videoPlayerWidth,
