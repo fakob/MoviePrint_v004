@@ -23,7 +23,8 @@ const ThumbGridHeader = ({
   const headerMarginRatioTop = 0.25; // 25% of height
   const headerImageRatio = 0.5; // 50% of height
   const textRatio = 0.25; // 25% of height
-  const newActualHeaderHeight = false ? headerHeight : headerHeight * 2;
+  const headerHeightMultiplier = 1 + ((showPathInHeader + showDetailsInHeader + showTimelineInHeader) / 3.0);
+  const newActualHeaderHeight = false ? headerHeight : headerHeight * headerHeightMultiplier;
 
   // console.log(headerHeight);
   return (
@@ -62,6 +63,7 @@ const ThumbGridHeader = ({
             className={styles.gridHeaderTextName}
             style={{
               fontSize: `${headerHeight * textRatio * 1.5}px`,
+              marginBottom: `${headerHeight * textRatio * 0.5}px`,
             }}
           >
             {fileName}
@@ -69,7 +71,6 @@ const ThumbGridHeader = ({
           {showPathInHeader && <div
             style={{
               lineHeight: `${headerHeight * textRatio * 1.5}px`,
-              marginTop: `${headerHeight * textRatio * 0.25}px`,
               textAlign: 'right',
             }}
           >
@@ -90,7 +91,6 @@ const ThumbGridHeader = ({
             height: `${headerHeight * textRatio * 1.2}px`,
             marginLeft: `${headerHeight * textRatio}px`,
             marginRight: `${headerHeight * textRatio}px`,
-            marginTop: `${headerHeight * textRatio * 3}px`,
           }}
         >
           <div

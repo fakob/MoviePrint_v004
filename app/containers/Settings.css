@@ -8,3 +8,7 @@
 .label {
   color: white !important;
 }
+
+.subCheckbox {
+  margin-left: 30px;
+}

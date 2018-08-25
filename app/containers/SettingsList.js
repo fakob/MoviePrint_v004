@@ -379,33 +379,39 @@ class SettingsList extends Component {
                 </List.Item>
                 <List.Item>
                   <Checkbox
+                    className={styles.subCheckbox}
                     label={
                       <label className={styles.label}>
                         Show file path
                       </label>
                     }
+                    disabled={!this.props.settings.defaultShowHeader}
                     checked={this.props.settings.defaultShowPathInHeader}
                     onChange={this.onChangeShowPathInHeader}
                   />
                 </List.Item>
                 <List.Item>
                   <Checkbox
+                    className={styles.subCheckbox}
                     label={
                       <label className={styles.label}>
                         Show file details
                       </label>
                     }
+                    disabled={!this.props.settings.defaultShowHeader}
                     checked={this.props.settings.defaultShowDetailsInHeader}
                     onChange={this.onChangeShowDetailsInHeader}
                   />
                 </List.Item>
                 <List.Item>
                   <Checkbox
+                    className={styles.subCheckbox}
                     label={
                       <label className={styles.label}>
                         Show timeline
                       </label>
                     }
+                    disabled={!this.props.settings.defaultShowHeader}
                     checked={this.props.settings.defaultShowTimelineInHeader}
                     onChange={this.onChangeShowTimelineInHeader}
                   />
