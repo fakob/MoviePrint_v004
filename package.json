@@ -4,42 +4,46 @@
   "version": "0.1.8-alpha",
   "description": "A tool which lets you create screenshots of entire movies in an instant.",
   "scripts": {
-    "build": "concurrently \"npm run build-main\" \"npm run build-renderer\"",
+    "build": "concurrently \"yarn build-main\" \"yarn build-renderer\"",
     "build-dll": "cross-env NODE_ENV=development node --trace-warnings -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.renderer.dev.dll.js --colors",
     "build-main": "cross-env NODE_ENV=production node --trace-warnings -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.main.prod.js --colors",
     "build-renderer": "cross-env NODE_ENV=production node --trace-warnings -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.renderer.prod.js --colors --display-chunks",
-    "dev": "cross-env START_HOT=1 node -r babel-register ./internals/scripts/CheckPortInUse.js && cross-env START_HOT=1 npm run start-renderer-dev",
+    "dev": "cross-env START_HOT=1 node -r babel-register ./internals/scripts/CheckPortInUse.js && cross-env START_HOT=1 yarn start-renderer-dev",
     "electron-rebuild": "electron-rebuild --parallel --force --types prod,dev,optional --module-dir app",
     "ffmpeg": "bash ./scripts/ffmpeg.sh",
     "flow": "flow",
     "flow-typed": "rimraf flow-typed/npm && flow-typed install --overwrite || true",
     "includeInDist": "bash ./scripts/includeInDist.sh",
     "lint": "cross-env NODE_ENV=development eslint --cache --format=node_modules/eslint-formatter-pretty .",
-    "lint-fix": "npm run --silent lint -- --fix; exit 0",
+    "lint-fix": "yarn --silent lint --fix; exit 0",
     "lint-styles": "stylelint app/*.css app/components/*.css --syntax scss",
     "lint-styles-fix": "stylefmt -r app/*.css app/components/*.css",
-    "package": "npm run includeInDist && npm run ffmpeg && npm run build && build --publish never",
-    "package-dir": "npm run includeInDist && npm run ffmpeg && npm run build && build --publish never --dir",
-    "package-all": "npm run build && build -mwl",
-    "package-linux": "npm run build && build --linux",
-    "package-win": "npm run build && build --win --x64",
-    "postinstall": "node -r babel-register internals/scripts/CheckNativeDep.js && npm run flow-typed && npm run build-dll && electron-builder install-app-deps && node node_modules/fbjs-scripts/node/check-dev-engines.js package.json",
+    "package": "yarn includeInDist && yarn ffmpeg && yarn build && electron-builder build --publish never",
+    "package-dir": "yarn includeInDist && yarn ffmpeg && yarn build && electron-builder build --publish never --dir",
+    "package-all": "yarn build && electron-builder build -mwl",
+    "package-linux": "yarn build && electron-builder build --linux",
+    "package-win": "yarn build && electron-builder build --win --x64",
+    "postinstall": "node -r babel-register internals/scripts/CheckNativeDep.js && yarn flow-typed && yarn build-dll && electron-builder install-app-deps package.json",
     "postlint-fix": "prettier --ignore-path .eslintignore --single-quote --write '**/*.js'",
     "precommit": "lint-staged",
-    "prestart": "npm run build",
+    "prestart": "yarn build",
     "start": "cross-env NODE_ENV=production electron ./app/",
     "start-main-dev": "cross-env HOT=1 NODE_ENV=development electron --inspect=5858 -r babel-register ./app/main.dev",
     "start-renderer-dev": "cross-env NODE_ENV=development DEV_OPENCV_SCENE_DETECTION=true node --trace-warnings -r babel-register ./node_modules/webpack-dev-server/bin/webpack-dev-server --config webpack.config.renderer.dev.js",
     "test": "cross-env NODE_ENV=test BABEL_DISABLE_CACHE=1 node --trace-warnings -r babel-register ./internals/scripts/RunTests.js",
-    "test-all": "npm run lint && npm run flow && npm run build && npm run test && npm run test-e2e",
+    "test-all": "yarn lint && yarn flow && yarn build && yarn test && yarn test-e2e",
     "test-e2e": "cross-env NODE_ENV=test BABEL_DISABLE_CACHE=1 node --trace-warnings -r babel-register ./internals/scripts/RunTests.js e2e",
-    "test-watch": "npm test -- --watch"
+    "test-watch": "yarn test --watch"
   },
   "browserslist": "electron 1.6",
   "lint-staged": {
-    "*.js": [
+    "*.(js|jsx)": [
       "cross-env NODE_ENV=development eslint --cache --format=node_modules/eslint-formatter-pretty",
       "prettier --ignore-path .eslintignore --single-quote --write",
+      "git add"
+    ],
+    "*.(json|css|scss|md)|.(babelrc|prettierrc|eslintrc)": [
+      "prettier --ignore-path .eslintignore --write",
       "git add"
     ]
   },
@@ -116,6 +120,7 @@
   ],
   "homepage": "https://github.com/fakob/MoviePrint_v004#readme",
   "jest": {
+    "testURL": "http://localhost/",
     "moduleNameMapper": {
       "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/internals/mocks/fileMock.js",
       "\\.(css|less|sass|scss)$": "identity-obj-proxy"
@@ -151,7 +156,7 @@
     "babel-register": "^6.26.0",
     "chalk": "^2.4.1",
     "concurrently": "^4.0.0",
-    "cross-env": "^5.1.6",
+    "cross-env": "^5.2.0",
     "cross-spawn": "^6.0.5",
     "css-loader": "^1.0.0",
     "detect-port": "^1.2.3",
@@ -175,7 +180,6 @@
     "eslint-plugin-promise": "^4.0.0",
     "eslint-plugin-react": "^7.11.1",
     "express": "^4.16.3",
-    "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "fbjs-scripts": "^0.8.3",
     "file-loader": "^2.0.0",
     "flow-bin": "^0.79.1",
@@ -188,9 +192,11 @@
     "jest": "^23.5.0",
     "jsdom": "^12.0.0",
     "lint-staged": "^7.2.2",
+    "mini-css-extract-plugin": "^0.4.1",
     "minimist": "^1.2.0",
     "node-sass": "^4.9.3",
     "npm-logical-tree": "^1.2.1",
+    "optimize-css-assets-webpack-plugin": "^5.0.0",
     "prettier": "^1.14.2",
     "react-test-renderer": "^16.4.2",
     "redux-logger": "^3.0.6",
@@ -208,7 +214,8 @@
     "webpack-bundle-analyzer": "^2.13.1",
     "webpack-cli": "^3.1.0",
     "webpack-dev-server": "^3.1.5",
-    "webpack-merge": "^4.1.4"
+    "webpack-merge": "^4.1.4",
+    "yarn": "^1.9.2"
   },
   "dependencies": {
     "ajv": "^6.5.3",
@@ -232,20 +239,20 @@
     "react-hot-loader": "^4.3.5",
     "react-modal": "^3.5.1",
     "react-redux": "^5.0.7",
-    "react-router": "^4.2.0",
-    "react-router-dom": "^4.2.2",
+    "react-router": "^4.3.1",
+    "react-router-dom": "^4.3.1",
     "react-router-redux": "^5.0.0-alpha.6",
     "react-sortable-hoc": "^0.8.3",
     "redux": "^4.0.0",
-    "redux-thunk": "^2.2.0",
     "redux-undo": "^1.0.0-beta9-9-5",
     "scroll-into-view": "^1.9.3",
     "semantic-ui-css": "^2.3.3",
-    "semantic-ui-react": "^0.82.3",
-    "source-map-support": "^0.5.9"
+    "semantic-ui-react": "^0.82.3"
   },
   "optionalDependencies": {
-    "7zip-bin-mac": "^1.0.1"
+    "7zip-bin-mac": "^1.0.1",
+    "redux-thunk": "^2.3.0",
+    "source-map-support": "^0.5.9"
   },
   "devEngines": {
     "node": ">=7.x",

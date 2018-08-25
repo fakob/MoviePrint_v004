@@ -21,7 +21,7 @@
   "homepage": "https://github.com/fakob/MoviePrint_v004#readme",
   "scripts": {
     "electron-rebuild": "node -r babel-register ../internals/scripts/ElectronRebuild.js",
-    "postinstall": "npm run electron-rebuild -w opencv4nodejs"
+    "postinstall": "yarn electron-rebuild -w opencv4nodejs"
   },
   "dependencies": {
     "opencv4nodejs": "^4.1.0",
