@@ -24,11 +24,7 @@ const ThumbGridHeader = ({
   const headerMarginRatioTop = 0.25; // 25% of height
   const headerImageRatio = 0.5; // 50% of height
   const textRatio = 0.25; // 25% of height
-  // const headerHeightMultiplier = 1 + ((showPathInHeader + showDetailsInHeader + showTimelineInHeader) / 3.0);
-  // const newActualHeaderHeight = false ? headerHeight : headerHeight * headerHeightMultiplier;
-  // const newActualHeaderHeight = headerHeight;
 
-  // console.log(headerHeight);
   return (
     <div
       className={styles.gridHeader}
