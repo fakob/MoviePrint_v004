@@ -124,6 +124,9 @@ class ThumbGrid extends Component {
             fileName={this.props.file.name || ''}
             filePath={this.props.file.path || ''}
             fileDetails={fileDetails}
+            showPathInHeader={this.props.settings.defaultShowPathInHeader}
+            showDetailsInHeader={this.props.settings.defaultShowDetailsInHeader}
+            showTimelineInHeader={this.props.settings.defaultShowTimelineInHeader}
             headerHeight={this.props.scaleValueObject.newHeaderHeight}
             thumbMargin={this.props.scaleValueObject.newThumbMargin}
             scaleValue={this.props.scaleValueObject.newScaleValue}

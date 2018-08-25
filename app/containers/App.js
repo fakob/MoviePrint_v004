@@ -36,6 +36,7 @@ import {
   showThumbView, showMoviePrintView, addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
   setVisibilityFilter, setCurrentFileId, updateFileColumnCount, updateObjectUrlsFromThumbList,
   updateFileDetails, clearThumbs, updateThumbImage, setDefaultMarginRatio, setDefaultShowHeader,
+  setDefaultShowPathInHeader, setDefaultShowDetailsInHeader, setDefaultShowTimelineInHeader,
   setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat,
   setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
   setDefaultMoviePrintWidth, updateFileDetailUseRatio, setDefaultShowPaperPreview,
@@ -168,6 +169,9 @@ class App extends Component {
 
     this.onChangeMargin = this.onChangeMargin.bind(this);
     this.onShowHeaderClick = this.onShowHeaderClick.bind(this);
+    this.onShowPathInHeaderClick = this.onShowPathInHeaderClick.bind(this);
+    this.onShowDetailsInHeaderClick = this.onShowDetailsInHeaderClick.bind(this);
+    this.onShowTimelineInHeaderClick = this.onShowTimelineInHeaderClick.bind(this);
     this.onRoundedCornersClick = this.onRoundedCornersClick.bind(this);
     this.toggleZoom = this.toggleZoom.bind(this);
     this.disableZoom = this.disableZoom.bind(this);
@@ -1248,6 +1252,21 @@ class App extends Component {
     store.dispatch(setDefaultShowHeader(value));
   };
 
+  onShowPathInHeaderClick = (value) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultShowPathInHeader(value));
+  };
+
+  onShowDetailsInHeaderClick = (value) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultShowDetailsInHeader(value));
+  };
+
+  onShowTimelineInHeaderClick = (value) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultShowTimelineInHeader(value));
+  };
+
   onRoundedCornersClick = (value) => {
     const { store } = this.context;
     store.dispatch(setDefaultRoundedCorners(value));
@@ -1461,6 +1480,9 @@ class App extends Component {
                         onCancelClick={this.onCancelClick}
                         onChangeMargin={this.onChangeMargin}
                         onShowHeaderClick={this.onShowHeaderClick}
+                        onShowPathInHeaderClick={this.onShowPathInHeaderClick}
+                        onShowDetailsInHeaderClick={this.onShowDetailsInHeaderClick}
+                        onShowTimelineInHeaderClick={this.onShowTimelineInHeaderClick}
                         onRoundedCornersClick={this.onRoundedCornersClick}
                         onShowHiddenThumbsClick={this.onShowHiddenThumbsClick}
                         onThumbInfoClick={this.onThumbInfoClick}

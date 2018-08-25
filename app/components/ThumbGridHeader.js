@@ -10,6 +10,9 @@ const ThumbGridHeader = ({
   filePath,
   fileName,
   fileDetails,
+  showPathInHeader,
+  showDetailsInHeader,
+  showTimelineInHeader,
   headerHeight,
   thumbMargin,
   scaleValue,
@@ -63,7 +66,7 @@ const ThumbGridHeader = ({
           >
             {fileName}
           </div>
-          <div
+          {showPathInHeader && <div
             style={{
               lineHeight: `${headerHeight * textRatio * 1.5}px`,
               marginTop: `${headerHeight * textRatio * 0.25}px`,
@@ -71,17 +74,17 @@ const ThumbGridHeader = ({
             }}
           >
             {(filePath !== '') && `${filePath.substr(0, filePath.lastIndexOf('/'))}/`}
-          </div>
-          <div
+          </div>}
+          {showDetailsInHeader && <div
             style={{
               lineHeight: `${headerHeight * textRatio * 1.5}px`,
               textAlign: 'right',
             }}
           >
             {fileDetails}
-          </div>
+          </div>}
         </div>
-        <div
+        {showTimelineInHeader && <div
           className={styles.timelineWrapper}
           style={{
             height: `${headerHeight * textRatio * 1.2}px`,
@@ -107,7 +110,7 @@ const ThumbGridHeader = ({
             />
             )
           )}
-        </div>
+        </div>}
       </div>
     </div>
   );

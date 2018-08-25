@@ -100,6 +100,9 @@ class SettingsList extends Component {
     this.onChangeDetectInOutPoint = this.onChangeDetectInOutPoint.bind(this);
     this.onChangeReCapture = this.onChangeReCapture.bind(this);
     this.onChangeShowHeader = this.onChangeShowHeader.bind(this);
+    this.onChangeShowPathInHeader = this.onChangeShowPathInHeader.bind(this);
+    this.onChangeShowDetailsInHeader = this.onChangeShowDetailsInHeader.bind(this);
+    this.onChangeShowTimelineInHeader = this.onChangeShowTimelineInHeader.bind(this);
     this.onChangeRoundedCorners = this.onChangeRoundedCorners.bind(this);
     this.onChangeShowHiddenThumbs = this.onChangeShowHiddenThumbs.bind(this);
     this.onChangeThumbInfo = this.onChangeThumbInfo.bind(this);
@@ -128,6 +131,18 @@ class SettingsList extends Component {
 
   onChangeShowHeader = (e, { checked }) => {
     this.props.onShowHeaderClick(checked);
+  }
+
+  onChangeShowPathInHeader = (e, { checked }) => {
+    this.props.onShowPathInHeaderClick(checked);
+  }
+
+  onChangeShowDetailsInHeader = (e, { checked }) => {
+    this.props.onShowDetailsInHeaderClick(checked);
+  }
+
+  onChangeShowTimelineInHeader = (e, { checked }) => {
+    this.props.onShowTimelineInHeaderClick(checked);
   }
 
   onChangeRoundedCorners = (e, { checked }) => {
@@ -360,6 +375,39 @@ class SettingsList extends Component {
                     }
                     checked={this.props.settings.defaultShowHeader}
                     onChange={this.onChangeShowHeader}
+                  />
+                </List.Item>
+                <List.Item>
+                  <Checkbox
+                    label={
+                      <label className={styles.label}>
+                        Show file path
+                      </label>
+                    }
+                    checked={this.props.settings.defaultShowPathInHeader}
+                    onChange={this.onChangeShowPathInHeader}
+                  />
+                </List.Item>
+                <List.Item>
+                  <Checkbox
+                    label={
+                      <label className={styles.label}>
+                        Show file details
+                      </label>
+                    }
+                    checked={this.props.settings.defaultShowDetailsInHeader}
+                    onChange={this.onChangeShowDetailsInHeader}
+                  />
+                </List.Item>
+                <List.Item>
+                  <Checkbox
+                    label={
+                      <label className={styles.label}>
+                        Show timeline
+                      </label>
+                    }
+                    checked={this.props.settings.defaultShowTimelineInHeader}
+                    onChange={this.onChangeShowTimelineInHeader}
                   />
                 </List.Item>
                 <List.Item>

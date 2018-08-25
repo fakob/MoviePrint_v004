@@ -129,6 +129,27 @@ export const setDefaultShowHeader = (defaultShowHeader) => {
   };
 };
 
+export const setDefaultShowPathInHeader = (defaultShowPathInHeader) => {
+  return {
+    type: 'SET_DEFAULT_PATH_IN_HEADER',
+    defaultShowPathInHeader
+  };
+};
+
+export const setDefaultShowDetailsInHeader = (defaultShowDetailsInHeader) => {
+  return {
+    type: 'SET_DEFAULT_DETAILS_IN_HEADER',
+    defaultShowDetailsInHeader
+  };
+};
+
+export const setDefaultShowTimelineInHeader = (defaultShowTimelineInHeader) => {
+  return {
+    type: 'SET_DEFAULT_TIMELINE_IN_HEADER',
+    defaultShowTimelineInHeader
+  };
+};
+
 export const setDefaultRoundedCorners = (defaultRoundedCorners) => {
   return {
     type: 'SET_DEFAULT_ROUNDED_CORNERS',
