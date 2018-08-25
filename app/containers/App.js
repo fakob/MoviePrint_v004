@@ -5,6 +5,7 @@ import Dropzone from 'react-dropzone';
 import { TransitionablePortal, Segment, Progress, Modal, Button, Icon, Container, Loader, Header, Divider } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
 import {Line, defaults} from 'react-chartjs-2';
+import throttle from 'lodash/throttle';
 
 import '../app.global.css';
 import FileList from '../containers/FileList';
@@ -580,7 +581,15 @@ class App extends Component {
       }
     }
 
-    this.updatecontainerWidthAndHeight();
+    // updatecontainerWidthAndHeight checks if the containerWidth or height has changed
+    // and if so calls updateScaleValue
+    // throttling the amount of how often the function is called after each other
+    // fixes an occasional bug when setting a new containerWidth and Height with
+    // setState results in an endless loop of setting the containerWidth and Height
+    // back and forth
+    throttle(() => {
+      this.updatecontainerWidthAndHeight();
+    }, 100);
 
     // update scaleValue when these parameter change
     if (((prevProps.file === undefined || this.props.file === undefined) ?
