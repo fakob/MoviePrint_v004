@@ -84,9 +84,15 @@ export const truncate = (n, len) => {
 };
 
 export const truncatePath = (n, len) => {
-  const front = n.slice(0, len / 2);
-  const back = n.slice(-len / 2);
-  return `${front}...${back}`;
+  // check if length of string is actually longer than truncate length
+  // if not return the original string without truncation
+  // value of 3 compensates for ... (the 3 dots)
+  if ((n.length - 3) > len) {
+    const front = n.slice(0, (len / 2) - 1); // compensate for dots
+    const back = n.slice((-len / 2) - 2); // compensate for dots
+    return `${front}...${back}`;
+  }
+  return n;
 };
 
 
@@ -562,3 +568,12 @@ export const fourccToString = (fourcc) =>
 
 export const roundNumber = (number, decimals = 2) =>
   Math.round((number * (10 ** decimals)) + Number.EPSILON) / (10 ** decimals); // rounds the number with 3 decimals
+
+export const getTextWidth = (text, font) => {
+    // re-use canvas object for better performance
+    const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
+    const context = canvas.getContext("2d");
+    context.font = font;
+    const metrics = context.measureText(text);
+    return metrics.width;
+}

@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { truncatePath, getTextWidth } from '../utils/utils';
 import styles from './ThumbGrid.css';
 
 // import movieprint from './../img/Thumb_MOVIEPRINT.png';
@@ -13,6 +14,7 @@ const ThumbGridHeader = ({
   showPathInHeader,
   showDetailsInHeader,
   showTimelineInHeader,
+  moviePrintWidth,
   headerHeight,
   logoHeight,
   thumbMargin,
@@ -24,6 +26,36 @@ const ThumbGridHeader = ({
   const headerMarginRatioTop = 0.25; // 25% of height
   const headerImageRatio = 0.5; // 50% of height
   const textRatio = 0.25; // 25% of height
+
+  // calculate title text size
+  const widthOfFileNameL = 20 + // 20 is an estimated value found via manual calibration
+    getTextWidth(fileName, `bold ${logoHeight * textRatio * 1.5}px "Open sans"`);
+  const widthOfFileNameS = 0 + // 20 is an estimated value found via manual calibration
+    getTextWidth(fileName, `bold ${logoHeight * textRatio * 1.2}px "Open sans"`);
+  const logoAspectRatio = 385 / 69.0;
+  const spaceForFileName = moviePrintWidth -
+    (logoHeight * textRatio * 8) - // padding left and right and some extra
+    (logoHeight * headerImageRatio * logoAspectRatio) // logo width
+  let fileNameRatio;
+  let titleTextSize;
+  let titleText = fileName;
+  if (spaceForFileName > widthOfFileNameL) {
+    console.log('enough space for title');
+    fileNameRatio = 1;
+    titleTextSize = logoHeight * textRatio * 1.5;
+  } else if (spaceForFileName > widthOfFileNameS) {
+    console.log('shrink font size a bit');
+    fileNameRatio = spaceForFileName / widthOfFileNameL;
+    console.log(fileNameRatio);
+    titleTextSize = logoHeight * textRatio * 1.5 * fileNameRatio;
+  } else {
+    console.log('use small font size a truncate text');
+    fileNameRatio = spaceForFileName / widthOfFileNameS;
+    titleTextSize = logoHeight * textRatio * 1.2;
+    const lengthOfFileName = fileName.length;
+    const newLengthOfFileName = Math.floor(fileNameRatio * lengthOfFileName);
+    titleText = truncatePath(fileName, newLengthOfFileName);
+  }
 
   return (
     <div
@@ -41,6 +73,7 @@ const ThumbGridHeader = ({
         }}
       >
         <img
+          className={styles.gridHeaderImage}
           src={movieprint}
           alt=""
           height={`${logoHeight * headerImageRatio}px`}
@@ -60,11 +93,11 @@ const ThumbGridHeader = ({
           <div
             className={styles.gridHeaderTextName}
             style={{
-              fontSize: `${logoHeight * textRatio * 1.5}px`,
+              fontSize: `${titleTextSize}px`,
               marginBottom: `${logoHeight * textRatio * 0.5}px`,
             }}
           >
-            {fileName}
+            {titleText}
           </div>
           {showPathInHeader && <div
             style={{

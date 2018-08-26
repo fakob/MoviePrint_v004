@@ -127,6 +127,7 @@ class ThumbGrid extends Component {
             showPathInHeader={this.props.settings.defaultShowPathInHeader}
             showDetailsInHeader={this.props.settings.defaultShowDetailsInHeader}
             showTimelineInHeader={this.props.settings.defaultShowTimelineInHeader}
+            moviePrintWidth={this.props.scaleValueObject.newMoviePrintWidth}
             headerHeight={this.props.scaleValueObject.newHeaderHeight}
             logoHeight={this.props.scaleValueObject.newLogoHeight}
             thumbMargin={this.props.scaleValueObject.newThumbMargin}
