@@ -51,7 +51,7 @@ import {
   SCENE_DETECTION_MIN_SCENE_LENGTH,
 } from '../utils/constants';
 
-import steps from '../img/MoviePrint-steps.svg';
+import startupImg from '../img/MoviePrint-steps.svg';
 import transparent from '../img/Thumb_TRANSPARENT.png';
 
 const { ipcRenderer } = require('electron');
@@ -165,7 +165,7 @@ class App extends Component {
     this.onPaperAspectRatioClick = this.onPaperAspectRatioClick.bind(this);
     this.onDetectInOutPointClick = this.onDetectInOutPointClick.bind(this);
     this.onReCaptureClick = this.onReCaptureClick.bind(this);
-    this.onApplyClick = this.onApplyClick.bind(this);
+    this.onApplyNewGridClick = this.onApplyNewGridClick.bind(this);
     this.onCancelClick = this.onCancelClick.bind(this);
 
     this.onChangeMargin = this.onChangeMargin.bind(this);
@@ -1200,7 +1200,7 @@ class App extends Component {
     this.setState({ reCapture: checked });
   };
 
-  onApplyClick = () => {
+  onApplyNewGridClick = () => {
     const { store } = this.context;
     console.log(`${this.state.columnCount} : ${this.state.columnCountTemp} || ${this.state.thumbCount} : ${this.state.thumbCountTemp}`);
     this.setState({ columnCount: this.state.columnCountTemp });
@@ -1411,7 +1411,7 @@ class App extends Component {
                     toggleView={this.onViewToggle}
                     onToggleShowHiddenThumbsClick={this.onToggleShowHiddenThumbsClick}
                     onThumbInfoClick={this.onThumbInfoClick}
-                    openDialog={() => this.dropzoneRef.open()}
+                    openMoviesDialog={() => this.dropzoneRef.open()}
                     zoom={this.state.zoom}
                   />
                   <TransitionablePortal
@@ -1482,7 +1482,7 @@ class App extends Component {
                         onPaperAspectRatioClick={this.onPaperAspectRatioClick}
                         onDetectInOutPointClick={this.onDetectInOutPointClick}
                         onReCaptureClick={this.onReCaptureClick}
-                        onApplyClick={this.onApplyClick}
+                        onApplyNewGridClick={this.onApplyNewGridClick}
                         onCancelClick={this.onCancelClick}
                         onChangeMargin={this.onChangeMargin}
                         onShowHeaderClick={this.onShowHeaderClick}
@@ -1597,7 +1597,8 @@ class App extends Component {
                           className={styles.ItemMainStartupContainer}
                         >
                           <img
-                            src={steps}
+                            data-tid='startupImg'
+                            src={startupImg}
                             style={{
                               width: `calc(100vw - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)`,
                               height: `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)`,

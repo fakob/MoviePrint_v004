@@ -10,13 +10,13 @@ import stylesPop from './Popup.css';
 const Header = ({
   file, visibilitySettings, toggleMovielist, toggleSettings,
   onToggleShowHiddenThumbsClick, settings, onThumbInfoClick,
-  openDialog, toggleZoom, zoom, toggleView
+  openMoviesDialog, toggleZoom, zoom, toggleView
 }) => {
 
   const thumbInfoOptions = [
-    { value: 'frames', text: 'Show frames', },
-    { value: 'timecode', text: 'Show timecode', },
-    { value: 'hideInfo', text: 'Hide info' },
+    { value: 'frames', text: 'Show frames', 'data-tid':'framesOption'},
+    { value: 'timecode', text: 'Show timecode', 'data-tid':'timecodeOption'},
+    { value: 'hideInfo', text: 'Hide info', 'data-tid':'hideInfoOption'},
   ];
 
   return (
@@ -35,6 +35,7 @@ const Header = ({
           <Popup
             trigger={
               <Menu.Item
+                data-tid={(visibilitySettings.showMovielist === false) ? 'showMovieListBtn' : 'hideMovieListBtn'}
                 onClick={toggleMovielist}
               >
                 <Icon
@@ -51,7 +52,8 @@ const Header = ({
         <Popup
           trigger={
             <Menu.Item
-              onClick={openDialog}
+              data-tid='openMoviesBtn'
+              onClick={openMoviesDialog}
             >
               Open Movies
             </Menu.Item>
@@ -68,6 +70,7 @@ const Header = ({
             <Popup
               trigger={
                 <Menu.Item
+                  data-tid={zoom ? 'zoomOutBtn' : 'zoomInBtn'}
                   onClick={toggleZoom}
                 >
                   <Icon
@@ -85,6 +88,7 @@ const Header = ({
             <Popup
               trigger={
                 <Menu.Item
+                  data-tid={(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'hideHiddenThumbsBtn' : 'showHiddenThumbsBtn'}
                   onClick={onToggleShowHiddenThumbsClick}
                 >
                   <Icon
@@ -102,6 +106,7 @@ const Header = ({
             <Popup
               trigger={
                 <Dropdown
+                  data-tid='showThumbInfoDropdown'
                   text="Show info"
                   item
                   options={thumbInfoOptions}
@@ -118,6 +123,7 @@ const Header = ({
             <Popup
               trigger={
                 <Menu.Item
+                  data-tid={visibilitySettings.showMoviePrintView ? 'playerViewBtn' : 'printViewBtn'}
                   onClick={toggleView}
                 >
                   <Icon
@@ -134,6 +140,7 @@ const Header = ({
           <Popup
             trigger={
               <Menu.Item
+                data-tid={(visibilitySettings.showSettings === false) ? 'moreSettingsBtn' : 'hideSettingsBtn'}
                 onClick={toggleSettings}
               >
                 <Icon

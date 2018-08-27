@@ -7,8 +7,14 @@ import Tooltip from 'rc-tooltip';
 import { Button, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List, Message, Popup } from 'semantic-ui-react';
 import styles from './Settings.css';
 import stylesPop from '../components/Popup.css';
-import { MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT, DEFAULT_THUMB_COUNT,
-  DEFAULT_COLUMN_COUNT, DEFAULT_MOVIE_WIDTH, DEFAULT_MOVIE_HEIGHT } from '../utils/constants';
+import {
+  MENU_HEADER_HEIGHT,
+  MENU_FOOTER_HEIGHT,
+  DEFAULT_MOVIE_WIDTH,
+  DEFAULT_MOVIE_HEIGHT,
+  PAPER_LAYOUT_OPTIONS,
+  OUTPUT_FORMAT_OPTIONS,
+} from '../utils/constants';
 import { getScaleValueObject } from '../utils/utils';
 
 const SliderWithTooltip = createSliderWithTooltip(Slider);
@@ -28,17 +34,6 @@ const handle = (props) => {
       <Handle value={value} {...restProps} />
     </Tooltip>
   );
-};
-
-const thumbnailScale = (file = { width: 1920, height: 1080 }, scaleValueObject) => {
-  // console.log(scaleValueObject.newMoviePrintWidth);
-  return [
-    { value: 1, text: `${file.width}×${file.height} – 1/1 - ${scaleValueObject.newMoviePrintWidth}` },
-    { value: 0.5, text: `${file.width * 0.5}×${file.height * 0.5} – 1/2` },
-    { value: 0.25, text: `${file.width * 0.25}×${file.height * 0.25} – 1/4` },
-    { value: 0.125, text: `${file.width * 0.125}×${file.height * 0.125} – 1/8` },
-    // { value: 0.0625, text: '1/16' },
-  ];
 };
 
 const outputSize = (file = {
@@ -63,36 +58,20 @@ const outputSize = (file = {
     { width: 1024, height: Math.round(1024 * newScaleValueObject.moviePrintAspectRatioInv) },
   ];
   return [
-    { value: moviePrintSize[5].width, text: `${moviePrintSize[5].width}px (×${moviePrintSize[5].height}px)`, disabled: ((moviePrintSize[5].width + moviePrintSize[5].height) > sizeLimit) },
-    { value: moviePrintSize[4].width, text: `${moviePrintSize[4].width}px (×${moviePrintSize[4].height}px)`, disabled: ((moviePrintSize[4].width + moviePrintSize[4].height) > sizeLimit) },
-    { value: moviePrintSize[3].width, text: `${moviePrintSize[3].width}px (×${moviePrintSize[3].height}px)`, disabled: ((moviePrintSize[3].width + moviePrintSize[3].height) > sizeLimit) },
-    { value: moviePrintSize[2].width, text: `${moviePrintSize[2].width}px (×${moviePrintSize[2].height}px)`, disabled: ((moviePrintSize[2].width + moviePrintSize[2].height) > sizeLimit) },
-    { value: moviePrintSize[1].width, text: `${moviePrintSize[1].width}px (×${moviePrintSize[1].height}px)`, disabled: ((moviePrintSize[1].width + moviePrintSize[1].height) > sizeLimit) },
-    { value: moviePrintSize[0].width, text: `${moviePrintSize[0].width}px (×${moviePrintSize[0].height}px)`, disabled: ((moviePrintSize[0].width + moviePrintSize[0].height) > sizeLimit) },
+    { value: moviePrintSize[5].width, text: `${moviePrintSize[5].width}px (×${moviePrintSize[5].height}px)`, disabled: ((moviePrintSize[5].width + moviePrintSize[5].height) > sizeLimit), 'data-tid': `${moviePrintSize[5].width}-widthOption` },
+    { value: moviePrintSize[4].width, text: `${moviePrintSize[4].width}px (×${moviePrintSize[4].height}px)`, disabled: ((moviePrintSize[4].width + moviePrintSize[4].height) > sizeLimit), 'data-tid': `${moviePrintSize[4].width}-widthOption` },
+    { value: moviePrintSize[3].width, text: `${moviePrintSize[3].width}px (×${moviePrintSize[3].height}px)`, disabled: ((moviePrintSize[3].width + moviePrintSize[3].height) > sizeLimit), 'data-tid': `${moviePrintSize[3].width}-widthOption` },
+    { value: moviePrintSize[2].width, text: `${moviePrintSize[2].width}px (×${moviePrintSize[2].height}px)`, disabled: ((moviePrintSize[2].width + moviePrintSize[2].height) > sizeLimit), 'data-tid': `${moviePrintSize[2].width}-widthOption` },
+    { value: moviePrintSize[1].width, text: `${moviePrintSize[1].width}px (×${moviePrintSize[1].height}px)`, disabled: ((moviePrintSize[1].width + moviePrintSize[1].height) > sizeLimit), 'data-tid': `${moviePrintSize[1].width}-widthOption` },
+    { value: moviePrintSize[0].width, text: `${moviePrintSize[0].width}px (×${moviePrintSize[0].height}px)`, disabled: ((moviePrintSize[0].width + moviePrintSize[0].height) > sizeLimit), 'data-tid': `${moviePrintSize[0].width}-widthOption` },
   ];
 };
-
-const paperLayouts = [
-  { value: 0.71, text: 'A0-A5 (Landscape)' },
-  { value: 1.41, text: 'A0-A5 (Portrait)' },
-  { value: 0.77, text: 'Letter (Landscape)' },
-  { value: 1.29, text: 'Letter (Portrait)' },
-  { value: 0.61, text: 'Legal (Landscape)' },
-  { value: 1.65, text: 'Legal (Portrait)' },
-  { value: 0.65, text: 'Tabloid (Landscape)' },
-  { value: 1.55, text: 'Tabloid (Portrait)' },
-];
-
-const outputFormatOptions = [
-  { value: 'png', text: 'PNG' },
-  { value: 'jpg', text: 'JPG' },
-];
 
 class SettingsList extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      threshold: 20.0,
+      sceneDetectionThreshold: 20.0,
     };
 
     this.onChangePaperAspectRatio = this.onChangePaperAspectRatio.bind(this);
@@ -215,6 +194,7 @@ class SettingsList extends Component {
             </Grid.Column>
             <Grid.Column width={12}>
               <SliderWithTooltip
+                // data-tid='columnCountSlider'
                 className={styles.slider}
                 min={1}
                 max={20}
@@ -236,6 +216,7 @@ class SettingsList extends Component {
               </Grid.Column>
               <Grid.Column width={12}>
                 <SliderWithTooltip
+                  // data-tid='rowCountSlider'
                   disabled={!this.props.reCapture}
                   className={styles.slider}
                   min={1}
@@ -258,19 +239,14 @@ class SettingsList extends Component {
             </Grid.Column>
             <Grid.Column width={12}>
               <Checkbox
-                // toggle
+                data-tid='changeThumbCountCheckbox'
                 label={
                   <label className={styles.label}>
                     Change thumb count
                   </label>
                 }
-                // checked={this.state.checkBoxChecked}
                 checked={this.props.reCapture}
                 onChange={this.onChangeReCapture}
-                // style={{
-                //   color: '#eeeeee',
-                //   fontFamily: 'Roboto Condensed',
-                // }}
               />
             </Grid.Column>
           </Grid.Row>
@@ -279,6 +255,7 @@ class SettingsList extends Component {
               <Grid.Column width={4} />
               <Grid.Column width={12}>
                 <Message
+                  data-tid='applyNewGridMessage'
                   color="orange"
                   size="mini"
                 >
@@ -293,10 +270,11 @@ class SettingsList extends Component {
               <Popup
                 trigger={
                   <Button
+                    data-tid='applyNewGridBtn'
                     fluid
                     color="orange"
                     disabled={(this.props.thumbCount === this.props.thumbCountTemp)}
-                    onClick={this.props.onApplyClick}
+                    onClick={this.props.onApplyNewGridClick}
                   >
                       Apply
                   </Button>
@@ -314,6 +292,7 @@ class SettingsList extends Component {
             </Grid.Column>
             <Grid.Column width={12}>
               <Checkbox
+                data-tid='showPaperPreviewCheckbox'
                 label={
                   <label className={styles.label}>
                     Show paper preview
@@ -330,11 +309,11 @@ class SettingsList extends Component {
             </Grid.Column>
             <Grid.Column width={12}>
               <Dropdown
+                data-tid='paperLayoutOptionsDropdown'
                 placeholder="Select..."
                 selection
-                // search
                 disabled={!this.props.settings.defaultShowPaperPreview}
-                options={paperLayouts}
+                options={PAPER_LAYOUT_OPTIONS}
                 defaultValue={this.props.settings.defaultPaperAspectRatioInv}
                 onChange={this.onChangePaperAspectRatio}
               />
@@ -347,6 +326,7 @@ class SettingsList extends Component {
             </Grid.Column>
             <Grid.Column width={12}>
               <SliderWithTooltip
+                // data-tid='marginSlider'
                 className={styles.slider}
                 min={0}
                 max={20}
@@ -368,6 +348,7 @@ class SettingsList extends Component {
               <List>
                 <List.Item>
                   <Checkbox
+                    data-tid='showHeaderCheckbox'
                     label={
                       <label className={styles.label}>
                         Show header
@@ -379,6 +360,7 @@ class SettingsList extends Component {
                 </List.Item>
                 <List.Item>
                   <Checkbox
+                    data-tid='showFilePathCheckbox'
                     className={styles.subCheckbox}
                     label={
                       <label className={styles.label}>
@@ -392,6 +374,7 @@ class SettingsList extends Component {
                 </List.Item>
                 <List.Item>
                   <Checkbox
+                    data-tid='showFileDetailsCheckbox'
                     className={styles.subCheckbox}
                     label={
                       <label className={styles.label}>
@@ -405,6 +388,7 @@ class SettingsList extends Component {
                 </List.Item>
                 <List.Item>
                   <Checkbox
+                    data-tid='showTimelineCheckbox'
                     className={styles.subCheckbox}
                     label={
                       <label className={styles.label}>
@@ -418,6 +402,7 @@ class SettingsList extends Component {
                 </List.Item>
                 <List.Item>
                   <Checkbox
+                    data-tid='roundedCornersCheckbox'
                     label={
                       <label className={styles.label}>
                         Rounded corners
@@ -429,6 +414,7 @@ class SettingsList extends Component {
                 </List.Item>
                 <List.Item>
                   <Checkbox
+                    data-tid='showHiddenThumbsCheckbox'
                     label={
                       <label className={styles.label}>
                         Show hidden thumbs
@@ -441,6 +427,7 @@ class SettingsList extends Component {
                 <Divider inverted />
                 <List.Item>
                   <Radio
+                    data-tid='showFramesRadioBtn'
                     label={
                       <label className={styles.label}>
                         Show frames
@@ -454,6 +441,7 @@ class SettingsList extends Component {
                 </List.Item>
                 <List.Item>
                   <Radio
+                    data-tid='showTimecodeRadioBtn'
                     label={
                       <label className={styles.label}>
                         Show timecode
@@ -467,6 +455,7 @@ class SettingsList extends Component {
                 </List.Item>
                 <List.Item>
                   <Radio
+                    data-tid='hideInfoRadioBtn'
                     label={
                       <label className={styles.label}>
                         Hide info
@@ -499,6 +488,7 @@ class SettingsList extends Component {
                 </List.Item>
                 <List.Item>
                   <Button
+                    data-tid='changeOutputPathBtn'
                     onClick={this.props.onChangeOutputPathClick}
                   >
                     Change...
@@ -513,40 +503,25 @@ class SettingsList extends Component {
             </Grid.Column>
             <Grid.Column width={12}>
               <Dropdown
+                data-tid='changeMoviePrintWidthDropdown'
                 placeholder="Select..."
                 selection
-                // search
                 options={outputSize(this.props.file, this.props.columnCountTemp, this.props.thumbCountTemp, this.props.settings, this.props.visibilitySettings)}
                 defaultValue={this.props.settings.defaultMoviePrintWidth}
                 onChange={this.onChangeMoviePrintWidth}
               />
             </Grid.Column>
           </Grid.Row>
-          {/* <Grid.Row>
-            <Grid.Column width={4}>
-              Thumb size
-            </Grid.Column>
-            <Grid.Column width={12}>
-              <Dropdown
-                placeholder="Select..."
-                selection
-                // search
-                options={thumbnailScale(this.props.file, this.props.scaleValueObject)}
-                defaultValue={this.props.settings.defaultThumbnailScale}
-                onChange={this.onChangeThumbnailScale}
-              />
-            </Grid.Column>
-          </Grid.Row> */}
           <Grid.Row>
             <Grid.Column width={4}>
               Output format
             </Grid.Column>
             <Grid.Column width={12}>
               <Dropdown
+                data-tid='changeOutputFormatDropdown'
                 placeholder="Select..."
                 selection
-                // search
-                options={outputFormatOptions}
+                options={OUTPUT_FORMAT_OPTIONS}
                 defaultValue={this.props.settings.defaultOutputFormat}
                 onChange={this.onChangeOutputFormat}
               />
@@ -560,6 +535,7 @@ class SettingsList extends Component {
               <List>
                 <List.Item>
                   <Checkbox
+                    data-tid='overwriteExistingCheckbox'
                     label={
                       <label className={styles.label}>
                         Overwrite existing
@@ -571,6 +547,7 @@ class SettingsList extends Component {
                 </List.Item>
                 <List.Item>
                   <Checkbox
+                    data-tid='includeIndividualFramesCheckbox'
                     label={
                       <label className={styles.label}>
                         Include individual frames
@@ -595,6 +572,7 @@ class SettingsList extends Component {
             </Grid.Column>
             <Grid.Column width={12}>
               <Checkbox
+                data-tid='automaticDetectionInOutPointCheckbox'
                 label={
                   <label className={styles.label}>
                     Automatic detection of In and Outpoint
@@ -614,11 +592,11 @@ class SettingsList extends Component {
               <Popup
                 trigger={
                   <Button
+                    data-tid='runSceneDetectionBtn'
                     fluid
-                    // color="orange"
                     loading={this.props.fileScanRunning}
                     disabled={this.props.fileScanRunning}
-                    onClick={() => this.props.runSceneDetection(this.props.file, this.state.threshold)}
+                    onClick={() => this.props.runSceneDetection(this.props.file, this.state.sceneDetectionThreshold)}
                   >
                       Run scene detection
                   </Button>
@@ -635,17 +613,18 @@ class SettingsList extends Component {
             </Grid.Column>
             <Grid.Column width={12}>
               <SliderWithTooltip
+                // data-tid='sceneDetectionThresholdSlider'
                 className={styles.slider}
                 min={5}
                 max={40}
-                defaultValue={this.state.threshold}
+                defaultValue={this.state.sceneDetectionThreshold}
                 marks={{
                   5: '5',
                   20: '20',
                   40: '40',
                 }}
                 handle={handle}
-                onChange={(value) => this.setState({ threshold: value })}
+                onChange={(value) => this.setState({ sceneDetectionThreshold: value })}
               />
             </Grid.Column>
           </Grid.Row>
@@ -657,6 +636,7 @@ class SettingsList extends Component {
               <Popup
                 trigger={
                   <Button
+                    data-tid='showDetectionChartBtn'
                     fluid
                     onClick={this.props.onToggleDetectionChart}
                   >

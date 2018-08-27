@@ -59,6 +59,7 @@ const ThumbGridHeader = ({
 
   return (
     <div
+      data-tid='thumbGridHeaderDiv'
       className={styles.gridHeader}
       style={{
         height: headerHeight,
@@ -73,6 +74,7 @@ const ThumbGridHeader = ({
         }}
       >
         <img
+          data-tid='gridHeaderImg'
           className={styles.gridHeaderImage}
           src={movieprint}
           alt=""
@@ -91,6 +93,7 @@ const ThumbGridHeader = ({
           }}
         >
           <div
+            data-tid='movieTitleText'
             className={styles.gridHeaderTextName}
             style={{
               fontSize: `${titleTextSize}px`,
@@ -100,6 +103,7 @@ const ThumbGridHeader = ({
             {titleText}
           </div>
           {showPathInHeader && <div
+            data-tid='filePathText'
             style={{
               lineHeight: `${logoHeight * textRatio * 1.5}px`,
               textAlign: 'right',
@@ -108,6 +112,7 @@ const ThumbGridHeader = ({
             {(filePath !== '') && `${filePath.substr(0, filePath.lastIndexOf('/'))}/`}
           </div>}
           {showDetailsInHeader && <div
+            data-tid='fileDetailsText'
             style={{
               lineHeight: `${logoHeight * textRatio * 1.5}px`,
               textAlign: 'right',
@@ -117,6 +122,7 @@ const ThumbGridHeader = ({
           </div>}
         </div>
         {showTimelineInHeader && <div
+          data-tid='timelineWrapperDiv'
           className={styles.timelineWrapper}
           style={{
             height: `${logoHeight * textRatio * 1.2}px`,

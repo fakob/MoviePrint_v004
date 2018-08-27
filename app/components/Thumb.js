@@ -10,11 +10,12 @@ import stylesPop from './Popup.css';
 
 import transparent from '../img/Thumb_TRANSPARENT.png';
 
-const DragHandle = SortableHandle(({ width, height }) =>
+const DragHandle = SortableHandle(({ width, height, thumbId }) =>
   (
     <Popup
       trigger={
         <button
+          data-tid={`thumbDragHandleBtn_${thumbId}`}
           className={`${styles.dragHandleButton}`}
           style={{
             width,
@@ -43,6 +44,7 @@ const Thumb = ({
   controllersAreVisible,
   dim,
   hidden,
+  thumbId,
   index,
   indexForId,
   inputRefThumb,
@@ -192,6 +194,7 @@ const Thumb = ({
     >
       <div>
         <img
+          data-tid={`thumbImg_${thumbId}`}
           src={thumbImageObjectUrl !== undefined ? thumbImageObjectUrl : transparent}
           id={`thumbImage${indexForId}`}
           className={`${styles.image} ${dim ? styles.dim : ''}`}
@@ -206,6 +209,7 @@ const Thumb = ({
         />
         {thumbInfoValue !== undefined &&
           <div
+            data-tid={`thumbInfoText_${thumbId}`}
             className={styles.frameNumber}
             style={{
               transform: `scale(${(thumbInfoRatio * thumbWidth * aspectRatioInv) / 10})`,
@@ -223,11 +227,13 @@ const Thumb = ({
             <DragHandle
               width={thumbWidth - 1} // shrink it to prevent rounding issues
               height={(thumbWidth * aspectRatioInv) - 1}
+              thumbId={thumbId}
             />
           }
           <Popup
             trigger={
               <button
+                data-tid={`${hidden ? 'show' : 'hide'}ThumbBtn_${thumbId}`}
                 style={{
                   display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
                   transformOrigin: 'center top',
@@ -252,6 +258,7 @@ const Thumb = ({
           <Popup
             trigger={
               <button
+                data-tid={`saveThumbBtn_${thumbId}`}
                 style={{
                   display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
                   transformOrigin: 'top right',
@@ -279,6 +286,7 @@ const Thumb = ({
               <Popup
                 trigger={
                   <button
+                    data-tid={`setInPointBtn_${thumbId}`}
                     style={{
                       display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
                       transformOrigin: 'left bottom',
@@ -301,33 +309,10 @@ const Thumb = ({
                 className={stylesPop.popup}
                 content={<span>Set this thumb as new <mark>IN-point</mark></span>}
               />
-              {/* <Popup
-                trigger={
-                  <button
-                    style={{
-                      display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-                      transformOrigin: 'center bottom',
-                      transform: `translateX(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                      position: 'absolute',
-                      bottom: 0,
-                      left: '30%',
-                    }}
-                    className={`${styles.hoverButton} ${styles.textButton}`}
-                    onClick={onBackWithStop}
-                    onMouseOver={over}
-                    onMouseLeave={out}
-                    onFocus={over}
-                    onBlur={out}
-                  >
-                    {keyObject.altKey ? '<<<' : (keyObject.shiftKey ? '<' : '<<')}
-                  </button>
-                }
-                className={stylesPop.popup}
-                content={<span>Move 10 frames back | with <mark>SHIFT</mark> move 1 frame | with <mark>ALT</mark> move 100 frames</span>}
-              /> */}
               <Popup
                 trigger={
                   <button
+                    data-tid={`scrubBtn_${thumbId}`}
                     style={{
                       display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
                       transformOrigin: 'center bottom',
@@ -350,33 +335,10 @@ const Thumb = ({
                 className={stylesPop.popup}
                 content={<span>Click and drag left and right to change the frame (<mark>SHIFT</mark> add new thumb before, <mark>ALT</mark> add new thumb after, <mark>CTRL</mark> display original as overlay)</span>}
               />
-              {/* <Popup
-                trigger={
-                  <button
-                    style={{
-                      display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-                      transformOrigin: 'center bottom',
-                      transform: `translateX(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                      position: 'absolute',
-                      bottom: 0,
-                      left: '70%',
-                    }}
-                    className={`${styles.hoverButton} ${styles.textButton}`}
-                    onClick={onForwardWithStop}
-                    onMouseOver={over}
-                    onMouseLeave={out}
-                    onFocus={over}
-                    onBlur={out}
-                  >
-                    {keyObject.altKey ? '>>>' : (keyObject.shiftKey ? '>' : '>>')}
-                  </button>
-                }
-                className={stylesPop.popup}
-                content={<span>Move 10 frames forward | with <mark>SHIFT</mark> move 1 frame | with <mark>ALT</mark> move 100 frames</span>}
-              /> */}
               <Popup
                 trigger={
                   <button
+                    data-tid={`setOutPointBtn_${thumbId}`}
                     style={{
                       display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
                       transformOrigin: 'right bottom',
@@ -404,6 +366,7 @@ const Thumb = ({
         </div>
         {!showMoviePrintView && selected && (keyObject.altKey || keyObject.shiftKey) &&
           <div
+            data-tid={`insertThumb${(!keyObject.altKey && keyObject.shiftKey) ? 'Before' : 'After'}Div_${thumbId}`}
             style={{
               content: '',
               backgroundColor: '#FF5006',
@@ -420,6 +383,7 @@ const Thumb = ({
         }
         {showMoviePrintView && controllersAreVisible && (keyObject.altKey || keyObject.shiftKey) && (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) &&
           <div
+            data-tid={`insertThumb${(!keyObject.altKey && keyObject.shiftKey) ? 'Before' : 'After'}Div_${thumbId}`}
             style={{
               content: '',
               backgroundColor: '#FF5006',

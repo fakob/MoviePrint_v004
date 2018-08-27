@@ -8,7 +8,11 @@ const FileListElement = ({
   id, frameCount, fps, width, height, name, path,
   size, objectUrl, onClick, currentFileId
 }) => (
-  <li onClick={onClick} className={(currentFileId === id) ? `${styles.Highlight}` : ''} >
+  <li
+    data-tid={`fileListItem_${id}`}
+    onClick={onClick}
+    className={(currentFileId === id) ? `${styles.Highlight}` : ''}
+  >
     <div
       className={`${styles.croppedThumb}`}
       style={(objectUrl !== undefined) ? { backgroundImage: `url(${objectUrl})` } : { backgroundColor: '#1e1e1e' }}

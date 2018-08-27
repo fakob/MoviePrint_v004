@@ -9,6 +9,22 @@ export const MOVIEPRINT_COLORS = [
   '#FFd3c1',
 ];
 
+export const PAPER_LAYOUT_OPTIONS = [
+  { value: 0.71, text: 'A0-A5 (Landscape)' , 'data-tid': 'A0-A5-L'},
+  { value: 1.41, text: 'A0-A5 (Portrait)' , 'data-tid': 'A0-A5-P'},
+  { value: 0.77, text: 'Letter (Landscape)' , 'data-tid': 'Letter-L'},
+  { value: 1.29, text: 'Letter (Portrait)' , 'data-tid': 'Letter-P'},
+  { value: 0.61, text: 'Legal (Landscape)' , 'data-tid': 'Legal-L'},
+  { value: 1.65, text: 'Legal (Portrait)' , 'data-tid': 'Legal-P'},
+  { value: 0.65, text: 'Tabloid (Landscape)' , 'data-tid': 'Tabloid-L'},
+  { value: 1.55, text: 'Tabloid (Portrait)' , 'data-tid': 'Tabloid-P'},
+];
+
+export const OUTPUT_FORMAT_OPTIONS = [
+  { value: 'png', text: 'PNG', 'data-tid': 'pngOption' },
+  { value: 'jpg', text: 'JPG', 'data-tid': 'jpgOption' },
+];
+
 // start initialStateJSON
 export const VISIBILITY_FILTER = 'SHOW_VISIBLE';
 export const SHOW_MOVIELIST = false;

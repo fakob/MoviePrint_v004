@@ -111,6 +111,7 @@ class ThumbGrid extends Component {
 
     return (
       <div
+        data-tid='thumbGridDiv'
         className={styles.grid}
         style={{
           width: this.props.scaleValueObject.newMoviePrintWidth,
@@ -137,79 +138,84 @@ class ThumbGrid extends Component {
             allFrameNumbersInPercentArray={allFrameNumbersInPercentArray}
           />
         }
-        {thumbArray.map(thumb => (
-          <SortableThumb
-            showMoviePrintView={this.props.showMoviePrintView}
-            keyObject={this.props.keyObject}
-            key={thumb.thumbId}
-            index={thumb.index}
-            indexForId={thumb.index}
-            dim={(this.state.thumbsToDim.find((thumbToDim) => thumbToDim.thumbId === thumb.thumbId))}
-            inputRefThumb={(this.props.selectedThumbId === thumb.thumbId) ?
-              this.props.inputRefThumb : undefined} // for the thumb scrollIntoView function
-            color={(this.props.colorArray !== undefined ? this.props.colorArray[thumb.index] : undefined)}
-            thumbImageObjectUrl={thumb.thumbImageObjectUrl ||
-              getObjectProperty(() => this.props.thumbImages[thumb.frameId].objectUrl)}
-            aspectRatioInv={this.props.scaleValueObject.aspectRatioInv}
-            thumbWidth={this.props.scaleValueObject.newThumbWidth}
-            borderRadius={this.props.scaleValueObject.newBorderRadius}
-            margin={this.props.scaleValueObject.newThumbMargin}
-            thumbInfoValue={getThumbInfoValue(this.props.settings.defaultThumbInfo, thumb.frameNumber, fps)}
-            thumbInfoRatio={this.props.settings.defaultThumbInfoRatio}
-            hidden={thumb.hidden}
-            controllersAreVisible={this.props.showSettings ? false : (thumb.thumbId === this.state.controllersVisible)}
-            selected={this.props.selectedThumbId ? (this.props.selectedThumbId === thumb.thumbId) : false}
-            onOver={this.props.showSettings ? null : () => {
-              // only setState if controllersVisible has changed
-              if (this.state.controllersVisible !== thumb.thumbId) {
-                this.setState({
-                  controllersVisible: thumb.thumbId,
-                });
-              }
-            }}
-            onOut={this.props.showSettings ? null : () => {
-              this.setState({
-                thumbsToDim: [],
-                controllersVisible: undefined,
-              });
-            }}
-            onLeaveInOut={this.props.showSettings ? null : () => {
-              this.setState({
-                thumbsToDim: []
-              });
-            }}
-            onThumbDoubleClick={this.props.onThumbDoubleClick}
-            onSelect={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
-              null : () => {
-                this.props.onSelectClick(thumb.thumbId, thumb.frameNumber);
+        <div
+          data-tid='thumbGridBodyDiv'
+        >
+          {thumbArray.map(thumb => (
+            <SortableThumb
+              showMoviePrintView={this.props.showMoviePrintView}
+              keyObject={this.props.keyObject}
+              key={thumb.thumbId}
+              thumbId={thumb.thumbId}
+              index={thumb.index}
+              indexForId={thumb.index}
+              dim={(this.state.thumbsToDim.find((thumbToDim) => thumbToDim.thumbId === thumb.thumbId))}
+              inputRefThumb={(this.props.selectedThumbId === thumb.thumbId) ?
+                this.props.inputRefThumb : undefined} // for the thumb scrollIntoView function
+              color={(this.props.colorArray !== undefined ? this.props.colorArray[thumb.index] : undefined)}
+              thumbImageObjectUrl={thumb.thumbImageObjectUrl ||
+                getObjectProperty(() => this.props.thumbImages[thumb.frameId].objectUrl)}
+              aspectRatioInv={this.props.scaleValueObject.aspectRatioInv}
+              thumbWidth={this.props.scaleValueObject.newThumbWidth}
+              borderRadius={this.props.scaleValueObject.newBorderRadius}
+              margin={this.props.scaleValueObject.newThumbMargin}
+              thumbInfoValue={getThumbInfoValue(this.props.settings.defaultThumbInfo, thumb.frameNumber, fps)}
+              thumbInfoRatio={this.props.settings.defaultThumbInfoRatio}
+              hidden={thumb.hidden}
+              controllersAreVisible={this.props.showSettings ? false : (thumb.thumbId === this.state.controllersVisible)}
+              selected={this.props.selectedThumbId ? (this.props.selectedThumbId === thumb.thumbId) : false}
+              onOver={this.props.showSettings ? null : () => {
+                // only setState if controllersVisible has changed
+                if (this.state.controllersVisible !== thumb.thumbId) {
+                  this.setState({
+                    controllersVisible: thumb.thumbId,
+                  });
+                }
               }}
-            onBack={this.props.showSettings ?
-              null : () => this.props.onBackClick(this.props.file, thumb.thumbId, thumb.frameNumber)}
-            onForward={this.props.showSettings ?
-              null : () => this.props.onForwardClick(this.props.file, thumb.thumbId, thumb.frameNumber)}
-            onToggle={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
-              null : () => this.props.onToggleClick(this.props.file.id, thumb.thumbId)}
-            onHoverInPoint={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
-              null : () => {
-              this.setState({
-                thumbsToDim: getPreviousThumbs(thumbArray, thumb.thumbId)
-              });
-            }}
-            onHoverOutPoint={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
-              null : () => {
-              this.setState({
-                thumbsToDim: getNextThumbs(thumbArray, thumb.thumbId)
-              });
-            }}
-            onScrub={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
-              null : () => this.props.onScrubClick(this.props.file, thumb)}
-            onInPoint={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
-              null : () => this.props.onInPointClick(this.props.file, thumbArray, thumb.thumbId, thumb.frameNumber)}
-            onOutPoint={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
-              null : () => this.props.onOutPointClick(this.props.file, thumbArray, thumb.thumbId, thumb.frameNumber)}
-            onSaveThumb={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
-              null : () => this.props.onSaveThumbClick(this.props.file.name, thumb.frameNumber, thumb.frameId)}
-          />))}
+              onOut={this.props.showSettings ? null : () => {
+                this.setState({
+                  thumbsToDim: [],
+                  controllersVisible: undefined,
+                });
+              }}
+              onLeaveInOut={this.props.showSettings ? null : () => {
+                this.setState({
+                  thumbsToDim: []
+                });
+              }}
+              onThumbDoubleClick={this.props.onThumbDoubleClick}
+              onSelect={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
+                null : () => {
+                  this.props.onSelectClick(thumb.thumbId, thumb.frameNumber);
+                }}
+              onBack={this.props.showSettings ?
+                null : () => this.props.onBackClick(this.props.file, thumb.thumbId, thumb.frameNumber)}
+              onForward={this.props.showSettings ?
+                null : () => this.props.onForwardClick(this.props.file, thumb.thumbId, thumb.frameNumber)}
+              onToggle={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
+                null : () => this.props.onToggleClick(this.props.file.id, thumb.thumbId)}
+              onHoverInPoint={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
+                null : () => {
+                this.setState({
+                  thumbsToDim: getPreviousThumbs(thumbArray, thumb.thumbId)
+                });
+              }}
+              onHoverOutPoint={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
+                null : () => {
+                this.setState({
+                  thumbsToDim: getNextThumbs(thumbArray, thumb.thumbId)
+                });
+              }}
+              onScrub={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
+                null : () => this.props.onScrubClick(this.props.file, thumb)}
+              onInPoint={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
+                null : () => this.props.onInPointClick(this.props.file, thumbArray, thumb.thumbId, thumb.frameNumber)}
+              onOutPoint={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
+                null : () => this.props.onOutPointClick(this.props.file, thumbArray, thumb.thumbId, thumb.frameNumber)}
+              onSaveThumb={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
+                null : () => this.props.onSaveThumbClick(this.props.file.name, thumb.frameNumber, thumb.frameId)}
+            />))}
+        </div>
       </div>
     );
   }

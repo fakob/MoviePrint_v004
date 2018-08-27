@@ -29,6 +29,7 @@ const Footer = ({
           <Popup
             trigger={
               <Menu.Item
+                data-tid='onOpenFeedbackFormBtn'
                 name="send"
                 onClick={onOpenFeedbackForm}
               >
@@ -46,7 +47,7 @@ const Footer = ({
             <Popup
               trigger={
                 <Menu.Item
-                  // borderless
+                  data-tid='saveMoviePrintBtn'
                   name="save"
                   onClick={onSaveMoviePrint}
                   color="orange"
@@ -75,6 +76,7 @@ const Footer = ({
             <Popup
               trigger={
                 <Dropdown
+                  data-tid='saveMoviePrintMoreOptionsDropdown'
                   item
                   floating
                   pointing="bottom right"
@@ -85,6 +87,7 @@ const Footer = ({
                 >
                   <Dropdown.Menu>
                     <Dropdown.Item
+                      data-tid='saveAllMoviePrintsOption'
                       icon="download"
                       text="Save All MoviePrints"
                       onClick={onSaveAllMoviePrints}
