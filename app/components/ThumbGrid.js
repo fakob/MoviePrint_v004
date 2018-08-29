@@ -32,6 +32,8 @@ class ThumbGrid extends Component {
     this.state = {
       thumbsToDim: [],
       controllersVisible: undefined,
+      addThumbBeforeController: undefined,
+      addThumbAfterController: undefined,
     };
 
     // this.onScrubMouseMoveWithStop = this.onScrubMouseMoveWithStop.bind(this);
@@ -162,8 +164,26 @@ class ThumbGrid extends Component {
               thumbInfoValue={getThumbInfoValue(this.props.settings.defaultThumbInfo, thumb.frameNumber, fps)}
               thumbInfoRatio={this.props.settings.defaultThumbInfoRatio}
               hidden={thumb.hidden}
+              showAddThumbBeforeController={this.props.showSettings ? false : (thumb.thumbId === this.state.addThumbBeforeController)}
+              showAddThumbAfterController={this.props.showSettings ? false : (thumb.thumbId === this.state.addThumbAfterController)}
               controllersAreVisible={this.props.showSettings ? false : (thumb.thumbId === this.state.controllersVisible)}
               selected={this.props.selectedThumbId ? (this.props.selectedThumbId === thumb.thumbId) : false}
+              onHoverAddThumbBefore={this.props.showSettings ? null : () => {
+                // only setState if controllersVisible has changed
+                if (this.state.addThumbBeforeController !== thumb.thumbId) {
+                  this.setState({
+                    addThumbBeforeController: thumb.thumbId,
+                  });
+                }
+              }}
+              onHoverAddThumbAfter={this.props.showSettings ? null : () => {
+                // only setState if controllersVisible has changed
+                if (this.state.addThumbAfterController !== thumb.thumbId) {
+                  this.setState({
+                    addThumbAfterController: thumb.thumbId,
+                  });
+                }
+              }}
               onOver={this.props.showSettings ? null : () => {
                 // only setState if controllersVisible has changed
                 if (this.state.controllersVisible !== thumb.thumbId) {
@@ -176,6 +196,8 @@ class ThumbGrid extends Component {
                 this.setState({
                   thumbsToDim: [],
                   controllersVisible: undefined,
+                  addThumbBeforeController: undefined,
+                  addThumbAfterController: undefined,
                 });
               }}
               onLeaveInOut={this.props.showSettings ? null : () => {
@@ -208,6 +230,10 @@ class ThumbGrid extends Component {
               }}
               onScrub={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
                 null : () => this.props.onScrubClick(this.props.file, thumb)}
+              onAddBefore={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
+                null : () => this.props.onAddThumbClick(this.props.file, thumb, 'before')}
+              onAddAfter={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
+                null : () => this.props.onAddThumbClick(this.props.file, thumb, 'after')}
               onInPoint={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
                 null : () => this.props.onInPointClick(this.props.file, thumbArray, thumb.thumbId, thumb.frameNumber)}
               onOutPoint={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
@@ -248,6 +274,7 @@ ThumbGrid.propTypes = {
   onSelectClick: PropTypes.func.isRequired,
   onThumbDoubleClick: PropTypes.func,
   onScrubClick: PropTypes.func.isRequired,
+  onAddThumbClick: PropTypes.func.isRequired,
   onToggleClick: PropTypes.func.isRequired,
   scaleValueObject: PropTypes.object.isRequired,
   selectedThumbId: PropTypes.string,

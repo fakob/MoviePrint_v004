@@ -41,6 +41,8 @@ const Thumb = ({
   aspectRatioInv,
   borderRadius,
   color,
+  showAddThumbBeforeController,
+  showAddThumbAfterController,
   controllersAreVisible,
   dim,
   hidden,
@@ -52,9 +54,13 @@ const Thumb = ({
   margin,
   onBack,
   onForward,
+  onHoverAddThumbBefore,
+  onHoverAddThumbAfter,
   onHoverInPoint,
   onHoverOutPoint,
   onScrub,
+  onAddBefore,
+  onAddAfter,
   onInPoint,
   onLeaveInOut,
   onOut,
@@ -91,6 +97,18 @@ const Thumb = ({
     onSaveThumb();
   }
 
+  function onHoverAddThumbBeforeWithStop(e) {
+    e.stopPropagation();
+    e.target.style.opacity = 1;
+    onHoverAddThumbBefore();
+  }
+
+  function onHoverAddThumbAfterWithStop(e) {
+    e.stopPropagation();
+    e.target.style.opacity = 1;
+    onHoverAddThumbAfter();
+  }
+
   function onHoverInPointWithStop(e) {
     e.stopPropagation();
     e.target.style.opacity = 1;
@@ -113,6 +131,16 @@ const Thumb = ({
   function onScrubWithStop(e) {
     e.stopPropagation();
     onScrub();
+  }
+
+  function onAddBeforeWithStop(e) {
+    e.stopPropagation();
+    onAddBefore();
+  }
+
+  function onAddAfterWithStop(e) {
+    e.stopPropagation();
+    onAddAfter();
   }
 
   function onInPointWithStop(e) {
@@ -167,6 +195,9 @@ const Thumb = ({
       onOut();
     }
   }
+
+  const showBeforeController = showAddThumbBeforeController || keyObject.shiftKey;
+  const showAfterController = showAddThumbAfterController || keyObject.altKey;
 
   return (
     <div
@@ -234,6 +265,7 @@ const Thumb = ({
             trigger={
               <button
                 data-tid={`${hidden ? 'show' : 'hide'}ThumbBtn_${thumbId}`}
+                type='button'
                 style={{
                   display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
                   transformOrigin: 'center top',
@@ -259,6 +291,7 @@ const Thumb = ({
             trigger={
               <button
                 data-tid={`saveThumbBtn_${thumbId}`}
+                type='button'
                 style={{
                   display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
                   transformOrigin: 'top right',
@@ -287,6 +320,7 @@ const Thumb = ({
                 trigger={
                   <button
                     data-tid={`setInPointBtn_${thumbId}`}
+                    type='button'
                     style={{
                       display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
                       transformOrigin: 'left bottom',
@@ -312,7 +346,35 @@ const Thumb = ({
               <Popup
                 trigger={
                   <button
+                    data-tid={`addNewThumbBeforeBtn_${thumbId}`}
+                    type='button'
+                    style={{
+                      display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+                      transformOrigin: 'left center',
+                      transform: `translateY(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+                      position: 'absolute',
+                      top: '50%',
+                      left: 0,
+                      marginLeft: '8px',
+                    }}
+                    className={`${styles.hoverButton} ${styles.textButton}`}
+                    onClick={onAddBeforeWithStop}
+                    onMouseOver={onHoverAddThumbBeforeWithStop}
+                    onMouseLeave={onOutWithStop}
+                    onFocus={over}
+                    onBlur={out}
+                  >
+                    +
+                  </button>
+                }
+                className={stylesPop.popup}
+                content={<span>Add new thumb before</span>}
+              />
+              <Popup
+                trigger={
+                  <button
                     data-tid={`scrubBtn_${thumbId}`}
+                    type='button'
                     style={{
                       display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
                       transformOrigin: 'center bottom',
@@ -338,7 +400,35 @@ const Thumb = ({
               <Popup
                 trigger={
                   <button
+                    data-tid={`addNewThumbAfterBtn_${thumbId}`}
+                    type='button'
+                    style={{
+                      display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+                      transformOrigin: 'right center',
+                      transform: `translateY(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+                      position: 'absolute',
+                      top: '50%',
+                      right: 0,
+                      marginRight: '8px',
+                    }}
+                    className={`${styles.hoverButton} ${styles.textButton}`}
+                    onClick={onAddAfterWithStop}
+                    onMouseOver={onHoverAddThumbAfterWithStop}
+                    onMouseLeave={onOutWithStop}
+                    onFocus={over}
+                    onBlur={out}
+                  >
+                    +
+                  </button>
+                }
+                className={stylesPop.popup}
+                content={<span>Add new thumb after</span>}
+              />
+              <Popup
+                trigger={
+                  <button
                     data-tid={`setOutPointBtn_${thumbId}`}
+                    type='button'
                     style={{
                       display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
                       transformOrigin: 'right bottom',
@@ -364,9 +454,9 @@ const Thumb = ({
             </div>
         }
         </div>
-        {!showMoviePrintView && selected && (keyObject.altKey || keyObject.shiftKey) &&
+        {!showMoviePrintView && selected && (showBeforeController || showAfterController) &&
           <div
-            data-tid={`insertThumb${(!keyObject.altKey && keyObject.shiftKey) ? 'Before' : 'After'}Div_${thumbId}`}
+            data-tid={`insertThumb${(!showAfterController && showBeforeController) ? 'Before' : 'After'}Div_${thumbId}`}
             style={{
               content: '',
               backgroundColor: '#FF5006',
@@ -374,14 +464,32 @@ const Thumb = ({
               width: `${Math.max(1, margin * 0.5)}px`,
               height: `${(thumbWidth * aspectRatioInv) + (Math.max(1, margin * 2))}px`,
               top: (Math.max(1, margin * -1.0)),
-              left: `${(!keyObject.altKey && keyObject.shiftKey) ? 0 : undefined}`,
-              right: `${keyObject.altKey ? 0 : undefined}`,
+              left: `${(!showAfterController && showBeforeController) ? 0 : undefined}`,
+              right: `${showAfterController ? 0 : undefined}`,
               display: 'block',
-              transform: `translateX(${Math.max(1, margin) * (keyObject.altKey ? 1.25 : -1.25)}px)`,
+              transform: `translateX(${Math.max(1, margin) * (showAfterController ? 1.25 : -1.25)}px)`,
             }}
           />
         }
-        {showMoviePrintView && controllersAreVisible && (keyObject.altKey || keyObject.shiftKey) && (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) &&
+        {controllersAreVisible && (showBeforeController || showAfterController) && (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) &&
+          <div
+            data-tid={`insertThumb${(!showAfterController && showBeforeController) ? 'Before' : 'After'}Div_${thumbId}`}
+            style={{
+              zIndex: 2000,
+              content: '',
+              backgroundColor: '#FF5006',
+              position: 'absolute',
+              width: `${Math.max(1, margin * 0.5)}px`,
+              height: `${thumbWidth * aspectRatioInv}px`,
+              // top: (Math.max(1, margin * -1.0)),
+              left: `${(!showAfterController && showBeforeController) ? 0 : undefined}`,
+              right: `${showAfterController ? 0 : undefined}`,
+              display: 'block',
+              transform: `translateX(${Math.max(1, margin) * (showAfterController ? 1.25 : -1.25)}px)`,
+            }}
+          />
+        }
+        {/* {showMoviePrintView && controllersAreVisible && (keyObject.altKey || keyObject.shiftKey) && (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) &&
           <div
             data-tid={`insertThumb${(!keyObject.altKey && keyObject.shiftKey) ? 'Before' : 'After'}Div_${thumbId}`}
             style={{
@@ -397,7 +505,7 @@ const Thumb = ({
               transform: `translateX(${Math.max(1, margin) * (keyObject.altKey ? 1.25 : -1.25)}px)`,
             }}
           />
-        }
+        } */}
       </div>
     </div>
   );
@@ -412,9 +520,13 @@ Thumb.defaultProps = {
   keyObject: {},
   onBack: null,
   onForward: null,
+  onHoverAddThumbBefore: null,
+  onHoverAddThumbAfter: null,
   onHoverInPoint: null,
   onHoverOutPoint: null,
   onScrub: null,
+  onAddBefore: null,
+  onAddAfter: null,
   onInPoint: null,
   onLeaveInOut: null,
   onOut: null,
@@ -440,10 +552,13 @@ Thumb.propTypes = {
   margin: PropTypes.number.isRequired,
   onBack: PropTypes.func,
   onForward: PropTypes.func,
+  onHoverAddThumbBefore: PropTypes.func,
+  onHoverAddThumbAfter: PropTypes.func,
   onHoverInPoint: PropTypes.func,
   onHoverOutPoint: PropTypes.func,
   onScrub: PropTypes.func,
-  onInPoint: PropTypes.func,
+  onAddBefore: PropTypes.func,
+  onAddAfter: PropTypes.func,
   onInPoint: PropTypes.func,
   onLeaveInOut: PropTypes.func,
   onOut: PropTypes.func,

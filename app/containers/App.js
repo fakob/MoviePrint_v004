@@ -28,6 +28,7 @@ import { getLowestFrame,
   setPosition,
   getScrubFrameNumber,
   isEquivalent,
+  limitFrameNumberWithinMovieRange,
 } from '../utils/utils';
 // import saveMoviePrint from '../utils/saveMoviePrint';
 import styles from './App.css';
@@ -146,6 +147,7 @@ class App extends Component {
     this.onScrubWindowMouseOver = this.onScrubWindowMouseOver.bind(this);
     this.onScrubWindowClick = this.onScrubWindowClick.bind(this);
     this.onScrubClick = this.onScrubClick.bind(this);
+    this.onAddThumbClick = this.onAddThumbClick.bind(this);
     this.switchToPrintView = this.switchToPrintView.bind(this);
     this.onOpenFeedbackForm = this.onOpenFeedbackForm.bind(this);
     this.onCloseFeedbackForm = this.onCloseFeedbackForm.bind(this);
@@ -976,6 +978,34 @@ class App extends Component {
     });
   }
 
+  onAddThumbClick(file, existingThumb, insertWhere) {
+    const { store } = this.context;
+    // get thumb left and right of existingThumb
+    const indexOfThumb = this.props.thumbs.findIndex((thumb) => thumb.thumbId === existingThumb.thumbId);
+    const existingThumbFrameNumber = existingThumb.frameNumber;
+    const leftThumbFrameNumber = this.props.thumbs[Math.max(0, indexOfThumb - 1)].frameNumber;
+    const rightThumbFrameNumber = this.props.thumbs[Math.min(this.props.thumbs.length - 1, indexOfThumb + 1)].frameNumber;
+    const newFrameNumberAfter = limitFrameNumberWithinMovieRange(file, existingThumbFrameNumber + (rightThumbFrameNumber - existingThumbFrameNumber) / 2);
+    const newFrameNumberBefore = limitFrameNumberWithinMovieRange(file, leftThumbFrameNumber + (existingThumbFrameNumber - leftThumbFrameNumber) / 2);
+
+    const newThumbId = uuidV4();
+    if (insertWhere === 'after') {
+      store.dispatch(addThumb(
+        this.props.file,
+        newFrameNumberAfter,
+        indexOfThumb + 1,
+        newThumbId
+      ));
+    } else if (insertWhere === 'before') { // if shiftKey
+      store.dispatch(addThumb(
+        this.props.file,
+        newFrameNumberBefore,
+        indexOfThumb,
+        newThumbId
+      ));
+    }
+  }
+
   onScrubWindowMouseOver(e) {
     if (e.clientY < (MENU_HEADER_HEIGHT + this.state.containerHeight)) {
       const scrubFrameNumber = getScrubFrameNumber(
@@ -1582,6 +1612,7 @@ class App extends Component {
                             this.state.selectedThumbObject.thumbId : undefined}
                           selectMethod={this.onSelectMethod}
                           onScrubClick={this.onScrubClick}
+                          onAddThumbClick={this.onAddThumbClick}
                           onThumbDoubleClick={this.onViewToggle}
 
                           colorArray={this.state.colorArray}

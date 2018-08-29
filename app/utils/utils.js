@@ -2,7 +2,7 @@ import pathR from 'path';
 import fsR from 'fs';
 import {
   DEFAULT_THUMB_COUNT, DEFAULT_COLUMN_COUNT, DEFAULT_MOVIE_WIDTH, DEFAULT_MOVIE_HEIGHT,
-  SHOW_PAPER_ADJUSTMENT_SCALE
+  SHOW_PAPER_ADJUSTMENT_SCALE, DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN
 } from './constants';
 import VideoCaptureProperties from '../utils/videoCaptureProperties';
 
@@ -443,7 +443,7 @@ export const getScaleValueObject = (
   const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * zoomScale * showPaperAdjustmentScale;
 
   const newMoviePrintWidth =
-    showMoviePrintView ? moviePrintWidth * scaleValue : moviePrintWidthForThumbView;
+    showMoviePrintView ? moviePrintWidth * scaleValue + DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN : moviePrintWidthForThumbView;
   const newMoviePrintHeight = showMoviePrintView ? (newMoviePrintWidth * moviePrintAspectRatioInv) : moviePrintHeight;
   const newThumbMargin = showMoviePrintView ? thumbMargin * scaleValue : thumbMarginForThumbView;
   const newThumbWidth = showMoviePrintView ? thumbWidth * scaleValue : thumbnailWidthForThumbView;
@@ -576,4 +576,9 @@ export const getTextWidth = (text, font) => {
     context.font = font;
     const metrics = context.measureText(text);
     return metrics.width;
+}
+
+export const limitFrameNumberWithinMovieRange = (file, frameNumber) => {
+    const limitedFrameNumber = Math.min((file.frameCount - 1), Math.max(0, frameNumber)); // limit it on lower and on upper end
+    return limitedFrameNumber;
 }
