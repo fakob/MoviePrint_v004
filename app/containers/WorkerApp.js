@@ -87,7 +87,7 @@ class WorkerApp extends Component {
               width: `${getScaleValueObject(
                 this.state.data.file,
                 this.state.data.settings,
-                this.state.data.file.columnCount, this.state.data.file.thumbCount,
+                getColumnCount(this.state.data.file.columnCount, this.state.data.settings), this.state.data.file.thumbCount,
                 this.state.data.moviePrintWidth, undefined,
                 this.state.data.visibilitySettings.showMoviePrintView,
                 1
@@ -112,7 +112,7 @@ class WorkerApp extends Component {
               scaleValueObject={getScaleValueObject(
                 this.state.data.file,
                 this.state.data.settings,
-                this.state.data.file.columnCount, this.state.data.file.thumbCount,
+                getColumnCount(this.state.data.file.columnCount, this.state.data.settings), this.state.data.file.thumbCount,
                 this.state.data.moviePrintWidth, undefined,
                 this.state.data.visibilitySettings.showMoviePrintView,
                 1

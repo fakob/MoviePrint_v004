@@ -1184,6 +1184,7 @@ class App extends Component {
         this.props.file.id,
         value
       ));
+      store.dispatch(setDefaultColumnCount(value));
     }
     this.updateScaleValue();
   };
@@ -1199,6 +1200,7 @@ class App extends Component {
         this.props.file.id,
         value
       ));
+      store.dispatch(setDefaultColumnCount(value));
     }
     this.updateScaleValue();
   };

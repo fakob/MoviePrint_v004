@@ -651,7 +651,6 @@ export const setNewMovieList = (files, settings) => {
           type: files[key].type,
           webkitRelativePath: files[key].webkitRelativePath,
           posterFrameId: uuidV4(),
-          columnCount: settings.defaultColumnCount,
         };
         newFiles.push(fileToAdd);
       }
