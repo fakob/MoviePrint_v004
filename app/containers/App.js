@@ -1412,6 +1412,21 @@ class App extends Component {
     // const chartHeight = this.state.containerHeight / 4;
     const chartHeight = 250;
 
+    // only for savingAllMoviePrints
+    // get name of file currently printing
+    let fileToPrint;
+    if (this.state.savingAllMoviePrints) {
+      fileToPrint = getObjectProperty(
+        () => this.props.files.find(
+          file => file.id === getObjectProperty(
+            () => this.state.filesToPrint.find(
+              item => item.status === 'printing'
+            ).fileId
+          )
+        ).name
+      );
+    }
+
     return (
       <ErrorBoundary>
         <Dropzone
@@ -1833,15 +1848,12 @@ class App extends Component {
                     <Header as='h2' inverted>
                       {`Saving ${this.state.filesToPrint.filter(item => item.status === 'done').length + 1} of ${this.state.filesToPrint.filter(item => item.status !== 'undefined').length} MoviePrints`}
                     </Header>
-                    {`${getObjectProperty(
-                      () => this.props.files.find(
-                      file => file.id === getObjectProperty(
-                          () => this.state.filesToPrint.find(
-                            item => item.status === 'printing'
-                        ).fileId
-                      )
-                    ).name
-                    )}`}
+                    {!fileToPrint && <Loader
+                      active
+                      size='mini'
+                      inline
+                    />}
+                    {fileToPrint || ' '}
                     <Progress
                       percent={
                         ((this.state.filesToPrint.filter(item => item.status === 'done').length + 1.0) /

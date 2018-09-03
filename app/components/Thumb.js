@@ -489,23 +489,6 @@ const Thumb = ({
             }}
           />
         }
-        {/* {showMoviePrintView && controllersAreVisible && (keyObject.altKey || keyObject.shiftKey) && (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) &&
-          <div
-            data-tid={`insertThumb${(!keyObject.altKey && keyObject.shiftKey) ? 'Before' : 'After'}Div_${thumbId}`}
-            style={{
-              content: '',
-              backgroundColor: '#FF5006',
-              position: 'absolute',
-              width: `${Math.max(1, margin * 0.5)}px`,
-              height: `${thumbWidth * aspectRatioInv}px`,
-              // top: (Math.max(1, margin * -1.0)),
-              left: `${(!keyObject.altKey && keyObject.shiftKey) ? 0 : undefined}`,
-              right: `${keyObject.altKey ? 0 : undefined}`,
-              display: 'block',
-              transform: `translateX(${Math.max(1, margin) * (keyObject.altKey ? 1.25 : -1.25)}px)`,
-            }}
-          />
-        } */}
       </div>
     </div>
   );
