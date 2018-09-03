@@ -65,6 +65,22 @@
 * remove this file from filesToLoad Array
 * --> in componentDidUpdate
 
+##### on saveAllMoviePrints
+* set filesToPrint
+  * set status to needsThumbs for files which do not have any thumbs loaded
+  * set status to undefined for files which can not be printed
+  * set status to readyForPrinting for files which already have thumbs
+* in componentDidUpdate
+  * getThumbsForFile if there is a file which needsThumbs
+  	* --> dispatch addDefaultThumbs
+    * ipc receive-get-thumbs
+      * when last thumb while saveAllMoviePrints then set status to readyForPrinting
+  * ipc action-save-MoviePrint if there is a file which is readyForPrinting
+    * set status to printing
+    * saveMoviePrint
+      * ipc received-saved-file
+        * set status to done
+
 # IndexedDB structure
 ##### frameList (all captured frames)
 * frameId
