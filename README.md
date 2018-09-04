@@ -73,10 +73,15 @@ And then install dependencies with yarn.
 $ cd MoviePrint_v004
 $ yarn
 ```
+##### First time
+
+```bash
+$ yarn includeInDist
+```
 ##### Run
 
 ```bash
-$ npm run dev
+$ yarn dev
 ```
 
 ##### Packaging
@@ -84,7 +89,7 @@ $ npm run dev
 To package the app for your local platform:
 
 ```bash
-$ npm run package
+$ yarn package
 ```
 
 ## License

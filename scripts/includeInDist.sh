@@ -8,4 +8,5 @@ distDir=$moviePrintDir"app/dist/"
 resourcesDir=$moviePrintDir"resources/"
 
 # copy files
+mkdir -p $distDir
 cp -nfv $resourcesDir"font/Franchise-Bold.woff" $distDir
