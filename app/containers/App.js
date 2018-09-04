@@ -98,6 +98,7 @@ class App extends Component {
       // file match needs to be in sync with setMovieList() and onDrop() !!!
       accept: 'video/*,.divx,.mkv,.ogg,.VOB,',
       dropzoneActive: false,
+      loadingFirstFile: false,
       keyObject: {
         shiftKey: false,
         altKey: false,
@@ -291,7 +292,8 @@ class App extends Component {
         const copyOfFilesToLoad = this.state.filesToLoad.slice();
         copyOfFilesToLoad.shift();
         this.setState({
-          filesToLoad: copyOfFilesToLoad
+          filesToLoad: copyOfFilesToLoad,
+          loadingFirstFile: false,
         });
       }
     });
@@ -702,7 +704,8 @@ class App extends Component {
 
   onDrop(files) {
     this.setState({
-      dropzoneActive: false
+      dropzoneActive: false,
+      loadingFirstFile: true
     });
     const { store } = this.context;
     const { settings } = store.getState().undoGroup.present;
@@ -1616,7 +1619,7 @@ class App extends Component {
                         backgroundPosition: 'center center',
                       }}
                     >
-                      { (this.props.file || this.props.visibilitySettings.showSettings) ? (
+                      { (this.props.file || this.props.visibilitySettings.showSettings || this.state.loadingFirstFile) ? (
                         <SortedVisibleThumbGrid
                           inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                           showSettings={this.props.visibilitySettings.showSettings}
