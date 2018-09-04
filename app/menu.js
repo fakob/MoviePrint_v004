@@ -85,13 +85,16 @@ export default class MenuBuilder {
         // { label: 'Select All', accelerator: 'Command+A', selector: 'selectAll:' }
       ]
     };
-    const subMenuViewDev = {
-      label: 'View',
+    const subMenuDev = {
+      label: 'Development',
       submenu: [
-        { label: 'Toggle Full Screen', accelerator: 'Ctrl+Command+F', click: () => { this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen()); } },
-        { type: 'separator' },
-        { label: 'Clear cache', accelerator: 'Shift+Alt+Command+C', click: () => { clearCache(this.mainWindow); } },
-        { label: 'Reload', accelerator: 'Command+R', click: () => { this.mainWindow.webContents.reload(); } },
+        { label: 'Reset application', accelerator: 'Shift+Alt+Command+C', click: () => { clearCache(this.mainWindow); } },
+        { label: 'Reload application', accelerator: 'Command+R', click: () => {
+          this.mainWindow.webContents.reload();
+          this.workerWindow.webContents.reload();
+          this.opencvWorkerWindow.webContents.reload();
+        } },
+        { label: 'Reload mainWindow', accelerator: 'Ctrl+Command+R', click: () => { this.mainWindow.webContents.reload(); } },
         { label: 'Reload Worker', accelerator: 'Alt+Command+R', click: () => { this.workerWindow.webContents.reload(); } },
         { label: 'Reload Opencv Worker', accelerator: 'Shift+Command+R', click: () => { this.opencvWorkerWindow.webContents.reload(); } },
         { label: 'Toggle Developer Tools', accelerator: 'Alt+Command+I', click: () => { this.mainWindow.toggleDevTools(); } },
@@ -101,20 +104,17 @@ export default class MenuBuilder {
         { label: 'Show OpenCvWorker', click: () => { this.opencvWorkerWindow.show(); } }
       ]
     };
-    const subMenuViewProd = {
+    const subMenuView = {
       label: 'View',
       submenu: [
         { label: 'Toggle Full Screen', accelerator: 'Ctrl+Command+F', click: () => { this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen()); } },
         { type: 'separator' },
-        { label: 'Clear cache', accelerator: 'Shift+Alt+Command+C', click: () => { clearCache(this.mainWindow); } },
-        { label: 'Reload', accelerator: 'Command+R', click: () => { this.mainWindow.webContents.reload(); } },
-        { label: 'Reload Worker', accelerator: 'Alt+Command+R', click: () => { this.workerWindow.webContents.reload(); } },
-        { label: 'Reload Opencv Worker', accelerator: 'Shift+Command+R', click: () => { this.opencvWorkerWindow.webContents.reload(); } },
-        { label: 'Toggle Developer Tools', accelerator: 'Alt+Command+I', click: () => { this.mainWindow.toggleDevTools(); } },
-        { label: 'Toggle Developer Tools for Worker', accelerator: 'Alt+Command+J', click: () => { this.workerWindow.toggleDevTools(); } },
-        { label: 'Toggle Developer Tools for Opencv Worker', accelerator: 'Alt+Command+J', click: () => { this.opencvWorkerWindow.toggleDevTools(); } },
-        { label: 'Show Worker', click: () => { this.workerWindow.show(); } },
-        { label: 'Show OpenCvWorker', click: () => { this.opencvWorkerWindow.show(); } }
+        { label: 'Reset application', accelerator: 'Shift+Alt+Command+C', click: () => { clearCache(this.mainWindow); } },
+        { label: 'Reload application', accelerator: 'Command+R', click: () => {
+          this.mainWindow.webContents.reload();
+          this.workerWindow.webContents.reload();
+          this.opencvWorkerWindow.webContents.reload();
+        } }
       ]
     };
     const subMenuWindow = {
@@ -159,10 +159,10 @@ export default class MenuBuilder {
       ]
     };
 
-    const subMenuView =
-      process.env.NODE_ENV === 'development' ? subMenuViewDev : subMenuViewProd;
-
-    return [subMenuAbout, subMenuEdit, subMenuView, subMenuWindow, subMenuHelp];
+    const menuArray = process.env.NODE_ENV === 'development' ?
+      [subMenuAbout, subMenuEdit, subMenuView, subMenuWindow, subMenuHelp, subMenuDev] :
+      [subMenuAbout, subMenuEdit, subMenuView, subMenuWindow, subMenuHelp];
+    return menuArray;
   }
 
   buildDefaultTemplate() {
