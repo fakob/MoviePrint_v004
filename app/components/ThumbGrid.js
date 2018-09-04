@@ -166,7 +166,7 @@ class ThumbGrid extends Component {
               hidden={thumb.hidden}
               showAddThumbBeforeController={this.props.showSettings ? false : (thumb.thumbId === this.state.addThumbBeforeController)}
               showAddThumbAfterController={this.props.showSettings ? false : (thumb.thumbId === this.state.addThumbAfterController)}
-              controllersAreVisible={this.props.showSettings ? false : (thumb.thumbId === this.state.controllersVisible)}
+              controllersAreVisible={(this.props.showSettings || thumb.thumbId === undefined) ? false : (thumb.thumbId === this.state.controllersVisible)}
               selected={this.props.selectedThumbId ? (this.props.selectedThumbId === thumb.thumbId) : false}
               onHoverAddThumbBefore={this.props.showSettings ? null : () => {
                 // only setState if controllersVisible has changed
