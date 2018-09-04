@@ -255,6 +255,16 @@ class App extends Component {
       });
     });
 
+    ipcRenderer.on('error-savingMoviePrint', () => {
+      if (this.state.savingMoviePrint) {
+        setTimeout(
+          this.setState({ savingMoviePrint: false }),
+          1000
+        ); // adding timeout to prevent clicking multiple times
+      }
+      ipcRenderer.send('reload-workerWindow');
+    });
+
     ipcRenderer.on('receive-get-file-details', (event, fileId, filePath, posterFrameId, frameCount, width, height, fps, fourCC) => {
       store.dispatch(updateFileDetails(fileId, frameCount, width, height, fps, fourCC));
       ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-poster-frame', fileId, filePath, posterFrameId);

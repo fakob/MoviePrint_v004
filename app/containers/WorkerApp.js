@@ -56,6 +56,18 @@ class WorkerApp extends Component {
       })
       .catch(error => {
         console.log(`There has been a problem with the action-save-MoviePrint operation: ${error.message}`);
+        ipcRenderer.send(
+          'message-from-opencvWorkerWindow-to-mainWindow',
+          'progressMessage',
+          '',
+          '',
+          'There was an error while saving the MoviePrint. Please try again!',
+          20000,
+        );
+        ipcRenderer.send(
+          'message-from-opencvWorkerWindow-to-mainWindow',
+          'error-savingMoviePrint',
+        );
       });
     });
   }

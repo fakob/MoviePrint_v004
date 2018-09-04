@@ -157,6 +157,14 @@ app.on('ready', async () => {
   menuBuilder.buildMenu();
 });
 
+ipcMain.on('reload-workerWindow', (event) => {
+  workerWindow.webContents.reload();
+});
+
+ipcMain.on('reload-opencvWorkerWindow', (event) => {
+  opencvWorkerWindow.webContents.reload();
+});
+
 ipcMain.on('request-save-MoviePrint', (event, arg) => {
   workerWindow.webContents.send('action-save-MoviePrint', arg);
 });
