@@ -994,10 +994,11 @@ class App extends Component {
   onAddThumbClick(file, existingThumb, insertWhere) {
     const { store } = this.context;
     // get thumb left and right of existingThumb
-    const indexOfThumb = this.props.thumbs.findIndex((thumb) => thumb.thumbId === existingThumb.thumbId);
+    const indexOfAllThumbs = this.props.allThumbs.findIndex((thumb) => thumb.thumbId === existingThumb.thumbId);
+    const indexOfVisibleThumbs = this.props.thumbs.findIndex((thumb) => thumb.thumbId === existingThumb.thumbId);
     const existingThumbFrameNumber = existingThumb.frameNumber;
-    const leftThumbFrameNumber = this.props.thumbs[Math.max(0, indexOfThumb - 1)].frameNumber;
-    const rightThumbFrameNumber = this.props.thumbs[Math.min(this.props.thumbs.length - 1, indexOfThumb + 1)].frameNumber;
+    const leftThumbFrameNumber = this.props.thumbs[Math.max(0, indexOfVisibleThumbs - 1)].frameNumber;
+    const rightThumbFrameNumber = this.props.thumbs[Math.min(this.props.thumbs.length - 1, indexOfVisibleThumbs + 1)].frameNumber;
     const newFrameNumberAfter = limitFrameNumberWithinMovieRange(file, existingThumbFrameNumber + (rightThumbFrameNumber - existingThumbFrameNumber) / 2);
     const newFrameNumberBefore = limitFrameNumberWithinMovieRange(file, leftThumbFrameNumber + (existingThumbFrameNumber - leftThumbFrameNumber) / 2);
 
@@ -1006,14 +1007,14 @@ class App extends Component {
       store.dispatch(addThumb(
         this.props.file,
         newFrameNumberAfter,
-        indexOfThumb + 1,
+        indexOfAllThumbs + 1,
         newThumbId
       ));
     } else if (insertWhere === 'before') { // if shiftKey
       store.dispatch(addThumb(
         this.props.file,
         newFrameNumberBefore,
-        indexOfThumb,
+        indexOfAllThumbs,
         newThumbId
       ));
     }
@@ -1909,15 +1910,16 @@ class App extends Component {
 
 const mapStateToProps = state => {
   const tempCurrentFileId = state.undoGroup.present.settings.currentFileId;
-  const tempThumbs = (state.undoGroup.present
+  const allThumbs = (state.undoGroup.present
     .thumbsByFileId[tempCurrentFileId] === undefined)
     ? undefined : state.undoGroup.present
       .thumbsByFileId[tempCurrentFileId].thumbs;
   return {
     thumbs: getVisibleThumbs(
-      tempThumbs,
+      allThumbs,
       state.visibilitySettings.visibilityFilter
     ),
+    allThumbs,
     thumbImages: (state.thumbsObjUrls[tempCurrentFileId] === undefined)
       ? undefined : state.thumbsObjUrls[tempCurrentFileId],
     currentFileId: tempCurrentFileId,
