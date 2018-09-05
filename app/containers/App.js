@@ -286,6 +286,7 @@ class App extends Component {
         const firstFile = store.getState().undoGroup.present.files.find((file) => file.id === fileId);
         store.dispatch(setCurrentFileId(firstFile.id));
         this.updateScaleValue(); // so the aspect ratio of the thumbs are correct after drag
+        store.dispatch(updateFileColumnCount(firstFile.id, getColumnCount(firstFile, this.props.settings))); // set columnCount on firstFile
         store.dispatch(clearThumbs());
         console.log(firstFile);
         // console.log(firstFile.fadeInPoint);
@@ -1141,6 +1142,13 @@ class App extends Component {
     console.log(`FileListElement clicked: ${file.name}`);
     const { store } = this.context;
     store.dispatch(setCurrentFileId(file.id));
+
+    // When clicking on a filelist element for the first time
+    // set columnCount as it is not defined yet
+    if (file.columnCount === undefined) {
+      store.dispatch(updateFileColumnCount(file.id, getColumnCount(file, this.props.settings)));
+    }
+
     this.getThumbsForFile(file);
   }
 
