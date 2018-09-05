@@ -466,11 +466,11 @@ class App extends Component {
         );
         setColumnAndThumbCount(
           this,
-          getColumnCount(nextProps.file.columnCount, nextProps.settings),
+          getColumnCount(nextProps.file, nextProps.settings),
           newThumbCount
         );
         console.log('currentFileId changed');
-        console.log(getColumnCount(nextProps.file.columnCount, nextProps.settings));
+        console.log(getColumnCount(nextProps.file, nextProps.settings));
         console.log(newThumbCount);
       }
       const oldThumbCount = getThumbsCount(
@@ -489,7 +489,7 @@ class App extends Component {
         // check if visibleThumbCount changed
         setColumnAndThumbCount(
           this,
-          getColumnCount(nextProps.file.columnCount, nextProps.settings),
+          getColumnCount(nextProps.file, nextProps.settings),
           newThumbCount
         );
         console.log('visibleThumbCount changed');
