@@ -199,6 +199,7 @@ class SettingsList extends Component {
                 min={1}
                 max={20}
                 defaultValue={this.props.columnCountTemp}
+                value={this.props.columnCountTemp}
                 marks={{
                   1: '1',
                   20: '20',
@@ -222,6 +223,7 @@ class SettingsList extends Component {
                   min={1}
                   max={20}
                   defaultValue={this.props.rowCountTemp}
+                  value={this.props.rowCountTemp}
                   {...(this.props.reCapture ? {} : { value: this.props.rowCountTemp })}
                   marks={{
                     1: '1',
