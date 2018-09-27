@@ -1,11 +1,13 @@
+import log from 'electron-log';
+
 const thumbsObjUrls = (state = {}, action) => {
   switch (action.type) {
     case 'CLEAR_MOVIE_LIST':
       return {};
     case 'UPDATE_OBJECTURL_FROM_THUMBLIST':
-      // console.log(action.payload.fileId);
-      // console.log(action.payload.frameId);
-      // console.log(action.payload.frames);
+      // log.debug(action.payload.fileId);
+      // log.debug(action.payload.frameId);
+      // log.debug(action.payload.frames);
       return {
         ...state,
         [action.payload.fileId]: {
@@ -18,18 +20,18 @@ const thumbsObjUrls = (state = {}, action) => {
         }
       };
     case 'UPDATE_OBJECTURLS_FROM_THUMBLIST':
-      // console.log(action.payload.frames);
-      // console.log(state);
+      // log.debug(action.payload.frames);
+      // log.debug(state);
       return {
         ...state,
         [action.payload.fileId]:
             action.payload.frames.reduce((previous, current) => {
-              // console.log(previous);
-              // console.log(current.data);
+              // log.debug(previous);
+              // log.debug(current.data);
               const tempObject = Object.assign({}, previous,
                 { [current.frameId]: { objectUrl: window.URL.createObjectURL(current.data) } }
               );
-              // console.log(tempObject);
+              // log.debug(tempObject);
               return tempObject;
             }, {})
       };

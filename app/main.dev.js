@@ -13,6 +13,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import fs from 'fs';
+import log from 'electron-log';
 
 import MenuBuilder from './menu';
 
@@ -38,6 +39,18 @@ if (
   require('module').globalPaths.push(p);
 }
 
+// set log level
+const { LOG_LEVEL } = process.env;
+// only change the log level if there is an environment variable
+// otherwise keep the default ('warn')
+if (LOG_LEVEL) {
+  log.transports.file.level = LOG_LEVEL;
+  log.transports.console.level = LOG_LEVEL;
+}
+
+// set log format
+log.transports.console.format = '{level} | {h}:{i}:{s}:{ms} {text}';
+
 const installExtensions = async () => {
   const installer = require('electron-devtools-installer');
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
@@ -60,7 +73,7 @@ app.on('before-quit', () => {
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
-  console.log('window-all-closed');
+  log.debug('window-all-closed');
   if (process.platform !== 'darwin') {
     app.quit();
   }
@@ -198,10 +211,13 @@ ipcMain.on('send-save-file-error', (event, saveMoviePrint = false) => {
 ipcMain.on(
   'message-from-mainWindow-to-workerWindow',
   (e, ipcName, ...args) => {
-    console.log(
+    log.debug(
       `passing ipc message ${ipcName} from mainWindow to workerWindow`
     );
-    // console.log(...args);
+    log.debug(
+      `passing ipc message ${ipcName} from mainWindow to workerWindow`
+    );
+    // log.debug(...args);
     workerWindow.webContents.send(ipcName, ...args);
   }
 );
@@ -209,10 +225,10 @@ ipcMain.on(
 ipcMain.on(
   'message-from-workerWindow-to-mainWindow',
   (e, ipcName, ...args) => {
-    console.log(
+    log.debug(
       `passing ipc message ${ipcName} from workerWindow to mainWindow`
     );
-    // console.log(...args);
+    // log.debug(...args);
     mainWindow.webContents.send(ipcName, ...args);
   }
 );
@@ -220,10 +236,10 @@ ipcMain.on(
 ipcMain.on(
   'message-from-mainWindow-to-opencvWorkerWindow',
   (e, ipcName, ...args) => {
-    console.log(
+    log.debug(
       `passing ipc message ${ipcName} from mainWindow to opencvWorkerWindow`
     );
-    // console.log(...args);
+    // log.debug(...args);
     opencvWorkerWindow.webContents.send(ipcName, ...args);
   }
 );
@@ -231,10 +247,10 @@ ipcMain.on(
 ipcMain.on(
   'message-from-opencvWorkerWindow-to-mainWindow',
   (e, ipcName, ...args) => {
-    console.log(
+    log.debug(
       `passing ipc message ${ipcName} from opencvWorkerWindow to mainWindow`
     );
-    // console.log(...args);
+    // log.debug(...args);
     mainWindow.webContents.send(ipcName, ...args);
   }
 );

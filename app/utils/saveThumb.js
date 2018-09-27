@@ -1,4 +1,5 @@
 import pathR from 'path';
+import log from 'electron-log';
 import imageDB from './db';
 import { ensureDirectoryExistence, getFilePathObject, pad } from './utils';
 
@@ -20,7 +21,7 @@ const saveThumb = (fileName, frameNumber, frameId = undefined, saveToFolder = ''
   );
 
   return imageDB.frameList.where('frameId').equals(frameId).toArray().then((frames) => {
-    console.log(frames[0]);
+    log.debug(frames[0]);
     const reader = new FileReader();
 
     // This event is triggered each time the reading operation is successfully completed.
@@ -28,7 +29,7 @@ const saveThumb = (fileName, frameNumber, frameId = undefined, saveToFolder = ''
       if (reader.readyState === 2) {
         const buffer = Buffer.from(reader.result);
         ipcRenderer.send('send-save-file', frameId, newFilePathAndName, buffer);
-        console.log(`Saving ${JSON.stringify({ newFilePathAndName, size: frames[0].data.size })}`);
+        log.debug(`Saving ${JSON.stringify({ newFilePathAndName, size: frames[0].data.size })}`);
       }
     };
 

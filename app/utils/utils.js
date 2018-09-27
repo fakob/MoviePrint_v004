@@ -1,5 +1,6 @@
 import pathR from 'path';
 import fsR from 'fs';
+import log from 'electron-log';
 import {
   DEFAULT_THUMB_COUNT, DEFAULT_COLUMN_COUNT, DEFAULT_MOVIE_WIDTH, DEFAULT_MOVIE_HEIGHT,
   SHOW_PAPER_ADJUSTMENT_SCALE, DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN
@@ -16,7 +17,7 @@ export const ensureDirectoryExistence = (filePath, isDirectory = true) => {
   } else {
     dirname = pathR.dirname(filePath);
   }
-  console.log(dirname);
+  log.debug(dirname);
   if (fsR.existsSync(dirname)) {
     return true;
   }
@@ -26,14 +27,14 @@ export const ensureDirectoryExistence = (filePath, isDirectory = true) => {
 
 export const clearCache = (win) => {
   win.webContents.session.getCacheSize((cacheSizeBefore) => {
-    console.log(`cacheSize before: ${cacheSizeBefore}`);
+    log.debug(`cacheSize before: ${cacheSizeBefore}`);
     // clear HTTP cache
     win.webContents.session.clearCache(() => {
       // then clear data of web storages
       win.webContents.session.clearStorageData(() => {
         // then print cacheSize
         win.webContents.session.getCacheSize((cacheSizeAfter) => {
-          console.log(`cacheSize after: ${cacheSizeAfter}`);
+          log.debug(`cacheSize after: ${cacheSizeAfter}`);
           // and reload to use initialStateJSON
           win.webContents.reload();
         });
@@ -158,7 +159,7 @@ export const saveBlob = (blob, fileId, fileName) => {
     if (reader.readyState === 2) {
       const buffer = Buffer.from(reader.result);
       ipcRenderer.send('send-save-file', fileId, fileName, buffer, true);
-      console.log(`Saving ${JSON.stringify({ fileName, size: blob.size })}`);
+      log.debug(`Saving ${JSON.stringify({ fileName, size: blob.size })}`);
     }
   };
   try {
@@ -180,7 +181,7 @@ export const getMimeType = (outputFormat) => {
 };
 
 export const getMoviePrintColor = (count) => {
-  console.log(`creating new newColorArray[${count}]`);
+  log.debug(`creating new newColorArray[${count}]`);
   const newColorArray = randomColor({
     count,
     hue: '#FF5006',
@@ -287,7 +288,7 @@ export const getPreviousThumb = (thumbs, thumbId) => {
     if (thumbId) {
       const currentIndex = thumbs.find((thumb) => thumb.thumbId === thumbId).index;
       const newIndex = ((currentIndex - 1) >= 0) ? (currentIndex - 1) : (thumbs.length - 1);
-      // console.log(thumbs[newIndex]);
+      // log.debug(thumbs[newIndex]);
       return thumbs[newIndex];
     }
     return thumbs[thumbs.length - 1]; // return last item if no thumbId provided
@@ -300,7 +301,7 @@ export const getNextThumb = (thumbs, thumbId) => {
     if (thumbId) {
       const currentIndex = thumbs.find((thumb) => thumb.thumbId === thumbId).index;
       const newIndex = ((currentIndex + 1) < thumbs.length) ? (currentIndex + 1) : 0;
-      // console.log(thumbs[newIndex]);
+      // log.debug(thumbs[newIndex]);
       return thumbs[newIndex];
     }
     return thumbs[0]; // return first item if no thumbId provided
@@ -430,10 +431,10 @@ export const getScaleValueObject = (
     showPaperAdjustmentScale = SHOW_PAPER_ADJUSTMENT_SCALE;
     if (settings.defaultPaperAspectRatioInv < moviePrintAspectRatioInv) {
       paperMoviePrintWidth = paperMoviePrintHeight / settings.defaultPaperAspectRatioInv;
-      // console.log(`calculate new paperMoviePrintWidth ${paperMoviePrintWidth}`);
+      // log.debug(`calculate new paperMoviePrintWidth ${paperMoviePrintWidth}`);
     } else {
       paperMoviePrintHeight = paperMoviePrintWidth * settings.defaultPaperAspectRatioInv;
-      // console.log(`calculate new paperMoviePrintHeight ${paperMoviePrintHeight}`);
+      // log.debug(`calculate new paperMoviePrintHeight ${paperMoviePrintHeight}`);
     }
   }
 
@@ -476,7 +477,7 @@ export const getScaleValueObject = (
     scrubContainerWidth,
     scrubInnerContainerWidth,
   };
-  // console.log(scaleValueObject);
+  // log.debug(scaleValueObject);
   return scaleValueObject;
 };
 
@@ -486,7 +487,7 @@ export const setPosition = (vid, frameNumberToCapture, useRatio) => {
       frameNumberToCapture *
       1.0 /
       (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1);
-    // console.log(`using positionRatio: ${positionRatio}`);
+    // log.debug(`using positionRatio: ${positionRatio}`);
     vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, positionRatio);
   } else {
     vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberToCapture);

@@ -1,5 +1,6 @@
 import pathR from 'path';
 import html2canvas from 'html2canvas';
+import log from 'electron-log';
 import { getFilePathObject, getMimeType, saveBlob } from './utils';
 import saveThumb from './saveThumb';
 
@@ -7,7 +8,7 @@ const saveMoviePrint = (
   elementId, exportPath, file, scale, outputFormat, overwrite,
   saveIndividualThumbs = false, thumbs
 ) => {
-  console.log(file);
+  log.debug(file);
   const node = document.getElementById(elementId);
 
   const newFilePathObject = getFilePathObject(file.name, '-MoviePrint', outputFormat, exportPath, overwrite);
@@ -18,8 +19,8 @@ const saveMoviePrint = (
 
   const qualityArgument = 0.8; // only applicable for jpg
 
-  // console.log(newFilePathAndName);
-  // console.log(node);
+  // log.debug(newFilePathAndName);
+  // log.debug(node);
 
   html2canvas(node, {
     backgroundColor: null,

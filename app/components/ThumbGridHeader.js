@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import log from 'electron-log';
 import { truncatePath, getTextWidth } from '../utils/utils';
 import styles from './ThumbGrid.css';
 
@@ -40,16 +41,16 @@ const ThumbGridHeader = ({
   let titleTextSize;
   let titleText = fileName;
   if (spaceForFileName > widthOfFileNameL) {
-    console.log('enough space for title');
+    log.debug('enough space for title');
     fileNameRatio = 1;
     titleTextSize = logoHeight * textRatio * 1.5;
   } else if (spaceForFileName > widthOfFileNameS) {
-    console.log('shrink font size a bit');
+    log.debug('shrink font size a bit');
     fileNameRatio = spaceForFileName / widthOfFileNameL;
-    console.log(fileNameRatio);
+    log.debug(fileNameRatio);
     titleTextSize = logoHeight * textRatio * 1.5 * fileNameRatio;
   } else {
-    console.log('use small font size a truncate text');
+    log.debug('use small font size a truncate text');
     fileNameRatio = spaceForFileName / widthOfFileNameS;
     titleTextSize = logoHeight * textRatio * 1.2;
     const lengthOfFileName = fileName.length;

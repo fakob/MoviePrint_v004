@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Popup } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
+import log from 'electron-log';
 import { changeThumb, addDefaultThumbs, addThumb } from '../actions';
 import {
   MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
@@ -87,7 +88,7 @@ class VideoPlayer extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    // console.log('VideoPlayer - componentWillReceiveProps');
+    // log.debug('VideoPlayer - componentWillReceiveProps');
     if (
       nextProps.aspectRatioInv !== this.props.aspectRatioInv ||
       nextProps.height !== this.props.height ||
@@ -181,7 +182,7 @@ class VideoPlayer extends Component {
         stepValue = stepValue2 * -1;
       }
     }
-    console.log(stepValue);
+    log.debug(stepValue);
     this.updatePositionWithStep(stepValue);
   }
 
@@ -199,7 +200,7 @@ class VideoPlayer extends Component {
         stepValue = stepValue2;
       }
     }
-    console.log(stepValue);
+    log.debug(stepValue);
     this.updatePositionWithStep(stepValue);
   }
 
@@ -265,7 +266,7 @@ class VideoPlayer extends Component {
       let currentTime = 0;
       let currentFrame = 0;
       if (thumbId) {
-        console.log('updateTimeFromThumbId');
+        log.debug('updateTimeFromThumbId');
         const selectedThumb = this.props.thumbs.find((thumb) => thumb.thumbId === thumbId);
         if (selectedThumb) {
           currentFrame = selectedThumb.frameNumber;
@@ -290,13 +291,13 @@ class VideoPlayer extends Component {
       this.setState({ playHeadPosition: xPos });
       if (this.state.loadVideo) {
         const currentTime = mapRange(xPos, 0, this.state.videoWidth, 0, this.state.duration, false);
-        // console.log(`${currentTime} : ${xPos} : ${this.state.videoWidth} : ${this.state.duration}`);
+        // log.debug(`${currentTime} : ${xPos} : ${this.state.videoWidth} : ${this.state.duration}`);
         this.setState({ currentTime });
         this.video.currentTime = currentTime;
       } else {
         const { frameCount } = this.props.file;
         const currentFrame = mapRange(xPos, 0, this.state.videoWidth, 0, frameCount - 1);
-        // console.log(`${currentFrame} : ${xPos} : ${this.state.videoWidth} : ${this.state.frameCount - 1}`);
+        // log.debug(`${currentFrame} : ${xPos} : ${this.state.videoWidth} : ${this.state.frameCount - 1}`);
         this.setState({ currentFrame });
         this.updateOpencvVideoCanvas(currentFrame);
       }
@@ -338,10 +339,10 @@ class VideoPlayer extends Component {
       let newFrameNumber;
       if (this.state.loadVideo) {
         newFrameNumber = secondsToFrameCount(this.state.currentTime, this.props.file.fps);
-        console.log(`${newFrameNumber} = secondsToFrameCount(${this.state.currentTime}, ${this.props.file.fps})`);
+        log.debug(`${newFrameNumber} = secondsToFrameCount(${this.state.currentTime}, ${this.props.file.fps})`);
       } else {
         newFrameNumber = this.state.currentFrame;
-        console.log(`${newFrameNumber}: ${this.state.currentFrame}`);
+        log.debug(`${newFrameNumber}: ${this.state.currentFrame}`);
       }
       if (this.props.keyObject.altKey || this.props.keyObject.shiftKey) {
         const newThumbId = uuidV4();
@@ -371,8 +372,8 @@ class VideoPlayer extends Component {
   }
 
   onVideoError = () => {
-    console.log('onVideoError');
-    // console.log(this);
+    log.error('onVideoError');
+    // log.debug(this);
     this.onDurationChange(frameCountToSeconds(this.props.file.frameCount));
     this.setState({
       loadVideo: false
@@ -380,8 +381,8 @@ class VideoPlayer extends Component {
   }
 
   onLoadedData = () => {
-    console.log('onLoadedData');
-    // console.log(this);
+    log.debug('onLoadedData');
+    // log.debug(this);
     this.setState({
       loadVideo: true
     });

@@ -1,3 +1,4 @@
+import log from 'electron-log';
 import { deleteProperty } from './../utils/utils';
 
 const thumb = (state = {}, action, index) => {
@@ -45,10 +46,10 @@ const thumb = (state = {}, action, index) => {
         frameNumber: action.payload.frameNumber
       });
     case 'UPDATE_ORDER':
-      // console.log(state);
-      // console.log(state.id);
-      // console.log(index);
-      // console.log(action.payload.array[index].index);
+      // log.debug(state);
+      // log.debug(state.id);
+      // log.debug(index);
+      // log.debug(action.payload.array[index].index);
       if (index === action.payload.array[index].index) {
         return state;
       }
@@ -158,7 +159,7 @@ const thumbsByFileId = (state = [], action) => {
       };
     case 'REMOVE_THUMB':
       // create new state with thumb removed
-      console.log(state);
+      log.debug(state);
       const tempState = state[action.payload.fileId].thumbs
         .slice(0, state[action.payload.fileId].thumbs
         .find(x => x.thumbId === action.payload.thumbId).index)
@@ -166,7 +167,7 @@ const thumbsByFileId = (state = [], action) => {
         .slice(state[action.payload.fileId].thumbs
         .find(x => x.thumbId === action.payload.thumbId).index + 1)
       );
-      console.log(tempState);
+      log.debug(tempState);
 
       // construct new UPDATE_ORDER action
       const tempAction = Object.assign({}, action, {
@@ -187,7 +188,7 @@ const thumbsByFileId = (state = [], action) => {
         }
       };
     // case 'UPDATE_OBJECTURL_FROM_THUMBLIST':
-    //   // console.log(state[action.payload.currentFileId].thumbs);
+    //   // log.debug(state[action.payload.currentFileId].thumbs);
     //   return {
     //     ...state,
     //     [action.payload.currentFileId]: {
@@ -197,7 +198,7 @@ const thumbsByFileId = (state = [], action) => {
     //     }
     //   };
     // case 'UPDATE_OBJECTURLS_FROM_THUMBLIST':
-    //   // console.log('inside UPDATE_OBJECTURLS_FROM_THUMBLIST');
+    //   // log.debug('inside UPDATE_OBJECTURLS_FROM_THUMBLIST');
     //   return {
     //     ...state,
     //     [action.payload.fileId]: {
@@ -207,7 +208,7 @@ const thumbsByFileId = (state = [], action) => {
     //     }
     //   };
     case 'CLEAR_THUMBS':
-      console.log('inside CLEAR_THUMBS');
+      log.debug('inside CLEAR_THUMBS');
       // if fileId is an empty string, then clear all thumbs
       // else only clear thumbs of specific fileId
       if (action.fileId === '') {

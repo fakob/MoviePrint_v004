@@ -27,7 +27,6 @@ class SortedVisibleThumbGrid extends Component {
 
   // componentDidMount() {
   componentWillMount() {
-    // console.log(this.props);
     const { store } = this.context;
     this.unsubscribe = store.subscribe(() => this.forceUpdate());
     store.getState().undoGroup.present.files.map((singleFile) => {
@@ -75,7 +74,6 @@ class SortedVisibleThumbGrid extends Component {
 
   scrollThumbIntoView = () => {
     if (this.scrollIntoViewElement && this.scrollIntoViewElement.current !== null) {
-      // console.log(this.scrollIntoViewElement);
       scrollIntoView(this.scrollIntoViewElement.current, {
         time: 300,
         align: {

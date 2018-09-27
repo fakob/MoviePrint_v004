@@ -1,4 +1,5 @@
 import Dexie from 'dexie';
+import log from 'electron-log';
 
 const FileObject = Dexie.defineClass({
   frameId: String,
@@ -23,7 +24,7 @@ FileObject.prototype.getObjectUrl = function () {
     this.objectUrl = window.URL.createObjectURL(this.data);
     return this.objectUrl;
   }
-  console.log('File disposed!');
+  log.warn('File disposed!');
   throw 'File disposed!';
 };
 

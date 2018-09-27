@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Button, Divider } from 'semantic-ui-react';
+import log from 'electron-log';
 import styles from './ErrorBoundary.css';
 import { clearCache } from '../utils/utils';
 
@@ -18,18 +19,18 @@ class ErrorBoundary extends Component {
     // Display fallback UI
     this.setState({ hasError: true });
     // You can also log the error to an error reporting service
-    console.log(error);
-    console.log(info);
+    log.error(error);
+    log.info(info);
   }
 
   onRefreshClick() {
-    console.log('refreshclick');
+    log.info('refreshclick');
     getCurrentWindow().reload();
     // location.reload(false);
   }
 
   onRestartClick() {
-    console.log('restartclick');
+    log.info('restartclick');
     clearCache(getCurrentWindow());
   }
 

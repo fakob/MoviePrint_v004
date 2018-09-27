@@ -1,9 +1,10 @@
+import log from 'electron-log';
 
 const file = (state = {}, type, payload, index) => {
   switch (type) {
     case 'LOAD_MOVIE_LIST_FROM_DROP':
-      // console.log(payload[index]);
-      // console.log(state);
+      // log.debug(payload[index]);
+      // log.debug(state);
       return Object.assign({}, {
         id: payload[index].id,
         lastModified: payload[index].lastModified,
@@ -67,7 +68,7 @@ const file = (state = {}, type, payload, index) => {
           )
         });
       } catch (e) {
-        console.log('catch error in UPDATE_OBJECTURLS_FROM_POSTERFRAME', e);
+        log.error('catch error in UPDATE_OBJECTURLS_FROM_POSTERFRAME', e);
         return state;
       }
     default:
