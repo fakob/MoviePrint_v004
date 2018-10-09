@@ -885,6 +885,7 @@ class App extends Component {
   }
 
   runSceneDetection(file, threshold = 20.0) {
+    this.hideSettings();
     this.onHideDetectionChart();
     const { store } = this.context;
     // get meanArray if it is stored else return false
