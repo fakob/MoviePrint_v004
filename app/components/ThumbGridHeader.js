@@ -2,6 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import log from 'electron-log';
 import { truncatePath, getTextWidth } from '../utils/utils';
+import {
+  DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN
+} from '../utils/constants';
 import styles from './ThumbGrid.css';
 
 // import movieprint from './../img/Thumb_MOVIEPRINT.png';
@@ -64,7 +67,9 @@ const ThumbGridHeader = ({
       className={styles.gridHeader}
       style={{
         height: headerHeight,
-        margin: thumbMargin,
+        marginBottom: thumbMargin,
+        marginLeft: thumbMargin,
+        marginRight: thumbMargin * 2 + DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN,
       }}
     >
       <div

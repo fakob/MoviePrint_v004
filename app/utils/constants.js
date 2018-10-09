@@ -18,6 +18,7 @@ export const PAPER_LAYOUT_OPTIONS = [
   { value: 1.65, text: 'Legal (Portrait)' , 'data-tid': 'Legal-P'},
   { value: 0.65, text: 'Tabloid (Landscape)' , 'data-tid': 'Tabloid-L'},
   { value: 1.55, text: 'Tabloid (Portrait)' , 'data-tid': 'Tabloid-P'},
+  { value: 1.00, text: 'Square' , 'data-tid': 'Square'},
 ];
 
 export const OUTPUT_FORMAT_OPTIONS = [

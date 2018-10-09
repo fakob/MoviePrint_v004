@@ -51,6 +51,7 @@ import {
   MENU_FOOTER_HEIGHT,
   ZOOM_SCALE,
   SCENE_DETECTION_MIN_SCENE_LENGTH,
+  DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN,
 } from '../utils/constants';
 
 import startupImg from '../img/MoviePrint-steps.svg';
@@ -1635,7 +1636,7 @@ class App extends Component {
                           (this.props.file && this.props.visibilitySettings.showMoviePrintView && this.props.settings.defaultShowPaperPreview)) ?
                           `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${(this.props.settings.defaultPaperAspectRatioInv < this.state.scaleValueObject.moviePrintAspectRatioInv) ? (this.state.scaleValueObject.newMoviePrintHeight / this.props.settings.defaultPaperAspectRatioInv) : this.state.scaleValueObject.newMoviePrintWidth}' height='${(this.props.settings.defaultPaperAspectRatioInv < this.state.scaleValueObject.moviePrintAspectRatioInv) ? this.state.scaleValueObject.newMoviePrintHeight : (this.state.scaleValueObject.newMoviePrintWidth * this.props.settings.defaultPaperAspectRatioInv)}' style='background-color: rgba(245,245,245,${this.props.visibilitySettings.showSettings ? 1 : 0.02});'></svg>")` : undefined,
                         backgroundRepeat: 'no-repeat',
-                        backgroundPosition: 'center center',
+                        backgroundPosition: `calc(50% - ${DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN / 2}px) 50%`,
                       }}
                     >
                       { (this.props.file || this.props.visibilitySettings.showSettings || this.state.loadingFirstFile) ? (
