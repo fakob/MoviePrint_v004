@@ -58,8 +58,7 @@ import startupImg from '../img/MoviePrint-steps.svg';
 import transparent from '../img/Thumb_TRANSPARENT.png';
 
 const { ipcRenderer } = require('electron');
-const { dialog, process } = require('electron').remote;
-const { app } = require('electron').remote;
+const { dialog, app } = require('electron').remote;
 const opencv = require('opencv4nodejs');
 
 // const DEV_OPENCV_SCENE_DETECTION = process.env.DEV_OPENCV_SCENE_DETECTION === 'true';

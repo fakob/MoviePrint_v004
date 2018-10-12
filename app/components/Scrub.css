@@ -93,6 +93,8 @@
   position: absolute;
   /* top: 0; */
   left: 0;
+  top: 0;
+  transform: translate(-50%, -20px);
   background: #eee;
   border-radius:2px;
   font-family: 'Open sans';
@@ -101,7 +103,34 @@
   padding: 1px;
   color: #000000;
   -webkit-user-select:none;
-  /*opacity: 0.5;*/
+  z-index: 2001;
+}
+
+.scrubThumbLine {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 1px;
+  background-color: rgba(255, 255, 255, 0.2);
+  z-index: 2000;
+}
+
+.scrubThumbframeNumberOrTimeCode {
+  position: absolute;
+  /* top: 0; */
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -20px);
+  background-color: rgba(100, 100, 100, 1);
+  border-radius:2px;
+  font-family: 'Open sans';
+  font-size: 14px;
+  line-height: 14px;
+  padding: 1px;
+  color: #000000;
+  -webkit-user-select:none;
+  z-index: 1999;
+  /* opacity: 0.5; */
 }
 
 .timelineWrapper {
@@ -124,6 +153,16 @@
   /* top: 0; */
   width: 2px;
   background-color: rgba(255, 80, 6, 1);
+  height: 20px;
+  margin-top: 2px;
+}
+
+.timelineScrubThumb {
+  position: absolute;
+  /* bottom: 0; */
+  /* top: 0; */
+  width: 1px;
+  background-color: rgba(255, 255, 255, 0.2);
   height: 20px;
   margin-top: 2px;
 }
