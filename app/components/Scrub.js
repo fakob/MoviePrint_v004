@@ -28,6 +28,7 @@ class Scrub extends Component {
       scrubThumbLineValue: undefined,
       leftOfScrubMovie: undefined,
       rightOfScrubMovie: undefined,
+      scrubInfo: undefined,
     };
 
     this.onScrubMouseMoveWithStop = this.onScrubMouseMoveWithStop.bind(this);
@@ -65,6 +66,11 @@ class Scrub extends Component {
       leftOfScrubMovie,
       rightOfScrubMovie
     );
+
+    // show timecode if hideInfo
+    const scrubInfo = this.props.settings.defaultThumbInfo === 'hideInfo' ?
+      'timecode' : this.props.settings.defaultThumbInfo;
+
     this.setState({
       scrubFrameNumber: this.props.scrubThumb.frameNumber,
       timeLineCutIn,
@@ -73,6 +79,7 @@ class Scrub extends Component {
       scrubThumbLineValue,
       leftOfScrubMovie,
       rightOfScrubMovie,
+      scrubInfo,
     });
   }
 
@@ -125,6 +132,13 @@ class Scrub extends Component {
         onMouseUp={this.onScrubClickWithStop}
         // onClick={this.onScrubClickWithStop}
       >
+        <div
+          className={styles.scrubInfo}
+        >
+          {this.props.keyObject.shiftKey && 'ADD BEFORE'}
+          {this.props.keyObject.altKey && 'ADD AFTER'}
+          {!this.props.keyObject.shiftKey && !this.props.keyObject.altKey && 'CHANGE'}
+        </div>
         <div
           className={styles.scrubContainer}
           style={{
@@ -199,8 +213,11 @@ class Scrub extends Component {
               left: `${this.state.scrubLineValue}px`,
             }}
           >
-            {getThumbInfoValue(this.props.settings.defaultThumbInfo, this.state.scrubFrameNumber, this.props.file.fps)}
-
+            {getThumbInfoValue(
+              this.state.scrubInfo,
+              this.state.scrubFrameNumber,
+              this.props.file.fps
+            )}
           </span>
           <div
             className={styles.scrubLine}
@@ -214,23 +231,37 @@ class Scrub extends Component {
               left: `${this.state.leftOfScrubMovie}px`,
             }}
           >
-            {getThumbInfoValue(this.props.settings.defaultThumbInfo, this.props.scrubThumbLeft.frameNumber, this.props.file.fps)}
+            {getThumbInfoValue(
+              this.state.scrubInfo,
+              this.props.keyObject.altKey ? this.props.scrubThumb.frameNumber : this.props.scrubThumbLeft.frameNumber,
+              this.props.file.fps
+            )}
           </span>
-          <span
-            className={styles.scrubThumbframeNumberOrTimeCode}
-            style={{
-              left: `${this.state.scrubThumbLineValue}px`,
-            }}
-          >
-            {getThumbInfoValue(this.props.settings.defaultThumbInfo, this.props.scrubThumb.frameNumber, this.props.file.fps)}
-          </span>
+          {!this.props.keyObject.shiftKey && !this.props.keyObject.altKey &&
+            <span
+              className={styles.scrubThumbframeNumberOrTimeCode}
+              style={{
+                left: `${this.state.scrubThumbLineValue}px`,
+              }}
+            >
+              {getThumbInfoValue(
+                this.state.scrubInfo,
+                this.props.scrubThumb.frameNumber,
+                this.props.file.fps
+              )}
+            </span>
+          }
           <span
             className={styles.scrubThumbframeNumberOrTimeCode}
             style={{
               left: `${this.state.rightOfScrubMovie}px`,
             }}
           >
-            {getThumbInfoValue(this.props.settings.defaultThumbInfo, this.props.scrubThumbRight.frameNumber, this.props.file.fps)}
+            {getThumbInfoValue(
+              this.state.scrubInfo,
+              this.props.keyObject.shiftKey ? this.props.scrubThumb.frameNumber : this.props.scrubThumbRight.frameNumber,
+              this.props.file.fps
+            )}
           </span>
           <div
             className={styles.scrubThumbLine}

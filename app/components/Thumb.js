@@ -475,7 +475,7 @@ const Thumb = ({
           <div
             data-tid={`insertThumb${(!showAfterController && showBeforeController) ? 'Before' : 'After'}Div_${thumbId}`}
             style={{
-              zIndex: 2000,
+              zIndex: 100,
               content: '',
               backgroundColor: '#FF5006',
               position: 'absolute',
