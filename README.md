@@ -1,15 +1,16 @@
 ![MoviePrint](resources/icons/128x128.png)
 
+Website - [https://movieprint.fakob.com/](https://movieprint.fakob.com/)
+
 A tool which lets you create screenshots of entire movies in an instant.
 <br/>
 
-* Customise the look of your MoviePrint (Rows, Columns, Frame, Timecode…)
-* Define the desired In- and Outpoints
-* Choose each thumb individually
-* Add more thumbs in between
-* Rearrange the order of the thumbs
-* Save all chosen thumbs as stills
-* Save MoviePrints for all dragged in movies automatically
+* CUSTOMISE LOOK - Set a custom grid, adjust file and frame specific data, margins etc. to create a custom look for your MoviePrints.
+* SET IN AND OUT POINTS - Define custom In and Out Points for your MoviePrint if you only want to use a section of the movie.
+* INSERT AND MOVE THUMBS - Easily insert thumbs and move them around via drag and drop.
+* SELECT FRAMES - Scrub through the movie with ease and select frames for every single thumb individually.
+* SAVE THUMBS - Easily save individual thumbs or save all thumbs of a MoviePrint at once.
+* BATCH CREATE - Automatically create MoviePrints from all your movies.
 
 Experimental
 * Scene detection (using mean difference)
@@ -34,12 +35,22 @@ _We will only ever send you MoviePrint related updates._
 
 
 ### Watch screencast
-[![MoviePrint_v004 screencast](http://img.youtube.com/vi/1Ya0UrIXfD8/0.jpg)](http://www.youtube.com/watch?v=1Ya0UrIXfD8)
-
-[Watch screencast](http://www.youtube.com/watch?v=1Ya0UrIXfD8)
+[![MoviePrint_v004 screencast](http://img.youtube.com/vi/ERn0SWCPnE0/0.jpg)](https://www.youtube.com/watch?v=ERn0SWCPnE0)
+[Watch screencast](https://www.youtube.com/watch?v=ERn0SWCPnE0)
 
 ### Example MoviePrint
 ![MoviePrint_v004 screencast](http://movieprint.fakob.com/wp-content/uploads/2018/05/Dead_Maintitle_Vimeo.mp4-MoviePrint-edit-5.png)
+
+### How it works
+![MoviePrint_v004 screencast](https://movieprint.fakob.com/wp-content/uploads/2018/09/Screen-Shot-2018-09-11-at-19.00.59.jpg)
+![MoviePrint_v004 screencast](https://movieprint.fakob.com/wp-content/uploads/2018/09/Screen-Shot-2018-09-11-at-19.01.55.jpg)
+![MoviePrint_v004 screencast](https://movieprint.fakob.com/wp-content/uploads/2018/09/Screen-Shot-2018-09-11-at-18.56.42.jpg)
+![MoviePrint_v004 screencast](https://movieprint.fakob.com/wp-content/uploads/2018/09/Screen-Shot-2018-09-11-at-18.55.53.jpg)
+![MoviePrint_v004 screencast](https://movieprint.fakob.com/wp-content/uploads/2018/09/Screen-Shot-2018-09-11-at-19.00.29.jpg)
+![MoviePrint_v004 screencast](https://movieprint.fakob.com/wp-content/uploads/2018/09/Screen-Shot-2018-09-11-at-19.04.35.jpg)
+![MoviePrint_v004 screencast](https://movieprint.fakob.com/wp-content/uploads/2018/09/Screen-Shot-2018-09-11-at-19.05.28.jpg)
+![MoviePrint_v004 screencast](https://movieprint.fakob.com/wp-content/uploads/2018/09/Screen-Shot-2018-09-11-at-18.57.14.jpg)
+![MoviePrint_v004 screencast](https://movieprint.fakob.com/wp-content/uploads/2018/09/Screen-Shot-2018-09-11-at-19.22.03.jpg)
 
 ---
 ## OSX release
