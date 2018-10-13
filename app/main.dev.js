@@ -32,14 +32,21 @@ if (process.env.NODE_ENV === 'production') {
 
 if (
   process.env.NODE_ENV === 'development' ||
-  process.env.DEBUG_PROD === 'true'
+  process.env.DEBUG_PROD === 'true' ||
+  process.argv.findIndex(value => value === '--debug') > -1
 ) {
   require('electron-debug')();
   const p = path.join(__dirname, '..', 'app', 'node_modules');
   require('module').globalPaths.push(p);
 }
 
-// set log level
+// set log level to 'debug' when launched in debug mode
+if (process.argv.findIndex(value => value === '--debug') > -1) {
+  log.transports.file.level = 'debug';
+  log.transports.console.level = 'debug';
+}
+
+// set log level from environment variable
 const { LOG_LEVEL } = process.env;
 // only change the log level if there is an environment variable
 // otherwise keep the default ('warn')
