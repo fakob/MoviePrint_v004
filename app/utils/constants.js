@@ -75,6 +75,8 @@ export const DEFAULT_MOVIE_WIDTH = 1920;
 export const DEFAULT_MOVIE_HEIGHT = 1080;
 export const DEFAULT_MOVIE_ASPECTRATIO = 1.778;
 
+// fixes jumping of thumbs due to hoverButton by giving the moviePrint some extra space around
+// should be 0 for printing
 export const DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN = 10;
 
 export const MINIMUM_WIDTH_TO_SHRINK_HOVER = 160; // if smaller then scale hover to 0.7

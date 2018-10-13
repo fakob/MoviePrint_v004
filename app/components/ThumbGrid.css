@@ -109,6 +109,10 @@
   outline:none;
 }
 
+.gridForPrinting {
+  margin-left: -50px
+}
+
 .frameNumber {
   position: absolute;
   top: 0;

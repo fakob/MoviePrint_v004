@@ -6,7 +6,8 @@ import imageDB from './../utils/db';
 import '../app.global.css';
 import styles from './App.css';
 import SortedVisibleThumbGrid from '../containers/VisibleThumbGrid';
-import { getVisibleThumbs, getScaleValueObject, getMoviePrintColor, getColumnCount } from '../utils/utils';
+import getScaleValueObject from '../utils/getScaleValueObject';
+import { getMoviePrintColor, getColumnCount } from '../utils/utils';
 import saveMoviePrint from '../utils/saveMoviePrint';
 
 const { ipcRenderer } = require('electron');
@@ -105,10 +106,11 @@ class WorkerApp extends Component {
                 this.state.data.moviePrintWidth, undefined,
                 this.state.data.visibilitySettings.showMoviePrintView,
                 1
-              ).newMoviePrintWidth}px`
+              ).newMoviePrintWidthForPrinting}px`
             }}
           >
             <SortedVisibleThumbGrid
+              viewForPrinting
               inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
               showSettings={false}
               file={this.state.data.file}

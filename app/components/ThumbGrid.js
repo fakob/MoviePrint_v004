@@ -110,19 +110,19 @@ class ThumbGrid extends Component {
         thumbArray[i] = tempThumbObject;
       }
     }
-
     return (
       <div
         data-tid='thumbGridDiv'
         className={styles.grid}
         style={{
-          width: this.props.scaleValueObject.newMoviePrintWidth,
+          width: this.props.viewForPrinting ? this.props.scaleValueObject.newMoviePrintWidthForPrinting : this.props.scaleValueObject.newMoviePrintWidth,
           marginLeft: this.props.showMoviePrintView ? undefined : (this.props.scaleValueObject.newThumbWidth / 4),
         }}
         id="ThumbGrid"
       >
         {this.props.settings.defaultShowHeader && this.props.showMoviePrintView &&
           <ThumbGridHeader
+            viewForPrinting={this.props.viewForPrinting}
             showMoviePrintView={this.props.showMoviePrintView}
             fileName={this.props.file.name || ''}
             filePath={this.props.file.path || ''}
@@ -130,7 +130,7 @@ class ThumbGrid extends Component {
             showPathInHeader={this.props.settings.defaultShowPathInHeader}
             showDetailsInHeader={this.props.settings.defaultShowDetailsInHeader}
             showTimelineInHeader={this.props.settings.defaultShowTimelineInHeader}
-            moviePrintWidth={this.props.scaleValueObject.newMoviePrintWidth}
+            moviePrintWidth={this.props.viewForPrinting ? this.props.scaleValueObject.newMoviePrintWidthForPrinting : this.props.scaleValueObject.newMoviePrintWidth}
             headerHeight={this.props.scaleValueObject.newHeaderHeight}
             logoHeight={this.props.scaleValueObject.newLogoHeight}
             thumbMargin={this.props.scaleValueObject.newThumbMargin}

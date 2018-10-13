@@ -18,13 +18,13 @@ import Footer from '../components/Footer';
 import VideoPlayer from '../components/VideoPlayer';
 import Scrub from '../components/Scrub';
 import ThumbEmpty from '../components/ThumbEmpty';
+import getScaleValueObject from '../utils/getScaleValueObject';
 import { getLowestFrame,
   getHighestFrame,
   getVisibleThumbs,
   getColumnCount,
   getThumbsCount,
   getMoviePrintColor,
-  getScaleValueObject,
   getObjectProperty,
   setPosition,
   getScrubFrameNumber,
@@ -1641,6 +1641,7 @@ class App extends Component {
                     >
                       { (this.props.file || this.props.visibilitySettings.showSettings || this.state.loadingFirstFile) ? (
                         <SortedVisibleThumbGrid
+                          viewForPrinting={false}
                           inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                           showSettings={this.props.visibilitySettings.showSettings}
                           file={this.props.file}

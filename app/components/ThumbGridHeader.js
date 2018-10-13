@@ -26,6 +26,7 @@ const ThumbGridHeader = ({
   inPointPositionOnTimeline,
   cutWidthOnTimeLine,
   allFrameNumbersInPercentArray,
+  viewForPrinting,
 }) => {
   const headerMarginRatioTop = 0.25; // 25% of height
   const headerImageRatio = 0.5; // 50% of height
@@ -69,7 +70,7 @@ const ThumbGridHeader = ({
         height: headerHeight,
         marginBottom: thumbMargin,
         marginLeft: thumbMargin,
-        marginRight: thumbMargin * 2 + DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN,
+        marginRight: thumbMargin * 2 + (viewForPrinting ? 0 : DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN),
       }}
     >
       <div

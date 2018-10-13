@@ -88,6 +88,7 @@ class SortedVisibleThumbGrid extends Component {
     // const state = store.getState();
     return (
       <SortableThumbGrid
+        viewForPrinting={this.props.viewForPrinting}
         ref={this.props.inputRef} // for the saveMoviePrint function
         inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
         showSettings={this.props.showSettings}

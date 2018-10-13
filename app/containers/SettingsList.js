@@ -15,7 +15,7 @@ import {
   PAPER_LAYOUT_OPTIONS,
   OUTPUT_FORMAT_OPTIONS,
 } from '../utils/constants';
-import { getScaleValueObject } from '../utils/utils';
+import getScaleValueObject from '../utils/getScaleValueObject';
 
 const SliderWithTooltip = createSliderWithTooltip(Slider);
 
