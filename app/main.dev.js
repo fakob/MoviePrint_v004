@@ -124,8 +124,9 @@ app.on('ready', async () => {
   });
 
   mainWindow.webContents.on('crashed', event => {
-    log.error('mainWindow just crashed');
+    log.error('mainWindow just crashed, will try to reload window');
     log.error(event);
+    mainWindow.webContents.reload();
   });
 
   mainWindow.webContents.on('unresponsive', event => {
@@ -171,8 +172,9 @@ app.on('ready', async () => {
   });
 
   workerWindow.webContents.on('crashed', event => {
-    log.error('workerWindow just crashed');
+    log.error('workerWindow just crashed, will try to reload window');
     log.error(event);
+    workerWindow.webContents.reload();
   });
 
   workerWindow.webContents.on('unresponsive', event => {
@@ -199,8 +201,9 @@ app.on('ready', async () => {
   });
 
   opencvWorkerWindow.webContents.on('crashed', event => {
-    log.error('opencvWorkerWindow just crashed');
+    log.error('opencvWorkerWindow just crashed, will try to reload window');
     log.error(event);
+    opencvWorkerWindow.webContents.reload();
   });
 
   opencvWorkerWindow.webContents.on('unresponsive', event => {
