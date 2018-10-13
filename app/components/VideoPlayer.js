@@ -182,7 +182,7 @@ class VideoPlayer extends Component {
         stepValue = stepValue2 * -1;
       }
     }
-    log.debug(stepValue);
+    // log.debug(stepValue);
     this.updatePositionWithStep(stepValue);
   }
 
@@ -200,7 +200,7 @@ class VideoPlayer extends Component {
         stepValue = stepValue2;
       }
     }
-    log.debug(stepValue);
+    // log.debug(stepValue);
     this.updatePositionWithStep(stepValue);
   }
 
@@ -266,7 +266,7 @@ class VideoPlayer extends Component {
       let currentTime = 0;
       let currentFrame = 0;
       if (thumbId) {
-        log.debug('updateTimeFromThumbId');
+        // log.debug('updateTimeFromThumbId');
         const selectedThumb = this.props.thumbs.find((thumb) => thumb.thumbId === thumbId);
         if (selectedThumb) {
           currentFrame = selectedThumb.frameNumber;
@@ -339,10 +339,10 @@ class VideoPlayer extends Component {
       let newFrameNumber;
       if (this.state.loadVideo) {
         newFrameNumber = secondsToFrameCount(this.state.currentTime, this.props.file.fps);
-        log.debug(`${newFrameNumber} = secondsToFrameCount(${this.state.currentTime}, ${this.props.file.fps})`);
+        // log.debug(`${newFrameNumber} = secondsToFrameCount(${this.state.currentTime}, ${this.props.file.fps})`);
       } else {
         newFrameNumber = this.state.currentFrame;
-        log.debug(`${newFrameNumber}: ${this.state.currentFrame}`);
+        // log.debug(`${newFrameNumber}: ${this.state.currentFrame}`);
       }
       if (this.props.keyObject.altKey || this.props.keyObject.shiftKey) {
         const newThumbId = uuidV4();
@@ -381,7 +381,7 @@ class VideoPlayer extends Component {
   }
 
   onLoadedData = () => {
-    log.debug('onLoadedData');
+    // log.debug('onLoadedData');
     // log.debug(this);
     this.setState({
       loadVideo: true

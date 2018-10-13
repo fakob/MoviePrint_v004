@@ -159,7 +159,7 @@ const thumbsByFileId = (state = [], action) => {
       };
     case 'REMOVE_THUMB':
       // create new state with thumb removed
-      log.debug(state);
+      // log.debug(state);
       const tempState = state[action.payload.fileId].thumbs
         .slice(0, state[action.payload.fileId].thumbs
         .find(x => x.thumbId === action.payload.thumbId).index)
@@ -167,7 +167,7 @@ const thumbsByFileId = (state = [], action) => {
         .slice(state[action.payload.fileId].thumbs
         .find(x => x.thumbId === action.payload.thumbId).index + 1)
       );
-      log.debug(tempState);
+      // log.debug(tempState);
 
       // construct new UPDATE_ORDER action
       const tempAction = Object.assign({}, action, {
@@ -208,7 +208,6 @@ const thumbsByFileId = (state = [], action) => {
     //     }
     //   };
     case 'CLEAR_THUMBS':
-      log.debug('inside CLEAR_THUMBS');
       // if fileId is an empty string, then clear all thumbs
       // else only clear thumbs of specific fileId
       if (action.fileId === '') {

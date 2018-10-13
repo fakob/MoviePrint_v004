@@ -80,7 +80,7 @@ app.on('before-quit', () => {
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
-  log.debug('window-all-closed');
+  log.debug('mainThread | window-all-closed');
   if (process.platform !== 'darwin') {
     app.quit();
   }
@@ -124,18 +124,18 @@ app.on('ready', async () => {
   });
 
   mainWindow.webContents.on('crashed', event => {
-    log.error('mainWindow just crashed, will try to reload window');
+    log.error('mainThread | mainWindow just crashed, will try to reload window');
     log.error(event);
     mainWindow.webContents.reload();
   });
 
   mainWindow.webContents.on('unresponsive', event => {
-    log.warn('mainWindow is unresponsive');
+    log.warn('mainThread | mainWindow is unresponsive');
     log.warn(event);
   });
 
   mainWindow.webContents.on('responsive', event => {
-    log.warn('mainWindow is responsive again');
+    log.warn('mainThread | mainWindow is responsive again');
     log.warn(event);
   });
 
@@ -172,18 +172,18 @@ app.on('ready', async () => {
   });
 
   workerWindow.webContents.on('crashed', event => {
-    log.error('workerWindow just crashed, will try to reload window');
+    log.error('mainThread | workerWindow just crashed, will try to reload window');
     log.error(event);
     workerWindow.webContents.reload();
   });
 
   workerWindow.webContents.on('unresponsive', event => {
-    log.warn('workerWindow is unresponsive');
+    log.warn('mainThread | workerWindow is unresponsive');
     log.warn(event);
   });
 
   workerWindow.webContents.on('responsive', event => {
-    log.warn('workerWindow is responsive again');
+    log.warn('mainThread | workerWindow is responsive again');
     log.warn(event);
   });
 
@@ -201,18 +201,18 @@ app.on('ready', async () => {
   });
 
   opencvWorkerWindow.webContents.on('crashed', event => {
-    log.error('opencvWorkerWindow just crashed, will try to reload window');
+    log.error('mainThread | opencvWorkerWindow just crashed, will try to reload window');
     log.error(event);
     opencvWorkerWindow.webContents.reload();
   });
 
   opencvWorkerWindow.webContents.on('unresponsive', event => {
-    log.warn('opencvWorkerWindow is unresponsive');
+    log.warn('mainThread | opencvWorkerWindow is unresponsive');
     log.warn(event);
   });
 
   opencvWorkerWindow.webContents.on('responsive', event => {
-    log.warn('opencvWorkerWindow is responsive again');
+    log.warn('mainThread | opencvWorkerWindow is responsive again');
     log.warn(event);
   });
 
@@ -267,10 +267,10 @@ ipcMain.on(
   'message-from-mainWindow-to-workerWindow',
   (e, ipcName, ...args) => {
     log.debug(
-      `passing ipc message ${ipcName} from mainWindow to workerWindow`
+      `mainThread | passing ${ipcName} from mainWindow to workerWindow`
     );
     log.debug(
-      `passing ipc message ${ipcName} from mainWindow to workerWindow`
+      `mainThread | passing ${ipcName} from mainWindow to workerWindow`
     );
     // log.debug(...args);
     workerWindow.webContents.send(ipcName, ...args);
@@ -281,7 +281,7 @@ ipcMain.on(
   'message-from-workerWindow-to-mainWindow',
   (e, ipcName, ...args) => {
     log.debug(
-      `passing ipc message ${ipcName} from workerWindow to mainWindow`
+      `mainThread | passing ${ipcName} from workerWindow to mainWindow`
     );
     // log.debug(...args);
     mainWindow.webContents.send(ipcName, ...args);
@@ -292,7 +292,7 @@ ipcMain.on(
   'message-from-mainWindow-to-opencvWorkerWindow',
   (e, ipcName, ...args) => {
     log.debug(
-      `passing ipc message ${ipcName} from mainWindow to opencvWorkerWindow`
+      `mainThread | passing ${ipcName} from mainWindow to opencvWorkerWindow`
     );
     // log.debug(...args);
     opencvWorkerWindow.webContents.send(ipcName, ...args);
@@ -303,7 +303,7 @@ ipcMain.on(
   'message-from-opencvWorkerWindow-to-mainWindow',
   (e, ipcName, ...args) => {
     log.debug(
-      `passing ipc message ${ipcName} from opencvWorkerWindow to mainWindow`
+      `mainThread | passing ${ipcName} from opencvWorkerWindow to mainWindow`
     );
     // log.debug(...args);
     mainWindow.webContents.send(ipcName, ...args);

@@ -281,15 +281,15 @@ class App extends Component {
     ipcRenderer.on('receive-get-in-and-outpoint', (event, fileId, fadeInPoint, fadeOutPoint) => {
       store.dispatch(updateInOutPoint(fileId, fadeInPoint, fadeOutPoint));
       // load thumbs for first item only until currentFileId is set
-      log.debug(this.props.currentFileId);
+      // log.debug(this.props.currentFileId);
       if (this.props.currentFileId === undefined) {
-        log.debug('Hello, log, I am the firstItem');
+        // log.debug('Hello, log, I am the firstItem');
         const firstFile = store.getState().undoGroup.present.files.find((file) => file.id === fileId);
         store.dispatch(setCurrentFileId(firstFile.id));
         this.updateScaleValue(); // so the aspect ratio of the thumbs are correct after drag
         store.dispatch(updateFileColumnCount(firstFile.id, getColumnCount(firstFile, this.props.settings))); // set columnCount on firstFile
         store.dispatch(clearThumbs());
-        log.debug(firstFile);
+        // log.debug(firstFile);
         store.dispatch(addDefaultThumbs(
           firstFile,
           store.getState().undoGroup.present.settings.defaultThumbCount,
@@ -327,7 +327,7 @@ class App extends Component {
     ipcRenderer.on('receive-get-thumbs', (event, fileId, thumbId, frameId, base64, frameNumber, lastThumb) => {
       if (lastThumb && this.state.timeBefore !== undefined) {
         const timeAfter = Date.now();
-        log.debug(timeAfter - this.state.timeBefore);
+        log.debug(`receive-get-thumbs took ${timeAfter - this.state.timeBefore}ms`);
         this.setState({
           progressMessage: `loading time: ${(timeAfter - this.state.timeBefore) / 1000.0}`,
           showMessage: true,
@@ -470,9 +470,9 @@ class App extends Component {
           getColumnCount(nextProps.file, nextProps.settings),
           newThumbCount
         );
-        log.debug('currentFileId changed');
-        log.debug(getColumnCount(nextProps.file, nextProps.settings));
-        log.debug(newThumbCount);
+        // log.debug('currentFileId changed');
+        // log.debug(getColumnCount(nextProps.file, nextProps.settings));
+        // log.debug(newThumbCount);
       }
       const oldThumbCount = getThumbsCount(
         this.props.file,
@@ -493,14 +493,13 @@ class App extends Component {
           getColumnCount(nextProps.file, nextProps.settings),
           newThumbCount
         );
-        log.debug('visibleThumbCount changed');
-        log.debug(newThumbCount);
+        log.debug(`visibleThumbCount changed to ${newThumbCount}`);
       }
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    log.debug('App.js componentDidUpdate');
+    // log.debug('App.js componentDidUpdate');
 
     if ((this.state.filesToLoad.length !== 0) &&
     (prevState.filesToLoad.length !== this.state.filesToLoad.length)) {
@@ -520,11 +519,11 @@ class App extends Component {
       // run if there is a file which needsThumbs, but not if there is one already gettingThumbs
       if ((this.state.filesToPrint.findIndex(item => item.status === 'gettingThumbs' ) === -1) &&
         (this.state.filesToPrint.findIndex(item => item.status === 'needsThumbs' ) > -1)) {
-        log.debug(this.state.filesToPrint);
+        // log.debug(this.state.filesToPrint);
         const fileIdToGetThumbsFor = this.state.filesToPrint.find(item => item.status === 'needsThumbs' ).fileId;
-        log.debug(fileIdToGetThumbsFor);
+        // log.debug(fileIdToGetThumbsFor);
         const tempFile = this.props.files.find((file) => file.id === fileIdToGetThumbsFor);
-        log.debug(tempFile);
+        // log.debug(tempFile);
 
         // check if file could be found within files to cover the following case
         // files who could be added to the filelist, but then could not be read by opencv get removed again from the FileList
@@ -720,7 +719,8 @@ class App extends Component {
     });
     const { store } = this.context;
     const { settings } = store.getState().undoGroup.present;
-    log.debug('Files dropped: ', files);
+    log.debug('Files where dropped');
+    log.debug(files);
     // file match needs to be in sync with setMovieList() and accept !!!
     if (Array.from(files).some(file => (file.type.match('video.*') ||
       file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
@@ -744,7 +744,7 @@ class App extends Component {
   }
 
   updateScaleValue() {
-    log.debug(`inside updateScaleValue and containerWidth: ${this.state.containerWidth}`);
+    // log.debug(`inside updateScaleValue and containerWidth: ${this.state.containerWidth}`);
     const scaleValueObject = getScaleValueObject(
       this.props.file, this.props.settings,
       this.state.columnCountTemp, this.state.thumbCountTemp,
@@ -759,7 +759,7 @@ class App extends Component {
       },
       () => {
         if (this.state.outputScaleCompensator !== scaleValueObject.newScaleValue) {
-          log.debug('got newscalevalue');
+          // log.debug('got newscalevalue');
           this.setState({
             outputScaleCompensator: scaleValueObject.newScaleValue
           });
@@ -780,8 +780,7 @@ class App extends Component {
         (this.props.file ? 0 : 100); // for startup
       if ((Math.abs(this.state.containerHeight - containerHeightInner) > 10) ||
       (Math.abs(this.state.containerWidth - containerWidthInner) > 10)) {
-        log.debug(`new containerWidth: ${containerHeightInner}`);
-        log.debug(`new containerHeight: ${containerWidthInner}`);
+        log.debug(`new container size: ${containerWidthInner}x${containerHeightInner}`);
         this.setState({
           containerHeight: containerHeightInner,
           containerWidth: containerWidthInner
@@ -824,8 +823,8 @@ class App extends Component {
   showSettings() {
     const { store } = this.context;
     store.dispatch(showSettings());
-    log.debug(this.state.columnCount);
-    log.debug(this.state.thumbCount);
+    // log.debug(this.state.columnCount);
+    // log.debug(this.state.thumbCount);
     setColumnAndThumbCount(
       this,
       getColumnCount(
@@ -943,7 +942,7 @@ class App extends Component {
       chartData: newChartData,
     });
 
-    log.debug(sceneArray);
+    // log.debug(sceneArray);
 
     // check if scenes detected
     if (sceneArray.length !== 0) {
@@ -1104,7 +1103,7 @@ class App extends Component {
       visibilitySettings: this.props.visibilitySettings,
 
     };
-    log.debug(data);
+    // log.debug(data);
     this.setState(
       { savingMoviePrint: true },
       ipcRenderer.send('request-save-MoviePrint', data)
@@ -1113,9 +1112,9 @@ class App extends Component {
 
   onSaveAllMoviePrints() {
     const tempFiles = this.props.files;
-    log.debug(tempFiles);
+    // log.debug(tempFiles);
     const tempFileIds = tempFiles.map(item => item.id);
-    log.debug(tempFileIds);
+    // log.debug(tempFileIds);
 
     const filesToPrint = [];
     tempFileIds.forEach(fileId => {
@@ -1140,7 +1139,7 @@ class App extends Component {
   }
 
   onFileListElementClick(file) {
-    log.debug(`FileListElement clicked: ${file.name}`);
+    // log.debug(`FileListElement clicked: ${file.name}`);
     const { store } = this.context;
     store.dispatch(setCurrentFileId(file.id));
 
@@ -1244,7 +1243,7 @@ class App extends Component {
   };
 
   onReCaptureClick = (checked) => {
-    log.debug(`${this.state.columnCount} : ${this.state.columnCountTemp} || ${this.state.thumbCount} : ${this.state.thumbCountTemp}`);
+    // log.debug(`${this.state.columnCount} : ${this.state.columnCountTemp} || ${this.state.thumbCount} : ${this.state.thumbCountTemp}`);
     if (!checked) {
       this.setState({ thumbCountTemp: this.state.thumbCount });
     } else {
@@ -1257,7 +1256,7 @@ class App extends Component {
 
   onApplyNewGridClick = () => {
     const { store } = this.context;
-    log.debug(`${this.state.columnCount} : ${this.state.columnCountTemp} || ${this.state.thumbCount} : ${this.state.thumbCountTemp}`);
+    // log.debug(`${this.state.columnCount} : ${this.state.columnCountTemp} || ${this.state.thumbCount} : ${this.state.thumbCountTemp}`);
     this.setState({ columnCount: this.state.columnCountTemp });
     if (this.state.reCapture) {
       this.setState({ thumbCount: this.state.thumbCountTemp });
@@ -1273,8 +1272,8 @@ class App extends Component {
   };
 
   onCancelClick = () => {
-    log.debug(this.state.columnCount);
-    log.debug(this.state.thumbCount);
+    // log.debug(this.state.columnCount);
+    // log.debug(this.state.thumbCount);
     this.setState({ columnCountTemp: this.state.columnCount });
     this.setState({ thumbCountTemp: this.state.thumbCount });
     this.hideSettings();
@@ -1375,14 +1374,14 @@ class App extends Component {
     });
     const newPath = (newPathArray !== undefined ? newPathArray[0] : undefined);
     if (newPath) {
-      log.debug(newPath);
+      // log.debug(newPath);
       store.dispatch(setDefaultOutputPath(newPath));
     }
   };
 
   onOutputFormatClick = (value) => {
     const { store } = this.context;
-    log.debug(value);
+    // log.debug(value);
     store.dispatch(setDefaultOutputFormat(value));
   };
 
@@ -1723,7 +1722,7 @@ class App extends Component {
                     onMount={() => {
                       setTimeout(() => {
                         this.webviewRef.current.addEventListener('ipc-message', event => {
-                          log.debug(event);
+                          // log.debug(event);
                           log.debug(event.channel);
                           if (event.channel === 'wpcf7mailsent') {
                             const rememberEmail = event.args[0].findIndex((argument) => argument.name === 'checkbox-remember-email[]') >= 0;

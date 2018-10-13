@@ -23,6 +23,7 @@ class WorkerApp extends Component {
   }
 
   componentDidMount() {
+    log.debug('I am the worker window - responsible for saving a MoviePrint');
     ipcRenderer.on('action-saved-MoviePrint-done', (event) => {
       this.setState({
         data: {},
@@ -32,7 +33,7 @@ class WorkerApp extends Component {
     });
 
     ipcRenderer.on('action-save-MoviePrint', (event, data) => {
-      log.debug('WorkerApp | action-save-MoviePrint');
+      log.debug('workerWindow | action-save-MoviePrint');
       // log.debug(data);
       const arrayOfFrameIds = data.thumbs.map(thumb => thumb.frameId);
       // log.debug(arrayOfFrameIds);
@@ -58,7 +59,7 @@ class WorkerApp extends Component {
         return objectUrlsObject;
       })
       .catch(error => {
-        log.error(`WorkerApp | There has been a problem with the action-save-MoviePrint operation: ${error.message}`);
+        log.error(`workerWindow | There has been a problem with the action-save-MoviePrint operation: ${error.message}`);
         ipcRenderer.send(
           'message-from-opencvWorkerWindow-to-mainWindow',
           'progressMessage',
@@ -77,7 +78,7 @@ class WorkerApp extends Component {
 
   componentDidUpdate() {
     if (this.state.savingMoviePrint) {
-      log.debug('WorkerApp | componentDidUpdate and savingMoviePrint true');
+      log.debug('workerWindow | componentDidUpdate and savingMoviePrint true');
       saveMoviePrint(
         this.state.data.elementId,
         this.state.data.settings.defaultOutputPath,

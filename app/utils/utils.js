@@ -13,7 +13,7 @@ export const ensureDirectoryExistence = (filePath, isDirectory = true) => {
   } else {
     dirname = pathR.dirname(filePath);
   }
-  log.debug(dirname);
+  // log.debug(dirname);
   if (fsR.existsSync(dirname)) {
     return true;
   }
@@ -22,6 +22,7 @@ export const ensureDirectoryExistence = (filePath, isDirectory = true) => {
 };
 
 export const clearCache = (win) => {
+  log.debug('clearCache');
   win.webContents.session.getCacheSize((cacheSizeBefore) => {
     log.debug(`cacheSize before: ${cacheSizeBefore}`);
     // clear HTTP cache
@@ -177,7 +178,7 @@ export const getMimeType = (outputFormat) => {
 };
 
 export const getMoviePrintColor = (count) => {
-  log.debug(`creating new newColorArray[${count}]`);
+  // log.debug(`creating new newColorArray[${count}]`);
   const newColorArray = randomColor({
     count,
     hue: '#FF5006',

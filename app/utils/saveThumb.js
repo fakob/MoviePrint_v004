@@ -21,7 +21,7 @@ const saveThumb = (fileName, frameNumber, frameId = undefined, saveToFolder = ''
   );
 
   return imageDB.frameList.where('frameId').equals(frameId).toArray().then((frames) => {
-    log.debug(frames[0]);
+    // log.debug(frames[0]);
     const reader = new FileReader();
 
     // This event is triggered each time the reading operation is successfully completed.

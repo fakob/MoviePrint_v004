@@ -45,16 +45,16 @@ const ThumbGridHeader = ({
   let titleTextSize;
   let titleText = fileName;
   if (spaceForFileName > widthOfFileNameL) {
-    log.debug('enough space for title');
+    // log.debug('enough space for title');
     fileNameRatio = 1;
     titleTextSize = logoHeight * textRatio * 1.5;
   } else if (spaceForFileName > widthOfFileNameS) {
-    log.debug('shrink font size a bit');
+    // log.debug('shrink font size a bit');
     fileNameRatio = spaceForFileName / widthOfFileNameL;
-    log.debug(fileNameRatio);
+    // log.debug(fileNameRatio);
     titleTextSize = logoHeight * textRatio * 1.5 * fileNameRatio;
   } else {
-    log.debug('use small font size a truncate text');
+    // log.debug('use small font size a truncate text');
     fileNameRatio = spaceForFileName / widthOfFileNameS;
     titleTextSize = logoHeight * textRatio * 1.2;
     const lengthOfFileName = fileName.length;
