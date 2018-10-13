@@ -123,6 +123,21 @@ app.on('ready', async () => {
     }
   });
 
+  mainWindow.webContents.on('crashed', event => {
+    log.error('mainWindow just crashed');
+    log.error(event);
+  });
+
+  mainWindow.webContents.on('unresponsive', event => {
+    log.warn('mainWindow is unresponsive');
+    log.warn(event);
+  });
+
+  mainWindow.webContents.on('responsive', event => {
+    log.warn('mainWindow is responsive again');
+    log.warn(event);
+  });
+
   creditsWindow = new BrowserWindow({
     width: 660,
     height: 660,
@@ -155,6 +170,21 @@ app.on('ready', async () => {
     }
   });
 
+  workerWindow.webContents.on('crashed', event => {
+    log.error('workerWindow just crashed');
+    log.error(event);
+  });
+
+  workerWindow.webContents.on('unresponsive', event => {
+    log.warn('workerWindow is unresponsive');
+    log.warn(event);
+  });
+
+  workerWindow.webContents.on('responsive', event => {
+    log.warn('workerWindow is responsive again');
+    log.warn(event);
+  });
+
   opencvWorkerWindow = new BrowserWindow();
   opencvWorkerWindow.hide();
   // opencvWorkerWindow.webContents.openDevTools();
@@ -166,6 +196,21 @@ app.on('ready', async () => {
       opencvWorkerWindow.hide();
       event.preventDefault();
     }
+  });
+
+  opencvWorkerWindow.webContents.on('crashed', event => {
+    log.error('opencvWorkerWindow just crashed');
+    log.error(event);
+  });
+
+  opencvWorkerWindow.webContents.on('unresponsive', event => {
+    log.warn('opencvWorkerWindow is unresponsive');
+    log.warn(event);
+  });
+
+  opencvWorkerWindow.webContents.on('responsive', event => {
+    log.warn('opencvWorkerWindow is responsive again');
+    log.warn(event);
   });
 
   const menuBuilder = new MenuBuilder(
