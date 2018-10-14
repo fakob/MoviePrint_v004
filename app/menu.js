@@ -226,7 +226,7 @@ export default class MenuBuilder {
         { label: 'Show Worker', click: () => { this.workerWindow.show(); } },
         { label: 'Show OpenCvWorker', click: () => { this.opencvWorkerWindow.show(); } },
         { label: 'Show log file', click: () => {
-          shell.showItemInFolder(path.resolve(process.env.HOME || process.env.USERPROFILE, 'AppData\Roaming\\', app.getName()));
+          shell.showItemInFolder(path.resolve(process.env.HOME || process.env.USERPROFILE, 'AppData\\Roaming\\', app.getName()));
         } },
       ]
     };
@@ -291,7 +291,6 @@ export default class MenuBuilder {
           }
         },
         { type: 'separator' },
-        { label: 'About MoviePrint_v004', selector: 'orderFrontStandardAboutPanel:' },
         { label: 'Credits', click: () => { this.creditsWindow.show(); } },
       ]
     };
