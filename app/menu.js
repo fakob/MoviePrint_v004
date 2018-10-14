@@ -205,14 +205,7 @@ export default class MenuBuilder {
       label: 'Edit',
       submenu: [
         { label: 'Undo', accelerator: 'Ctrl+Z', click: () => { this.mainWindow.send('undo'); } },
-        { label: 'Redo', accelerator: 'Shift+Ctrl+Z', click: () => { this.mainWindow.send('redo'); } },
-        { type: 'separator' },
-        { label: 'Reset application', accelerator: 'Shift+Alt+Ctrl+C', click: () => { clearCache(this.mainWindow); } },
-        { label: 'Reload application', accelerator: 'Ctrl+R', click: () => {
-          this.mainWindow.webContents.reload();
-          this.workerWindow.webContents.reload();
-          this.opencvWorkerWindow.webContents.reload();
-        } }
+        { label: 'Redo', accelerator: 'Shift+Ctrl+Z', click: () => { this.mainWindow.send('redo'); } }
       ]
     };
     const subMenuDev = {
@@ -255,6 +248,13 @@ export default class MenuBuilder {
             );
           }
         },
+        { type: 'separator' },
+        { label: 'Reset application', accelerator: 'Shift+Alt+Ctrl+C', click: () => { clearCache(this.mainWindow); } },
+        { label: 'Reload application', accelerator: 'Ctrl+R', click: () => {
+          this.mainWindow.webContents.reload();
+          this.workerWindow.webContents.reload();
+          this.opencvWorkerWindow.webContents.reload();
+        } },
         { type: 'separator' },
         { label: 'Restart in debug mode', accelerator: 'Shift+Alt+Ctrl+X', click: () => {
           app.relaunch({
