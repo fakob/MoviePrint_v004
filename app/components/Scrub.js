@@ -137,7 +137,7 @@ class Scrub extends Component {
         >
           {this.props.keyObject.shiftKey && 'ADD BEFORE'}
           {this.props.keyObject.altKey && 'ADD AFTER'}
-          {!this.props.keyObject.shiftKey && !this.props.keyObject.altKey && 'CHANGE'}
+          {!this.props.keyObject.shiftKey && !this.props.keyObject.altKey && 'CHANGE TO'}
         </div>
         <div
           className={styles.scrubContainer}
