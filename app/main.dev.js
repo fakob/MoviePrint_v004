@@ -116,8 +116,10 @@ app.on('ready', async () => {
   // openProcessManager();
 
   mainWindow.on('close', event => {
-    // only hide window and prevent default if app not quitting
-    if (!appAboutToQuit) {
+    if (process.platform !== 'darwin') {
+      app.quit();
+    } else if (!appAboutToQuit) {
+      // only hide window and prevent default if app not quitting
       mainWindow.hide();
       event.preventDefault();
     }
