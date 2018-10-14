@@ -3,28 +3,33 @@ import log from 'electron-log';
 
 const shell = require('shelljs');
 
+// cross platform variables
+const moviePrintDir = shell.pwd().stdout;
+const ffmpegDestDir = path.resolve(moviePrintDir, 'app/dist/ffmpeg/');
+const opencvLibDir = path.resolve(moviePrintDir, 'app/node_modules/opencv-build/opencv/build/lib/');
+log.debug(moviePrintDir);
+log.debug(ffmpegDestDir);
+log.debug(opencvLibDir);
+
+// create ffmpeg folder
+shell.mkdir('-p', ffmpegDestDir);
+
 if (process.platform === 'darwin') {
   // Copying ffmpeg_version=3.4.2 into dist folder and change library linking if necessary
   log.info('running ffmpeg script to copy the ffmpeg library files into the dist folder for later packaging and relink them if necessary');
 
   // variables
-  const moviePrintDir = shell.pwd().stdout;
-  const ffmpegDir = path.resolve(moviePrintDir, 'app/dist/ffmpeg/');
-  const opencvLibDir = path.resolve(moviePrintDir, 'app/node_modules/opencv-build/opencv/build/lib/');
   const libopencvVideoioFile = path.resolve(opencvLibDir, 'libopencv_videoio.dylib');
-  // log.debug(moviePrintDir);
-  // log.debug(ffmpegDir);
-  // log.debug(opencvLibDir);
+  const ffmpegSourceDir = '/usr/local/Cellar/';
+  // log.debug(ffmpegSourceDir);
   // log.debug(libopencvVideoioFile);
-  // log.debug(libavcodecFile);
 
-  // create ffmpeg folder and copy files
-  shell.mkdir('-p', ffmpegDir);
-  shell.cp('-n', '/usr/local/Cellar/ffmpeg/3.4.2/lib/*', ffmpegDir);
-  shell.cp('-n', '/usr/local/Cellar/x264/r2854/lib/*', ffmpegDir);
-  shell.cp('-n', '/usr/local/Cellar/lame/3.100/lib/*', ffmpegDir);
-  // shell.cp('-nv', '/usr/local/Cellar/xvid/1.3.5/lib/*', ffmpegDir);
-  const ffmpegFiles = shell.find(ffmpegDir).filter((file) => file.match(/\.dylib$/));
+  // copy files
+  shell.cp('-n', `${ffmpegSourceDir}ffmpeg/3.4.2/lib/*`, ffmpegDestDir);
+  shell.cp('-n', `${ffmpegSourceDir}x264/r2854/lib/*`, ffmpegDestDir);
+  shell.cp('-n', `${ffmpegSourceDir}lame/3.100/lib/*`, ffmpegDestDir);
+  // shell.cp('-nv', '/usr/local/Cellar/xvid/1.3.5/lib/*', ffmpegDestDir);
+  const ffmpegFiles = shell.find(ffmpegDestDir).filter((file) => file.match(/\.dylib$/));
   // log.debug(ffmpegFiles);
 
   // check if install_name_tool is available
@@ -56,4 +61,11 @@ if (process.platform === 'darwin') {
     shell.exec(`install_name_tool -change /usr/local/opt/x264/lib/libx264.152.dylib @rpath/libx264.152.dylib ${file}`);
     shell.exec(`install_name_tool -change /usr/local/opt/lame/lib/libmp3lame.0.dylib @rpath/libmp3lame.0.dylib ${file}`);
   });
+} else if (process.platform === 'win32') {
+  // variables
+  const ffmpegSourceDir = path.resolve(process.env.HOME || process.env.USERPROFILE, 'scoop\\apps\\ffmpeg\\');
+  log.debug(ffmpegSourceDir);
+
+  // copy files
+  shell.cp('-n', path.resolve(ffmpegSourceDir, '3.4.2\\bin\\*'), ffmpegDestDir);
 }
