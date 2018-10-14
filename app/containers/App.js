@@ -7,6 +7,7 @@ import uuidV4 from 'uuid/v4';
 import {Line, defaults} from 'react-chartjs-2';
 import throttle from 'lodash/throttle';
 import log from 'electron-log';
+import os from 'os';
 
 import '../app.global.css';
 import FileList from '../containers/FileList';
@@ -1763,7 +1764,7 @@ class App extends Component {
                         }}
                         preload='./webViewPreload.js'
                         ref={this.webviewRef}
-                        src={`http://movieprint.fakob.com/feedback-for-movieprint-app?app-version=${process.platform}-${app.getName()}-${app.getVersion()}&your-email=${this.props.settings.emailAddress}`}
+                        src={`http://movieprint.fakob.com/feedback-for-movieprint-app?app-version=${process.platform}-${os.release()}-${app.getName()}-${app.getVersion()}&your-email=${this.props.settings.emailAddress}`}
                       />
                       <Modal
                         open={this.state.intendToCloseFeedbackForm}
