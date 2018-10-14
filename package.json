@@ -10,10 +10,10 @@
     "build-renderer": "cross-env NODE_ENV=production node --trace-warnings -r babel-register ./node_modules/webpack/bin/webpack --config webpack.config.renderer.prod.js --colors --display-chunks",
     "dev": "cross-env START_HOT=1 node -r babel-register ./internals/scripts/CheckPortInUse.js && cross-env START_HOT=1 yarn start-renderer-dev",
     "electron-rebuild": "electron-rebuild --parallel --force --types prod,dev,optional --module-dir app",
-    "ffmpeg": "bash ./scripts/ffmpeg.sh",
+    "ffmpeg": "node -r babel-register scripts/ffmpeg.js",
     "flow": "flow",
     "flow-typed": "rimraf flow-typed/npm && flow-typed install --overwrite || true",
-    "includeInDist": "bash ./scripts/includeInDist.sh",
+    "includeInDist": "node -r babel-register scripts/includeInDist.js",
     "lint": "cross-env NODE_ENV=development eslint --cache --format=node_modules/eslint-formatter-pretty .",
     "lint-fix": "yarn --silent lint --fix; exit 0",
     "lint-styles": "stylelint app/*.css app/components/*.css --syntax scss",
@@ -248,7 +248,8 @@
     "redux-undo": "^1.0.0-beta9-9-5",
     "scroll-into-view": "^1.9.3",
     "semantic-ui-css": "^2.3.3",
-    "semantic-ui-react": "^0.82.3"
+    "semantic-ui-react": "^0.82.3",
+    "shelljs": "^0.8.2"
   },
   "optionalDependencies": {
     "7zip-bin-mac": "^1.0.1",
