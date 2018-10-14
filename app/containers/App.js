@@ -1763,7 +1763,7 @@ class App extends Component {
                         }}
                         preload='./webViewPreload.js'
                         ref={this.webviewRef}
-                        src={`http://movieprint.fakob.com/feedback-for-movieprint-app?app-version=${app.getName()}-${app.getVersion()}&your-email=${this.props.settings.emailAddress}`}
+                        src={`http://movieprint.fakob.com/feedback-for-movieprint-app?app-version=${process.platform}-${app.getName()}-${app.getVersion()}&your-email=${this.props.settings.emailAddress}`}
                       />
                       <Modal
                         open={this.state.intendToCloseFeedbackForm}
