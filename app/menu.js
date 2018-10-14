@@ -1,6 +1,7 @@
 // @flow
 import { app, Menu, shell, BrowserWindow } from 'electron';
 import path from 'path';
+import fs from 'fs';
 import { clearCache } from './utils/utils';
 
 export default class MenuBuilder {
@@ -105,7 +106,13 @@ export default class MenuBuilder {
         { label: 'Show Worker', click: () => { this.workerWindow.show(); } },
         { label: 'Show OpenCvWorker', click: () => { this.opencvWorkerWindow.show(); } },
         { label: 'Show log file', click: () => {
-          shell.showItemInFolder(path.resolve(process.env.HOME || process.env.USERPROFILE, 'Library/Logs/', app.getName()));
+          const pathOfLogFolder = path.resolve(process.env.HOME || process.env.USERPROFILE, 'Library/Logs/', `${app.getName()}/`);
+          const pathOfLogFile = path.resolve(pathOfLogFolder, 'log.log');
+          if (fs.existsSync(pathOfLogFile)) {
+            shell.showItemInFolder(pathOfLogFile);
+          } else {
+            shell.showItemInFolder(pathOfLogFolder);
+          }
         } },
       ]
     };
@@ -226,7 +233,13 @@ export default class MenuBuilder {
         { label: 'Show Worker', click: () => { this.workerWindow.show(); } },
         { label: 'Show OpenCvWorker', click: () => { this.opencvWorkerWindow.show(); } },
         { label: 'Show log file', click: () => {
-          shell.showItemInFolder(path.resolve(process.env.HOME || process.env.USERPROFILE, 'AppData\\Roaming\\', app.getName()));
+          const pathOfLogFolder = path.resolve(process.env.HOME || process.env.USERPROFILE, 'AppData\\Roaming\\', `${app.getName()}/`);
+          const pathOfLogFile = path.resolve(pathOfLogFolder, 'log.log');
+          if (fs.existsSync(pathOfLogFile)) {
+            shell.showItemInFolder(pathOfLogFile);
+          } else {
+            shell.showItemInFolder(pathOfLogFolder);
+          }
         } },
       ]
     };
