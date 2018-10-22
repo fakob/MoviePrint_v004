@@ -92,7 +92,6 @@
         "!node_modules/opencv-build/opencv/build/downloads/",
         "!node_modules/opencv-build/opencv/build/include/",
         "!node_modules/opencv-build/opencv/build/junk/",
-        "!node_modules/opencv-build/opencv/build/lib/",
         "!node_modules/opencv-build/opencv/build/modules/",
         "!node_modules/opencv-build/opencv/build/opencv2/",
         "!node_modules/opencv-build/opencv/build/share/",
