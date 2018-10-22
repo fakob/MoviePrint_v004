@@ -64,9 +64,7 @@
       "worker.prod.js",
       "worker.prod.js.map",
       "package.json",
-      "webViewPreload.js",
-      "!node_modules/opencv-build/opencv/opencv",
-      "!node_modules/opencv-build/opencv/opencv_contrib"
+      "webViewPreload.js"
     ],
     "asar": false,
     "dmg": {
@@ -83,9 +81,34 @@
         }
       ]
     },
+    "mac": {
+      "files":[
+        "!node_modules/opencv-build/opencv/opencv",
+        "!node_modules/opencv-build/opencv/opencv_contrib"
+      ]
+    },
     "win": {
       "target": [
         "nsis"
+      ],
+      "files":[
+        "!node_modules/opencv-build/opencv/opencv/",
+        "!node_modules/opencv-build/opencv/opencv_contrib/",
+        "!node_modules/opencv-build/opencv/build/3rdparty/",
+        "!node_modules/opencv-build/opencv/build/CMakeFiles/",
+        "!node_modules/opencv-build/opencv/build/data/",
+        "!node_modules/opencv-build/opencv/build/doc/",
+        "!node_modules/opencv-build/opencv/build/downloads/",
+        "!node_modules/opencv-build/opencv/build/etc/",
+        "!node_modules/opencv-build/opencv/build/include/",
+        "!node_modules/opencv-build/opencv/build/junk/",
+        "!node_modules/opencv-build/opencv/build/lib/",
+        "!node_modules/opencv-build/opencv/build/modules/",
+        "!node_modules/opencv-build/opencv/build/opencv2/",
+        "!node_modules/opencv-build/opencv/build/testdata/",
+        "!node_modules/opencv-build/opencv/build/win-install/",
+        "!node_modules/opencv-build/opencv/build/x64/",
+        "!node_modules/opencv-build/opencv/build/bin/Debug/"
       ]
     },
     "linux": {
