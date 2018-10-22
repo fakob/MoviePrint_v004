@@ -83,8 +83,20 @@
     },
     "mac": {
       "files":[
-        "!node_modules/opencv-build/opencv/opencv",
-        "!node_modules/opencv-build/opencv/opencv_contrib"
+        "!node_modules/opencv-build/opencv/opencv/",
+        "!node_modules/opencv-build/opencv/opencv_contrib/",
+        "!node_modules/opencv-build/opencv/build/3rdparty/",
+        "!node_modules/opencv-build/opencv/build/CMakeFiles/",
+        "!node_modules/opencv-build/opencv/build/data/",
+        "!node_modules/opencv-build/opencv/build/doc/",
+        "!node_modules/opencv-build/opencv/build/downloads/",
+        "!node_modules/opencv-build/opencv/build/include/",
+        "!node_modules/opencv-build/opencv/build/junk/",
+        "!node_modules/opencv-build/opencv/build/lib/",
+        "!node_modules/opencv-build/opencv/build/modules/",
+        "!node_modules/opencv-build/opencv/build/opencv2/",
+        "!node_modules/opencv-build/opencv/build/share/",
+        "!node_modules/opencv-build/opencv/build/unix-install/"
       ]
     },
     "win": {
