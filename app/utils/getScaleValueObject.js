@@ -11,7 +11,7 @@ const getScaleValueObject = (
   thumbCount = DEFAULT_THUMB_COUNT,
   containerWidth,
   containerHeight = 99999, // very high value so it is not taken into account when not set
-  showMoviePrintView,
+  showThumbView,
   zoomScale,
   showPaperPreview = false
 ) => {
@@ -99,15 +99,15 @@ const getScaleValueObject = (
   const scaleValueForPrinting = containerWidth / moviePrintWidthForPrinting;
 
   const newMoviePrintWidth =
-    showMoviePrintView ? moviePrintWidth * scaleValue + DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN : moviePrintWidthForThumbView;
-  const newMoviePrintHeight = showMoviePrintView ? (newMoviePrintWidth * moviePrintAspectRatioInv) : moviePrintHeight;
+    showThumbView ? moviePrintWidth * scaleValue + DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN : moviePrintWidthForThumbView;
+  const newMoviePrintHeight = showThumbView ? (newMoviePrintWidth * moviePrintAspectRatioInv) : moviePrintHeight;
   const newMoviePrintWidthForPrinting = moviePrintWidthForPrinting * scaleValueForPrinting;
-  const newThumbMargin = showMoviePrintView ? thumbMargin * scaleValue : thumbMarginForThumbView;
-  const newThumbWidth = showMoviePrintView ? thumbWidth * scaleValue : thumbnailWidthForThumbView;
-  const newBorderRadius = showMoviePrintView ? borderRadius * scaleValue : borderRadiusForThumbView;
-  const newHeaderHeight = showMoviePrintView ? headerHeight * scaleValue : headerHeight;
-  const newLogoHeight = showMoviePrintView ? logoHeight * scaleValue : logoHeight;
-  const newScaleValue = showMoviePrintView ? settings.defaultThumbnailScale * scaleValue :
+  const newThumbMargin = showThumbView ? thumbMargin * scaleValue : thumbMarginForThumbView;
+  const newThumbWidth = showThumbView ? thumbWidth * scaleValue : thumbnailWidthForThumbView;
+  const newBorderRadius = showThumbView ? borderRadius * scaleValue : borderRadiusForThumbView;
+  const newHeaderHeight = showThumbView ? headerHeight * scaleValue : headerHeight;
+  const newLogoHeight = showThumbView ? logoHeight * scaleValue : logoHeight;
+  const newScaleValue = showThumbView ? settings.defaultThumbnailScale * scaleValue :
     settings.defaultThumbnailScale;
 
   const scaleValueObject = {

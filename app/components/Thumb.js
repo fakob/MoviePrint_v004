@@ -4,7 +4,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { SortableHandle } from 'react-sortable-hoc';
 import { Popup } from 'semantic-ui-react';
-import { MINIMUM_WIDTH_TO_SHRINK_HOVER, MINIMUM_WIDTH_TO_SHOW_HOVER } from '../utils/constants';
+import {
+  MINIMUM_WIDTH_TO_SHRINK_HOVER,
+  MINIMUM_WIDTH_TO_SHOW_HOVER,
+  VIEW,
+} from '../utils/constants';
 import styles from './ThumbGrid.css';
 import stylesPop from './Popup.css';
 
@@ -71,7 +75,7 @@ const Thumb = ({
   onThumbDoubleClick,
   onToggle,
   selected,
-  showMoviePrintView,
+  defaultView,
   thumbImageObjectUrl,
   thumbInfoRatio,
   thumbInfoValue,
@@ -166,7 +170,7 @@ const Thumb = ({
   function onThumbDoubleClickWithStop(e) {
     e.stopPropagation();
     if (controllersAreVisible) {
-      if (showMoviePrintView) {
+      if (defaultView === VIEW.THUMBVIEW) {
         onSelect();
       }
       onThumbDoubleClick();
@@ -212,14 +216,14 @@ const Thumb = ({
       onKeyPress={onSelectWithStop}
       onDoubleClick={onThumbDoubleClickWithStop}
       id={`thumb${indexForId}`}
-      className={`${styles.gridItem} ${(!showMoviePrintView && selected && !(keyObject.altKey || keyObject.shiftKey)) ? styles.gridItemSelected : ''}`}
+      className={`${styles.gridItem} ${(defaultView !== VIEW.THUMBVIEW && selected && !(keyObject.altKey || keyObject.shiftKey)) ? styles.gridItemSelected : ''}`}
       width={`${thumbWidth}px`}
       height={`${(thumbWidth * aspectRatioInv)}px`}
       style={{
         width: thumbWidth,
-        margin: `${showMoviePrintView ? margin : Math.max(1, margin)}px`,
-        outlineWidth: `${showMoviePrintView ? margin : Math.max(1, margin)}px`,
-        borderRadius: `${(selected && !showMoviePrintView) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
+        margin: `${defaultView === VIEW.THUMBVIEW ? margin : Math.max(1, margin)}px`,
+        outlineWidth: `${defaultView === VIEW.THUMBVIEW ? margin : Math.max(1, margin)}px`,
+        borderRadius: `${(selected && defaultView !== VIEW.THUMBVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: thumbImageObjectUrl !== undefined ? undefined : color,
       }}
     >
@@ -235,7 +239,7 @@ const Thumb = ({
           style={{
             filter: `${controllersAreVisible ? 'brightness(80%)' : ''}`,
             opacity: hidden ? '0.2' : '1',
-            borderRadius: `${(selected && !showMoviePrintView) ? 0 : borderRadius}px`,
+            borderRadius: `${(selected && defaultView !== VIEW.THUMBVIEW) ? 0 : borderRadius}px`,
           }}
         />
         {thumbInfoValue !== undefined &&
@@ -254,7 +258,7 @@ const Thumb = ({
             display: controllersAreVisible ? 'block' : 'none'
           }}
         >
-          {showMoviePrintView &&
+          {defaultView === VIEW.THUMBVIEW &&
             <DragHandle
               width={thumbWidth - 1} // shrink it to prevent rounding issues
               height={(thumbWidth * aspectRatioInv) - 1}
@@ -454,7 +458,7 @@ const Thumb = ({
             </div>
         }
         </div>
-        {!showMoviePrintView && selected && (showBeforeController || showAfterController) &&
+        {defaultView !== VIEW.THUMBVIEW && selected && (showBeforeController || showAfterController) &&
           <div
             data-tid={`insertThumb${(!showAfterController && showBeforeController) ? 'Before' : 'After'}Div_${thumbId}`}
             style={{
@@ -552,7 +556,7 @@ Thumb.propTypes = {
   onThumbDoubleClick: PropTypes.func,
   onToggle: PropTypes.func,
   selected: PropTypes.bool,
-  showMoviePrintView: PropTypes.bool.isRequired,
+  defaultView: PropTypes.string.isRequired,
   index: PropTypes.number,
   indexForId: PropTypes.number,
   thumbImageObjectUrl: PropTypes.string,

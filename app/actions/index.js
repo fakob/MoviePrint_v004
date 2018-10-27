@@ -56,17 +56,11 @@ export const hideSettings = () => {
   };
 };
 
-export const showMoviePrintView = () => {
-  log.debug('action: showMoviePrintView');
+export const setView = (defaultView) => {
+  log.debug(`action: setView - ${defaultView}`);
   return {
-    type: 'SHOW_MOVIEPRINT_VIEW'
-  };
-};
-
-export const showThumbView = () => {
-  log.debug('action: showThumbView');
-  return {
-    type: 'SHOW_THUMB_VIEW'
+    type: 'SET_VIEW',
+    defaultView
   };
 };
 
@@ -253,6 +247,38 @@ export const setEmailAddress = (emailAddress) => {
   };
 };
 
+
+// scenesByFileId
+
+export const clearScenes = (fileId) => {
+  return (dispatch) => {
+    log.debug('action: clearScenes');
+    log.debug('dispatch: ADD_SCENE');
+    dispatch({
+      type: 'CLEAR_SCENES',
+      payload: {
+        fileId,
+      }
+    });
+  };
+};
+
+export const addScene = (fileId, start, length, colorArray, sceneId = uuidV4()) => {
+  return (dispatch) => {
+    log.debug('action: addScene');
+    log.debug('dispatch: ADD_SCENE');
+    dispatch({
+      type: 'ADD_SCENE',
+      payload: {
+        fileId,
+        start,
+        length,
+        colorArray,
+        sceneId,
+      }
+    });
+  };
+};
 
 // thumbs
 
@@ -747,12 +773,13 @@ export const updateObjectUrlsFromPosterFrame = () => {
   };
 };
 
-export const updateFileScanData = (fileId, meanArray) =>
+export const updateFileScanData = (fileId, meanArray, meanColorArray) =>
   ((dispatch) => {
     log.debug('action: updateFileScanData');
     imageDB.fileScanList.put({
       fileId,
       meanArray,
+      meanColorArray
     })
   });
 

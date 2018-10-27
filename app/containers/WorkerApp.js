@@ -9,6 +9,9 @@ import SortedVisibleThumbGrid from '../containers/VisibleThumbGrid';
 import getScaleValueObject from '../utils/getScaleValueObject';
 import { getMoviePrintColor, getColumnCount } from '../utils/utils';
 import saveMoviePrint from '../utils/saveMoviePrint';
+import {
+  VIEW,
+} from '../utils/constants';
 
 const { ipcRenderer } = require('electron');
 
@@ -105,7 +108,7 @@ class WorkerApp extends Component {
                 this.state.data.settings,
                 getColumnCount(this.state.data.file, this.state.data.settings), this.state.data.file.thumbCount,
                 this.state.data.moviePrintWidth, undefined,
-                this.state.data.visibilitySettings.showMoviePrintView,
+                this.state.data.visibilitySettings.defaultView === VIEW.THUMBVIEW,
                 1
               ).newMoviePrintWidthForPrinting}px`
             }}
@@ -125,13 +128,13 @@ class WorkerApp extends Component {
               colorArray={getMoviePrintColor(this.state.data.settings.defaultThumbCountMax)}
               thumbCount={this.state.data.file.thumbCount}
 
-              showMoviePrintView
+              defaultView={VIEW.THUMBVIEW}
               scaleValueObject={getScaleValueObject(
                 this.state.data.file,
                 this.state.data.settings,
                 getColumnCount(this.state.data.file, this.state.data.settings), this.state.data.file.thumbCount,
                 this.state.data.moviePrintWidth, undefined,
-                this.state.data.visibilitySettings.showMoviePrintView,
+                this.state.data.visibilitySettings.defaultView === VIEW.THUMBVIEW,
                 1
               )}
               keyObject={{}}

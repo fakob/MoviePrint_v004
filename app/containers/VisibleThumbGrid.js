@@ -47,8 +47,8 @@ class SortedVisibleThumbGrid extends Component {
       this.scrollThumbIntoView();
     }
     // delay when switching to thumbView so it waits for the view to be ready
-    if ((prevProps.showMoviePrintView !== this.props.showMoviePrintView) &&
-    prevProps.showMoviePrintView) {
+    if ((prevProps.defaultView !== this.props.defaultView) &&
+    prevProps.defaultView) {
       setTimeout(() => {
         this.scrollThumbIntoView();
       }, 500);
@@ -100,7 +100,7 @@ class SortedVisibleThumbGrid extends Component {
         file={this.props.file}
         selectedThumbId={this.props.selectedThumbId}
         thumbCount={this.props.thumbCount}
-        showMoviePrintView={this.props.showMoviePrintView}
+        defaultView={this.props.defaultView}
         scaleValueObject={this.props.scaleValueObject}
         keyObject={this.props.keyObject}
 
@@ -228,7 +228,7 @@ SortedVisibleThumbGrid.propTypes = {
   selectedThumbId: PropTypes.string,
   selectMethod: PropTypes.func,
   settings: PropTypes.object.isRequired,
-  showMoviePrintView: PropTypes.bool.isRequired,
+  defaultView: PropTypes.string.isRequired,
   showSettings: PropTypes.bool.isRequired,
   thumbCount: PropTypes.number.isRequired,
   thumbImages: PropTypes.object,

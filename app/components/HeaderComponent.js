@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Menu, Dropdown, Icon, Popup } from 'semantic-ui-react';
 import {
-  MENU_HEADER_HEIGHT
+  MENU_HEADER_HEIGHT, VIEW
 } from '../utils/constants';
 import styles from './Menu.css';
 import stylesPop from './Popup.css';
@@ -10,13 +10,19 @@ import stylesPop from './Popup.css';
 const Header = ({
   file, visibilitySettings, toggleMovielist, toggleSettings,
   onToggleShowHiddenThumbsClick, settings, onThumbInfoClick,
-  openMoviesDialog, toggleZoom, zoom, toggleView
+  openMoviesDialog, toggleZoom, zoom, toggleView, onSetViewClick
 }) => {
 
   const thumbInfoOptions = [
     { value: 'frames', text: 'Show frames', 'data-tid':'framesOption'},
     { value: 'timecode', text: 'Show timecode', 'data-tid':'timecodeOption'},
     { value: 'hideInfo', text: 'Hide info', 'data-tid':'hideInfoOption'},
+  ];
+
+  const viewOptions = [
+    { value: VIEW.THUMBVIEW, text: 'Show thumb view', 'data-tid':'thumbViewOption'},
+    { value: VIEW.PLAYERVIEW, text: 'Show player view', 'data-tid':'playerViewOption'},
+    { value: VIEW.SCENEVIEW, text: 'Show scene view', 'data-tid':'sceneViewOption'},
   ];
 
   return (
@@ -66,7 +72,7 @@ const Header = ({
           {file.name}
         </Menu.Item> */}
         <Menu.Menu position="right">
-          {file && visibilitySettings.showMoviePrintView && !visibilitySettings.showSettings &&
+          {file && visibilitySettings.defaultView === VIEW.THUMBVIEW && !visibilitySettings.showSettings &&
             <Popup
               trigger={
                 <Menu.Item
@@ -122,18 +128,17 @@ const Header = ({
           {file && !visibilitySettings.showSettings &&
             <Popup
               trigger={
-                <Menu.Item
-                  data-tid={visibilitySettings.showMoviePrintView ? 'playerViewBtn' : 'printViewBtn'}
-                  onClick={toggleView}
-                >
-                  <Icon
-                    name={visibilitySettings.showMoviePrintView ? 'youtube play' : 'grid layout'}
-                  />
-                  {visibilitySettings.showMoviePrintView ? 'Player view' : 'Print view'}
-                </Menu.Item>
+                <Dropdown
+                  data-tid='setViewDropdown'
+                  text="Set view"
+                  item
+                  options={viewOptions}
+                  value={visibilitySettings.defaultView}
+                  onChange={(e, { value }) => onSetViewClick(value)}
+                />
               }
               className={stylesPop.popup}
-              content={visibilitySettings.showMoviePrintView ? 'Switch to player view (some video formats can not be played)' : 'Switch to Print view'}
+              content="Set view"
               keepInViewPort={false}
             />
           }

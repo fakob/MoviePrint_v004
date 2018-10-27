@@ -3,6 +3,7 @@ import {
   SHOW_MOVIELIST,
   SHOW_SETTINGS,
   SHOW_MOVIE_PRINT_VIEW,
+  DEFAULT_VIEW,
   DEFAULT_THUMB_COUNT_MAX,
   DEFAULT_THUMB_COUNT,
   DEFAULT_COLUMN_COUNT,
@@ -45,8 +46,9 @@ const initialStateJSON = {
     visibilityFilter: VISIBILITY_FILTER,
     showMovielist: SHOW_MOVIELIST,
     showSettings: SHOW_SETTINGS,
-    showMoviePrintView: SHOW_MOVIE_PRINT_VIEW,
+    defaultView: DEFAULT_VIEW,
   },
+  scenesByFileId: {},
   thumbsObjUrls: {},
   undoGroup: {
     settings: {
@@ -83,7 +85,7 @@ const initialStateJSON = {
       defaultScrubWindowMargin: DEFAULT_SCRUB_WINDOW_MARGIN,
       emailAddress: '',
     },
-    thumbsByFileId: [],
+    thumbsByFileId: {},
     files: []
   }
 };

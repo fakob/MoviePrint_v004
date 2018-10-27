@@ -14,6 +14,7 @@ import {
   DEFAULT_MOVIE_HEIGHT,
   PAPER_LAYOUT_OPTIONS,
   OUTPUT_FORMAT_OPTIONS,
+  VIEW,
 } from '../utils/constants';
 import getScaleValueObject from '../utils/getScaleValueObject';
 
@@ -45,7 +46,7 @@ const outputSize = (file = {
     settings,
     columnCountTemp, thumbCountTemp,
     4096, undefined,
-    visibilitySettings.showMoviePrintView,
+    visibilitySettings.defaultView === VIEW.THUMBVIEW,
     1
   );
   const sizeLimit = 32767; // due to browser limitations https://html2canvas.hertzen.com/faq

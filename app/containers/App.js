@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone';
@@ -13,6 +13,8 @@ import '../app.global.css';
 import FileList from '../containers/FileList';
 import SettingsList from '../containers/SettingsList';
 import SortedVisibleThumbGrid from '../containers/VisibleThumbGrid';
+import SortableSceneGrid from '../components/SceneGrid';
+import Conditional from '../components/Conditional';
 import ErrorBoundary from '../components/ErrorBoundary';
 import HeaderComponent from '../components/HeaderComponent';
 import Footer from '../components/Footer';
@@ -37,7 +39,7 @@ import styles from './App.css';
 import stylesPop from './../components/Popup.css';
 import {
   setNewMovieList, showMovielist, hideMovielist, showSettings, hideSettings,
-  showThumbView, showMoviePrintView, addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
+  setView, addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
   setVisibilityFilter, setCurrentFileId, updateFileColumnCount, updateObjectUrlsFromThumbList,
   updateFileDetails, clearThumbs, updateThumbImage, setDefaultMarginRatio, setDefaultShowHeader,
   setDefaultShowPathInHeader, setDefaultShowDetailsInHeader, setDefaultShowTimelineInHeader,
@@ -45,7 +47,8 @@ import {
   setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
   setDefaultMoviePrintWidth, updateFileDetailUseRatio, setDefaultShowPaperPreview,
   setDefaultPaperAspectRatioInv, updateInOutPoint, removeMovieListItem, setDefaultDetectInOutPoint,
-  changeThumb, addThumb, setEmailAddress, addThumbs, updateFileScanData, getFileScanData
+  changeThumb, addThumb, setEmailAddress, addThumbs, updateFileScanData, getFileScanData,
+  clearScenes, addScene
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -53,6 +56,7 @@ import {
   ZOOM_SCALE,
   SCENE_DETECTION_MIN_SCENE_LENGTH,
   DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN,
+  VIEW,
 } from '../utils/constants';
 
 import startupImg from '../img/MoviePrint-steps.svg';
@@ -184,6 +188,7 @@ class App extends Component {
     this.onToggleShowHiddenThumbsClick = this.onToggleShowHiddenThumbsClick.bind(this);
     this.onShowHiddenThumbsClick = this.onShowHiddenThumbsClick.bind(this);
     this.onThumbInfoClick = this.onThumbInfoClick.bind(this);
+    this.onSetViewClick = this.onSetViewClick.bind(this);
     this.onChangeOutputPathClick = this.onChangeOutputPathClick.bind(this);
     this.onOutputFormatClick = this.onOutputFormatClick.bind(this);
     this.onOverwriteClick = this.onOverwriteClick.bind(this);
@@ -221,7 +226,7 @@ class App extends Component {
         // this.state.columnCount, this.state.thumbCount,
         this.state.columnCountTemp, this.state.thumbCountTemp,
         this.state.containerWidth, this.state.containerHeight,
-        this.props.visibilitySettings.showMoviePrintView,
+        this.props.visibilitySettings.defaultView === VIEW.THUMBVIEW,
         this.state.zoom ? ZOOM_SCALE : 0.95,
         this.state.zoom ? false : this.props.settings.defaultShowPaperPreview
       )
@@ -375,11 +380,26 @@ class App extends Component {
 
     });
 
-    ipcRenderer.on('received-get-file-scan', (event, fileId, sceneList, meanArray) => {
+    ipcRenderer.on('clearScenes', (event, fileId) => {
+      store.dispatch(clearScenes(
+        fileId,
+      ));
+    });
+
+    ipcRenderer.on('addScene', (event, fileId, start, length, meanColor) => {
+      store.dispatch(addScene(
+        fileId,
+        start,
+        length,
+        meanColor,
+      ));
+    });
+
+    ipcRenderer.on('received-get-file-scan', (event, fileId, sceneList, meanArray, meanColorArray) => {
       this.setState({
         fileScanRunning: false,
       });
-      store.dispatch(updateFileScanData(fileId, meanArray));
+      store.dispatch(updateFileScanData(fileId, meanArray, meanColorArray));
       this.calculateSceneList(fileId, meanArray);
     });
 
@@ -617,8 +637,8 @@ class App extends Component {
       prevProps.settings.defaultPaperAspectRatioInv !== this.props.settings.defaultPaperAspectRatioInv ||
       prevState.outputScaleCompensator !== this.state.outputScaleCompensator ||
       prevState.zoom !== this.state.zoom ||
-      prevProps.visibilitySettings.showMoviePrintView !==
-        this.props.visibilitySettings.showMoviePrintView ||
+      prevProps.visibilitySettings.defaultView !==
+        this.props.visibilitySettings.defaultView ||
       prevState.columnCountTemp !== this.state.columnCountTemp ||
       prevState.thumbCountTemp !== this.state.thumbCountTemp ||
       prevState.columnCount !== this.state.columnCount ||
@@ -750,7 +770,7 @@ class App extends Component {
       this.props.file, this.props.settings,
       this.state.columnCountTemp, this.state.thumbCountTemp,
       this.state.containerWidth, this.state.containerHeight,
-      this.props.visibilitySettings.showMoviePrintView,
+      this.props.visibilitySettings.defaultView === VIEW.THUMBVIEW,
       this.state.zoom ? ZOOM_SCALE : 0.95,
       this.state.zoom ? false : this.props.settings.defaultShowPaperPreview
     );
@@ -868,7 +888,7 @@ class App extends Component {
 
   switchToPrintView() {
     const { store } = this.context;
-    store.dispatch(showMoviePrintView());
+    store.dispatch(setView(VIEW.THUMBVIEW));
   }
 
   onHideDetectionChart() {
@@ -887,6 +907,7 @@ class App extends Component {
     this.hideSettings();
     this.onHideDetectionChart();
     const { store } = this.context;
+    store.dispatch(setView(VIEW.SCENEVIEW));
     // get meanArray if it is stored else return false
     store.dispatch(getFileScanData(file.id)).then((meanArray) => {
       // log.debug(meanArray);
@@ -1083,12 +1104,12 @@ class App extends Component {
 
   onViewToggle() {
     const { store } = this.context;
-    if (this.props.visibilitySettings.showMoviePrintView) {
+    if (this.props.visibilitySettings.defaultView === VIEW.THUMBVIEW) {
       this.hideSettings();
       this.hideMovielist();
-      store.dispatch(showThumbView());
+      store.dispatch(setView(VIEW.PLAYERVIEW));
     } else {
-      store.dispatch(showMoviePrintView());
+      store.dispatch(setView(VIEW.THUMBVIEW));
     }
   }
 
@@ -1368,6 +1389,11 @@ class App extends Component {
     store.dispatch(setDefaultThumbInfo(value));
   };
 
+  onSetViewClick = (value) => {
+    const { store } = this.context;
+    store.dispatch(setView(value));
+  };
+
   onChangeOutputPathClick = () => {
     const { store } = this.context;
     const newPathArray = dialog.showOpenDialog({
@@ -1481,6 +1507,7 @@ class App extends Component {
                     toggleView={this.onViewToggle}
                     onToggleShowHiddenThumbsClick={this.onToggleShowHiddenThumbsClick}
                     onThumbInfoClick={this.onThumbInfoClick}
+                    onSetViewClick={this.onSetViewClick}
                     openMoviesDialog={() => this.dropzoneRef.open()}
                     zoom={this.state.zoom}
                   />
@@ -1579,13 +1606,13 @@ class App extends Component {
                       className={`${styles.ItemVideoPlayer} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''}`}
                       style={{
                         top: `${MENU_HEADER_HEIGHT + this.props.settings.defaultBorderMargin}px`,
-                        transform: !this.props.visibilitySettings.showMoviePrintView ? 'translate(-50%, 0px)' : `translate(-50%, ${(this.state.scaleValueObject.videoPlayerHeight + this.props.settings.defaultVideoPlayerControllerHeight) * -1}px)`,
-                        overflow: !this.props.visibilitySettings.showMoviePrintView ? 'visible' : 'hidden'
+                        transform: this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW ? 'translate(-50%, 0px)' : `translate(-50%, ${(this.state.scaleValueObject.videoPlayerHeight + this.props.settings.defaultVideoPlayerControllerHeight) * -1}px)`,
+                        overflow: this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW ? 'visible' : 'hidden'
                       }}
                     >
                       { this.props.file ? (
                         <VideoPlayer
-                          // visible={!this.props.visibilitySettings.showMoviePrintView}
+                          // visible={this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW}
                           ref={(el) => { this.videoPlayer = el; }}
                           file={this.props.file}
                           aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
@@ -1623,46 +1650,56 @@ class App extends Component {
                     </div>
                     <div
                       ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
-                      className={`${styles.ItemMain} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainRightAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainEdit : ''} ${!this.props.visibilitySettings.showMoviePrintView ? styles.ItemMainTopAnim : ''}`}
+                      className={`${styles.ItemMain} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainRightAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainEdit : ''} ${this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW ? styles.ItemMainTopAnim : ''}`}
                       style={{
-                        width: (this.props.visibilitySettings.showSettings || (this.props.visibilitySettings.showMoviePrintView && !this.state.zoom))
+                        width: (this.props.visibilitySettings.showSettings || (this.props.visibilitySettings.defaultView !== VIEW.PLAYERVIEW && !this.state.zoom))
                           ? undefined : this.state.scaleValueObject.newMoviePrintWidth,
-                        marginTop: this.props.visibilitySettings.showMoviePrintView ? undefined :
+                        marginTop: this.props.visibilitySettings.defaultView !== VIEW.PLAYERVIEW ? undefined :
                           `${this.state.scaleValueObject.videoPlayerHeight +
                             (this.props.settings.defaultBorderMargin * 2)}px`,
-                        minHeight: this.props.visibilitySettings.showMoviePrintView ? `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)` : undefined,
+                        minHeight: this.props.visibilitySettings.defaultView !== VIEW.PLAYERVIEW ? `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)` : undefined,
                         // backgroundImage: `url(${paperBorderPortrait})`,
                         backgroundImage: ((this.props.visibilitySettings.showSettings && this.props.settings.defaultShowPaperPreview) ||
-                          (this.props.file && this.props.visibilitySettings.showMoviePrintView && this.props.settings.defaultShowPaperPreview)) ?
+                          (this.props.file && this.props.visibilitySettings.defaultView === VIEW.THUMBVIEW && this.props.settings.defaultShowPaperPreview)) ?
                           `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${(this.props.settings.defaultPaperAspectRatioInv < this.state.scaleValueObject.moviePrintAspectRatioInv) ? (this.state.scaleValueObject.newMoviePrintHeight / this.props.settings.defaultPaperAspectRatioInv) : this.state.scaleValueObject.newMoviePrintWidth}' height='${(this.props.settings.defaultPaperAspectRatioInv < this.state.scaleValueObject.moviePrintAspectRatioInv) ? this.state.scaleValueObject.newMoviePrintHeight : (this.state.scaleValueObject.newMoviePrintWidth * this.props.settings.defaultPaperAspectRatioInv)}' style='background-color: rgba(245,245,245,${this.props.visibilitySettings.showSettings ? 1 : 0.02});'></svg>")` : undefined,
                         backgroundRepeat: 'no-repeat',
                         backgroundPosition: `calc(50% - ${DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN / 2}px) 50%`,
                       }}
                     >
                       { (this.props.file || this.props.visibilitySettings.showSettings || this.state.loadingFirstFile) ? (
-                        <SortedVisibleThumbGrid
-                          viewForPrinting={false}
-                          inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
-                          showSettings={this.props.visibilitySettings.showSettings}
-                          file={this.props.file}
-                          thumbs={this.props.thumbs}
-                          thumbImages={this.props.thumbImages}
-                          settings={this.props.settings}
-                          visibilitySettings={this.props.visibilitySettings}
-                          selectedThumbId={this.state.selectedThumbObject ?
-                            this.state.selectedThumbObject.thumbId : undefined}
-                          selectMethod={this.onSelectMethod}
-                          onScrubClick={this.onScrubClick}
-                          onAddThumbClick={this.onAddThumbClick}
-                          onThumbDoubleClick={this.onViewToggle}
+                        // (this.props.visibilitySettings.defaultView === 'thumbView') ? (
+                        <Fragment>
+                          <Conditional if={this.props.visibilitySettings.defaultView === 'thumbView'}>
+                            <SortedVisibleThumbGrid
+                              viewForPrinting={false}
+                              inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
+                              showSettings={this.props.visibilitySettings.showSettings}
+                              file={this.props.file}
+                              thumbs={this.props.thumbs}
+                              thumbImages={this.props.thumbImages}
+                              settings={this.props.settings}
+                              visibilitySettings={this.props.visibilitySettings}
+                              selectedThumbId={this.state.selectedThumbObject ?
+                                this.state.selectedThumbObject.thumbId : undefined}
+                              selectMethod={this.onSelectMethod}
+                              onScrubClick={this.onScrubClick}
+                              onAddThumbClick={this.onAddThumbClick}
+                              onThumbDoubleClick={this.onViewToggle}
 
-                          colorArray={this.state.colorArray}
-                          thumbCount={this.state.thumbCountTemp}
+                              colorArray={this.state.colorArray}
+                              thumbCount={this.state.thumbCountTemp}
 
-                          showMoviePrintView={this.props.visibilitySettings.showMoviePrintView}
-                          scaleValueObject={this.state.scaleValueObject}
-                          keyObject={this.state.keyObject}
-                        />
+                              defaultView={this.props.visibilitySettings.defaultView}
+                              scaleValueObject={this.state.scaleValueObject}
+                              keyObject={this.state.keyObject}
+                            />
+                          </Conditional>
+                          <Conditional if={this.props.visibilitySettings.defaultView === 'sceneView'}>
+                            <SortableSceneGrid
+                              scenes={this.props.scenes}
+                            />
+                          </Conditional>
+                        </Fragment>
                       ) :
                       (
                         <div
@@ -1803,7 +1840,7 @@ class App extends Component {
                     onSaveAllMoviePrints={this.onSaveAllMoviePrints}
                     savingMoviePrint={this.state.savingMoviePrint}
                     savingAllMoviePrints={this.state.savingAllMoviePrints}
-                    showMoviePrintView={this.props.visibilitySettings.showMoviePrintView}
+                    defaultView={this.props.visibilitySettings.defaultView}
                   />
                 </div>
                 { this.state.showScrubWindow &&
@@ -1936,6 +1973,8 @@ const mapStateToProps = state => {
     files: state.undoGroup.present.files,
     file: state.undoGroup.present.files
       .find((file) => file.id === tempCurrentFileId),
+    scenes: (state.scenesByFileId[tempCurrentFileId] === undefined)
+      ? undefined : state.scenesByFileId[tempCurrentFileId],
     settings: state.undoGroup.present.settings,
     visibilitySettings: state.visibilitySettings,
     defaultThumbCount: state.undoGroup.present.settings.defaultThumbCount,

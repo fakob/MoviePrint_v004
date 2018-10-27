@@ -21,6 +21,7 @@ import {
 } from './../utils/utils';
 import {
   MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
+  VIEW,
 } from './../utils/constants';
 
 const SortableThumb = SortableElement(Thumb);
@@ -116,14 +117,14 @@ class ThumbGrid extends Component {
         className={styles.grid}
         style={{
           width: this.props.viewForPrinting ? this.props.scaleValueObject.newMoviePrintWidthForPrinting : this.props.scaleValueObject.newMoviePrintWidth,
-          marginLeft: this.props.showMoviePrintView ? undefined : (this.props.scaleValueObject.newThumbWidth / 4),
+          marginLeft: this.props.visibilitySettings.defaultView === VIEW.THUMBVIEW ? undefined : (this.props.scaleValueObject.newThumbWidth / 4),
         }}
         id="ThumbGrid"
       >
-        {this.props.settings.defaultShowHeader && this.props.showMoviePrintView &&
+        {this.props.settings.defaultShowHeader && this.props.visibilitySettings.defaultView === VIEW.THUMBVIEW &&
           <ThumbGridHeader
             viewForPrinting={this.props.viewForPrinting}
-            showMoviePrintView={this.props.showMoviePrintView}
+            defaultView={this.props.defaultView}
             fileName={this.props.file.name || ''}
             filePath={this.props.file.path || ''}
             fileDetails={fileDetails}
@@ -145,7 +146,7 @@ class ThumbGrid extends Component {
         >
           {thumbArray.map(thumb => (
             <SortableThumb
-              showMoviePrintView={this.props.showMoviePrintView}
+              defaultView={this.props.defaultView}
               keyObject={this.props.keyObject}
               key={thumb.thumbId}
               thumbId={thumb.thumbId}
@@ -279,7 +280,7 @@ ThumbGrid.propTypes = {
   scaleValueObject: PropTypes.object.isRequired,
   selectedThumbId: PropTypes.string,
   settings: PropTypes.object.isRequired,
-  showMoviePrintView: PropTypes.bool.isRequired,
+  defaultView: PropTypes.string.isRequired,
   showSettings: PropTypes.bool.isRequired,
   thumbCount: PropTypes.number.isRequired,
   thumbImages: PropTypes.object,

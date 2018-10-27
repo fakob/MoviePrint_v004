@@ -1,6 +1,12 @@
 // const { app } = require('electron').remote;
 // throws error as it would be packed into main.js where this is can not be required
 
+export const VIEW = {
+  THUMBVIEW: 'thumbView',
+  PLAYERVIEW: 'playerView',
+  SCENEVIEW: 'sceneView',
+};
+
 export const MOVIEPRINT_COLORS = [
   '#FF5006',
   '#FFb709',
@@ -31,6 +37,7 @@ export const VISIBILITY_FILTER = 'SHOW_VISIBLE';
 export const SHOW_MOVIELIST = false;
 export const SHOW_SETTINGS = false;
 export const SHOW_MOVIE_PRINT_VIEW = true;
+export const DEFAULT_VIEW = VIEW.THUMBVIEW;
 
 export const DEFAULT_THUMB_COUNT_MAX = 400;
 export const DEFAULT_THUMB_COUNT = 16;
