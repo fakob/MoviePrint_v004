@@ -125,13 +125,14 @@
 ##### thumbsByFileId (in undoGroup)
 
 - fileId
-  - thumbs Array
-    - frameId
-    - thumbId
-    - frameNumber
-    - fileId
-    - index
-    - hidden
+  - mode
+    - thumbs Array
+      - frameId
+      - thumbId
+      - frameNumber
+      - fileId
+      - index
+      - hidden
 
 ##### files Array (in undoGroup)
 

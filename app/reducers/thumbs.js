@@ -8,19 +8,12 @@ const thumb = (state = {}, action, index) => {
         index
       });
     case 'ADD_THUMBS':
-    // case 'ADD_DEFAULT_THUMBS':
       return {
-        thumbId: action.thumbIdArray[index],
-        frameId: action.frameIdArray[index],
-        frameNumber: action.frameNumberArray[index],
-        fileId: action.fileId,
+        thumbId: action.payload.thumbIdArray[index],
+        frameId: action.payload.frameIdArray[index],
+        frameNumber: action.payload.frameNumberArray[index],
+        fileId: action.payload.fileId,
         index,
-        hidden: false,
-      };
-    case 'ADD_THUMB_WITH_DETECT_FACE':
-      return {
-        thumbId: action.thumbId,
-        index: action.index,
         hidden: false,
       };
     case 'CHANGE_THUMB':
@@ -64,26 +57,26 @@ const thumb = (state = {}, action, index) => {
 const thumbsByFileId = (state = [], action) => {
   switch (action.type) {
     case 'ADD_THUMB': {
-      const newArray = state[action.payload.fileId].thumbs.slice();
+      const newArray = state[action.payload.fileId][action.payload.mode].slice();
       newArray.splice(action.payload.index, 0, action.payload);
       const newArrayReordered = newArray.map((t, index) => thumb(t, action, index));
       return {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          thumbs: newArrayReordered
+          [action.payload.mode]: newArrayReordered
         }
       };
     }
     case 'ADD_THUMBS': {
       // load the current thumbs array, if it does not exist it stays empty
       let currentArray = [];
-      if (state[action.fileId] && state[action.fileId].thumbs) {
-        currentArray = state[action.fileId].thumbs.slice();
+      if (state[action.payload.fileId] && state[action.payload.fileId][action.payload.mode]) {
+        currentArray = state[action.payload.fileId][action.payload.mode].slice();
       }
 
       // create new thumbs array
-      const newArray = Object.keys(action.thumbIdArray).map((t, index) =>
+      const newArray = Object.keys(action.payload.thumbIdArray).map((t, index) =>
         thumb(undefined, action, index));
 
       // combine current and new thumbs array
@@ -96,33 +89,18 @@ const thumbsByFileId = (state = [], action) => {
       });
       return {
         ...state,
-        [action.fileId]: {
-          ...state[action.fileId],
-          thumbs: reIndexedArray
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          [action.payload.mode]: reIndexedArray
         }
       };
     }
-    // case 'ADD_DEFAULT_THUMBS':
-    //   return {
-    //     ...state,
-    //     [action.fileId]: {
-    //       width: action.width,
-    //       height: action.height,
-    //       thumbs: Object.keys(action.thumbIdArray).map((t, index) =>
-    //         thumb(undefined, action, index))
-    //     }
-    //   };
-    case 'ADD_THUMB_WITH_DETECT_FACE':
-      return [
-        ...state,
-        thumb(undefined, action)
-      ];
     case 'CHANGE_THUMB':
       return {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          thumbs: state[action.payload.fileId].thumbs.map((t, index) =>
+          [action.payload.mode]: state[action.payload.fileId][action.payload.mode].map((t, index) =>
             thumb(t, action)
           )
         }
@@ -132,7 +110,7 @@ const thumbsByFileId = (state = [], action) => {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          thumbs: state[action.payload.fileId].thumbs.map((t, index) =>
+          [action.payload.mode]: state[action.payload.fileId][action.payload.mode].map((t, index) =>
             thumb(t, action)
           )
         }
@@ -142,7 +120,7 @@ const thumbsByFileId = (state = [], action) => {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          thumbs: state[action.payload.fileId].thumbs.map((t, index) =>
+          [action.payload.mode]: state[action.payload.fileId][action.payload.mode].map((t, index) =>
             thumb(t, action)
           )
         }
@@ -152,7 +130,7 @@ const thumbsByFileId = (state = [], action) => {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          thumbs: state[action.payload.fileId].thumbs.map((t, index) =>
+          [action.payload.mode]: state[action.payload.fileId][action.payload.mode].map((t, index) =>
             thumb(t, action, index)
           )
         }
@@ -160,11 +138,11 @@ const thumbsByFileId = (state = [], action) => {
     case 'REMOVE_THUMB':
       // create new state with thumb removed
       // log.debug(state);
-      const tempState = state[action.payload.fileId].thumbs
-        .slice(0, state[action.payload.fileId].thumbs
+      const tempState = state[action.payload.fileId][action.payload.mode]
+        .slice(0, state[action.payload.fileId][action.payload.mode]
         .find(x => x.thumbId === action.payload.thumbId).index)
-        .concat(state[action.payload.fileId].thumbs
-        .slice(state[action.payload.fileId].thumbs
+        .concat(state[action.payload.fileId][action.payload.mode]
+        .slice(state[action.payload.fileId][action.payload.mode]
         .find(x => x.thumbId === action.payload.thumbId).index + 1)
       );
       // log.debug(tempState);
@@ -173,6 +151,7 @@ const thumbsByFileId = (state = [], action) => {
       const tempAction = Object.assign({}, action, {
         type: 'UPDATE_ORDER',
         payload: {
+          mode: action.payload.mode,
           currentFileId: action.payload.fileId,
           array: tempState
         },
@@ -182,38 +161,34 @@ const thumbsByFileId = (state = [], action) => {
       return {
         ...state,
         [action.payload.fileId]: {
-          thumbs: tempState.map((t, index) =>
+          [action.payload.mode]: tempState.map((t, index) =>
             thumb(t, tempAction, index)
           )
         }
       };
-    // case 'UPDATE_OBJECTURL_FROM_THUMBLIST':
-    //   // log.debug(state[action.payload.currentFileId].thumbs);
-    //   return {
-    //     ...state,
-    //     [action.payload.currentFileId]: {
-    //       thumbs: state[action.payload.currentFileId].thumbs.map((t, index) =>
-    //         thumb(t, action, index)
-    //       )
-    //     }
-    //   };
-    // case 'UPDATE_OBJECTURLS_FROM_THUMBLIST':
-    //   // log.debug('inside UPDATE_OBJECTURLS_FROM_THUMBLIST');
-    //   return {
-    //     ...state,
-    //     [action.payload.fileId]: {
-    //       thumbs: state[action.payload.fileId].thumbs.map((t, index) =>
-    //         thumb(t, action, index)
-    //       )
-    //     }
-    //   };
     case 'CLEAR_THUMBS':
       // if fileId is an empty string, then clear all thumbs
       // else only clear thumbs of specific fileId
-      if (action.fileId === '') {
+      if (action.payload.fileId === '') {
+        // fileId is empty, so delete everything
         return {};
       }
-      return deleteProperty(state, action.fileId);
+      if (state[action.payload.fileId] === undefined) {
+        // fileId does not exist, so it does not have to be deleted
+        return state;
+      }
+      const copyOfState = Object.assign({}, state);
+      if (action.payload.mode === '') {
+        // mode is empty, so delete whole fileId
+        delete copyOfState[action.payload.fileId];
+        return copyOfState;
+      }
+      if (state[action.payload.fileId][action.payload.mode] === undefined) {
+        // mode does not exist, so it does not have to be deleted
+        return state;
+      }
+      delete copyOfState[action.payload.fileId][action.payload.mode];
+      return copyOfState;
     default:
       return state;
   }

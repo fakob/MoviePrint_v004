@@ -29,16 +29,20 @@ class SortedVisibleThumbGrid extends Component {
   componentWillMount() {
     const { store } = this.context;
     this.unsubscribe = store.subscribe(() => this.forceUpdate());
-    store.getState().undoGroup.present.files.map((singleFile) => {
-      if (store.getState().undoGroup.present.thumbsByFileId[singleFile.id] !== undefined) {
-        store.dispatch(updateObjectUrlsFromThumbList(
-          singleFile.id,
-          Object.values(store.getState().undoGroup.present
-            .thumbsByFileId[singleFile.id]
-            .thumbs).map((a) => a.frameId)
-        ));
-      }
-      return true;
+
+    // only updateObjectUrlsFromThumbList if thumbs exist
+      store.getState().undoGroup.present.files.map((singleFile) => {
+        if (store.getState().undoGroup.present.thumbsByFileId[singleFile.id] !== undefined
+          && store.getState().undoGroup.present.thumbsByFileId[singleFile.id][store.getState().visibilitySettings.defaultMode] !== undefined) {
+          store.dispatch(updateObjectUrlsFromThumbList(
+            singleFile.id,
+            store.getState().visibilitySettings.defaultMode,
+            Object.values(store.getState().undoGroup.present
+            .thumbsByFileId[singleFile.id][store.getState().visibilitySettings.defaultMode])
+            .map((a) => a.frameId)
+          ));
+        }
+        return true;
     });
   }
 
@@ -62,10 +66,13 @@ class SortedVisibleThumbGrid extends Component {
   onSortEnd = ({ oldIndex, newIndex }) => {
     const { store } = this.context;
     const newOrderedThumbs = arrayMove(store.getState().undoGroup.present
-      .thumbsByFileId[store.getState().undoGroup.present.settings.currentFileId]
-      .thumbs, oldIndex, newIndex);
-    store.dispatch(updateOrder(store.getState()
-      .undoGroup.present.settings.currentFileId, newOrderedThumbs));
+      .thumbsByFileId[store.getState().undoGroup.present.settings.currentFileId][store.getState().visibilitySettings.defaultMode],
+      oldIndex,
+      newIndex);
+    store.dispatch(updateOrder(
+      store.getState().undoGroup.present.settings.currentFileId,
+      store.getState().visibilitySettings.defaultMode,
+      newOrderedThumbs));
   };
 
   onSelectClick = (thumbId, frameNumber) => {
@@ -151,11 +158,12 @@ const mapStateToProps = state => {
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     onToggleClick: (fileId, thumbId) => {
-      dispatch(toggleThumb(fileId, thumbId));
+      dispatch(toggleThumb(fileId, ownProps.visibilitySettings.defaultMode, thumbId));
     },
     onInPointClick: (file, thumbs, thumbId, frameNumber) => {
       dispatch(addDefaultThumbs(
         file,
+        ownProps.visibilitySettings.defaultMode,
         thumbs.length,
         frameNumber,
         getHighestFrame(thumbs)
@@ -164,6 +172,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     onOutPointClick: (file, thumbs, thumbId, frameNumber) => {
       dispatch(addDefaultThumbs(
         file,
+        ownProps.visibilitySettings.defaultMode,
         thumbs.length,
         getLowestFrame(thumbs),
         frameNumber
@@ -181,7 +190,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       if (ownProps.keyObject.altKey) {
         stepValue = stepValue2;
       }
-      dispatch(changeThumb(file, thumbId, frameNumber - stepValue));
+      dispatch(changeThumb(ownProps.visibilitySettings.defaultMode, file, thumbId, frameNumber - stepValue));
     },
     onForwardClick: (file, thumbId, frameNumber) => {
       const [stepValue0, stepValue1, stepValue2] = CHANGE_THUMB_STEP;
@@ -192,7 +201,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       if (ownProps.keyObject.altKey) {
         stepValue = stepValue2;
       }
-      dispatch(changeThumb(file, thumbId, frameNumber + stepValue));
+      dispatch(changeThumb(ownProps.visibilitySettings.defaultMode, file, thumbId, frameNumber + stepValue));
     }
   };
 };

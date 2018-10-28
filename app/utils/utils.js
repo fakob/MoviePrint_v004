@@ -336,16 +336,16 @@ export const getColumnCount = (file, settings) => {
   return file.columnCount;
 };
 
-export const getThumbsCount = (file, thumbsByFileId, settings, visibilityFilter) => {
+export const getThumbsCount = (file, thumbsByFileId, settings, visibilitySettings) => {
   if (file === undefined || file.id === undefined ||
-    thumbsByFileId[file.id] === undefined) {
+    thumbsByFileId[file.id] === undefined || thumbsByFileId[file.id][visibilitySettings.defaultMode] === undefined) {
     return settings.defaultThumbCount;
   }
-  if (visibilityFilter === 'SHOW_VISIBLE') {
-    return thumbsByFileId[file.id].thumbs
+  if (visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') {
+    return thumbsByFileId[file.id][visibilitySettings.defaultMode]
       .filter(thumb => thumb.hidden === false).length;
   }
-  return thumbsByFileId[file.id].thumbs.length;
+  return thumbsByFileId[file.id][visibilitySettings.defaultMode].length;
 };
 
 export const setPosition = (vid, frameNumberToCapture, useRatio) => {

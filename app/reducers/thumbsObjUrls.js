@@ -8,14 +8,33 @@ const thumbsObjUrls = (state = {}, action) => {
       // log.debug(action.payload.fileId);
       // log.debug(action.payload.frameId);
       // log.debug(action.payload.frames);
+
+      // for first value
+      if (state[action.payload.fileId] === undefined) {
+        return {
+          ...state,
+          [action.payload.fileId]: {
+            [action.payload.mode]: {
+              [action.payload.frameId]: {
+                objectUrl: window.URL.createObjectURL(
+                  action.payload.frames.filter(obj => obj.frameId === action.payload.frameId)[0].data
+                )
+              }
+            }
+          }
+        };
+      }
       return {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          [action.payload.frameId]: {
-            objectUrl: window.URL.createObjectURL(
-              action.payload.frames.filter(obj => obj.frameId === action.payload.frameId)[0].data
-            )
+          [action.payload.mode]: {
+            ...state[action.payload.fileId][action.payload.mode],
+            [action.payload.frameId]: {
+              objectUrl: window.URL.createObjectURL(
+                action.payload.frames.filter(obj => obj.frameId === action.payload.frameId)[0].data
+              )
+            }
           }
         }
       };
@@ -24,7 +43,9 @@ const thumbsObjUrls = (state = {}, action) => {
       // log.debug(state);
       return {
         ...state,
-        [action.payload.fileId]:
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          [action.payload.mode]:
             action.payload.frames.reduce((previous, current) => {
               // log.debug(previous);
               // log.debug(current.data);
@@ -34,6 +55,7 @@ const thumbsObjUrls = (state = {}, action) => {
               // log.debug(tempObject);
               return tempObject;
             }, {})
+        }
       };
     default:
       return state;
