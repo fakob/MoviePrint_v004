@@ -36,6 +36,8 @@ import {
   DEFAULT_SCRUB_WINDOW_MARGIN,
   DEFAULT_SCRUB_CONTAINER_MAXHEIGHTRATIO,
   DEFAULT_SCRUB_WINDOW_WIDTHRATIO,
+  DEFAULT_SCENE_DETECTION_THRESHOLD,
+  DEFAULT_SCENE_DETECTION_ROW_COUNT,
 } from '../utils/constants';
 
 const { app } = require('electron').remote;
@@ -83,6 +85,8 @@ const initialStateJSON = {
       defaultScrubWindowWidthRatio: DEFAULT_SCRUB_WINDOW_WIDTHRATIO,
       defaultScrubWindowHeightRatio: DEFAULT_SCRUB_WINDOW_HEIGHTRATIO,
       defaultScrubWindowMargin: DEFAULT_SCRUB_WINDOW_MARGIN,
+      defaultSceneDetectionThreshold: DEFAULT_SCENE_DETECTION_THRESHOLD,
+      defaultSceneDetectionRowCount: DEFAULT_SCENE_DETECTION_ROW_COUNT,
       emailAddress: '',
     },
     thumbsByFileId: {},

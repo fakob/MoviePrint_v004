@@ -247,13 +247,28 @@ export const setEmailAddress = (emailAddress) => {
   };
 };
 
+export const setDefaultSceneDetectionThreshold = (defaultSceneDetectionThreshold) => {
+  log.debug(`action: setDefaultSceneDetectionThreshold - ${defaultSceneDetectionThreshold}`);
+  return {
+    type: 'SET_DEFAULT_SCENE_DETECTION_THRESHOLD',
+    defaultSceneDetectionThreshold
+  };
+};
+
+export const setDefaultSceneDetectionRowCount = (defaultSceneDetectionRowCount) => {
+  log.debug(`action: setDefaultSceneDetectionRowCount - ${defaultSceneDetectionRowCount}`);
+  return {
+    type: 'SET_DEFAULT_SCENE_DETECTION_ROW_COUNT',
+    defaultSceneDetectionRowCount
+  };
+};
 
 // scenesByFileId
 
 export const clearScenes = (fileId) => {
   return (dispatch) => {
     log.debug('action: clearScenes');
-    log.debug('dispatch: ADD_SCENE');
+    log.debug('dispatch: CLEAR_SCENES');
     dispatch({
       type: 'CLEAR_SCENES',
       payload: {
@@ -263,20 +278,34 @@ export const clearScenes = (fileId) => {
   };
 };
 
-export const addScene = (fileId, start, length, colorArray, sceneId = uuidV4()) => {
+export const addScene = (fileId, start, length, colorArray, posterFrame, sceneId = uuidV4()) => {
   return (dispatch) => {
     log.debug('action: addScene');
     log.debug('dispatch: ADD_SCENE');
     dispatch({
       type: 'ADD_SCENE',
       payload: {
+        sceneId,
         fileId,
         start,
         length,
         colorArray,
-        sceneId,
+        posterFrame,
       }
     });
+  };
+};
+
+export const addScenes = (fileId, sceneList, clearOldScenes = false) => {
+  return (dispatch) => {
+    log.debug('action: addScenes');
+    if (clearOldScenes) {
+      dispatch(clearScenes(fileId));
+    }
+    sceneList.map(scene => {
+      const sceneId = uuidV4();
+      return dispatch(addScene(fileId, scene.start, scene.length, scene.color, scene.posterFrame, sceneId));
+    })
   };
 };
 

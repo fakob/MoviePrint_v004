@@ -108,7 +108,7 @@ class WorkerApp extends Component {
                 this.state.data.settings,
                 getColumnCount(this.state.data.file, this.state.data.settings), this.state.data.file.thumbCount,
                 this.state.data.moviePrintWidth, undefined,
-                this.state.data.visibilitySettings.defaultView === VIEW.THUMBVIEW,
+                this.state.data.visibilitySettings.defaultView === VIEW.PLAYERVIEW,
                 1
               ).newMoviePrintWidthForPrinting}px`
             }}
@@ -134,7 +134,7 @@ class WorkerApp extends Component {
                 this.state.data.settings,
                 getColumnCount(this.state.data.file, this.state.data.settings), this.state.data.file.thumbCount,
                 this.state.data.moviePrintWidth, undefined,
-                this.state.data.visibilitySettings.defaultView === VIEW.THUMBVIEW,
+                this.state.data.visibilitySettings.defaultView === VIEW.PLAYERVIEW,
                 1
               )}
               keyObject={{}}

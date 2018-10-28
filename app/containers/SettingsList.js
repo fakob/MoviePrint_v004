@@ -46,7 +46,7 @@ const outputSize = (file = {
     settings,
     columnCountTemp, thumbCountTemp,
     4096, undefined,
-    visibilitySettings.defaultView === VIEW.THUMBVIEW,
+    visibilitySettings.defaultView === VIEW.PLAYERVIEW,
     1
   );
   const sizeLimit = 32767; // due to browser limitations https://html2canvas.hertzen.com/faq
@@ -72,7 +72,6 @@ class SettingsList extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      sceneDetectionThreshold: 20.0,
     };
 
     this.onChangePaperAspectRatio = this.onChangePaperAspectRatio.bind(this);
@@ -599,7 +598,7 @@ class SettingsList extends Component {
                     fluid
                     loading={this.props.fileScanRunning}
                     disabled={this.props.fileScanRunning}
-                    onClick={() => this.props.runSceneDetection(this.props.file, this.state.sceneDetectionThreshold)}
+                    onClick={() => this.props.runSceneDetection(this.props.file, this.props.settings.defaultSceneDetectionThreshold)}
                   >
                       Run scene detection
                   </Button>
@@ -620,14 +619,34 @@ class SettingsList extends Component {
                 className={styles.slider}
                 min={5}
                 max={40}
-                defaultValue={this.state.sceneDetectionThreshold}
+                defaultValue={this.props.settings.defaultSceneDetectionThreshold}
                 marks={{
                   5: '5',
                   20: '20',
                   40: '40',
                 }}
                 handle={handle}
-                onChange={(value) => this.setState({ sceneDetectionThreshold: value })}
+                onChange={this.props.onChangeSceneDetectionThreshold}
+              />
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Rows
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <SliderWithTooltip
+                // data-tid='sceneDetectionThresholdSlider'
+                className={styles.slider}
+                min={1}
+                max={40}
+                defaultValue={this.props.settings.defaultSceneDetectionRowCount}
+                marks={{
+                  1: '1',
+                  40: '40',
+                }}
+                handle={handle}
+                onChange={this.props.onChangeSceneDetectionRowCount}
               />
             </Grid.Column>
           </Grid.Row>

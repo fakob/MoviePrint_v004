@@ -45,26 +45,44 @@ const Scene = ({
   indexForId,
   key,
   sceneId,
-  length,
+  margin,
+  width,
+  height,
   hexColor,
+  thumbImageObjectUrl,
 }) => {
   // console.log(hexColor);
+  // const height = '14px';
   return (
     <div
       id={`scene${indexForId}`}
       className={`${styles.gridItem}`}
       // height={`${(thumbWidth * aspectRatioInv)}px`}
       style={{
-        width:`${length}px`,
-        // height:`${200}px`,
-        // width: length,
-        // margin: `${defaultView === VIEW.THUMBVIEW ? margin : Math.max(1, margin)}px`,
+        width:`${width}px`,
+        height:`${height}px`,
+        // width: width,
+        margin: `${margin}px`,
         // outlineWidth: `${defaultView === VIEW.THUMBVIEW ? margin : Math.max(1, margin)}px`,
         // borderRadius: `${(selected && defaultView !== VIEW.THUMBVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: hexColor,
+        backgroundImage: `url(${thumbImageObjectUrl !== undefined ? thumbImageObjectUrl : transparent})`,
       }}
     >
-
+      {/* <img
+        // data-tid={`thumbImg_${thumbId}`}
+        src={thumbImageObjectUrl !== undefined ? thumbImageObjectUrl : transparent}
+        id={`thumbImage${indexForId}`}
+        className={`${styles.image}`}
+        alt=""
+        // width={`${thumbWidth}px`}
+        // height={`${(thumbWidth * aspectRatioInv)}px`}
+        width={`${width}px`}
+        height={`${height}px`}
+        style={{
+          // borderRadius: `${(selected && defaultView !== VIEW.THUMBVIEW) ? 0 : borderRadius}px`,
+        }}
+      /> */}
     </div>
   );
 };

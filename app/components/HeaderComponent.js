@@ -113,8 +113,9 @@ const Header = ({
               trigger={
                 <Dropdown
                   data-tid='showThumbInfoDropdown'
-                  text="Show info"
+                  placeholder="Show info"
                   item
+                  // selection
                   options={thumbInfoOptions}
                   value={settings.defaultThumbInfo}
                   onChange={(e, { value }) => onThumbInfoClick(value)}
@@ -130,7 +131,7 @@ const Header = ({
               trigger={
                 <Dropdown
                   data-tid='setViewDropdown'
-                  text="Set view"
+                  placeholder="Set view"
                   item
                   options={viewOptions}
                   value={visibilitySettings.defaultView}

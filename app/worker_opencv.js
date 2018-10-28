@@ -417,7 +417,6 @@ ipcRenderer.on(
 
     const minSceneLength = 15;
 
-    const sceneList = [];
     const frameMetrics = [];
     let lastFrameMean = new opencv.Vec(null, null, null, null);;
     let lastSceneCut = null;
@@ -456,22 +455,20 @@ ipcRenderer.on(
 
             if (frameHsvAverage >= threshold) {
               if (((lastSceneCut === null) || ((frame - lastSceneCut) >= minSceneLength))) {
-                sceneList.push({
-                  frame,
-                });
                 // only start adding scenes after the first scene has been detected
                 if (lastSceneCut !== null) {
+                  const length = frame - lastSceneCut - 1; // length
                   ipcRenderer.send(
                     'message-from-opencvWorkerWindow-to-mainWindow',
                     'addScene',
                     fileId,
                     lastSceneCut, // start
-                    frame - lastSceneCut - 1, // length
+                    length,
                     [frameMean.w, frameMean.x, frameMean.y], // color
+                    lastSceneCut + Math.floor(length / 2), // posterFrame
                   );
                 }
                 lastSceneCut = frame;
-                // log.debug(sceneList);
               }
             }
             // log.debug(`${frame}: ${deltaFrameMean.y} = ${frameMean.y} - ${lastFrameMean.y}`);
@@ -509,13 +506,15 @@ ipcRenderer.on(
             console.timeEnd(`${fileId}-fileScanning`);
 
             // add last scene
+            const length = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - lastSceneCut - 1; // length
             ipcRenderer.send(
               'message-from-opencvWorkerWindow-to-mainWindow',
               'addScene',
               fileId,
               lastSceneCut, // start
-              vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - lastSceneCut - 1, // length
+              length,
               [frameMean.w, frameMean.x, frameMean.y], // color
+              lastSceneCut + Math.floor(length / 2), // posterFrame
             );
 
             const tempMeanArray = frameMetrics.map((item) => item.mean);
@@ -526,7 +525,6 @@ ipcRenderer.on(
               'message-from-opencvWorkerWindow-to-mainWindow',
               'received-get-file-scan',
               fileId,
-              sceneList,
               tempMeanArray,
               tempMeanColorArray
             );

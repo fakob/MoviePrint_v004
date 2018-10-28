@@ -9,7 +9,7 @@ import {
   // getNextThumbs,
   // getPreviousThumbs,
   // mapRange,
-  // getObjectProperty,
+  getObjectProperty,
   // getThumbInfoValue,
   // formatBytes,
   // frameCountToTimeCode,
@@ -49,7 +49,9 @@ class SceneGrid extends Component {
   }
 
   render() {
+    const sceneRowCount = this.props.rowCount;
     const sceneArray = this.props.scenes ? this.props.scenes.sceneArray : [];
+    const safetyMargin = 100;
     // console.log(sceneArray);
     return (
       <div
@@ -64,15 +66,27 @@ class SceneGrid extends Component {
         <div
           data-tid='sceneGridBodyDiv'
         >
-          {sceneArray.map(scene => (
+          {sceneArray.map((scene, index) => {
+            const height = Math.floor((this.props.scaleValueObject.containerHeight - (this.props.scaleValueObject.newThumbMargin * ((sceneRowCount * 2) + 2))) / sceneRowCount);
+            const width = Math.floor((scene.length / this.props.frameCount) * ((this.props.scaleValueObject.containerWidth - safetyMargin) * (sceneRowCount - 1)));
+            return (
             <SortableScene
-              indexForId={scene.index}
-              index={scene.index}
+              indexForId={index}
+              index={index}
               key={scene.sceneId}
               sceneId={scene.sceneId}
-              length={scene.length}
+              // start={scene.start}
+              // length={scene.length}
+              margin={this.props.scaleValueObject.newThumbMargin}
+              width={width}
+              height={height}
               hexColor={`#${((1 << 24) + (Math.round(scene.colorArray[0]) << 16) + (Math.round(scene.colorArray[1]) << 8) + Math.round(scene.colorArray[2])).toString(16).slice(1)}`}
-            />))}
+              thumbImageObjectUrl={getObjectProperty(() => {
+                const thumb = this.props.thumbs.find((foundThumb) => foundThumb.frameNumber === scene.posterFrame);
+                return this.props.thumbImages[thumb.frameId].objectUrl
+              })}
+            />)}
+          )}
         </div>
       </div>
     );

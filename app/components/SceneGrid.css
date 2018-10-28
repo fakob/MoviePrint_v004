@@ -13,12 +13,17 @@
   /*width: 168px;*/
   /*padding: 8px;*/
   /*background: #3b3b3b;*/
-  border: 0;
+  /* border: 0; */
   margin: 0.5px;
   position: relative;
   outline: none;
   -webkit-user-select: none;
-  height: 14px;
+  background-repeat: no-repeat;
+  /* background-blend-mode: overlay; */
+  background-position: center;
+  /* background-repeat: space; */
+  /* background-clip: padding-box; */
+  border: 10px solid rgba(0,0,0,0.1);
 }
 
 .gridHeader {

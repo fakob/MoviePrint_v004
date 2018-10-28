@@ -48,7 +48,7 @@ import {
   setDefaultMoviePrintWidth, updateFileDetailUseRatio, setDefaultShowPaperPreview,
   setDefaultPaperAspectRatioInv, updateInOutPoint, removeMovieListItem, setDefaultDetectInOutPoint,
   changeThumb, addThumb, setEmailAddress, addThumbs, updateFileScanData, getFileScanData,
-  clearScenes, addScene
+  clearScenes, addScene, addScenes, setDefaultSceneDetectionThreshold, setDefaultSceneDetectionRowCount
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -132,7 +132,6 @@ class App extends Component {
           data: [0, 0],
         }]
       },
-      sceneDetectionThreshold: 20.0,
       fileScanRunning: false,
       filesToPrint: [],
       savingAllMoviePrints: false,
@@ -178,6 +177,8 @@ class App extends Component {
     this.onCancelClick = this.onCancelClick.bind(this);
 
     this.onChangeMargin = this.onChangeMargin.bind(this);
+    this.onChangeSceneDetectionThreshold = this.onChangeSceneDetectionThreshold.bind(this);
+    this.onChangeSceneDetectionRowCount = this.onChangeSceneDetectionRowCount.bind(this);
     this.onShowHeaderClick = this.onShowHeaderClick.bind(this);
     this.onShowPathInHeaderClick = this.onShowPathInHeaderClick.bind(this);
     this.onShowDetailsInHeaderClick = this.onShowDetailsInHeaderClick.bind(this);
@@ -226,7 +227,7 @@ class App extends Component {
         // this.state.columnCount, this.state.thumbCount,
         this.state.columnCountTemp, this.state.thumbCountTemp,
         this.state.containerWidth, this.state.containerHeight,
-        this.props.visibilitySettings.defaultView === VIEW.THUMBVIEW,
+        this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW,
         this.state.zoom ? ZOOM_SCALE : 0.95,
         this.state.zoom ? false : this.props.settings.defaultShowPaperPreview
       )
@@ -386,16 +387,17 @@ class App extends Component {
       ));
     });
 
-    ipcRenderer.on('addScene', (event, fileId, start, length, meanColor) => {
+    ipcRenderer.on('addScene', (event, fileId, start, length, meanColor, posterFrame) => {
       store.dispatch(addScene(
         fileId,
         start,
         length,
         meanColor,
+        posterFrame,
       ));
     });
 
-    ipcRenderer.on('received-get-file-scan', (event, fileId, sceneList, meanArray, meanColorArray) => {
+    ipcRenderer.on('received-get-file-scan', (event, fileId, meanArray, meanColorArray) => {
       this.setState({
         fileScanRunning: false,
       });
@@ -692,6 +694,15 @@ class App extends Component {
           case 80: // press 'p'
             this.onSaveMoviePrint();
             break;
+          case 52: // press '4'
+            store.dispatch(setView(VIEW.THUMBVIEW));
+            break;
+          case 53: // press '5'
+            store.dispatch(setView(VIEW.PLAYERVIEW));
+            break;
+          case 54: // press '6'
+            store.dispatch(setView(VIEW.SCENEVIEW));
+            break;
           default:
         }
         this.setState({
@@ -770,7 +781,7 @@ class App extends Component {
       this.props.file, this.props.settings,
       this.state.columnCountTemp, this.state.thumbCountTemp,
       this.state.containerWidth, this.state.containerHeight,
-      this.props.visibilitySettings.defaultView === VIEW.THUMBVIEW,
+      this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW,
       this.state.zoom ? ZOOM_SCALE : 0.95,
       this.state.zoom ? false : this.props.settings.defaultShowPaperPreview
     );
@@ -903,7 +914,7 @@ class App extends Component {
     });
   }
 
-  runSceneDetection(file, threshold = 20.0) {
+  runSceneDetection(file, threshold = this.props.settings.defaultSceneDetectionThreshold) {
     this.hideSettings();
     this.onHideDetectionChart();
     const { store } = this.context;
@@ -923,9 +934,9 @@ class App extends Component {
     });
   }
 
-  calculateSceneList(fileId, meanArray, threshold = this.state.sceneDetectionThreshold) {
+  calculateSceneList(fileId, meanArray, threshold = this.props.settings.defaultSceneDetectionThreshold) {
     const { store } = this.context;
-    let lastSceneCut;
+    let lastSceneCut = null;
 
     const differenceArray = [];
     meanArray.reduce((prev, curr) => {
@@ -933,17 +944,37 @@ class App extends Component {
         return curr;
     }, 0);
 
-    const sceneArray = []
+    const sceneList = []
     differenceArray.map((value, index) => {
         if (value >= threshold) {
-          if (((lastSceneCut === undefined) || ((index - lastSceneCut) >= SCENE_DETECTION_MIN_SCENE_LENGTH))) {
-            sceneArray.push(index);
+          if (((lastSceneCut === null) || ((index - lastSceneCut) >= SCENE_DETECTION_MIN_SCENE_LENGTH))) {
+            if (lastSceneCut !== null) {
+              const length = index - lastSceneCut - 1; // length
+              sceneList.push({
+                fileId,
+                lastSceneCut, // start
+                length,
+                color: [128, 128, 128],
+                // [frameMean.w, frameMean.x, frameMean.y], // color
+                posterFrame: lastSceneCut + Math.floor(length / 2), // posterFrame
+              });
+            }
             lastSceneCut = index;
           }
         }
         return true;
       }
     );
+    // add last scene
+    const length = meanArray.length - lastSceneCut - 1; // meanArray.length should be frameCount
+    sceneList.push({
+      fileId,
+      lastSceneCut, // start
+      length,
+      color: [128, 128, 128],
+      // [frameMean.w, frameMean.x, frameMean.y], // color
+      posterFrame: lastSceneCut + Math.floor(length / 2), // posterFrame
+    });
 
     const labels = [...Array(differenceArray.length).keys()].map((x) => String(x));
     const newChartData = {
@@ -964,13 +995,16 @@ class App extends Component {
       chartData: newChartData,
     });
 
-    // log.debug(sceneArray);
+    console.log(sceneList);
+    console.log(sceneList.map(scene => scene.posterFrame));
 
     // check if scenes detected
-    if (sceneArray.length !== 0) {
+    if (sceneList.length !== 0) {
       const tempFile = this.props.files.find((file) => file.id === fileId);
       const clearOldThumbs = true;
-      store.dispatch(addThumbs(tempFile, sceneArray, clearOldThumbs));
+      const clearOldScenes = true;
+      store.dispatch(addThumbs(tempFile, sceneList.map(scene => scene.posterFrame), clearOldThumbs));
+      store.dispatch(addScenes(fileId, sceneList, clearOldScenes));
     } else {
       this.setState({
         progressMessage: 'No scenes detected',
@@ -1329,6 +1363,16 @@ class App extends Component {
         store.getState().undoGroup.present.settings.defaultMarginSliderFactor));
   };
 
+  onChangeSceneDetectionThreshold = (value) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultSceneDetectionThreshold(value));
+  };
+
+  onChangeSceneDetectionRowCount = (value) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultSceneDetectionRowCount(value));
+  };
+
   onShowHeaderClick = (value) => {
     const { store } = this.context;
     store.dispatch(setDefaultShowHeader(value));
@@ -1582,6 +1626,8 @@ class App extends Component {
                         onApplyNewGridClick={this.onApplyNewGridClick}
                         onCancelClick={this.onCancelClick}
                         onChangeMargin={this.onChangeMargin}
+                        onChangeSceneDetectionThreshold={this.onChangeSceneDetectionThreshold}
+                        onChangeSceneDetectionRowCount={this.onChangeSceneDetectionRowCount}
                         onShowHeaderClick={this.onShowHeaderClick}
                         onShowPathInHeaderClick={this.onShowPathInHeaderClick}
                         onShowDetailsInHeaderClick={this.onShowDetailsInHeaderClick}
@@ -1697,6 +1743,11 @@ class App extends Component {
                           <Conditional if={this.props.visibilitySettings.defaultView === 'sceneView'}>
                             <SortableSceneGrid
                               scenes={this.props.scenes}
+                              thumbs={this.props.thumbs}
+                              thumbImages={this.props.thumbImages}
+                              frameCount={this.props.file ? this.props.file.frameCount : undefined}
+                              scaleValueObject={this.state.scaleValueObject}
+                              rowCount={this.props.settings.defaultSceneDetectionRowCount}
                             />
                           </Conditional>
                         </Fragment>

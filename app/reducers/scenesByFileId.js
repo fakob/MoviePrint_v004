@@ -34,10 +34,10 @@ const scenesByFileId = (state = [], action) => {
     case 'CLEAR_SCENES':
       // if fileId is an empty string, then clear all scenes
       // else only clear scenes of specific fileId
-      if (action.fileId === '') {
+      if (action.payload.fileId === '') {
         return {};
       }
-      return deleteProperty(state, action.fileId);
+      return deleteProperty(state, action.payload.fileId);
     default:
       return state;
   }
