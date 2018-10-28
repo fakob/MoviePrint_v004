@@ -14,6 +14,8 @@ const visibilitySettings = (state = {}, action) => {
       return { ...state, showSettings: true };
     case 'HIDE_SETTINGS':
       return { ...state, showSettings: false };
+    case 'SET_MODE':
+      return { ...state, defaultMode: action.defaultMode };
     case 'SET_VIEW':
       return { ...state, defaultView: action.defaultView };
     // case 'TOGGLE_ZOOM_OUT':

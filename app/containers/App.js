@@ -39,7 +39,7 @@ import styles from './App.css';
 import stylesPop from './../components/Popup.css';
 import {
   setNewMovieList, showMovielist, hideMovielist, showSettings, hideSettings,
-  setView, addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
+  setView, setMode, addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
   setVisibilityFilter, setCurrentFileId, updateFileColumnCount, updateObjectUrlsFromThumbList,
   updateFileDetails, clearThumbs, updateThumbImage, setDefaultMarginRatio, setDefaultShowHeader,
   setDefaultShowPathInHeader, setDefaultShowDetailsInHeader, setDefaultShowTimelineInHeader,
@@ -190,6 +190,7 @@ class App extends Component {
     this.onShowHiddenThumbsClick = this.onShowHiddenThumbsClick.bind(this);
     this.onThumbInfoClick = this.onThumbInfoClick.bind(this);
     this.onSetViewClick = this.onSetViewClick.bind(this);
+    this.onSetModeClick = this.onSetModeClick.bind(this);
     this.onChangeOutputPathClick = this.onChangeOutputPathClick.bind(this);
     this.onOutputFormatClick = this.onOutputFormatClick.bind(this);
     this.onOverwriteClick = this.onOverwriteClick.bind(this);
@@ -1433,6 +1434,11 @@ class App extends Component {
     store.dispatch(setDefaultThumbInfo(value));
   };
 
+  onSetModeClick = (value) => {
+    const { store } = this.context;
+    store.dispatch(setMode(value));
+  };
+
   onSetViewClick = (value) => {
     const { store } = this.context;
     store.dispatch(setView(value));
@@ -1552,6 +1558,7 @@ class App extends Component {
                     onToggleShowHiddenThumbsClick={this.onToggleShowHiddenThumbsClick}
                     onThumbInfoClick={this.onThumbInfoClick}
                     onSetViewClick={this.onSetViewClick}
+                    onSetModeClick={this.onSetModeClick}
                     openMoviesDialog={() => this.dropzoneRef.open()}
                     zoom={this.state.zoom}
                   />

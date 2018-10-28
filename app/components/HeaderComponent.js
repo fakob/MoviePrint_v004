@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Menu, Dropdown, Icon, Popup } from 'semantic-ui-react';
 import {
-  MENU_HEADER_HEIGHT, VIEW
+  MENU_HEADER_HEIGHT, VIEW, MODE
 } from '../utils/constants';
 import styles from './Menu.css';
 import stylesPop from './Popup.css';
@@ -10,13 +10,18 @@ import stylesPop from './Popup.css';
 const Header = ({
   file, visibilitySettings, toggleMovielist, toggleSettings,
   onToggleShowHiddenThumbsClick, settings, onThumbInfoClick,
-  openMoviesDialog, toggleZoom, zoom, toggleView, onSetViewClick
+  openMoviesDialog, toggleZoom, zoom, toggleView, onSetViewClick, onSetModeClick
 }) => {
 
   const thumbInfoOptions = [
     { value: 'frames', text: 'Show frames', 'data-tid':'framesOption'},
     { value: 'timecode', text: 'Show timecode', 'data-tid':'timecodeOption'},
     { value: 'hideInfo', text: 'Hide info', 'data-tid':'hideInfoOption'},
+  ];
+
+  const modeOptions = [
+    { value: MODE.INTERVALMODE, text: 'Interval mode', 'data-tid':'intervalModeOption'},
+    { value: MODE.SCENEMODE, text: 'Scene mode', 'data-tid':'sceneModeOption'},
   ];
 
   const viewOptions = [
@@ -115,7 +120,6 @@ const Header = ({
                   data-tid='showThumbInfoDropdown'
                   placeholder="Show info"
                   item
-                  // selection
                   options={thumbInfoOptions}
                   value={settings.defaultThumbInfo}
                   onChange={(e, { value }) => onThumbInfoClick(value)}
@@ -123,6 +127,23 @@ const Header = ({
               }
               className={stylesPop.popup}
               content="Show frames or timecode"
+              keepInViewPort={false}
+            />
+          }
+          {file &&
+            <Popup
+              trigger={
+                <Dropdown
+                  data-tid='setModeDropdown'
+                  placeholder="Set mode"
+                  item
+                  options={modeOptions}
+                  value={visibilitySettings.defaultMode}
+                  onChange={(e, { value }) => onSetModeClick(value)}
+                />
+              }
+              className={stylesPop.popup}
+              content="Set mode"
               keepInViewPort={false}
             />
           }

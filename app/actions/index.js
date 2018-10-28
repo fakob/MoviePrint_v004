@@ -56,6 +56,14 @@ export const hideSettings = () => {
   };
 };
 
+export const setMode = (defaultMode) => {
+  log.debug(`action: setMode - ${defaultMode}`);
+  return {
+    type: 'SET_MODE',
+    defaultMode
+  };
+};
+
 export const setView = (defaultView) => {
   log.debug(`action: setView - ${defaultView}`);
   return {
