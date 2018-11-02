@@ -844,10 +844,14 @@ export const getFileScanData = (fileId) =>
     log.debug('action: getFileScanData');
     return imageDB.fileScanList.where('fileId').equals(fileId).toArray()
       .then((fileScan) => {
-        // log.debug(fileScan);
         if (fileScan.length !== 0) {
-          return fileScan[0].meanArray;
+          const returnObject = {
+            meanArray: fileScan[0].meanArray,
+            meanColorArray: fileScan[0].meanColorArray
+          };
+          console.log(returnObject);
+          return returnObject;
         }
-        return false;
+        return undefined;
       })
   });

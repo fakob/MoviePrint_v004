@@ -455,7 +455,7 @@ class VideoPlayer extends Component {
               onFocus={this.onShowPlaybar}
               onMouseOut={this.onHidePlaybar}
               onBlur={this.onHidePlaybar}
-              controls={this.state.showPlaybar ? 'true' : undefined}
+              controls={this.state.showPlaybar ? true : undefined}
               muted
               src={this.props.file ? `${pathModule.dirname(this.props.file.path)}/${encodeURIComponent(pathModule.basename(this.props.file.path))}` || '' : ''}
               width={this.state.videoWidth}

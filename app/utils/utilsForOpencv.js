@@ -44,24 +44,64 @@ export const getDominantColor = (image, k=4) => {
   // return list(dominant_color)
 }
 
-export const hsvToHsl = (h, s, v) => {
 
-
-// does not work!!!!!!
-// results are wrong
-
-
-    // both hsv and hsl values are in [0, 1]
-    const l = (2 - s) * v / 2;
-    let newS;
-    if (l !== 0) {
-        if (l === 1) {
-            newS = 0
-        } else if (l < 0.5) {
-            newS = s * v / (l * 2)
-        } else {
-            newS = s * v / (2 - l * 2)
-        }
+export const HSVtoRGB = (h, s, v) => {
+  console.log(`h: ${h}, s: ${s}, v: ${v}`);
+  let r, g, b;
+  const i = Math.floor((h / 180) * 6);
+  const f = (h / 180) * 6 - i;
+  const p = (v / 255) * (1 - (s / 255));
+  const q = (v / 255) * (1 - f * (s / 255));
+  const t = (v / 255) * (1 - (1 - f) * (s / 255));
+  switch (i % 6) {
+    case 0:
+      r = v, g = t, b = p;
+      break;
+    case 1:
+      r = q, g = v, b = p;
+      break;
+    case 2:
+      r = p, g = v, b = t;
+      break;
+    case 3:
+      r = p, g = q, b = v;
+      break;
+    case 4:
+      r = t, g = p, b = v;
+      break;
+    case 5:
+      r = v, g = p, b = q;
+      break;
+    default:
+      break;
     }
-    return [h, newS, l]
+    const rgbArray = [
+        Math.round(r * 255),
+        Math.round(g * 255),
+        Math.round(b * 255)
+    ];
+    console.log(rgbArray);
+    return rgbArray;
 }
+
+// export const hsvToHsl = (h, s, v) => {
+//
+//
+// // does not work!!!!!!
+// // results are wrong
+//
+//
+//     // both hsv and hsl values are in [0, 1]
+//     const l = (2 - s) * v / 2;
+//     let newS;
+//     if (l !== 0) {
+//         if (l === 1) {
+//             newS = 0
+//         } else if (l < 0.5) {
+//             newS = s * v / (l * 2)
+//         } else {
+//             newS = s * v / (2 - l * 2)
+//         }
+//     }
+//     return [h, newS, l]
+// }

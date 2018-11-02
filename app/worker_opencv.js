@@ -3,7 +3,7 @@ import { render } from 'react-dom';
 import log from 'electron-log';
 import VideoCaptureProperties from './utils/videoCaptureProperties';
 import { limitRange, setPosition, fourccToString } from './utils/utils';
-import { hsvToHsl } from './utils/utilsForOpencv';
+import { HSVtoRGB } from './utils/utilsForOpencv';
 import {
   IN_OUT_POINT_SEARCH_LENGTH,
   IN_OUT_POINT_SEARCH_THRESHOLD,
@@ -464,7 +464,7 @@ ipcRenderer.on(
                     fileId,
                     lastSceneCut, // start
                     length,
-                    [frameMean.w, frameMean.x, frameMean.y], // color
+                    HSVtoRGB(frameMean.w, frameMean.x, frameMean.y), // color
                     lastSceneCut + Math.floor(length / 2), // posterFrame
                   );
                 }
@@ -474,10 +474,12 @@ ipcRenderer.on(
             // log.debug(`${frame}: ${deltaFrameMean.y} = ${frameMean.y} - ${lastFrameMean.y}`);
             lastFrameMean = frameMean;
 
+            log.debug(frameMean);
+            log.debug(`h: ${frameMean.w}, s: ${frameMean.x}, v: ${frameMean.y}`);
             frameMetrics.push({
               frame,
               mean: frameMean.y,
-              meanColor: [frameMean.w, frameMean.x, frameMean.y]
+              meanColor: HSVtoRGB(frameMean.w, frameMean.x, frameMean.y)
               // meanColor: hsvToHsl(frameMean.w, frameMean.x, frameMean.y)
             });
           } else {
@@ -513,7 +515,7 @@ ipcRenderer.on(
               fileId,
               lastSceneCut, // start
               length,
-              [frameMean.w, frameMean.x, frameMean.y], // color
+              HSVtoRGB(frameMean.w, frameMean.x, frameMean.y), // color
               lastSceneCut + Math.floor(length / 2), // posterFrame
             );
 

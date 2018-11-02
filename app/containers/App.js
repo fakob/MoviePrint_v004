@@ -405,7 +405,7 @@ class App extends Component {
         fileScanRunning: false,
       });
       store.dispatch(updateFileScanData(fileId, meanArray, meanColorArray));
-      this.calculateSceneList(fileId, meanArray);
+      this.calculateSceneList(fileId, meanArray, meanColorArray);
     });
 
     ipcRenderer.on('received-saved-file', (event, id, path) => {
@@ -924,13 +924,14 @@ class App extends Component {
     const { store } = this.context;
     store.dispatch(setView(VIEW.SCENEVIEW));
     // get meanArray if it is stored else return false
-    store.dispatch(getFileScanData(file.id)).then((meanArray) => {
-      // log.debug(meanArray);
+    store.dispatch(getFileScanData(file.id)).then((returnObject) => {
+      console.log(returnObject);
       // if meanArray not stored, runFileScan
-      if (meanArray === false) {
+      if (returnObject === undefined) {
         this.runFileScan(file, threshold);
       } else {
-        this.calculateSceneList(file.id, meanArray, threshold);
+        // console.log(returnObject);
+        this.calculateSceneList(file.id, returnObject.meanArray, returnObject.meanColorArray, threshold);
       }
       return true;
     }).catch(error => {
@@ -938,7 +939,7 @@ class App extends Component {
     });
   }
 
-  calculateSceneList(fileId, meanArray, threshold = this.props.settings.defaultSceneDetectionThreshold) {
+  calculateSceneList(fileId, meanArray, meanColorArray, threshold = this.props.settings.defaultSceneDetectionThreshold) {
     const { store } = this.context;
     let lastSceneCut = null;
 
@@ -958,7 +959,7 @@ class App extends Component {
                 fileId,
                 lastSceneCut, // start
                 length,
-                color: [128, 128, 128],
+                color: meanColorArray[lastSceneCut + Math.floor(length / 2)],
                 // [frameMean.w, frameMean.x, frameMean.y], // color
                 posterFrame: lastSceneCut + Math.floor(length / 2), // posterFrame
               });
@@ -1745,7 +1746,7 @@ class App extends Component {
                       { (this.props.file || this.props.visibilitySettings.showSettings || this.state.loadingFirstFile) ? (
                         // (this.props.visibilitySettings.defaultView === 'thumbView') ? (
                         <Fragment>
-                          <Conditional if={this.props.visibilitySettings.defaultView === 'thumbView'}>
+                          <Conditional if={this.props.visibilitySettings.defaultView !== VIEW.SCENEVIEW}>
                             <SortedVisibleThumbGrid
                               viewForPrinting={false}
                               inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
@@ -1770,7 +1771,7 @@ class App extends Component {
                               keyObject={this.state.keyObject}
                             />
                           </Conditional>
-                          <Conditional if={this.props.visibilitySettings.defaultView === 'sceneView'}>
+                          <Conditional if={this.props.visibilitySettings.defaultView === VIEW.SCENEVIEW}>
                             <SortableSceneGrid
                               scenes={this.props.scenes}
                               thumbs={this.props.thumbs}
