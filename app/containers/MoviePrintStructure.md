@@ -103,15 +103,6 @@
 - showSettings
 - defaultView
 
-##### scenesByFileId
-
-- fileId
-  - scene Array
-    - sceneId
-    - start
-    - length
-    - colorArray
-
 ##### thumbsObjUrls
 
 - fileId
@@ -121,6 +112,15 @@
 ##### settings (in undoGroup)
 
 - many different settings
+
+##### scenesByFileId (in undoGroup)
+
+- fileId
+  - scene Array
+  - sceneId
+  - start
+  - length
+  - colorArray
 
 ##### thumbsByFileId (in undoGroup)
 
@@ -133,6 +133,7 @@
       - fileId
       - index
       - hidden
+      - sceneId (optional)
 
 ##### files Array (in undoGroup)
 

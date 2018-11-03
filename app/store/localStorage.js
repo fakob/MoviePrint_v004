@@ -51,7 +51,6 @@ const initialStateJSON = {
     defaultView: DEFAULT_VIEW,
     defaultMode: DEFAULT_MODE,
   },
-  scenesByFileId: {},
   thumbsObjUrls: {},
   undoGroup: {
     settings: {
@@ -90,6 +89,7 @@ const initialStateJSON = {
       defaultSceneDetectionRowCount: DEFAULT_SCENE_DETECTION_ROW_COUNT,
       emailAddress: '',
     },
+    scenesByFileId: {},
     thumbsByFileId: {},
     files: []
   }

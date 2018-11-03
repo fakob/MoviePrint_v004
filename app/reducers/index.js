@@ -9,10 +9,10 @@ import visibilitySettings from './visibilitySettings';
 
 const rootReducer = combineReducers({
   visibilitySettings,
-  scenesByFileId,
   thumbsObjUrls,
   undoGroup: undoable(combineReducers({
     settings,
+    scenesByFileId,
     thumbsByFileId,
     files
   }), {

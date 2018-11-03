@@ -2056,8 +2056,8 @@ const mapStateToProps = state => {
     files: state.undoGroup.present.files,
     file: state.undoGroup.present.files
       .find((file) => file.id === tempCurrentFileId),
-    scenes: (state.scenesByFileId[tempCurrentFileId] === undefined)
-      ? undefined : state.scenesByFileId[tempCurrentFileId],
+    scenes: (state.undoGroup.present.scenesByFileId[tempCurrentFileId] === undefined)
+      ? undefined : state.undoGroup.present.scenesByFileId[tempCurrentFileId],
     settings: state.undoGroup.present.settings,
     visibilitySettings: state.visibilitySettings,
     defaultThumbCount: state.undoGroup.present.settings.defaultThumbCount,
