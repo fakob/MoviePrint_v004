@@ -54,7 +54,7 @@ const thumb = (state = {}, action, index) => {
   }
 };
 
-const thumbsByFileId = (state = [], action) => {
+const thumbsByFileId = (state = {}, action) => {
   switch (action.type) {
     case 'ADD_THUMB': {
       const newArray = state[action.payload.fileId][action.payload.mode].slice();

@@ -666,7 +666,6 @@ VideoPlayer.defaultProps = {
   selectedThumbId: undefined,
   width: 640,
   thumbs: undefined,
-  // thumbsByFileId: {},
 };
 
 VideoPlayer.propTypes = {
