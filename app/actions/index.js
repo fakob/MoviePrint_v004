@@ -56,11 +56,11 @@ export const hideSettings = () => {
   };
 };
 
-export const setMode = (defaultMode) => {
-  log.debug(`action: setMode - ${defaultMode}`);
+export const setSheet = (defaultSheet) => {
+  log.debug(`action: setSheet - ${defaultSheet}`);
   return {
-    type: 'SET_MODE',
-    defaultMode
+    type: 'SET_SHEET',
+    defaultSheet
   };
 };
 
@@ -319,7 +319,7 @@ export const addScenes = (fileId, sceneList, clearOldScenes = false) => {
 
 // thumbs
 
-export const addThumb = (file, mode, frameNumber, index, thumbId = uuidV4()) => {
+export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4()) => {
   return (dispatch) => {
     log.debug('action: addThumb');
     const frameId = uuidV4();
@@ -335,12 +335,12 @@ export const addThumb = (file, mode, frameNumber, index, thumbId = uuidV4()) => 
       // log.debug(frames.length);
       if (frames.length === 0) {
         log.debug(`frame number: ${frameNumber} not yet in database - need(s) to be captured`);
-        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, mode, [thumbId], [frameId], [newFrameNumberWithinBoundaries], file.useRatio);
+        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheet, [thumbId], [frameId], [newFrameNumberWithinBoundaries], file.useRatio);
         log.debug('dispatch: ADD_THUMB');
         return dispatch({
           type: 'ADD_THUMB',
           payload: {
-            mode,
+            sheet,
             thumbId,
             frameId,
             frameNumber,
@@ -355,7 +355,7 @@ export const addThumb = (file, mode, frameNumber, index, thumbId = uuidV4()) => 
       dispatch({
         type: 'ADD_THUMB',
         payload: {
-          mode,
+          sheet,
           thumbId,
           frameId: frames[0].frameId,
           frameNumber,
@@ -364,61 +364,61 @@ export const addThumb = (file, mode, frameNumber, index, thumbId = uuidV4()) => 
           hidden: false,
         }
       });
-      return dispatch(updateThumbObjectUrlFromDB(file.id, mode, thumbId, frames[0].frameId, false));
+      return dispatch(updateThumbObjectUrlFromDB(file.id, sheet, thumbId, frames[0].frameId, false));
     }).catch();
   };
 };
 
-export const toggleThumb = (currentFileId, mode, thumbId) => {
+export const toggleThumb = (currentFileId, sheet, thumbId) => {
   log.debug(`action: toggleThumb - ${thumbId}`);
   return {
     type: 'TOGGLE_THUMB',
     payload: {
       fileId: currentFileId,
-      mode,
+      sheet,
       thumbId
     },
   };
 };
 
-export const updateOrder = (currentFileId, mode, array) => {
+export const updateOrder = (currentFileId, sheet, array) => {
   log.debug('action: updateOrder');
   return {
     type: 'UPDATE_ORDER',
     payload: {
       fileId: currentFileId,
-      mode,
+      sheet,
       array
     },
   };
 };
 
-export const removeThumb = (currentFileId, mode, thumbId) => {
+export const removeThumb = (currentFileId, sheet, thumbId) => {
   log.debug(`action: removeThumb - ${thumbId}`);
   return {
     type: 'REMOVE_THUMB',
     payload: {
       fileId: currentFileId,
-      mode,
+      sheet,
       thumbId
     },
   };
 };
 
-export const updateFrameNumber = (fileId, mode, thumbId, frameNumber) => {
+export const updateFrameNumber = (fileId, sheet, thumbId, frameNumber) => {
   log.debug('action: updateFrameNumber');
   return {
     type: 'UPDATE_FRAMENUMBER_OF_THUMB',
     payload: {
       fileId,
-      mode,
+      sheet,
       thumbId,
       frameNumber
     }
   };
 };
 
-export const updateThumbImage = (fileId, mode, thumbId, frameId, base64, frameNumber, isPosterFrame = 0) =>
+export const updateThumbImage = (fileId, sheet, thumbId, frameId, base64, frameNumber, isPosterFrame = 0) =>
   ((dispatch, getState) => {
     log.debug(`action: updateThumbImage frameNumber=${frameNumber}`);
     if (base64 === '') {
@@ -442,13 +442,13 @@ export const updateThumbImage = (fileId, mode, thumbId, frameId, base64, frameNu
         data: blob
       }))
     .then(() =>
-      dispatch(updateThumbObjectUrlFromDB(fileId, mode, thumbId, frameId, isPosterFrame)))
+      dispatch(updateThumbObjectUrlFromDB(fileId, sheet, thumbId, frameId, isPosterFrame)))
     .then(() => {
       // only update frameNumber if not posterframe and different
       if (!isPosterFrame &&
-        getState().undoGroup.present.thumbsByFileId[fileId][mode].find((thumb) =>
+        getState().undoGroup.present.thumbsByFileId[fileId][sheet].find((thumb) =>
         thumb.thumbId === thumbId).frameNumber !== frameNumber) {
-          return dispatch(updateFrameNumber(fileId, mode, thumbId, frameNumber));
+          return dispatch(updateFrameNumber(fileId, sheet, thumbId, frameNumber));
         }
         return 'isPosterFrame';
       })
@@ -457,18 +457,18 @@ export const updateThumbImage = (fileId, mode, thumbId, frameId, base64, frameNu
     });
   });
 
-export const clearThumbs = (fileId = '', mode = '') => {
+export const clearThumbs = (fileId = '', sheet = '') => {
   log.debug('action: clearThumbs');
   return {
     type: 'CLEAR_THUMBS',
     payload: {
       fileId,
-      mode,
+      sheet,
     }
   };
 };
 
-export const addDefaultThumbs = (file, mode, amount = 20, start = 10, stop = file.frameCount - 1) => {
+export const addDefaultThumbs = (file, sheet, amount = 20, start = 10, stop = file.frameCount - 1) => {
   return (dispatch) => {
     log.debug('action: addDefaultThumbs');
 
@@ -492,11 +492,11 @@ export const addDefaultThumbs = (file, mode, amount = 20, start = 10, stop = fil
     const frameNumberArray = Array.from(Array(newAmount).keys())
       .map(x => mapRange(x, 0, newAmount - 1, startWithBoundaries, stopWithBoundaries));
     // log.debug(frameNumberArray);
-    dispatch(addThumbs(file, mode, frameNumberArray, true));
+    dispatch(addThumbs(file, sheet, frameNumberArray, true));
   };
 };
 
-export const addThumbs = (file, mode, frameNumberArray, clearOldThumbs = false) => {
+export const addThumbs = (file, sheet, frameNumberArray, clearOldThumbs = false) => {
   return (dispatch) => {
     log.debug('action: addThumbs');
 
@@ -531,7 +531,7 @@ export const addThumbs = (file, mode, frameNumberArray, clearOldThumbs = false) 
       // log.debug(filteredArray);
 
       if (clearOldThumbs) {
-        dispatch(clearThumbs(file.id, mode));
+        dispatch(clearThumbs(file.id, sheet));
       }
 
       // if all thumbs already exist skip capturing
@@ -540,12 +540,12 @@ export const addThumbs = (file, mode, frameNumberArray, clearOldThumbs = false) 
         // add new thumbs
         const frameIdArray = filteredArray.map(() => uuidV4());
         const thumbIdArray = filteredArray.map(() => uuidV4());
-        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, mode, thumbIdArray, frameIdArray, filteredArray, file.useRatio);
+        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheet, thumbIdArray, frameIdArray, filteredArray, file.useRatio);
         log.debug('dispatch: ADD_THUMBS');
         dispatch({
           type: 'ADD_THUMBS',
           payload: {
-            mode,
+            sheet,
             thumbIdArray,
             frameIdArray,
             frameNumberArray: filteredArray,
@@ -563,7 +563,7 @@ export const addThumbs = (file, mode, frameNumberArray, clearOldThumbs = false) 
       dispatch({
         type: 'ADD_THUMBS',
         payload: {
-          mode,
+          sheet,
           thumbIdArray: thumbIdArray2,
           frameIdArray: alreadyExistingFrameIdsArray,
           frameNumberArray: alreadyExistingFrameNumbersArray,
@@ -579,7 +579,7 @@ export const addThumbs = (file, mode, frameNumberArray, clearOldThumbs = false) 
   };
 };
 
-export const changeThumb = (mode, file, thumbId, newFrameNumber) => {
+export const changeThumb = (sheet, file, thumbId, newFrameNumber) => {
   return (dispatch) => {
     log.debug(`action: changeThumb - ${newFrameNumber}`);
     const newFrameId = uuidV4();
@@ -588,12 +588,12 @@ export const changeThumb = (mode, file, thumbId, newFrameNumber) => {
     imageDB.frameList.where('[fileId+frameNumber]').equals([file.id, newFrameNumberWithinBoundaries]).toArray().then((frames) => {
       if (frames.length === 0) {
         log.debug(`frame number: ${newFrameNumber} not yet in database - need(s) to be captured`);
-        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, mode, [thumbId], [newFrameId], [newFrameNumberWithinBoundaries], file.useRatio);
+        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheet, [thumbId], [newFrameId], [newFrameNumberWithinBoundaries], file.useRatio);
         log.debug('dispatch: CHANGE_THUMB');
         return dispatch({
           type: 'CHANGE_THUMB',
           payload: {
-            mode,
+            sheet,
             newFrameId,
             thumbId,
             newFrameNumber: newFrameNumberWithinBoundaries,
@@ -606,14 +606,14 @@ export const changeThumb = (mode, file, thumbId, newFrameNumber) => {
       dispatch({
         type: 'CHANGE_THUMB',
         payload: {
-          mode,
+          sheet,
           newFrameId: frames[0].frameId,
           thumbId,
           newFrameNumber: frames[0].frameNumber,
           fileId: file.id,
         }
       });
-      return dispatch(updateThumbObjectUrlFromDB(file.id, mode, thumbId, frames[0].frameId, false));
+      return dispatch(updateThumbObjectUrlFromDB(file.id, sheet, thumbId, frames[0].frameId, false));
     }).catch((err) => {
       log.error(err);
     });
@@ -777,7 +777,7 @@ export const updateObjectUrlsFromPosterFrame = () => {
   };
 };
 
-export const updateThumbObjectUrlFromDB = (fileId, mode, thumbId, frameId, isPosterFrame = 0) =>
+export const updateThumbObjectUrlFromDB = (fileId, sheet, thumbId, frameId, isPosterFrame = 0) =>
   (dispatch) => {
     // log.debug('action: updateThumbObjectUrlFromDB');
     // log.debug(frameId);
@@ -798,7 +798,7 @@ export const updateThumbObjectUrlFromDB = (fileId, mode, thumbId, frameId, isPos
         type: 'UPDATE_OBJECTURL_FROM_THUMBLIST',
         payload: {
           fileId,
-          mode,
+          sheet,
           frameId,
           frames
         },
@@ -806,7 +806,7 @@ export const updateThumbObjectUrlFromDB = (fileId, mode, thumbId, frameId, isPos
     });
   };
 
-export const updateObjectUrlsFromThumbList = (fileId, mode, frameIdArray) => {
+export const updateObjectUrlsFromThumbList = (fileId, sheet, frameIdArray) => {
   return (dispatch) => {
     // log.debug('action: updateObjectUrlsFromThumbList');
     imageDB.frameList.where('frameId').anyOf(frameIdArray).toArray().then((frames) => {
@@ -817,7 +817,7 @@ export const updateObjectUrlsFromThumbList = (fileId, mode, frameIdArray) => {
           type: 'UPDATE_OBJECTURLS_FROM_THUMBLIST',
           payload: {
             fileId,
-            mode,
+            sheet,
             frames
           },
         });

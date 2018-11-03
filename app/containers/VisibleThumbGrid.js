@@ -33,12 +33,12 @@ class SortedVisibleThumbGrid extends Component {
     // only updateObjectUrlsFromThumbList if thumbs exist
       store.getState().undoGroup.present.files.map((singleFile) => {
         if (store.getState().undoGroup.present.thumbsByFileId[singleFile.id] !== undefined
-          && store.getState().undoGroup.present.thumbsByFileId[singleFile.id][store.getState().visibilitySettings.defaultMode] !== undefined) {
+          && store.getState().undoGroup.present.thumbsByFileId[singleFile.id][store.getState().visibilitySettings.defaultSheet] !== undefined) {
           store.dispatch(updateObjectUrlsFromThumbList(
             singleFile.id,
-            store.getState().visibilitySettings.defaultMode,
+            store.getState().visibilitySettings.defaultSheet,
             Object.values(store.getState().undoGroup.present
-            .thumbsByFileId[singleFile.id][store.getState().visibilitySettings.defaultMode])
+            .thumbsByFileId[singleFile.id][store.getState().visibilitySettings.defaultSheet])
             .map((a) => a.frameId)
           ));
         }
@@ -66,12 +66,12 @@ class SortedVisibleThumbGrid extends Component {
   onSortEnd = ({ oldIndex, newIndex }) => {
     const { store } = this.context;
     const newOrderedThumbs = arrayMove(store.getState().undoGroup.present
-      .thumbsByFileId[store.getState().undoGroup.present.settings.currentFileId][store.getState().visibilitySettings.defaultMode],
+      .thumbsByFileId[store.getState().undoGroup.present.settings.currentFileId][store.getState().visibilitySettings.defaultSheet],
       oldIndex,
       newIndex);
     store.dispatch(updateOrder(
       store.getState().undoGroup.present.settings.currentFileId,
-      store.getState().visibilitySettings.defaultMode,
+      store.getState().visibilitySettings.defaultSheet,
       newOrderedThumbs));
   };
 
@@ -158,12 +158,12 @@ const mapStateToProps = state => {
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     onToggleClick: (fileId, thumbId) => {
-      dispatch(toggleThumb(fileId, ownProps.visibilitySettings.defaultMode, thumbId));
+      dispatch(toggleThumb(fileId, ownProps.visibilitySettings.defaultSheet, thumbId));
     },
     onInPointClick: (file, thumbs, thumbId, frameNumber) => {
       dispatch(addDefaultThumbs(
         file,
-        ownProps.visibilitySettings.defaultMode,
+        ownProps.visibilitySettings.defaultSheet,
         thumbs.length,
         frameNumber,
         getHighestFrame(thumbs)
@@ -172,7 +172,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     onOutPointClick: (file, thumbs, thumbId, frameNumber) => {
       dispatch(addDefaultThumbs(
         file,
-        ownProps.visibilitySettings.defaultMode,
+        ownProps.visibilitySettings.defaultSheet,
         thumbs.length,
         getLowestFrame(thumbs),
         frameNumber
@@ -190,7 +190,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       if (ownProps.keyObject.altKey) {
         stepValue = stepValue2;
       }
-      dispatch(changeThumb(ownProps.visibilitySettings.defaultMode, file, thumbId, frameNumber - stepValue));
+      dispatch(changeThumb(ownProps.visibilitySettings.defaultSheet, file, thumbId, frameNumber - stepValue));
     },
     onForwardClick: (file, thumbId, frameNumber) => {
       const [stepValue0, stepValue1, stepValue2] = CHANGE_THUMB_STEP;
@@ -201,7 +201,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       if (ownProps.keyObject.altKey) {
         stepValue = stepValue2;
       }
-      dispatch(changeThumb(ownProps.visibilitySettings.defaultMode, file, thumbId, frameNumber + stepValue));
+      dispatch(changeThumb(ownProps.visibilitySettings.defaultSheet, file, thumbId, frameNumber + stepValue));
     }
   };
 };

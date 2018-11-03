@@ -39,7 +39,7 @@ import styles from './App.css';
 import stylesPop from './../components/Popup.css';
 import {
   setNewMovieList, showMovielist, hideMovielist, showSettings, hideSettings,
-  setView, setMode, addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
+  setView, setSheet, addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
   setVisibilityFilter, setCurrentFileId, updateFileColumnCount, updateObjectUrlsFromThumbList,
   updateFileDetails, clearThumbs, updateThumbImage, setDefaultMarginRatio, setDefaultShowHeader,
   setDefaultShowPathInHeader, setDefaultShowDetailsInHeader, setDefaultShowTimelineInHeader,
@@ -57,7 +57,9 @@ import {
   SCENE_DETECTION_MIN_SCENE_LENGTH,
   DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN,
   VIEW,
-  MODE,
+  SHEET_TYPE,
+  DEFAULT_SHEET_SCENE,
+  DEFAULT_SHEET_INTERVAL,
 } from '../utils/constants';
 
 import startupImg from '../img/MoviePrint-steps.svg';
@@ -191,7 +193,7 @@ class App extends Component {
     this.onShowHiddenThumbsClick = this.onShowHiddenThumbsClick.bind(this);
     this.onThumbInfoClick = this.onThumbInfoClick.bind(this);
     this.onSetViewClick = this.onSetViewClick.bind(this);
-    this.onSetModeClick = this.onSetModeClick.bind(this);
+    this.onSetSheetClick = this.onSetSheetClick.bind(this);
     this.onChangeOutputPathClick = this.onChangeOutputPathClick.bind(this);
     this.onOutputFormatClick = this.onOutputFormatClick.bind(this);
     this.onOverwriteClick = this.onOverwriteClick.bind(this);
@@ -283,7 +285,7 @@ class App extends Component {
     // poster frames don't have thumbId
     ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, base64, frameNumber, useRatio) => {
       store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
-      store.dispatch(updateThumbImage(fileId, MODE.INTERVALMODE, '', posterFrameId, base64, frameNumber, 1));
+      store.dispatch(updateThumbImage(fileId, DEFAULT_SHEET_INTERVAL, '', posterFrameId, base64, frameNumber, 1));
       ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-in-and-outpoint', fileId, filePath, useRatio, store.getState().undoGroup.present.settings.defaultDetectInOutPoint);
     });
 
@@ -301,7 +303,7 @@ class App extends Component {
         // log.debug(firstFile);
         store.dispatch(addDefaultThumbs(
           firstFile,
-          MODE.INTERVALMODE,
+          DEFAULT_SHEET_INTERVAL,
           store.getState().undoGroup.present.settings.defaultThumbCount,
           fadeInPoint,
           fadeOutPoint,
@@ -334,7 +336,7 @@ class App extends Component {
       }
     });
 
-    ipcRenderer.on('receive-get-thumbs', (event, fileId, mode, thumbId, frameId, base64, frameNumber, lastThumb) => {
+    ipcRenderer.on('receive-get-thumbs', (event, fileId, sheet, thumbId, frameId, base64, frameNumber, lastThumb) => {
       if (lastThumb && this.state.timeBefore !== undefined) {
         const timeAfter = Date.now();
         log.debug(`receive-get-thumbs took ${timeAfter - this.state.timeBefore}ms`);
@@ -350,7 +352,7 @@ class App extends Component {
           }, 3000);
         });
       }
-      store.dispatch(updateThumbImage(fileId, mode, thumbId, frameId, base64, frameNumber))
+      store.dispatch(updateThumbImage(fileId, sheet, thumbId, frameId, base64, frameNumber))
       .then(() => {
         // check if this is the lastThumb of the filesToPrint when savingAllMoviePrints
         // if so change its status from gettingThumbs to readyForPrinting
@@ -583,7 +585,7 @@ class App extends Component {
         .find((file) => file.id === fileIdToPrint);
         // log.debug(tempFile);
         // log.debug(this.props.thumbsByFileId);
-        const tempThumbs = this.props.thumbsByFileId[fileIdToPrint][this.props.visibilitySettings.defaultMode];
+        const tempThumbs = this.props.thumbsByFileId[fileIdToPrint][this.props.visibilitySettings.defaultSheet];
         // log.debug(tempThumbs);
         const data = {
           elementId: 'ThumbGrid',
@@ -759,7 +761,7 @@ class App extends Component {
     // file match needs to be in sync with setMovieList() and accept !!!
     if (Array.from(files).some(file => (file.type.match('video.*') ||
       file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
-      this.onSetModeClick(MODE.INTERVALMODE);
+      this.onSetSheetClick(`${SHEET_TYPE.INTERVAL}-0`);
       store.dispatch(setNewMovieList(files, settings)).then((response) => {
         this.setState({
           filesToLoad: response
@@ -1008,10 +1010,10 @@ class App extends Component {
       const tempFile = this.props.files.find((file) => file.id === fileId);
       const clearOldThumbs = true;
       const clearOldScenes = true;
-      store.dispatch(setMode(MODE.SCENEMODE));
+      store.dispatch(setSheet(DEFAULT_SHEET_SCENE));
       store.dispatch(addThumbs(
         tempFile,
-        MODE.SCENEMODE,
+        DEFAULT_SHEET_SCENE,
         sceneList.map(scene => scene.posterFrame),
         clearOldThumbs
       ));
@@ -1074,7 +1076,7 @@ class App extends Component {
     if (insertWhere === 'after') {
       store.dispatch(addThumb(
         this.props.file,
-        this.props.visibilitySettings.defaultMode,
+        this.props.visibilitySettings.defaultSheet,
         newFrameNumberAfter,
         indexOfAllThumbs + 1,
         newThumbId
@@ -1082,7 +1084,7 @@ class App extends Component {
     } else if (insertWhere === 'before') { // if shiftKey
       store.dispatch(addThumb(
         this.props.file,
-        this.props.visibilitySettings.defaultMode,
+        this.props.visibilitySettings.defaultSheet,
         newFrameNumberBefore,
         indexOfAllThumbs,
         newThumbId
@@ -1128,7 +1130,7 @@ class App extends Component {
         if (this.state.keyObject.altKey) {
           store.dispatch(addThumb(
             this.props.file,
-            this.props.visibilitySettings.defaultMode,
+            this.props.visibilitySettings.defaultSheet,
             scrubFrameNumber,
             this.props.thumbs.find((thumb) => thumb.thumbId === this.state.scrubThumb.thumbId).index + 1,
             newThumbId
@@ -1136,14 +1138,14 @@ class App extends Component {
         } else { // if shiftKey
           store.dispatch(addThumb(
             this.props.file,
-            this.props.visibilitySettings.defaultMode,
+            this.props.visibilitySettings.defaultSheet,
             scrubFrameNumber,
             this.props.thumbs.find((thumb) => thumb.thumbId === this.state.scrubThumb.thumbId).index,
             newThumbId
           ));
         }
       } else { // if normal set new thumb
-        store.dispatch(changeThumb(this.props.visibilitySettings.defaultMode, this.props.file, this.state.scrubThumb.thumbId, scrubFrameNumber));
+        store.dispatch(changeThumb(this.props.visibilitySettings.defaultSheet, this.props.file, this.state.scrubThumb.thumbId, scrubFrameNumber));
       }
     }
     this.setState({
@@ -1230,20 +1232,20 @@ class App extends Component {
       log.debug(`addDefaultThumbs as no thumbs were found for: ${file.name}`);
       store.dispatch(addDefaultThumbs(
           file,
-          this.props.visibilitySettings.defaultMode,
+          this.props.visibilitySettings.defaultSheet,
           this.props.settings.defaultThumbCount,
           file.fadeInPoint,
           file.fadeOutPoint
         ));
     }
     if (this.props.thumbsObjUrls[file.id] === undefined
-      && this.props.thumbsObjUrls[file.id][this.props.visibilitySettings.defaultMode] === undefined
+      && this.props.thumbsObjUrls[file.id][this.props.visibilitySettings.defaultSheet] === undefined
       && this.props.thumbsByFileId[file.id] !== undefined) {
       log.debug(`updateObjectUrlsFromThumbList as no objecturls were found for: ${file.name}`);
       store.dispatch(updateObjectUrlsFromThumbList(
           file.id,
-          this.props.visibilitySettings.defaultMode,
-          Object.values(this.props.thumbsByFileId[file.id][this.props.visibilitySettings.defaultMode])
+          this.props.visibilitySettings.defaultSheet,
+          Object.values(this.props.thumbsByFileId[file.id][this.props.visibilitySettings.defaultSheet])
             .map((a) => a.frameId)
         ));
     }
@@ -1360,16 +1362,16 @@ class App extends Component {
     if (this.props.currentFileId !== undefined) {
       store.dispatch(addDefaultThumbs(
         this.props.file,
-        this.props.visibilitySettings.defaultMode,
+        this.props.visibilitySettings.defaultSheet,
         thumbCount,
         getLowestFrame(getVisibleThumbs(
           (this.props.thumbsByFileId[this.props.currentFileId] === undefined)
-            ? undefined : this.props.thumbsByFileId[this.props.currentFileId][this.props.visibilitySettings.defaultMode],
+            ? undefined : this.props.thumbsByFileId[this.props.currentFileId][this.props.visibilitySettings.defaultSheet],
           this.props.visibilitySettings.visibilityFilter
         )),
         getHighestFrame(getVisibleThumbs(
           (this.props.thumbsByFileId[this.props.currentFileId] === undefined)
-            ? undefined : this.props.thumbsByFileId[this.props.currentFileId][this.props.visibilitySettings.defaultMode],
+            ? undefined : this.props.thumbsByFileId[this.props.currentFileId][this.props.visibilitySettings.defaultSheet],
           this.props.visibilitySettings.visibilityFilter
         ))
       ));
@@ -1452,13 +1454,13 @@ class App extends Component {
     store.dispatch(setDefaultThumbInfo(value));
   };
 
-  onSetModeClick = (value) => {
+  onSetSheetClick = (value) => {
     const { store } = this.context;
-    store.dispatch(setMode(value));
-    if (value === MODE.SCENEMODE) {
+    store.dispatch(setSheet(value));
+    if (value.indexOf(SHEET_TYPE.SCENE) > -1) {
       store.dispatch(setView(VIEW.SCENEVIEW));
     }
-    if (value === MODE.INTERVALMODE) {
+    if (value.indexOf(SHEET_TYPE.INTERVAL) > -1) {
       store.dispatch(setView(VIEW.THUMBVIEW));
     }
   };
@@ -1575,6 +1577,7 @@ class App extends Component {
                     visibilitySettings={this.props.visibilitySettings}
                     settings={this.props.settings}
                     file={this.props.file}
+                    sheetsArray={this.props.sheetsArray}
                     toggleMovielist={this.toggleMovielist}
                     toggleSettings={this.toggleSettings}
                     toggleZoom={this.toggleZoom}
@@ -1582,7 +1585,7 @@ class App extends Component {
                     onToggleShowHiddenThumbsClick={this.onToggleShowHiddenThumbsClick}
                     onThumbInfoClick={this.onThumbInfoClick}
                     onSetViewClick={this.onSetViewClick}
-                    onSetModeClick={this.onSetModeClick}
+                    onSetSheetClick={this.onSetSheetClick}
                     openMoviesDialog={() => this.dropzoneRef.open()}
                     zoom={this.state.zoom}
                   />
@@ -2039,19 +2042,22 @@ class App extends Component {
 
 const mapStateToProps = state => {
   const tempCurrentFileId = state.undoGroup.present.settings.currentFileId;
+  const sheetsArray = (state.undoGroup.present.thumbsByFileId[tempCurrentFileId] === undefined)
+    ? [] : Object.getOwnPropertyNames(state.undoGroup.present.thumbsByFileId[tempCurrentFileId]);
   const allThumbs = (state.undoGroup.present
     .thumbsByFileId[tempCurrentFileId] === undefined)
     ? undefined : state.undoGroup.present
-      .thumbsByFileId[tempCurrentFileId][state.visibilitySettings.defaultMode];
+      .thumbsByFileId[tempCurrentFileId][state.visibilitySettings.defaultSheet];
   return {
+    sheetsArray,
     thumbs: getVisibleThumbs(
       allThumbs,
       state.visibilitySettings.visibilityFilter
     ),
     allThumbs,
     thumbImages: ((state.thumbsObjUrls[tempCurrentFileId] === undefined)
-      || state.thumbsObjUrls[tempCurrentFileId][state.visibilitySettings.defaultMode] === undefined)
-        ? undefined : state.thumbsObjUrls[tempCurrentFileId][state.visibilitySettings.defaultMode],
+      || state.thumbsObjUrls[tempCurrentFileId][state.visibilitySettings.defaultSheet] === undefined)
+        ? undefined : state.thumbsObjUrls[tempCurrentFileId][state.visibilitySettings.defaultSheet],
     currentFileId: tempCurrentFileId,
     files: state.undoGroup.present.files,
     file: state.undoGroup.present.files

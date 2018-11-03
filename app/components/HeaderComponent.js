@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Menu, Dropdown, Icon, Popup } from 'semantic-ui-react';
 import {
-  MENU_HEADER_HEIGHT, VIEW, MODE
+  MENU_HEADER_HEIGHT, VIEW, SHEET_TYPE
 } from '../utils/constants';
 import styles from './Menu.css';
 import stylesPop from './Popup.css';
@@ -10,7 +10,8 @@ import stylesPop from './Popup.css';
 const Header = ({
   file, visibilitySettings, toggleMovielist, toggleSettings,
   onToggleShowHiddenThumbsClick, settings, onThumbInfoClick,
-  openMoviesDialog, toggleZoom, zoom, toggleView, onSetViewClick, onSetModeClick
+  openMoviesDialog, toggleZoom, zoom, toggleView, onSetViewClick, onSetSheetClick,
+  sheetsArray
 }) => {
 
   const thumbInfoOptions = [
@@ -19,10 +20,9 @@ const Header = ({
     { value: 'hideInfo', text: 'Hide info', 'data-tid':'hideInfoOption'},
   ];
 
-  const modeOptions = [
-    { value: MODE.INTERVALMODE, text: 'Interval mode', 'data-tid':'intervalModeOption'},
-    { value: MODE.SCENEMODE, text: 'Scene mode', 'data-tid':'sceneModeOption'},
-  ];
+  const sheetOptions = (sheetsArray) => {
+    return sheetsArray.map(sheet => ({ value: sheet, text: `${sheet} sheet`, 'data-tid':`${sheet}SheetOption` }))
+  };
 
   const viewOptions = [
     { value: VIEW.THUMBVIEW, text: 'Show thumb view', 'data-tid':'thumbViewOption'},
@@ -134,16 +134,16 @@ const Header = ({
             <Popup
               trigger={
                 <Dropdown
-                  data-tid='setModeDropdown'
-                  placeholder="Set mode"
+                  data-tid='setSheetDropdown'
+                  placeholder="Set sheet"
                   item
-                  options={modeOptions}
-                  value={visibilitySettings.defaultMode}
-                  onChange={(e, { value }) => onSetModeClick(value)}
+                  options={sheetOptions(sheetsArray)}
+                  value={visibilitySettings.defaultSheet}
+                  onChange={(e, { value }) => onSetSheetClick(value)}
                 />
               }
               className={stylesPop.popup}
-              content="Set mode"
+              content="Set sheet"
               keepInViewPort={false}
             />
           }

@@ -57,22 +57,22 @@ const thumb = (state = {}, action, index) => {
 const thumbsByFileId = (state = {}, action) => {
   switch (action.type) {
     case 'ADD_THUMB': {
-      const newArray = state[action.payload.fileId][action.payload.mode].slice();
+      const newArray = state[action.payload.fileId][action.payload.sheet].slice();
       newArray.splice(action.payload.index, 0, action.payload);
       const newArrayReordered = newArray.map((t, index) => thumb(t, action, index));
       return {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          [action.payload.mode]: newArrayReordered
+          [action.payload.sheet]: newArrayReordered
         }
       };
     }
     case 'ADD_THUMBS': {
       // load the current thumbs array, if it does not exist it stays empty
       let currentArray = [];
-      if (state[action.payload.fileId] && state[action.payload.fileId][action.payload.mode]) {
-        currentArray = state[action.payload.fileId][action.payload.mode].slice();
+      if (state[action.payload.fileId] && state[action.payload.fileId][action.payload.sheet]) {
+        currentArray = state[action.payload.fileId][action.payload.sheet].slice();
       }
 
       // create new thumbs array
@@ -91,7 +91,7 @@ const thumbsByFileId = (state = {}, action) => {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          [action.payload.mode]: reIndexedArray
+          [action.payload.sheet]: reIndexedArray
         }
       };
     }
@@ -100,7 +100,7 @@ const thumbsByFileId = (state = {}, action) => {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          [action.payload.mode]: state[action.payload.fileId][action.payload.mode].map((t, index) =>
+          [action.payload.sheet]: state[action.payload.fileId][action.payload.sheet].map((t, index) =>
             thumb(t, action)
           )
         }
@@ -110,7 +110,7 @@ const thumbsByFileId = (state = {}, action) => {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          [action.payload.mode]: state[action.payload.fileId][action.payload.mode].map((t, index) =>
+          [action.payload.sheet]: state[action.payload.fileId][action.payload.sheet].map((t, index) =>
             thumb(t, action)
           )
         }
@@ -120,7 +120,7 @@ const thumbsByFileId = (state = {}, action) => {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          [action.payload.mode]: state[action.payload.fileId][action.payload.mode].map((t, index) =>
+          [action.payload.sheet]: state[action.payload.fileId][action.payload.sheet].map((t, index) =>
             thumb(t, action)
           )
         }
@@ -130,7 +130,7 @@ const thumbsByFileId = (state = {}, action) => {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          [action.payload.mode]: state[action.payload.fileId][action.payload.mode].map((t, index) =>
+          [action.payload.sheet]: state[action.payload.fileId][action.payload.sheet].map((t, index) =>
             thumb(t, action, index)
           )
         }
@@ -138,11 +138,11 @@ const thumbsByFileId = (state = {}, action) => {
     case 'REMOVE_THUMB':
       // create new state with thumb removed
       // log.debug(state);
-      const tempState = state[action.payload.fileId][action.payload.mode]
-        .slice(0, state[action.payload.fileId][action.payload.mode]
+      const tempState = state[action.payload.fileId][action.payload.sheet]
+        .slice(0, state[action.payload.fileId][action.payload.sheet]
         .find(x => x.thumbId === action.payload.thumbId).index)
-        .concat(state[action.payload.fileId][action.payload.mode]
-        .slice(state[action.payload.fileId][action.payload.mode]
+        .concat(state[action.payload.fileId][action.payload.sheet]
+        .slice(state[action.payload.fileId][action.payload.sheet]
         .find(x => x.thumbId === action.payload.thumbId).index + 1)
       );
       // log.debug(tempState);
@@ -151,7 +151,7 @@ const thumbsByFileId = (state = {}, action) => {
       const tempAction = Object.assign({}, action, {
         type: 'UPDATE_ORDER',
         payload: {
-          mode: action.payload.mode,
+          sheet: action.payload.sheet,
           currentFileId: action.payload.fileId,
           array: tempState
         },
@@ -161,7 +161,7 @@ const thumbsByFileId = (state = {}, action) => {
       return {
         ...state,
         [action.payload.fileId]: {
-          [action.payload.mode]: tempState.map((t, index) =>
+          [action.payload.sheet]: tempState.map((t, index) =>
             thumb(t, tempAction, index)
           )
         }
@@ -178,16 +178,16 @@ const thumbsByFileId = (state = {}, action) => {
         return state;
       }
       const copyOfState = Object.assign({}, state);
-      if (action.payload.mode === '') {
-        // mode is empty, so delete whole fileId
+      if (action.payload.sheet === '') {
+        // sheet is empty, so delete whole fileId
         delete copyOfState[action.payload.fileId];
         return copyOfState;
       }
-      if (state[action.payload.fileId][action.payload.mode] === undefined) {
-        // mode does not exist, so it does not have to be deleted
+      if (state[action.payload.fileId][action.payload.sheet] === undefined) {
+        // sheet does not exist, so it does not have to be deleted
         return state;
       }
-      delete copyOfState[action.payload.fileId][action.payload.mode];
+      delete copyOfState[action.payload.fileId][action.payload.sheet];
       return copyOfState;
     default:
       return state;

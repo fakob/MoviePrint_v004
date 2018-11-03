@@ -338,14 +338,14 @@ export const getColumnCount = (file, settings) => {
 
 export const getThumbsCount = (file, thumbsByFileId, settings, visibilitySettings) => {
   if (file === undefined || file.id === undefined ||
-    thumbsByFileId[file.id] === undefined || thumbsByFileId[file.id][visibilitySettings.defaultMode] === undefined) {
+    thumbsByFileId[file.id] === undefined || thumbsByFileId[file.id][visibilitySettings.defaultSheet] === undefined) {
     return settings.defaultThumbCount;
   }
   if (visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') {
-    return thumbsByFileId[file.id][visibilitySettings.defaultMode]
+    return thumbsByFileId[file.id][visibilitySettings.defaultSheet]
       .filter(thumb => thumb.hidden === false).length;
   }
-  return thumbsByFileId[file.id][visibilitySettings.defaultMode].length;
+  return thumbsByFileId[file.id][visibilitySettings.defaultSheet].length;
 };
 
 export const setPosition = (vid, frameNumberToCapture, useRatio) => {

@@ -14,7 +14,7 @@ const thumbsObjUrls = (state = {}, action) => {
         return {
           ...state,
           [action.payload.fileId]: {
-            [action.payload.mode]: {
+            [action.payload.sheet]: {
               [action.payload.frameId]: {
                 objectUrl: window.URL.createObjectURL(
                   action.payload.frames.filter(obj => obj.frameId === action.payload.frameId)[0].data
@@ -28,8 +28,8 @@ const thumbsObjUrls = (state = {}, action) => {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          [action.payload.mode]: {
-            ...state[action.payload.fileId][action.payload.mode],
+          [action.payload.sheet]: {
+            ...state[action.payload.fileId][action.payload.sheet],
             [action.payload.frameId]: {
               objectUrl: window.URL.createObjectURL(
                 action.payload.frames.filter(obj => obj.frameId === action.payload.frameId)[0].data
@@ -45,7 +45,7 @@ const thumbsObjUrls = (state = {}, action) => {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          [action.payload.mode]:
+          [action.payload.sheet]:
             action.payload.frames.reduce((previous, current) => {
               // log.debug(previous);
               // log.debug(current.data);

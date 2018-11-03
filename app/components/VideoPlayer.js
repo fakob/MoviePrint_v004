@@ -151,7 +151,7 @@ class VideoPlayer extends Component {
     const newFrameNumber = this.getCurrentFrameNumber();
     store.dispatch(addDefaultThumbs(
       this.props.file,
-      this.props.visibilitySettings.defaultMode,
+      this.props.visibilitySettings.defaultSheet,
       this.props.thumbs.length,
       newFrameNumber,
       getHighestFrame(this.props.thumbs)
@@ -163,7 +163,7 @@ class VideoPlayer extends Component {
     const newFrameNumber = this.getCurrentFrameNumber();
     store.dispatch(addDefaultThumbs(
       this.props.file,
-      this.props.visibilitySettings.defaultMode,
+      this.props.visibilitySettings.defaultSheet,
       this.props.thumbs.length,
       getLowestFrame(this.props.thumbs),
       newFrameNumber
@@ -351,7 +351,7 @@ class VideoPlayer extends Component {
         if (this.props.keyObject.altKey) {
           store.dispatch(addThumb(
             this.props.file,
-            this.props.visibilitySettings.defaultMode,
+            this.props.visibilitySettings.defaultSheet,
             newFrameNumber,
             this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index + 1,
             newThumbId
@@ -359,7 +359,7 @@ class VideoPlayer extends Component {
         } else { // if shiftKey
           store.dispatch(addThumb(
             this.props.file,
-            this.props.visibilitySettings.defaultMode,
+            this.props.visibilitySettings.defaultSheet,
             newFrameNumber,
             this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index,
             newThumbId
@@ -370,7 +370,7 @@ class VideoPlayer extends Component {
           this.props.selectMethod(newThumbId, newFrameNumber);
         }, 500);
       } else { // if normal set new thumb
-        store.dispatch(changeThumb(this.props.visibilitySettings.defaultMode, this.props.file, this.props.selectedThumbId, newFrameNumber));
+        store.dispatch(changeThumb(this.props.visibilitySettings.defaultSheet, this.props.file, this.props.selectedThumbId, newFrameNumber));
       }
     }
   }
@@ -629,15 +629,15 @@ const mapStateToProps = state => {
   const tempThumbs = (state.undoGroup.present
     .thumbsByFileId[state.undoGroup.present.settings.currentFileId] === undefined)
     ? undefined : state.undoGroup.present
-      .thumbsByFileId[state.undoGroup.present.settings.currentFileId][state.visibilitySettings.defaultMode];
+      .thumbsByFileId[state.undoGroup.present.settings.currentFileId][state.visibilitySettings.defaultSheet];
   return {
     thumbs: getVisibleThumbs(
       tempThumbs,
       state.visibilitySettings.visibilityFilter
     ),
     thumbImages: ((state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId] === undefined)
-      || state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId][state.visibilitySettings.defaultMode] === undefined)
-        ? undefined : state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId][state.visibilitySettings.defaultMode],
+      || state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId][state.visibilitySettings.defaultSheet] === undefined)
+        ? undefined : state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId][state.visibilitySettings.defaultSheet],
     settings: state.undoGroup.present.settings,
     visibilitySettings: state.visibilitySettings
   };

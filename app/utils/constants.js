@@ -1,9 +1,9 @@
 // const { app } = require('electron').remote;
 // throws error as it would be packed into main.js where this is can not be required
 
-export const MODE = {
-  INTERVALMODE: 'intervalMode',
-  SCENEMODE: 'sceneMode',
+export const SHEET_TYPE = {
+  INTERVAL: 'interval',
+  SCENE: 'scene',
 };
 
 export const VIEW = {
@@ -42,7 +42,10 @@ export const VISIBILITY_FILTER = 'SHOW_VISIBLE';
 export const SHOW_MOVIELIST = false;
 export const SHOW_SETTINGS = false;
 export const DEFAULT_VIEW = VIEW.THUMBVIEW;
-export const DEFAULT_MODE = MODE.INTERVALMODE;
+export const DEFAULT_SHEET_TYPE = SHEET_TYPE.INTERVAL;
+export const DEFAULT_SHEET = `${SHEET_TYPE.INTERVAL}-0`;
+export const DEFAULT_SHEET_INTERVAL = `${SHEET_TYPE.INTERVAL}-0`;
+export const DEFAULT_SHEET_SCENE = `${SHEET_TYPE.SCENE}-0`;
 
 export const DEFAULT_THUMB_COUNT_MAX = 400;
 export const DEFAULT_THUMB_COUNT = 16;

@@ -125,7 +125,7 @@
 ##### thumbsByFileId (in undoGroup)
 
 - fileId
-  - mode
+  - sheet
     - thumbs Array
       - frameId
       - thumbId
