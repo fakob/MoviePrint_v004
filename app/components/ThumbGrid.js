@@ -3,6 +3,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import uuidV4 from 'uuid/v4';
 import Thumb from './Thumb';
 import ThumbGridHeader from './ThumbGridHeader';
 import styles from './ThumbGrid.css';
@@ -94,7 +95,6 @@ class ThumbGrid extends Component {
         };
         if (this.props.thumbs.length === 0) {
           tempThumbObject = {
-            key: String(i),
             index: i,
           };
         } else if (this.props.thumbs.length === tempArrayLength) {
@@ -105,7 +105,6 @@ class ThumbGrid extends Component {
           ) {
             tempThumbObject = this.props.thumbs[mappedIterator];
           }
-          tempThumbObject.key = i;
           tempThumbObject.index = i;
         }
         thumbArray[i] = tempThumbObject;
@@ -148,7 +147,7 @@ class ThumbGrid extends Component {
             <SortableThumb
               defaultView={this.props.defaultView}
               keyObject={this.props.keyObject}
-              key={thumb.thumbId}
+              key={thumb.thumbId || uuidV4()}
               thumbId={thumb.thumbId}
               index={thumb.index}
               indexForId={thumb.index}
