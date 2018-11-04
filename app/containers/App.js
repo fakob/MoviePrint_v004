@@ -676,6 +676,13 @@ class App extends Component {
 
       if (event) {
         switch (event.which) {
+          case 27: // press esc
+            // switch back to scene sheet if in a shot
+            if (store.getState().visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENE) === -1
+            || store.getState().visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.INTERVAL) === -1) {
+              this.onSetSheet(`${DEFAULT_SHEET_SCENE}`)
+            }
+            break;
           case 49: // press 1
             this.toggleMovielist();
             break;
