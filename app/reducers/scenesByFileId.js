@@ -15,7 +15,7 @@ import { deleteProperty } from './../utils/utils';
 //   }
 // };
 
-const scenesByFileId = (state = [], action) => {
+const scenesByFileId = (state = {}, action) => {
   switch (action.type) {
     case 'ADD_SCENE':
       // load the current scenes array, if it does not exist it stays empty

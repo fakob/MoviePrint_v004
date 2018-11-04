@@ -18,6 +18,8 @@ class SortedVisibleSceneGrid extends Component {
     super(props);
     this.state = {
     };
+
+    // this.onSelectClick = this.onSelectClick.bind(this);
   }
 
   // componentDidMount() {
@@ -57,6 +59,11 @@ class SortedVisibleSceneGrid extends Component {
       newOrderedThumbs));
   };
 
+  // onSelectClick = (file, sceneId) => {
+  //   console.log(file);
+  //   console.log(sceneId);
+  // }
+
   render() {
     // const { store } = this.context;
     // const state = store.getState();
@@ -74,7 +81,8 @@ class SortedVisibleSceneGrid extends Component {
         onSaveThumbClick={this.props.onSaveThumbClick}
         onSceneThumbDoubleClick={this.props.onSceneThumbDoubleClick}
         onScrubClick={this.props.onScrubClick}
-        onSelectClick={this.onSelectClick}
+        // onSelectClick={this.onSelectClick}
+        onSelectClick={this.props.onSelectClick}
         onToggleClick={this.props.onToggleClick}
         rowCount={this.props.settings.defaultSceneDetectionRowCount}
         scaleValueObject={this.props.scaleValueObject}

@@ -2,6 +2,9 @@ import uuidV4 from 'uuid/v4';
 import log from 'electron-log';
 import imageDB from './../utils/db';
 import { mapRange, limitRange } from './../utils/utils';
+import {
+  DEFAULT_SHEET_SCENE,
+} from '../utils/constants';
 
 const { ipcRenderer } = require('electron');
 
@@ -286,7 +289,7 @@ export const clearScenes = (fileId) => {
   };
 };
 
-export const addScene = (fileId, start, length, colorArray, posterFrame, sceneId = uuidV4()) => {
+export const addScene = (fileId, start, length, colorArray, sceneId = uuidV4()) => {
   return (dispatch) => {
     log.debug('action: addScene');
     log.debug('dispatch: ADD_SCENE');
@@ -298,28 +301,30 @@ export const addScene = (fileId, start, length, colorArray, posterFrame, sceneId
         start,
         length,
         colorArray,
-        posterFrame,
       }
     });
   };
 };
 
-export const addScenes = (fileId, sceneList, clearOldScenes = false) => {
+export const addScenes = (file, sceneList, clearOldScenes = false) => {
   return (dispatch) => {
     log.debug('action: addScenes');
     if (clearOldScenes) {
-      dispatch(clearScenes(fileId));
+      dispatch(clearScenes(file.id));
+      dispatch(clearThumbs(file.id, DEFAULT_SHEET_SCENE));
     }
-    sceneList.map(scene => {
+    sceneList.map((scene, index) => {
       const sceneId = uuidV4();
-      return dispatch(addScene(fileId, scene.start, scene.length, scene.color, scene.posterFrame, sceneId));
+      const thumbId = uuidV4();
+      dispatch(addThumb(file, DEFAULT_SHEET_SCENE, scene.start + Math.floor(scene.length / 2), index, thumbId, sceneId));
+      return dispatch(addScene(file.id, scene.start, scene.length, scene.colorArray, sceneId));
     })
   };
 };
 
 // thumbs
 
-export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4()) => {
+export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), sceneId = undefined) => {
   return (dispatch) => {
     log.debug('action: addThumb');
     const frameId = uuidV4();
@@ -347,6 +352,7 @@ export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4()) =>
             fileId: file.id,
             index,
             hidden: false,
+            sceneId,
           }
         });
       }
@@ -362,6 +368,7 @@ export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4()) =>
           fileId: file.id,
           index,
           hidden: false,
+          sceneId,
         }
       });
       return dispatch(updateThumbObjectUrlFromDB(file.id, sheet, thumbId, frames[0].frameId, false));
@@ -492,11 +499,12 @@ export const addDefaultThumbs = (file, sheet, amount = 20, start = 10, stop = fi
     const frameNumberArray = Array.from(Array(newAmount).keys())
       .map(x => mapRange(x, 0, newAmount - 1, startWithBoundaries, stopWithBoundaries));
     // log.debug(frameNumberArray);
-    dispatch(addThumbs(file, sheet, frameNumberArray, true));
+    dispatch(clearThumbs(file.id, sheet));
+    dispatch(addThumbs(file, sheet, frameNumberArray));
   };
 };
 
-export const addThumbs = (file, sheet, frameNumberArray, clearOldThumbs = false) => {
+export const addThumbs = (file, sheet, frameNumberArray) => {
   return (dispatch) => {
     log.debug('action: addThumbs');
 
@@ -529,10 +537,6 @@ export const addThumbs = (file, sheet, frameNumberArray, clearOldThumbs = false)
         alreadyExistingFrameNumbersArray
       );
       // log.debug(filteredArray);
-
-      if (clearOldThumbs) {
-        dispatch(clearThumbs(file.id, sheet));
-      }
 
       // if all thumbs already exist skip capturing
       if (filteredArray.length !== 0) {

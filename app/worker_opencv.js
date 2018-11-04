@@ -465,7 +465,6 @@ ipcRenderer.on(
                     lastSceneCut, // start
                     length,
                     HSVtoRGB(frameMean.w, frameMean.x, frameMean.y), // color
-                    lastSceneCut + Math.floor(length / 2), // posterFrame
                   );
                 }
                 lastSceneCut = frame;
@@ -516,7 +515,6 @@ ipcRenderer.on(
               lastSceneCut, // start
               length,
               HSVtoRGB(frameMean.w, frameMean.x, frameMean.y), // color
-              lastSceneCut + Math.floor(length / 2), // posterFrame
             );
 
             const tempMeanArray = frameMetrics.map((item) => item.mean);

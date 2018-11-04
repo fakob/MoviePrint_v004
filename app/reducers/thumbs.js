@@ -57,14 +57,19 @@ const thumb = (state = {}, action, index) => {
 const thumbsByFileId = (state = {}, action) => {
   switch (action.type) {
     case 'ADD_THUMB': {
-      const newArray = state[action.payload.fileId][action.payload.sheet].slice();
-      newArray.splice(action.payload.index, 0, action.payload);
-      const newArrayReordered = newArray.map((t, index) => thumb(t, action, index));
+      // load the current thumbs array, if it does not exist it stays empty
+      let currentArray = [];
+      if (state[action.payload.fileId] && state[action.payload.fileId][action.payload.sheet]) {
+        currentArray = state[action.payload.fileId][action.payload.sheet].slice();
+      }
+      const combinedArray = currentArray.concat(action.payload);
+      combinedArray.splice(action.payload.index, 0, action.payload);
+      const combinedArrayReordered = combinedArray.map((t, index) => thumb(t, action, index));
       return {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          [action.payload.sheet]: newArrayReordered
+          [action.payload.sheet]: combinedArrayReordered
         }
       };
     }

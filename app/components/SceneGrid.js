@@ -104,6 +104,10 @@ class SceneGrid extends Component {
                   addThumbAfterController: undefined,
                 });
               }}
+              onSelect={(this.props.showSettings || (scene.sceneId !== this.state.controllersVisible)) ?
+                null : () => {
+                  this.props.onSelectClick(this.props.file, scene.sceneId);
+                }}
             />)}
           )}
         </div>

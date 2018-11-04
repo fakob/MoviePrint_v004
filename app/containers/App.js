@@ -156,6 +156,7 @@ class App extends Component {
     this.onScrubWindowMouseOver = this.onScrubWindowMouseOver.bind(this);
     this.onScrubWindowClick = this.onScrubWindowClick.bind(this);
     this.onScrubClick = this.onScrubClick.bind(this);
+    this.onSelectClick = this.onSelectClick.bind(this);
     this.onAddThumbClick = this.onAddThumbClick.bind(this);
     this.switchToPrintView = this.switchToPrintView.bind(this);
     this.onOpenFeedbackForm = this.onOpenFeedbackForm.bind(this);
@@ -392,13 +393,12 @@ class App extends Component {
       ));
     });
 
-    ipcRenderer.on('addScene', (event, fileId, start, length, meanColor, posterFrame) => {
+    ipcRenderer.on('addScene', (event, fileId, start, length, colorArray) => {
       store.dispatch(addScene(
         fileId,
         start,
         length,
-        meanColor,
-        posterFrame,
+        colorArray,
       ));
     });
 
@@ -959,11 +959,10 @@ class App extends Component {
               const length = index - lastSceneCut - 1; // length
               sceneList.push({
                 fileId,
-                lastSceneCut, // start
+                start: lastSceneCut, // start
                 length,
-                color: meanColorArray[lastSceneCut + Math.floor(length / 2)],
+                colorArray: meanColorArray[lastSceneCut + Math.floor(length / 2)],
                 // [frameMean.w, frameMean.x, frameMean.y], // color
-                posterFrame: lastSceneCut + Math.floor(length / 2), // posterFrame
               });
             }
             lastSceneCut = index;
@@ -976,11 +975,10 @@ class App extends Component {
     const length = meanArray.length - lastSceneCut - 1; // meanArray.length should be frameCount
     sceneList.push({
       fileId,
-      lastSceneCut, // start
+      start: lastSceneCut, // start
       length,
-      color: [128, 128, 128],
+      colorArray: [128, 128, 128],
       // [frameMean.w, frameMean.x, frameMean.y], // color
-      posterFrame: lastSceneCut + Math.floor(length / 2), // posterFrame
     });
 
     const labels = [...Array(differenceArray.length).keys()].map((x) => String(x));
@@ -1003,21 +1001,20 @@ class App extends Component {
     });
 
     // console.log(sceneList);
-    // console.log(sceneList.map(scene => scene.posterFrame));
 
     // check if scenes detected
     if (sceneList.length !== 0) {
       const tempFile = this.props.files.find((file) => file.id === fileId);
-      const clearOldThumbs = true;
       const clearOldScenes = true;
       store.dispatch(setSheet(DEFAULT_SHEET_SCENE));
-      store.dispatch(addThumbs(
-        tempFile,
-        DEFAULT_SHEET_SCENE,
-        sceneList.map(scene => scene.posterFrame),
-        clearOldThumbs
-      ));
-      store.dispatch(addScenes(fileId, sceneList, clearOldScenes));
+      // store.dispatch(clearThumbs(fileId, DEFAULT_SHEET_SCENE));
+      // const listOfFrameNumbers = sceneList.map(scene => (scene.start + Math.floor(scene.length / 2)));
+      // store.dispatch(addThumbs(
+      //   tempFile,
+      //   DEFAULT_SHEET_SCENE,
+      //   listOfFrameNumbers,
+      // ));
+      store.dispatch(addScenes(tempFile, sceneList, clearOldScenes));
     } else {
       this.setState({
         progressMessage: 'No scenes detected',
@@ -1059,6 +1056,27 @@ class App extends Component {
       scrubThumbLeft,
       scrubThumbRight,
     });
+  }
+
+  onSelectClick(file, sceneId) {
+    const { store } = this.context;
+    console.log(file);
+    console.log(sceneId);
+    const sceneArray = this.props.scenes ? this.props.scenes.sceneArray : [];
+    const sceneIndex = sceneArray.findIndex(item => item.sceneId === sceneId);
+    const sheetName = `${SHEET_TYPE.SCENE}-${sceneIndex}`;
+    console.log(sheetName);
+    if (this.props.sheetsArray.findIndex(item => item === sheetName) === -1) {
+      // log.debug(`addDefaultThumbs as no thumbs were found for: ${file.name}`);
+      store.dispatch(addDefaultThumbs(
+          file,
+          sheetName,
+          this.props.settings.defaultThumbCount,
+          sceneArray[sceneIndex].start,
+          sceneArray[sceneIndex].start + sceneArray[sceneIndex].length
+        ));
+    }
+    store.dispatch(setSheet(sheetName));
   }
 
   onAddThumbClick(file, existingThumb, insertWhere) {
@@ -1779,6 +1797,7 @@ class App extends Component {
                               inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                               keyObject={this.state.keyObject}
                               rowCount={this.props.settings.defaultSceneDetectionRowCount}
+                              onSelectClick={this.onSelectClick}
                               scaleValueObject={this.state.scaleValueObject}
                               scenes={this.props.scenes}
                               settings={this.props.settings}
