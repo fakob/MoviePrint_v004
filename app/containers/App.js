@@ -194,7 +194,7 @@ class App extends Component {
     this.onShowHiddenThumbsClick = this.onShowHiddenThumbsClick.bind(this);
     this.onThumbInfoClick = this.onThumbInfoClick.bind(this);
     this.onSetViewClick = this.onSetViewClick.bind(this);
-    this.onSetSheetClick = this.onSetSheetClick.bind(this);
+    this.onSetSheet = this.onSetSheet.bind(this);
     this.onChangeOutputPathClick = this.onChangeOutputPathClick.bind(this);
     this.onOutputFormatClick = this.onOutputFormatClick.bind(this);
     this.onOverwriteClick = this.onOverwriteClick.bind(this);
@@ -700,13 +700,13 @@ class App extends Component {
             this.onSaveMoviePrint();
             break;
           case 52: // press '4'
-            store.dispatch(setView(VIEW.THUMBVIEW));
+            store.dispatch(setView(VIEW.GRIDVIEW));
             break;
           case 53: // press '5'
             store.dispatch(setView(VIEW.PLAYERVIEW));
             break;
           case 54: // press '6'
-            store.dispatch(setView(VIEW.SCENEVIEW));
+            store.dispatch(setView(VIEW.TIMELINEVIEW));
             break;
           default:
         }
@@ -761,7 +761,7 @@ class App extends Component {
     // file match needs to be in sync with setMovieList() and accept !!!
     if (Array.from(files).some(file => (file.type.match('video.*') ||
       file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
-      this.onSetSheetClick(`${SHEET_TYPE.INTERVAL}-0`);
+      this.onSetSheet(`${DEFAULT_SHEET_INTERVAL}`);
       store.dispatch(setNewMovieList(files, settings)).then((response) => {
         this.setState({
           filesToLoad: response
@@ -905,7 +905,7 @@ class App extends Component {
 
   switchToPrintView() {
     const { store } = this.context;
-    store.dispatch(setView(VIEW.THUMBVIEW));
+    store.dispatch(setView(VIEW.GRIDVIEW));
   }
 
   onHideDetectionChart() {
@@ -924,7 +924,7 @@ class App extends Component {
     this.hideSettings();
     this.onHideDetectionChart();
     const { store } = this.context;
-    store.dispatch(setView(VIEW.SCENEVIEW));
+    store.dispatch(setView(VIEW.TIMELINEVIEW));
     // get meanArray if it is stored else return false
     store.dispatch(getFileScanData(file.id)).then((returnObject) => {
       console.log(returnObject);
@@ -1064,7 +1064,7 @@ class App extends Component {
     console.log(sceneId);
     const sceneArray = this.props.scenes ? this.props.scenes.sceneArray : [];
     const sceneIndex = sceneArray.findIndex(item => item.sceneId === sceneId);
-    const sheetName = `${SHEET_TYPE.SCENE}-${sceneIndex}`;
+    const sheetName = `${SHEET_TYPE.INTERVAL}-S${sceneIndex}`;
     console.log(sheetName);
     if (this.props.sheetsArray.findIndex(item => item === sheetName) === -1) {
       // log.debug(`addDefaultThumbs as no thumbs were found for: ${file.name}`);
@@ -1076,7 +1076,7 @@ class App extends Component {
           sceneArray[sceneIndex].start + sceneArray[sceneIndex].length
         ));
     }
-    store.dispatch(setSheet(sheetName));
+    this.onSetSheet(sheetName);
   }
 
   onAddThumbClick(file, existingThumb, insertWhere) {
@@ -1173,12 +1173,12 @@ class App extends Component {
 
   onViewToggle() {
     const { store } = this.context;
-    if (this.props.visibilitySettings.defaultView === VIEW.THUMBVIEW) {
+    if (this.props.visibilitySettings.defaultView === VIEW.GRIDVIEW) {
       this.hideSettings();
       this.hideMovielist();
       store.dispatch(setView(VIEW.PLAYERVIEW));
     } else {
-      store.dispatch(setView(VIEW.THUMBVIEW));
+      store.dispatch(setView(VIEW.GRIDVIEW));
     }
   }
 
@@ -1472,14 +1472,14 @@ class App extends Component {
     store.dispatch(setDefaultThumbInfo(value));
   };
 
-  onSetSheetClick = (value) => {
+  onSetSheet = (value) => {
     const { store } = this.context;
     store.dispatch(setSheet(value));
     if (value.indexOf(SHEET_TYPE.SCENE) > -1) {
-      store.dispatch(setView(VIEW.SCENEVIEW));
+      store.dispatch(setView(VIEW.TIMELINEVIEW));
     }
     if (value.indexOf(SHEET_TYPE.INTERVAL) > -1) {
-      store.dispatch(setView(VIEW.THUMBVIEW));
+      store.dispatch(setView(VIEW.GRIDVIEW));
     }
   };
 
@@ -1603,7 +1603,7 @@ class App extends Component {
                     onToggleShowHiddenThumbsClick={this.onToggleShowHiddenThumbsClick}
                     onThumbInfoClick={this.onThumbInfoClick}
                     onSetViewClick={this.onSetViewClick}
-                    onSetSheetClick={this.onSetSheetClick}
+                    onSetSheetClick={this.onSetSheet}
                     openMoviesDialog={() => this.dropzoneRef.open()}
                     zoom={this.state.zoom}
                   />
@@ -1758,16 +1758,16 @@ class App extends Component {
                         minHeight: this.props.visibilitySettings.defaultView !== VIEW.PLAYERVIEW ? `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)` : undefined,
                         // backgroundImage: `url(${paperBorderPortrait})`,
                         backgroundImage: ((this.props.visibilitySettings.showSettings && this.props.settings.defaultShowPaperPreview) ||
-                          (this.props.file && this.props.visibilitySettings.defaultView === VIEW.THUMBVIEW && this.props.settings.defaultShowPaperPreview)) ?
+                          (this.props.file && this.props.visibilitySettings.defaultView === VIEW.GRIDVIEW && this.props.settings.defaultShowPaperPreview)) ?
                           `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${(this.props.settings.defaultPaperAspectRatioInv < this.state.scaleValueObject.moviePrintAspectRatioInv) ? (this.state.scaleValueObject.newMoviePrintHeight / this.props.settings.defaultPaperAspectRatioInv) : this.state.scaleValueObject.newMoviePrintWidth}' height='${(this.props.settings.defaultPaperAspectRatioInv < this.state.scaleValueObject.moviePrintAspectRatioInv) ? this.state.scaleValueObject.newMoviePrintHeight : (this.state.scaleValueObject.newMoviePrintWidth * this.props.settings.defaultPaperAspectRatioInv)}' style='background-color: rgba(245,245,245,${this.props.visibilitySettings.showSettings ? 1 : 0.02});'></svg>")` : undefined,
                         backgroundRepeat: 'no-repeat',
                         backgroundPosition: `calc(50% - ${DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN / 2}px) 50%`,
                       }}
                     >
                       { (this.props.file || this.props.visibilitySettings.showSettings || this.state.loadingFirstFile) ? (
-                        // (this.props.visibilitySettings.defaultView === 'thumbView') ? (
+                        // (this.props.visibilitySettings.defaultView === 'gridView') ? (
                         <Fragment>
-                          <Conditional if={this.props.visibilitySettings.defaultView !== VIEW.SCENEVIEW}>
+                          <Conditional if={this.props.visibilitySettings.defaultView !== VIEW.TIMELINEVIEW}>
                             <SortedVisibleThumbGrid
                               colorArray={this.state.colorArray}
                               defaultView={this.props.visibilitySettings.defaultView}
@@ -1789,7 +1789,7 @@ class App extends Component {
                               visibilitySettings={this.props.visibilitySettings}
                             />
                           </Conditional>
-                          <Conditional if={this.props.visibilitySettings.defaultView === VIEW.SCENEVIEW}>
+                          <Conditional if={this.props.visibilitySettings.defaultView === VIEW.TIMELINEVIEW}>
                             <SortedVisibleSceneGrid
                               defaultView={this.props.visibilitySettings.defaultView}
                               file={this.props.file}

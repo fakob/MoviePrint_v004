@@ -117,11 +117,11 @@ class ThumbGrid extends Component {
         className={styles.grid}
         style={{
           width: this.props.viewForPrinting ? this.props.scaleValueObject.newMoviePrintWidthForPrinting : this.props.scaleValueObject.newMoviePrintWidth,
-          marginLeft: this.props.visibilitySettings.defaultView === VIEW.THUMBVIEW ? undefined : (this.props.scaleValueObject.newThumbWidth / 4),
+          marginLeft: this.props.visibilitySettings.defaultView === VIEW.GRIDVIEW ? undefined : (this.props.scaleValueObject.newThumbWidth / 4),
         }}
         id="ThumbGrid"
       >
-        {this.props.settings.defaultShowHeader && this.props.visibilitySettings.defaultView === VIEW.THUMBVIEW &&
+        {this.props.settings.defaultShowHeader && this.props.visibilitySettings.defaultView === VIEW.GRIDVIEW &&
           <ThumbGridHeader
             viewForPrinting={this.props.viewForPrinting}
             defaultView={this.props.defaultView}

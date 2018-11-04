@@ -7,9 +7,9 @@ export const SHEET_TYPE = {
 };
 
 export const VIEW = {
-  THUMBVIEW: 'thumbView',
+  GRIDVIEW: 'gridView',
   PLAYERVIEW: 'playerView',
-  SCENEVIEW: 'sceneView',
+  TIMELINEVIEW: 'timelineView',
 };
 
 export const MOVIEPRINT_COLORS = [
@@ -41,11 +41,11 @@ export const OUTPUT_FORMAT_OPTIONS = [
 export const VISIBILITY_FILTER = 'SHOW_VISIBLE';
 export const SHOW_MOVIELIST = false;
 export const SHOW_SETTINGS = false;
-export const DEFAULT_VIEW = VIEW.THUMBVIEW;
+export const DEFAULT_VIEW = VIEW.GRIDVIEW;
 export const DEFAULT_SHEET_TYPE = SHEET_TYPE.INTERVAL;
 export const DEFAULT_SHEET = `${SHEET_TYPE.INTERVAL}-0`;
 export const DEFAULT_SHEET_INTERVAL = `${SHEET_TYPE.INTERVAL}-0`;
-export const DEFAULT_SHEET_SCENE = `${SHEET_TYPE.SCENE}-`;
+export const DEFAULT_SHEET_SCENE = `${SHEET_TYPE.SCENE}-0`;
 
 export const DEFAULT_THUMB_COUNT_MAX = 400;
 export const DEFAULT_THUMB_COUNT = 16;

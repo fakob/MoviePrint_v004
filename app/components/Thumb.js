@@ -170,7 +170,7 @@ const Thumb = ({
   function onThumbDoubleClickWithStop(e) {
     e.stopPropagation();
     if (controllersAreVisible) {
-      if (defaultView === VIEW.THUMBVIEW) {
+      if (defaultView === VIEW.GRIDVIEW) {
         onSelect();
       }
       onThumbDoubleClick();
@@ -216,14 +216,14 @@ const Thumb = ({
       onKeyPress={onSelectWithStop}
       onDoubleClick={onThumbDoubleClickWithStop}
       id={`thumb${indexForId}`}
-      className={`${styles.gridItem} ${(defaultView !== VIEW.THUMBVIEW && selected && !(keyObject.altKey || keyObject.shiftKey)) ? styles.gridItemSelected : ''}`}
+      className={`${styles.gridItem} ${(defaultView !== VIEW.GRIDVIEW && selected && !(keyObject.altKey || keyObject.shiftKey)) ? styles.gridItemSelected : ''}`}
       width={`${thumbWidth}px`}
       height={`${(thumbWidth * aspectRatioInv)}px`}
       style={{
         width: thumbWidth,
-        margin: `${defaultView === VIEW.THUMBVIEW ? margin : Math.max(1, margin)}px`,
-        outlineWidth: `${defaultView === VIEW.THUMBVIEW ? margin : Math.max(1, margin)}px`,
-        borderRadius: `${(selected && defaultView !== VIEW.THUMBVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
+        margin: `${defaultView === VIEW.GRIDVIEW ? margin : Math.max(1, margin)}px`,
+        outlineWidth: `${defaultView === VIEW.GRIDVIEW ? margin : Math.max(1, margin)}px`,
+        borderRadius: `${(selected && defaultView !== VIEW.GRIDVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: thumbImageObjectUrl !== undefined ? undefined : color,
       }}
     >
@@ -239,7 +239,7 @@ const Thumb = ({
           style={{
             filter: `${controllersAreVisible ? 'brightness(80%)' : ''}`,
             opacity: hidden ? '0.2' : '1',
-            borderRadius: `${(selected && defaultView !== VIEW.THUMBVIEW) ? 0 : borderRadius}px`,
+            borderRadius: `${(selected && defaultView !== VIEW.GRIDVIEW) ? 0 : borderRadius}px`,
           }}
         />
         {thumbInfoValue !== undefined &&
@@ -258,7 +258,7 @@ const Thumb = ({
             display: controllersAreVisible ? 'block' : 'none'
           }}
         >
-          {defaultView === VIEW.THUMBVIEW &&
+          {defaultView === VIEW.GRIDVIEW &&
             <DragHandle
               width={thumbWidth - 1} // shrink it to prevent rounding issues
               height={(thumbWidth * aspectRatioInv) - 1}
@@ -458,7 +458,7 @@ const Thumb = ({
             </div>
         }
         </div>
-        {defaultView !== VIEW.THUMBVIEW && selected && (showBeforeController || showAfterController) &&
+        {defaultView !== VIEW.GRIDVIEW && selected && (showBeforeController || showAfterController) &&
           <div
             data-tid={`insertThumb${(!showAfterController && showBeforeController) ? 'Before' : 'After'}Div_${thumbId}`}
             style={{

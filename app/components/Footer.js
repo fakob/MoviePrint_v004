@@ -44,7 +44,7 @@ const Footer = ({
             content="Share Feedback"
             keepInViewPort={false}
           />
-          {file && defaultView === VIEW.THUMBVIEW &&
+          {file && defaultView === VIEW.GRIDVIEW &&
             <Popup
               trigger={
                 <Menu.Item
@@ -73,7 +73,7 @@ const Footer = ({
               keepInViewPort={false}
             />
           }
-          {file && defaultView === VIEW.THUMBVIEW &&
+          {file && defaultView === VIEW.GRIDVIEW &&
             <Popup
               trigger={
                 <Dropdown

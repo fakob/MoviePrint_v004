@@ -38,7 +38,7 @@ const getScaleValueObject = (
   const moviePrintHeight = headerHeight + (thumbMargin * 2) + moviePrintHeightBody;
   const moviePrintAspectRatioInv = (moviePrintHeight * 1.0) / moviePrintWidth;
 
-  // for thumbView
+  // for gridView
   const videoHeight = ((containerHeight * 2) / 3) - settings.defaultVideoPlayerControllerHeight;
   const videoWidth = videoHeight / movieAspectRatioInv;
   let videoPlayerHeight = videoHeight + settings.defaultVideoPlayerControllerHeight;
@@ -57,7 +57,7 @@ const getScaleValueObject = (
     thumbnailWidthForThumbView + (thumbMarginForThumbView * 2);
   const moviePrintWidthForThumbView =
     (thumbCount * thumbnailWidthPlusMarginForThumbView) + (thumbnailWidthForThumbView / 2); // only one row
-    // for thumbView
+    // for gridView
 
   // for scrubView
   const scrubContainerHeight = Math.min(

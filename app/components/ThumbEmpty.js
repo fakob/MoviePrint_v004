@@ -18,15 +18,15 @@ const ThumbEmpty = ({
   return (
     <div
       onDoubleClick={onThumbDoubleClick}
-      className={`${styles.gridItem} ${(selected && defaultView !== VIEW.THUMBVIEW) ? styles.gridItemSelected : ''}`}
+      className={`${styles.gridItem} ${(selected && defaultView !== VIEW.GRIDVIEW) ? styles.gridItemSelected : ''}`}
       width={`${thumbWidth}px`}
       height={`${(thumbWidth * aspectRatioInv)}px`}
       style={{
         opacity: hidden ? '0.2' : '1',
         width: thumbWidth,
         margin: `${margin}px`,
-        outlineWidth: `${(selected && defaultView !== VIEW.THUMBVIEW) ? margin : 0}px`,
-        borderRadius: `${(selected && defaultView !== VIEW.THUMBVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
+        outlineWidth: `${(selected && defaultView !== VIEW.GRIDVIEW) ? margin : 0}px`,
+        borderRadius: `${(selected && defaultView !== VIEW.GRIDVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: thumbImageObjectUrl !== undefined ? undefined : color,
       }}
     >
@@ -41,7 +41,7 @@ const ThumbEmpty = ({
         height={`${(thumbWidth * aspectRatioInv)}px`}
         style={{
           filter: `${controlersAreVisible ? 'brightness(80%)' : ''}`,
-          borderRadius: `${(selected && defaultView !== VIEW.THUMBVIEW) ? 0 : borderRadius}px`,
+          borderRadius: `${(selected && defaultView !== VIEW.GRIDVIEW) ? 0 : borderRadius}px`,
         }}
       />
     </div>

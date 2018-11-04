@@ -174,7 +174,7 @@ const Scene = ({
   function onThumbDoubleClickWithStop(e) {
     e.stopPropagation();
     if (controllersAreVisible) {
-      if (defaultView === VIEW.SCENEVIEW) {
+      if (defaultView === VIEW.TIMELINEVIEW) {
         onSelect();
       }
       onThumbDoubleClick();
@@ -227,8 +227,8 @@ const Scene = ({
         height:`${thumbHeight}px`,
         // width: width,
         margin: `${margin}px`,
-        outlineWidth: `${defaultView === VIEW.SCENEVIEW ? margin : Math.max(1, margin)}px`,
-        borderRadius: `${(selected && defaultView !== VIEW.SCENEVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
+        outlineWidth: `${defaultView === VIEW.TIMELINEVIEW ? margin : Math.max(1, margin)}px`,
+        borderRadius: `${(selected && defaultView !== VIEW.TIMELINEVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: hexColor,
         backgroundImage: `url(${thumbImageObjectUrl !== undefined ? thumbImageObjectUrl : transparent})`,
       }}
@@ -250,7 +250,7 @@ const Scene = ({
             display: controllersAreVisible ? 'block' : 'none'
           }}
         >
-          {defaultView === VIEW.SCENEVIEW &&
+          {defaultView === VIEW.TIMELINEVIEW &&
             <DragHandle
               width={thumbWidth - 1} // shrink it to prevent rounding issues
               height={(thumbWidth * aspectRatioInv) - 1}

@@ -128,7 +128,7 @@ class WorkerApp extends Component {
               colorArray={getMoviePrintColor(this.state.data.settings.defaultThumbCountMax)}
               thumbCount={this.state.data.file.thumbCount}
 
-              defaultView={VIEW.THUMBVIEW}
+              defaultView={VIEW.GRIDVIEW}
               scaleValueObject={getScaleValueObject(
                 this.state.data.file,
                 this.state.data.settings,

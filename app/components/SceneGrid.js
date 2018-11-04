@@ -58,7 +58,7 @@ class SceneGrid extends Component {
         className={styles.grid}
         // style={{
         //   width: this.props.viewForPrinting ? this.props.scaleValueObject.newMoviePrintWidthForPrinting : this.props.scaleValueObject.newMoviePrintWidth,
-        //   marginLeft: this.props.defaultView === VIEW.THUMBVIEW ? undefined : (this.props.scaleValueObject.newThumbWidth / 4),
+        //   marginLeft: this.props.defaultView === VIEW.GRIDVIEW ? undefined : (this.props.scaleValueObject.newThumbWidth / 4),
         // }}
         id="SceneGrid"
       >

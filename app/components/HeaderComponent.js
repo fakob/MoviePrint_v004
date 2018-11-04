@@ -25,9 +25,9 @@ const Header = ({
   };
 
   const viewOptions = [
-    { value: VIEW.THUMBVIEW, text: 'Show thumb view', 'data-tid':'thumbViewOption'},
+    { value: VIEW.GRIDVIEW, text: 'Show thumb view', 'data-tid':'gridViewOption'},
     { value: VIEW.PLAYERVIEW, text: 'Show player view', 'data-tid':'playerViewOption'},
-    { value: VIEW.SCENEVIEW, text: 'Show scene view', 'data-tid':'sceneViewOption'},
+    { value: VIEW.TIMELINEVIEW, text: 'Show scene view', 'data-tid':'timelineViewOption'},
   ];
 
   return (
@@ -77,7 +77,7 @@ const Header = ({
           {file.name}
         </Menu.Item> */}
         <Menu.Menu position="right">
-          {file && visibilitySettings.defaultView === VIEW.THUMBVIEW && !visibilitySettings.showSettings &&
+          {file && visibilitySettings.defaultView === VIEW.GRIDVIEW && !visibilitySettings.showSettings &&
             <Popup
               trigger={
                 <Menu.Item
