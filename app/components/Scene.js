@@ -250,14 +250,14 @@ const Scene = ({
             display: controllersAreVisible ? 'block' : 'none'
           }}
         >
-          {defaultView === VIEW.TIMELINEVIEW &&
+          {/* {defaultView === VIEW.TIMELINEVIEW &&
             <DragHandle
               width={thumbWidth - 1} // shrink it to prevent rounding issues
               height={(thumbWidth * aspectRatioInv) - 1}
               sceneId={sceneId}
             />
-          }
-          <Popup
+          } */}
+          {/* <Popup
             trigger={
               <button
                 data-tid={`${hidden ? 'show' : 'hide'}ThumbBtn_${sceneId}`}
@@ -282,7 +282,7 @@ const Scene = ({
             }
             className={stylesPop.popup}
             content="Hide thumb"
-          />
+          /> */}
           {!hidden &&
             <div>
               {/* <Popup
@@ -312,7 +312,7 @@ const Scene = ({
                 className={stylesPop.popup}
                 content={<span>Set this thumb as new <mark>IN-point</mark></span>}
               /> */}
-              <Popup
+              {/* <Popup
                 trigger={
                   <button
                     data-tid={`scrubBtn_${sceneId}`}
@@ -338,7 +338,7 @@ const Scene = ({
                 }
                 className={stylesPop.popup}
                 content={<span>Click and drag left and right to change the frame (<mark>SHIFT</mark> add new thumb before, <mark>ALT</mark> add new thumb after, <mark>CTRL</mark> display original as overlay)</span>}
-              />
+              /> */}
               {/* <Popup
                 trigger={
                   <button
