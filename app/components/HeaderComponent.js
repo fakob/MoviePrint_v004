@@ -25,9 +25,9 @@ const Header = ({
   };
 
   const viewOptions = [
-    { value: VIEW.GRIDVIEW, text: 'Show thumb view', 'data-tid':'gridViewOption'},
+    { value: VIEW.GRIDVIEW, text: 'Show grid view', 'data-tid':'gridViewOption'},
     { value: VIEW.PLAYERVIEW, text: 'Show player view', 'data-tid':'playerViewOption'},
-    { value: VIEW.TIMELINEVIEW, text: 'Show scene view', 'data-tid':'timelineViewOption'},
+    { value: VIEW.TIMELINEVIEW, text: 'Show timeline view', 'data-tid':'timelineViewOption', disabled: (visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENE) === -1) },
   ];
 
   return (
