@@ -21,7 +21,12 @@ const Header = ({
   ];
 
   const sheetOptions = (sheetsArray) => {
-    return sheetsArray.map(sheet => ({ value: sheet, text: `${sheet} sheet`, 'data-tid':`${sheet}SheetOption` }))
+    sheetsArray.sort();
+    const filteredSheetsArray = sheetsArray.filter(sheet => (sheet.indexOf(SHEET_TYPE.SCENE) > -1 || sheet.indexOf(SHEET_TYPE.INTERVAL) > -1));
+    const mappedArray = filteredSheetsArray.map(sheet =>
+        ({ value: sheet, text: `${sheet} sheet`, 'data-tid':`${sheet}SheetOption` })
+    );
+    return mappedArray;
   };
 
   const viewOptions = [

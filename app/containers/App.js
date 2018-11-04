@@ -1064,7 +1064,7 @@ class App extends Component {
     console.log(sceneId);
     const sceneArray = this.props.scenes ? this.props.scenes.sceneArray : [];
     const sceneIndex = sceneArray.findIndex(item => item.sceneId === sceneId);
-    const sheetName = `${SHEET_TYPE.INTERVAL}-S${sceneIndex}`;
+    const sheetName = sceneId;
     console.log(sheetName);
     if (this.props.sheetsArray.findIndex(item => item === sheetName) === -1) {
       // log.debug(`addDefaultThumbs as no thumbs were found for: ${file.name}`);
@@ -1477,8 +1477,7 @@ class App extends Component {
     store.dispatch(setSheet(value));
     if (value.indexOf(SHEET_TYPE.SCENE) > -1) {
       store.dispatch(setView(VIEW.TIMELINEVIEW));
-    }
-    if (value.indexOf(SHEET_TYPE.INTERVAL) > -1) {
+    } else {
       store.dispatch(setView(VIEW.GRIDVIEW));
     }
   };
