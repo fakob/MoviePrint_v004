@@ -95,32 +95,31 @@ class SortedVisibleThumbGrid extends Component {
     // const state = store.getState();
     return (
       <SortableThumbGrid
-        viewForPrinting={this.props.viewForPrinting}
-        ref={this.props.inputRef} // for the saveMoviePrint function
-        inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
-        showSettings={this.props.showSettings}
         colorArray={this.props.colorArray}
-        thumbs={this.props.thumbs}
-        thumbImages={this.props.thumbImages}
-        settings={this.props.settings}
-        visibilitySettings={this.props.visibilitySettings}
-        file={this.props.file}
-        selectedThumbId={this.props.selectedThumbId}
-        thumbCount={this.props.thumbCount}
         defaultView={this.props.defaultView}
-        scaleValueObject={this.props.scaleValueObject}
+        file={this.props.file}
+        inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
         keyObject={this.props.keyObject}
-
-        onSelectClick={this.onSelectClick}
-        onThumbDoubleClick={this.props.onThumbDoubleClick}
-        onToggleClick={this.props.onToggleClick}
-        onScrubClick={this.props.onScrubClick}
         onAddThumbClick={this.props.onAddThumbClick}
         onBackClick={this.props.onBackClick}
         onForwardClick={this.props.onForwardClick}
         onInPointClick={this.props.onInPointClick}
         onOutPointClick={this.props.onOutPointClick}
         onSaveThumbClick={this.props.onSaveThumbClick}
+        onScrubClick={this.props.onScrubClick}
+        onSelectClick={this.onSelectClick}
+        onThumbDoubleClick={this.props.onThumbDoubleClick}
+        onToggleClick={this.props.onToggleClick}
+        ref={this.props.inputRef} // for the saveMoviePrint function
+        scaleValueObject={this.props.scaleValueObject}
+        selectedThumbId={this.props.selectedThumbId}
+        settings={this.props.settings}
+        showSettings={this.props.showSettings}
+        thumbCount={this.props.thumbCount}
+        thumbImages={this.props.thumbImages}
+        thumbs={this.props.thumbs}
+        viewForPrinting={this.props.viewForPrinting}
+        visibilitySettings={this.props.visibilitySettings}
 
         useDragHandle
         axis="xy"

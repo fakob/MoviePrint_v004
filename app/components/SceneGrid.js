@@ -29,10 +29,10 @@ class SceneGrid extends Component {
     super(props);
 
     this.state = {
-      // thumbsToDim: [],
-      // controllersVisible: undefined,
-      // addThumbBeforeController: undefined,
-      // addThumbAfterController: undefined,
+      thumbsToDim: [],
+      controllersVisible: undefined,
+      addThumbBeforeController: undefined,
+      addThumbAfterController: undefined,
     };
   }
 
@@ -52,7 +52,6 @@ class SceneGrid extends Component {
     const sceneRowCount = this.props.rowCount;
     const sceneArray = this.props.scenes ? this.props.scenes.sceneArray : [];
     const safetyMargin = 100;
-    // console.log(sceneArray);
     return (
       <div
         data-tid='sceneGridDiv'
@@ -71,6 +70,10 @@ class SceneGrid extends Component {
             const width = Math.floor((scene.length / this.props.frameCount) * ((this.props.scaleValueObject.containerWidth - safetyMargin) * (sceneRowCount - 1)));
             return (
             <SortableScene
+              hidden={scene.hidden}
+              controllersAreVisible={(this.props.showSettings || scene.sceneId === undefined) ? false : (scene.sceneId === this.state.controllersVisible)}
+              defaultView={this.props.defaultView}
+              keyObject={this.props.keyObject}
               indexForId={index}
               index={index}
               key={scene.sceneId}
@@ -78,13 +81,29 @@ class SceneGrid extends Component {
               // start={scene.start}
               // length={scene.length}
               margin={this.props.scaleValueObject.newThumbMargin}
-              width={width}
-              height={height}
+              thumbWidth={width}
+              thumbHeight={height}
               hexColor={`#${((1 << 24) + (Math.round(scene.colorArray[0]) << 16) + (Math.round(scene.colorArray[1]) << 8) + Math.round(scene.colorArray[2])).toString(16).slice(1)}`}
               thumbImageObjectUrl={getObjectProperty(() => {
-                const thumb = this.props.thumbs.find((foundThumb) => foundThumb.frameNumber === scene.posterFrame);
+                const thumb = this.props.thumbs.find((foundThumb) => foundThumb.sceneId === scene.sceneId);
                 return this.props.thumbImages[thumb.frameId].objectUrl
               })}
+              onOver={this.props.showSettings ? null : () => {
+                // only setState if controllersVisible has changed
+                if (this.state.controllersVisible !== scene.sceneId) {
+                  this.setState({
+                    controllersVisible: scene.sceneId,
+                  });
+                }
+              }}
+              onOut={this.props.showSettings ? null : () => {
+                this.setState({
+                  thumbsToDim: [],
+                  controllersVisible: undefined,
+                  addThumbBeforeController: undefined,
+                  addThumbAfterController: undefined,
+                });
+              }}
             />)}
           )}
         </div>

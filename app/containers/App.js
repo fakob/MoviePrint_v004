@@ -13,7 +13,7 @@ import '../app.global.css';
 import FileList from '../containers/FileList';
 import SettingsList from '../containers/SettingsList';
 import SortedVisibleThumbGrid from '../containers/VisibleThumbGrid';
-import SortableSceneGrid from '../components/SceneGrid';
+import SortedVisibleSceneGrid from '../containers/VisibleSceneGrid';
 import Conditional from '../components/Conditional';
 import ErrorBoundary from '../components/ErrorBoundary';
 import HeaderComponent from '../components/HeaderComponent';
@@ -1751,37 +1751,41 @@ class App extends Component {
                         <Fragment>
                           <Conditional if={this.props.visibilitySettings.defaultView !== VIEW.SCENEVIEW}>
                             <SortedVisibleThumbGrid
-                              viewForPrinting={false}
-                              inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
-                              showSettings={this.props.visibilitySettings.showSettings}
-                              file={this.props.file}
-                              thumbs={this.props.thumbs}
-                              thumbImages={this.props.thumbImages}
-                              settings={this.props.settings}
-                              visibilitySettings={this.props.visibilitySettings}
-                              selectedThumbId={this.state.selectedThumbObject ?
-                                this.state.selectedThumbObject.thumbId : undefined}
-                              selectMethod={this.onSelectMethod}
-                              onScrubClick={this.onScrubClick}
-                              onAddThumbClick={this.onAddThumbClick}
-                              onThumbDoubleClick={this.onViewToggle}
-
                               colorArray={this.state.colorArray}
-                              thumbCount={this.state.thumbCountTemp}
-
                               defaultView={this.props.visibilitySettings.defaultView}
-                              scaleValueObject={this.state.scaleValueObject}
+                              file={this.props.file}
+                              inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                               keyObject={this.state.keyObject}
+                              onAddThumbClick={this.onAddThumbClick}
+                              onScrubClick={this.onScrubClick}
+                              onThumbDoubleClick={this.onViewToggle}
+                              scaleValueObject={this.state.scaleValueObject}
+                              selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
+                              selectMethod={this.onSelectMethod}
+                              settings={this.props.settings}
+                              showSettings={this.props.visibilitySettings.showSettings}
+                              thumbCount={this.state.thumbCountTemp}
+                              thumbImages={this.props.thumbImages}
+                              thumbs={this.props.thumbs}
+                              viewForPrinting={false}
+                              visibilitySettings={this.props.visibilitySettings}
                             />
                           </Conditional>
                           <Conditional if={this.props.visibilitySettings.defaultView === VIEW.SCENEVIEW}>
-                            <SortableSceneGrid
-                              scenes={this.props.scenes}
-                              thumbs={this.props.thumbs}
-                              thumbImages={this.props.thumbImages}
+                            <SortedVisibleSceneGrid
+                              defaultView={this.props.visibilitySettings.defaultView}
+                              file={this.props.file}
                               frameCount={this.props.file ? this.props.file.frameCount : undefined}
-                              scaleValueObject={this.state.scaleValueObject}
+                              inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
+                              keyObject={this.state.keyObject}
                               rowCount={this.props.settings.defaultSceneDetectionRowCount}
+                              scaleValueObject={this.state.scaleValueObject}
+                              scenes={this.props.scenes}
+                              settings={this.props.settings}
+                              showSettings={this.props.visibilitySettings.showSettings}
+                              thumbImages={this.props.thumbImages}
+                              thumbs={this.props.thumbs}
+                              visibilitySettings={this.props.visibilitySettings}
                             />
                           </Conditional>
                         </Fragment>
