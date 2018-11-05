@@ -62,9 +62,8 @@ const thumbsByFileId = (state = {}, action) => {
       if (state[action.payload.fileId] && state[action.payload.fileId][action.payload.sheet]) {
         currentArray = state[action.payload.fileId][action.payload.sheet].slice();
       }
-      const combinedArray = currentArray.concat(action.payload);
-      combinedArray.splice(action.payload.index, 0, action.payload);
-      const combinedArrayReordered = combinedArray.map((t, index) => thumb(t, action, index));
+      currentArray.splice(action.payload.index, 0, action.payload);
+      const combinedArrayReordered = currentArray.map((t, index) => thumb(t, action, index));
       return {
         ...state,
         [action.payload.fileId]: {
@@ -174,6 +173,7 @@ const thumbsByFileId = (state = {}, action) => {
     case 'CLEAR_THUMBS':
       // if fileId is an empty string, then clear all thumbs
       // else only clear thumbs of specific fileId
+      console.log(action.payload);
       if (action.payload.fileId === '') {
         // fileId is empty, so delete everything
         return {};
