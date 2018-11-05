@@ -1583,7 +1583,7 @@ class App extends Component {
         <Dropzone
           ref={(el) => { this.dropzoneRef = el; }}
           disableClick
-          disablePreview
+          // disablePreview
           style={{ position: 'relative' }}
           accept={this.state.accept}
           onDrop={this.onDrop.bind(this)}

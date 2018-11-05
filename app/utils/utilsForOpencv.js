@@ -1,5 +1,5 @@
 import log from 'electron-log';
-import nj from 'numjs';
+// import nj from 'numjs';
 
 const opencv = require('opencv4nodejs');
 
