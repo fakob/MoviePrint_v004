@@ -34,7 +34,7 @@ const scenesByFileId = (state = {}, action) => {
     case 'CLEAR_SCENES':
       // if fileId is an empty string, then clear all scenes
       // else only clear scenes of specific fileId
-      if (action.payload.fileId === '') {
+      if (action.payload.fileId === undefined) {
         return {};
       }
       return deleteProperty(state, action.payload.fileId);

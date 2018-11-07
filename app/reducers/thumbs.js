@@ -173,7 +173,7 @@ const thumbsByFileId = (state = {}, action) => {
     case 'CLEAR_THUMBS':
       // if fileId is an empty string, then clear all thumbs
       // else only clear thumbs of specific fileId
-      console.log(action.payload);
+      // console.log(action.payload);
       if (action.payload.fileId === '') {
         // fileId is empty, so delete everything
         return {};

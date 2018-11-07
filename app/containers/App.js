@@ -300,6 +300,7 @@ class App extends Component {
         store.dispatch(setCurrentFileId(firstFile.id));
         this.updateScaleValue(); // so the aspect ratio of the thumbs are correct after drag
         store.dispatch(updateFileColumnCount(firstFile.id, getColumnCount(firstFile, this.props.settings))); // set columnCount on firstFile
+        store.dispatch(clearScenes());
         store.dispatch(clearThumbs());
         // log.debug(firstFile);
         store.dispatch(addDefaultThumbs(

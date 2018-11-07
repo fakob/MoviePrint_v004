@@ -561,21 +561,24 @@ export const addThumbs = (file, sheet, frameNumberArray) => {
       }
 
       // add thumbs with existing frames in imageDB
-      const thumbIdArray2 = alreadyExistingFrameIdsArray.map(() => uuidV4());
-      log.debug(`${alreadyExistingFrameIdsArray.length} frame(s) are already in database`);
-      log.debug('dispatch: ADD_THUMBS');
-      dispatch({
-        type: 'ADD_THUMBS',
-        payload: {
-          sheet,
-          thumbIdArray: thumbIdArray2,
-          frameIdArray: alreadyExistingFrameIdsArray,
-          frameNumberArray: alreadyExistingFrameNumbersArray,
-          fileId: file.id,
-          width: file.width,
-          height: file.height,
-        }
-      });
+      // if no thumbs with existing frames exist, skip this step
+      if (alreadyExistingFrameIdsArray.length !== 0) {
+        const thumbIdArray2 = alreadyExistingFrameIdsArray.map(() => uuidV4());
+        log.debug(`${alreadyExistingFrameIdsArray.length} frame(s) are already in database`);
+        log.debug('dispatch: ADD_THUMBS');
+        dispatch({
+          type: 'ADD_THUMBS',
+          payload: {
+            sheet,
+            thumbIdArray: thumbIdArray2,
+            frameIdArray: alreadyExistingFrameIdsArray,
+            frameNumberArray: alreadyExistingFrameNumbersArray,
+            fileId: file.id,
+            width: file.width,
+            height: file.height,
+          }
+        });
+      }
       return true;
     }).catch((err) => {
       log.error(err);
