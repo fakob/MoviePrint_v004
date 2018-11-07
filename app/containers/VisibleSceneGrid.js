@@ -5,7 +5,7 @@ import { arrayMove } from 'react-sortable-hoc';
 import scrollIntoView from 'scroll-into-view';
 import {
   toggleThumb, updateOrder, updateObjectUrlsFromThumbList,
-  changeThumb, addDefaultThumbs
+  changeThumb, addDefaultThumbs, toggleScene
 } from '../actions';
 import styles from '../components/ThumbGrid.css';
 import SortableSceneGrid from '../components/SceneGrid';
@@ -26,7 +26,6 @@ class SortedVisibleSceneGrid extends Component {
   componentWillMount() {
     const { store } = this.context;
     this.unsubscribe = store.subscribe(() => this.forceUpdate());
-
     // only updateObjectUrlsFromThumbList if thumbs exist
       store.getState().undoGroup.present.files.map((singleFile) => {
         if (store.getState().undoGroup.present.thumbsByFileId[singleFile.id] !== undefined
@@ -115,9 +114,9 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
-    // onToggleClick: (fileId, thumbId) => {
-    //   dispatch(toggleThumb(fileId, ownProps.visibilitySettings.defaultSheet, thumbId));
-    // },
+    onToggleClick: (fileId, sceneId) => {
+      dispatch(toggleScene(fileId, ownProps.visibilitySettings.defaultSheet, sceneId));
+    },
     // onInPointClick: (file, thumbs, thumbId, frameNumber) => {
     //   dispatch(addDefaultThumbs(
     //     file,

@@ -11,7 +11,7 @@ import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
 import { getLowestFrame, getHighestFrame } from '../utils/utils';
 import saveThumb from '../utils/saveThumb';
-import { CHANGE_THUMB_STEP, SHEET_TYPE, VIEW } from '../utils/constants';
+import { CHANGE_THUMB_STEP, VIEW, DEFAULT_SHEET_SCENES } from '../utils/constants';
 
 class SortedVisibleThumbGrid extends Component {
   constructor(props) {
@@ -158,7 +158,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     onExitClick: () => {
-      dispatch(setSheet(SHEET_TYPE.SCENES));
+      dispatch(setSheet(DEFAULT_SHEET_SCENES));
       dispatch(setView(VIEW.TIMELINEVIEW));
     },
     onToggleClick: (fileId, thumbId) => {

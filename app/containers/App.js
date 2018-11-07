@@ -58,7 +58,7 @@ import {
   DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN,
   VIEW,
   SHEET_TYPE,
-  DEFAULT_SHEET_SCENE,
+  DEFAULT_SHEET_SCENES,
   DEFAULT_SHEET_INTERVAL,
 } from '../utils/constants';
 
@@ -243,6 +243,20 @@ class App extends Component {
         opencvVideo: new opencv.VideoCapture(this.props.file.path),
       });
     }
+    // only updateObjectUrlsFromThumbList if thumbs exist
+    store.getState().undoGroup.present.files.map((singleFile) => {
+      if (store.getState().undoGroup.present.thumbsByFileId[singleFile.id] !== undefined
+        && store.getState().undoGroup.present.thumbsByFileId[singleFile.id][store.getState().visibilitySettings.defaultSheet] !== undefined) {
+        store.dispatch(updateObjectUrlsFromThumbList(
+          singleFile.id,
+          store.getState().visibilitySettings.defaultSheet,
+          Object.values(store.getState().undoGroup.present
+          .thumbsByFileId[singleFile.id][store.getState().visibilitySettings.defaultSheet])
+          .map((a) => a.frameId)
+        ));
+      }
+      return true;
+    });
   }
 
   componentDidMount() {
@@ -1009,13 +1023,13 @@ class App extends Component {
     if (sceneList.length !== 0) {
       const tempFile = this.props.files.find((file) => file.id === fileId);
       const clearOldScenes = true;
-      store.dispatch(setSheet(DEFAULT_SHEET_SCENE));
+      store.dispatch(setSheet(DEFAULT_SHEET_SCENES));
       store.dispatch(setView(VIEW.TIMELINEVIEW));
-      // store.dispatch(clearThumbs(fileId, DEFAULT_SHEET_SCENE));
+      // store.dispatch(clearThumbs(fileId, DEFAULT_SHEET_SCENES));
       // const listOfFrameNumbers = sceneList.map(scene => (scene.start + Math.floor(scene.length / 2)));
       // store.dispatch(addThumbs(
       //   tempFile,
-      //   DEFAULT_SHEET_SCENE,
+      //   DEFAULT_SHEET_SCENES,
       //   listOfFrameNumbers,
       // ));
       store.dispatch(addScenes(tempFile, sceneList, clearOldScenes));
@@ -1064,9 +1078,9 @@ class App extends Component {
 
   onEnterClick(file, sceneId) {
     const { store } = this.context;
-    console.log(file);
-    console.log(sceneId);
-    const sceneArray = this.props.scenes ? this.props.scenes.sceneArray : [];
+    // console.log(file);
+    // console.log(sceneId);
+    const sceneArray = this.props.scenes;
     const sceneIndex = sceneArray.findIndex(item => item.sceneId === sceneId);
     const sheetName = sceneId;
     console.log(sheetName);
@@ -1601,7 +1615,7 @@ class App extends Component {
                     settings={this.props.settings}
                     file={this.props.file}
                     sheetsArray={this.props.sheetsArray}
-                    sceneArray={this.props.scenes ? this.props.scenes.sceneArray : undefined}
+                    sceneArray={this.props.scenes}
                     toggleMovielist={this.toggleMovielist}
                     toggleSettings={this.toggleSettings}
                     toggleZoom={this.toggleZoom}
@@ -2078,6 +2092,8 @@ const mapStateToProps = state => {
     .thumbsByFileId[tempCurrentFileId] === undefined)
     ? undefined : state.undoGroup.present
       .thumbsByFileId[tempCurrentFileId][state.visibilitySettings.defaultSheet];
+  const allScenes = (state.undoGroup.present.scenesByFileId[tempCurrentFileId] === undefined)
+    ? [] : state.undoGroup.present.scenesByFileId[tempCurrentFileId].sceneArray;
   return {
     sheetsArray,
     thumbs: getVisibleThumbs(
@@ -2092,8 +2108,10 @@ const mapStateToProps = state => {
     files: state.undoGroup.present.files,
     file: state.undoGroup.present.files
       .find((file) => file.id === tempCurrentFileId),
-    scenes: (state.undoGroup.present.scenesByFileId[tempCurrentFileId] === undefined)
-      ? undefined : state.undoGroup.present.scenesByFileId[tempCurrentFileId],
+    scenes: getVisibleThumbs(
+      allScenes,
+      state.visibilitySettings.visibilityFilter
+    ),
     settings: state.undoGroup.present.settings,
     visibilitySettings: state.visibilitySettings,
     defaultThumbCount: state.undoGroup.present.settings.defaultThumbCount,

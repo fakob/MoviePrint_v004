@@ -3,7 +3,7 @@ import log from 'electron-log';
 import imageDB from './../utils/db';
 import { mapRange, limitRange } from './../utils/utils';
 import {
-  DEFAULT_SHEET_SCENE,
+  DEFAULT_SHEET_SCENES,
 } from '../utils/constants';
 
 const { ipcRenderer } = require('electron');
@@ -311,14 +311,26 @@ export const addScenes = (file, sceneList, clearOldScenes = false) => {
     log.debug('action: addScenes');
     if (clearOldScenes) {
       dispatch(clearScenes(file.id));
-      dispatch(clearThumbs(file.id, DEFAULT_SHEET_SCENE));
+      dispatch(clearThumbs(file.id, DEFAULT_SHEET_SCENES));
     }
     sceneList.map((scene, index) => {
       const sceneId = uuidV4();
       const thumbId = uuidV4();
-      dispatch(addThumb(file, DEFAULT_SHEET_SCENE, scene.start + Math.floor(scene.length / 2), index, thumbId, sceneId));
+      dispatch(addThumb(file, DEFAULT_SHEET_SCENES, scene.start + Math.floor(scene.length / 2), index, thumbId, sceneId));
       return dispatch(addScene(file.id, scene.start, scene.length, scene.colorArray, sceneId));
     })
+  };
+};
+
+export const toggleScene = (currentFileId, sheet, sceneId) => {
+  log.debug(`action: toggleScene - ${sceneId}`);
+  return {
+    type: 'TOGGLE_SCENE',
+    payload: {
+      fileId: currentFileId,
+      sheet,
+      sceneId
+    },
   };
 };
 

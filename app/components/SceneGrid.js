@@ -50,7 +50,7 @@ class SceneGrid extends Component {
 
   render() {
     const sceneRowCount = this.props.rowCount;
-    const sceneArray = this.props.scenes ? this.props.scenes.sceneArray : [];
+    const sceneArray = this.props.scenes;
     const safetyMargin = 100;
     return (
       <div
@@ -104,6 +104,8 @@ class SceneGrid extends Component {
                   addThumbAfterController: undefined,
                 });
               }}
+              onToggle={(this.props.showSettings || (scene.sceneId !== this.state.controllersVisible)) ?
+                null : () => this.props.onToggleClick(this.props.file.id, scene.sceneId)}
               // onSelect={(this.props.showSettings || (scene.sceneId !== this.state.controllersVisible)) ?
               //   null : () => {
               //     this.props.onSelectClick(this.props.file, scene.sceneId);

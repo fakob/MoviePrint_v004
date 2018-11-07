@@ -144,17 +144,17 @@ const Header = ({
             <Popup
               trigger={
                 <Menu.Item
-                  data-tid={(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'hideHiddenThumbsBtn' : 'showHiddenThumbsBtn'}
+                  data-tid={(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'hideHiddenBtn' : 'showHiddenBtn'}
                   onClick={onToggleShowHiddenThumbsClick}
                 >
                   <Icon
                     name={(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'unhide' : 'hide'}
                   />
-                  {(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'Hide hidden thumbs' : 'Show hidden thumbs'}
+                  {(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'Hide hidden' : 'Show hidden'}
                 </Menu.Item>
               }
               className={stylesPop.popup}
-              content={(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'Show all thumbs' : 'Show only visible thumbs'}
+              content={(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'Show all' : 'Show only visible'}
               keepInViewPort={false}
             />
           }

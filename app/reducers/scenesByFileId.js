@@ -1,19 +1,26 @@
 import log from 'electron-log';
 import { deleteProperty } from './../utils/utils';
 
-// const scene = (state = {}, action, index) => {
-//   switch (action.type) {
-//     case 'ADD_SCENE':
-//       return {
-//         sceneId: action.sceneId,
-//         start: action.start,
-//         length: action.length,
-//         colorArray: action.colorArray,
-//       };
-//     default:
-//       return state;
-//   }
-// };
+const scene = (state = {}, action, index) => {
+  switch (action.type) {
+    case 'ADD_SCENE':
+      return {
+        sceneId: action.sceneId,
+        start: action.start,
+        length: action.length,
+        colorArray: action.colorArray,
+      };
+    case 'TOGGLE_SCENE':
+      if (state.sceneId !== action.payload.sceneId) {
+        return state;
+      }
+      return Object.assign({}, state, {
+        hidden: !state.hidden
+      });
+    default:
+      return state;
+  }
+};
 
 const scenesByFileId = (state = {}, action) => {
   switch (action.type) {
@@ -29,6 +36,16 @@ const scenesByFileId = (state = {}, action) => {
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
           sceneArray: combinedArray
+        }
+      };
+    case 'TOGGLE_SCENE':
+      return {
+        ...state,
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          sceneArray: state[action.payload.fileId].sceneArray.map((t, index) =>
+            scene(t, action)
+          )
         }
       };
     case 'CLEAR_SCENES':
