@@ -156,7 +156,8 @@ class App extends Component {
     this.onScrubWindowMouseOver = this.onScrubWindowMouseOver.bind(this);
     this.onScrubWindowClick = this.onScrubWindowClick.bind(this);
     this.onScrubClick = this.onScrubClick.bind(this);
-    this.onSelectClick = this.onSelectClick.bind(this);
+    // this.onSelectClick = this.onSelectClick.bind(this);
+    this.onEnterClick = this.onEnterClick.bind(this);
     this.onAddThumbClick = this.onAddThumbClick.bind(this);
     this.switchToPrintView = this.switchToPrintView.bind(this);
     this.onOpenFeedbackForm = this.onOpenFeedbackForm.bind(this);
@@ -194,7 +195,7 @@ class App extends Component {
     this.onShowHiddenThumbsClick = this.onShowHiddenThumbsClick.bind(this);
     this.onThumbInfoClick = this.onThumbInfoClick.bind(this);
     this.onSetViewClick = this.onSetViewClick.bind(this);
-    this.onSetSheet = this.onSetSheet.bind(this);
+    this.onSetSheetClick = this.onSetSheetClick.bind(this);
     this.onChangeOutputPathClick = this.onChangeOutputPathClick.bind(this);
     this.onOutputFormatClick = this.onOutputFormatClick.bind(this);
     this.onOverwriteClick = this.onOverwriteClick.bind(this);
@@ -677,13 +678,6 @@ class App extends Component {
 
       if (event) {
         switch (event.which) {
-          case 27: // press esc
-            // switch back to scene sheet if in a shot
-            if (store.getState().visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENE) === -1
-            || store.getState().visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.INTERVAL) === -1) {
-              this.onSetSheet(`${DEFAULT_SHEET_SCENE}`)
-            }
-            break;
           case 49: // press 1
             this.toggleMovielist();
             break;
@@ -769,7 +763,8 @@ class App extends Component {
     // file match needs to be in sync with setMovieList() and accept !!!
     if (Array.from(files).some(file => (file.type.match('video.*') ||
       file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
-      this.onSetSheet(`${DEFAULT_SHEET_INTERVAL}`);
+      store.dispatch(setSheet(`${DEFAULT_SHEET_INTERVAL}`));
+      store.dispatch(setView(VIEW.GRIDVIEW));
       store.dispatch(setNewMovieList(files, settings)).then((response) => {
         this.setState({
           filesToLoad: response
@@ -1015,6 +1010,7 @@ class App extends Component {
       const tempFile = this.props.files.find((file) => file.id === fileId);
       const clearOldScenes = true;
       store.dispatch(setSheet(DEFAULT_SHEET_SCENE));
+      store.dispatch(setView(VIEW.TIMELINEVIEW));
       // store.dispatch(clearThumbs(fileId, DEFAULT_SHEET_SCENE));
       // const listOfFrameNumbers = sceneList.map(scene => (scene.start + Math.floor(scene.length / 2)));
       // store.dispatch(addThumbs(
@@ -1066,7 +1062,7 @@ class App extends Component {
     });
   }
 
-  onSelectClick(file, sceneId) {
+  onEnterClick(file, sceneId) {
     const { store } = this.context;
     console.log(file);
     console.log(sceneId);
@@ -1084,7 +1080,9 @@ class App extends Component {
           sceneArray[sceneIndex].start + sceneArray[sceneIndex].length
         ));
     }
-    this.onSetSheet(sheetName);
+    store.dispatch(setSheet(sheetName));
+    store.dispatch(setView(VIEW.GRIDVIEW));
+
   }
 
   onAddThumbClick(file, existingThumb, insertWhere) {
@@ -1480,7 +1478,7 @@ class App extends Component {
     store.dispatch(setDefaultThumbInfo(value));
   };
 
-  onSetSheet = (value) => {
+  onSetSheetClick = (value) => {
     const { store } = this.context;
     store.dispatch(setSheet(value));
     if (value.indexOf(SHEET_TYPE.SCENE) > -1) {
@@ -1603,6 +1601,7 @@ class App extends Component {
                     settings={this.props.settings}
                     file={this.props.file}
                     sheetsArray={this.props.sheetsArray}
+                    sceneArray={this.props.scenes ? this.props.scenes.sceneArray : undefined}
                     toggleMovielist={this.toggleMovielist}
                     toggleSettings={this.toggleSettings}
                     toggleZoom={this.toggleZoom}
@@ -1610,7 +1609,7 @@ class App extends Component {
                     onToggleShowHiddenThumbsClick={this.onToggleShowHiddenThumbsClick}
                     onThumbInfoClick={this.onThumbInfoClick}
                     onSetViewClick={this.onSetViewClick}
-                    onSetSheetClick={this.onSetSheet}
+                    onSetSheetClick={this.onSetSheetClick}
                     openMoviesDialog={() => this.dropzoneRef.open()}
                     zoom={this.state.zoom}
                   />
@@ -1804,7 +1803,8 @@ class App extends Component {
                               inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                               keyObject={this.state.keyObject}
                               rowCount={this.props.settings.defaultSceneDetectionRowCount}
-                              onSelectClick={this.onSelectClick}
+                              // onSelectClick={this.onSelectClick}
+                              onEnterClick={this.onEnterClick}
                               scaleValueObject={this.state.scaleValueObject}
                               scenes={this.props.scenes}
                               settings={this.props.settings}

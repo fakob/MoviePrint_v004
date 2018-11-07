@@ -754,6 +754,7 @@ export const setNewMovieList = (files, settings) => {
     });
     log.debug('dispatch: CLEAR_MOVIE_LIST');
     return imageDB.frameList.clear()
+      .then(() => imageDB.fileScanList.clear())
       .then(() => {
         log.debug('dispatch: LOAD_MOVIE_LIST_FROM_DROP');
         log.debug(newFiles);

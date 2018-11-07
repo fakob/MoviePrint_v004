@@ -22,7 +22,7 @@ import {
 } from './../utils/utils';
 import {
   MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
-  VIEW,
+  VIEW, SHEET_TYPE
 } from './../utils/constants';
 
 const SortableThumb = SortableElement(Thumb);
@@ -163,6 +163,10 @@ class ThumbGrid extends Component {
               margin={this.props.scaleValueObject.newThumbMargin}
               thumbInfoValue={getThumbInfoValue(this.props.settings.defaultThumbInfo, thumb.frameNumber, fps)}
               thumbInfoRatio={this.props.settings.defaultThumbInfoRatio}
+              isScene={
+                this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1 &&
+                this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.INTERVAL) === -1
+              }
               hidden={thumb.hidden}
               showAddThumbBeforeController={this.props.showSettings ? false : (thumb.thumbId === this.state.addThumbBeforeController)}
               showAddThumbAfterController={this.props.showSettings ? false : (thumb.thumbId === this.state.addThumbAfterController)}
@@ -210,6 +214,8 @@ class ThumbGrid extends Component {
                 null : () => {
                   this.props.onSelectClick(thumb.thumbId, thumb.frameNumber);
                 }}
+              onExit={this.props.showSettings ?
+                null : () => this.props.onExitClick()}
               onBack={this.props.showSettings ?
                 null : () => this.props.onBackClick(this.props.file, thumb.thumbId, thumb.frameNumber)}
               onForward={this.props.showSettings ?

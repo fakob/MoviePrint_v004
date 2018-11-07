@@ -11,7 +11,7 @@ const Header = ({
   file, visibilitySettings, toggleMovielist, toggleSettings,
   onToggleShowHiddenThumbsClick, settings, onThumbInfoClick,
   openMoviesDialog, toggleZoom, zoom, toggleView, onSetViewClick, onSetSheetClick,
-  sheetsArray
+  sheetsArray, sceneArray
 }) => {
 
   const thumbInfoOptions = [
@@ -20,19 +20,25 @@ const Header = ({
     { value: 'hideInfo', text: 'Hide info', 'data-tid':'hideInfoOption'},
   ];
 
-  const sheetOptions = (sheetsArray) => {
+  const sheetOptions = (sheetsArray, sceneArray) => {
     sheetsArray.sort();
-    const filteredSheetsArray = sheetsArray.filter(sheet => (sheet.indexOf(SHEET_TYPE.SCENE) > -1 || sheet.indexOf(SHEET_TYPE.INTERVAL) > -1));
-    const mappedArray = filteredSheetsArray.map(sheet =>
-        ({ value: sheet, text: `${sheet} sheet`, 'data-tid':`${sheet}SheetOption` })
-    );
+    const mappedArray = sheetsArray.map(sheet => {
+      if (sheet.indexOf(SHEET_TYPE.SCENES) > -1) {
+        return ({ value: sheet, text: `Scenes Print`, 'data-tid':`${sheet}SheetOption` });
+      }
+      if (sheet.indexOf(SHEET_TYPE.INTERVAL) > -1) {
+        return ({ value: sheet, text: `Interval Print`, 'data-tid':`${sheet}SheetOption` });
+      }
+      const sceneIndex = sceneArray.findIndex(item => item.sceneId === sheet);
+      return ({ value: sheet, text: `Interval Print - Scene ${sceneIndex}`, 'data-tid':`${sheet}SheetOption` });
+    });
     return mappedArray;
   };
 
   const viewOptions = [
-    { value: VIEW.GRIDVIEW, text: 'Show grid view', 'data-tid':'gridViewOption'},
-    { value: VIEW.PLAYERVIEW, text: 'Show player view', 'data-tid':'playerViewOption'},
-    { value: VIEW.TIMELINEVIEW, text: 'Show timeline view', 'data-tid':'timelineViewOption', disabled: (visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENE) === -1) },
+    { value: VIEW.GRIDVIEW, text: 'Grid view', 'data-tid':'gridViewOption'},
+    { value: VIEW.PLAYERVIEW, text: 'Player view', 'data-tid':'playerViewOption'},
+    { value: VIEW.TIMELINEVIEW, text: 'Timeline view', 'data-tid':'timelineViewOption', disabled: (visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) },
   ];
 
   return (
@@ -82,6 +88,40 @@ const Header = ({
           {file.name}
         </Menu.Item> */}
         <Menu.Menu position="right">
+          {file &&
+            <Popup
+              trigger={
+                <Dropdown
+                  data-tid='setSheetDropdown'
+                  placeholder="Show Print"
+                  item
+                  options={sheetOptions(sheetsArray, sceneArray)}
+                  value={visibilitySettings.defaultSheet}
+                  onChange={(e, { value }) => onSetSheetClick(value)}
+                />
+              }
+              className={stylesPop.popup}
+              content="Set sheet"
+              keepInViewPort={false}
+            />
+          }
+          {file && !visibilitySettings.showSettings &&
+            <Popup
+              trigger={
+                <Dropdown
+                  data-tid='setViewDropdown'
+                  placeholder="Set view"
+                  item
+                  options={viewOptions}
+                  value={visibilitySettings.defaultView}
+                  onChange={(e, { value }) => onSetViewClick(value)}
+                />
+              }
+              className={stylesPop.popup}
+              content="Set view"
+              keepInViewPort={false}
+            />
+          }
           {file && visibilitySettings.defaultView === VIEW.GRIDVIEW && !visibilitySettings.showSettings &&
             <Popup
               trigger={
@@ -132,40 +172,6 @@ const Header = ({
               }
               className={stylesPop.popup}
               content="Show frames or timecode"
-              keepInViewPort={false}
-            />
-          }
-          {file &&
-            <Popup
-              trigger={
-                <Dropdown
-                  data-tid='setSheetDropdown'
-                  placeholder="Set sheet"
-                  item
-                  options={sheetOptions(sheetsArray)}
-                  value={visibilitySettings.defaultSheet}
-                  onChange={(e, { value }) => onSetSheetClick(value)}
-                />
-              }
-              className={stylesPop.popup}
-              content="Set sheet"
-              keepInViewPort={false}
-            />
-          }
-          {file && !visibilitySettings.showSettings &&
-            <Popup
-              trigger={
-                <Dropdown
-                  data-tid='setViewDropdown'
-                  placeholder="Set view"
-                  item
-                  options={viewOptions}
-                  value={visibilitySettings.defaultView}
-                  onChange={(e, { value }) => onSetViewClick(value)}
-                />
-              }
-              className={stylesPop.popup}
-              content="Set view"
               keepInViewPort={false}
             />
           }

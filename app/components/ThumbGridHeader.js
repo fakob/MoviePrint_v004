@@ -146,6 +146,7 @@ const ThumbGridHeader = ({
           />
           {allFrameNumbersInPercentArray.map(frameInPercent => (
             <div
+              key={frameInPercent}
               className={`${styles.timelineThumbIndicator}`}
               style={{
                 left: `${frameInPercent}%`,

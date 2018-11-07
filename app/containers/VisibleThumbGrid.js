@@ -5,13 +5,13 @@ import { arrayMove } from 'react-sortable-hoc';
 import scrollIntoView from 'scroll-into-view';
 import {
   toggleThumb, updateOrder, updateObjectUrlsFromThumbList,
-  changeThumb, addDefaultThumbs
+  changeThumb, addDefaultThumbs, setSheet, setView
 } from '../actions';
 import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
 import { getLowestFrame, getHighestFrame } from '../utils/utils';
 import saveThumb from '../utils/saveThumb';
-import { CHANGE_THUMB_STEP } from '../utils/constants';
+import { CHANGE_THUMB_STEP, SHEET_TYPE, VIEW } from '../utils/constants';
 
 class SortedVisibleThumbGrid extends Component {
   constructor(props) {
@@ -108,6 +108,7 @@ class SortedVisibleThumbGrid extends Component {
         onSaveThumbClick={this.props.onSaveThumbClick}
         onScrubClick={this.props.onScrubClick}
         onSelectClick={this.onSelectClick}
+        onExitClick={this.props.onExitClick}
         onThumbDoubleClick={this.props.onThumbDoubleClick}
         onToggleClick={this.props.onToggleClick}
         ref={this.props.inputRef} // for the saveMoviePrint function
@@ -156,6 +157,10 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
+    onExitClick: () => {
+      dispatch(setSheet(SHEET_TYPE.SCENES));
+      dispatch(setView(VIEW.TIMELINEVIEW));
+    },
     onToggleClick: (fileId, thumbId) => {
       dispatch(toggleThumb(fileId, ownProps.visibilitySettings.defaultSheet, thumbId));
     },

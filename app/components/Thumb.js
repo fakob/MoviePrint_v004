@@ -54,6 +54,7 @@ const Thumb = ({
   index,
   indexForId,
   inputRefThumb,
+  isScene,
   keyObject,
   margin,
   onBack,
@@ -72,6 +73,7 @@ const Thumb = ({
   onOver,
   onSaveThumb,
   onSelect,
+  onExit,
   onThumbDoubleClick,
   onToggle,
   selected,
@@ -184,6 +186,13 @@ const Thumb = ({
     }
   }
 
+  function onExitWithStop(e) {
+    e.stopPropagation();
+    if (controllersAreVisible) {
+      onExit();
+    }
+  }
+
   function onOverWithStop(e) {
     e.stopPropagation();
     // check if function is not null (passed from thumbgrid)
@@ -265,6 +274,33 @@ const Thumb = ({
               thumbId={thumbId}
             />
           }
+          {isScene && <Popup
+            trigger={
+              <button
+                data-tid={`ExitThumbBtn_${thumbId}`}
+                type='button'
+                style={{
+                  display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+                  transformOrigin: 'left top',
+                  transform: `translateY(10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  marginLeft: '8px',
+                }}
+                className={`${styles.hoverButton} ${styles.textButton}`}
+                onClick={onExitWithStop}
+                onMouseOver={over}
+                onMouseLeave={out}
+                onFocus={over}
+                onBlur={out}
+              >
+                EXIT
+              </button>
+            }
+            className={stylesPop.popup}
+            content="Enter into scene"
+          />}
           <Popup
             trigger={
               <button
@@ -521,6 +557,7 @@ Thumb.defaultProps = {
   onOver: null,
   onSaveThumb: null,
   onSelect: null,
+  onExit: null,
   onToggle: null,
   selected: false,
   thumbImageObjectUrl: undefined,
@@ -553,6 +590,7 @@ Thumb.propTypes = {
   onOver: PropTypes.func,
   onSaveThumb: PropTypes.func,
   onSelect: PropTypes.func,
+  onExit: PropTypes.func,
   onThumbDoubleClick: PropTypes.func,
   onToggle: PropTypes.func,
   selected: PropTypes.bool,

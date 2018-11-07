@@ -3,7 +3,7 @@
 
 export const SHEET_TYPE = {
   INTERVAL: 'interval',
-  SCENE: 'scene',
+  SCENES: 'scenes',
 };
 
 export const VIEW = {
@@ -45,7 +45,7 @@ export const DEFAULT_VIEW = VIEW.GRIDVIEW;
 export const DEFAULT_SHEET_TYPE = SHEET_TYPE.INTERVAL;
 export const DEFAULT_SHEET = `${SHEET_TYPE.INTERVAL}-0`;
 export const DEFAULT_SHEET_INTERVAL = `${SHEET_TYPE.INTERVAL}-0`;
-export const DEFAULT_SHEET_SCENE = `${SHEET_TYPE.SCENE}-0`;
+export const DEFAULT_SHEET_SCENE = `${SHEET_TYPE.SCENES}-0`;
 
 export const DEFAULT_THUMB_COUNT_MAX = 400;
 export const DEFAULT_THUMB_COUNT = 16;

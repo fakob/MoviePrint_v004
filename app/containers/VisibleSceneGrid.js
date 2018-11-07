@@ -81,8 +81,8 @@ class SortedVisibleSceneGrid extends Component {
         onSaveThumbClick={this.props.onSaveThumbClick}
         onSceneThumbDoubleClick={this.props.onSceneThumbDoubleClick}
         onScrubClick={this.props.onScrubClick}
-        // onSelectClick={this.onSelectClick}
-        onSelectClick={this.props.onSelectClick}
+        // onSelectClick={this.props.onSelectClick}
+        onEnterClick={this.props.onEnterClick}
         onToggleClick={this.props.onToggleClick}
         rowCount={this.props.settings.defaultSceneDetectionRowCount}
         scaleValueObject={this.props.scaleValueObject}
