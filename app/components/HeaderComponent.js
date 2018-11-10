@@ -34,10 +34,9 @@ const Header = ({
     });
     return mappedArray;
   };
-
   const viewOptions = [
     { value: VIEW.GRIDVIEW, text: 'Grid view', 'data-tid':'gridViewOption'},
-    { value: VIEW.PLAYERVIEW, text: 'Player view', 'data-tid':'playerViewOption'},
+    { value: VIEW.PLAYERVIEW, text: 'Player view', 'data-tid':'playerViewOption', disabled: visibilitySettings.showSettings },
     { value: VIEW.TIMELINEVIEW, text: 'Timeline view', 'data-tid':'timelineViewOption', disabled: (visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) },
   ];
 
@@ -105,7 +104,7 @@ const Header = ({
               keepInViewPort={false}
             />
           }
-          {file && !visibilitySettings.showSettings &&
+          {file &&
             <Popup
               trigger={
                 <Dropdown
