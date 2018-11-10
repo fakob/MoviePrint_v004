@@ -922,7 +922,9 @@ class App extends Component {
 
   switchToPrintView() {
     const { store } = this.context;
-    store.dispatch(setView(VIEW.GRIDVIEW));
+    if (this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW) {
+      store.dispatch(setView(VIEW.GRIDVIEW));
+    }
   }
 
   onHideDetectionChart() {
