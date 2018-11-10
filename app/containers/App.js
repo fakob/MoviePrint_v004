@@ -859,11 +859,17 @@ class App extends Component {
   }
 
   onSelectSceneMethod(sceneId) {
-    this.setState({
-      selectedSceneObject: {
-        sceneId,
-      }
-    });
+    if (this.state.selectedSceneObject && this.state.selectedSceneObject.sceneId === sceneId) {
+      this.setState({
+        selectedSceneObject: undefined
+      });
+    } else {
+      this.setState({
+        selectedSceneObject: {
+          sceneId,
+        }
+      });
+    }
   }
 
   showMovielist() {
