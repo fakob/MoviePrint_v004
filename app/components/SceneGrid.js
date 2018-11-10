@@ -66,12 +66,18 @@ class SceneGrid extends Component {
           data-tid='sceneGridBodyDiv'
         >
           {sceneArray.map((scene, index) => {
+            // minutes per row idea
+            // const height = 240;
+            // const width = Math.floor(((this.props.scaleValueObject.containerWidth - safetyMargin) / (sceneRowCount * 60 * 25)) * scene.length) - this.props.scaleValueObject.newThumbMargin * 2;
+            const selected = this.props.selectedSceneId ? (this.props.selectedSceneId === scene.sceneId) : false;
             const height = Math.floor((this.props.scaleValueObject.containerHeight - (this.props.scaleValueObject.newThumbMargin * ((sceneRowCount * 2) + 2))) / sceneRowCount);
-            const width = Math.floor((scene.length / this.props.frameCount) * ((this.props.scaleValueObject.containerWidth - safetyMargin) * (sceneRowCount - 1)));
+            const width = selected ? (height / this.props.scaleValueObject.aspectRatioInv):
+            Math.floor((scene.length / this.props.frameCount) * ((this.props.scaleValueObject.containerWidth - safetyMargin) * (sceneRowCount - 1)));
             return (
             <SortableScene
               hidden={scene.hidden}
               controllersAreVisible={(this.props.showSettings || scene.sceneId === undefined) ? false : (scene.sceneId === this.state.controllersVisible)}
+              selected
               defaultView={this.props.defaultView}
               keyObject={this.props.keyObject}
               indexForId={index}
@@ -106,10 +112,10 @@ class SceneGrid extends Component {
               }}
               onToggle={(this.props.showSettings || (scene.sceneId !== this.state.controllersVisible)) ?
                 null : () => this.props.onToggleClick(this.props.file.id, scene.sceneId)}
-              // onSelect={(this.props.showSettings || (scene.sceneId !== this.state.controllersVisible)) ?
-              //   null : () => {
-              //     this.props.onSelectClick(this.props.file, scene.sceneId);
-              //   }}
+              onSelect={(this.props.showSettings || (scene.sceneId !== this.state.controllersVisible)) ?
+                null : () => {
+                  this.props.onSelectClick(scene.sceneId);
+                }}
               onEnter={(this.props.showSettings || (scene.sceneId !== this.state.controllersVisible)) ?
                 null : () => {
                   this.props.onEnterClick(this.props.file, scene.sceneId);

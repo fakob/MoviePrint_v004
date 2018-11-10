@@ -103,6 +103,7 @@ class App extends Component {
       scaleValueObject: undefined,
       savingMoviePrint: false,
       selectedThumbObject: undefined,
+      selectedSceneObject: undefined,
       outputScaleCompensator: 1,
       // file match needs to be in sync with setMovieList() and onDrop() !!!
       accept: 'video/*,.divx,.mkv,.ogg,.VOB,',
@@ -143,7 +144,8 @@ class App extends Component {
     this.handleKeyPress = this.handleKeyPress.bind(this);
     this.handleKeyUp = this.handleKeyUp.bind(this);
 
-    this.onSelectMethod = this.onSelectMethod.bind(this);
+    this.onSelectThumbMethod = this.onSelectThumbMethod.bind(this);
+    this.onSelectSceneMethod = this.onSelectSceneMethod.bind(this);
 
     this.showMovielist = this.showMovielist.bind(this);
     this.hideMovielist = this.hideMovielist.bind(this);
@@ -847,11 +849,19 @@ class App extends Component {
     }
   }
 
-  onSelectMethod(thumbId, frameNumber) {
+  onSelectThumbMethod(thumbId, frameNumber) {
     this.setState({
       selectedThumbObject: {
         thumbId,
         frameNumber
+      }
+    });
+  }
+
+  onSelectSceneMethod(sceneId) {
+    this.setState({
+      selectedSceneObject: {
+        sceneId,
       }
     });
   }
@@ -1744,7 +1754,7 @@ class App extends Component {
                           frameNumber={this.state.selectedThumbObject ?
                             this.state.selectedThumbObject.frameNumber : 0}
                           onThumbDoubleClick={this.onViewToggle}
-                          selectMethod={this.onSelectMethod}
+                          selectThumbMethod={this.onSelectThumbMethod}
                           keyObject={this.state.keyObject}
                           opencvVideo={this.state.opencvVideo}
                         />
@@ -1801,7 +1811,7 @@ class App extends Component {
                               onThumbDoubleClick={this.onViewToggle}
                               scaleValueObject={this.state.scaleValueObject}
                               selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
-                              selectMethod={this.onSelectMethod}
+                              selectThumbMethod={this.onSelectThumbMethod}
                               settings={this.props.settings}
                               showSettings={this.props.visibilitySettings.showSettings}
                               thumbCount={this.state.thumbCountTemp}
@@ -1819,7 +1829,8 @@ class App extends Component {
                               inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                               keyObject={this.state.keyObject}
                               rowCount={this.props.settings.defaultSceneDetectionRowCount}
-                              // onSelectClick={this.onSelectClick}
+                              selectedSceneId={this.state.selectedSceneObject ? this.state.selectedSceneObject.sceneId : undefined}
+                              selectSceneMethod={this.onSelectSceneMethod}
                               onEnterClick={this.onEnterClick}
                               scaleValueObject={this.state.scaleValueObject}
                               scenes={this.props.scenes}

@@ -76,7 +76,7 @@ class SortedVisibleThumbGrid extends Component {
   };
 
   onSelectClick = (thumbId, frameNumber) => {
-    this.props.selectMethod(thumbId, frameNumber);
+    this.props.selectThumbMethod(thumbId, frameNumber);
   }
 
   scrollThumbIntoView = () => {
@@ -239,7 +239,7 @@ SortedVisibleThumbGrid.propTypes = {
   onToggleClick: PropTypes.func.isRequired,
   scaleValueObject: PropTypes.object.isRequired,
   selectedThumbId: PropTypes.string,
-  selectMethod: PropTypes.func,
+  selectThumbMethod: PropTypes.func,
   settings: PropTypes.object.isRequired,
   defaultView: PropTypes.string.isRequired,
   showSettings: PropTypes.bool.isRequired,
