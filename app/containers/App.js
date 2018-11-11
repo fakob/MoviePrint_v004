@@ -49,7 +49,7 @@ import {
   setDefaultPaperAspectRatioInv, updateInOutPoint, removeMovieListItem, setDefaultDetectInOutPoint,
   changeThumb, addThumb, setEmailAddress, addThumbs, updateFileScanData, getFileScanData,
   clearScenes, addScene, addScenes, setDefaultSceneDetectionThreshold, setDefaultSceneDetectionRowCount,
-  setSheetFit
+  setSheetFit, clearObjectUrls, updateThumbObjectUrlFromDB,
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -173,6 +173,7 @@ class App extends Component {
     this.updateScaleValue = this.updateScaleValue.bind(this);
 
     this.onFileListElementClick = this.onFileListElementClick.bind(this);
+    this.onErrorPosterFrame = this.onErrorPosterFrame.bind(this);
     this.getThumbsForFile = this.getThumbsForFile.bind(this);
 
     this.onChangeRow = this.onChangeRow.bind(this);
@@ -250,20 +251,20 @@ class App extends Component {
         opencvVideo: new opencv.VideoCapture(this.props.file.path),
       });
     }
-    // only updateObjectUrlsFromThumbList if thumbs exist
-    store.getState().undoGroup.present.files.map((singleFile) => {
-      if (store.getState().undoGroup.present.thumbsByFileId[singleFile.id] !== undefined
-        && store.getState().undoGroup.present.thumbsByFileId[singleFile.id][store.getState().visibilitySettings.defaultSheet] !== undefined) {
-        store.dispatch(updateObjectUrlsFromThumbList(
-          singleFile.id,
-          store.getState().visibilitySettings.defaultSheet,
-          Object.values(store.getState().undoGroup.present
-          .thumbsByFileId[singleFile.id][store.getState().visibilitySettings.defaultSheet])
-          .map((a) => a.frameId)
-        ));
-      }
-      return true;
-    });
+    // // only updateObjectUrlsFromThumbList if thumbs exist
+    // store.getState().undoGroup.present.files.map((singleFile) => {
+    //   if (store.getState().undoGroup.present.thumbsByFileId[singleFile.id] !== undefined
+    //     && store.getState().undoGroup.present.thumbsByFileId[singleFile.id][store.getState().visibilitySettings.defaultSheet] !== undefined) {
+    //     store.dispatch(updateObjectUrlsFromThumbList(
+    //       singleFile.id,
+    //       store.getState().visibilitySettings.defaultSheet,
+    //       Object.values(store.getState().undoGroup.present
+    //       .thumbsByFileId[singleFile.id][store.getState().visibilitySettings.defaultSheet])
+    //       .map((a) => a.frameId)
+    //     ));
+    //   }
+    //   return true;
+    // });
   }
 
   componentDidMount() {
@@ -308,7 +309,7 @@ class App extends Component {
     // poster frames don't have thumbId
     ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, base64, frameNumber, useRatio) => {
       store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
-      store.dispatch(updateThumbImage(fileId, DEFAULT_SHEET_INTERVAL, '', posterFrameId, base64, frameNumber, 1));
+      store.dispatch(updateThumbImage(fileId, DEFAULT_SHEET_INTERVAL, '', posterFrameId, base64, frameNumber, true));
       ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-in-and-outpoint', fileId, filePath, useRatio, store.getState().undoGroup.present.settings.defaultDetectInOutPoint);
     });
 
@@ -685,6 +686,10 @@ class App extends Component {
   }
 
   componentWillUnmount() {
+    const { store } = this.context;
+    store.dispatch(clearObjectUrls());
+
+
     document.removeEventListener('keydown', this.handleKeyPress);
     document.removeEventListener('keyup', this.handleKeyUp);
 
@@ -1281,6 +1286,7 @@ class App extends Component {
     // log.debug(`FileListElement clicked: ${file.name}`);
     const { store } = this.context;
     store.dispatch(setCurrentFileId(file.id));
+    this.onSetSheetClick(DEFAULT_SHEET_INTERVAL);
 
     // When clicking on a filelist element for the first time
     // set columnCount as it is not defined yet
@@ -1289,6 +1295,11 @@ class App extends Component {
     }
 
     this.getThumbsForFile(file);
+  }
+
+  onErrorPosterFrame(file) {
+    const { store } = this.context;
+    store.dispatch(updateThumbObjectUrlFromDB(file.id, undefined, undefined, file.posterFrameId, true));
   }
 
   getThumbsForFile(file) {
@@ -1302,17 +1313,22 @@ class App extends Component {
           this.props.settings.defaultThumbCount,
           file.fadeInPoint,
           file.fadeOutPoint
-        ));
-    }
-    if (this.props.thumbsObjUrls[file.id] === undefined ||
-      this.props.thumbsObjUrls[file.id][this.props.visibilitySettings.defaultSheet] === undefined) {
-      log.debug(`updateObjectUrlsFromThumbList as no objecturls were found for: ${file.name}`);
-      store.dispatch(updateObjectUrlsFromThumbList(
-          file.id,
-          this.props.visibilitySettings.defaultSheet,
-          Object.values(this.props.thumbsByFileId[file.id][this.props.visibilitySettings.defaultSheet])
-            .map((a) => a.frameId)
-        ));
+        )).then(() => { // wait for addDefaultThumbs to be finished before updating objecturls
+          if (this.props.thumbsObjUrls[file.id] === undefined ||
+            (this.props.thumbsObjUrls[file.id] !== undefined &&
+              this.props.thumbsObjUrls[file.id][this.props.visibilitySettings.defaultSheet] === undefined)) {
+            log.debug(`updateObjectUrlsFromThumbList as no objecturls were found for: ${file.name}`);
+            store.dispatch(updateObjectUrlsFromThumbList(
+                file.id,
+                this.props.visibilitySettings.defaultSheet,
+                Object.values(this.props.thumbsByFileId[file.id][this.props.visibilitySettings.defaultSheet])
+                  .map((a) => a.frameId)
+              ));
+          }
+          return true;
+        }).catch(error => {
+          console.log(error)
+        });
     }
   }
 
@@ -1707,6 +1723,7 @@ class App extends Component {
                     >
                       <FileList
                         onFileListElementClick={this.onFileListElementClick}
+                        onErrorPosterFrame={this.onErrorPosterFrame}
                       />
                     </div>
                     <div

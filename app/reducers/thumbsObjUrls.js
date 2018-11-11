@@ -2,7 +2,7 @@ import log from 'electron-log';
 
 const thumbsObjUrls = (state = {}, action) => {
   switch (action.type) {
-    case 'CLEAR_MOVIE_LIST':
+    case 'CLEAR_OBJECTURLS':
       return {};
     case 'UPDATE_OBJECTURL_FROM_THUMBLIST':
       // log.debug(action.payload.fileId);

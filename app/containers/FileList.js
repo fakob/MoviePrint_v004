@@ -40,6 +40,7 @@ class SortedFileList extends Component {
                 this.props.onFileListElementClick(file);
               }}
               currentFileId={state.undoGroup.present.settings.currentFileId}
+              onErrorPosterFrame={() => this.props.onErrorPosterFrame(file)}
             />
           ))}
         </ul>

@@ -156,7 +156,9 @@ class ThumbGrid extends Component {
                 this.props.inputRefThumb : undefined} // for the thumb scrollIntoView function
               color={(this.props.colorArray !== undefined ? this.props.colorArray[thumb.index] : undefined)}
               thumbImageObjectUrl={thumb.thumbImageObjectUrl ||
-                getObjectProperty(() => this.props.thumbImages[thumb.frameId].objectUrl)}
+                getObjectProperty(() => this.props.thumbImages[thumb.frameId].objectUrl) ||
+                'blob:file:///fakeURL' // set fakeURL so onError gets triggered to update objecturls
+              }
               aspectRatioInv={this.props.scaleValueObject.aspectRatioInv}
               thumbWidth={this.props.scaleValueObject.newThumbWidth}
               borderRadius={this.props.scaleValueObject.newBorderRadius}
@@ -216,6 +218,14 @@ class ThumbGrid extends Component {
                 }}
               onExit={this.props.showSettings ?
                 null : () => this.props.onExitClick()}
+              onErrorThumb={() => {
+                console.log(thumb);
+                return this.props.onErrorThumb(
+                  this.props.file,
+                  this.props.visibilitySettings.defaultSheet,
+                  thumb.thumbId,
+                  thumb.frameId)}
+                }
               onBack={this.props.showSettings ?
                 null : () => this.props.onBackClick(this.props.file, thumb.thumbId, thumb.frameNumber)}
               onForward={this.props.showSettings ?

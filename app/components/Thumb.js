@@ -74,6 +74,7 @@ const Thumb = ({
   onSaveThumb,
   onSelect,
   onExit,
+  onErrorThumb,
   onThumbDoubleClick,
   onToggle,
   selected,
@@ -250,6 +251,7 @@ const Thumb = ({
             opacity: hidden ? '0.2' : '1',
             borderRadius: `${(selected && defaultView !== VIEW.GRIDVIEW) ? 0 : borderRadius}px`,
           }}
+          onError={onErrorThumb}
         />
         {thumbInfoValue !== undefined &&
           <div

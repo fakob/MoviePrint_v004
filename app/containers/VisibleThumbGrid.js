@@ -5,7 +5,7 @@ import { arrayMove } from 'react-sortable-hoc';
 import scrollIntoView from 'scroll-into-view';
 import {
   toggleThumb, updateOrder, updateObjectUrlsFromThumbList,
-  changeThumb, addDefaultThumbs, setSheet, setView
+  changeThumb, addDefaultThumbs, setSheet, setView, updateThumbObjectUrlFromDB
 } from '../actions';
 import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
@@ -23,6 +23,7 @@ class SortedVisibleThumbGrid extends Component {
 
     this.scrollThumbIntoView = this.scrollThumbIntoView.bind(this);
     this.onSelectClick = this.onSelectClick.bind(this);
+    this.onErrorThumb = this.onErrorThumb.bind(this);
   }
 
   // componentDidMount() {
@@ -30,20 +31,20 @@ class SortedVisibleThumbGrid extends Component {
     const { store } = this.context;
     this.unsubscribe = store.subscribe(() => this.forceUpdate());
 
-    // only updateObjectUrlsFromThumbList if thumbs exist
-      store.getState().undoGroup.present.files.map((singleFile) => {
-        if (store.getState().undoGroup.present.thumbsByFileId[singleFile.id] !== undefined
-          && store.getState().undoGroup.present.thumbsByFileId[singleFile.id][store.getState().visibilitySettings.defaultSheet] !== undefined) {
-          store.dispatch(updateObjectUrlsFromThumbList(
-            singleFile.id,
-            store.getState().visibilitySettings.defaultSheet,
-            Object.values(store.getState().undoGroup.present
-            .thumbsByFileId[singleFile.id][store.getState().visibilitySettings.defaultSheet])
-            .map((a) => a.frameId)
-          ));
-        }
-        return true;
-    });
+    // // only updateObjectUrlsFromThumbList if thumbs exist
+    //   store.getState().undoGroup.present.files.map((singleFile) => {
+    //     if (store.getState().undoGroup.present.thumbsByFileId[singleFile.id] !== undefined
+    //       && store.getState().undoGroup.present.thumbsByFileId[singleFile.id][store.getState().visibilitySettings.defaultSheet] !== undefined) {
+    //       store.dispatch(updateObjectUrlsFromThumbList(
+    //         singleFile.id,
+    //         store.getState().visibilitySettings.defaultSheet,
+    //         Object.values(store.getState().undoGroup.present
+    //         .thumbsByFileId[singleFile.id][store.getState().visibilitySettings.defaultSheet])
+    //         .map((a) => a.frameId)
+    //       ));
+    //     }
+    //     return true;
+    // });
   }
 
   componentDidUpdate(prevProps) {
@@ -79,6 +80,11 @@ class SortedVisibleThumbGrid extends Component {
     this.props.selectThumbMethod(thumbId, frameNumber);
   }
 
+  onErrorThumb = (file, sheet, thumbId, frameId) => {
+    const { store } = this.context;
+    store.dispatch(updateThumbObjectUrlFromDB(file.id, sheet, thumbId, frameId, false));
+  }
+
   scrollThumbIntoView = () => {
     if (this.scrollIntoViewElement && this.scrollIntoViewElement.current !== null) {
       scrollIntoView(this.scrollIntoViewElement.current, {
@@ -108,6 +114,7 @@ class SortedVisibleThumbGrid extends Component {
         onSaveThumbClick={this.props.onSaveThumbClick}
         onScrubClick={this.props.onScrubClick}
         onSelectClick={this.onSelectClick}
+        onErrorThumb={this.onErrorThumb}
         onExitClick={this.props.onExitClick}
         onThumbDoubleClick={this.props.onThumbDoubleClick}
         onToggleClick={this.props.onToggleClick}

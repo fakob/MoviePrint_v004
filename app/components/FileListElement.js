@@ -3,20 +3,29 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { truncate, truncatePath, frameCountToTimeCode, formatBytes } from '../utils/utils';
 import styles from './FileList.css';
+import transparent from '../img/Thumb_TRANSPARENT.png';
 
 const FileListElement = ({
   id, frameCount, fps, width, height, name, path,
-  size, objectUrl, onClick, currentFileId
+  size, objectUrl, onClick, currentFileId, onErrorPosterFrame
 }) => (
   <li
     data-tid={`fileListItem_${id}`}
     onClick={onClick}
     className={(currentFileId === id) ? `${styles.Highlight}` : ''}
   >
-    <div
+    {/* <div
       className={`${styles.croppedThumb}`}
       style={(objectUrl !== undefined) ? { backgroundImage: `url(${objectUrl})` } : { backgroundColor: '#1e1e1e' }}
       alt={`${name}`}
+    /> */}
+    <img
+      // using image to use onError if objectUrl is not valid
+      // this introduces a squeezed image though
+      src={objectUrl !== undefined ? objectUrl : transparent}
+      className={`${styles.croppedThumb}`}
+      alt={`${name}`}
+      onError={onErrorPosterFrame}
     />
     <div
       className={`${styles.Path}`}

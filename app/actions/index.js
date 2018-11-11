@@ -391,7 +391,7 @@ export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), sc
           sceneId,
         }
       });
-      return dispatch(updateThumbObjectUrlFromDB(file.id, sheet, thumbId, frames[0].frameId, false));
+      return dispatch(updateThumbObjectUrlFromDB(file.id, sheet, thumbId, frames[0].frameId));
     }).catch();
   };
 };
@@ -445,7 +445,8 @@ export const updateFrameNumber = (fileId, sheet, thumbId, frameNumber) => {
   };
 };
 
-export const updateThumbImage = (fileId, sheet, thumbId, frameId, base64, frameNumber, isPosterFrame = 0) =>
+
+export const updateThumbImage = (fileId, sheet, thumbId, frameId, base64, frameNumber, isPosterFrame = false) =>
   ((dispatch, getState) => {
     log.debug(`action: updateThumbImage frameNumber=${frameNumber}`);
     if (base64 === '') {
@@ -465,7 +466,7 @@ export const updateThumbImage = (fileId, sheet, thumbId, frameId, base64, frameN
         frameId,
         fileId,
         frameNumber,
-        isPosterFrame,
+        isPosterFrame: isPosterFrame ? 1 : 0, // 0 and 1 is used as dexie/indexDB can not use boolean values
         data: blob
       }))
     .then(() =>
@@ -520,7 +521,7 @@ export const addDefaultThumbs = (file, sheet, amount = 20, start = 10, stop = fi
       .map(x => mapRange(x, 0, newAmount - 1, startWithBoundaries, stopWithBoundaries));
     // log.debug(frameNumberArray);
     dispatch(clearThumbs(file.id, sheet));
-    dispatch(addThumbs(file, sheet, frameNumberArray));
+    return dispatch(addThumbs(file, sheet, frameNumberArray));
   };
 };
 
@@ -532,7 +533,7 @@ export const addThumbs = (file, sheet, frameNumberArray) => {
     // log.debug(frameNumberArray);
     const fileIdAndFrameNumberArray = frameNumberArray.map((item) => [file.id, item]);
 
-    imageDB.frameList.where('[fileId+frameNumber]').anyOf(fileIdAndFrameNumberArray).toArray().then((frames) => {
+    return imageDB.frameList.where('[fileId+frameNumber]').anyOf(fileIdAndFrameNumberArray).toArray().then((frames) => {
       // log.debug(frames.length);
       // log.debug(frames);
 
@@ -787,13 +788,12 @@ export const setNewMovieList = (files, settings) => {
   };
 };
 
-// thumbsObjUrls
 export const updateObjectUrlsFromPosterFrame = () => {
   return (dispatch, getState) => {
     // log.debug('action: updateObjectUrlsFromPosterFrame');
-    return imageDB.frameList.where('isPosterFrame').equals(1).toArray()
+    return imageDB.frameList.where('isPosterFrame').equals(1).toArray() // 1 for true is used as dexie/indexDB can not use boolean values
       .then((frames) => {
-        // log.debug(frames);
+        log.debug(frames);
         return dispatch({
           type: 'UPDATE_OBJECTURLS_FROM_POSTERFRAME',
           payload: {
@@ -805,10 +805,21 @@ export const updateObjectUrlsFromPosterFrame = () => {
   };
 };
 
-export const updateThumbObjectUrlFromDB = (fileId, sheet, thumbId, frameId, isPosterFrame = 0) =>
+// thumbsObjUrls
+export const clearObjectUrls = () => {
+  return (dispatch) => {
+    log.debug('action: clearScenes');
+    log.debug('dispatch: CLEAR_OBJECTURLS');
+    dispatch({
+      type: 'CLEAR_OBJECTURLS',
+    });
+  };
+};
+
+export const updateThumbObjectUrlFromDB = (fileId, sheet, thumbId, frameId, isPosterFrame = false) =>
   (dispatch) => {
-    // log.debug('action: updateThumbObjectUrlFromDB');
-    // log.debug(frameId);
+    log.debug('action: updateThumbObjectUrlFromDB');
+    log.debug(frameId);
     return imageDB.frameList.where('frameId').equals(frameId).toArray().then((frames) => {
       // log.debug(frames[0]);
       if (isPosterFrame) {
@@ -831,6 +842,8 @@ export const updateThumbObjectUrlFromDB = (fileId, sheet, thumbId, frameId, isPo
           frames
         },
       });
+    }).catch((err) => {
+      log.error(err);
     });
   };
 
