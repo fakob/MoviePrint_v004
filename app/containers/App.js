@@ -1662,6 +1662,7 @@ class App extends Component {
                     onSetSheetFitClick={this.onSetSheetFitClick}
                     openMoviesDialog={() => this.dropzoneRef.open()}
                     zoom={this.state.zoom}
+                    scaleValueObject={this.state.scaleValueObject}
                   />
                   <TransitionablePortal
                     // onClose={this.setState({ progressMessage: undefined })}

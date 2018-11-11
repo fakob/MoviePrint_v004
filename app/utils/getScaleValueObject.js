@@ -23,6 +23,7 @@ const getScaleValueObject = (
   const showPlayerView = visibilitySettings.defaultView === VIEW.PLAYERVIEW;
   const sheetFit = visibilitySettings.defaultSheetFit;
   const showSettings = visibilitySettings.showSettings;
+  const containerAspectRatioInv = (containerHeight * 1.0) / containerWidth;
 
   // headerHeight gets increased depending on how much information is shown inside
   const headerHeightMultiplier = 1 + ((settings.defaultShowPathInHeader + settings.defaultShowDetailsInHeader + settings.defaultShowTimelineInHeader) / 3.0);
@@ -122,6 +123,7 @@ const getScaleValueObject = (
   const scaleValueObject = {
     containerWidth,
     containerHeight,
+    containerAspectRatioInv,
     aspectRatioInv: movieAspectRatioInv,
     newMoviePrintWidth,
     newMoviePrintHeight,

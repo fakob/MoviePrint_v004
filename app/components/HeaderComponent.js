@@ -11,7 +11,7 @@ const Header = ({
   file, visibilitySettings, toggleMovielist, toggleSettings,
   onToggleShowHiddenThumbsClick, settings, onThumbInfoClick,
   openMoviesDialog, toggleZoom, zoom, toggleView, onSetViewClick, onSetSheetClick,
-  sheetsArray, sceneArray, onSetSheetFitClick,
+  sheetsArray, sceneArray, onSetSheetFitClick, scaleValueObject
 }) => {
 
   const thumbInfoOptions = [
@@ -87,7 +87,11 @@ const Header = ({
           {file.name}
         </Menu.Item> */}
         <Menu.Menu position="right">
-          {file && visibilitySettings.defaultView === VIEW.GRIDVIEW && !visibilitySettings.showSettings && visibilitySettings.defaultSheetFit !== SHEET_FIT.HEIGHT &&
+          {file &&
+            visibilitySettings.defaultView === VIEW.GRIDVIEW &&
+            !visibilitySettings.showSettings &&
+            visibilitySettings.defaultSheetFit !== SHEET_FIT.HEIGHT &&
+            scaleValueObject.moviePrintAspectRatioInv < scaleValueObject.containerAspectRatioInv &&
             <Popup
               trigger={
                 <Menu.Item
@@ -105,7 +109,11 @@ const Header = ({
               keepInViewPort={false}
             />
           }
-          {file && visibilitySettings.defaultView === VIEW.GRIDVIEW && !visibilitySettings.showSettings && visibilitySettings.defaultSheetFit !== SHEET_FIT.WIDTH &&
+          {file &&
+            visibilitySettings.defaultView === VIEW.GRIDVIEW &&
+            !visibilitySettings.showSettings &&
+            visibilitySettings.defaultSheetFit !== SHEET_FIT.WIDTH &&
+            scaleValueObject.moviePrintAspectRatioInv > scaleValueObject.containerAspectRatioInv &&
             <Popup
               trigger={
                 <Menu.Item
