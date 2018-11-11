@@ -48,7 +48,8 @@ import {
   setDefaultMoviePrintWidth, updateFileDetailUseRatio, setDefaultShowPaperPreview,
   setDefaultPaperAspectRatioInv, updateInOutPoint, removeMovieListItem, setDefaultDetectInOutPoint,
   changeThumb, addThumb, setEmailAddress, addThumbs, updateFileScanData, getFileScanData,
-  clearScenes, addScene, addScenes, setDefaultSceneDetectionThreshold, setDefaultSceneDetectionRowCount
+  clearScenes, addScene, addScenes, setDefaultSceneDetectionThreshold, setDefaultSceneDetectionRowCount,
+  setSheetFit
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -58,6 +59,7 @@ import {
   DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN,
   VIEW,
   SHEET_TYPE,
+  SHEET_FIT,
   DEFAULT_SHEET_SCENES,
   DEFAULT_SHEET_INTERVAL,
 } from '../utils/constants';
@@ -194,6 +196,7 @@ class App extends Component {
     this.toggleZoom = this.toggleZoom.bind(this);
     this.disableZoom = this.disableZoom.bind(this);
     this.onToggleShowHiddenThumbsClick = this.onToggleShowHiddenThumbsClick.bind(this);
+    this.onSetSheetFitClick = this.onSetSheetFitClick.bind(this);
     this.onShowHiddenThumbsClick = this.onShowHiddenThumbsClick.bind(this);
     this.onThumbInfoClick = this.onThumbInfoClick.bind(this);
     this.onSetViewClick = this.onSetViewClick.bind(this);
@@ -231,11 +234,13 @@ class App extends Component {
       colorArray: getMoviePrintColor(store.getState()
         .undoGroup.present.settings.defaultThumbCountMax),
       scaleValueObject: getScaleValueObject(
-        this.props.file, this.props.settings,
-        // this.state.columnCount, this.state.thumbCount,
-        this.state.columnCountTemp, this.state.thumbCountTemp,
-        this.state.containerWidth, this.state.containerHeight,
-        this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW,
+        this.props.file,
+        this.props.settings,
+        this.props.visibilitySettings,
+        this.state.columnCountTemp,
+        this.state.thumbCountTemp,
+        this.state.containerWidth,
+        this.state.containerHeight,
         this.state.zoom ? ZOOM_SCALE : 0.95,
         this.state.zoom ? false : this.props.settings.defaultShowPaperPreview
       )
@@ -664,6 +669,8 @@ class App extends Component {
       prevState.zoom !== this.state.zoom ||
       prevProps.visibilitySettings.defaultView !==
         this.props.visibilitySettings.defaultView ||
+      prevProps.visibilitySettings.defaultSheetFit !==
+        this.props.visibilitySettings.defaultSheetFit ||
       prevState.columnCountTemp !== this.state.columnCountTemp ||
       prevState.thumbCountTemp !== this.state.thumbCountTemp ||
       prevState.columnCount !== this.state.columnCount ||
@@ -803,10 +810,13 @@ class App extends Component {
   updateScaleValue() {
     // log.debug(`inside updateScaleValue and containerWidth: ${this.state.containerWidth}`);
     const scaleValueObject = getScaleValueObject(
-      this.props.file, this.props.settings,
-      this.state.columnCountTemp, this.state.thumbCountTemp,
-      this.state.containerWidth, this.state.containerHeight,
-      this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW,
+      this.props.file,
+      this.props.settings,
+      this.props.visibilitySettings,
+      this.state.columnCountTemp,
+      this.state.thumbCountTemp,
+      this.state.containerWidth,
+      this.state.containerHeight,
       this.state.zoom ? ZOOM_SCALE : 0.95,
       this.state.zoom ? false : this.props.settings.defaultShowPaperPreview
     );
@@ -1496,6 +1506,11 @@ class App extends Component {
     }
   };
 
+  onSetSheetFitClick = (value) => {
+    const { store } = this.context;
+    store.dispatch(setSheetFit(value));
+  };
+
   onShowHiddenThumbsClick = (value) => {
     const { store } = this.context;
     if (value) {
@@ -1642,6 +1657,7 @@ class App extends Component {
                     onThumbInfoClick={this.onThumbInfoClick}
                     onSetViewClick={this.onSetViewClick}
                     onSetSheetClick={this.onSetSheetClick}
+                    onSetSheetFitClick={this.onSetSheetFitClick}
                     openMoviesDialog={() => this.dropzoneRef.open()}
                     zoom={this.state.zoom}
                   />
@@ -1788,7 +1804,14 @@ class App extends Component {
                       ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
                       className={`${styles.ItemMain} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainRightAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainEdit : ''} ${this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW ? styles.ItemMainTopAnim : ''}`}
                       style={{
-                        width: (this.props.visibilitySettings.showSettings || (this.props.visibilitySettings.defaultView !== VIEW.PLAYERVIEW && !this.state.zoom))
+                        width: ( // use window with if any of these are true
+                          this.props.visibilitySettings.showSettings ||
+                          (this.props.visibilitySettings.defaultView !== VIEW.PLAYERVIEW &&
+                            this.props.visibilitySettings.defaultSheetFit !== SHEET_FIT.HEIGHT &&
+                            !this.state.zoom
+                          ) ||
+                          this.state.scaleValueObject.newMoviePrintWidth < this.state.containerWidth // if smaller, width has to be undefined otherwise the center align does not work
+                        )
                           ? undefined : this.state.scaleValueObject.newMoviePrintWidth,
                         marginTop: this.props.visibilitySettings.defaultView !== VIEW.PLAYERVIEW ? undefined :
                           `${this.state.scaleValueObject.videoPlayerHeight +

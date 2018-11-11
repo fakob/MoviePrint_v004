@@ -1,6 +1,13 @@
 // const { app } = require('electron').remote;
 // throws error as it would be packed into main.js where this is can not be required
 
+export const SHEET_FIT = {
+  WIDTH: 'width',
+  HEIGHT: 'height',
+  BOTH: 'both',
+  NOSCALE: 'noScale',
+};
+
 export const SHEET_TYPE = {
   INTERVAL: 'interval',
   SCENES: 'scenes',
@@ -46,6 +53,7 @@ export const DEFAULT_SHEET_TYPE = SHEET_TYPE.INTERVAL;
 export const DEFAULT_SHEET = `${SHEET_TYPE.INTERVAL}-0`;
 export const DEFAULT_SHEET_INTERVAL = `${SHEET_TYPE.INTERVAL}-0`;
 export const DEFAULT_SHEET_SCENES = `${SHEET_TYPE.SCENES}-0`;
+export const SH = SHEET_FIT.BOTH;
 
 export const DEFAULT_THUMB_COUNT_MAX = 400;
 export const DEFAULT_THUMB_COUNT = 16;

@@ -75,6 +75,14 @@ export const setView = (defaultView) => {
   };
 };
 
+export const setSheetFit = (defaultSheetFit) => {
+  log.debug(`action: setSheetFitView - ${defaultSheetFit}`);
+  return {
+    type: 'SET_SHEET_FIT',
+    defaultSheetFit
+  };
+};
+
 // export const toggleZoomOut = () => {
   // log.debug(const'action: ');
 //   return {

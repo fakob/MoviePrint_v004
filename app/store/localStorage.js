@@ -5,6 +5,7 @@ import {
   DEFAULT_VIEW,
   DEFAULT_SHEET,
   DEFAULT_SHEET_TYPE,
+  DEFAULT_SHEET_FIT,
   DEFAULT_THUMB_COUNT_MAX,
   DEFAULT_THUMB_COUNT,
   DEFAULT_COLUMN_COUNT,
@@ -52,6 +53,7 @@ const initialStateJSON = {
     defaultView: DEFAULT_VIEW,
     defaultSheet: DEFAULT_SHEET,
     defaultSheetType: DEFAULT_SHEET_TYPE,
+    defaultSheetFit: DEFAULT_SHEET_FIT,
   },
   thumbsObjUrls: {},
   undoGroup: {

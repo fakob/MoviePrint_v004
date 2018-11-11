@@ -18,6 +18,8 @@ const visibilitySettings = (state = {}, action) => {
       return { ...state, defaultSheet: action.defaultSheet };
     case 'SET_VIEW':
       return { ...state, defaultView: action.defaultView };
+    case 'SET_SHEET_FIT':
+      return { ...state, defaultSheetFit: action.defaultSheetFit };
     // case 'TOGGLE_ZOOM_OUT':
     //   return { ...state, zoomOut: !state.zoomOut };
     // case 'ZOOM_OUT':

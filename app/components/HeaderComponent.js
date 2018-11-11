@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Menu, Dropdown, Icon, Popup } from 'semantic-ui-react';
 import {
-  MENU_HEADER_HEIGHT, VIEW, SHEET_TYPE
+  MENU_HEADER_HEIGHT, VIEW, SHEET_TYPE, SHEET_FIT
 } from '../utils/constants';
 import styles from './Menu.css';
 import stylesPop from './Popup.css';
@@ -11,7 +11,7 @@ const Header = ({
   file, visibilitySettings, toggleMovielist, toggleSettings,
   onToggleShowHiddenThumbsClick, settings, onThumbInfoClick,
   openMoviesDialog, toggleZoom, zoom, toggleView, onSetViewClick, onSetSheetClick,
-  sheetsArray, sceneArray
+  sheetsArray, sceneArray, onSetSheetFitClick,
 }) => {
 
   const thumbInfoOptions = [
@@ -87,6 +87,78 @@ const Header = ({
           {file.name}
         </Menu.Item> */}
         <Menu.Menu position="right">
+          {file && visibilitySettings.defaultView === VIEW.GRIDVIEW && !visibilitySettings.showSettings && visibilitySettings.defaultSheetFit !== SHEET_FIT.HEIGHT &&
+            <Popup
+              trigger={
+                <Menu.Item
+                  data-tid='fitHeightBtn'
+                  onClick={() => onSetSheetFitClick(SHEET_FIT.HEIGHT)}
+                >
+                  <Icon
+                    name='resize vertical'
+                  />
+                  Fit height
+                </Menu.Item>
+              }
+              className={stylesPop.popup}
+              content='Fit height'
+              keepInViewPort={false}
+            />
+          }
+          {file && visibilitySettings.defaultView === VIEW.GRIDVIEW && !visibilitySettings.showSettings && visibilitySettings.defaultSheetFit !== SHEET_FIT.WIDTH &&
+            <Popup
+              trigger={
+                <Menu.Item
+                  data-tid='fitWidthBtn'
+                  onClick={() => onSetSheetFitClick(SHEET_FIT.WIDTH)}
+                >
+                  <Icon
+                    name='resize horizontal'
+                  />
+                  Fit width
+                </Menu.Item>
+              }
+              className={stylesPop.popup}
+              content='Fit width'
+              keepInViewPort={false}
+            />
+          }
+          {file && visibilitySettings.defaultView === VIEW.GRIDVIEW && !visibilitySettings.showSettings && visibilitySettings.defaultSheetFit !== SHEET_FIT.BOTH &&
+            <Popup
+              trigger={
+                <Menu.Item
+                  data-tid='fitAllBtn'
+                  onClick={() => onSetSheetFitClick(SHEET_FIT.BOTH)}
+                >
+                  <Icon
+                    name='expand'
+                  />
+                  Fit all
+                </Menu.Item>
+              }
+              className={stylesPop.popup}
+              content='Fit all'
+              keepInViewPort={false}
+            />
+          }
+          {file && visibilitySettings.defaultView === VIEW.GRIDVIEW && !visibilitySettings.showSettings &&
+            <Popup
+              trigger={
+                <Menu.Item
+                  data-tid={zoom ? 'zoomOutBtn' : 'zoomInBtn'}
+                  onClick={toggleZoom}
+                >
+                  <Icon
+                    name={zoom ? 'zoom out' : 'zoom in'}
+                  />
+                  {zoom ? 'Zoom out' : 'Zoom in'}
+                </Menu.Item>
+              }
+              className={stylesPop.popup}
+              content={zoom ? 'Zoom out' : 'Zoom in'}
+              keepInViewPort={false}
+            />
+          }
           {file &&
             <Popup
               trigger={
@@ -118,24 +190,6 @@ const Header = ({
               }
               className={stylesPop.popup}
               content="Set view"
-              keepInViewPort={false}
-            />
-          }
-          {file && visibilitySettings.defaultView === VIEW.GRIDVIEW && !visibilitySettings.showSettings &&
-            <Popup
-              trigger={
-                <Menu.Item
-                  data-tid={zoom ? 'zoomOutBtn' : 'zoomInBtn'}
-                  onClick={toggleZoom}
-                >
-                  <Icon
-                    name={zoom ? 'zoom out' : 'zoom in'}
-                  />
-                  {zoom ? 'Zoom out' : 'Zoom in'}
-                </Menu.Item>
-              }
-              className={stylesPop.popup}
-              content={zoom ? 'Zoom out' : 'Zoom in'}
               keepInViewPort={false}
             />
           }

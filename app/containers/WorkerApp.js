@@ -106,10 +106,14 @@ class WorkerApp extends Component {
               width: `${getScaleValueObject(
                 this.state.data.file,
                 this.state.data.settings,
-                getColumnCount(this.state.data.file, this.state.data.settings), this.state.data.file.thumbCount,
-                this.state.data.moviePrintWidth, undefined,
-                this.state.data.visibilitySettings.defaultView === VIEW.PLAYERVIEW,
-                1
+                this.state.data.visibilitySettings,
+                getColumnCount(this.state.data.file, this.state.data.settings),
+                this.state.data.file.thumbCount,
+                this.state.data.moviePrintWidth,
+                undefined,
+                1,
+                undefined,
+                true,
               ).newMoviePrintWidthForPrinting}px`
             }}
           >
@@ -132,10 +136,14 @@ class WorkerApp extends Component {
               scaleValueObject={getScaleValueObject(
                 this.state.data.file,
                 this.state.data.settings,
-                getColumnCount(this.state.data.file, this.state.data.settings), this.state.data.file.thumbCount,
-                this.state.data.moviePrintWidth, undefined,
-                this.state.data.visibilitySettings.defaultView === VIEW.PLAYERVIEW,
-                1
+                this.state.data.visibilitySettings,
+                getColumnCount(this.state.data.file, this.state.data.settings),
+                this.state.data.file.thumbCount,
+                this.state.data.moviePrintWidth,
+                undefined,
+                1,
+                undefined,
+                true,
               )}
               keyObject={{}}
             />

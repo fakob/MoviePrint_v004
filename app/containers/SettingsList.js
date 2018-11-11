@@ -44,9 +44,9 @@ const outputSize = (file = {
   const newScaleValueObject = getScaleValueObject(
     file,
     settings,
+    visibilitySettings,
     columnCountTemp, thumbCountTemp,
     4096, undefined,
-    visibilitySettings.defaultView === VIEW.PLAYERVIEW,
     1
   );
   const sizeLimit = 32767; // due to browser limitations https://html2canvas.hertzen.com/faq
