@@ -82,7 +82,10 @@ class SortedVisibleThumbGrid extends Component {
 
   onErrorThumb = (file, sheet, thumbId, frameId) => {
     const { store } = this.context;
-    store.dispatch(updateThumbObjectUrlFromDB(file.id, sheet, thumbId, frameId, false));
+    console.log('inside onErrorThumb')
+    if (frameId !== undefined) {
+      store.dispatch(updateThumbObjectUrlFromDB(file.id, sheet, thumbId, frameId, false));
+    }
   }
 
   scrollThumbIntoView = () => {

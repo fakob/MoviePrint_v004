@@ -4,6 +4,7 @@ import { Menu, Dropdown, Icon, Popup } from 'semantic-ui-react';
 import {
   MENU_HEADER_HEIGHT, VIEW, SHEET_TYPE, SHEET_FIT
 } from '../utils/constants';
+import { truncate } from '../utils/utils';
 import styles from './Menu.css';
 import stylesPop from './Popup.css';
 
@@ -52,6 +53,22 @@ const Header = ({
         inverted
         // widths={3}
       >
+        <Popup
+          trigger={
+            <Menu.Item
+              data-tid='openMoviesBtn'
+              onClick={openMoviesDialog}
+            >
+              <Icon
+                name="folder open outline"
+              />
+              {file ? '' : 'Open Movies'}
+            </Menu.Item>
+          }
+          className={stylesPop.popup}
+          content="Open one or more movies"
+          keepInViewPort={false}
+        />
         {file &&
           <Popup
             trigger={
@@ -62,7 +79,8 @@ const Header = ({
                 <Icon
                   name="list"
                 />
-                {(visibilitySettings.showMovielist === false) ? 'Show Movie list' : 'Hide Movie list'}
+                {file === undefined ? '' : truncate(file.name, 32)}
+                {/* {(visibilitySettings.showMovielist === false) ? 'Show Movie list' : 'Hide Movie list'} */}
               </Menu.Item>
             }
             className={stylesPop.popup}
@@ -70,21 +88,42 @@ const Header = ({
             keepInViewPort={false}
           />
         }
-        <Popup
-          trigger={
-            <Menu.Item
-              data-tid='openMoviesBtn'
-              onClick={openMoviesDialog}
-            >
-              Open Movies
-            </Menu.Item>
-          }
-          className={stylesPop.popup}
-          content="Open one or more movies"
-          keepInViewPort={false}
-        />
+        {file &&
+          <Popup
+            trigger={
+              <Dropdown
+                data-tid='setSheetDropdown'
+                placeholder="Show Print"
+                item
+                options={sheetOptions(sheetsArray, sceneArray)}
+                value={visibilitySettings.defaultSheet}
+                onChange={(e, { value }) => onSetSheetClick(value)}
+              />
+            }
+            className={stylesPop.popup}
+            content="Set sheet"
+            keepInViewPort={false}
+          />
+        }
+        {file &&
+          <Popup
+            trigger={
+              <Dropdown
+                data-tid='setViewDropdown'
+                placeholder="Set view"
+                item
+                options={viewOptions}
+                value={visibilitySettings.defaultView}
+                onChange={(e, { value }) => onSetViewClick(value)}
+              />
+            }
+            className={stylesPop.popup}
+            content="Set view"
+            keepInViewPort={false}
+          />
+        }
         {/* <Menu.Item>
-          {file.name}
+          {file === undefined ? '' : file.name}
         </Menu.Item> */}
         <Menu.Menu position="right">
           {file &&
@@ -164,40 +203,6 @@ const Header = ({
               }
               className={stylesPop.popup}
               content={zoom ? 'Zoom out' : 'Zoom in'}
-              keepInViewPort={false}
-            />
-          }
-          {file &&
-            <Popup
-              trigger={
-                <Dropdown
-                  data-tid='setSheetDropdown'
-                  placeholder="Show Print"
-                  item
-                  options={sheetOptions(sheetsArray, sceneArray)}
-                  value={visibilitySettings.defaultSheet}
-                  onChange={(e, { value }) => onSetSheetClick(value)}
-                />
-              }
-              className={stylesPop.popup}
-              content="Set sheet"
-              keepInViewPort={false}
-            />
-          }
-          {file &&
-            <Popup
-              trigger={
-                <Dropdown
-                  data-tid='setViewDropdown'
-                  placeholder="Set view"
-                  item
-                  options={viewOptions}
-                  value={visibilitySettings.defaultView}
-                  onChange={(e, { value }) => onSetViewClick(value)}
-                />
-              }
-              className={stylesPop.popup}
-              content="Set view"
               keepInViewPort={false}
             />
           }

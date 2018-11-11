@@ -218,13 +218,11 @@ class ThumbGrid extends Component {
                 }}
               onExit={this.props.showSettings ?
                 null : () => this.props.onExitClick()}
-              onErrorThumb={() => {
-                console.log(thumb);
-                return this.props.onErrorThumb(
+              onErrorThumb={() => this.props.onErrorThumb(
                   this.props.file,
                   this.props.visibilitySettings.defaultSheet,
                   thumb.thumbId,
-                  thumb.frameId)}
+                  thumb.frameId)
                 }
               onBack={this.props.showSettings ?
                 null : () => this.props.onBackClick(this.props.file, thumb.thumbId, thumb.frameNumber)}

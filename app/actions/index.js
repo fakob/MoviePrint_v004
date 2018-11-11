@@ -818,30 +818,33 @@ export const clearObjectUrls = () => {
 
 export const updateThumbObjectUrlFromDB = (fileId, sheet, thumbId, frameId, isPosterFrame = false) =>
   (dispatch) => {
-    log.debug('action: updateThumbObjectUrlFromDB');
-    log.debug(frameId);
+    // log.debug('action: updateThumbObjectUrlFromDB');
+    // log.debug(frameId);
     return imageDB.frameList.where('frameId').equals(frameId).toArray().then((frames) => {
-      // log.debug(frames[0]);
-      if (isPosterFrame) {
-        // log.debug('dispatch: UPDATE_OBJECTURL_FROM_POSTERFRAME');
+      // log.debug(frames);
+      if (frames.length !== 0) {
+        if (isPosterFrame) {
+          // log.debug('dispatch: UPDATE_OBJECTURL_FROM_POSTERFRAME');
+          return dispatch({
+            type: 'UPDATE_OBJECTURL_FROM_POSTERFRAME',
+            payload: {
+              frameId,
+              frames
+            },
+          });
+        }
+        // log.debug('dispatch: UPDATE_OBJECTURL_FROM_THUMBLIST');
         return dispatch({
-          type: 'UPDATE_OBJECTURL_FROM_POSTERFRAME',
+          type: 'UPDATE_OBJECTURL_FROM_THUMBLIST',
           payload: {
+            fileId,
+            sheet,
             frameId,
             frames
           },
         });
       }
-      // log.debug('dispatch: UPDATE_OBJECTURL_FROM_THUMBLIST');
-      return dispatch({
-        type: 'UPDATE_OBJECTURL_FROM_THUMBLIST',
-        payload: {
-          fileId,
-          sheet,
-          frameId,
-          frames
-        },
-      });
+      return false;
     }).catch((err) => {
       log.error(err);
     });

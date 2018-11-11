@@ -92,6 +92,7 @@ class App extends Component {
 
     this.webviewRef = React.createRef();
     this.opencvVideoCanvasRef = React.createRef();
+    this.dropzoneRef = React.createRef();
 
     this.state = {
       containerHeight: 0,
@@ -164,6 +165,7 @@ class App extends Component {
     this.onEnterClick = this.onEnterClick.bind(this);
     this.onAddThumbClick = this.onAddThumbClick.bind(this);
     this.switchToPrintView = this.switchToPrintView.bind(this);
+    this.openMoviesDialog = this.openMoviesDialog.bind(this);
     this.onOpenFeedbackForm = this.onOpenFeedbackForm.bind(this);
     this.onCloseFeedbackForm = this.onCloseFeedbackForm.bind(this);
     this.onSaveMoviePrint = this.onSaveMoviePrint.bind(this);
@@ -1332,6 +1334,13 @@ class App extends Component {
     }
   }
 
+  openMoviesDialog() {
+    log.debug('inside openMoviesDialog');
+    console.log(this);
+    console.log(this.dropzoneRef);
+    this.dropzoneRef.current.open();
+  }
+
   onOpenFeedbackForm() {
     log.debug('onOpenFeedbackForm');
     this.setState(
@@ -1644,7 +1653,8 @@ class App extends Component {
     return (
       <ErrorBoundary>
         <Dropzone
-          ref={(el) => { this.dropzoneRef = el; }}
+          ref={this.dropzoneRef}
+          // ref={(el) => { this.dropzoneRef = el; }}
           disableClick
           // disablePreview
           style={{ position: 'relative' }}
@@ -1675,7 +1685,7 @@ class App extends Component {
                     onSetViewClick={this.onSetViewClick}
                     onSetSheetClick={this.onSetSheetClick}
                     onSetSheetFitClick={this.onSetSheetFitClick}
-                    openMoviesDialog={() => this.dropzoneRef.open()}
+                    openMoviesDialog={this.openMoviesDialog}
                     zoom={this.state.zoom}
                     scaleValueObject={this.state.scaleValueObject}
                   />
