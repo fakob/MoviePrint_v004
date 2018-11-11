@@ -1304,9 +1304,8 @@ class App extends Component {
           file.fadeOutPoint
         ));
     }
-    if (this.props.thumbsObjUrls[file.id] === undefined
-      && this.props.thumbsObjUrls[file.id][this.props.visibilitySettings.defaultSheet] === undefined
-      && this.props.thumbsByFileId[file.id] !== undefined) {
+    if (this.props.thumbsObjUrls[file.id] === undefined ||
+      this.props.thumbsObjUrls[file.id][this.props.visibilitySettings.defaultSheet] === undefined) {
       log.debug(`updateObjectUrlsFromThumbList as no objecturls were found for: ${file.name}`);
       store.dispatch(updateObjectUrlsFromThumbList(
           file.id,
