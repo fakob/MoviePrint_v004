@@ -1509,6 +1509,8 @@ class App extends Component {
   onSetSheetFitClick = (value) => {
     const { store } = this.context;
     store.dispatch(setSheetFit(value));
+    // disable zoom
+    this.disableZoom();
   };
 
   onShowHiddenThumbsClick = (value) => {
