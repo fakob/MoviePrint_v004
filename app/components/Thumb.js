@@ -79,6 +79,7 @@ const Thumb = ({
   onToggle,
   selected,
   defaultView,
+  transparentThumb,
   thumbImageObjectUrl,
   thumbInfoRatio,
   thumbInfoValue,
@@ -234,13 +235,13 @@ const Thumb = ({
         margin: `${defaultView === VIEW.GRIDVIEW ? margin : Math.max(1, margin)}px`,
         outlineWidth: `${defaultView === VIEW.GRIDVIEW ? margin : Math.max(1, margin)}px`,
         borderRadius: `${(selected && defaultView !== VIEW.GRIDVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
-        backgroundColor: thumbImageObjectUrl !== undefined ? undefined : color,
+        backgroundColor: transparentThumb ? color : undefined,
       }}
     >
       <div>
         <img
           data-tid={`thumbImg_${thumbId}`}
-          src={thumbImageObjectUrl !== undefined ? thumbImageObjectUrl : transparent}
+          src={(thumbImageObjectUrl !== undefined) && !transparentThumb ? thumbImageObjectUrl : transparent}
           id={`thumbImage${indexForId}`}
           className={`${styles.image} ${dim ? styles.dim : ''}`}
           alt=""

@@ -104,6 +104,8 @@ class ThumbGrid extends Component {
             (i === 0 || i === (tempArrayLength - 1))
           ) {
             tempThumbObject = this.props.thumbs[mappedIterator];
+          } else {
+            tempThumbObject.transparentThumb = true; // set this to control displaying a thumb image or a color
           }
           tempThumbObject.index = i;
         }
@@ -159,6 +161,7 @@ class ThumbGrid extends Component {
                 getObjectProperty(() => this.props.thumbImages[thumb.frameId].objectUrl) ||
                 'blob:file:///fakeURL' // set fakeURL so onError gets triggered to update objecturls
               }
+              transparentThumb={thumb.transparentThumb || undefined}
               aspectRatioInv={this.props.scaleValueObject.aspectRatioInv}
               thumbWidth={this.props.scaleValueObject.newThumbWidth}
               borderRadius={this.props.scaleValueObject.newBorderRadius}
