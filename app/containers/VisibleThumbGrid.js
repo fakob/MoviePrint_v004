@@ -28,8 +28,8 @@ class SortedVisibleThumbGrid extends Component {
 
   // componentDidMount() {
   componentWillMount() {
-    const { store } = this.context;
-    this.unsubscribe = store.subscribe(() => this.forceUpdate());
+    // const { store } = this.context;
+    // this.unsubscribe = store.subscribe(() => this.forceUpdate());
 
     // // only updateObjectUrlsFromThumbList if thumbs exist
     //   store.getState().undoGroup.present.files.map((singleFile) => {
@@ -61,7 +61,7 @@ class SortedVisibleThumbGrid extends Component {
   }
 
   componentWillUnmount() {
-    this.unsubscribe();
+    // this.unsubscribe();
   }
 
   onSortEnd = ({ oldIndex, newIndex }) => {
