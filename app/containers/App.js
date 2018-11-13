@@ -611,27 +611,29 @@ class App extends Component {
         .find((file) => file.id === fileIdToPrint);
         // log.debug(tempFile);
         // log.debug(this.props.thumbsByFileId);
-        const tempThumbs = this.props.thumbsByFileId[fileIdToPrint][this.props.visibilitySettings.defaultSheet];
+        const tempThumbs = this.props.thumbsByFileId[fileIdToPrint][DEFAULT_SHEET_INTERVAL];
         // log.debug(tempThumbs);
-        const data = {
+        const dataToSend = {
+          // scale: 1,
+          // scale: this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
+          defaultSheet: DEFAULT_SHEET_INTERVAL,
           elementId: 'ThumbGrid',
           file: tempFile,
-          // scale: 1,
           moviePrintWidth: this.props.settings.defaultMoviePrintWidth,
-          // scale: this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
+          settings: this.props.settings,
           thumbs: getVisibleThumbs(
             tempThumbs,
             this.props.visibilitySettings.visibilityFilter
           ),
-          settings: this.props.settings,
           visibilitySettings: this.props.visibilitySettings,
         };
         filesToUpdateStatus.push({
           fileId: fileIdToPrint,
           status: 'printing'
         });
-        // log.debug(filesToUpdateStatus);
-        ipcRenderer.send('message-from-mainWindow-to-workerWindow', 'action-save-MoviePrint', data);
+        // console.log(filesToUpdateStatus);
+        // console.log(dataToSend);
+        ipcRenderer.send('message-from-mainWindow-to-workerWindow', 'action-save-MoviePrint', dataToSend);
       }
 
       // only update filesToPrint if there is any update
@@ -793,7 +795,7 @@ class App extends Component {
     // file match needs to be in sync with setMovieList() and accept !!!
     if (Array.from(files).some(file => (file.type.match('video.*') ||
       file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
-      store.dispatch(setSheet(`${DEFAULT_SHEET_INTERVAL}`));
+      store.dispatch(setSheet(DEFAULT_SHEET_INTERVAL));
       store.dispatch(setView(VIEW.GRIDVIEW));
       store.dispatch(setNewMovieList(files, settings)).then((response) => {
         this.setState({
@@ -1238,27 +1240,28 @@ class App extends Component {
   }
 
   onSaveMoviePrint() {
-    const data = {
+    const dataToSend = {
+      // scale: 1,
+      // scale: this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
+      defaultSheet: this.props.visibilitySettings.defaultSheet,
       elementId: 'ThumbGrid',
       file: this.props.file,
-      // scale: 1,
       moviePrintWidth: this.props.settings.defaultMoviePrintWidth,
-      // scale: this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
-      thumbs: this.props.thumbs,
       settings: this.props.settings,
+      thumbs: this.props.thumbs,
       visibilitySettings: this.props.visibilitySettings,
 
     };
-    // log.debug(data);
+    // log.debug(dataToSend);
     this.setState(
       { savingMoviePrint: true },
-      ipcRenderer.send('request-save-MoviePrint', data)
+      ipcRenderer.send('request-save-MoviePrint', dataToSend)
     );
   }
 
   onSaveAllMoviePrints() {
+    log.debug('inside onSaveAllMoviePrints');
     const tempFiles = this.props.files;
-    // log.debug(tempFiles);
     const tempFileIds = tempFiles.map(item => item.id);
     // log.debug(tempFileIds);
 
@@ -1311,19 +1314,19 @@ class App extends Component {
       log.debug(`addDefaultThumbs as no thumbs were found for: ${file.name}`);
       store.dispatch(addDefaultThumbs(
           file,
-          this.props.visibilitySettings.defaultSheet,
+          DEFAULT_SHEET_INTERVAL,
           this.props.settings.defaultThumbCount,
           file.fadeInPoint,
           file.fadeOutPoint
         )).then(() => { // wait for addDefaultThumbs to be finished before updating objecturls
           if (this.props.thumbsObjUrls[file.id] === undefined ||
             (this.props.thumbsObjUrls[file.id] !== undefined &&
-              this.props.thumbsObjUrls[file.id][this.props.visibilitySettings.defaultSheet] === undefined)) {
+              this.props.thumbsObjUrls[file.id][DEFAULT_SHEET_INTERVAL] === undefined)) {
             log.debug(`updateObjectUrlsFromThumbList as no objecturls were found for: ${file.name}`);
             store.dispatch(updateObjectUrlsFromThumbList(
                 file.id,
-                this.props.visibilitySettings.defaultSheet,
-                Object.values(this.props.thumbsByFileId[file.id][this.props.visibilitySettings.defaultSheet])
+                DEFAULT_SHEET_INTERVAL,
+                Object.values(this.props.thumbsByFileId[file.id][DEFAULT_SHEET_INTERVAL])
                   .map((a) => a.frameId)
               ));
           }
@@ -1861,6 +1864,7 @@ class App extends Component {
                             <SortedVisibleThumbGrid
                               colorArray={this.state.colorArray}
                               defaultView={this.props.visibilitySettings.defaultView}
+                              defaultSheet={this.props.visibilitySettings.defaultSheet}
                               file={this.props.file}
                               inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                               keyObject={this.state.keyObject}

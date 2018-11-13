@@ -20,7 +20,7 @@ class WorkerApp extends Component {
     super();
     this.state = {
       savingMoviePrint: false,
-      data: {},
+      sentData: {},
       thumbObjectUrls: {}
     };
   }
@@ -29,16 +29,16 @@ class WorkerApp extends Component {
     log.debug('I am the worker window - responsible for saving a MoviePrint');
     ipcRenderer.on('action-saved-MoviePrint-done', (event) => {
       this.setState({
-        data: {},
+        sentData: {},
         thumbObjectUrls: {},
         savingMoviePrint: false,
       });
     });
 
-    ipcRenderer.on('action-save-MoviePrint', (event, data) => {
+    ipcRenderer.on('action-save-MoviePrint', (event, sentData) => {
       log.debug('workerWindow | action-save-MoviePrint');
-      // log.debug(data);
-      const arrayOfFrameIds = data.thumbs.map(thumb => thumb.frameId);
+      log.debug(sentData);
+      const arrayOfFrameIds = sentData.thumbs.map(thumb => thumb.frameId);
       // log.debug(arrayOfFrameIds);
       // const arrayOfFrameNumbersFromDB = imageDB.thumbList.where('id').equals(arrayOfFrameIds)
       imageDB.frameList.where('frameId').anyOf(arrayOfFrameIds).toArray().then((thumbs) => {
@@ -55,7 +55,7 @@ class WorkerApp extends Component {
         return objectUrlsObject;
       }).then((objectUrlsObject) => {
         this.setState({
-          data,
+          sentData,
           thumbObjectUrls: objectUrlsObject,
           savingMoviePrint: true
         });
@@ -83,14 +83,14 @@ class WorkerApp extends Component {
     if (this.state.savingMoviePrint) {
       log.debug('workerWindow | componentDidUpdate and savingMoviePrint true');
       saveMoviePrint(
-        this.state.data.elementId,
-        this.state.data.settings.defaultOutputPath,
-        this.state.data.file,
+        this.state.sentData.elementId,
+        this.state.sentData.settings.defaultOutputPath,
+        this.state.sentData.file,
         1, // scale
-        this.state.data.settings.defaultOutputFormat,
-        this.state.data.settings.defaultSaveOptionOverwrite,
-        this.state.data.settings.defaultSaveOptionIncludeIndividual,
-        this.state.data.thumbs
+        this.state.sentData.settings.defaultOutputFormat,
+        this.state.sentData.settings.defaultSaveOptionOverwrite,
+        this.state.sentData.settings.defaultSaveOptionIncludeIndividual,
+        this.state.sentData.thumbs
       );
     }
   }
@@ -104,12 +104,12 @@ class WorkerApp extends Component {
             className={`${styles.ItemMain}`}
             style={{
               width: `${getScaleValueObject(
-                this.state.data.file,
-                this.state.data.settings,
-                this.state.data.visibilitySettings,
-                getColumnCount(this.state.data.file, this.state.data.settings),
-                this.state.data.file.thumbCount,
-                this.state.data.moviePrintWidth,
+                this.state.sentData.file,
+                this.state.sentData.settings,
+                this.state.sentData.visibilitySettings,
+                getColumnCount(this.state.sentData.file, this.state.sentData.settings),
+                this.state.sentData.file.thumbCount,
+                this.state.sentData.moviePrintWidth,
                 undefined,
                 1,
                 undefined,
@@ -121,25 +121,26 @@ class WorkerApp extends Component {
               viewForPrinting
               inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
               showSettings={false}
-              file={this.state.data.file}
-              thumbs={this.state.data.thumbs}
+              file={this.state.sentData.file}
+              thumbs={this.state.sentData.thumbs}
               thumbImages={this.state.thumbObjectUrls}
-              settings={this.state.data.settings}
-              visibilitySettings={this.state.data.visibilitySettings}
+              settings={this.state.sentData.settings}
+              visibilitySettings={this.state.sentData.visibilitySettings}
 
               selectedThumbId={undefined}
 
-              colorArray={getMoviePrintColor(this.state.data.settings.defaultThumbCountMax)}
-              thumbCount={this.state.data.file.thumbCount}
+              colorArray={getMoviePrintColor(this.state.sentData.settings.defaultThumbCountMax)}
+              thumbCount={this.state.sentData.file.thumbCount}
 
               defaultView={VIEW.GRIDVIEW}
+              defaultSheet={this.state.sentData.defaultSheet || this.props.visibilitySettings.defaultSheet}
               scaleValueObject={getScaleValueObject(
-                this.state.data.file,
-                this.state.data.settings,
-                this.state.data.visibilitySettings,
-                getColumnCount(this.state.data.file, this.state.data.settings),
-                this.state.data.file.thumbCount,
-                this.state.data.moviePrintWidth,
+                this.state.sentData.file,
+                this.state.sentData.settings,
+                this.state.sentData.visibilitySettings,
+                getColumnCount(this.state.sentData.file, this.state.sentData.settings),
+                this.state.sentData.file.thumbCount,
+                this.state.sentData.moviePrintWidth,
                 undefined,
                 1,
                 undefined,

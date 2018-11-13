@@ -235,7 +235,9 @@ const Thumb = ({
         margin: `${defaultView === VIEW.GRIDVIEW ? margin : Math.max(1, margin)}px`,
         outlineWidth: `${defaultView === VIEW.GRIDVIEW ? margin : Math.max(1, margin)}px`,
         borderRadius: `${(selected && defaultView !== VIEW.GRIDVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
-        backgroundColor: transparentThumb ? color : undefined,
+        backgroundColor: transparentThumb ||
+          (thumbImageObjectUrl === undefined)  ||
+          (thumbImageObjectUrl === 'blob:file:///fakeURL')? color : undefined,
       }}
     >
       <div>

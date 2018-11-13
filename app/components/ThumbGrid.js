@@ -169,8 +169,8 @@ class ThumbGrid extends Component {
               thumbInfoValue={getThumbInfoValue(this.props.settings.defaultThumbInfo, thumb.frameNumber, fps)}
               thumbInfoRatio={this.props.settings.defaultThumbInfoRatio}
               isScene={
-                this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1 &&
-                this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.INTERVAL) === -1
+                this.props.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1 &&
+                this.props.defaultSheet.indexOf(SHEET_TYPE.INTERVAL) === -1
               }
               hidden={thumb.hidden}
               showAddThumbBeforeController={this.props.showSettings ? false : (thumb.thumbId === this.state.addThumbBeforeController)}
@@ -223,7 +223,7 @@ class ThumbGrid extends Component {
                 null : () => this.props.onExitClick()}
               onErrorThumb={() => this.props.onErrorThumb(
                   this.props.file,
-                  this.props.visibilitySettings.defaultSheet,
+                  this.props.defaultSheet,
                   thumb.thumbId,
                   thumb.frameId)
                 }
