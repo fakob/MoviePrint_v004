@@ -5,13 +5,13 @@ import { arrayMove } from 'react-sortable-hoc';
 import scrollIntoView from 'scroll-into-view';
 import {
   toggleThumb, updateOrder, updateObjectUrlsFromThumbList,
-  changeThumb, addDefaultThumbs
+  changeThumb, addDefaultThumbs, setSheet, setView, updateThumbObjectUrlFromDB
 } from '../actions';
 import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
 import { getLowestFrame, getHighestFrame } from '../utils/utils';
 import saveThumb from '../utils/saveThumb';
-import { CHANGE_THUMB_STEP } from '../utils/constants';
+import { CHANGE_THUMB_STEP, VIEW, DEFAULT_SHEET_SCENES } from '../utils/constants';
 
 class SortedVisibleThumbGrid extends Component {
   constructor(props) {
@@ -23,32 +23,20 @@ class SortedVisibleThumbGrid extends Component {
 
     this.scrollThumbIntoView = this.scrollThumbIntoView.bind(this);
     this.onSelectClick = this.onSelectClick.bind(this);
+    this.onErrorThumb = this.onErrorThumb.bind(this);
   }
 
   // componentDidMount() {
   componentWillMount() {
-    const { store } = this.context;
-    this.unsubscribe = store.subscribe(() => this.forceUpdate());
-    store.getState().undoGroup.present.files.map((singleFile) => {
-      if (store.getState().undoGroup.present.thumbsByFileId[singleFile.id] !== undefined) {
-        store.dispatch(updateObjectUrlsFromThumbList(
-          singleFile.id,
-          Object.values(store.getState().undoGroup.present
-            .thumbsByFileId[singleFile.id]
-            .thumbs).map((a) => a.frameId)
-        ));
-      }
-      return true;
-    });
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.selectedThumbId !== this.props.selectedThumbId) {
       this.scrollThumbIntoView();
     }
-    // delay when switching to thumbView so it waits for the view to be ready
-    if ((prevProps.showMoviePrintView !== this.props.showMoviePrintView) &&
-    prevProps.showMoviePrintView) {
+    // delay when switching to gridView so it waits for the view to be ready
+    if ((prevProps.defaultView !== this.props.defaultView) &&
+    prevProps.defaultView) {
       setTimeout(() => {
         this.scrollThumbIntoView();
       }, 500);
@@ -56,20 +44,31 @@ class SortedVisibleThumbGrid extends Component {
   }
 
   componentWillUnmount() {
-    this.unsubscribe();
+    // this.unsubscribe();
   }
 
   onSortEnd = ({ oldIndex, newIndex }) => {
     const { store } = this.context;
     const newOrderedThumbs = arrayMove(store.getState().undoGroup.present
-      .thumbsByFileId[store.getState().undoGroup.present.settings.currentFileId]
-      .thumbs, oldIndex, newIndex);
-    store.dispatch(updateOrder(store.getState()
-      .undoGroup.present.settings.currentFileId, newOrderedThumbs));
+      .thumbsByFileId[store.getState().undoGroup.present.settings.currentFileId][this.props.defaultSheet],
+      oldIndex,
+      newIndex);
+    store.dispatch(updateOrder(
+      store.getState().undoGroup.present.settings.currentFileId,
+      this.props.defaultSheet,
+      newOrderedThumbs));
   };
 
   onSelectClick = (thumbId, frameNumber) => {
-    this.props.selectMethod(thumbId, frameNumber);
+    this.props.selectThumbMethod(thumbId, frameNumber);
+  }
+
+  onErrorThumb = (file, sheet, thumbId, frameId) => {
+    const { store } = this.context;
+    console.log('inside onErrorThumb')
+    if (frameId !== undefined) {
+      store.dispatch(updateThumbObjectUrlFromDB(file.id, sheet, thumbId, frameId, false));
+    }
   }
 
   scrollThumbIntoView = () => {
@@ -88,32 +87,34 @@ class SortedVisibleThumbGrid extends Component {
     // const state = store.getState();
     return (
       <SortableThumbGrid
-        viewForPrinting={this.props.viewForPrinting}
-        ref={this.props.inputRef} // for the saveMoviePrint function
-        inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
-        showSettings={this.props.showSettings}
         colorArray={this.props.colorArray}
-        thumbs={this.props.thumbs}
-        thumbImages={this.props.thumbImages}
-        settings={this.props.settings}
-        visibilitySettings={this.props.visibilitySettings}
+        defaultView={this.props.defaultView}
+        defaultSheet={this.props.defaultSheet}
         file={this.props.file}
-        selectedThumbId={this.props.selectedThumbId}
-        thumbCount={this.props.thumbCount}
-        showMoviePrintView={this.props.showMoviePrintView}
-        scaleValueObject={this.props.scaleValueObject}
+        inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
         keyObject={this.props.keyObject}
-
-        onSelectClick={this.onSelectClick}
-        onThumbDoubleClick={this.props.onThumbDoubleClick}
-        onToggleClick={this.props.onToggleClick}
-        onScrubClick={this.props.onScrubClick}
         onAddThumbClick={this.props.onAddThumbClick}
         onBackClick={this.props.onBackClick}
         onForwardClick={this.props.onForwardClick}
         onInPointClick={this.props.onInPointClick}
         onOutPointClick={this.props.onOutPointClick}
         onSaveThumbClick={this.props.onSaveThumbClick}
+        onScrubClick={this.props.onScrubClick}
+        onSelectClick={this.onSelectClick}
+        onErrorThumb={this.onErrorThumb}
+        onExitClick={this.props.onExitClick}
+        onThumbDoubleClick={this.props.onThumbDoubleClick}
+        onToggleClick={this.props.onToggleClick}
+        ref={this.props.inputRef} // for the saveMoviePrint function
+        scaleValueObject={this.props.scaleValueObject}
+        selectedThumbId={this.props.selectedThumbId}
+        settings={this.props.settings}
+        showSettings={this.props.showSettings}
+        thumbCount={this.props.thumbCount}
+        thumbImages={this.props.thumbImages}
+        thumbs={this.props.thumbs}
+        viewForPrinting={this.props.viewForPrinting}
+        visibilitySettings={this.props.visibilitySettings}
 
         useDragHandle
         axis="xy"
@@ -150,12 +151,17 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
+    onExitClick: () => {
+      dispatch(setSheet(DEFAULT_SHEET_SCENES));
+      dispatch(setView(VIEW.TIMELINEVIEW));
+    },
     onToggleClick: (fileId, thumbId) => {
-      dispatch(toggleThumb(fileId, thumbId));
+      dispatch(toggleThumb(fileId, ownProps.defaultSheet, thumbId));
     },
     onInPointClick: (file, thumbs, thumbId, frameNumber) => {
       dispatch(addDefaultThumbs(
         file,
+        ownProps.defaultSheet,
         thumbs.length,
         frameNumber,
         getHighestFrame(thumbs)
@@ -164,6 +170,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     onOutPointClick: (file, thumbs, thumbId, frameNumber) => {
       dispatch(addDefaultThumbs(
         file,
+        ownProps.defaultSheet,
         thumbs.length,
         getLowestFrame(thumbs),
         frameNumber
@@ -181,7 +188,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       if (ownProps.keyObject.altKey) {
         stepValue = stepValue2;
       }
-      dispatch(changeThumb(file, thumbId, frameNumber - stepValue));
+      dispatch(changeThumb(ownProps.defaultSheet, file, thumbId, frameNumber - stepValue));
     },
     onForwardClick: (file, thumbId, frameNumber) => {
       const [stepValue0, stepValue1, stepValue2] = CHANGE_THUMB_STEP;
@@ -192,7 +199,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       if (ownProps.keyObject.altKey) {
         stepValue = stepValue2;
       }
-      dispatch(changeThumb(file, thumbId, frameNumber + stepValue));
+      dispatch(changeThumb(ownProps.defaultSheet, file, thumbId, frameNumber + stepValue));
     }
   };
 };
@@ -226,9 +233,10 @@ SortedVisibleThumbGrid.propTypes = {
   onToggleClick: PropTypes.func.isRequired,
   scaleValueObject: PropTypes.object.isRequired,
   selectedThumbId: PropTypes.string,
-  selectMethod: PropTypes.func,
+  selectThumbMethod: PropTypes.func,
   settings: PropTypes.object.isRequired,
-  showMoviePrintView: PropTypes.bool.isRequired,
+  defaultView: PropTypes.string.isRequired,
+  defaultSheet: PropTypes.string.isRequired,
   showSettings: PropTypes.bool.isRequired,
   thumbCount: PropTypes.number.isRequired,
   thumbImages: PropTypes.object,

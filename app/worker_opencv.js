@@ -3,6 +3,7 @@ import { render } from 'react-dom';
 import log from 'electron-log';
 import VideoCaptureProperties from './utils/videoCaptureProperties';
 import { limitRange, setPosition, fourccToString } from './utils/utils';
+import { HSVtoRGB } from './utils/utilsForOpencv';
 import {
   IN_OUT_POINT_SEARCH_LENGTH,
   IN_OUT_POINT_SEARCH_THRESHOLD,
@@ -416,7 +417,6 @@ ipcRenderer.on(
 
     const minSceneLength = 15;
 
-    const sceneList = [];
     const frameMetrics = [];
     let lastFrameMean = new opencv.Vec(null, null, null, null);;
     let lastSceneCut = null;
@@ -446,25 +446,40 @@ ipcRenderer.on(
               .resizeToMax(240)
               .cvtColor(opencv.COLOR_BGR2HSV)
               .mean();
+            // const frameResized = mat.resizeToMax(240);
+            // const frameHSV = frameResized.cvtColor(opencv.COLOR_BGR2HSV)
+            // frameMean = frameHSV.mean();
 
             const deltaFrameMean = frameMean.absdiff(lastFrameMean);
             const frameHsvAverage = (deltaFrameMean.w + deltaFrameMean.x + deltaFrameMean.y) / 3.0; // w = H, x = S, y = V = brightness
 
             if (frameHsvAverage >= threshold) {
               if (((lastSceneCut === null) || ((frame - lastSceneCut) >= minSceneLength))) {
-                sceneList.push({
-                  frame,
-                });
+                // only start adding scenes after the first scene has been detected
+                if (lastSceneCut !== null) {
+                  const length = frame - lastSceneCut - 1; // length
+                  ipcRenderer.send(
+                    'message-from-opencvWorkerWindow-to-mainWindow',
+                    'addScene',
+                    fileId,
+                    lastSceneCut, // start
+                    length,
+                    HSVtoRGB(frameMean.w, frameMean.x, frameMean.y), // color
+                  );
+                }
                 lastSceneCut = frame;
-                // log.debug(sceneList);
               }
             }
             // log.debug(`${frame}: ${deltaFrameMean.y} = ${frameMean.y} - ${lastFrameMean.y}`);
             lastFrameMean = frameMean;
 
+            log.debug(frameMean);
+            log.debug(`h: ${frameMean.w}, s: ${frameMean.x}, v: ${frameMean.y}`);
             frameMetrics.push({
               frame,
-              mean: frameMean.y
+              mean: frameMean.y,
+              meanColor: HSVtoRGB(frameMean.w, frameMean.x, frameMean.y)
+              // meanColor: hsvToHsl(frameMean.w, frameMean.x, frameMean.y)
             });
           } else {
             log.error(
@@ -476,7 +491,8 @@ ipcRenderer.on(
             );
             frameMetrics.push({
               frame: iterator,
-              mean: undefined
+              mean: undefined,
+              meanColor: undefined
             });
           }
           iterator += 1;
@@ -490,15 +506,27 @@ ipcRenderer.on(
             log.debug(messageToSend);
             console.timeEnd(`${fileId}-fileScanning`);
 
+            // add last scene
+            const length = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - lastSceneCut - 1; // length
+            ipcRenderer.send(
+              'message-from-opencvWorkerWindow-to-mainWindow',
+              'addScene',
+              fileId,
+              lastSceneCut, // start
+              length,
+              HSVtoRGB(frameMean.w, frameMean.x, frameMean.y), // color
+            );
+
             const tempMeanArray = frameMetrics.map((item) => item.mean);
+            const tempMeanColorArray = frameMetrics.map((item) => item.meanColor);
             // log.debug(tempMeanArray);
 
             ipcRenderer.send(
               'message-from-opencvWorkerWindow-to-mainWindow',
               'received-get-file-scan',
               fileId,
-              sceneList,
-              tempMeanArray
+              tempMeanArray,
+              tempMeanColorArray
             );
 
             ipcRenderer.send(
@@ -522,6 +550,14 @@ ipcRenderer.on(
       const startFrame = 0;
       let iterator = 0;
       if (err1) throw err1;
+
+      // before scene detection starts clearScenes
+      ipcRenderer.send(
+        'message-from-opencvWorkerWindow-to-mainWindow',
+        'clearScenes',
+        fileId,
+      );
+
       setPosition(vid, startFrame, useRatio);
       read(); // start reading frames
     });
@@ -536,6 +572,7 @@ ipcRenderer.on(
     event,
     fileId,
     filePath,
+    sheet,
     thumbIdArray,
     frameIdArray,
     frameNumberArray,
@@ -557,6 +594,7 @@ ipcRenderer.on(
           'message-from-opencvWorkerWindow-to-mainWindow',
           'receive-get-thumbs',
           fileId,
+          sheet,
           thumbIdArray[i],
           frameIdArray[i],
           '',
@@ -579,6 +617,7 @@ ipcRenderer.on(
           'message-from-opencvWorkerWindow-to-mainWindow',
           'receive-get-thumbs',
           fileId,
+          sheet,
           thumbIdArray[i],
           frameIdArray[i],
           outBase64,
@@ -599,6 +638,7 @@ ipcRenderer.on(
     event,
     fileId,
     filePath,
+    sheet,
     thumbIdArray,
     frameIdArray,
     frameNumberArray,
@@ -638,6 +678,7 @@ ipcRenderer.on(
               'message-from-opencvWorkerWindow-to-mainWindow',
               'receive-get-thumbs',
               fileId,
+              sheet,
               thumbIdArray[iterator],
               frameIdArray[iterator],
               outBase64,
@@ -672,6 +713,7 @@ ipcRenderer.on(
                 'message-from-opencvWorkerWindow-to-mainWindow',
                 'receive-get-thumbs',
                 fileId,
+                sheet,
                 thumbIdArray[iterator],
                 frameIdArray[iterator],
                 '',

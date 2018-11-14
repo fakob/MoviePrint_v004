@@ -14,10 +14,12 @@ const visibilitySettings = (state = {}, action) => {
       return { ...state, showSettings: true };
     case 'HIDE_SETTINGS':
       return { ...state, showSettings: false };
-    case 'SHOW_MOVIEPRINT_VIEW':
-      return { ...state, showMoviePrintView: true };
-    case 'SHOW_THUMB_VIEW':
-      return { ...state, showMoviePrintView: false };
+    case 'SET_SHEET':
+      return { ...state, defaultSheet: action.defaultSheet };
+    case 'SET_VIEW':
+      return { ...state, defaultView: action.defaultView };
+    case 'SET_SHEET_FIT':
+      return { ...state, defaultSheetFit: action.defaultSheetFit };
     // case 'TOGGLE_ZOOM_OUT':
     //   return { ...state, zoomOut: !state.zoomOut };
     // case 'ZOOM_OUT':

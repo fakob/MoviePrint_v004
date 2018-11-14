@@ -5,7 +5,6 @@ import { ActionCreators as UndoActionCreators } from 'redux-undo';
 import Root from './containers/Root';
 import { configureStore, history } from './store/configureStore';
 // import { loadState, saveState } from './store/localStorage';
-import { updateFileDetails, updateThumbImage } from './actions';
 
 const { ipcRenderer } = require('electron');
 

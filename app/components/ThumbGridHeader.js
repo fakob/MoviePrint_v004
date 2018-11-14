@@ -11,7 +11,7 @@ import styles from './ThumbGrid.css';
 import movieprint from './../img/MoviePrint-titleimage.svg';
 
 const ThumbGridHeader = ({
-  showMoviePrintView,
+  defaultView,
   filePath,
   fileName,
   fileDetails,
@@ -146,6 +146,7 @@ const ThumbGridHeader = ({
           />
           {allFrameNumbersInPercentArray.map(frameInPercent => (
             <div
+              key={frameInPercent}
               className={`${styles.timelineThumbIndicator}`}
               style={{
                 left: `${frameInPercent}%`,
@@ -164,7 +165,7 @@ ThumbGridHeader.defaultProps = {
 };
 
 ThumbGridHeader.propTypes = {
-  showMoviePrintView: PropTypes.bool.isRequired,
+  defaultView: PropTypes.string.isRequired,
   filePath: PropTypes.string.isRequired,
   fileName: PropTypes.string.isRequired,
   fileDetails: PropTypes.string.isRequired,

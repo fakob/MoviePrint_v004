@@ -1,24 +1,29 @@
 import log from 'electron-log';
 import {
   DEFAULT_THUMB_COUNT, DEFAULT_COLUMN_COUNT, DEFAULT_MOVIE_WIDTH, DEFAULT_MOVIE_HEIGHT,
-  SHOW_PAPER_ADJUSTMENT_SCALE, DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN
+  SHOW_PAPER_ADJUSTMENT_SCALE, DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN, VIEW, SHEET_FIT
 } from './constants';
 
 const getScaleValueObject = (
   file,
   settings,
+  visibilitySettings,
   columnCount = DEFAULT_COLUMN_COUNT,
   thumbCount = DEFAULT_THUMB_COUNT,
   containerWidth,
   containerHeight = 99999, // very high value so it is not taken into account when not set
-  showMoviePrintView,
   zoomScale,
-  showPaperPreview = false
+  showPaperPreview = false,
+  forPrinting = false,
 ) => {
   const movieWidth = (file !== undefined && file.width !== undefined ? file.width : DEFAULT_MOVIE_WIDTH);
   const movieHeight = (file !== undefined && file.height !== undefined ? file.height : DEFAULT_MOVIE_HEIGHT);
   const movieAspectRatioInv = (movieHeight * 1.0) / movieWidth;
   const rowCount = Math.ceil(thumbCount / columnCount);
+  const showPlayerView = visibilitySettings.defaultView === VIEW.PLAYERVIEW;
+  const sheetFit = visibilitySettings.defaultSheetFit;
+  const showSettings = visibilitySettings.showSettings;
+  const containerAspectRatioInv = (containerHeight * 1.0) / containerWidth;
 
   // headerHeight gets increased depending on how much information is shown inside
   const headerHeightMultiplier = 1 + ((settings.defaultShowPathInHeader + settings.defaultShowDetailsInHeader + settings.defaultShowTimelineInHeader) / 3.0);
@@ -38,7 +43,7 @@ const getScaleValueObject = (
   const moviePrintHeight = headerHeight + (thumbMargin * 2) + moviePrintHeightBody;
   const moviePrintAspectRatioInv = (moviePrintHeight * 1.0) / moviePrintWidth;
 
-  // for thumbView
+  // for playerView
   const videoHeight = ((containerHeight * 2) / 3) - settings.defaultVideoPlayerControllerHeight;
   const videoWidth = videoHeight / movieAspectRatioInv;
   let videoPlayerHeight = videoHeight + settings.defaultVideoPlayerControllerHeight;
@@ -57,7 +62,7 @@ const getScaleValueObject = (
     thumbnailWidthForThumbView + (thumbMarginForThumbView * 2);
   const moviePrintWidthForThumbView =
     (thumbCount * thumbnailWidthPlusMarginForThumbView) + (thumbnailWidthForThumbView / 2); // only one row
-    // for thumbView
+    // for playerView
 
   // for scrubView
   const scrubContainerHeight = Math.min(
@@ -95,24 +100,30 @@ const getScaleValueObject = (
   const scaleValueWidth = containerWidth / (showPaperPreview ? paperMoviePrintWidth : moviePrintWidth);
   const scaleValueHeight = containerHeight / (showPaperPreview ? paperMoviePrintHeight : moviePrintHeight);
 
-  const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * zoomScale * showPaperAdjustmentScale;
+  // default is SHEET_FIT.BOTH which is used when showSettings and forPrinting
+  let scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * zoomScale * showPaperAdjustmentScale;
+  if (!forPrinting && !showSettings && sheetFit === SHEET_FIT.WIDTH) {
+    scaleValue = scaleValueWidth * zoomScale * showPaperAdjustmentScale;
+  } else if (!forPrinting && !showSettings && sheetFit === SHEET_FIT.HEIGHT) {
+    scaleValue = scaleValueHeight * zoomScale * showPaperAdjustmentScale;
+  }
   const scaleValueForPrinting = containerWidth / moviePrintWidthForPrinting;
 
   const newMoviePrintWidth =
-    showMoviePrintView ? moviePrintWidth * scaleValue + DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN : moviePrintWidthForThumbView;
-  const newMoviePrintHeight = showMoviePrintView ? (newMoviePrintWidth * moviePrintAspectRatioInv) : moviePrintHeight;
+    showPlayerView ? moviePrintWidthForThumbView : moviePrintWidth * scaleValue + DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN;
+  const newMoviePrintHeight = showPlayerView ? moviePrintHeight : (newMoviePrintWidth * moviePrintAspectRatioInv);
   const newMoviePrintWidthForPrinting = moviePrintWidthForPrinting * scaleValueForPrinting;
-  const newThumbMargin = showMoviePrintView ? thumbMargin * scaleValue : thumbMarginForThumbView;
-  const newThumbWidth = showMoviePrintView ? thumbWidth * scaleValue : thumbnailWidthForThumbView;
-  const newBorderRadius = showMoviePrintView ? borderRadius * scaleValue : borderRadiusForThumbView;
-  const newHeaderHeight = showMoviePrintView ? headerHeight * scaleValue : headerHeight;
-  const newLogoHeight = showMoviePrintView ? logoHeight * scaleValue : logoHeight;
-  const newScaleValue = showMoviePrintView ? settings.defaultThumbnailScale * scaleValue :
-    settings.defaultThumbnailScale;
+  const newThumbMargin = showPlayerView ? thumbMarginForThumbView : thumbMargin * scaleValue;
+  const newThumbWidth = showPlayerView ? thumbnailWidthForThumbView : thumbWidth * scaleValue;
+  const newBorderRadius = showPlayerView ? borderRadiusForThumbView : borderRadius * scaleValue;
+  const newHeaderHeight = showPlayerView ? headerHeight : headerHeight * scaleValue;
+  const newLogoHeight = showPlayerView ? logoHeight : logoHeight * scaleValue;
+  const newScaleValue = showPlayerView ? settings.defaultThumbnailScale : settings.defaultThumbnailScale * scaleValue;
 
   const scaleValueObject = {
     containerWidth,
     containerHeight,
+    containerAspectRatioInv,
     aspectRatioInv: movieAspectRatioInv,
     newMoviePrintWidth,
     newMoviePrintHeight,

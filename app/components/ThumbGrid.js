@@ -3,6 +3,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import uuidV4 from 'uuid/v4';
 import Thumb from './Thumb';
 import ThumbGridHeader from './ThumbGridHeader';
 import styles from './ThumbGrid.css';
@@ -21,6 +22,7 @@ import {
 } from './../utils/utils';
 import {
   MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
+  VIEW, SHEET_TYPE
 } from './../utils/constants';
 
 const SortableThumb = SortableElement(Thumb);
@@ -93,7 +95,6 @@ class ThumbGrid extends Component {
         };
         if (this.props.thumbs.length === 0) {
           tempThumbObject = {
-            key: String(i),
             index: i,
           };
         } else if (this.props.thumbs.length === tempArrayLength) {
@@ -103,8 +104,9 @@ class ThumbGrid extends Component {
             (i === 0 || i === (tempArrayLength - 1))
           ) {
             tempThumbObject = this.props.thumbs[mappedIterator];
+          } else {
+            tempThumbObject.transparentThumb = true; // set this to control displaying a thumb image or a color
           }
-          tempThumbObject.key = i;
           tempThumbObject.index = i;
         }
         thumbArray[i] = tempThumbObject;
@@ -116,14 +118,14 @@ class ThumbGrid extends Component {
         className={styles.grid}
         style={{
           width: this.props.viewForPrinting ? this.props.scaleValueObject.newMoviePrintWidthForPrinting : this.props.scaleValueObject.newMoviePrintWidth,
-          marginLeft: this.props.showMoviePrintView ? undefined : (this.props.scaleValueObject.newThumbWidth / 4),
+          marginLeft: this.props.visibilitySettings.defaultView === VIEW.GRIDVIEW ? undefined : (this.props.scaleValueObject.newThumbWidth / 4),
         }}
         id="ThumbGrid"
       >
-        {this.props.settings.defaultShowHeader && this.props.showMoviePrintView &&
+        {this.props.settings.defaultShowHeader && this.props.visibilitySettings.defaultView === VIEW.GRIDVIEW &&
           <ThumbGridHeader
             viewForPrinting={this.props.viewForPrinting}
-            showMoviePrintView={this.props.showMoviePrintView}
+            defaultView={this.props.defaultView}
             fileName={this.props.file.name || ''}
             filePath={this.props.file.path || ''}
             fileDetails={fileDetails}
@@ -145,9 +147,9 @@ class ThumbGrid extends Component {
         >
           {thumbArray.map(thumb => (
             <SortableThumb
-              showMoviePrintView={this.props.showMoviePrintView}
+              defaultView={this.props.defaultView}
               keyObject={this.props.keyObject}
-              key={thumb.thumbId}
+              key={thumb.thumbId || uuidV4()}
               thumbId={thumb.thumbId}
               index={thumb.index}
               indexForId={thumb.index}
@@ -156,13 +158,20 @@ class ThumbGrid extends Component {
                 this.props.inputRefThumb : undefined} // for the thumb scrollIntoView function
               color={(this.props.colorArray !== undefined ? this.props.colorArray[thumb.index] : undefined)}
               thumbImageObjectUrl={thumb.thumbImageObjectUrl ||
-                getObjectProperty(() => this.props.thumbImages[thumb.frameId].objectUrl)}
+                getObjectProperty(() => this.props.thumbImages[thumb.frameId].objectUrl) ||
+                'blob:file:///fakeURL' // set fakeURL so onError gets triggered to update objecturls
+              }
+              transparentThumb={thumb.transparentThumb || undefined}
               aspectRatioInv={this.props.scaleValueObject.aspectRatioInv}
               thumbWidth={this.props.scaleValueObject.newThumbWidth}
               borderRadius={this.props.scaleValueObject.newBorderRadius}
               margin={this.props.scaleValueObject.newThumbMargin}
               thumbInfoValue={getThumbInfoValue(this.props.settings.defaultThumbInfo, thumb.frameNumber, fps)}
               thumbInfoRatio={this.props.settings.defaultThumbInfoRatio}
+              isScene={
+                this.props.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1 &&
+                this.props.defaultSheet.indexOf(SHEET_TYPE.INTERVAL) === -1
+              }
               hidden={thumb.hidden}
               showAddThumbBeforeController={this.props.showSettings ? false : (thumb.thumbId === this.state.addThumbBeforeController)}
               showAddThumbAfterController={this.props.showSettings ? false : (thumb.thumbId === this.state.addThumbAfterController)}
@@ -210,6 +219,14 @@ class ThumbGrid extends Component {
                 null : () => {
                   this.props.onSelectClick(thumb.thumbId, thumb.frameNumber);
                 }}
+              onExit={this.props.showSettings ?
+                null : () => this.props.onExitClick()}
+              onErrorThumb={() => this.props.onErrorThumb(
+                  this.props.file,
+                  this.props.defaultSheet,
+                  thumb.thumbId,
+                  thumb.frameId)
+                }
               onBack={this.props.showSettings ?
                 null : () => this.props.onBackClick(this.props.file, thumb.thumbId, thumb.frameNumber)}
               onForward={this.props.showSettings ?
@@ -279,7 +296,7 @@ ThumbGrid.propTypes = {
   scaleValueObject: PropTypes.object.isRequired,
   selectedThumbId: PropTypes.string,
   settings: PropTypes.object.isRequired,
-  showMoviePrintView: PropTypes.bool.isRequired,
+  defaultView: PropTypes.string.isRequired,
   showSettings: PropTypes.bool.isRequired,
   thumbCount: PropTypes.number.isRequired,
   thumbImages: PropTypes.object,

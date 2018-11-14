@@ -4,7 +4,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { SortableHandle } from 'react-sortable-hoc';
 import { Popup } from 'semantic-ui-react';
-import { MINIMUM_WIDTH_TO_SHRINK_HOVER, MINIMUM_WIDTH_TO_SHOW_HOVER } from '../utils/constants';
+import {
+  MINIMUM_WIDTH_TO_SHRINK_HOVER,
+  MINIMUM_WIDTH_TO_SHOW_HOVER,
+  VIEW,
+} from '../utils/constants';
 import styles from './ThumbGrid.css';
 import stylesPop from './Popup.css';
 
@@ -50,6 +54,7 @@ const Thumb = ({
   index,
   indexForId,
   inputRefThumb,
+  isScene,
   keyObject,
   margin,
   onBack,
@@ -68,10 +73,13 @@ const Thumb = ({
   onOver,
   onSaveThumb,
   onSelect,
+  onExit,
+  onErrorThumb,
   onThumbDoubleClick,
   onToggle,
   selected,
-  showMoviePrintView,
+  defaultView,
+  transparentThumb,
   thumbImageObjectUrl,
   thumbInfoRatio,
   thumbInfoValue,
@@ -166,7 +174,7 @@ const Thumb = ({
   function onThumbDoubleClickWithStop(e) {
     e.stopPropagation();
     if (controllersAreVisible) {
-      if (showMoviePrintView) {
+      if (defaultView === VIEW.GRIDVIEW) {
         onSelect();
       }
       onThumbDoubleClick();
@@ -177,6 +185,13 @@ const Thumb = ({
     e.stopPropagation();
     if (controllersAreVisible) {
       onSelect();
+    }
+  }
+
+  function onExitWithStop(e) {
+    e.stopPropagation();
+    if (controllersAreVisible) {
+      onExit();
     }
   }
 
@@ -212,21 +227,23 @@ const Thumb = ({
       onKeyPress={onSelectWithStop}
       onDoubleClick={onThumbDoubleClickWithStop}
       id={`thumb${indexForId}`}
-      className={`${styles.gridItem} ${(!showMoviePrintView && selected && !(keyObject.altKey || keyObject.shiftKey)) ? styles.gridItemSelected : ''}`}
+      className={`${styles.gridItem} ${(defaultView !== VIEW.GRIDVIEW && selected && !(keyObject.altKey || keyObject.shiftKey)) ? styles.gridItemSelected : ''}`}
       width={`${thumbWidth}px`}
       height={`${(thumbWidth * aspectRatioInv)}px`}
       style={{
         width: thumbWidth,
-        margin: `${showMoviePrintView ? margin : Math.max(1, margin)}px`,
-        outlineWidth: `${showMoviePrintView ? margin : Math.max(1, margin)}px`,
-        borderRadius: `${(selected && !showMoviePrintView) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
-        backgroundColor: thumbImageObjectUrl !== undefined ? undefined : color,
+        margin: `${defaultView === VIEW.GRIDVIEW ? margin : Math.max(1, margin)}px`,
+        outlineWidth: `${defaultView === VIEW.GRIDVIEW ? margin : Math.max(1, margin)}px`,
+        borderRadius: `${(selected && defaultView !== VIEW.GRIDVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
+        backgroundColor: transparentThumb ||
+          (thumbImageObjectUrl === undefined)  ||
+          (thumbImageObjectUrl === 'blob:file:///fakeURL')? color : undefined,
       }}
     >
       <div>
         <img
           data-tid={`thumbImg_${thumbId}`}
-          src={thumbImageObjectUrl !== undefined ? thumbImageObjectUrl : transparent}
+          src={(thumbImageObjectUrl !== undefined) && !transparentThumb ? thumbImageObjectUrl : transparent}
           id={`thumbImage${indexForId}`}
           className={`${styles.image} ${dim ? styles.dim : ''}`}
           alt=""
@@ -235,8 +252,9 @@ const Thumb = ({
           style={{
             filter: `${controllersAreVisible ? 'brightness(80%)' : ''}`,
             opacity: hidden ? '0.2' : '1',
-            borderRadius: `${(selected && !showMoviePrintView) ? 0 : borderRadius}px`,
+            borderRadius: `${(selected && defaultView !== VIEW.GRIDVIEW) ? 0 : borderRadius}px`,
           }}
+          onError={onErrorThumb}
         />
         {thumbInfoValue !== undefined &&
           <div
@@ -254,13 +272,40 @@ const Thumb = ({
             display: controllersAreVisible ? 'block' : 'none'
           }}
         >
-          {showMoviePrintView &&
+          {defaultView === VIEW.GRIDVIEW &&
             <DragHandle
               width={thumbWidth - 1} // shrink it to prevent rounding issues
               height={(thumbWidth * aspectRatioInv) - 1}
               thumbId={thumbId}
             />
           }
+          {isScene && <Popup
+            trigger={
+              <button
+                data-tid={`ExitThumbBtn_${thumbId}`}
+                type='button'
+                style={{
+                  display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+                  transformOrigin: 'left top',
+                  transform: `translateY(10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  marginLeft: '8px',
+                }}
+                className={`${styles.hoverButton} ${styles.textButton}`}
+                onClick={onExitWithStop}
+                onMouseOver={over}
+                onMouseLeave={out}
+                onFocus={over}
+                onBlur={out}
+              >
+                EXIT
+              </button>
+            }
+            className={stylesPop.popup}
+            content="Enter into scene"
+          />}
           <Popup
             trigger={
               <button
@@ -454,7 +499,7 @@ const Thumb = ({
             </div>
         }
         </div>
-        {!showMoviePrintView && selected && (showBeforeController || showAfterController) &&
+        {defaultView !== VIEW.GRIDVIEW && selected && (showBeforeController || showAfterController) &&
           <div
             data-tid={`insertThumb${(!showAfterController && showBeforeController) ? 'Before' : 'After'}Div_${thumbId}`}
             style={{
@@ -517,6 +562,7 @@ Thumb.defaultProps = {
   onOver: null,
   onSaveThumb: null,
   onSelect: null,
+  onExit: null,
   onToggle: null,
   selected: false,
   thumbImageObjectUrl: undefined,
@@ -549,10 +595,11 @@ Thumb.propTypes = {
   onOver: PropTypes.func,
   onSaveThumb: PropTypes.func,
   onSelect: PropTypes.func,
+  onExit: PropTypes.func,
   onThumbDoubleClick: PropTypes.func,
   onToggle: PropTypes.func,
   selected: PropTypes.bool,
-  showMoviePrintView: PropTypes.bool.isRequired,
+  defaultView: PropTypes.string.isRequired,
   index: PropTypes.number,
   indexForId: PropTypes.number,
   thumbImageObjectUrl: PropTypes.string,

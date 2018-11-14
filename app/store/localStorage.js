@@ -2,7 +2,10 @@ import {
   VISIBILITY_FILTER,
   SHOW_MOVIELIST,
   SHOW_SETTINGS,
-  SHOW_MOVIE_PRINT_VIEW,
+  DEFAULT_VIEW,
+  DEFAULT_SHEET,
+  DEFAULT_SHEET_TYPE,
+  DEFAULT_SHEET_FIT,
   DEFAULT_THUMB_COUNT_MAX,
   DEFAULT_THUMB_COUNT,
   DEFAULT_COLUMN_COUNT,
@@ -35,6 +38,8 @@ import {
   DEFAULT_SCRUB_WINDOW_MARGIN,
   DEFAULT_SCRUB_CONTAINER_MAXHEIGHTRATIO,
   DEFAULT_SCRUB_WINDOW_WIDTHRATIO,
+  DEFAULT_SCENE_DETECTION_THRESHOLD,
+  DEFAULT_SCENE_DETECTION_MINUTES_PER_ROW,
 } from '../utils/constants';
 
 const { app } = require('electron').remote;
@@ -45,7 +50,10 @@ const initialStateJSON = {
     visibilityFilter: VISIBILITY_FILTER,
     showMovielist: SHOW_MOVIELIST,
     showSettings: SHOW_SETTINGS,
-    showMoviePrintView: SHOW_MOVIE_PRINT_VIEW,
+    defaultView: DEFAULT_VIEW,
+    defaultSheet: DEFAULT_SHEET,
+    defaultSheetType: DEFAULT_SHEET_TYPE,
+    defaultSheetFit: DEFAULT_SHEET_FIT,
   },
   thumbsObjUrls: {},
   undoGroup: {
@@ -81,9 +89,12 @@ const initialStateJSON = {
       defaultScrubWindowWidthRatio: DEFAULT_SCRUB_WINDOW_WIDTHRATIO,
       defaultScrubWindowHeightRatio: DEFAULT_SCRUB_WINDOW_HEIGHTRATIO,
       defaultScrubWindowMargin: DEFAULT_SCRUB_WINDOW_MARGIN,
+      defaultSceneDetectionThreshold: DEFAULT_SCENE_DETECTION_THRESHOLD,
+      defaultSceneDetectionMinutesPerRow: DEFAULT_SCENE_DETECTION_MINUTES_PER_ROW,
       emailAddress: '',
     },
-    thumbsByFileId: [],
+    scenesByFileId: {},
+    thumbsByFileId: {},
     files: []
   }
 };

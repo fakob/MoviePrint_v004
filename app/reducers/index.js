@@ -3,6 +3,7 @@ import undoable, { excludeAction, groupByActionTypes } from 'redux-undo';
 import thumbsByFileId from './thumbs';
 import files from './files';
 import settings from './settings';
+import scenesByFileId from './scenesByFileId';
 import thumbsObjUrls from './thumbsObjUrls';
 import visibilitySettings from './visibilitySettings';
 
@@ -11,6 +12,7 @@ const rootReducer = combineReducers({
   thumbsObjUrls,
   undoGroup: undoable(combineReducers({
     settings,
+    scenesByFileId,
     thumbsByFileId,
     files
   }), {

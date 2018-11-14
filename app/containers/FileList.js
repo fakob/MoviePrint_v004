@@ -11,7 +11,9 @@ class SortedFileList extends Component {
   componentDidMount() {
     const { store } = this.context;
     this.unsubscribe = store.subscribe(() => this.forceUpdate());
-    store.dispatch(updateObjectUrlsFromPosterFrame());
+    if (store.getState().undoGroup.present.files.length !== 0) {
+      store.dispatch(updateObjectUrlsFromPosterFrame());
+    }
   }
 
   componentWillUnmount() {
@@ -38,6 +40,7 @@ class SortedFileList extends Component {
                 this.props.onFileListElementClick(file);
               }}
               currentFileId={state.undoGroup.present.settings.currentFileId}
+              onErrorPosterFrame={() => this.props.onErrorPosterFrame(file)}
             />
           ))}
         </ul>
