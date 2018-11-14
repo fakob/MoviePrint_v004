@@ -274,11 +274,11 @@ export const setDefaultSceneDetectionThreshold = (defaultSceneDetectionThreshold
   };
 };
 
-export const setDefaultSceneDetectionRowCount = (defaultSceneDetectionRowCount) => {
-  log.debug(`action: setDefaultSceneDetectionRowCount - ${defaultSceneDetectionRowCount}`);
+export const setDefaultSceneDetectionMinutesPerRow = (defaultSceneDetectionMinutesPerRow) => {
+  log.debug(`action: setDefaultSceneDetectionMinutesPerRow - ${defaultSceneDetectionMinutesPerRow}`);
   return {
-    type: 'SET_DEFAULT_SCENE_DETECTION_ROW_COUNT',
-    defaultSceneDetectionRowCount
+    type: 'SET_DEFAULT_SCENE_DETECTION_MINUTES_PER_ROW',
+    defaultSceneDetectionMinutesPerRow
   };
 };
 

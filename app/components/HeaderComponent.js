@@ -79,8 +79,8 @@ const Header = ({
                 <Icon
                   name="list"
                 />
-                {file === undefined ? '' : truncate(file.name, 32)}
-                {/* {(visibilitySettings.showMovielist === false) ? 'Show Movie list' : 'Hide Movie list'} */}
+                {/* {file === undefined ? '' : truncate(file.name, 32)} */}
+                {(visibilitySettings.showMovielist === false) ? file === undefined ? '' : truncate(file.name, 32) : 'Hide Movie list'}
               </Menu.Item>
             }
             className={stylesPop.popup}

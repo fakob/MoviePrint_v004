@@ -48,7 +48,7 @@ import {
   setDefaultMoviePrintWidth, updateFileDetailUseRatio, setDefaultShowPaperPreview,
   setDefaultPaperAspectRatioInv, updateInOutPoint, removeMovieListItem, setDefaultDetectInOutPoint,
   changeThumb, addThumb, setEmailAddress, addThumbs, updateFileScanData, getFileScanData,
-  clearScenes, addScene, addScenes, setDefaultSceneDetectionThreshold, setDefaultSceneDetectionRowCount,
+  clearScenes, addScene, addScenes, setDefaultSceneDetectionThreshold, setDefaultSceneDetectionMinutesPerRow,
   setSheetFit, clearObjectUrls, updateThumbObjectUrlFromDB,
 } from '../actions';
 import {
@@ -190,7 +190,7 @@ class App extends Component {
 
     this.onChangeMargin = this.onChangeMargin.bind(this);
     this.onChangeSceneDetectionThreshold = this.onChangeSceneDetectionThreshold.bind(this);
-    this.onChangeSceneDetectionRowCount = this.onChangeSceneDetectionRowCount.bind(this);
+    this.onChangeSceneDetectionMinutesPerRow = this.onChangeSceneDetectionMinutesPerRow.bind(this);
     this.onShowHeaderClick = this.onShowHeaderClick.bind(this);
     this.onShowPathInHeaderClick = this.onShowPathInHeaderClick.bind(this);
     this.onShowDetailsInHeaderClick = this.onShowDetailsInHeaderClick.bind(this);
@@ -1244,11 +1244,12 @@ class App extends Component {
       // scale: 1,
       // scale: this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
       defaultSheet: this.props.visibilitySettings.defaultSheet,
-      elementId: 'ThumbGrid',
+      elementId: this.props.visibilitySettings.defaultView !== VIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
       file: this.props.file,
       moviePrintWidth: this.props.settings.defaultMoviePrintWidth,
       settings: this.props.settings,
       thumbs: this.props.thumbs,
+      scenes: this.props.visibilitySettings.defaultView !== VIEW.TIMELINEVIEW ? undefined : this.props.scenes,
       visibilitySettings: this.props.visibilitySettings,
 
     };
@@ -1482,9 +1483,9 @@ class App extends Component {
     store.dispatch(setDefaultSceneDetectionThreshold(value));
   };
 
-  onChangeSceneDetectionRowCount = (value) => {
+  onChangeSceneDetectionMinutesPerRow = (value) => {
     const { store } = this.context;
-    store.dispatch(setDefaultSceneDetectionRowCount(value));
+    store.dispatch(setDefaultSceneDetectionMinutesPerRow(value));
   };
 
   onShowHeaderClick = (value) => {
@@ -1765,7 +1766,7 @@ class App extends Component {
                         onCancelClick={this.onCancelClick}
                         onChangeMargin={this.onChangeMargin}
                         onChangeSceneDetectionThreshold={this.onChangeSceneDetectionThreshold}
-                        onChangeSceneDetectionRowCount={this.onChangeSceneDetectionRowCount}
+                        onChangeSceneDetectionMinutesPerRow={this.onChangeSceneDetectionMinutesPerRow}
                         onShowHeaderClick={this.onShowHeaderClick}
                         onShowPathInHeaderClick={this.onShowPathInHeaderClick}
                         onShowDetailsInHeaderClick={this.onShowDetailsInHeaderClick}
@@ -1890,7 +1891,7 @@ class App extends Component {
                               frameCount={this.props.file ? this.props.file.frameCount : undefined}
                               inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                               keyObject={this.state.keyObject}
-                              rowCount={this.props.settings.defaultSceneDetectionRowCount}
+                              minutesPerRow={this.props.settings.defaultSceneDetectionMinutesPerRow}
                               selectedSceneId={this.state.selectedSceneObject ? this.state.selectedSceneObject.sceneId : undefined}
                               selectSceneMethod={this.onSelectSceneMethod}
                               onEnterClick={this.onEnterClick}

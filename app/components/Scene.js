@@ -42,46 +42,48 @@ const DragHandle = SortableHandle(({ width, height, sceneId }) =>
   ));
 
 const Scene = ({
-  indexForId,
-  key,
-  sceneId,
-  margin,
-  thumbHeight,
-  hexColor,
-  thumbImageObjectUrl,
+  allowSceneToBeSelected,
   aspectRatioInv,
   borderRadius,
   color,
-  showAddThumbBeforeController,
-  showAddThumbAfterController,
   controllersAreVisible,
+  defaultView,
   dim,
+  doLineBreak,
+  hexColor,
   hidden,
-  thumbId,
   index,
+  indexForId,
   inputRefThumb,
+  key,
   keyObject,
+  margin,
+  onAddAfter,
+  onAddBefore,
   onBack,
+  onEnter,
   onForward,
-  onHoverAddThumbBefore,
   onHoverAddThumbAfter,
+  onHoverAddThumbBefore,
   onHoverInPoint,
   onHoverOutPoint,
-  onScrub,
-  onAddBefore,
-  onAddAfter,
   onInPoint,
   onLeaveInOut,
   onOut,
   onOutPoint,
   onOver,
   onSaveThumb,
+  onScrub,
   onSelect,
-  onEnter,
   onThumbDoubleClick,
   onToggle,
+  sceneId,
   selected,
-  defaultView,
+  showAddThumbAfterController,
+  showAddThumbBeforeController,
+  thumbHeight,
+  thumbId,
+  thumbImageObjectUrl,
   thumbInfoRatio,
   thumbInfoValue,
   thumbWidth,
@@ -221,11 +223,15 @@ const Scene = ({
       onMouseLeave={onOutWithStop}
       onFocus={onOverWithStop}
       onBlur={onOutWithStop}
-      onClick={onSelectWithStop}
+      onClick={(e) => {
+        allowSceneToBeSelected ?
+        onSelectWithStop(e) :
+        null
+      }}
       // onKeyPress={onSelectWithStop}
       // onDoubleClick={onThumbDoubleClickWithStop}
       id={`scene${indexForId}`}
-      className={`${styles.gridItem}`}
+      className={`${styles.gridItem} ${doLineBreak ? styles.lineBreak : ''}`}
       // width={`${thumbWidth}px`}
       // height={`${(thumbWidth * aspectRatioInv)}px`}
       style={{
@@ -239,6 +245,7 @@ const Scene = ({
         borderRadius: `${(selected && defaultView !== VIEW.TIMELINEVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: hexColor,
         backgroundImage: `url(${thumbImageObjectUrl !== undefined ? thumbImageObjectUrl : transparent})`,
+        backgroundSize: `auto ${thumbHeight + 20}px`,
       }}
     >
       <div>

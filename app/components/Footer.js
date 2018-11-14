@@ -44,7 +44,7 @@ const Footer = ({
             content="Share Feedback"
             keepInViewPort={false}
           />
-          {file && defaultView === VIEW.GRIDVIEW &&
+          {file && (defaultView === VIEW.GRIDVIEW || defaultView === VIEW.TIMELINEVIEW) &&
             <Popup
               trigger={
                 <Menu.Item

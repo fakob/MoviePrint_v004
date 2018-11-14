@@ -1,11 +1,14 @@
 // @flow
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import log from 'electron-log';
 import imageDB from './../utils/db';
 import '../app.global.css';
 import styles from './App.css';
 import SortedVisibleThumbGrid from '../containers/VisibleThumbGrid';
+import SortedVisibleSceneGrid from '../containers/VisibleSceneGrid';
+import Conditional from '../components/Conditional';
+import ErrorBoundary from '../components/ErrorBoundary';
 import getScaleValueObject from '../utils/getScaleValueObject';
 import { getMoviePrintColor, getColumnCount } from '../utils/utils';
 import saveMoviePrint from '../utils/saveMoviePrint';
@@ -96,61 +99,79 @@ class WorkerApp extends Component {
   }
 
   render() {
+    let scaleValueObject = undefined;
+    if (this.state.savingMoviePrint) {
+      scaleValueObject = getScaleValueObject(
+        this.state.sentData.file,
+        this.state.sentData.settings,
+        this.state.sentData.visibilitySettings,
+        getColumnCount(this.state.sentData.file, this.state.sentData.settings),
+        this.state.sentData.file.thumbCount,
+        this.state.sentData.moviePrintWidth,
+        // HARDCODED FOR NOW timelineview needs height
+        this.state.sentData.visibilitySettings.defaultView === VIEW.TIMELINEVIEW ? 2048 : undefined,
+        1,
+        undefined,
+        true,
+      );
+    }
     return (
-      <div>
-        {this.state.savingMoviePrint &&
-          <div
-            ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
-            className={`${styles.ItemMain}`}
-            style={{
-              width: `${getScaleValueObject(
-                this.state.sentData.file,
-                this.state.sentData.settings,
-                this.state.sentData.visibilitySettings,
-                getColumnCount(this.state.sentData.file, this.state.sentData.settings),
-                this.state.sentData.file.thumbCount,
-                this.state.sentData.moviePrintWidth,
-                undefined,
-                1,
-                undefined,
-                true,
-              ).newMoviePrintWidthForPrinting}px`
-            }}
-          >
-            <SortedVisibleThumbGrid
-              viewForPrinting
-              inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
-              showSettings={false}
-              file={this.state.sentData.file}
-              thumbs={this.state.sentData.thumbs}
-              thumbImages={this.state.thumbObjectUrls}
-              settings={this.state.sentData.settings}
-              visibilitySettings={this.state.sentData.visibilitySettings}
+      <ErrorBoundary>
+        <div>
+          {this.state.savingMoviePrint &&
+            <div
+              ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
+              className={`${styles.ItemMain}`}
+              style={{
+                width: `${scaleValueObject.newMoviePrintWidthForPrinting}px`
+              }}
+            >
+              <Fragment>
+                <Conditional if={this.state.sentData.visibilitySettings.defaultView !== VIEW.TIMELINEVIEW}>
+                  <SortedVisibleThumbGrid
+                    viewForPrinting
+                    inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
+                    showSettings={false}
+                    file={this.state.sentData.file}
+                    thumbs={this.state.sentData.thumbs}
+                    thumbImages={this.state.thumbObjectUrls}
+                    settings={this.state.sentData.settings}
+                    visibilitySettings={this.state.sentData.visibilitySettings}
 
-              selectedThumbId={undefined}
+                    selectedThumbId={undefined}
 
-              colorArray={getMoviePrintColor(this.state.sentData.settings.defaultThumbCountMax)}
-              thumbCount={this.state.sentData.file.thumbCount}
+                    colorArray={getMoviePrintColor(this.state.sentData.settings.defaultThumbCountMax)}
+                    thumbCount={this.state.sentData.file.thumbCount}
 
-              defaultView={VIEW.GRIDVIEW}
-              defaultSheet={this.state.sentData.defaultSheet || this.props.visibilitySettings.defaultSheet}
-              scaleValueObject={getScaleValueObject(
-                this.state.sentData.file,
-                this.state.sentData.settings,
-                this.state.sentData.visibilitySettings,
-                getColumnCount(this.state.sentData.file, this.state.sentData.settings),
-                this.state.sentData.file.thumbCount,
-                this.state.sentData.moviePrintWidth,
-                undefined,
-                1,
-                undefined,
-                true,
-              )}
-              keyObject={{}}
-            />
-          </div>
-        }
-      </div>
+                    defaultView={VIEW.GRIDVIEW}
+                    defaultSheet={this.state.sentData.defaultSheet || this.state.sentData.visibilitySettings.defaultSheet}
+                    scaleValueObject={scaleValueObject}
+                    keyObject={{}}
+                  />
+                </Conditional>
+                <Conditional if={this.state.sentData.visibilitySettings.defaultView === VIEW.TIMELINEVIEW}>
+                  <SortedVisibleSceneGrid
+                    defaultView={this.state.sentData.visibilitySettings.defaultView}
+                    file={this.state.sentData.file}
+                    frameCount={this.state.sentData.file ? this.state.sentData.file.frameCount : undefined}
+                    inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
+                    keyObject={{}}
+                    minutesPerRow={this.state.sentData.settings.defaultSceneDetectionMinutesPerRow}
+                    selectedSceneId={undefined}
+                    scaleValueObject={scaleValueObject}
+                    scenes={this.state.sentData.scenes}
+                    settings={this.state.sentData.settings}
+                    showSettings={false}
+                    thumbImages={this.state.thumbObjectUrls}
+                    thumbs={this.state.sentData.thumbs}
+                    visibilitySettings={this.state.sentData.visibilitySettings}
+                  />
+                </Conditional>
+              </Fragment>
+            </div>
+          }
+        </div>
+      </ErrorBoundary>
     );
   }
 }

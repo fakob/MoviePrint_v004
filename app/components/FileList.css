@@ -69,7 +69,7 @@ li:hover {
 
 .Path {
   padding-top: 4px;
-  padding-right: 4px;
+  padding-left: 84px;
 	/*height: 14px;*/
 	/*width: 336px;*/
 	opacity: 0.5;
@@ -78,7 +78,6 @@ li:hover {
 	font-size: 12px;
 	font-weight: 300;
 	line-height: 14px;
-	text-align: right;
 }
 
 .Detail {

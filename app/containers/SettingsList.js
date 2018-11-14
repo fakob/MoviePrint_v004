@@ -632,21 +632,24 @@ class SettingsList extends Component {
           </Grid.Row>
           <Grid.Row>
             <Grid.Column width={4}>
-              Rows
+              Minutes per row
             </Grid.Column>
             <Grid.Column width={12}>
               <SliderWithTooltip
                 // data-tid='sceneDetectionThresholdSlider'
                 className={styles.slider}
                 min={1}
-                max={40}
-                defaultValue={this.props.settings.defaultSceneDetectionRowCount}
+                max={30}
+                defaultValue={this.props.settings.defaultSceneDetectionMinutesPerRow}
                 marks={{
                   1: '1',
-                  40: '40',
+                  5: '5',
+                  10: '10',
+                  20: '20',
+                  30: '30',
                 }}
                 handle={handle}
-                onChange={this.props.onChangeSceneDetectionRowCount}
+                onChange={this.props.onChangeSceneDetectionMinutesPerRow}
               />
             </Grid.Column>
           </Grid.Row>
