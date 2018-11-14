@@ -109,7 +109,7 @@ class SceneGrid extends Component {
               margin={this.props.scaleValueObject.newThumbMargin}
 
               // only allow expanding of scenes which are not already large enough and deselecting
-              allowSceneToBeSelected={selected || width < (realWidth * 0.75)}
+              allowSceneToBeSelected={selected || width < (realWidth * 0.95)}
               thumbWidth={width}
               thumbHeight={height}
               hexColor={`#${((1 << 24) + (Math.round(scene.colorArray[0]) << 16) + (Math.round(scene.colorArray[1]) << 8) + Math.round(scene.colorArray[2])).toString(16).slice(1)}`}
