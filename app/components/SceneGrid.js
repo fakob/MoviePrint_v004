@@ -51,49 +51,79 @@ class SceneGrid extends Component {
   render() {
     const minutesPerRow = this.props.minutesPerRow;
     const sceneArray = this.props.scenes;
-    const safetyMargin = 100;
+    const safetyMargin = 0;
     let lineCounter = 1;
     // const frameWidthInPixel =
     const rows = Math.ceil(this.props.frameCount / (minutesPerRow * 60 * 25 * 1.0));
+
+    // calculate width through getting longest row
+    const pixelPerFrameRatio = (this.props.scaleValueObject.containerWidth - safetyMargin) / (minutesPerRow * 60 * 25 * 1.0);
+    let rowCounter = 1;
+    let lastRowLength = 0;
+    let lastRowItemCount = -1; // compensate for index starting at 0;
+    const rowArray = [];
+    const temp = sceneArray.map((scene, index, array) => {
+      const sceneOutPoint = scene.start + scene.length;
+      if (sceneArray.length !== index + 1) {
+        if ((sceneOutPoint) > (minutesPerRow * 60 * 25 * rowCounter)) {
+          const previousIndex = index - 1;
+          const previousSceneOutPoint = array[previousIndex].start + array[previousIndex].length;
+          const rowItemCount = previousIndex - lastRowItemCount;
+          const rowLength = previousSceneOutPoint - lastRowLength;
+          const rowWidth = rowLength * pixelPerFrameRatio + this.props.scaleValueObject.newThumbMargin * 2 * rowItemCount;
+          rowArray.push({
+            index: previousIndex,
+            sceneOutPoint: previousSceneOutPoint,
+            rowItemCount,
+            rowLength,
+            rowWidth,
+          });
+          lastRowItemCount = previousIndex;
+          lastRowLength = previousSceneOutPoint;
+          rowCounter += 1;
+        }
+      } else { // last item
+        const rowLength = sceneOutPoint - lastRowLength;
+        const rowItemCount = index - lastRowItemCount;
+        rowArray.push({
+          index,
+          sceneOutPoint,
+          rowItemCount,
+          rowLength,
+          rowWidth: rowLength * pixelPerFrameRatio + this.props.scaleValueObject.newThumbMargin * 2 * rowItemCount,
+        });
+      }
+      return sceneOutPoint;
+    })
+    const maxWidth = Math.max(...rowArray.map(row => row.rowWidth), 0);
+    console.log(rowArray);
+    console.log(maxWidth);
+
     return (
       <div
         data-tid='sceneGridDiv'
         className={styles.grid}
-        // style={{
-        //   width: this.props.scaleValueObject.newMoviePrintWidth,
-        //   marginLeft: this.props.defaultView === VIEW.GRIDVIEW ? undefined : (this.props.scaleValueObject.newThumbWidth / 4),
-        // }}
         id="SceneGrid"
       >
         <div
           data-tid='sceneGridBodyDiv'
           style={{
-            // width: '30000px',
-            width: this.props.scaleValueObject.containerWidth * 2, // no concrete value, just for having enough width
-            // marginLeft: this.props.defaultView === VIEW.GRIDVIEW ? undefined : (this.props.scaleValueObject.newThumbWidth / 4),
+            width: maxWidth,
           }}
         >
           {sceneArray.map((scene, index) => {
             // minutes per row idea
             const selected = this.props.selectedSceneId ? (this.props.selectedSceneId === scene.sceneId) : false;
-            // const height = 240;
             const height = Math.min(this.props.scaleValueObject.containerHeight / 3, Math.floor((this.props.scaleValueObject.containerHeight - (this.props.scaleValueObject.newThumbMargin * ((rows * 2) + 2))) / rows));
-            // const width = Math.floor(((this.props.scaleValueObject.containerWidth - safetyMargin) / (1 * 60 * 25)) * scene.length) - this.props.scaleValueObject.newThumbMargin * 2;
             const realWidth = (height / this.props.scaleValueObject.aspectRatioInv);
             const width = selected ? realWidth :
-              Math.floor(((this.props.scaleValueObject.containerWidth - safetyMargin) / (minutesPerRow * 60 * 25 * 1.0)) * scene.length) - this.props.scaleValueObject.newThumbMargin * 2;
-            // const height = Math.floor((this.props.scaleValueObject.containerHeight - (this.props.scaleValueObject.newThumbMargin * ((minutesPerRow * 2) + 2))) / minutesPerRow);
-            // const width = selected ? (height / this.props.scaleValueObject.aspectRatioInv):
-            // Math.floor((scene.length / this.props.frameCount) * ((this.props.scaleValueObject.containerWidth - safetyMargin) * (minutesPerRow - 1)));
+              pixelPerFrameRatio * scene.length;
             let doLineBreak = false;
             if ((scene.start + scene.length) > (minutesPerRow * 60 * 25 * lineCounter)) {
               doLineBreak = true;
               lineCounter += 1;
             }
-            // console.log(doLineBreak);
-            // console.log(lineCounter);
-            // console.log(scene.start + scene.length);
-            // console.log(minutesPerRow * 60 * lineCounter);
+
             return (
             <SortableScene
               hidden={scene.hidden}

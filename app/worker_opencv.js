@@ -457,7 +457,7 @@ ipcRenderer.on(
               if (((lastSceneCut === null) || ((frame - lastSceneCut) >= minSceneLength))) {
                 // only start adding scenes after the first scene has been detected
                 if (lastSceneCut !== null) {
-                  const length = frame - lastSceneCut - 1; // length
+                  const length = frame - lastSceneCut; // length
                   ipcRenderer.send(
                     'message-from-opencvWorkerWindow-to-mainWindow',
                     'addScene',
@@ -507,7 +507,7 @@ ipcRenderer.on(
             console.timeEnd(`${fileId}-fileScanning`);
 
             // add last scene
-            const length = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - lastSceneCut - 1; // length
+            const length = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - lastSceneCut; // length
             ipcRenderer.send(
               'message-from-opencvWorkerWindow-to-mainWindow',
               'addScene',

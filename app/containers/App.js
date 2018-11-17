@@ -1010,7 +1010,7 @@ class App extends Component {
         if (value >= threshold) {
           if (((lastSceneCut === null) || ((index - lastSceneCut) >= SCENE_DETECTION_MIN_SCENE_LENGTH))) {
             if (lastSceneCut !== null) {
-              const length = index - lastSceneCut - 1; // length
+              const length = index - lastSceneCut; // length
               sceneList.push({
                 fileId,
                 start: lastSceneCut, // start
@@ -1026,7 +1026,7 @@ class App extends Component {
       }
     );
     // add last scene
-    const length = meanArray.length - lastSceneCut - 1; // meanArray.length should be frameCount
+    const length = meanArray.length - lastSceneCut; // meanArray.length should be frameCount
     sceneList.push({
       fileId,
       start: lastSceneCut, // start
