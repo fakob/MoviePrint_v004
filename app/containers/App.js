@@ -60,6 +60,8 @@ import {
   VIEW,
   SHEET_TYPE,
   SHEET_FIT,
+  DEFAULT_THUMB_COUNT,
+  DEFAULT_COLUMN_COUNT,
   DEFAULT_SHEET_SCENES,
   DEFAULT_SHEET_INTERVAL,
 } from '../utils/constants';
@@ -1126,14 +1128,14 @@ class App extends Component {
       store.dispatch(addDefaultThumbs(
           file,
           sheetName,
-          this.props.settings.defaultThumbCount,
+          DEFAULT_THUMB_COUNT, // use constant value instead of defaultThumbCount
           sceneArray[sceneIndex].start,
           sceneArray[sceneIndex].start + sceneArray[sceneIndex].length
         ));
     }
     store.dispatch(setSheet(sheetName));
     store.dispatch(setView(VIEW.GRIDVIEW));
-
+    // store.dispatch(updateFileColumnCount(DEFAULT_COLUMN_COUNT));
   }
 
   onAddThumbClick(file, existingThumb, insertWhere) {
@@ -1558,8 +1560,9 @@ class App extends Component {
   onSetSheetClick = (value) => {
     const { store } = this.context;
     store.dispatch(setSheet(value));
-    if (value.indexOf(SHEET_TYPE.SCENE) > -1) {
+    if (value.indexOf(SHEET_TYPE.SCENES) > -1) {
       store.dispatch(setView(VIEW.TIMELINEVIEW));
+      this.onReCaptureClick(false);
     } else {
       store.dispatch(setView(VIEW.GRIDVIEW));
     }
