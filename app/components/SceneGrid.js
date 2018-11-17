@@ -99,6 +99,9 @@ class SceneGrid extends Component {
     console.log(rowArray);
     console.log(maxWidth);
 
+    const height = Math.min(this.props.scaleValueObject.containerHeight / 3, Math.floor((this.props.scaleValueObject.containerHeight - (this.props.scaleValueObject.newThumbMargin * ((rows * 2) + 2))) / rows));
+    const realWidth = (height / this.props.scaleValueObject.aspectRatioInv);
+
     return (
       <div
         data-tid='sceneGridDiv'
@@ -108,14 +111,12 @@ class SceneGrid extends Component {
         <div
           data-tid='sceneGridBodyDiv'
           style={{
-            width: maxWidth,
+            width: maxWidth + realWidth, // enough width so when user selects thumb and it becomes wider, the row does not break into the next line
           }}
         >
           {sceneArray.map((scene, index) => {
             // minutes per row idea
             const selected = this.props.selectedSceneId ? (this.props.selectedSceneId === scene.sceneId) : false;
-            const height = Math.min(this.props.scaleValueObject.containerHeight / 3, Math.floor((this.props.scaleValueObject.containerHeight - (this.props.scaleValueObject.newThumbMargin * ((rows * 2) + 2))) / rows));
-            const realWidth = (height / this.props.scaleValueObject.aspectRatioInv);
             const width = selected ? realWidth :
               pixelPerFrameRatio * scene.length;
             let doLineBreak = false;
