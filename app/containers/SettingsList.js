@@ -16,6 +16,7 @@ import {
   PAPER_LAYOUT_OPTIONS,
   OUTPUT_FORMAT_OPTIONS,
   SHEET_TYPE,
+  VIEW,
 } from '../utils/constants';
 import getScaleValueObject from '../utils/getScaleValueObject';
 
@@ -168,7 +169,31 @@ class SettingsList extends Component {
         }}
       >
         <Grid padded inverted>
-          { (this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) &&
+          { (this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) > -1) &&
+            <Grid.Row>
+              <Grid.Column width={16}>
+                <Statistic inverted size="tiny">
+                  <Statistic.Value>{this.props.thumbCountTemp}</Statistic.Value>
+                  <Statistic.Label>{(this.props.thumbCountTemp === 1) ? 'Shot' : 'Shots'}</Statistic.Label>
+                </Statistic>
+                <Statistic inverted size="tiny">
+                  <Statistic.Value>/</Statistic.Value>
+                </Statistic>
+                <Statistic inverted size="tiny">
+                  <Statistic.Value>~{minutesRounded}</Statistic.Value>
+                  <Statistic.Label>{(minutesRounded === 1) ? 'Minute' : 'Minutes'}</Statistic.Label>
+                </Statistic>
+                <Statistic inverted size="tiny">
+                  <Statistic.Value>≈</Statistic.Value>
+                </Statistic>
+                <Statistic inverted size="tiny">
+                  <Statistic.Value>{cutsPerMinuteRounded}</Statistic.Value>
+                  <Statistic.Label>cut/min</Statistic.Label>
+                </Statistic>
+              </Grid.Column>
+            </Grid.Row>
+          }
+          { (this.props.visibilitySettings.defaultView === VIEW.GRIDVIEW) &&
             <Grid.Row>
               <Grid.Column width={16}>
                 <Statistic inverted size="tiny">
@@ -194,31 +219,7 @@ class SettingsList extends Component {
               </Grid.Column>
             </Grid.Row>
           }
-          { (this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) > -1) &&
-            <Grid.Row>
-              <Grid.Column width={16}>
-                <Statistic inverted size="mini">
-                  <Statistic.Value>~{minutesRounded}</Statistic.Value>
-                  <Statistic.Label>{(minutesRounded === 1) ? 'Minute' : 'Minutes'}</Statistic.Label>
-                </Statistic>
-                <Statistic inverted size="mini">
-                  <Statistic.Value>&</Statistic.Value>
-                </Statistic>
-                <Statistic inverted size="mini">
-                  <Statistic.Value>{this.props.thumbCountTemp}</Statistic.Value>
-                  <Statistic.Label>{(this.props.thumbCountTemp === 1) ? 'Shot' : 'Shots'}</Statistic.Label>
-                </Statistic>
-                <Statistic inverted size="mini">
-                  <Statistic.Value>=</Statistic.Value>
-                </Statistic>
-                <Statistic inverted size="mini">
-                  <Statistic.Value>{cutsPerMinuteRounded}</Statistic.Value>
-                  <Statistic.Label>cut/minute</Statistic.Label>
-                </Statistic>
-              </Grid.Column>
-            </Grid.Row>
-          }
-          { (this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) &&
+          { (this.props.visibilitySettings.defaultView === VIEW.GRIDVIEW) &&
             <Grid.Row>
               <Grid.Column width={4}>
                 Columns
@@ -268,7 +269,7 @@ class SettingsList extends Component {
               </Grid.Column>
             </Grid.Row>
           }
-          { (this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) > -1) &&
+          { (this.props.visibilitySettings.defaultView === VIEW.TIMELINEVIEW) &&
             <Grid.Row>
               <Grid.Column width={4}>
                 Minutes per row
