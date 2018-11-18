@@ -113,6 +113,11 @@ export const frameCountToSeconds = (frames, fps = 25) => {
   return seconds;
 };
 
+export const frameCountToMinutes = (frames, fps = 25) => {
+  const seconds = (frames !== undefined ? ((frames * 1.0) / (fps * 60)) : 0);
+  return seconds;
+};
+
 export const frameCountToTimeCode = (frames, fps = 25) => {
   // fps = (fps !== undefined ? fps : 30);
   if (frames !== undefined) {

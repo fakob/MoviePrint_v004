@@ -7,6 +7,7 @@ import Tooltip from 'rc-tooltip';
 import { Button, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List, Message, Popup } from 'semantic-ui-react';
 import styles from './Settings.css';
 import stylesPop from '../components/Popup.css';
+import { frameCountToMinutes } from '../utils/utils';
 import {
   MENU_HEADER_HEIGHT,
   MENU_FOOTER_HEIGHT,
@@ -14,7 +15,7 @@ import {
   DEFAULT_MOVIE_HEIGHT,
   PAPER_LAYOUT_OPTIONS,
   OUTPUT_FORMAT_OPTIONS,
-  VIEW,
+  SHEET_TYPE,
 } from '../utils/constants';
 import getScaleValueObject from '../utils/getScaleValueObject';
 
@@ -157,6 +158,9 @@ class SettingsList extends Component {
   }
 
   render() {
+    const minutes = this.props.file ? frameCountToMinutes(this.props.file.frameCount, this.props.file.fps) : undefined;
+    const minutesRounded = Math.round(minutes);
+    const cutsPerMinuteRounded = Math.round((this.props.thumbCountTemp - 1) / minutes);
     return (
       <Container
         style={{
@@ -164,53 +168,82 @@ class SettingsList extends Component {
         }}
       >
         <Grid padded inverted>
-          <Grid.Row>
-            <Grid.Column width={16}>
-              <Statistic inverted size="tiny">
-                <Statistic.Value>{this.props.columnCountTemp}</Statistic.Value>
-                <Statistic.Label>{(this.props.columnCountTemp === 1) ? 'Column' : 'Columns'}</Statistic.Label>
-              </Statistic>
-              <Statistic inverted size="tiny">
-                <Statistic.Value>×</Statistic.Value>
-              </Statistic>
-              <Statistic inverted size="tiny">
-                <Statistic.Value>{this.props.rowCountTemp}</Statistic.Value>
-                <Statistic.Label>{(this.props.rowCountTemp === 1) ? 'Row' : 'Rows'}</Statistic.Label>
-              </Statistic>
-              <Statistic inverted size="tiny">
-                <Statistic.Value>{(this.props.columnCountTemp * this.props.rowCountTemp ===
-                  this.props.thumbCountTemp) ? '=' : '≈'}
-                </Statistic.Value>
-              </Statistic>
-              <Statistic inverted size="tiny" color={(this.props.reCapture) ? 'orange' : undefined}>
-                <Statistic.Value>{this.props.thumbCountTemp}</Statistic.Value>
-                <Statistic.Label>{(this.props.reCapture) ? 'Count' : 'Count'}</Statistic.Label>
-              </Statistic>
-            </Grid.Column>
-          </Grid.Row>
-          <Grid.Row>
-            <Grid.Column width={4}>
-              Columns
-            </Grid.Column>
-            <Grid.Column width={12}>
-              <SliderWithTooltip
-                // data-tid='columnCountSlider'
-                className={styles.slider}
-                min={1}
-                max={20}
-                defaultValue={this.props.columnCountTemp}
-                value={this.props.columnCountTemp}
-                marks={{
-                  1: '1',
-                  20: '20',
-                }}
-                handle={handle}
-                onChange={this.props.reCapture ? this.props.onChangeColumn :
-                  this.props.onChangeColumnAndApply}
-              />
-            </Grid.Column>
-          </Grid.Row>
-          { this.props.reCapture &&
+          { (this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) &&
+            <Grid.Row>
+              <Grid.Column width={16}>
+                <Statistic inverted size="tiny">
+                  <Statistic.Value>{this.props.columnCountTemp}</Statistic.Value>
+                  <Statistic.Label>{(this.props.columnCountTemp === 1) ? 'Column' : 'Columns'}</Statistic.Label>
+                </Statistic>
+                <Statistic inverted size="tiny">
+                  <Statistic.Value>×</Statistic.Value>
+                </Statistic>
+                <Statistic inverted size="tiny">
+                  <Statistic.Value>{this.props.rowCountTemp}</Statistic.Value>
+                  <Statistic.Label>{(this.props.rowCountTemp === 1) ? 'Row' : 'Rows'}</Statistic.Label>
+                </Statistic>
+                <Statistic inverted size="tiny">
+                  <Statistic.Value>{(this.props.columnCountTemp * this.props.rowCountTemp ===
+                    this.props.thumbCountTemp) ? '=' : '≈'}
+                  </Statistic.Value>
+                </Statistic>
+                <Statistic inverted size="tiny" color={(this.props.reCapture) ? 'orange' : undefined}>
+                  <Statistic.Value>{this.props.thumbCountTemp}</Statistic.Value>
+                  <Statistic.Label>{(this.props.reCapture) ? 'Count' : 'Count'}</Statistic.Label>
+                </Statistic>
+              </Grid.Column>
+            </Grid.Row>
+          }
+          { (this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) > -1) &&
+            <Grid.Row>
+              <Grid.Column width={16}>
+                <Statistic inverted size="mini">
+                  <Statistic.Value>~{minutesRounded}</Statistic.Value>
+                  <Statistic.Label>{(minutesRounded === 1) ? 'Minute' : 'Minutes'}</Statistic.Label>
+                </Statistic>
+                <Statistic inverted size="mini">
+                  <Statistic.Value>&</Statistic.Value>
+                </Statistic>
+                <Statistic inverted size="mini">
+                  <Statistic.Value>{this.props.thumbCountTemp}</Statistic.Value>
+                  <Statistic.Label>{(this.props.thumbCountTemp === 1) ? 'Shot' : 'Shots'}</Statistic.Label>
+                </Statistic>
+                <Statistic inverted size="mini">
+                  <Statistic.Value>=</Statistic.Value>
+                </Statistic>
+                <Statistic inverted size="mini">
+                  <Statistic.Value>{cutsPerMinuteRounded}</Statistic.Value>
+                  <Statistic.Label>cut/minute</Statistic.Label>
+                </Statistic>
+              </Grid.Column>
+            </Grid.Row>
+          }
+          { (this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) &&
+            <Grid.Row>
+              <Grid.Column width={4}>
+                Columns
+              </Grid.Column>
+              <Grid.Column width={12}>
+                <SliderWithTooltip
+                  // data-tid='columnCountSlider'
+                  className={styles.slider}
+                  min={1}
+                  max={20}
+                  defaultValue={this.props.columnCountTemp}
+                  value={this.props.columnCountTemp}
+                  marks={{
+                    1: '1',
+                    20: '20',
+                  }}
+                  handle={handle}
+                  onChange={this.props.reCapture ? this.props.onChangeColumn :
+                    this.props.onChangeColumnAndApply}
+                />
+              </Grid.Column>
+            </Grid.Row>
+          }
+          { (this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) &&
+            this.props.reCapture &&
             <Grid.Row>
               <Grid.Column width={4}>
                 Rows
@@ -235,24 +268,52 @@ class SettingsList extends Component {
               </Grid.Column>
             </Grid.Row>
           }
-          <Grid.Row>
-            <Grid.Column width={4}>
-              Count
-            </Grid.Column>
-            <Grid.Column width={12}>
-              <Checkbox
-                data-tid='changeThumbCountCheckbox'
-                label={
-                  <label className={styles.label}>
-                    Change thumb count
-                  </label>
-                }
-                checked={this.props.reCapture}
-                onChange={this.onChangeReCapture}
-              />
-            </Grid.Column>
-          </Grid.Row>
-          { (this.props.thumbCount !== this.props.thumbCountTemp) &&
+          { (this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) > -1) &&
+            <Grid.Row>
+              <Grid.Column width={4}>
+                Minutes per row
+              </Grid.Column>
+              <Grid.Column width={12}>
+                <SliderWithTooltip
+                  // data-tid='sceneDetectionThresholdSlider'
+                  className={styles.slider}
+                  min={1}
+                  max={30}
+                  defaultValue={this.props.settings.defaultSceneDetectionMinutesPerRow}
+                  marks={{
+                    1: '1',
+                    5: '5',
+                    10: '10',
+                    20: '20',
+                    30: '30',
+                  }}
+                  handle={handle}
+                  onChange={this.props.onChangeSceneDetectionMinutesPerRow}
+                />
+              </Grid.Column>
+            </Grid.Row>
+          }
+          { (this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) &&
+            <Grid.Row>
+              <Grid.Column width={4}>
+                Count
+              </Grid.Column>
+              <Grid.Column width={12}>
+                <Checkbox
+                  data-tid='changeThumbCountCheckbox'
+                  label={
+                    <label className={styles.label}>
+                      Change thumb count
+                    </label>
+                  }
+                  checked={this.props.reCapture}
+                  onChange={this.onChangeReCapture}
+                />
+              </Grid.Column>
+            </Grid.Row>
+          }
+          { (this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) &&
+            (this.props.thumbCount !== this.props.thumbCountTemp) &&
             <Grid.Row>
               <Grid.Column width={4} />
               <Grid.Column width={12}>
@@ -266,27 +327,29 @@ class SettingsList extends Component {
               </Grid.Column>
             </Grid.Row>
           }
-          <Grid.Row>
-            <Grid.Column width={4} />
-            <Grid.Column width={12}>
-              <Popup
-                trigger={
-                  <Button
-                    data-tid='applyNewGridBtn'
-                    fluid
-                    color="orange"
-                    disabled={(this.props.thumbCount === this.props.thumbCountTemp)}
-                    onClick={this.props.onApplyNewGridClick}
-                  >
-                      Apply
-                  </Button>
-                }
-                className={stylesPop.popup}
-                content="Apply new grid for MoviePrint"
-                keepInViewPort={false}
-              />
-            </Grid.Column>
-          </Grid.Row>
+          { (this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) &&
+            <Grid.Row>
+              <Grid.Column width={4} />
+              <Grid.Column width={12}>
+                <Popup
+                  trigger={
+                    <Button
+                      data-tid='applyNewGridBtn'
+                      fluid
+                      color="orange"
+                      disabled={(this.props.thumbCount === this.props.thumbCountTemp)}
+                      onClick={this.props.onApplyNewGridClick}
+                    >
+                        Apply
+                    </Button>
+                  }
+                  className={stylesPop.popup}
+                  content="Apply new grid for MoviePrint"
+                  keepInViewPort={false}
+                />
+              </Grid.Column>
+            </Grid.Row>
+          }
           <Divider inverted />
           <Grid.Row>
             <Grid.Column width={4}>
@@ -588,7 +651,7 @@ class SettingsList extends Component {
           <Divider inverted />
           <Grid.Row>
             <Grid.Column width={4}>
-              Scene detection
+              Shot detection
             </Grid.Column>
             <Grid.Column width={12}>
               <Popup
@@ -600,11 +663,11 @@ class SettingsList extends Component {
                     disabled={this.props.fileScanRunning}
                     onClick={() => this.props.runSceneDetection(this.props.file, this.props.settings.defaultSceneDetectionThreshold)}
                   >
-                      Run scene detection
+                      Run shot detection
                   </Button>
                 }
                 className={stylesPop.popup}
-                content="Run scene detection (running for the first time might take longer)"
+                content="Run shot detection (running for the first time might take longer)"
                 keepInViewPort={false}
               />
             </Grid.Column>
@@ -627,29 +690,6 @@ class SettingsList extends Component {
                 }}
                 handle={handle}
                 onChange={this.props.onChangeSceneDetectionThreshold}
-              />
-            </Grid.Column>
-          </Grid.Row>
-          <Grid.Row>
-            <Grid.Column width={4}>
-              Minutes per row
-            </Grid.Column>
-            <Grid.Column width={12}>
-              <SliderWithTooltip
-                // data-tid='sceneDetectionThresholdSlider'
-                className={styles.slider}
-                min={1}
-                max={30}
-                defaultValue={this.props.settings.defaultSceneDetectionMinutesPerRow}
-                marks={{
-                  1: '1',
-                  5: '5',
-                  10: '10',
-                  20: '20',
-                  30: '30',
-                }}
-                handle={handle}
-                onChange={this.props.onChangeSceneDetectionMinutesPerRow}
               />
             </Grid.Column>
           </Grid.Row>
