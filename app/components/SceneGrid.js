@@ -96,8 +96,6 @@ class SceneGrid extends Component {
       return sceneOutPoint;
     })
     const maxWidth = Math.max(...rowArray.map(row => row.rowWidth), 0);
-    console.log(rowArray);
-    console.log(maxWidth);
 
     const height = Math.min(this.props.scaleValueObject.containerHeight / 3, Math.floor((this.props.scaleValueObject.containerHeight - (this.props.scaleValueObject.newThumbMargin * ((rows * 2) + 2))) / rows));
     const realWidth = (height / this.props.scaleValueObject.aspectRatioInv);
