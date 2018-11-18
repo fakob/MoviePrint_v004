@@ -5,7 +5,8 @@ import { arrayMove } from 'react-sortable-hoc';
 import scrollIntoView from 'scroll-into-view';
 import {
   toggleThumb, updateOrder, updateObjectUrlsFromThumbList,
-  changeThumb, addDefaultThumbs, setSheet, setView, updateThumbObjectUrlFromDB
+  changeThumb, addDefaultThumbs, setSheet, setView, updateThumbObjectUrlFromDB,
+  getObjectUrlFromFrameList
 } from '../actions';
 import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
@@ -31,6 +32,9 @@ class SortedVisibleThumbGrid extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    // console.log('VisibleThumbGrid componentDidUpdate');
+    // console.log(this.props.objectUrlsMap);
+    // console.log(this.props.thumbImages);
     if (prevProps.selectedThumbId !== this.props.selectedThumbId) {
       this.scrollThumbIntoView();
     }
@@ -65,10 +69,13 @@ class SortedVisibleThumbGrid extends Component {
 
   onErrorThumb = (file, sheet, thumbId, frameId) => {
     const { store } = this.context;
-    console.log('inside onErrorThumb')
-    if (frameId !== undefined) {
-      store.dispatch(updateThumbObjectUrlFromDB(file.id, sheet, thumbId, frameId, false));
-    }
+    console.log('inside onErrorThumb');
+
+    // onErrorThumb seems to slow things down quite a bit, maybe because it is called multiple times?
+
+    // console.log(this.props.objectUrlsMap);
+    // console.log(frameId);
+    // store.dispatch(getObjectUrlFromFrameList(frameId, this.props.objectUrlsMap));
   }
 
   scrollThumbIntoView = () => {
@@ -188,7 +195,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       if (ownProps.keyObject.altKey) {
         stepValue = stepValue2;
       }
-      dispatch(changeThumb(ownProps.defaultSheet, file, thumbId, frameNumber - stepValue));
+      dispatch(changeThumb(ownProps.defaultSheet, file, thumbId, frameNumber - stepValue, ownProps.objectUrlsMap));
     },
     onForwardClick: (file, thumbId, frameNumber) => {
       const [stepValue0, stepValue1, stepValue2] = CHANGE_THUMB_STEP;
@@ -199,7 +206,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       if (ownProps.keyObject.altKey) {
         stepValue = stepValue2;
       }
-      dispatch(changeThumb(ownProps.defaultSheet, file, thumbId, frameNumber + stepValue));
+      dispatch(changeThumb(ownProps.defaultSheet, file, thumbId, frameNumber + stepValue, ownProps.objectUrlsMap));
     }
   };
 };

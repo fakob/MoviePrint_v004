@@ -33,6 +33,7 @@ import { getLowestFrame,
   getScrubFrameNumber,
   isEquivalent,
   limitFrameNumberWithinMovieRange,
+  arrayToObject,
 } from '../utils/utils';
 // import saveMoviePrint from '../utils/saveMoviePrint';
 import styles from './App.css';
@@ -49,7 +50,7 @@ import {
   setDefaultPaperAspectRatioInv, updateInOutPoint, removeMovieListItem, setDefaultDetectInOutPoint,
   changeThumb, addThumb, setEmailAddress, addThumbs, updateFileScanData, getFileScanData,
   clearScenes, addScene, addScenes, setDefaultSceneDetectionThreshold, setDefaultSceneDetectionMinutesPerRow,
-  setSheetFit, clearObjectUrls, updateThumbObjectUrlFromDB,
+  setSheetFit, clearObjectUrls, updateThumbObjectUrlFromDB, getObjectUrlsFromFrameList, getObjectUrlFromFrameList
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -77,6 +78,8 @@ const opencv = require('opencv4nodejs');
 
 // Disable animating charts by default.
 defaults.global.animation = false;
+
+const objectUrlsMap = new Map();
 
 const setColumnAndThumbCount = (that,
   columnCount, thumbCount) => {
@@ -222,6 +225,11 @@ class App extends Component {
 
   componentWillMount() {
     const { store } = this.context;
+
+    // get objecturls from all frames in imagedb
+    store.dispatch(getObjectUrlsFromFrameList(objectUrlsMap));
+    console.log(objectUrlsMap);
+
     setColumnAndThumbCount(
       this,
       getColumnCount(
@@ -255,20 +263,6 @@ class App extends Component {
         opencvVideo: new opencv.VideoCapture(this.props.file.path),
       });
     }
-    // // only updateObjectUrlsFromThumbList if thumbs exist
-    // store.getState().undoGroup.present.files.map((singleFile) => {
-    //   if (store.getState().undoGroup.present.thumbsByFileId[singleFile.id] !== undefined
-    //     && store.getState().undoGroup.present.thumbsByFileId[singleFile.id][store.getState().visibilitySettings.defaultSheet] !== undefined) {
-    //     store.dispatch(updateObjectUrlsFromThumbList(
-    //       singleFile.id,
-    //       store.getState().visibilitySettings.defaultSheet,
-    //       Object.values(store.getState().undoGroup.present
-    //       .thumbsByFileId[singleFile.id][store.getState().visibilitySettings.defaultSheet])
-    //       .map((a) => a.frameId)
-    //     ));
-    //   }
-    //   return true;
-    // });
   }
 
   componentDidMount() {
@@ -381,10 +375,11 @@ class App extends Component {
           }, 3000);
         });
       }
-      store.dispatch(updateThumbImage(fileId, sheet, thumbId, frameId, base64, frameNumber))
+      store.dispatch(updateThumbImage(fileId, sheet, thumbId, frameId, base64, frameNumber, false, objectUrlsMap))
       .then(() => {
         // check if this is the lastThumb of the filesToPrint when savingAllMoviePrints
         // if so change its status from gettingThumbs to readyForPrinting
+        // console.log(objectUrlsMap);
         if (lastThumb && this.state.savingAllMoviePrints
           && this.state.filesToPrint.length > 0) {
             if (this.state.filesToPrint.findIndex(item => item.fileId === fileId && item.status === 'gettingThumbs' ) > -1) {
@@ -800,6 +795,7 @@ class App extends Component {
       store.dispatch(setSheet(DEFAULT_SHEET_INTERVAL));
       store.dispatch(setView(VIEW.GRIDVIEW));
       store.dispatch(setNewMovieList(files, settings)).then((response) => {
+        objectUrlsMap.clear(); // clear objecturlsmap
         this.setState({
           filesToLoad: response
         });
@@ -1071,7 +1067,7 @@ class App extends Component {
       //   DEFAULT_SHEET_SCENES,
       //   listOfFrameNumbers,
       // ));
-      store.dispatch(addScenes(tempFile, sceneList, clearOldScenes));
+      store.dispatch(addScenes(tempFile, sceneList, clearOldScenes, objectUrlsMap));
     } else {
       this.setState({
         progressMessage: 'No scenes detected',
@@ -1156,7 +1152,8 @@ class App extends Component {
         this.props.visibilitySettings.defaultSheet,
         newFrameNumberAfter,
         indexOfAllThumbs + 1,
-        newThumbId
+        newThumbId,
+        objectUrlsMap,
       ));
     } else if (insertWhere === 'before') { // if shiftKey
       store.dispatch(addThumb(
@@ -1164,7 +1161,8 @@ class App extends Component {
         this.props.visibilitySettings.defaultSheet,
         newFrameNumberBefore,
         indexOfAllThumbs,
-        newThumbId
+        newThumbId,
+        objectUrlsMap,
       ));
     }
   }
@@ -1210,7 +1208,8 @@ class App extends Component {
             this.props.visibilitySettings.defaultSheet,
             scrubFrameNumber,
             this.props.thumbs.find((thumb) => thumb.thumbId === this.state.scrubThumb.thumbId).index + 1,
-            newThumbId
+            newThumbId,
+            objectUrlsMap,
           ));
         } else { // if shiftKey
           store.dispatch(addThumb(
@@ -1218,11 +1217,12 @@ class App extends Component {
             this.props.visibilitySettings.defaultSheet,
             scrubFrameNumber,
             this.props.thumbs.find((thumb) => thumb.thumbId === this.state.scrubThumb.thumbId).index,
-            newThumbId
+            newThumbId,
+            objectUrlsMap,
           ));
         }
       } else { // if normal set new thumb
-        store.dispatch(changeThumb(this.props.visibilitySettings.defaultSheet, this.props.file, this.state.scrubThumb.thumbId, scrubFrameNumber));
+        store.dispatch(changeThumb(this.props.visibilitySettings.defaultSheet, this.props.file, this.state.scrubThumb.thumbId, scrubFrameNumber, objectUrlsMap));
       }
     }
     this.setState({
@@ -1307,7 +1307,7 @@ class App extends Component {
 
   onErrorPosterFrame(file) {
     const { store } = this.context;
-    store.dispatch(updateThumbObjectUrlFromDB(file.id, undefined, undefined, file.posterFrameId, true));
+    // store.dispatch(updateThumbObjectUrlFromDB(file.id, undefined, undefined, file.posterFrameId, true));
   }
 
   getThumbsForFile(file) {
@@ -1803,6 +1803,7 @@ class App extends Component {
                           // visible={this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW}
                           ref={(el) => { this.videoPlayer = el; }}
                           file={this.props.file}
+                          objectUrlsMap={objectUrlsMap}
                           aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
                           height={this.state.scaleValueObject.videoPlayerHeight}
                           width={this.state.scaleValueObject.videoPlayerWidth}
@@ -1870,6 +1871,7 @@ class App extends Component {
                               defaultView={this.props.visibilitySettings.defaultView}
                               defaultSheet={this.props.visibilitySettings.defaultSheet}
                               file={this.props.file}
+                              objectUrlsMap={objectUrlsMap}
                               inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                               keyObject={this.state.keyObject}
                               onAddThumbClick={this.onAddThumbClick}
@@ -2173,6 +2175,16 @@ const mapStateToProps = state => {
       .thumbsByFileId[tempCurrentFileId][state.visibilitySettings.defaultSheet];
   const allScenes = (state.undoGroup.present.scenesByFileId[tempCurrentFileId] === undefined)
     ? [] : state.undoGroup.present.scenesByFileId[tempCurrentFileId].sceneArray;
+  const objectUrlsOfAllThumbs = allThumbs === undefined ? undefined : allThumbs.filter(thumb => {
+    return objectUrlsMap.has(thumb.frameId)
+  }).map(thumb => {
+    return {
+      frameId: thumb.frameId,
+      objectUrl: objectUrlsMap.get(thumb.frameId)
+    };
+  });
+  console.log(objectUrlsOfAllThumbs);
+  // console.log(allThumbs === undefined ? undefined : arrayToObject(objectUrlsOfAllThumbs, 'frameId'));
   return {
     sheetsArray,
     thumbs: getVisibleThumbs(
@@ -2180,9 +2192,10 @@ const mapStateToProps = state => {
       state.visibilitySettings.visibilityFilter
     ),
     allThumbs,
-    thumbImages: ((state.thumbsObjUrls[tempCurrentFileId] === undefined)
-      || state.thumbsObjUrls[tempCurrentFileId][state.visibilitySettings.defaultSheet] === undefined)
-        ? undefined : state.thumbsObjUrls[tempCurrentFileId][state.visibilitySettings.defaultSheet],
+    thumbImages: allThumbs === undefined ? undefined : arrayToObject(objectUrlsOfAllThumbs, 'frameId'),
+    // thumbImagesOld: ((state.thumbsObjUrls[tempCurrentFileId] === undefined)
+    //   || state.thumbsObjUrls[tempCurrentFileId][state.visibilitySettings.defaultSheet] === undefined)
+    //     ? undefined : state.thumbsObjUrls[tempCurrentFileId][state.visibilitySettings.defaultSheet],
     currentFileId: tempCurrentFileId,
     files: state.undoGroup.present.files,
     file: state.undoGroup.present.files

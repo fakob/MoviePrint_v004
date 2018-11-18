@@ -314,7 +314,7 @@ export const addScene = (fileId, start, length, colorArray, sceneId = uuidV4()) 
   };
 };
 
-export const addScenes = (file, sceneList, clearOldScenes = false) => {
+export const addScenes = (file, sceneList, clearOldScenes = false, objectUrlsMap) => {
   return (dispatch) => {
     log.debug('action: addScenes');
     if (clearOldScenes) {
@@ -324,7 +324,7 @@ export const addScenes = (file, sceneList, clearOldScenes = false) => {
     sceneList.map((scene, index) => {
       const sceneId = uuidV4();
       const thumbId = uuidV4();
-      dispatch(addThumb(file, DEFAULT_SHEET_SCENES, scene.start + Math.floor(scene.length / 2), index, thumbId, sceneId));
+      dispatch(addThumb(file, DEFAULT_SHEET_SCENES, scene.start + Math.floor(scene.length / 2), index, thumbId, objectUrlsMap, sceneId));
       return dispatch(addScene(file.id, scene.start, scene.length, scene.colorArray, sceneId));
     })
   };
@@ -344,7 +344,7 @@ export const toggleScene = (currentFileId, sheet, sceneId) => {
 
 // thumbs
 
-export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), sceneId = undefined) => {
+export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), objectUrlsMap, sceneId = undefined) => {
   return (dispatch) => {
     log.debug('action: addThumb');
     const frameId = uuidV4();
@@ -375,7 +375,7 @@ export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), sc
             sceneId,
           }
         });
-      }
+      }x
       log.debug(`frame number: ${frameNumber} already in database`);
       log.debug('dispatch: ADD_THUMB');
       dispatch({
@@ -391,8 +391,11 @@ export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), sc
           sceneId,
         }
       });
-      return dispatch(updateThumbObjectUrlFromDB(file.id, sheet, thumbId, frames[0].frameId));
-    }).catch();
+      dispatch(getObjectUrlFromFrameList(frames[0].frameId, objectUrlsMap)) // get objecturl from imagedb
+    })
+    .catch(error => {
+      log.error(`There has been a problem with your fetch operation: ${error.message}`);
+    });
   };
 };
 
@@ -446,7 +449,7 @@ export const updateFrameNumber = (fileId, sheet, thumbId, frameNumber) => {
 };
 
 
-export const updateThumbImage = (fileId, sheet, thumbId, frameId, base64, frameNumber, isPosterFrame = false) =>
+export const updateThumbImage = (fileId, sheet, thumbId, frameId, base64, frameNumber, isPosterFrame = false, objectUrlsMap) =>
   ((dispatch, getState) => {
     log.debug(`action: updateThumbImage frameNumber=${frameNumber}`);
     if (base64 === '') {
@@ -469,8 +472,6 @@ export const updateThumbImage = (fileId, sheet, thumbId, frameId, base64, frameN
         isPosterFrame: isPosterFrame ? 1 : 0, // 0 and 1 is used as dexie/indexDB can not use boolean values
         data: blob
       }))
-    .then(() =>
-      dispatch(updateThumbObjectUrlFromDB(fileId, sheet, thumbId, frameId, isPosterFrame)))
     .then(() => {
       // only update frameNumber if not posterframe and different
       if (!isPosterFrame &&
@@ -480,6 +481,12 @@ export const updateThumbImage = (fileId, sheet, thumbId, frameId, base64, frameN
         }
         return 'isPosterFrame';
       })
+    .then(() => {
+      if (isPosterFrame) {
+        return undefined; // posterframe does not get written into objecturlsmap
+      }
+      return dispatch(getObjectUrlFromFrameList(frameId, objectUrlsMap)); // get objecturl from imagedb
+    })
     .catch(error => {
       log.error(`There has been a problem with your fetch operation: ${error.message}`);
     });
@@ -607,7 +614,7 @@ export const addThumbs = (file, sheet, frameNumberArray) => {
   };
 };
 
-export const changeThumb = (sheet, file, thumbId, newFrameNumber) => {
+export const changeThumb = (sheet, file, thumbId, newFrameNumber, objectUrlsMap) => {
   return (dispatch) => {
     log.debug(`action: changeThumb - ${newFrameNumber}`);
     const newFrameId = uuidV4();
@@ -631,7 +638,7 @@ export const changeThumb = (sheet, file, thumbId, newFrameNumber) => {
       }
       log.debug(`frame number: ${newFrameNumber} already in database`);
       log.debug('dispatch: CHANGE_THUMB');
-      dispatch({
+      return dispatch({
         type: 'CHANGE_THUMB',
         payload: {
           sheet,
@@ -641,8 +648,13 @@ export const changeThumb = (sheet, file, thumbId, newFrameNumber) => {
           fileId: file.id,
         }
       });
-      return dispatch(updateThumbObjectUrlFromDB(file.id, sheet, thumbId, frames[0].frameId, false));
-    }).catch((err) => {
+      // return frames[0].frameId;
+    })
+    .then((resolve) => {
+      // console.log(resolve.payload.newFrameId);
+      return dispatch(getObjectUrlFromFrameList(resolve.payload.newFrameId, objectUrlsMap)); // get objecturl from imagedb
+    })
+    .catch((err) => {
       log.error(err);
     });
   };
@@ -899,3 +911,55 @@ export const getFileScanData = (fileId) =>
         return undefined;
       })
   });
+
+  export const getObjectUrlsFromFrameList = (objectUrlsMap) => {
+    return (dispatch, getState) => {
+      log.debug('action: getObjectUrlsFromFrameList');
+      return imageDB.frameList.where('isPosterFrame').equals(0).toArray() // get all frames which are not posterframes
+        .then((frames) => {
+          // log.debug(frames);
+          if (frames.length === 0) {
+            return [];
+          }
+          const frameArray = [];
+          frames.map((frame) => {
+            const objectUrl = window.URL.createObjectURL(frame.data);
+            if (objectUrl !== undefined) {
+              frameArray.push({
+                frameId: frame.frameId,
+                objectUrl: window.URL.createObjectURL(frame.data),
+              })
+            }
+            return undefined;
+          });
+          // log.debug(frameArray);
+          frameArray.map((frame) => {
+            objectUrlsMap.set(frame.frameId, frame.objectUrl)
+          })
+          return undefined;
+        })
+        .catch((err) => {
+          log.error(err);
+        });
+    };
+  };
+
+  export const getObjectUrlFromFrameList = (frameId, objectUrlsMap) => {
+    return (dispatch, getState) => {
+      log.debug('action: getObjectUrlFromFrameList');
+      if (objectUrlsMap.has(frameId)) {
+        return objectUrlsMap.get(frameId); // return immediately if already available
+      }
+      return imageDB.frameList.where('frameId').equals(frameId).toArray() // get the one frame
+        .then((frames) => {
+          log.debug(frames);
+          if (frames.length === 0) {
+            return undefined;
+          }
+          return objectUrlsMap.set(frameId, window.URL.createObjectURL(frames[0].data));  // add frameid and objecturl to objecturlmap
+        })
+        .catch((err) => {
+          log.error(err);
+        });
+      };
+    };

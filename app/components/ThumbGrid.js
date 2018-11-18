@@ -52,6 +52,8 @@ class ThumbGrid extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    // console.log('ThumbGrid componentDidUpdate');
+    // console.log(this.props.thumbImages);
   }
 
   render() {
@@ -157,9 +159,9 @@ class ThumbGrid extends Component {
               inputRefThumb={(this.props.selectedThumbId === thumb.thumbId) ?
                 this.props.inputRefThumb : undefined} // for the thumb scrollIntoView function
               color={(this.props.colorArray !== undefined ? this.props.colorArray[thumb.index] : undefined)}
-              thumbImageObjectUrl={thumb.thumbImageObjectUrl ||
-                getObjectProperty(() => this.props.thumbImages[thumb.frameId].objectUrl) ||
-                'blob:file:///fakeURL' // set fakeURL so onError gets triggered to update objecturls
+              thumbImageObjectUrl={
+                this.props.thumbImages[thumb.frameId] ? this.props.thumbImages[thumb.frameId].objectUrl :  undefined
+                // getObjectProperty(() => this.props.thumbImages[thumb.frameId].objectUrl)
               }
               transparentThumb={thumb.transparentThumb || undefined}
               aspectRatioInv={this.props.scaleValueObject.aspectRatioInv}
