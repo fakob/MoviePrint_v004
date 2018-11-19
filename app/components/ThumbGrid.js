@@ -160,8 +160,7 @@ class ThumbGrid extends Component {
                 this.props.inputRefThumb : undefined} // for the thumb scrollIntoView function
               color={(this.props.colorArray !== undefined ? this.props.colorArray[thumb.index] : undefined)}
               thumbImageObjectUrl={
-                this.props.thumbImages[thumb.frameId] ? this.props.thumbImages[thumb.frameId].objectUrl :  undefined
-                // getObjectProperty(() => this.props.thumbImages[thumb.frameId].objectUrl)
+                getObjectProperty(() => this.props.thumbImages[thumb.frameId].objectUrl)
               }
               transparentThumb={thumb.transparentThumb || undefined}
               aspectRatioInv={this.props.scaleValueObject.aspectRatioInv}

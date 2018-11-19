@@ -391,7 +391,6 @@ export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), ob
           sceneId,
         }
       });
-      dispatch(getObjectUrlFromFrameList(frames[0].frameId, objectUrlsMap)) // get objecturl from imagedb
     })
     .catch(error => {
       log.error(`There has been a problem with your fetch operation: ${error.message}`);
@@ -449,7 +448,7 @@ export const updateFrameNumber = (fileId, sheet, thumbId, frameNumber) => {
 };
 
 
-export const updateThumbImage = (fileId, sheet, thumbId, frameId, base64, frameNumber, isPosterFrame = false, objectUrlsMap) =>
+export const updateThumbImage = (fileId, sheet, thumbId, frameId, base64, frameNumber, isPosterFrame = false, objectUrlsArray = []) =>
   ((dispatch, getState) => {
     log.debug(`action: updateThumbImage frameNumber=${frameNumber}`);
     if (base64 === '') {
@@ -473,20 +472,17 @@ export const updateThumbImage = (fileId, sheet, thumbId, frameId, base64, frameN
         data: blob
       }))
     .then(() => {
-      // only update frameNumber if not posterframe and different
+      // only update frameNumber if not posterframe and frameNumber is different
       if (!isPosterFrame &&
         getState().undoGroup.present.thumbsByFileId[fileId][sheet].find((thumb) =>
         thumb.thumbId === thumbId).frameNumber !== frameNumber) {
-          return dispatch(updateFrameNumber(fileId, sheet, thumbId, frameNumber));
+          dispatch(updateFrameNumber(fileId, sheet, thumbId, frameNumber));
         }
-        return 'isPosterFrame';
+        if (isPosterFrame) {
+          return Promise.resolve(false); // return false if objecturl not updated - does not need rerender
+        }
+        return dispatch(returnObjectUrlFromFrameList(frameId, objectUrlsArray)); // get objecturl from imagedb
       })
-    .then(() => {
-      if (isPosterFrame) {
-        return undefined; // posterframe does not get written into objecturlsmap
-      }
-      return dispatch(getObjectUrlFromFrameList(frameId, objectUrlsMap)); // get objecturl from imagedb
-    })
     .catch(error => {
       log.error(`There has been a problem with your fetch operation: ${error.message}`);
     });
@@ -649,10 +645,6 @@ export const changeThumb = (sheet, file, thumbId, newFrameNumber, objectUrlsMap)
         }
       });
       // return frames[0].frameId;
-    })
-    .then((resolve) => {
-      // console.log(resolve.payload.newFrameId);
-      return dispatch(getObjectUrlFromFrameList(resolve.payload.newFrameId, objectUrlsMap)); // get objecturl from imagedb
     })
     .catch((err) => {
       log.error(err);
@@ -915,6 +907,7 @@ export const getFileScanData = (fileId) =>
   export const getObjectUrlsFromFrameList = (objectUrlsMap) => {
     return (dispatch, getState) => {
       log.debug('action: getObjectUrlsFromFrameList');
+      console.log(objectUrlsMap);
       return imageDB.frameList.where('isPosterFrame').equals(0).toArray() // get all frames which are not posterframes
         .then((frames) => {
           // log.debug(frames);
@@ -944,19 +937,76 @@ export const getFileScanData = (fileId) =>
     };
   };
 
-  export const getObjectUrlFromFrameList = (frameId, objectUrlsMap) => {
+    export const getObjectUrlFromFrameList = (frameId, objectUrlsMap) => {
+      return (dispatch, getState) => {
+        log.debug('action: getObjectUrlFromFrameList');
+        // console.log(frameId);
+        // console.log(objectUrlsMap);
+        if (objectUrlsMap.has(frameId)) {
+          return objectUrlsMap.get(frameId); // return immediately if already available
+        }
+        return imageDB.frameList.where('frameId').equals(frameId).toArray() // get the one frame
+          .then((frames) => {
+            // console.log(frames);
+            // log.debug(frames);
+            if (frames.length === 0) {
+              return Promise.resolve(false); // return false if objecturl not updated - does not need rerender
+            }
+            return Promise.resolve(objectUrlsMap.set(frameId, window.URL.createObjectURL(frames[0].data)));  // add frameid and objecturl to objecturlmap
+          })
+          .catch((err) => {
+            log.error(err);
+          });
+        };
+      };
+
+  export const returnObjectUrlsFromFrameList = () => {
     return (dispatch, getState) => {
+      log.debug('action: getObjectUrlsFromFrameList');
+      return imageDB.frameList.where('isPosterFrame').equals(0).toArray() // get all frames which are not posterframes
+        .then((frames) => {
+          // log.debug(frames);
+          if (frames.length === 0) {
+            return Promise.resolve([]);
+          }
+          const frameArray = [];
+          frames.map((frame) => {
+            const objectUrl = window.URL.createObjectURL(frame.data);
+            if (objectUrl !== undefined) {
+              frameArray.push({
+                frameId: frame.frameId,
+                objectUrl: window.URL.createObjectURL(frame.data),
+              })
+            }
+            return undefined;
+          });
+          return Promise.resolve(frameArray);
+        })
+        .catch((err) => {
+          log.error(err);
+        });
+    };
+  };
+
+  export const returnObjectUrlFromFrameList = (frameId, objectUrlsArray) => {
+    return dispatch => {
       log.debug('action: getObjectUrlFromFrameList');
-      if (objectUrlsMap.has(frameId)) {
-        return objectUrlsMap.get(frameId); // return immediately if already available
+      // console.log(frameId);
+      // console.log(objectUrlsMap);
+      if (objectUrlsArray.some(item => frameId === item.frameId)) {
+        return Promise.resolve(objectUrlsArray.find(item => frameId === item.frameId)); // return immediately if already available
       }
       return imageDB.frameList.where('frameId').equals(frameId).toArray() // get the one frame
         .then((frames) => {
-          log.debug(frames);
+          // console.log(frames);
+          // log.debug(frames);
           if (frames.length === 0) {
-            return undefined;
+            return Promise.reject(new Error('frame not found')); // return false if objecturl not updated - does not need rerender
           }
-          return objectUrlsMap.set(frameId, window.URL.createObjectURL(frames[0].data));  // add frameid and objecturl to objecturlmap
+          return Promise.resolve({
+            frameId: frames[0].frameId,
+            objectUrl: window.URL.createObjectURL(frames[0].data),
+          });
         })
         .catch((err) => {
           log.error(err);
