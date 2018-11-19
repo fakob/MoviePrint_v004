@@ -4,12 +4,10 @@ import thumbsByFileId from './thumbs';
 import files from './files';
 import settings from './settings';
 import scenesByFileId from './scenesByFileId';
-import thumbsObjUrls from './thumbsObjUrls';
 import visibilitySettings from './visibilitySettings';
 
 const rootReducer = combineReducers({
   visibilitySettings,
-  thumbsObjUrls,
   undoGroup: undoable(combineReducers({
     settings,
     scenesByFileId,
@@ -17,8 +15,6 @@ const rootReducer = combineReducers({
     files
   }), {
     filter: excludeAction([
-      // 'UPDATE_OBJECTURL_FROM_THUMBLIST', // excluding did not work
-      // 'UPDATE_OBJECTURLS_FROM_THUMBLIST',
       // 'UPDATE_OBJECTURL_FROM_POSTERFRAME',
       // 'UPDATE_OBJECTURLS_FROM_POSTERFRAME'
       // 'UPDATE_MOVIE_LIST_ITEM_USERATIO'

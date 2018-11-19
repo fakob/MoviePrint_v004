@@ -55,7 +55,6 @@ const initialStateJSON = {
     defaultSheetType: DEFAULT_SHEET_TYPE,
     defaultSheetFit: DEFAULT_SHEET_FIT,
   },
-  thumbsObjUrls: {},
   undoGroup: {
     settings: {
       defaultThumbCountMax: DEFAULT_THUMB_COUNT_MAX,

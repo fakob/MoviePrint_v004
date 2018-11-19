@@ -355,7 +355,6 @@ class VideoPlayer extends Component {
             newFrameNumber,
             this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index + 1,
             newThumbId,
-            this.props.objectUrlsMap,
           ));
         } else { // if shiftKey
           store.dispatch(addThumb(
@@ -364,7 +363,6 @@ class VideoPlayer extends Component {
             newFrameNumber,
             this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index,
             newThumbId,
-            this.props.objectUrlsMap,
           ));
         }
         // delay selection so it waits for add thumb to be ready
@@ -372,7 +370,7 @@ class VideoPlayer extends Component {
           this.props.selectThumbMethod(newThumbId, newFrameNumber);
         }, 500);
       } else { // if normal set new thumb
-        store.dispatch(changeThumb(this.props.visibilitySettings.defaultSheet, this.props.file, this.props.selectedThumbId, newFrameNumber, this.props.objectUrlsMap));
+        store.dispatch(changeThumb(this.props.visibilitySettings.defaultSheet, this.props.file, this.props.selectedThumbId, newFrameNumber));
       }
     }
   }
@@ -637,9 +635,6 @@ const mapStateToProps = state => {
       tempThumbs,
       state.visibilitySettings.visibilityFilter
     ),
-    thumbImages: ((state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId] === undefined)
-      || state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId][state.visibilitySettings.defaultSheet] === undefined)
-        ? undefined : state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId][state.visibilitySettings.defaultSheet],
     settings: state.undoGroup.present.settings,
     visibilitySettings: state.visibilitySettings
   };

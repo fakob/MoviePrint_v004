@@ -456,8 +456,12 @@ export const limitFrameNumberWithinMovieRange = (file, frameNumber) => {
     return limitedFrameNumber;
 }
 
-export const arrayToObject = (array, keyField) =>
-   array.reduce((obj, item) => {
+export const arrayToObject = (array, keyField) => {
+  if (array === undefined) {
+    return {}
+  }
+  return array.reduce((obj, item) => {
      obj[item[keyField]] = item
      return obj
    }, {})
+}

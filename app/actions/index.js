@@ -314,7 +314,7 @@ export const addScene = (fileId, start, length, colorArray, sceneId = uuidV4()) 
   };
 };
 
-export const addScenes = (file, sceneList, clearOldScenes = false, objectUrlsMap) => {
+export const addScenes = (file, sceneList, clearOldScenes = false) => {
   return (dispatch) => {
     log.debug('action: addScenes');
     if (clearOldScenes) {
@@ -324,7 +324,7 @@ export const addScenes = (file, sceneList, clearOldScenes = false, objectUrlsMap
     sceneList.map((scene, index) => {
       const sceneId = uuidV4();
       const thumbId = uuidV4();
-      dispatch(addThumb(file, DEFAULT_SHEET_SCENES, scene.start + Math.floor(scene.length / 2), index, thumbId, objectUrlsMap, sceneId));
+      dispatch(addThumb(file, DEFAULT_SHEET_SCENES, scene.start + Math.floor(scene.length / 2), index, thumbId, sceneId));
       return dispatch(addScene(file.id, scene.start, scene.length, scene.colorArray, sceneId));
     })
   };
@@ -344,7 +344,7 @@ export const toggleScene = (currentFileId, sheet, sceneId) => {
 
 // thumbs
 
-export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), objectUrlsMap, sceneId = undefined) => {
+export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), sceneId = undefined) => {
   return (dispatch) => {
     log.debug('action: addThumb');
     const frameId = uuidV4();
@@ -610,7 +610,7 @@ export const addThumbs = (file, sheet, frameNumberArray) => {
   };
 };
 
-export const changeThumb = (sheet, file, thumbId, newFrameNumber, objectUrlsMap) => {
+export const changeThumb = (sheet, file, thumbId, newFrameNumber) => {
   return (dispatch) => {
     log.debug(`action: changeThumb - ${newFrameNumber}`);
     const newFrameId = uuidV4();
@@ -644,7 +644,6 @@ export const changeThumb = (sheet, file, thumbId, newFrameNumber, objectUrlsMap)
           fileId: file.id,
         }
       });
-      // return frames[0].frameId;
     })
     .catch((err) => {
       log.error(err);
@@ -854,29 +853,6 @@ export const updateThumbObjectUrlFromDB = (fileId, sheet, thumbId, frameId, isPo
     });
   };
 
-export const updateObjectUrlsFromThumbList = (fileId, sheet, frameIdArray) => {
-  return (dispatch) => {
-    // log.debug('action: updateObjectUrlsFromThumbList');
-    imageDB.frameList.where('frameId').anyOf(frameIdArray).toArray().then((frames) => {
-      // log.debug(frames.length);
-      if (frames.length !== 0) {
-        // log.debug('dispatch: UPDATE_OBJECTURLS_FROM_THUMBLIST');
-        dispatch({
-          type: 'UPDATE_OBJECTURLS_FROM_THUMBLIST',
-          payload: {
-            fileId,
-            sheet,
-            frames
-          },
-        });
-      }
-    return true;
-    }).catch((err) => {
-      log.error(err);
-    });
-  };
-};
-
 export const updateFileScanData = (fileId, meanArray, meanColorArray) =>
   ((dispatch) => {
     log.debug('action: updateFileScanData');
@@ -904,65 +880,9 @@ export const getFileScanData = (fileId) =>
       })
   });
 
-  export const getObjectUrlsFromFrameList = (objectUrlsMap) => {
-    return (dispatch, getState) => {
-      log.debug('action: getObjectUrlsFromFrameList');
-      console.log(objectUrlsMap);
-      return imageDB.frameList.where('isPosterFrame').equals(0).toArray() // get all frames which are not posterframes
-        .then((frames) => {
-          // log.debug(frames);
-          if (frames.length === 0) {
-            return [];
-          }
-          const frameArray = [];
-          frames.map((frame) => {
-            const objectUrl = window.URL.createObjectURL(frame.data);
-            if (objectUrl !== undefined) {
-              frameArray.push({
-                frameId: frame.frameId,
-                objectUrl: window.URL.createObjectURL(frame.data),
-              })
-            }
-            return undefined;
-          });
-          // log.debug(frameArray);
-          frameArray.map((frame) => {
-            objectUrlsMap.set(frame.frameId, frame.objectUrl)
-          })
-          return undefined;
-        })
-        .catch((err) => {
-          log.error(err);
-        });
-    };
-  };
-
-    export const getObjectUrlFromFrameList = (frameId, objectUrlsMap) => {
-      return (dispatch, getState) => {
-        log.debug('action: getObjectUrlFromFrameList');
-        // console.log(frameId);
-        // console.log(objectUrlsMap);
-        if (objectUrlsMap.has(frameId)) {
-          return objectUrlsMap.get(frameId); // return immediately if already available
-        }
-        return imageDB.frameList.where('frameId').equals(frameId).toArray() // get the one frame
-          .then((frames) => {
-            // console.log(frames);
-            // log.debug(frames);
-            if (frames.length === 0) {
-              return Promise.resolve(false); // return false if objecturl not updated - does not need rerender
-            }
-            return Promise.resolve(objectUrlsMap.set(frameId, window.URL.createObjectURL(frames[0].data)));  // add frameid and objecturl to objecturlmap
-          })
-          .catch((err) => {
-            log.error(err);
-          });
-        };
-      };
-
   export const returnObjectUrlsFromFrameList = () => {
     return (dispatch, getState) => {
-      log.debug('action: getObjectUrlsFromFrameList');
+      log.debug('action: returnObjectUrlsFromFrameList');
       return imageDB.frameList.where('isPosterFrame').equals(0).toArray() // get all frames which are not posterframes
         .then((frames) => {
           // log.debug(frames);
@@ -990,9 +910,8 @@ export const getFileScanData = (fileId) =>
 
   export const returnObjectUrlFromFrameList = (frameId, objectUrlsArray) => {
     return dispatch => {
-      log.debug('action: getObjectUrlFromFrameList');
+      log.debug('action: returnObjectUrlFromFrameList');
       // console.log(frameId);
-      // console.log(objectUrlsMap);
       if (objectUrlsArray.some(item => frameId === item.frameId)) {
         return Promise.resolve(objectUrlsArray.find(item => frameId === item.frameId)); // return immediately if already available
       }
