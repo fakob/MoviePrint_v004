@@ -3,6 +3,9 @@ import {
   DEFAULT_THUMB_COUNT, DEFAULT_COLUMN_COUNT, DEFAULT_MOVIE_WIDTH, DEFAULT_MOVIE_HEIGHT,
   SHOW_PAPER_ADJUSTMENT_SCALE, DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN, VIEW, SHEET_FIT
 } from './constants';
+import {
+  getWidthOfLongestRow,
+} from './utils';
 
 const getScaleValueObject = (
   file,
@@ -15,6 +18,7 @@ const getScaleValueObject = (
   zoomScale,
   showPaperPreview = false,
   forPrinting = false,
+  sceneArray = [],
 ) => {
   const movieWidth = (file !== undefined && file.width !== undefined ? file.width : DEFAULT_MOVIE_WIDTH);
   const movieHeight = (file !== undefined && file.height !== undefined ? file.height : DEFAULT_MOVIE_HEIGHT);
@@ -120,6 +124,39 @@ const getScaleValueObject = (
   const newLogoHeight = showPlayerView ? logoHeight : logoHeight * scaleValue;
   const newScaleValue = showPlayerView ? settings.defaultThumbnailScale : settings.defaultThumbnailScale * scaleValue;
 
+  // timeline view
+  const frameCount = file !== undefined && file.frameCount !== undefined ? file.frameCount : 0;
+  const minutesPerRow = settings.defaultSceneDetectionMinutesPerRow;
+  const paperMoviePrintTimelineWidth = settings.defaultMoviePrintWidth;
+  const paperMoviePrintTimelineHeight  = paperMoviePrintTimelineWidth * settings.defaultPaperAspectRatioInv;
+
+  const scaleValueTimelineWidth = containerWidth / paperMoviePrintTimelineWidth;
+  const scaleValueTimelineHeight = containerHeight / paperMoviePrintTimelineHeight;
+
+  // this needs improvement, 0.9 is a random factor which should be dependent of the margins in the rows and columns
+  const scaleValueTimeline = Math.min(scaleValueTimelineWidth, scaleValueTimelineHeight) * showPaperAdjustmentScale * 0.9;
+
+  const newMoviePrintTimelineWidth = paperMoviePrintTimelineWidth * scaleValueTimeline + DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN;
+  const newMoviePrintTimelineHeight = newMoviePrintTimelineWidth * settings.defaultPaperAspectRatioInv;
+
+  const rowsTimeline = Math.ceil(frameCount / (minutesPerRow * 60 * 25 * 1.0));
+  const pixelPerFrameRatioTimeline = newMoviePrintTimelineWidth / (minutesPerRow * 60 * 25 * 1.0);
+
+  const rowHeightTimeline = Math.min(
+    newMoviePrintTimelineHeight / 3,
+    Math.floor((newMoviePrintTimelineHeight - (newThumbMargin * ((rowsTimeline * 2) + 2))) / rowsTimeline)
+  );
+  const firstMaxWidth = getWidthOfLongestRow(
+    sceneArray,
+    minutesPerRow,
+    thumbMargin,
+    pixelPerFrameRatioTimeline,
+  );
+
+  const scaleAdjust = newMoviePrintTimelineWidth / firstMaxWidth;
+  const adjustedPixelPerFrameRatioTimeline = scaleAdjust * pixelPerFrameRatioTimeline;
+  // timeline view
+
   const scaleValueObject = {
     containerWidth,
     containerHeight,
@@ -144,6 +181,11 @@ const getScaleValueObject = (
     scrubContainerWidth,
     scrubInnerContainerWidth,
     newMoviePrintWidthForPrinting,
+    newMoviePrintTimelineWidth,
+    newMoviePrintTimelineHeight,
+    rowsTimeline,
+    rowHeightTimeline,
+    adjustedPixelPerFrameRatioTimeline,
   };
   // log.debug(scaleValueObject);
   return scaleValueObject;

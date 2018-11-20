@@ -113,6 +113,7 @@ class WorkerApp extends Component {
         1,
         undefined,
         true,
+        this.state.sentData.scenes
       );
     }
     return (

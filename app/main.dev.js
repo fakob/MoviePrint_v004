@@ -14,6 +14,7 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import fs from 'fs';
 import log from 'electron-log';
+import { clearCache } from './utils/utils';
 
 import MenuBuilder from './menu';
 
@@ -111,6 +112,16 @@ app.on('ready', async () => {
     }
     mainWindow.show();
     mainWindow.focus();
+
+    // clear cache if started with --reset arg
+    if (process.argv.findIndex(value => value === '--reset') > -1) {
+      setTimeout(
+        () => {
+          clearCache(mainWindow);
+        },
+        1000
+      );
+    }
   });
 
   // openProcessManager();
