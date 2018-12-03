@@ -114,3 +114,5 @@ export const IN_OUT_POINT_SEARCH_LENGTH = 300;
 export const IN_OUT_POINT_SEARCH_THRESHOLD = 20; // previous 15
 
 export const SCENE_DETECTION_MIN_SCENE_LENGTH = 15; // for scene detection
+
+export const DEFAULT_FRAME_SCALE = 1; // scale of frames to be stored in the database if 1 then original size is stored

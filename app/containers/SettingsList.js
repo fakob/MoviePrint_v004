@@ -715,6 +715,27 @@ class SettingsList extends Component {
               />
             </Grid.Column>
           </Grid.Row>
+          <Divider inverted />
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Frame scale
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <SliderWithTooltip
+                // data-tid='marginSlider'
+                className={styles.slider}
+                min={1}
+                max={10}
+                defaultValue={this.props.frameScale * 10}
+                marks={{
+                  1: '0.1',
+                  10: '1',
+                }}
+                handle={handle}
+                onChange={this.props.onChangeFrameScale}
+              />
+            </Grid.Column>
+          </Grid.Row>
         </Grid>
       </Container>
     );

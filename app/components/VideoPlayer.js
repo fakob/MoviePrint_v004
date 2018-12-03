@@ -154,7 +154,8 @@ class VideoPlayer extends Component {
       this.props.visibilitySettings.defaultSheet,
       this.props.thumbs.length,
       newFrameNumber,
-      getHighestFrame(this.props.thumbs)
+      getHighestFrame(this.props.thumbs),
+      this.props.frameScale,
     ));
   }
 
@@ -166,7 +167,8 @@ class VideoPlayer extends Component {
       this.props.visibilitySettings.defaultSheet,
       this.props.thumbs.length,
       getLowestFrame(this.props.thumbs),
-      newFrameNumber
+      newFrameNumber,
+      this.props.frameScale,
     ));
   }
 
@@ -355,6 +357,7 @@ class VideoPlayer extends Component {
             newFrameNumber,
             this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index + 1,
             newThumbId,
+            this.props.frameScale,
           ));
         } else { // if shiftKey
           store.dispatch(addThumb(
@@ -363,6 +366,7 @@ class VideoPlayer extends Component {
             newFrameNumber,
             this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index,
             newThumbId,
+            this.props.frameScale,
           ));
         }
         // delay selection so it waits for add thumb to be ready
@@ -370,7 +374,7 @@ class VideoPlayer extends Component {
           this.props.selectThumbMethod(newThumbId, newFrameNumber);
         }, 500);
       } else { // if normal set new thumb
-        store.dispatch(changeThumb(this.props.visibilitySettings.defaultSheet, this.props.file, this.props.selectedThumbId, newFrameNumber));
+        store.dispatch(changeThumb(this.props.visibilitySettings.defaultSheet, this.props.file, this.props.selectedThumbId, newFrameNumber, this.props.frameScale));
       }
     }
   }

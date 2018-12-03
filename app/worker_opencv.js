@@ -642,7 +642,8 @@ ipcRenderer.on(
     thumbIdArray,
     frameIdArray,
     frameNumberArray,
-    useRatio
+    useRatio,
+    frameScale
   ) => {
     log.debug('opencvWorkerWindow | on send-get-thumbs');
     // log.debug(frameNumberArray);
@@ -673,7 +674,8 @@ ipcRenderer.on(
 
           if (mat.empty === false) {
             // opencv.imshow('a window name', mat);
-            const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // maybe change to .png?
+            const matRescaled = mat.rescale(frameScale);
+            const outBase64 = opencv.imencode('.jpg', matRescaled).toString('base64'); // maybe change to .png?
             ipcRenderer.send(
               'message-from-opencvWorkerWindow-to-mainWindow',
               'receive-get-thumbs',

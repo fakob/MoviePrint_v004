@@ -62,7 +62,7 @@ import {
   SHEET_TYPE,
   SHEET_FIT,
   DEFAULT_THUMB_COUNT,
-  DEFAULT_COLUMN_COUNT,
+  DEFAULT_FRAME_SCALE,
   DEFAULT_SHEET_SCENES,
   DEFAULT_SHEET_INTERVAL,
 } from '../utils/constants';
@@ -146,6 +146,7 @@ class App extends Component {
       filesToPrint: [],
       savingAllMoviePrints: false,
       objectUrlsArray: [],
+      frameScale: DEFAULT_FRAME_SCALE,
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -192,6 +193,7 @@ class App extends Component {
     this.onApplyNewGridClick = this.onApplyNewGridClick.bind(this);
     this.onCancelClick = this.onCancelClick.bind(this);
 
+    this.onChangeFrameScale = this.onChangeFrameScale.bind(this);
     this.onChangeMargin = this.onChangeMargin.bind(this);
     this.onChangeSceneDetectionThreshold = this.onChangeSceneDetectionThreshold.bind(this);
     this.onChangeSceneDetectionMinutesPerRow = this.onChangeSceneDetectionMinutesPerRow.bind(this);
@@ -339,6 +341,7 @@ class App extends Component {
           store.getState().undoGroup.present.settings.defaultThumbCount,
           fadeInPoint,
           fadeOutPoint,
+          this.state.frameScale,
         ));
       }
       if (this.state.filesToLoad.length > 0) {
@@ -1082,7 +1085,7 @@ class App extends Component {
       //   DEFAULT_SHEET_SCENES,
       //   listOfFrameNumbers,
       // ));
-      store.dispatch(addScenes(tempFile, sceneList, clearOldScenes));
+      store.dispatch(addScenes(tempFile, sceneList, clearOldScenes, this.state.frameScale));
     } else {
       this.setState({
         progressMessage: 'No scenes detected',
@@ -1141,7 +1144,8 @@ class App extends Component {
           sheetName,
           DEFAULT_THUMB_COUNT, // use constant value instead of defaultThumbCount
           sceneArray[sceneIndex].start,
-          sceneArray[sceneIndex].start + sceneArray[sceneIndex].length
+          sceneArray[sceneIndex].start + sceneArray[sceneIndex].length,
+          this.state.frameScale,
         ));
     }
     store.dispatch(setSheet(sheetName));
@@ -1168,6 +1172,7 @@ class App extends Component {
         newFrameNumberAfter,
         indexOfAllThumbs + 1,
         newThumbId,
+        this.state.frameScale,
       ));
     } else if (insertWhere === 'before') { // if shiftKey
       store.dispatch(addThumb(
@@ -1176,6 +1181,7 @@ class App extends Component {
         newFrameNumberBefore,
         indexOfAllThumbs,
         newThumbId,
+        this.state.frameScale,
       ));
     }
   }
@@ -1222,6 +1228,7 @@ class App extends Component {
             scrubFrameNumber,
             this.props.thumbs.find((thumb) => thumb.thumbId === this.state.scrubThumb.thumbId).index + 1,
             newThumbId,
+            this.state.frameScale,
           ));
         } else { // if shiftKey
           store.dispatch(addThumb(
@@ -1230,10 +1237,11 @@ class App extends Component {
             scrubFrameNumber,
             this.props.thumbs.find((thumb) => thumb.thumbId === this.state.scrubThumb.thumbId).index,
             newThumbId,
+            this.state.frameScale,
           ));
         }
       } else { // if normal set new thumb
-        store.dispatch(changeThumb(this.props.visibilitySettings.defaultSheet, this.props.file, this.state.scrubThumb.thumbId, scrubFrameNumber));
+        store.dispatch(changeThumb(this.props.visibilitySettings.defaultSheet, this.props.file, this.state.scrubThumb.thumbId, scrubFrameNumber, this.state.frameScale));
       }
     }
     this.setState({
@@ -1331,7 +1339,8 @@ class App extends Component {
           DEFAULT_SHEET_INTERVAL,
           this.props.settings.defaultThumbCount,
           file.fadeInPoint,
-          file.fadeOutPoint
+          file.fadeOutPoint,
+          this.state.frameScale,
         )).catch(error => {
           console.log(error)
         });
@@ -1467,9 +1476,16 @@ class App extends Component {
           (this.props.thumbsByFileId[this.props.currentFileId] === undefined)
             ? undefined : this.props.thumbsByFileId[this.props.currentFileId][this.props.visibilitySettings.defaultSheet],
           this.props.visibilitySettings.visibilityFilter
-        ))
+        )),
+        this.state.frameScale,
       ));
     }
+  };
+
+  onChangeFrameScale = (value) => {
+    this.setState({
+      frameScale: (value / 10.0)
+    })
   };
 
   onChangeMargin = (value) => {
@@ -1778,6 +1794,8 @@ class App extends Component {
                         onApplyNewGridClick={this.onApplyNewGridClick}
                         onCancelClick={this.onCancelClick}
                         onChangeMargin={this.onChangeMargin}
+                        frameScale={this.state.frameScale}
+                        onChangeFrameScale={this.onChangeFrameScale}
                         onChangeSceneDetectionThreshold={this.onChangeSceneDetectionThreshold}
                         onChangeSceneDetectionMinutesPerRow={this.onChangeSceneDetectionMinutesPerRow}
                         onShowHeaderClick={this.onShowHeaderClick}
@@ -1826,6 +1844,7 @@ class App extends Component {
                           selectThumbMethod={this.onSelectThumbMethod}
                           keyObject={this.state.keyObject}
                           opencvVideo={this.state.opencvVideo}
+                          frameScale={this.state.frameScale}
                         />
                       ) :
                       (
@@ -1896,6 +1915,7 @@ class App extends Component {
                               thumbs={this.props.thumbs}
                               viewForPrinting={false}
                               visibilitySettings={this.props.visibilitySettings}
+                              frameScale={this.state.frameScale}
                             />
                           </Conditional>
                           <Conditional if={this.props.visibilitySettings.defaultView === VIEW.TIMELINEVIEW}>
