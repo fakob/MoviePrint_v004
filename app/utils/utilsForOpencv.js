@@ -55,22 +55,22 @@ export const HSVtoRGB = (h, s, v) => {
   const t = (v / 255) * (1 - (1 - f) * (s / 255));
   switch (i % 6) {
     case 0:
-      r = v, g = t, b = p;
+      r = (v / 255), g = t, b = p;
       break;
     case 1:
-      r = q, g = v, b = p;
+      r = q, g = (v / 255), b = p;
       break;
     case 2:
-      r = p, g = v, b = t;
+      r = p, g = (v / 255), b = t;
       break;
     case 3:
-      r = p, g = q, b = v;
+      r = p, g = q, b = (v / 255);
       break;
     case 4:
-      r = t, g = p, b = v;
+      r = t, g = p, b = (v / 255);
       break;
     case 5:
-      r = v, g = p, b = q;
+      r = (v / 255), g = p, b = q;
       break;
     default:
       break;
