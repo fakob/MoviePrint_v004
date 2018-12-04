@@ -5,6 +5,7 @@ import {
 } from './constants';
 import {
   getWidthOfLongestRow,
+  getScenesInRows,
 } from './utils';
 
 const getScaleValueObject = (
@@ -146,14 +147,18 @@ const getScaleValueObject = (
     newMoviePrintTimelineHeight / 3,
     Math.floor((newMoviePrintTimelineHeight - (newThumbMargin * ((rowsTimeline * 2) + 2))) / rowsTimeline)
   );
-  const firstMaxWidth = getWidthOfLongestRow(
+  const scenesInRows = getScenesInRows(
     sceneArray,
     minutesPerRow,
+  );
+  const maxWidth = getWidthOfLongestRow(
+    scenesInRows,
     thumbMargin,
     pixelPerFrameRatioTimeline,
-  );
+    settings.defaultSceneDetectionMinDisplaySceneLengthInFrames,
+  )
 
-  const scaleAdjust = newMoviePrintTimelineWidth / firstMaxWidth;
+  const scaleAdjust = newMoviePrintTimelineWidth / maxWidth;
   const adjustedPixelPerFrameRatioTimeline = scaleAdjust * pixelPerFrameRatioTimeline;
   // timeline view
 

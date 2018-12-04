@@ -49,6 +49,8 @@ const settings = (state = {}, action) => {
       return { ...state, defaultSceneDetectionThreshold: action.defaultSceneDetectionThreshold };
     case 'SET_DEFAULT_SCENE_DETECTION_MINUTES_PER_ROW':
       return { ...state, defaultSceneDetectionMinutesPerRow: action.defaultSceneDetectionMinutesPerRow };
+    case 'SET_DEFAULT_SCENE_DETECTION_MIN_DISPLAY_SCENE_LENGTH_IN_FRAMES':
+      return { ...state, defaultSceneDetectionMinDisplaySceneLengthInFrames: action.defaultSceneDetectionMinDisplaySceneLengthInFrames };
     default:
       return state;
   }

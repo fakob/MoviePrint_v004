@@ -78,6 +78,21 @@
       - ipc received-saved-file
         - set status to done
 
+##### on sceneDetection
+
+- runSceneDetection
+  - runFileScan
+  - calculateSceneList
+    - get sceneList
+    - set sheet to SCENES
+    - set view to TIMELINEVIEW
+    - addScenes
+      - clearScenes
+      - clearThumbs
+      - run through sceneList
+        - addThumb
+        - addScene
+
 # IndexedDB structure
 
 ##### frameList (all captured frames)

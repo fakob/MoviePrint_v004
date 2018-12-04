@@ -50,10 +50,11 @@ class SceneGrid extends Component {
 
   render() {
     const minutesPerRow = this.props.minutesPerRow;
+    const minSceneLength = this.props.minSceneLength;
     const sceneArray = this.props.scenes;
     const newMoviePrintTimelineWidth = this.props.scaleValueObject.newMoviePrintTimelineWidth;
     const thumbMargin = this.props.scaleValueObject.newThumbMargin;
-    let lineCounter = 1;
+    let rowCounter = 1;
 
     const rows = this.props.scaleValueObject.rowsTimeline;
 
@@ -77,11 +78,11 @@ class SceneGrid extends Component {
             // minutes per row idea
             const selected = this.props.selectedSceneId ? (this.props.selectedSceneId === scene.sceneId) : false;
             const width = selected ? realWidth :
-              adjustedPixelPerFrameRatio * scene.length;
+              Math.max(adjustedPixelPerFrameRatio * scene.length, adjustedPixelPerFrameRatio * minSceneLength);
             let doLineBreak = false;
-            if ((scene.start + scene.length) > (minutesPerRow * 60 * 25 * lineCounter)) {
+            if ((scene.start + scene.length) > (minutesPerRow * 60 * 25 * rowCounter)) {
               doLineBreak = true;
-              lineCounter += 1;
+              rowCounter += 1;
             }
 
             return (

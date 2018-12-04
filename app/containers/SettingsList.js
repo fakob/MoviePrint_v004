@@ -294,6 +294,28 @@ class SettingsList extends Component {
               </Grid.Column>
             </Grid.Row>
           }
+          { (this.props.visibilitySettings.defaultView === VIEW.TIMELINEVIEW) &&
+            <Grid.Row>
+              <Grid.Column width={4}>
+                Min scene width
+              </Grid.Column>
+              <Grid.Column width={12}>
+                <SliderWithTooltip
+                  // data-tid='marginSlider'
+                  className={styles.slider}
+                  min={0}
+                  max={10}
+                  defaultValue={Math.round(this.props.settings.defaultSceneDetectionMinDisplaySceneLengthInFrames / (this.props.file.fps * 1.0))}
+                  marks={{
+                    0: '0',
+                    10: '10',
+                  }}
+                  handle={handle}
+                  onChange={this.props.onChangeMinDisplaySceneLength}
+                />
+              </Grid.Column>
+            </Grid.Row>
+          }
           { (this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) &&
             <Grid.Row>
               <Grid.Column width={4}>

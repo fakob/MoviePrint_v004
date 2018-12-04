@@ -246,6 +246,7 @@ const Scene = ({
         backgroundColor: hexColor,
         backgroundImage: `url(${thumbImageObjectUrl !== undefined ? thumbImageObjectUrl : transparent})`,
         backgroundSize: `auto ${thumbHeight + 20}px`,
+        borderWidth: '0px',
       }}
     >
       <div>

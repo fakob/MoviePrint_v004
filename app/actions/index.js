@@ -282,6 +282,14 @@ export const setDefaultSceneDetectionMinutesPerRow = (defaultSceneDetectionMinut
   };
 };
 
+export const setDefaultSceneDetectionMinDisplaySceneLengthInFrames = (defaultSceneDetectionMinDisplaySceneLengthInFrames) => {
+  log.debug(`action: setDefaultSceneDetectionMinDisplaySceneLengthInFrames - ${defaultSceneDetectionMinDisplaySceneLengthInFrames}`);
+  return {
+    type: 'SET_DEFAULT_SCENE_DETECTION_MIN_DISPLAY_SCENE_LENGTH_IN_FRAMES',
+    defaultSceneDetectionMinDisplaySceneLengthInFrames
+  };
+};
+
 // scenesByFileId
 
 export const clearScenes = (fileId) => {
@@ -375,7 +383,7 @@ export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), sc
             sceneId,
           }
         });
-      }x
+      }
       log.debug(`frame number: ${frameNumber} already in database`);
       log.debug('dispatch: ADD_THUMB');
       dispatch({

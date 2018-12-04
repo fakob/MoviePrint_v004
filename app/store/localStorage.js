@@ -40,6 +40,7 @@ import {
   DEFAULT_SCRUB_WINDOW_WIDTHRATIO,
   DEFAULT_SCENE_DETECTION_THRESHOLD,
   DEFAULT_SCENE_DETECTION_MINUTES_PER_ROW,
+  DEFAULT_SCENE_DETECTION_MIN_DISPLAY_SCENE_LENGTH_IN_FRAMES,
 } from '../utils/constants';
 
 const { app } = require('electron').remote;
@@ -90,6 +91,7 @@ const initialStateJSON = {
       defaultScrubWindowMargin: DEFAULT_SCRUB_WINDOW_MARGIN,
       defaultSceneDetectionThreshold: DEFAULT_SCENE_DETECTION_THRESHOLD,
       defaultSceneDetectionMinutesPerRow: DEFAULT_SCENE_DETECTION_MINUTES_PER_ROW,
+      defaultSceneDetectionMinDisplaySceneLengthInFrames: DEFAULT_SCENE_DETECTION_MIN_DISPLAY_SCENE_LENGTH_IN_FRAMES,
       emailAddress: '',
     },
     scenesByFileId: {},

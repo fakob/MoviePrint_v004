@@ -51,6 +51,7 @@ import {
   changeThumb, addThumb, setEmailAddress, addThumbs, updateFileScanData, getFileScanData,
   clearScenes, addScene, addScenes, setDefaultSceneDetectionThreshold, setDefaultSceneDetectionMinutesPerRow,
   setSheetFit, clearObjectUrls, updateThumbObjectUrlFromDB, returnObjectUrlsFromFrameList,
+  setDefaultSceneDetectionMinDisplaySceneLengthInFrames,
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -195,6 +196,7 @@ class App extends Component {
 
     this.onChangeFrameScale = this.onChangeFrameScale.bind(this);
     this.onChangeMargin = this.onChangeMargin.bind(this);
+    this.onChangeMinDisplaySceneLength = this.onChangeMinDisplaySceneLength.bind(this);
     this.onChangeSceneDetectionThreshold = this.onChangeSceneDetectionThreshold.bind(this);
     this.onChangeSceneDetectionMinutesPerRow = this.onChangeSceneDetectionMinutesPerRow.bind(this);
     this.onShowHeaderClick = this.onShowHeaderClick.bind(this);
@@ -668,7 +670,7 @@ class App extends Component {
     // and if so calls updateScaleValue
     this.updatecontainerWidthAndHeight();
 
-    // update scaleValue when these parameter change
+    // update scaleValue when these parameters change
     if (((prevProps.file === undefined || this.props.file === undefined) ?
       false : (prevProps.file.width !== this.props.file.width)) ||
       ((prevProps.file === undefined || this.props.file === undefined) ?
@@ -676,6 +678,8 @@ class App extends Component {
       prevProps.settings.defaultThumbnailScale !== this.props.settings.defaultThumbnailScale ||
       prevProps.settings.defaultMoviePrintWidth !== this.props.settings.defaultMoviePrintWidth ||
       prevProps.settings.defaultMarginRatio !== this.props.settings.defaultMarginRatio ||
+      prevProps.settings.defaultSceneDetectionMinutesPerRow !== this.props.settings.defaultSceneDetectionMinutesPerRow ||
+      prevProps.settings.defaultSceneDetectionMinDisplaySceneLengthInFrames !== this.props.settings.defaultSceneDetectionMinDisplaySceneLengthInFrames ||
       prevProps.settings.defaultShowHeader !== this.props.settings.defaultShowHeader ||
       prevProps.settings.defaultShowPathInHeader !== this.props.settings.defaultShowPathInHeader ||
       prevProps.settings.defaultShowDetailsInHeader !== this.props.settings.defaultShowDetailsInHeader ||
@@ -1078,6 +1082,7 @@ class App extends Component {
       const clearOldScenes = true;
       store.dispatch(setSheet(DEFAULT_SHEET_SCENES));
       store.dispatch(setView(VIEW.TIMELINEVIEW));
+      store.dispatch(setDefaultShowPaperPreview(true));
       // store.dispatch(clearThumbs(fileId, DEFAULT_SHEET_SCENES));
       // const listOfFrameNumbers = sceneList.map(scene => (scene.start + Math.floor(scene.length / 2)));
       // store.dispatch(addThumbs(
@@ -1488,6 +1493,17 @@ class App extends Component {
     })
   };
 
+  onChangeMinDisplaySceneLength = (value) => {
+    const { store } = this.context;
+    store.dispatch(
+      setDefaultSceneDetectionMinDisplaySceneLengthInFrames(
+        Math.round(
+          value * this.props.file.fps
+        )
+      )
+    );
+  };
+
   onChangeMargin = (value) => {
     const { store } = this.context;
     store.dispatch(setDefaultMarginRatio(value /
@@ -1794,6 +1810,7 @@ class App extends Component {
                         onApplyNewGridClick={this.onApplyNewGridClick}
                         onCancelClick={this.onCancelClick}
                         onChangeMargin={this.onChangeMargin}
+                        onChangeMinDisplaySceneLength={this.onChangeMinDisplaySceneLength}
                         frameScale={this.state.frameScale}
                         onChangeFrameScale={this.onChangeFrameScale}
                         onChangeSceneDetectionThreshold={this.onChangeSceneDetectionThreshold}
@@ -1925,7 +1942,6 @@ class App extends Component {
                               frameCount={this.props.file ? this.props.file.frameCount : undefined}
                               inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                               keyObject={this.state.keyObject}
-                              minutesPerRow={this.props.settings.defaultSceneDetectionMinutesPerRow}
                               selectedSceneId={this.state.selectedSceneObject ? this.state.selectedSceneObject.sceneId : undefined}
                               selectSceneMethod={this.onSelectSceneMethod}
                               onEnterClick={this.onEnterClick}
