@@ -84,6 +84,8 @@ const Thumb = ({
   thumbInfoRatio,
   thumbInfoValue,
   thumbWidth,
+  hoverStyles,
+  hoverRefThumb,
 }) => {
   function over(e) {
     e.stopPropagation();
@@ -196,10 +198,10 @@ const Thumb = ({
   }
 
   function onOverWithStop(e) {
-    e.stopPropagation();
+    // e.stopPropagation();
     // check if function is not null (passed from thumbgrid)
     if (onOver) {
-      onOver();
+      onOver(e);
     }
   }
 
@@ -284,15 +286,7 @@ const Thumb = ({
               <button
                 data-tid={`ExitThumbBtn_${thumbId}`}
                 type='button'
-                style={{
-                  display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-                  transformOrigin: 'left top',
-                  transform: `translateY(10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  marginLeft: '8px',
-                }}
+                style={hoverStyles.exit}
                 className={`${styles.hoverButton} ${styles.textButton}`}
                 onClick={onExitWithStop}
                 onMouseOver={over}
@@ -311,14 +305,7 @@ const Thumb = ({
               <button
                 data-tid={`${hidden ? 'show' : 'hide'}ThumbBtn_${thumbId}`}
                 type='button'
-                style={{
-                  display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-                  transformOrigin: 'center top',
-                  transform: `translate(-50%, 10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                  position: 'absolute',
-                  top: 0,
-                  left: '50%',
-                }}
+                style={hoverStyles.hide}
                 className={`${styles.hoverButton} ${styles.textButton}`}
                 onClick={onToggleWithStop}
                 onMouseOver={over}
@@ -337,15 +324,7 @@ const Thumb = ({
               <button
                 data-tid={`saveThumbBtn_${thumbId}`}
                 type='button'
-                style={{
-                  display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-                  transformOrigin: 'top right',
-                  transform: `translateY(10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                  position: 'absolute',
-                  top: 0,
-                  right: 0,
-                  marginRight: '8px',
-                }}
+                style={hoverStyles.save}
                 className={`${styles.hoverButton} ${styles.textButton}`}
                 onClick={onSaveThumbWithStop}
                 onMouseOver={over}
@@ -366,15 +345,7 @@ const Thumb = ({
                   <button
                     data-tid={`setInPointBtn_${thumbId}`}
                     type='button'
-                    style={{
-                      display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-                      transformOrigin: 'left bottom',
-                      transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                      position: 'absolute',
-                      bottom: 0,
-                      left: 0,
-                      marginLeft: '8px',
-                    }}
+                    style={hoverStyles.in}
                     className={`${styles.hoverButton} ${styles.textButton}`}
                     onClick={onInPointWithStop}
                     onMouseOver={onHoverInPointWithStop}
@@ -393,15 +364,7 @@ const Thumb = ({
                   <button
                     data-tid={`addNewThumbBeforeBtn_${thumbId}`}
                     type='button'
-                    style={{
-                      display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-                      transformOrigin: 'left center',
-                      transform: `translateY(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                      position: 'absolute',
-                      top: '50%',
-                      left: 0,
-                      marginLeft: '8px',
-                    }}
+                    style={hoverStyles.addBefore}
                     className={`${styles.hoverButton} ${styles.textButton}`}
                     onClick={onAddBeforeWithStop}
                     onMouseOver={onHoverAddThumbBeforeWithStop}
@@ -420,14 +383,7 @@ const Thumb = ({
                   <button
                     data-tid={`scrubBtn_${thumbId}`}
                     type='button'
-                    style={{
-                      display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-                      transformOrigin: 'center bottom',
-                      transform: `translateX(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                      position: 'absolute',
-                      bottom: 0,
-                      left: '50%',
-                    }}
+                    style={hoverStyles.scrub}
                     className={`${styles.hoverButton} ${styles.textButton}`}
                     // onClick={onScrubWithStop}
                     onMouseDown={onScrubWithStop}
@@ -447,15 +403,7 @@ const Thumb = ({
                   <button
                     data-tid={`addNewThumbAfterBtn_${thumbId}`}
                     type='button'
-                    style={{
-                      display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-                      transformOrigin: 'right center',
-                      transform: `translateY(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                      position: 'absolute',
-                      top: '50%',
-                      right: 0,
-                      marginRight: '8px',
-                    }}
+                    style={hoverStyles.addAfter}
                     className={`${styles.hoverButton} ${styles.textButton}`}
                     onClick={onAddAfterWithStop}
                     onMouseOver={onHoverAddThumbAfterWithStop}
@@ -474,15 +422,7 @@ const Thumb = ({
                   <button
                     data-tid={`setOutPointBtn_${thumbId}`}
                     type='button'
-                    style={{
-                      display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
-                      transformOrigin: 'right bottom',
-                      transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                      position: 'absolute',
-                      bottom: 0,
-                      right: 0,
-                      marginRight: '8px',
-                    }}
+                    style={hoverStyles.out}
                     className={`${styles.hoverButton} ${styles.textButton}`}
                     onClick={onOutPointWithStop}
                     onMouseOver={onHoverOutPointWithStop}

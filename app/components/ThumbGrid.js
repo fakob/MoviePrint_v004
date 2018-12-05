@@ -22,6 +22,8 @@ import {
 } from './../utils/utils';
 import {
   MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
+  MINIMUM_WIDTH_TO_SHRINK_HOVER,
+  MINIMUM_WIDTH_TO_SHOW_HOVER,
   VIEW, SHEET_TYPE
 } from './../utils/constants';
 
@@ -36,6 +38,7 @@ class ThumbGrid extends Component {
       controllersVisible: undefined,
       addThumbBeforeController: undefined,
       addThumbAfterController: undefined,
+      hoverPos: undefined,
     };
 
     // this.onScrubMouseMoveWithStop = this.onScrubMouseMoveWithStop.bind(this);
@@ -114,13 +117,87 @@ class ThumbGrid extends Component {
         thumbArray[i] = tempThumbObject;
       }
     }
+    const thumbWidth = thumbWidth;
+    const hoverStyles = {
+      exit: {
+        display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+        transformOrigin: 'left top',
+        transform: `translateY(10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        marginLeft: '8px',
+      },
+      hide: {
+        display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+        transformOrigin: 'center top',
+        transform: `translate(-50%, 10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+        position: 'absolute',
+        top: 0,
+        left: '50%',
+      },
+      save: {
+        display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+        transformOrigin: 'top right',
+        transform: `translateY(10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        marginRight: '8px',
+      },
+      in: {
+        display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+        transformOrigin: 'left bottom',
+        transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        marginLeft: '8px',
+      },
+      addBefore: {
+        display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+        transformOrigin: 'left center',
+        transform: `translateY(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+        position: 'absolute',
+        top: '50%',
+        left: 0,
+        marginLeft: '8px',
+      },
+      scrub: {
+        display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+        transformOrigin: 'center bottom',
+        transform: `translateX(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+        position: 'absolute',
+        bottom: 0,
+        left: '50%',
+      },
+      addAfter: {
+        display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+        transformOrigin: 'right center',
+        transform: `translateY(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+        position: 'absolute',
+        top: '50%',
+        right: 0,
+        marginRight: '8px',
+      },
+      out: {
+        display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+        transformOrigin: 'right bottom',
+        transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        marginRight: '8px',
+      }
+    }
+
     return (
       <div
         data-tid='thumbGridDiv'
         className={styles.grid}
         style={{
           width: this.props.viewForPrinting ? this.props.scaleValueObject.newMoviePrintWidthForPrinting : this.props.scaleValueObject.newMoviePrintWidth,
-          marginLeft: this.props.visibilitySettings.defaultView === VIEW.GRIDVIEW ? undefined : (this.props.scaleValueObject.newThumbWidth / 4),
+          marginLeft: this.props.visibilitySettings.defaultView === VIEW.GRIDVIEW ? undefined : (thumbWidth / 4),
         }}
         id="ThumbGrid"
       >
@@ -149,6 +226,9 @@ class ThumbGrid extends Component {
         >
           {thumbArray.map(thumb => (
             <SortableThumb
+              hoverRefThumb={(this.state.controllersVisible === thumb.thumbId) ?
+                this.props.hoverRefThumb : undefined} // for the thumb scrollIntoView function
+              hoverStyles={hoverStyles}
               defaultView={this.props.defaultView}
               keyObject={this.props.keyObject}
               key={thumb.thumbId || uuidV4()}
@@ -164,7 +244,7 @@ class ThumbGrid extends Component {
               }
               transparentThumb={thumb.transparentThumb || undefined}
               aspectRatioInv={this.props.scaleValueObject.aspectRatioInv}
-              thumbWidth={this.props.scaleValueObject.newThumbWidth}
+              thumbWidth={thumbWidth}
               borderRadius={this.props.scaleValueObject.newBorderRadius}
               margin={this.props.scaleValueObject.newThumbMargin}
               thumbInfoValue={getThumbInfoValue(this.props.settings.defaultThumbInfo, thumb.frameNumber, fps)}
@@ -194,11 +274,15 @@ class ThumbGrid extends Component {
                   });
                 }
               }}
-              onOver={this.props.showSettings ? null : () => {
+              onOver={this.props.showSettings ? null : (event) => {
                 // only setState if controllersVisible has changed
+                // console.log(event.target.getBoundingClientRect());
+                const hoverPos = event.target.getBoundingClientRect();
+                event.stopPropagation();
                 if (this.state.controllersVisible !== thumb.thumbId) {
                   this.setState({
                     controllersVisible: thumb.thumbId,
+                    hoverPos,
                   });
                 }
               }}
@@ -208,6 +292,7 @@ class ThumbGrid extends Component {
                   controllersVisible: undefined,
                   addThumbBeforeController: undefined,
                   addThumbAfterController: undefined,
+                  hoverPos: undefined,
                 });
               }}
               onLeaveInOut={this.props.showSettings ? null : () => {
@@ -260,6 +345,17 @@ class ThumbGrid extends Component {
                 null : () => this.props.onSaveThumbClick(this.props.file.name, thumb.frameNumber, thumb.frameId)}
             />))}
         </div>
+        // {this.state.hoverPos !== undefined &&
+        //   <div
+        //     style={{
+        //       position: 'absolute',
+        //       left: this.state.hoverPos.x,
+        //       top: this.state.hoverPos.y,
+        //     }}
+        //   >
+        //     Test
+        //   </div>
+        // }
       </div>
     );
   }
