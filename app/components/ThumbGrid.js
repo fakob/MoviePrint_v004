@@ -117,7 +117,7 @@ class ThumbGrid extends Component {
         thumbArray[i] = tempThumbObject;
       }
     }
-    const thumbWidth = thumbWidth;
+    const thumbWidth = this.props.scaleValueObject.newThumbWidth;
     const hoverStyles = {
       exit: {
         display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
@@ -345,17 +345,17 @@ class ThumbGrid extends Component {
                 null : () => this.props.onSaveThumbClick(this.props.file.name, thumb.frameNumber, thumb.frameId)}
             />))}
         </div>
-        // {this.state.hoverPos !== undefined &&
-        //   <div
-        //     style={{
-        //       position: 'absolute',
-        //       left: this.state.hoverPos.x,
-        //       top: this.state.hoverPos.y,
-        //     }}
-        //   >
-        //     Test
-        //   </div>
-        // }
+        {this.state.hoverPos !== undefined &&
+          <div
+            style={{
+              position: 'absolute',
+              left: this.state.hoverPos.x,
+              top: this.state.hoverPos.y,
+            }}
+          >
+
+          </div>
+        }
       </div>
     );
   }

@@ -163,7 +163,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
         thumbs.length,
         frameNumber,
         getHighestFrame(thumbs),
-        this.props.frameScale,
+        ownProps.frameScale,
       ));
     },
     onOutPointClick: (file, thumbs, thumbId, frameNumber) => {
@@ -173,7 +173,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
         thumbs.length,
         getLowestFrame(thumbs),
         frameNumber,
-        this.props.frameScale,
+        ownProps.frameScale,
       ));
     },
     onSaveThumbClick: (fileName, frameNumber, frameId) => {
@@ -188,7 +188,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       if (ownProps.keyObject.altKey) {
         stepValue = stepValue2;
       }
-      dispatch(changeThumb(ownProps.defaultSheet, file, thumbId, frameNumber - stepValue, this.props.frameScale));
+      dispatch(changeThumb(ownProps.defaultSheet, file, thumbId, frameNumber - stepValue, ownProps.frameScale));
     },
     onForwardClick: (file, thumbId, frameNumber) => {
       const [stepValue0, stepValue1, stepValue2] = CHANGE_THUMB_STEP;
@@ -199,7 +199,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       if (ownProps.keyObject.altKey) {
         stepValue = stepValue2;
       }
-      dispatch(changeThumb(ownProps.defaultSheet, file, thumbId, frameNumber + stepValue, this.props.frameScale));
+      dispatch(changeThumb(ownProps.defaultSheet, file, thumbId, frameNumber + stepValue, ownProps.frameScale));
     }
   };
 };
