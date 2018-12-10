@@ -3,10 +3,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import { Popup } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
 import Thumb from './Thumb';
 import ThumbGridHeader from './ThumbGridHeader';
 import styles from './ThumbGrid.css';
+import stylesPop from './Popup.css';
 import {
   getNextThumbs,
   getPreviousThumbs,
@@ -39,8 +41,33 @@ class ThumbGrid extends Component {
       addThumbBeforeController: undefined,
       addThumbAfterController: undefined,
       hoverPos: undefined,
+      parentPos: undefined,
     };
 
+    this.thumbGridDivRef = null;
+
+    this.setThumbGridDivRef = element => {
+      this.thumbGridDivRef = element;
+    }
+
+    this.resetHover = this.resetHover.bind(this);
+    this.onContainerOut = this.onContainerOut.bind(this);
+    this.onExit = this.onExit.bind(this);
+    this.onToggle = this.onToggle.bind(this);
+    this.onSaveThumb = this.onSaveThumb.bind(this);
+    this.onInPoint = this.onInPoint.bind(this);
+    this.onOutPoint = this.onOutPoint.bind(this);
+    this.onHoverInPoint = this.onHoverInPoint.bind(this);
+    this.onHoverOutPoint = this.onHoverOutPoint.bind(this);
+    this.onLeaveInOut = this.onLeaveInOut.bind(this);
+    this.onScrub = this.onScrub.bind(this);
+    this.onAddBefore = this.onAddBefore.bind(this);
+    this.onAddAfter = this.onAddAfter.bind(this);
+    this.onBack = this.onBack.bind(this);
+    this.onForward = this.onForward.bind(this);
+    this.onHoverAddThumbBefore = this.onHoverAddThumbBefore.bind(this);
+    this.onHoverAddThumbAfter = this.onHoverAddThumbAfter.bind(this);
+    this.onLeaveAddThumb = this.onLeaveAddThumb.bind(this);
     // this.onScrubMouseMoveWithStop = this.onScrubMouseMoveWithStop.bind(this);
     // this.this.props.onScrubClickWithStop = this.this.props.onScrubClickWithStop.bind(this);
   }
@@ -49,6 +76,12 @@ class ThumbGrid extends Component {
   }
 
   componentDidMount() {
+    console.log(this.thumbGridDivRef)
+    console.log(this.thumbGridDivRef.current)
+    console.log(this.thumbGridDivRef.getBoundingClientRect())
+    this.setState({
+      parentPos: this.thumbGridDivRef.getBoundingClientRect(),
+    })
   }
 
   componentWillReceiveProps(nextProps) {
@@ -57,6 +90,146 @@ class ThumbGrid extends Component {
   componentDidUpdate(prevProps) {
     // console.log('ThumbGrid componentDidUpdate');
     // console.log(this.props.thumbImages);
+  }
+
+  over(e) {
+    e.stopPropagation();
+    e.target.style.opacity = 1;
+  }
+
+  out(e) {
+    e.stopPropagation();
+    e.target.style.opacity = 0.2;
+  }
+
+  resetHover() {
+    this.setState({
+      thumbsToDim: [],
+      controllersVisible: undefined,
+      addThumbBeforeController: undefined,
+      addThumbAfterController: undefined,
+      hoverPos: undefined,
+    });
+  }
+
+  onContainerOut(e) {
+    e.stopPropagation();
+    this.resetHover();
+  }
+
+  onExit(e) {
+    e.stopPropagation();
+    this.props.onExitClick();
+    this.resetHover();
+  }
+
+  onToggle(e) {
+    e.stopPropagation();
+    this.props.onToggleClick(this.props.file.id, this.state.controllersVisible);
+    this.resetHover();
+  }
+
+  onSaveThumb(e) {
+    e.stopPropagation();
+    const thumb = this.props.thumbs.find(thumb => thumb.thumbId === this.state.controllersVisible);
+    this.props.onSaveThumbClick(this.props.file.id, thumb.frameNumber, thumb.frameId);
+    this.resetHover();
+  }
+
+  onInPoint(e) {
+    e.stopPropagation();
+    const thumb = this.props.thumbs.find(thumb => thumb.thumbId === this.state.controllersVisible);
+    this.props.onInPointClick(this.props.file, this.props.thumbs, thumb.thumbId, thumb.frameNumber);
+    this.resetHover();
+  }
+
+  onOutPoint(e) {
+    e.stopPropagation();
+    const thumb = this.props.thumbs.find(thumb => thumb.thumbId === this.state.controllersVisible);
+    this.props.onOutPointClick(this.props.file, this.props.thumbs, thumb.thumbId, thumb.frameNumber);
+    this.resetHover();
+  }
+
+  onBack(e) {
+    e.stopPropagation();
+    const thumb = this.props.thumbs.find(thumb => thumb.thumbId === this.state.controllersVisible);
+    this.props.onBackClick(this.props.file, thumb.thumbId, thumb.frameNumber);
+    this.resetHover();
+  }
+
+  onForward(e) {
+    e.stopPropagation();
+    const thumb = this.props.thumbs.find(thumb => thumb.thumbId === this.state.controllersVisible);
+    this.props.onForwardClick(this.props.file, thumb.thumbId, thumb.frameNumber);
+    this.resetHover();
+  }
+
+  onHoverInPoint(e) {
+    e.target.style.opacity = 1;
+    e.stopPropagation();
+    this.setState({
+      thumbsToDim: getPreviousThumbs(this.props.thumbs, this.state.controllersVisible)
+    });
+  }
+
+  onHoverOutPoint(e) {
+    e.target.style.opacity = 1;
+    e.stopPropagation();
+    this.setState({
+      thumbsToDim: getNextThumbs(this.props.thumbs, this.state.controllersVisible)
+    });
+  }
+
+  onLeaveInOut(e) {
+    e.target.style.opacity = 0.2;
+    e.stopPropagation();
+    this.setState({
+      thumbsToDim: []
+    });
+  }
+
+  onScrub(e) {
+    e.stopPropagation();
+    const thumb = this.props.thumbs.find(thumb => thumb.thumbId === this.state.controllersVisible);
+    this.props.onScrubClick(this.props.file, thumb);
+    this.resetHover();
+  }
+
+  onAddBefore(e) {
+    e.stopPropagation();
+    const thumb = this.props.thumbs.find(thumb => thumb.thumbId === this.state.controllersVisible);
+    this.props.onAddThumbClick(this.props.file, thumb, 'before');
+    this.resetHover();
+  }
+
+  onAddAfter(e) {
+    e.stopPropagation();
+    const thumb = this.props.thumbs.find(thumb => thumb.thumbId === this.state.controllersVisible);
+    this.props.onAddThumbClick(this.props.file, thumb, 'after');
+    this.resetHover();
+  }
+
+  onHoverAddThumbBefore(e) {
+    e.stopPropagation();
+    this.setState({
+      addThumbBeforeController: this.state.controllersVisible,
+    });
+  }
+
+  onHoverAddThumbAfter(e) {
+    e.stopPropagation();
+    this.setState({
+      addThumbAfterController: this.state.controllersVisible,
+    });
+  }
+
+  onLeaveAddThumb(e) {
+    e.target.style.opacity = 0.2;
+    e.stopPropagation();
+    this.setState({
+      addThumbBeforeController: undefined,
+      addThumbAfterController: undefined,
+    });
   }
 
   render() {
@@ -120,7 +293,6 @@ class ThumbGrid extends Component {
     const thumbWidth = this.props.scaleValueObject.newThumbWidth;
     const hoverStyles = {
       exit: {
-        display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
         transformOrigin: 'left top',
         transform: `translateY(10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
         position: 'absolute',
@@ -129,7 +301,6 @@ class ThumbGrid extends Component {
         marginLeft: '8px',
       },
       hide: {
-        display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
         transformOrigin: 'center top',
         transform: `translate(-50%, 10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
         position: 'absolute',
@@ -137,7 +308,6 @@ class ThumbGrid extends Component {
         left: '50%',
       },
       save: {
-        display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
         transformOrigin: 'top right',
         transform: `translateY(10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
         position: 'absolute',
@@ -146,7 +316,6 @@ class ThumbGrid extends Component {
         marginRight: '8px',
       },
       in: {
-        display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
         transformOrigin: 'left bottom',
         transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
         position: 'absolute',
@@ -155,7 +324,6 @@ class ThumbGrid extends Component {
         marginLeft: '8px',
       },
       addBefore: {
-        display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
         transformOrigin: 'left center',
         transform: `translateY(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
         position: 'absolute',
@@ -164,7 +332,6 @@ class ThumbGrid extends Component {
         marginLeft: '8px',
       },
       scrub: {
-        display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
         transformOrigin: 'center bottom',
         transform: `translateX(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
         position: 'absolute',
@@ -172,7 +339,6 @@ class ThumbGrid extends Component {
         left: '50%',
       },
       addAfter: {
-        display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
         transformOrigin: 'right center',
         transform: `translateY(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
         position: 'absolute',
@@ -181,7 +347,6 @@ class ThumbGrid extends Component {
         marginRight: '8px',
       },
       out: {
-        display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
         transformOrigin: 'right bottom',
         transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
         position: 'absolute',
@@ -190,6 +355,23 @@ class ThumbGrid extends Component {
         marginRight: '8px',
       }
     }
+
+    const isScene = this.props.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1 &&
+      this.props.defaultSheet.indexOf(SHEET_TYPE.INTERVAL) === -1;
+    const hoverThumbIndex = thumbArray.findIndex(thumb => thumb.thumbId === this.state.controllersVisible);
+    const isHidden = hoverThumbIndex !== -1 ? thumbArray[hoverThumbIndex].hidden : undefined;
+    // console.log(this.thumbGridDivRef !== null ? this.thumbGridDivRef.getBoundingClientRect() : 'not set yet')
+    // this.setState({
+    //   parentPos: this.thumbGridDivRef.getBoundingClientRect(),
+    // })
+    const parentPos = this.thumbGridDivRef !== null ?
+      this.thumbGridDivRef.getBoundingClientRect() :
+      {
+        left: 0,
+        top: 0,
+      };
+    // console.log(this.state.hoverPos);
+    // console.log(parentPos);
 
     return (
       <div
@@ -200,6 +382,7 @@ class ThumbGrid extends Component {
           marginLeft: this.props.visibilitySettings.defaultView === VIEW.GRIDVIEW ? undefined : (thumbWidth / 4),
         }}
         id="ThumbGrid"
+        ref={this.setThumbGridDivRef}
       >
         {this.props.settings.defaultShowHeader && this.props.visibilitySettings.defaultView === VIEW.GRIDVIEW &&
           <ThumbGridHeader
@@ -249,31 +432,12 @@ class ThumbGrid extends Component {
               margin={this.props.scaleValueObject.newThumbMargin}
               thumbInfoValue={getThumbInfoValue(this.props.settings.defaultThumbInfo, thumb.frameNumber, fps)}
               thumbInfoRatio={this.props.settings.defaultThumbInfoRatio}
-              isScene={
-                this.props.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1 &&
-                this.props.defaultSheet.indexOf(SHEET_TYPE.INTERVAL) === -1
-              }
+              isScene={isScene}
               hidden={thumb.hidden}
               showAddThumbBeforeController={this.props.showSettings ? false : (thumb.thumbId === this.state.addThumbBeforeController)}
               showAddThumbAfterController={this.props.showSettings ? false : (thumb.thumbId === this.state.addThumbAfterController)}
               controllersAreVisible={(this.props.showSettings || thumb.thumbId === undefined) ? false : (thumb.thumbId === this.state.controllersVisible)}
               selected={this.props.selectedThumbId ? (this.props.selectedThumbId === thumb.thumbId) : false}
-              onHoverAddThumbBefore={this.props.showSettings ? null : () => {
-                // only setState if controllersVisible has changed
-                if (this.state.addThumbBeforeController !== thumb.thumbId) {
-                  this.setState({
-                    addThumbBeforeController: thumb.thumbId,
-                  });
-                }
-              }}
-              onHoverAddThumbAfter={this.props.showSettings ? null : () => {
-                // only setState if controllersVisible has changed
-                if (this.state.addThumbAfterController !== thumb.thumbId) {
-                  this.setState({
-                    addThumbAfterController: thumb.thumbId,
-                  });
-                }
-              }}
               onOver={this.props.showSettings ? null : (event) => {
                 // only setState if controllersVisible has changed
                 // console.log(event.target.getBoundingClientRect());
@@ -286,74 +450,214 @@ class ThumbGrid extends Component {
                   });
                 }
               }}
-              onOut={this.props.showSettings ? null : () => {
-                this.setState({
-                  thumbsToDim: [],
-                  controllersVisible: undefined,
-                  addThumbBeforeController: undefined,
-                  addThumbAfterController: undefined,
-                  hoverPos: undefined,
-                });
-              }}
-              onLeaveInOut={this.props.showSettings ? null : () => {
-                this.setState({
-                  thumbsToDim: []
-                });
-              }}
               onThumbDoubleClick={this.props.onThumbDoubleClick}
               onSelect={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
                 null : () => {
                   this.props.onSelectClick(thumb.thumbId, thumb.frameNumber);
                 }}
-              onExit={this.props.showSettings ?
-                null : () => this.props.onExitClick()}
               onErrorThumb={() => this.props.onErrorThumb(
                   this.props.file,
                   this.props.defaultSheet,
                   thumb.thumbId,
                   thumb.frameId)
                 }
-              onBack={this.props.showSettings ?
-                null : () => this.props.onBackClick(this.props.file, thumb.thumbId, thumb.frameNumber)}
-              onForward={this.props.showSettings ?
-                null : () => this.props.onForwardClick(this.props.file, thumb.thumbId, thumb.frameNumber)}
-              onToggle={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
-                null : () => this.props.onToggleClick(this.props.file.id, thumb.thumbId)}
-              onHoverInPoint={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
-                null : () => {
-                this.setState({
-                  thumbsToDim: getPreviousThumbs(thumbArray, thumb.thumbId)
-                });
-              }}
-              onHoverOutPoint={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
-                null : () => {
-                this.setState({
-                  thumbsToDim: getNextThumbs(thumbArray, thumb.thumbId)
-                });
-              }}
-              onScrub={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
-                null : () => this.props.onScrubClick(this.props.file, thumb)}
-              onAddBefore={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
-                null : () => this.props.onAddThumbClick(this.props.file, thumb, 'before')}
-              onAddAfter={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
-                null : () => this.props.onAddThumbClick(this.props.file, thumb, 'after')}
-              onInPoint={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
-                null : () => this.props.onInPointClick(this.props.file, thumbArray, thumb.thumbId, thumb.frameNumber)}
-              onOutPoint={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
-                null : () => this.props.onOutPointClick(this.props.file, thumbArray, thumb.thumbId, thumb.frameNumber)}
-              onSaveThumb={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
-                null : () => this.props.onSaveThumbClick(this.props.file.name, thumb.frameNumber, thumb.frameId)}
             />))}
         </div>
+        {/* {false && */}
         {this.state.hoverPos !== undefined &&
           <div
+            className={styles.overlayContainer}
+            onMouseLeave={this.onContainerOut}
+            // style={{
+            //   position: 'relative',
+            //   outline: 'none',
+            //   border: '0',
+            // }}
+          >
+          <div
+            className={styles.overlay}
             style={{
-              position: 'absolute',
-              left: this.state.hoverPos.x,
-              top: this.state.hoverPos.y,
+              display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+              left: this.state.hoverPos.left - parentPos.left,
+              top: this.state.hoverPos.top - parentPos.top,
+              width: `${thumbWidth}px`,
+              height: `${(thumbWidth * this.props.scaleValueObject.aspectRatioInv)}px`,
             }}
           >
-
+              {isScene && <Popup
+                trigger={
+                  <button
+                    data-tid={`ExitThumbBtn_${this.state.controllersVisible}`}
+                    type='button'
+                    className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayExit}`}
+                    style={{
+                      // transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+                    }}
+                    onClick={this.onExit}
+                    onMouseOver={this.over}
+                    onMouseLeave={this.out}
+                    onFocus={this.over}
+                    onBlur={this.out}
+                  >
+                    EXIT
+                  </button>
+                }
+                className={stylesPop.popup}
+                content="Enter into scene"
+              />}
+              <Popup
+                trigger={
+                  <button
+                    data-tid={`${isHidden ? 'show' : 'hide'}ThumbBtn_${this.state.controllersVisible}`}
+                    type='button'
+                    className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayHide}`}
+                    style={{
+                      // transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+                    }}
+                    onClick={this.onToggle}
+                    onMouseOver={this.over}
+                    onMouseLeave={this.out}
+                    onFocus={this.over}
+                    onBlur={this.out}
+                  >
+                    {isHidden ? 'SHOW' : 'HIDE'}
+                  </button>
+                }
+                className={stylesPop.popup}
+                content="Hide thumb"
+              />
+              <Popup
+                trigger={
+                  <button
+                    data-tid={`saveThumbBtn_${this.state.controllersVisible}`}
+                    type='button'
+                    className={`${styles.hoverButton} ${styles.textButton} ${styles.overlaySave}`}
+                    style={{
+                      // transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+                    }}
+                    onClick={this.onSaveThumb}
+                    onMouseOver={this.over}
+                    onMouseLeave={this.out}
+                    onFocus={this.over}
+                    onBlur={this.out}
+                  >
+                    SAVE
+                  </button>
+                }
+                className={stylesPop.popup}
+                content="Save thumb"
+              />
+              {!isHidden &&
+                <div>
+                  <Popup
+                    trigger={
+                      <button
+                        data-tid={`setInPointBtn_${this.state.controllersVisible}`}
+                        type='button'
+                        className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayIn}`}
+                        style={{
+                          // transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+                        }}
+                        onClick={this.onInPoint}
+                        onMouseOver={this.onHoverInPoint}
+                        onMouseLeave={this.onLeaveInOut}
+                        onFocus={this.over}
+                        onBlur={this.out}
+                      >
+                        IN
+                      </button>
+                    }
+                    className={stylesPop.popup}
+                    content={<span>Set this thumb as new <mark>IN-point</mark></span>}
+                  />
+                  <Popup
+                    trigger={
+                      <button
+                        data-tid={`addNewThumbBeforeBtn_${this.state.controllersVisible}`}
+                        type='button'
+                        className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayAddBefore}`}
+                        style={{
+                          // transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+                        }}
+                        onClick={this.onAddBefore}
+                        onMouseOver={this.onHoverAddThumbBefore}
+                        onMouseLeave={this.onLeaveAddThumb}
+                        onFocus={this.over}
+                        onBlur={this.out}
+                      >
+                        +
+                      </button>
+                    }
+                    className={stylesPop.popup}
+                    content={<span>Add new thumb before</span>}
+                  />
+                  <Popup
+                    trigger={
+                      <button
+                        data-tid={`scrubBtn_${this.state.controllersVisible}`}
+                        type='button'
+                        className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayScrub}`}
+                        style={{
+                          // transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+                        }}
+                        // onClick={onScrubWithStop}
+                        onMouseDown={this.onScrub}
+                        onMouseOver={this.over}
+                        onMouseLeave={this.out}
+                        onFocus={this.over}
+                        onBlur={this.out}
+                      >
+                        {'<'}|{'>'}
+                      </button>
+                    }
+                    className={stylesPop.popup}
+                    content={<span>Click and drag left and right to change the frame (<mark>SHIFT</mark> add new thumb before, <mark>ALT</mark> add new thumb after, <mark>CTRL</mark> display original as overlay)</span>}
+                  />
+                  <Popup
+                    trigger={
+                      <button
+                        data-tid={`addNewThumbAfterBtn_${this.state.controllersVisible}`}
+                        type='button'
+                        className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayAddAfter}`}
+                        style={{
+                          // transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+                        }}
+                        onClick={this.onAddAfter}
+                        onMouseOver={this.onHoverAddThumbAfter}
+                        onMouseLeave={this.onLeaveAddThumb}
+                        onFocus={this.over}
+                        onBlur={this.out}
+                      >
+                        +
+                      </button>
+                    }
+                    className={stylesPop.popup}
+                    content={<span>Add new thumb after</span>}
+                  />
+                  <Popup
+                    trigger={
+                      <button
+                        data-tid={`setOutPointBtn_${this.state.controllersVisible}`}
+                        type='button'
+                        className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayOut}`}
+                        style={{
+                          // transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+                        }}
+                        onClick={this.onOutPoint}
+                        onMouseOver={this.onHoverOutPoint}
+                        onMouseLeave={this.onLeaveInOut}
+                        onFocus={this.over}
+                        onBlur={this.out}
+                      >
+                        OUT
+                      </button>
+                    }
+                    className={stylesPop.popup}
+                    content={<span>Set this thumb as new <mark>OUT-point</mark></span>}
+                  />
+                </div>
+              }
+            </div>
           </div>
         }
       </div>

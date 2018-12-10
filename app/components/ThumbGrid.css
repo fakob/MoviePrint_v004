@@ -220,7 +220,7 @@
 .dim {
   transition: opacity 0.3s;
   opacity: 0.2 !important;
-  transition-delay: 0.5s;
+  transition-delay: 0.1s;
 }
 
 .hoverButton {
@@ -229,8 +229,97 @@
   background-color: transparent;
   outline:none;
   -webkit-user-select:none;
+  pointer-events:auto;
 }
 
 .opaque {
   opacity: 1 !important;
+}
+
+.overlayContainer {
+  position: relative;
+  outline: none;
+  border: 0;
+  pointer-events: none;
+}
+
+.overlay {
+  display: block;
+  position: absolute;
+}
+
+/* .scaleOverlay {
+  transform: scale(0.2);
+} */
+
+.overlayItem {
+  position: absolute;
+}
+
+.overlayExit {
+  transform-origin: left top;
+  transform: translateY(10%);
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin-left: 8px;
+}
+
+.overlayHide {
+  transform-origin: center top;
+  transform: translate(-50%, 10%);
+  position: absolute;
+  top: 0;
+  left: 50%;
+}
+
+.overlaySave {
+  transform-origin: top right;
+  transform: translateY(10%);
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-right: 8px;
+}
+
+.overlayIn {
+  transform-origin: left bottom;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  margin-left: 8px;
+}
+
+.overlayAddBefore {
+  transform-origin: left center;
+  transform: translateY(-50%);
+  position: absolute;
+  top: 50%;
+  left: 0;
+  margin-left: 8px;
+}
+
+.overlayScrub {
+  transform-origin: center bottom;
+  transform: translateX(-50%);
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+}
+
+.overlayAddAfter {
+  transform-origin: right center;
+  transform: translateY(-50%);
+  position: absolute;
+  top: 50%;
+  right: 0;
+  margin-right: 8px;
+}
+
+.overlayOut {
+  transform-origin: right bottom;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  margin-right: 8px;
 }
