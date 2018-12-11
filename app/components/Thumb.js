@@ -45,8 +45,6 @@ const Thumb = ({
   aspectRatioInv,
   borderRadius,
   color,
-  showAddThumbBeforeController,
-  showAddThumbAfterController,
   controllersAreVisible,
   dim,
   hidden,
@@ -54,29 +52,12 @@ const Thumb = ({
   index,
   indexForId,
   inputRefThumb,
-  isScene,
   keyObject,
   margin,
-  onBack,
-  onForward,
-  onHoverAddThumbBefore,
-  onHoverAddThumbAfter,
-  onHoverInPoint,
-  onHoverOutPoint,
-  onScrub,
-  onAddBefore,
-  onAddAfter,
-  onInPoint,
-  onLeaveInOut,
-  onOut,
-  onOutPoint,
   onOver,
-  onSaveThumb,
   onSelect,
-  onExit,
   onErrorThumb,
   onThumbDoubleClick,
-  onToggle,
   selected,
   defaultView,
   transparentThumb,
@@ -84,8 +65,6 @@ const Thumb = ({
   thumbInfoRatio,
   thumbInfoValue,
   thumbWidth,
-  hoverStyles,
-  hoverRefThumb,
 }) => {
 
   function onThumbDoubleClickWithStop(e) {
@@ -120,9 +99,6 @@ const Thumb = ({
     //   onOut();
     // }
   }
-
-  const showBeforeController = showAddThumbBeforeController || keyObject.shiftKey;
-  const showAfterController = showAddThumbAfterController || keyObject.altKey;
 
   return (
     <div
@@ -190,41 +166,6 @@ const Thumb = ({
             />
           }
         </div>
-        {defaultView !== VIEW.GRIDVIEW && selected && (showBeforeController || showAfterController) &&
-          <div
-            data-tid={`insertThumb${(!showAfterController && showBeforeController) ? 'Before' : 'After'}Div_${thumbId}`}
-            style={{
-              content: '',
-              backgroundColor: '#FF5006',
-              position: 'absolute',
-              width: `${Math.max(1, margin * 0.5)}px`,
-              height: `${(thumbWidth * aspectRatioInv) + (Math.max(1, margin * 2))}px`,
-              top: (Math.max(1, margin * -1.0)),
-              left: `${(!showAfterController && showBeforeController) ? 0 : undefined}`,
-              right: `${showAfterController ? 0 : undefined}`,
-              display: 'block',
-              transform: `translateX(${Math.max(1, margin) * (showAfterController ? 1.25 : -1.25)}px)`,
-            }}
-          />
-        }
-        {controllersAreVisible && (showBeforeController || showAfterController) && (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) &&
-          <div
-            data-tid={`insertThumb${(!showAfterController && showBeforeController) ? 'Before' : 'After'}Div_${thumbId}`}
-            style={{
-              zIndex: 100,
-              content: '',
-              backgroundColor: '#FF5006',
-              position: 'absolute',
-              width: `${Math.max(1, margin * 0.5)}px`,
-              height: `${thumbWidth * aspectRatioInv}px`,
-              // top: (Math.max(1, margin * -1.0)),
-              left: `${(!showAfterController && showBeforeController) ? 0 : undefined}`,
-              right: `${showAfterController ? 0 : undefined}`,
-              display: 'block',
-              transform: `translateX(${Math.max(1, margin) * (showAfterController ? 1.25 : -1.25)}px)`,
-            }}
-          />
-        }
       </div>
     </div>
   );

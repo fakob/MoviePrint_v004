@@ -17,6 +17,7 @@ class SortedVisibleThumbGrid extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      isSorting: false,
     };
 
     this.scrollIntoViewElement = React.createRef();
@@ -47,8 +48,17 @@ class SortedVisibleThumbGrid extends Component {
     // this.unsubscribe();
   }
 
+  onSortStart = () => {
+    this.setState({
+      isSorting: true,
+    });
+  };
+
   onSortEnd = ({ oldIndex, newIndex }) => {
     const { store } = this.context;
+    this.setState({
+      isSorting: false,
+    });
     const newOrderedThumbs = arrayMove(store.getState().undoGroup.present
       .thumbsByFileId[store.getState().undoGroup.present.settings.currentFileId][this.props.defaultSheet],
       oldIndex,
@@ -81,8 +91,6 @@ class SortedVisibleThumbGrid extends Component {
   };
 
   render() {
-    // const { store } = this.context;
-    // const state = store.getState();
     return (
       <SortableThumbGrid
         colorArray={this.props.colorArray}
@@ -113,12 +121,16 @@ class SortedVisibleThumbGrid extends Component {
         thumbs={this.props.thumbs}
         viewForPrinting={this.props.viewForPrinting}
         visibilitySettings={this.props.visibilitySettings}
+        isSorting={this.state.isSorting}
 
         useDragHandle
         axis="xy"
         distance={1}
         helperClass={styles.whileDragging}
         useWindowAsScrollContainer
+        onSortStart={
+          this.onSortStart.bind(this)
+        }
         onSortEnd={
           this.onSortEnd.bind(this)
         }

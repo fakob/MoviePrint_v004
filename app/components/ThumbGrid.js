@@ -210,6 +210,7 @@ class ThumbGrid extends Component {
   }
 
   onHoverAddThumbBefore(e) {
+    e.target.style.opacity = 1;
     e.stopPropagation();
     this.setState({
       addThumbBeforeController: this.state.controllersVisible,
@@ -217,6 +218,7 @@ class ThumbGrid extends Component {
   }
 
   onHoverAddThumbAfter(e) {
+    e.target.style.opacity = 1;
     e.stopPropagation();
     this.setState({
       addThumbAfterController: this.state.controllersVisible,
@@ -291,70 +293,6 @@ class ThumbGrid extends Component {
       }
     }
     const thumbWidth = this.props.scaleValueObject.newThumbWidth;
-    const hoverStyles = {
-      exit: {
-        transformOrigin: 'left top',
-        transform: `translateY(10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        marginLeft: '8px',
-      },
-      hide: {
-        transformOrigin: 'center top',
-        transform: `translate(-50%, 10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-        position: 'absolute',
-        top: 0,
-        left: '50%',
-      },
-      save: {
-        transformOrigin: 'top right',
-        transform: `translateY(10%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        marginRight: '8px',
-      },
-      in: {
-        transformOrigin: 'left bottom',
-        transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        marginLeft: '8px',
-      },
-      addBefore: {
-        transformOrigin: 'left center',
-        transform: `translateY(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-        position: 'absolute',
-        top: '50%',
-        left: 0,
-        marginLeft: '8px',
-      },
-      scrub: {
-        transformOrigin: 'center bottom',
-        transform: `translateX(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-        position: 'absolute',
-        bottom: 0,
-        left: '50%',
-      },
-      addAfter: {
-        transformOrigin: 'right center',
-        transform: `translateY(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-        position: 'absolute',
-        top: '50%',
-        right: 0,
-        marginRight: '8px',
-      },
-      out: {
-        transformOrigin: 'right bottom',
-        transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-        position: 'absolute',
-        bottom: 0,
-        right: 0,
-        marginRight: '8px',
-      }
-    }
 
     const isScene = this.props.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1 &&
       this.props.defaultSheet.indexOf(SHEET_TYPE.INTERVAL) === -1;
@@ -372,6 +310,9 @@ class ThumbGrid extends Component {
       };
     // console.log(this.state.hoverPos);
     // console.log(parentPos);
+
+    const showBeforeController = (this.props.showSettings ? false : (this.state.controllersVisible === this.state.addThumbBeforeController)) || this.props.keyObject.shiftKey;
+    const showAfterController = (this.props.showSettings ? false : (this.state.controllersVisible === this.state.addThumbAfterController)) || this.props.keyObject.altKey;
 
     return (
       <div
@@ -409,9 +350,6 @@ class ThumbGrid extends Component {
         >
           {thumbArray.map(thumb => (
             <SortableThumb
-              hoverRefThumb={(this.state.controllersVisible === thumb.thumbId) ?
-                this.props.hoverRefThumb : undefined} // for the thumb scrollIntoView function
-              hoverStyles={hoverStyles}
               defaultView={this.props.defaultView}
               keyObject={this.props.keyObject}
               key={thumb.thumbId || uuidV4()}
@@ -432,10 +370,7 @@ class ThumbGrid extends Component {
               margin={this.props.scaleValueObject.newThumbMargin}
               thumbInfoValue={getThumbInfoValue(this.props.settings.defaultThumbInfo, thumb.frameNumber, fps)}
               thumbInfoRatio={this.props.settings.defaultThumbInfoRatio}
-              isScene={isScene}
               hidden={thumb.hidden}
-              showAddThumbBeforeController={this.props.showSettings ? false : (thumb.thumbId === this.state.addThumbBeforeController)}
-              showAddThumbAfterController={this.props.showSettings ? false : (thumb.thumbId === this.state.addThumbAfterController)}
               controllersAreVisible={(this.props.showSettings || thumb.thumbId === undefined) ? false : (thumb.thumbId === this.state.controllersVisible)}
               selected={this.props.selectedThumbId ? (this.props.selectedThumbId === thumb.thumbId) : false}
               onOver={this.props.showSettings ? null : (event) => {
@@ -463,16 +398,11 @@ class ThumbGrid extends Component {
                 }
             />))}
         </div>
-        {/* {false && */}
-        {this.state.hoverPos !== undefined &&
+        {!this.props.isSorting && // only show when not sorting
+        this.state.hoverPos !== undefined && // only show when hoveringOver a thumb
           <div
             className={styles.overlayContainer}
             onMouseLeave={this.onContainerOut}
-            // style={{
-            //   position: 'relative',
-            //   outline: 'none',
-            //   border: '0',
-            // }}
           >
           <div
             className={styles.overlay}
@@ -489,10 +419,7 @@ class ThumbGrid extends Component {
                   <button
                     data-tid={`ExitThumbBtn_${this.state.controllersVisible}`}
                     type='button'
-                    className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayExit}`}
-                    style={{
-                      // transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                    }}
+                    className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayExit} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
                     onClick={this.onExit}
                     onMouseOver={this.over}
                     onMouseLeave={this.out}
@@ -510,10 +437,7 @@ class ThumbGrid extends Component {
                   <button
                     data-tid={`${isHidden ? 'show' : 'hide'}ThumbBtn_${this.state.controllersVisible}`}
                     type='button'
-                    className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayHide}`}
-                    style={{
-                      // transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                    }}
+                    className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayHide} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
                     onClick={this.onToggle}
                     onMouseOver={this.over}
                     onMouseLeave={this.out}
@@ -531,10 +455,7 @@ class ThumbGrid extends Component {
                   <button
                     data-tid={`saveThumbBtn_${this.state.controllersVisible}`}
                     type='button'
-                    className={`${styles.hoverButton} ${styles.textButton} ${styles.overlaySave}`}
-                    style={{
-                      // transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                    }}
+                    className={`${styles.hoverButton} ${styles.textButton} ${styles.overlaySave} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
                     onClick={this.onSaveThumb}
                     onMouseOver={this.over}
                     onMouseLeave={this.out}
@@ -554,10 +475,7 @@ class ThumbGrid extends Component {
                       <button
                         data-tid={`setInPointBtn_${this.state.controllersVisible}`}
                         type='button'
-                        className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayIn}`}
-                        style={{
-                          // transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                        }}
+                        className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayIn} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
                         onClick={this.onInPoint}
                         onMouseOver={this.onHoverInPoint}
                         onMouseLeave={this.onLeaveInOut}
@@ -575,10 +493,7 @@ class ThumbGrid extends Component {
                       <button
                         data-tid={`addNewThumbBeforeBtn_${this.state.controllersVisible}`}
                         type='button'
-                        className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayAddBefore}`}
-                        style={{
-                          // transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                        }}
+                        className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayAddBefore} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
                         onClick={this.onAddBefore}
                         onMouseOver={this.onHoverAddThumbBefore}
                         onMouseLeave={this.onLeaveAddThumb}
@@ -596,10 +511,7 @@ class ThumbGrid extends Component {
                       <button
                         data-tid={`scrubBtn_${this.state.controllersVisible}`}
                         type='button'
-                        className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayScrub}`}
-                        style={{
-                          // transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                        }}
+                        className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayScrub} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
                         // onClick={onScrubWithStop}
                         onMouseDown={this.onScrub}
                         onMouseOver={this.over}
@@ -618,10 +530,7 @@ class ThumbGrid extends Component {
                       <button
                         data-tid={`addNewThumbAfterBtn_${this.state.controllersVisible}`}
                         type='button'
-                        className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayAddAfter}`}
-                        style={{
-                          // transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                        }}
+                        className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayAddAfter} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
                         onClick={this.onAddAfter}
                         onMouseOver={this.onHoverAddThumbAfter}
                         onMouseLeave={this.onLeaveAddThumb}
@@ -639,10 +548,7 @@ class ThumbGrid extends Component {
                       <button
                         data-tid={`setOutPointBtn_${this.state.controllersVisible}`}
                         type='button'
-                        className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayOut}`}
-                        style={{
-                          // transform: `scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
-                        }}
+                        className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayOut} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
                         onClick={this.onOutPoint}
                         onMouseOver={this.onHoverOutPoint}
                         onMouseLeave={this.onLeaveInOut}
@@ -656,6 +562,41 @@ class ThumbGrid extends Component {
                     content={<span>Set this thumb as new <mark>OUT-point</mark></span>}
                   />
                 </div>
+              }
+              {this.props.visibilitySettings.defaultView !== VIEW.GRIDVIEW && (showBeforeController || showAfterController) &&
+                <div
+                  data-tid={`insertThumb${(!showAfterController && showBeforeController) ? 'Before' : 'After'}Div_${this.state.controllersVisible}`}
+                  style={{
+                    content: '',
+                    backgroundColor: '#FF5006',
+                    position: 'absolute',
+                    width: `${Math.max(1, this.props.scaleValueObject.newThumbMargin * 0.5)}px`,
+                    height: `${(thumbWidth * this.props.scaleValueObject.aspectRatioInv) + (Math.max(1, this.props.scaleValueObject.newThumbMargin * 2))}px`,
+                    top: (Math.max(1, this.props.scaleValueObject.newThumbMargin * -1.0)),
+                    left: `${(!showAfterController && showBeforeController) ? 0 : undefined}`,
+                    right: `${showAfterController ? 0 : undefined}`,
+                    display: 'block',
+                    transform: `translateX(${Math.max(1, this.props.scaleValueObject.newThumbMargin) * (showAfterController ? 1.25 : -1.25)}px)`,
+                  }}
+                />
+              }
+              {(showBeforeController || showAfterController) && (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) &&
+                <div
+                  data-tid={`insertThumb${(!showAfterController && showBeforeController) ? 'Before' : 'After'}Div_${this.state.controllersVisible}`}
+                  style={{
+                    zIndex: 100,
+                    content: '',
+                    backgroundColor: '#FF5006',
+                    position: 'absolute',
+                    width: `${Math.max(1, this.props.scaleValueObject.newThumbMargin * 0.5)}px`,
+                    height: `${thumbWidth * this.props.scaleValueObject.aspectRatioInv}px`,
+                    // top: (Math.max(1, this.props.scaleValueObject.newThumbMargin * -1.0)),
+                    left: `${(!showAfterController && showBeforeController) ? 0 : undefined}`,
+                    right: `${showAfterController ? 0 : undefined}`,
+                    display: 'block',
+                    transform: `translateX(${Math.max(1, this.props.scaleValueObject.newThumbMargin) * (showAfterController ? 1.25 : -1.25)}px)`,
+                  }}
+                />
               }
             </div>
           </div>
