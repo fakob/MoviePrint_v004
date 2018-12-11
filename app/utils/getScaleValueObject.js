@@ -6,6 +6,7 @@ import {
 import {
   getWidthOfLongestRow,
   getScenesInRows,
+  getPixelPerFrameRatio,
 } from './utils';
 
 const getScaleValueObject = (
@@ -141,7 +142,7 @@ const getScaleValueObject = (
   const newMoviePrintTimelineHeight = newMoviePrintTimelineWidth * settings.defaultPaperAspectRatioInv;
 
   const rowsTimeline = Math.ceil(frameCount / (minutesPerRow * 60 * 25 * 1.0));
-  const pixelPerFrameRatioTimeline = newMoviePrintTimelineWidth / (minutesPerRow * 60 * 25 * 1.0);
+  // const pixelPerFrameRatioTimeline = newMoviePrintTimelineWidth / (minutesPerRow * 60 * 25 * 1.0);
 
   const rowHeightTimeline = Math.min(
     newMoviePrintTimelineHeight / 3,
@@ -151,15 +152,15 @@ const getScaleValueObject = (
     sceneArray,
     minutesPerRow,
   );
-  const maxWidth = getWidthOfLongestRow(
+
+  const adjustedPixelPerFrameRatioTimeline = getPixelPerFrameRatio(
     scenesInRows,
-    thumbMargin,
-    pixelPerFrameRatioTimeline,
+    newThumbMargin,
+    newMoviePrintTimelineWidth,
     settings.defaultSceneDetectionMinDisplaySceneLengthInFrames,
   )
 
-  const scaleAdjust = newMoviePrintTimelineWidth / maxWidth;
-  const adjustedPixelPerFrameRatioTimeline = scaleAdjust * pixelPerFrameRatioTimeline;
+  const thumbMarginTimeline = newThumbMargin * adjustedPixelPerFrameRatioTimeline;
   // timeline view
 
   const scaleValueObject = {
@@ -191,6 +192,7 @@ const getScaleValueObject = (
     rowsTimeline,
     rowHeightTimeline,
     adjustedPixelPerFrameRatioTimeline,
+    thumbMarginTimeline,
   };
   // log.debug(scaleValueObject);
   return scaleValueObject;

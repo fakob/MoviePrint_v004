@@ -53,7 +53,7 @@ class SceneGrid extends Component {
     const minSceneLength = this.props.minSceneLength;
     const sceneArray = this.props.scenes;
     const newMoviePrintTimelineWidth = this.props.scaleValueObject.newMoviePrintTimelineWidth;
-    const thumbMargin = this.props.scaleValueObject.newThumbMargin;
+    const thumbMargin = this.props.scaleValueObject.thumbMarginTimeline;
     let rowCounter = 1;
 
     const rows = this.props.scaleValueObject.rowsTimeline;
