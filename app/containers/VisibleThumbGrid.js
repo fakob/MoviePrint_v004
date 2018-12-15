@@ -113,6 +113,7 @@ class SortedVisibleThumbGrid extends Component {
         onToggleClick={this.props.onToggleClick}
         ref={this.props.inputRef} // for the saveMoviePrint function
         scaleValueObject={this.props.scaleValueObject}
+        moviePrintWidth={this.props.moviePrintWidth}
         selectedThumbId={this.props.selectedThumbId}
         settings={this.props.settings}
         showSettings={this.props.showSettings}

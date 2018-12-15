@@ -659,20 +659,15 @@ export const changeThumb = (sheet, file, thumbId, newFrameNumber, frameScale = 1
   };
 };
 
-// export const addThumbWithDetectFace = (file, index) => {
-//   return (dispatch) => {
-//     log.debug('action: detectFace');
-//     const tempId = uuidV4();
-//     const frameNumberArray = [1, 10, 20, 30, 40, 50, 60, 70, 23];
-//     ipcRenderer.send('send-face-detect', file.id, file.path, tempId, frameNumberArray);
-//     dispatch({
-//       type: 'ADD_THUMB_WITH_DETECT_FACE',
-//       id: tempId,
-//       index,
-//       objectUrl: file.objectUrl
-//     });
-//   };
-// };
+export const deleteSceneSheets = (file) => {
+  log.debug('action: deleteSceneSheets');
+  return {
+    type: 'DELETE_SCENE_SHEETS',
+    payload: {
+      fileId: file.id,
+    }
+  };
+};
 
 // files
 export const removeMovieListItem = (fileId) => {

@@ -10,7 +10,7 @@ import {
   // getPreviousThumbs,
   // mapRange,
   getObjectProperty,
-  getWidthOfLongestRow,
+  // getWidthOfLongestRow,
   // formatBytes,
   // frameCountToTimeCode,
   // getLowestFrame,
@@ -61,6 +61,9 @@ class SceneGrid extends Component {
     const rowHeight = this.props.scaleValueObject.rowHeightTimeline;
     const realWidth = (rowHeight / this.props.scaleValueObject.aspectRatioInv);
     const adjustedPixelPerFrameRatio = this.props.scaleValueObject.adjustedPixelPerFrameRatioTimeline;
+    const scenesInRows = this.props.scaleValueObject.scenesInRows;
+    const indexRowArray = scenesInRows.map(item => item.index);
+    // console.log(indexRowArray);
 
     return (
       <div
@@ -80,7 +83,7 @@ class SceneGrid extends Component {
             const width = selected ? realWidth :
               Math.max(adjustedPixelPerFrameRatio * scene.length, adjustedPixelPerFrameRatio * minSceneLength);
             let doLineBreak = false;
-            if ((scene.start + scene.length) > (minutesPerRow * 60 * 25 * rowCounter)) {
+            if (indexRowArray.findIndex(item => item === index - 1) > -1) {
               doLineBreak = true;
               rowCounter += 1;
             }

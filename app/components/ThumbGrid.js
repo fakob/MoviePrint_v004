@@ -113,6 +113,7 @@ class ThumbGrid extends Component {
   }
 
   onContainerOut(e) {
+    console.log('onContainerOut');
     e.stopPropagation();
     this.resetHover();
   }
@@ -319,7 +320,7 @@ class ThumbGrid extends Component {
         data-tid='thumbGridDiv'
         className={styles.grid}
         style={{
-          width: this.props.viewForPrinting ? this.props.scaleValueObject.newMoviePrintWidthForPrinting : this.props.scaleValueObject.newMoviePrintWidth,
+          width: this.props.moviePrintWidth,
           marginLeft: this.props.visibilitySettings.defaultView === VIEW.GRIDVIEW ? undefined : (thumbWidth / 4),
         }}
         id="ThumbGrid"
@@ -335,7 +336,7 @@ class ThumbGrid extends Component {
             showPathInHeader={this.props.settings.defaultShowPathInHeader}
             showDetailsInHeader={this.props.settings.defaultShowDetailsInHeader}
             showTimelineInHeader={this.props.settings.defaultShowTimelineInHeader}
-            moviePrintWidth={this.props.viewForPrinting ? this.props.scaleValueObject.newMoviePrintWidthForPrinting : this.props.scaleValueObject.newMoviePrintWidth}
+            moviePrintWidth={this.props.moviePrintWidth}
             headerHeight={this.props.scaleValueObject.newHeaderHeight}
             logoHeight={this.props.scaleValueObject.newLogoHeight}
             thumbMargin={this.props.scaleValueObject.newThumbMargin}
@@ -400,6 +401,7 @@ class ThumbGrid extends Component {
         </div>
         {!this.props.isSorting && // only show when not sorting
         this.state.hoverPos !== undefined && // only show when hoveringOver a thumb
+        !this.props.showSettings && // only show when not showSettings
           <div
             className={styles.overlayContainer}
             onMouseLeave={this.onContainerOut}

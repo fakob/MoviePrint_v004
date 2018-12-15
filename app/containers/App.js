@@ -51,7 +51,7 @@ import {
   changeThumb, addThumb, setEmailAddress, addThumbs, updateFileScanData, getFileScanData,
   clearScenes, addScene, addScenes, setDefaultSceneDetectionThreshold, setDefaultSceneDetectionMinutesPerRow,
   setSheetFit, clearObjectUrls, updateThumbObjectUrlFromDB, returnObjectUrlsFromFrameList,
-  setDefaultSceneDetectionMinDisplaySceneLengthInFrames,
+  setDefaultSceneDetectionMinDisplaySceneLengthInFrames, deleteSceneSheets
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -680,6 +680,7 @@ class App extends Component {
       prevProps.settings.defaultMarginRatio !== this.props.settings.defaultMarginRatio ||
       prevProps.settings.defaultSceneDetectionMinutesPerRow !== this.props.settings.defaultSceneDetectionMinutesPerRow ||
       prevProps.settings.defaultSceneDetectionMinDisplaySceneLengthInFrames !== this.props.settings.defaultSceneDetectionMinDisplaySceneLengthInFrames ||
+      (prevProps.scenes ? prevProps.scenes.length !== this.props.scenes.length : false) ||
       prevProps.settings.defaultShowHeader !== this.props.settings.defaultShowHeader ||
       prevProps.settings.defaultShowPathInHeader !== this.props.settings.defaultShowPathInHeader ||
       prevProps.settings.defaultShowDetailsInHeader !== this.props.settings.defaultShowDetailsInHeader ||
@@ -1076,6 +1077,9 @@ class App extends Component {
 
     // console.log(sceneList);
 
+    // delete all expanded scene sheets
+    store.dispatch(deleteSceneSheets(this.props.file));
+
     // check if scenes detected
     if (sceneList.length !== 0) {
       const tempFile = this.props.files.find((file) => file.id === fileId);
@@ -1277,7 +1281,21 @@ class App extends Component {
       thumbs: this.props.thumbs,
       scenes: this.props.visibilitySettings.defaultView !== VIEW.TIMELINEVIEW ? undefined : this.props.scenes,
       visibilitySettings: this.props.visibilitySettings,
-
+      scaleValueObject: getScaleValueObject(
+        this.props.file,
+        this.props.settings,
+        this.props.visibilitySettings,
+        getColumnCount(this.props.file, this.props.settings),
+        this.props.file.thumbCount,
+        this.props.settings.defaultMoviePrintWidth,
+        // HARDCODED FOR NOW timelineview needs height
+        // this.state.sentData.visibilitySettings.defaultView === VIEW.TIMELINEVIEW ? 2048 : undefined,
+        this.props.visibilitySettings.defaultView === VIEW.TIMELINEVIEW ? this.props.settings.defaultMoviePrintWidth * this.props.settings.defaultPaperAspectRatioInv : undefined,
+        1,
+        undefined,
+        true,
+        this.props.visibilitySettings.defaultView !== VIEW.TIMELINEVIEW ? undefined : this.props.scenes,
+      )
     };
     // log.debug(dataToSend);
     this.setState(
@@ -1923,6 +1941,7 @@ class App extends Component {
                               onScrubClick={this.onScrubClick}
                               onThumbDoubleClick={this.onViewToggle}
                               scaleValueObject={this.state.scaleValueObject}
+                              moviePrintWidth={this.state.scaleValueObject.newMoviePrintWidth}
                               selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
                               selectThumbMethod={this.onSelectThumbMethod}
                               settings={this.props.settings}
@@ -1945,6 +1964,7 @@ class App extends Component {
                               selectedSceneId={this.state.selectedSceneObject ? this.state.selectedSceneObject.sceneId : undefined}
                               selectSceneMethod={this.onSelectSceneMethod}
                               onEnterClick={this.onEnterClick}
+                              moviePrintWidth={this.state.scaleValueObject.newMoviePrintTimelineWidth}
                               scaleValueObject={this.state.scaleValueObject}
                               scenes={this.props.scenes}
                               settings={this.props.settings}

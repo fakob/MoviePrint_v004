@@ -99,23 +99,6 @@ class WorkerApp extends Component {
   }
 
   render() {
-    let scaleValueObject = undefined;
-    if (this.state.savingMoviePrint) {
-      scaleValueObject = getScaleValueObject(
-        this.state.sentData.file,
-        this.state.sentData.settings,
-        this.state.sentData.visibilitySettings,
-        getColumnCount(this.state.sentData.file, this.state.sentData.settings),
-        this.state.sentData.file.thumbCount,
-        this.state.sentData.moviePrintWidth,
-        // HARDCODED FOR NOW timelineview needs height
-        this.state.sentData.visibilitySettings.defaultView === VIEW.TIMELINEVIEW ? 2048 : undefined,
-        1,
-        undefined,
-        true,
-        this.state.sentData.scenes
-      );
-    }
     return (
       <ErrorBoundary>
         <div>
@@ -124,7 +107,10 @@ class WorkerApp extends Component {
               ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
               className={`${styles.ItemMain}`}
               style={{
-                width: `${scaleValueObject.newMoviePrintWidthForPrinting}px`
+                width: `${this.state.sentData.visibilitySettings.defaultView !== VIEW.TIMELINEVIEW ?
+                  this.state.sentData.moviePrintWidth :
+                  (this.state.sentData.moviePrintWidth + this.state.sentData.scaleValueObject.thumbMarginTimeline * 2)
+                }px`
               }}
             >
               <Fragment>
@@ -146,7 +132,8 @@ class WorkerApp extends Component {
 
                     defaultView={VIEW.GRIDVIEW}
                     defaultSheet={this.state.sentData.defaultSheet || this.state.sentData.visibilitySettings.defaultSheet}
-                    scaleValueObject={scaleValueObject}
+                    scaleValueObject={this.state.sentData.scaleValueObject}
+                    moviePrintWidth={this.state.sentData.moviePrintWidth}
                     keyObject={{}}
                   />
                 </Conditional>
@@ -159,7 +146,8 @@ class WorkerApp extends Component {
                     keyObject={{}}
                     minutesPerRow={this.state.sentData.settings.defaultSceneDetectionMinutesPerRow}
                     selectedSceneId={undefined}
-                    scaleValueObject={scaleValueObject}
+                    scaleValueObject={this.state.sentData.scaleValueObject}
+                    moviePrintWidth={this.state.sentData.moviePrintWidth}
                     scenes={this.state.sentData.scenes}
                     settings={this.state.sentData.settings}
                     showSettings={false}

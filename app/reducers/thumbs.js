@@ -1,5 +1,8 @@
 import log from 'electron-log';
 import { deleteProperty } from './../utils/utils';
+import {
+  SHEET_TYPE,
+} from '../utils/constants';
 
 const thumb = (state = {}, action, index) => {
   switch (action.type) {
@@ -144,10 +147,10 @@ const thumbsByFileId = (state = {}, action) => {
       // log.debug(state);
       const tempState = state[action.payload.fileId][action.payload.sheet]
         .slice(0, state[action.payload.fileId][action.payload.sheet]
-        .find(x => x.thumbId === action.payload.thumbId).index)
+          .find(x => x.thumbId === action.payload.thumbId).index)
         .concat(state[action.payload.fileId][action.payload.sheet]
-        .slice(state[action.payload.fileId][action.payload.sheet]
-        .find(x => x.thumbId === action.payload.thumbId).index + 1)
+          .slice(state[action.payload.fileId][action.payload.sheet]
+            .find(x => x.thumbId === action.payload.thumbId).index + 1)
       );
       // log.debug(tempState);
 
@@ -194,6 +197,23 @@ const thumbsByFileId = (state = {}, action) => {
       }
       delete copyOfState[action.payload.fileId][action.payload.sheet];
       return copyOfState;
+    case 'DELETE_SCENE_SHEETS':
+      // console.log(action.payload);
+      if (state[action.payload.fileId] === undefined) {
+        // fileId does not exist, so it does not have to be deleted
+        return state;
+      }
+      const copyOfState2 = Object.assign({}, state);
+      const arrayOfKeys = Object.keys(state[action.payload.fileId]);
+      // filter out interval and scenes sheet, as they do not be deleted
+      const arrayOfKeysToDelete = arrayOfKeys.filter(item => !(item.startsWith(SHEET_TYPE.INTERVAL) || item.startsWith(SHEET_TYPE.SCENES)));
+      // console.log(arrayOfKeys);
+      // console.log(arrayOfKeysToDelete);
+      arrayOfKeysToDelete.map(key => {
+        delete copyOfState2[action.payload.fileId][key];
+        return undefined;
+      })
+      return copyOfState2;
     default:
       return state;
   }

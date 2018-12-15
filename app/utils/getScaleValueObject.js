@@ -1,10 +1,10 @@
 import log from 'electron-log';
 import {
   DEFAULT_THUMB_COUNT, DEFAULT_COLUMN_COUNT, DEFAULT_MOVIE_WIDTH, DEFAULT_MOVIE_HEIGHT,
-  SHOW_PAPER_ADJUSTMENT_SCALE, DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN, VIEW, SHEET_FIT
+  PAPER_ADJUSTMENT_SCALE, DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN, VIEW, SHEET_FIT
 } from './constants';
 import {
-  getWidthOfLongestRow,
+  // getWidthOfLongestRow,
   getScenesInRows,
   getPixelPerFrameRatio,
 } from './utils';
@@ -43,11 +43,11 @@ const getScaleValueObject = (
     settings.defaultBorderRadiusRatio * settings.defaultThumbnailScale : 0;
   const thumbnailWidthPlusMargin = thumbWidth + (thumbMargin * 2);
   const thumbnailHeightPlusMargin = (thumbWidth * movieAspectRatioInv) + (thumbMargin * 2);
-  const moviePrintWidth = columnCount * thumbnailWidthPlusMargin + thumbMargin;
-  const moviePrintWidthForPrinting = columnCount * thumbnailWidthPlusMargin - thumbMargin;
-  const moviePrintHeightBody = rowCount * thumbnailHeightPlusMargin;
-  const moviePrintHeight = headerHeight + (thumbMargin * 2) + moviePrintHeightBody;
-  const moviePrintAspectRatioInv = (moviePrintHeight * 1.0) / moviePrintWidth;
+  const originalMoviePrintWidth = columnCount * thumbnailWidthPlusMargin + thumbMargin;
+  const originalMoviePrintWidthForPrinting = columnCount * thumbnailWidthPlusMargin - thumbMargin;
+  const originalMoviePrintHeightBody = rowCount * thumbnailHeightPlusMargin;
+  const originalMoviePrintHeight = headerHeight + (thumbMargin * 2) + originalMoviePrintHeightBody;
+  const moviePrintAspectRatioInv = (originalMoviePrintHeight * 1.0) / originalMoviePrintWidth;
 
   // for playerView
   const videoHeight = ((containerHeight * 2) / 3) - settings.defaultVideoPlayerControllerHeight;
@@ -89,11 +89,12 @@ const getScaleValueObject = (
   const scrubInOutMovieHeight = Math.floor(scrubInOutMovieWidth * movieAspectRatioInv);
   // for scrubView
 
-  let paperMoviePrintWidth = moviePrintWidth;
-  let paperMoviePrintHeight = moviePrintHeight;
-  let showPaperAdjustmentScale = 1;
+  // calculate paperpreview size
+  let paperMoviePrintWidth = originalMoviePrintWidth;
+  let paperMoviePrintHeight = originalMoviePrintHeight;
+  let paperAdjustmentScale = 1;
   if (showPaperPreview) {
-    showPaperAdjustmentScale = SHOW_PAPER_ADJUSTMENT_SCALE;
+    paperAdjustmentScale = PAPER_ADJUSTMENT_SCALE;
     if (settings.defaultPaperAspectRatioInv < moviePrintAspectRatioInv) {
       paperMoviePrintWidth = paperMoviePrintHeight / settings.defaultPaperAspectRatioInv;
       // log.debug(`calculate new paperMoviePrintWidth ${paperMoviePrintWidth}`);
@@ -102,23 +103,25 @@ const getScaleValueObject = (
       // log.debug(`calculate new paperMoviePrintHeight ${paperMoviePrintHeight}`);
     }
   }
+  // calculate paperpreview size
 
-  const scaleValueWidth = containerWidth / (showPaperPreview ? paperMoviePrintWidth : moviePrintWidth);
-  const scaleValueHeight = containerHeight / (showPaperPreview ? paperMoviePrintHeight : moviePrintHeight);
-
+  // calculate scaleValues
+  const scaleValueForPrinting = containerWidth / originalMoviePrintWidthForPrinting; // scaleValue for gridView printing
+  const scaleValueWidth = containerWidth / (showPaperPreview ? paperMoviePrintWidth : originalMoviePrintWidth);
+  const scaleValueHeight = containerHeight / (showPaperPreview ? paperMoviePrintHeight : originalMoviePrintHeight);
   // default is SHEET_FIT.BOTH which is used when showSettings and forPrinting
-  let scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * zoomScale * showPaperAdjustmentScale;
+  let scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * zoomScale * paperAdjustmentScale;
   if (!forPrinting && !showSettings && sheetFit === SHEET_FIT.WIDTH) {
-    scaleValue = scaleValueWidth * zoomScale * showPaperAdjustmentScale;
+    scaleValue = scaleValueWidth * zoomScale * paperAdjustmentScale;
   } else if (!forPrinting && !showSettings && sheetFit === SHEET_FIT.HEIGHT) {
-    scaleValue = scaleValueHeight * zoomScale * showPaperAdjustmentScale;
+    scaleValue = scaleValueHeight * zoomScale * paperAdjustmentScale;
   }
-  const scaleValueForPrinting = containerWidth / moviePrintWidthForPrinting;
+  // calculate scaleValues
 
   const newMoviePrintWidth =
-    showPlayerView ? moviePrintWidthForThumbView : moviePrintWidth * scaleValue + DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN;
-  const newMoviePrintHeight = showPlayerView ? moviePrintHeight : (newMoviePrintWidth * moviePrintAspectRatioInv);
-  const newMoviePrintWidthForPrinting = moviePrintWidthForPrinting * scaleValueForPrinting;
+    showPlayerView ? moviePrintWidthForThumbView : originalMoviePrintWidth * scaleValue + DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN;
+  const newMoviePrintHeight = showPlayerView ? originalMoviePrintHeight : (newMoviePrintWidth * moviePrintAspectRatioInv);
+  const newMoviePrintWidthForPrinting = originalMoviePrintWidthForPrinting * scaleValueForPrinting;
   const newThumbMargin = showPlayerView ? thumbMarginForThumbView : thumbMargin * scaleValue;
   const newThumbWidth = showPlayerView ? thumbnailWidthForThumbView : thumbWidth * scaleValue;
   const newBorderRadius = showPlayerView ? borderRadiusForThumbView : borderRadius * scaleValue;
@@ -136,7 +139,7 @@ const getScaleValueObject = (
   const scaleValueTimelineHeight = containerHeight / paperMoviePrintTimelineHeight;
 
   // this needs improvement, 0.9 is a random factor which should be dependent of the margins in the rows and columns
-  const scaleValueTimeline = Math.min(scaleValueTimelineWidth, scaleValueTimelineHeight) * showPaperAdjustmentScale * 0.9;
+  const scaleValueTimeline = Math.min(scaleValueTimelineWidth, scaleValueTimelineHeight) * paperAdjustmentScale * 0.9;
 
   const newMoviePrintTimelineWidth = paperMoviePrintTimelineWidth * scaleValueTimeline + DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN;
   const newMoviePrintTimelineHeight = newMoviePrintTimelineWidth * settings.defaultPaperAspectRatioInv;
@@ -160,7 +163,9 @@ const getScaleValueObject = (
     settings.defaultSceneDetectionMinDisplaySceneLengthInFrames,
   )
 
-  const thumbMarginTimeline = newThumbMargin * adjustedPixelPerFrameRatioTimeline;
+  // this does not make sense, but it seems to temporary fix margin issues when printing timeline view
+  const thumbMarginTimeline = forPrinting ? newThumbMargin : newThumbMargin * adjustedPixelPerFrameRatioTimeline;
+  // const thumbMarginTimeline = newThumbMargin * adjustedPixelPerFrameRatioTimeline;
   // timeline view
 
   const scaleValueObject = {
@@ -193,6 +198,7 @@ const getScaleValueObject = (
     rowHeightTimeline,
     adjustedPixelPerFrameRatioTimeline,
     thumbMarginTimeline,
+    scenesInRows,
   };
   // log.debug(scaleValueObject);
   return scaleValueObject;
