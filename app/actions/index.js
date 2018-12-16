@@ -274,19 +274,27 @@ export const setDefaultSceneDetectionThreshold = (defaultSceneDetectionThreshold
   };
 };
 
-export const setDefaultSceneDetectionMinutesPerRow = (defaultSceneDetectionMinutesPerRow) => {
-  log.debug(`action: setDefaultSceneDetectionMinutesPerRow - ${defaultSceneDetectionMinutesPerRow}`);
+export const setDefaultTimelineViewMinutesPerRow = (defaultTimelineViewMinutesPerRow) => {
+  log.debug(`action: setDefaultTimelineViewMinutesPerRow - ${defaultTimelineViewMinutesPerRow}`);
   return {
-    type: 'SET_DEFAULT_SCENE_DETECTION_MINUTES_PER_ROW',
-    defaultSceneDetectionMinutesPerRow
+    type: 'SET_DEFAULT_TIMELINEVIEW_MINUTES_PER_ROW',
+    defaultTimelineViewMinutesPerRow
   };
 };
 
-export const setDefaultSceneDetectionMinDisplaySceneLengthInFrames = (defaultSceneDetectionMinDisplaySceneLengthInFrames) => {
-  log.debug(`action: setDefaultSceneDetectionMinDisplaySceneLengthInFrames - ${defaultSceneDetectionMinDisplaySceneLengthInFrames}`);
+export const setDefaultTimelineViewMinDisplaySceneLengthInFrames = (defaultTimelineViewMinDisplaySceneLengthInFrames) => {
+  log.debug(`action: setDefaultTimelineViewMinDisplaySceneLengthInFrames - ${defaultTimelineViewMinDisplaySceneLengthInFrames}`);
   return {
-    type: 'SET_DEFAULT_SCENE_DETECTION_MIN_DISPLAY_SCENE_LENGTH_IN_FRAMES',
-    defaultSceneDetectionMinDisplaySceneLengthInFrames
+    type: 'SET_DEFAULT_TIMELINEVIEW_MIN_DISPLAY_SCENE_LENGTH_IN_FRAMES',
+    defaultTimelineViewMinDisplaySceneLengthInFrames
+  };
+};
+
+export const setDefaultTimelineViewPixelPerFrameRatio = (defaultTimelineViewPixelPerFrameRatio) => {
+  log.debug(`action: setDefaultTimelineViewPixelPerFrameRatio - ${defaultTimelineViewPixelPerFrameRatio}`);
+  return {
+    type: 'SET_DEFAULT_TIMELINEVIEW_PIXEL_PER_FRAME_RATIO',
+    defaultTimelineViewPixelPerFrameRatio
   };
 };
 

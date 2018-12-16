@@ -49,9 +49,9 @@ import {
   setDefaultMoviePrintWidth, updateFileDetailUseRatio, setDefaultShowPaperPreview,
   setDefaultPaperAspectRatioInv, updateInOutPoint, removeMovieListItem, setDefaultDetectInOutPoint,
   changeThumb, addThumb, setEmailAddress, addThumbs, updateFileScanData, getFileScanData,
-  clearScenes, addScene, addScenes, setDefaultSceneDetectionThreshold, setDefaultSceneDetectionMinutesPerRow,
+  clearScenes, addScene, addScenes, setDefaultSceneDetectionThreshold, setDefaultTimelineViewMinutesPerRow,
   setSheetFit, clearObjectUrls, updateThumbObjectUrlFromDB, returnObjectUrlsFromFrameList,
-  setDefaultSceneDetectionMinDisplaySceneLengthInFrames, deleteSceneSheets
+  setDefaultTimelineViewMinDisplaySceneLengthInFrames, deleteSceneSheets, setDefaultTimelineViewPixelPerFrameRatio
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -198,7 +198,8 @@ class App extends Component {
     this.onChangeMargin = this.onChangeMargin.bind(this);
     this.onChangeMinDisplaySceneLength = this.onChangeMinDisplaySceneLength.bind(this);
     this.onChangeSceneDetectionThreshold = this.onChangeSceneDetectionThreshold.bind(this);
-    this.onChangeSceneDetectionMinutesPerRow = this.onChangeSceneDetectionMinutesPerRow.bind(this);
+    this.onChangeTimelineViewMinutesPerRow = this.onChangeTimelineViewMinutesPerRow.bind(this);
+    this.onChangeTimelineViewPixelPerFrameRatio = this.onChangeTimelineViewPixelPerFrameRatio.bind(this);
     this.onShowHeaderClick = this.onShowHeaderClick.bind(this);
     this.onShowPathInHeaderClick = this.onShowPathInHeaderClick.bind(this);
     this.onShowDetailsInHeaderClick = this.onShowDetailsInHeaderClick.bind(this);
@@ -678,8 +679,8 @@ class App extends Component {
       prevProps.settings.defaultThumbnailScale !== this.props.settings.defaultThumbnailScale ||
       prevProps.settings.defaultMoviePrintWidth !== this.props.settings.defaultMoviePrintWidth ||
       prevProps.settings.defaultMarginRatio !== this.props.settings.defaultMarginRatio ||
-      prevProps.settings.defaultSceneDetectionMinutesPerRow !== this.props.settings.defaultSceneDetectionMinutesPerRow ||
-      prevProps.settings.defaultSceneDetectionMinDisplaySceneLengthInFrames !== this.props.settings.defaultSceneDetectionMinDisplaySceneLengthInFrames ||
+      prevProps.settings.defaultTimelineViewMinutesPerRow !== this.props.settings.defaultTimelineViewMinutesPerRow ||
+      prevProps.settings.defaultTimelineViewMinDisplaySceneLengthInFrames !== this.props.settings.defaultTimelineViewMinDisplaySceneLengthInFrames ||
       (prevProps.scenes ? prevProps.scenes.length !== this.props.scenes.length : false) ||
       prevProps.settings.defaultShowHeader !== this.props.settings.defaultShowHeader ||
       prevProps.settings.defaultShowPathInHeader !== this.props.settings.defaultShowPathInHeader ||
@@ -1514,7 +1515,7 @@ class App extends Component {
   onChangeMinDisplaySceneLength = (value) => {
     const { store } = this.context;
     store.dispatch(
-      setDefaultSceneDetectionMinDisplaySceneLengthInFrames(
+      setDefaultTimelineViewMinDisplaySceneLengthInFrames(
         Math.round(
           value * this.props.file.fps
         )
@@ -1533,9 +1534,14 @@ class App extends Component {
     store.dispatch(setDefaultSceneDetectionThreshold(value));
   };
 
-  onChangeSceneDetectionMinutesPerRow = (value) => {
+  onChangeTimelineViewMinutesPerRow = (value) => {
     const { store } = this.context;
-    store.dispatch(setDefaultSceneDetectionMinutesPerRow(value));
+    store.dispatch(setDefaultTimelineViewMinutesPerRow(value));
+  };
+
+  onChangeTimelineViewPixelPerFrameRatio = (value) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultTimelineViewPixelPerFrameRatio(value / 100.0));
   };
 
   onShowHeaderClick = (value) => {
@@ -1832,7 +1838,8 @@ class App extends Component {
                         frameScale={this.state.frameScale}
                         onChangeFrameScale={this.onChangeFrameScale}
                         onChangeSceneDetectionThreshold={this.onChangeSceneDetectionThreshold}
-                        onChangeSceneDetectionMinutesPerRow={this.onChangeSceneDetectionMinutesPerRow}
+                        onChangeTimelineViewMinutesPerRow={this.onChangeTimelineViewMinutesPerRow}
+                        onChangeTimelineViewPixelPerFrameRatio={this.onChangeTimelineViewPixelPerFrameRatio}
                         onShowHeaderClick={this.onShowHeaderClick}
                         onShowPathInHeaderClick={this.onShowPathInHeaderClick}
                         onShowDetailsInHeaderClick={this.onShowDetailsInHeaderClick}

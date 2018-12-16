@@ -144,7 +144,7 @@ class WorkerApp extends Component {
                     frameCount={this.state.sentData.file ? this.state.sentData.file.frameCount : undefined}
                     inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                     keyObject={{}}
-                    minutesPerRow={this.state.sentData.settings.defaultSceneDetectionMinutesPerRow}
+                    minutesPerRow={this.state.sentData.settings.defaultTimelineViewMinutesPerRow}
                     selectedSceneId={undefined}
                     scaleValueObject={this.state.sentData.scaleValueObject}
                     moviePrintWidth={this.state.sentData.moviePrintWidth}

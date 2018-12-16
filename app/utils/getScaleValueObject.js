@@ -4,7 +4,7 @@ import {
   PAPER_ADJUSTMENT_SCALE, DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN, VIEW, SHEET_FIT
 } from './constants';
 import {
-  // getWidthOfLongestRow,
+  getWidthOfLongestRow,
   getScenesInRows,
   getPixelPerFrameRatio,
 } from './utils';
@@ -130,8 +130,7 @@ const getScaleValueObject = (
   const newScaleValue = showPlayerView ? settings.defaultThumbnailScale : settings.defaultThumbnailScale * scaleValue;
 
   // timeline view
-  const frameCount = file !== undefined && file.frameCount !== undefined ? file.frameCount : 0;
-  const minutesPerRow = settings.defaultSceneDetectionMinutesPerRow;
+  const minutesPerRow = settings.defaultTimelineViewMinutesPerRow;
   const paperMoviePrintTimelineWidth = settings.defaultMoviePrintWidth;
   const paperMoviePrintTimelineHeight  = paperMoviePrintTimelineWidth * settings.defaultPaperAspectRatioInv;
 
@@ -144,24 +143,33 @@ const getScaleValueObject = (
   const newMoviePrintTimelineWidth = paperMoviePrintTimelineWidth * scaleValueTimeline + DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN;
   const newMoviePrintTimelineHeight = newMoviePrintTimelineWidth * settings.defaultPaperAspectRatioInv;
 
-  const rowsTimeline = Math.ceil(frameCount / (minutesPerRow * 60 * 25 * 1.0));
-  // const pixelPerFrameRatioTimeline = newMoviePrintTimelineWidth / (minutesPerRow * 60 * 25 * 1.0);
-
-  const rowHeightTimeline = Math.min(
-    newMoviePrintTimelineHeight / 3,
-    Math.floor((newMoviePrintTimelineHeight - (newThumbMargin * ((rowsTimeline * 2) + 2))) / rowsTimeline)
-  );
   const scenesInRows = getScenesInRows(
     sceneArray,
     minutesPerRow,
   );
 
-  const adjustedPixelPerFrameRatioTimeline = getPixelPerFrameRatio(
+  const timelineViewRowCount = scenesInRows.length;
+  const rowHeightTimeline = Math.min(
+    newMoviePrintTimelineHeight / 3,
+    Math.floor((newMoviePrintTimelineHeight - (newThumbMargin * ((timelineViewRowCount * 2) + 2))) / timelineViewRowCount)
+  );
+
+  const widthOfLongestRow = getWidthOfLongestRow(
     scenesInRows,
     newThumbMargin,
-    newMoviePrintTimelineWidth,
-    settings.defaultSceneDetectionMinDisplaySceneLengthInFrames,
-  )
+    settings.defaultTimelineViewPixelPerFrameRatio,
+    settings.defaultTimelineViewMinDisplaySceneLengthInFrames
+  );
+  console.log(widthOfLongestRow);
+
+  const adjustedPixelPerFrameRatioTimeline = settings.defaultTimelineViewPixelPerFrameRatio;
+  //
+  // const adjustedPixelPerFrameRatioTimeline = getPixelPerFrameRatio(
+  //   scenesInRows,
+  //   newThumbMargin,
+  //   newMoviePrintTimelineWidth,
+  //   settings.defaultTimelineViewMinDisplaySceneLengthInFrames,
+  // );
 
   // this does not make sense, but it seems to temporary fix margin issues when printing timeline view
   const thumbMarginTimeline = forPrinting ? newThumbMargin : newThumbMargin * adjustedPixelPerFrameRatioTimeline;
@@ -194,7 +202,6 @@ const getScaleValueObject = (
     newMoviePrintWidthForPrinting,
     newMoviePrintTimelineWidth,
     newMoviePrintTimelineHeight,
-    rowsTimeline,
     rowHeightTimeline,
     adjustedPixelPerFrameRatioTimeline,
     thumbMarginTimeline,

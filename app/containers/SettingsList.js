@@ -280,7 +280,7 @@ class SettingsList extends Component {
                   className={styles.slider}
                   min={1}
                   max={30}
-                  defaultValue={this.props.settings.defaultSceneDetectionMinutesPerRow}
+                  defaultValue={this.props.settings.defaultTimelineViewMinutesPerRow}
                   marks={{
                     1: '1',
                     5: '5',
@@ -289,7 +289,29 @@ class SettingsList extends Component {
                     30: '30',
                   }}
                   handle={handle}
-                  onChange={this.props.onChangeSceneDetectionMinutesPerRow}
+                  onChange={this.props.onChangeTimelineViewMinutesPerRow}
+                />
+              </Grid.Column>
+            </Grid.Row>
+          }
+          { (this.props.visibilitySettings.defaultView === VIEW.TIMELINEVIEW) &&
+            <Grid.Row>
+              <Grid.Column width={4}>
+                Pixel per frame ratio
+              </Grid.Column>
+              <Grid.Column width={12}>
+                <SliderWithTooltip
+                  // data-tid='sceneDetectionThresholdSlider'
+                  className={styles.slider}
+                  min={1}
+                  max={100}
+                  defaultValue={this.props.settings.defaultTimelineViewPixelPerFrameRatio * 100}
+                  marks={{
+                    1: '0.01',
+                    100: '1',
+                  }}
+                  handle={handle}
+                  onChange={this.props.onChangeTimelineViewPixelPerFrameRatio}
                 />
               </Grid.Column>
             </Grid.Row>
@@ -305,7 +327,7 @@ class SettingsList extends Component {
                   className={styles.slider}
                   min={0}
                   max={10}
-                  defaultValue={Math.round(this.props.settings.defaultSceneDetectionMinDisplaySceneLengthInFrames / (this.props.file.fps * 1.0))}
+                  defaultValue={Math.round(this.props.settings.defaultTimelineViewMinDisplaySceneLengthInFrames / (this.props.file.fps * 1.0))}
                   marks={{
                     0: '0',
                     10: '10',

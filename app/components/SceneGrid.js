@@ -56,8 +56,6 @@ class SceneGrid extends Component {
     const thumbMargin = this.props.scaleValueObject.thumbMarginTimeline;
     let rowCounter = 1;
 
-    const rows = this.props.scaleValueObject.rowsTimeline;
-
     const rowHeight = this.props.scaleValueObject.rowHeightTimeline;
     const realWidth = (rowHeight / this.props.scaleValueObject.aspectRatioInv);
     const adjustedPixelPerFrameRatio = this.props.scaleValueObject.adjustedPixelPerFrameRatioTimeline;
