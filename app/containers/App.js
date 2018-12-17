@@ -1080,7 +1080,7 @@ class App extends Component {
       const clearOldScenes = true;
       store.dispatch(setSheet(DEFAULT_SHEET_SCENES));
       store.dispatch(setView(VIEW.TIMELINEVIEW));
-      store.dispatch(setDefaultShowPaperPreview(true));
+      // store.dispatch(setDefaultShowPaperPreview(true));
       // store.dispatch(clearThumbs(fileId, DEFAULT_SHEET_SCENES));
       // const listOfFrameNumbers = sceneList.map(scene => (scene.start + Math.floor(scene.length / 2)));
       // store.dispatch(addThumbs(
@@ -1147,7 +1147,7 @@ class App extends Component {
           sheetName,
           DEFAULT_THUMB_COUNT, // use constant value instead of defaultThumbCount
           sceneArray[sceneIndex].start,
-          sceneArray[sceneIndex].start + sceneArray[sceneIndex].length,
+          sceneArray[sceneIndex].start + sceneArray[sceneIndex].length - 1,
           this.state.frameScale,
         ));
     }
