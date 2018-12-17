@@ -471,58 +471,59 @@ export const getScenesInRows = (sceneArray, minutesPerRow) => {
   if (sceneArray.length === 0) {
     return [];
   }
-  let rowCounter = 1;
-  let lastRowLength = 0;
-  let lastRowItemCount = -1; // compensate for index starting at 0;
+  const framesPerRow = minutesPerRow * 60 * 25;
+  console.log(framesPerRow);
   const sceneLengthsInRowArray = [];
   // sceneLengthsInRowArray.push(sceneArray[0].length);
   const rowArray = [];
   let previousSceneOutPoint = sceneArray[0].start; // get first sceneStart
-  // console.log(sceneArray);
-  sceneArray.map((scene, index, array) => {
-    const previousIndex = index - 1;
+  console.log(sceneArray);
+  sceneArray.map((scene, index) => {
+    // console.log(`${scene.start}, ${scene.length}, ${index}`);
     const sceneOutPoint = previousSceneOutPoint + scene.length;
-    if (index > 0) {
-      sceneLengthsInRowArray.push(array[previousIndex].length);
-    }
-    if (sceneArray.length !== index + 1) { // all scenes except the last scene
-      if ((sceneOutPoint) > (minutesPerRow * 60 * 25 * rowCounter)) {
-        const rowItemCount = previousIndex - lastRowItemCount;
-        const rowLength = previousSceneOutPoint - lastRowLength;
+    sceneLengthsInRowArray.push(scene.length);
+    if (sceneLengthsInRowArray.reduce((a, b) => a + b, 0) > framesPerRow) {
+      if (sceneLengthsInRowArray.length === 1) { // if only 1 scene
         rowArray.push({
-          index: previousIndex,
-          sceneOutPoint: previousSceneOutPoint,
-          rowItemCount,
-          rowLength,
+          index,
+          sceneOutPoint,
+          rowItemCount: sceneLengthsInRowArray.length, // get length
+          rowLength: sceneLengthsInRowArray.reduce((a, b) => a + b, 0), // get sum of all lengths
           sceneLengthsInRow: sceneLengthsInRowArray.slice(), // pass copy of array
         });
         sceneLengthsInRowArray.length = 0; // clear array
-        lastRowItemCount = previousIndex;
-        lastRowLength = previousSceneOutPoint;
-        rowCounter += 1;
+      } else { // if more than 1 scene
+        rowArray.push({
+          index: index - 1,
+          sceneOutPoint: previousSceneOutPoint,
+          rowItemCount: sceneLengthsInRowArray.slice(0,-1).length, // remove last and get length
+          rowLength: sceneLengthsInRowArray.slice(0,-1).reduce((a, b) => a + b, 0), // remove last and get sum of all lengths
+          sceneLengthsInRow: sceneLengthsInRowArray.slice(0,-1), // remove last and pass copy of array
+        });
+        sceneLengthsInRowArray.splice(0,sceneLengthsInRowArray.length - 1); // only keep last
       }
-    } else { // last item
-      const rowLength = sceneOutPoint - lastRowLength;
-      const rowItemCount = index - lastRowItemCount;
-      sceneLengthsInRowArray.push(scene.length); // add last scene length
+    }
+    if (sceneArray.length === index + 1) { // last scene
       rowArray.push({
         index,
         sceneOutPoint,
-        rowItemCount,
-        rowLength,
+        rowItemCount: sceneLengthsInRowArray.length,
+        rowLength: sceneLengthsInRowArray.reduce((a, b) => a + b, 0), // sum of all lengths
         sceneLengthsInRow: sceneLengthsInRowArray.slice(), // pass copy of array
       });
     }
     previousSceneOutPoint = sceneOutPoint;
     return undefined;
   })
-  // console.log(rowArray);
+  console.log(rowArray);
   return rowArray;
 }
 
 export const getWidthOfLongestRow = (rowArray, thumbMargin, pixelPerFrameRatio, minSceneLengthInFrames) => {
   // calculate width through getting longest row
   // console.log(rowArray);
+  // console.log(thumbMargin);
+  // console.log(pixelPerFrameRatio);
   if (rowArray.length === 0) {
     return undefined;
   }
@@ -532,16 +533,18 @@ export const getWidthOfLongestRow = (rowArray, thumbMargin, pixelPerFrameRatio, 
     // calculate width
     let rowWidth = 0;
     row.sceneLengthsInRow.map((sceneLength) => {
-      rowWidth += Math.max(sceneLength, minSceneLengthInFrames) * pixelPerFrameRatio + thumbMargin * 2
+      const widthOfScene = Math.max(sceneLength, minSceneLengthInFrames) * pixelPerFrameRatio + thumbMargin * 2;
+      // const widthOfScene = Math.max(sceneLength, minSceneLengthInFrames) * pixelPerFrameRatio + thumbMargin * 2 * pixelPerFrameRatio;
+      rowWidth += widthOfScene;
+      // console.log(widthOfScene);
       return undefined;
     });
     rowLengthArray.push(Math.ceil(rowWidth));
-    // console.log(rowWidth)
     return undefined;
   })
   const maxWidth = Math.max(...rowLengthArray);
   // console.log(rowLengthArray);
-  // console.log(maxWidth);
+  console.log(maxWidth);
   return maxWidth
 }
 
@@ -566,14 +569,16 @@ export const getPixelPerFrameRatio = (rowArray, thumbMargin, width, minSceneLeng
     // console.log(lengthOfOtherScenes);
     // console.log(lengthOfAllScenes);
     // calculate pixelPerFrameRatio
-    const pixelPerFrameRatio = width /
-      ((numOfScenesInRow * thumbMargin * 2) + numOfMinScenes * minSceneLengthInFrames + lengthOfOtherScenes);
+    const pixelPerFrameRatio = (width - numOfScenesInRow * thumbMargin * 2) /
+      ( + numOfMinScenes * minSceneLengthInFrames + lengthOfOtherScenes);
+    // const pixelPerFrameRatio = width /
+    //   ((numOfScenesInRow * thumbMargin * 2) + numOfMinScenes * minSceneLengthInFrames + lengthOfOtherScenes);
     // console.log(pixelPerFrameRatio);
     pixelPerFrameRatioArray.push(pixelPerFrameRatio);
     return undefined;
   })
   const minPixelPerFrameRatio = Math.min(...pixelPerFrameRatioArray);
   // console.log(pixelPerFrameRatioArray);
-  // console.log(minPixelPerFrameRatio);
+  console.log(minPixelPerFrameRatio);
   return minPixelPerFrameRatio;
 }

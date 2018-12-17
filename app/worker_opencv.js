@@ -453,20 +453,22 @@ ipcRenderer.on(
             const deltaFrameMean = frameMean.absdiff(lastFrameMean);
             const frameHsvAverage = (deltaFrameMean.w + deltaFrameMean.x + deltaFrameMean.y) / 3.0; // w = H, x = S, y = V = brightness
 
+            // initialise first scene cut
+            if (lastSceneCut === null) {
+              lastSceneCut = frame;
+            }
+
             if (frameHsvAverage >= threshold) {
-              if (((lastSceneCut === null) || ((frame - lastSceneCut) >= minSceneLength))) {
-                // only start adding scenes after the first scene has been detected
-                if (lastSceneCut !== null) {
-                  const length = frame - lastSceneCut; // length
-                  ipcRenderer.send(
-                    'message-from-opencvWorkerWindow-to-mainWindow',
-                    'addScene',
-                    fileId,
-                    lastSceneCut, // start
-                    length,
-                    HSVtoRGB(frameMean.w, frameMean.x, frameMean.y), // color
-                  );
-                }
+              if ((frame - lastSceneCut) >= minSceneLength) {
+                const length = frame - lastSceneCut; // length
+                ipcRenderer.send(
+                  'message-from-opencvWorkerWindow-to-mainWindow',
+                  'addScene',
+                  fileId,
+                  lastSceneCut, // start
+                  length,
+                  HSVtoRGB(frameMean.w, frameMean.x, frameMean.y), // color
+                );
                 lastSceneCut = frame;
               }
             }

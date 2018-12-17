@@ -89,7 +89,7 @@ const getScaleValueObject = (
   const scrubInOutMovieHeight = Math.floor(scrubInOutMovieWidth * movieAspectRatioInv);
   // for scrubView
 
-  // calculate paperpreview size
+  // calculate paperpreview size for gridview
   let paperMoviePrintWidth = originalMoviePrintWidth;
   let paperMoviePrintHeight = originalMoviePrintHeight;
   let paperAdjustmentScale = 1;
@@ -103,9 +103,9 @@ const getScaleValueObject = (
       // log.debug(`calculate new paperMoviePrintHeight ${paperMoviePrintHeight}`);
     }
   }
-  // calculate paperpreview size
+  // calculate paperpreview size for gridview
 
-  // calculate scaleValues
+  // calculate scaleValue for gridview
   const scaleValueForPrinting = containerWidth / originalMoviePrintWidthForPrinting; // scaleValue for gridView printing
   const scaleValueWidth = containerWidth / (showPaperPreview ? paperMoviePrintWidth : originalMoviePrintWidth);
   const scaleValueHeight = containerHeight / (showPaperPreview ? paperMoviePrintHeight : originalMoviePrintHeight);
@@ -116,8 +116,9 @@ const getScaleValueObject = (
   } else if (!forPrinting && !showSettings && sheetFit === SHEET_FIT.HEIGHT) {
     scaleValue = scaleValueHeight * zoomScale * paperAdjustmentScale;
   }
-  // calculate scaleValues
+  // calculate scaleValue for gridview
 
+  // calculate new values for gridview
   const newMoviePrintWidth =
     showPlayerView ? moviePrintWidthForThumbView : originalMoviePrintWidth * scaleValue + DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN;
   const newMoviePrintHeight = showPlayerView ? originalMoviePrintHeight : (newMoviePrintWidth * moviePrintAspectRatioInv);
@@ -127,53 +128,85 @@ const getScaleValueObject = (
   const newBorderRadius = showPlayerView ? borderRadiusForThumbView : borderRadius * scaleValue;
   const newHeaderHeight = showPlayerView ? headerHeight : headerHeight * scaleValue;
   const newLogoHeight = showPlayerView ? logoHeight : logoHeight * scaleValue;
-  const newScaleValue = showPlayerView ? settings.defaultThumbnailScale : settings.defaultThumbnailScale * scaleValue;
+  // calculate new values for gridview
+
+
+
 
   // timeline view
   const minutesPerRow = settings.defaultTimelineViewMinutesPerRow;
-  const paperMoviePrintTimelineWidth = settings.defaultMoviePrintWidth;
-  const paperMoviePrintTimelineHeight  = paperMoviePrintTimelineWidth * settings.defaultPaperAspectRatioInv;
-
-  const scaleValueTimelineWidth = containerWidth / paperMoviePrintTimelineWidth;
-  const scaleValueTimelineHeight = containerHeight / paperMoviePrintTimelineHeight;
-
-  // this needs improvement, 0.9 is a random factor which should be dependent of the margins in the rows and columns
-  const scaleValueTimeline = Math.min(scaleValueTimelineWidth, scaleValueTimelineHeight) * paperAdjustmentScale * 0.9;
-
-  const newMoviePrintTimelineWidth = paperMoviePrintTimelineWidth * scaleValueTimeline + DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN;
-  const newMoviePrintTimelineHeight = newMoviePrintTimelineWidth * settings.defaultPaperAspectRatioInv;
+  const originalTimelineMoviePrintHeight =  settings.defaultMoviePrintWidth; // use default width as height
 
   const scenesInRows = getScenesInRows(
     sceneArray,
     minutesPerRow,
   );
-
   const timelineViewRowCount = scenesInRows.length;
-  const rowHeightTimeline = Math.min(
-    newMoviePrintTimelineHeight / 3,
-    Math.floor((newMoviePrintTimelineHeight - (newThumbMargin * ((timelineViewRowCount * 2) + 2))) / timelineViewRowCount)
+  const originalTimelineRowHeight = Math.min(
+    originalTimelineMoviePrintHeight / 3,
+    Math.floor((originalTimelineMoviePrintHeight - (thumbMargin * ((timelineViewRowCount * 2) + 2))) / timelineViewRowCount)
   );
 
-  const widthOfLongestRow = getWidthOfLongestRow(
+  const originalTimelineMoviePrintWidth = getWidthOfLongestRow(
     scenesInRows,
-    newThumbMargin,
+    thumbMargin,
     settings.defaultTimelineViewPixelPerFrameRatio,
     settings.defaultTimelineViewMinDisplaySceneLengthInFrames
   );
-  console.log(widthOfLongestRow);
+  const timelineMoviePrintAspectRatioInv = (originalTimelineMoviePrintHeight * 1.0) / originalTimelineMoviePrintWidth;
 
-  const adjustedPixelPerFrameRatioTimeline = settings.defaultTimelineViewPixelPerFrameRatio;
-  //
-  // const adjustedPixelPerFrameRatioTimeline = getPixelPerFrameRatio(
-  //   scenesInRows,
-  //   newThumbMargin,
-  //   newMoviePrintTimelineWidth,
-  //   settings.defaultTimelineViewMinDisplaySceneLengthInFrames,
-  // );
+  // calculate paperpreview size for timelineview
+  let paperTimelineMoviePrintWidth = originalTimelineMoviePrintWidth;
+  let paperTimelineMoviePrintHeight = originalTimelineMoviePrintHeight;
+  let paperTimelineAdjustmentScale = 1;
+  if (showPaperPreview) {
+    paperTimelineAdjustmentScale = PAPER_ADJUSTMENT_SCALE;
+    if (settings.defaultPaperAspectRatioInv < timelineMoviePrintAspectRatioInv) {
+      paperTimelineMoviePrintWidth = paperTimelineMoviePrintHeight / settings.defaultPaperAspectRatioInv;
+      console.log(`calculate new paperTimelineMoviePrintWidth ${paperTimelineMoviePrintWidth}`);
+    } else {
+      paperTimelineMoviePrintHeight = paperTimelineMoviePrintWidth * settings.defaultPaperAspectRatioInv;
+      console.log(`calculate new paperTimelineMoviePrintHeight ${paperTimelineMoviePrintHeight}`);
+    }
+  }
+  // calculate paperpreview size for timelineview
 
-  // this does not make sense, but it seems to temporary fix margin issues when printing timeline view
-  const thumbMarginTimeline = forPrinting ? newThumbMargin : newThumbMargin * adjustedPixelPerFrameRatioTimeline;
-  // const thumbMarginTimeline = newThumbMargin * adjustedPixelPerFrameRatioTimeline;
+  // calculate scaleValue for timelineview
+  const scaleValueTimelineWidth = containerWidth / (showPaperPreview ? paperTimelineMoviePrintWidth : originalTimelineMoviePrintWidth);
+  console.log(`${scaleValueTimelineWidth} = ${containerWidth} / (${showPaperPreview} ? ${paperTimelineMoviePrintWidth} : ${originalTimelineMoviePrintWidth})`);
+  const scaleValueTimelineHeight = containerHeight / (showPaperPreview ? paperTimelineMoviePrintHeight : originalTimelineMoviePrintHeight);
+  console.log(`${scaleValueTimelineHeight} = ${containerHeight} / (${showPaperPreview} ? ${paperTimelineMoviePrintHeight} : ${originalTimelineMoviePrintHeight})`);
+  // default is SHEET_FIT.BOTH which is used when showSettings and forPrinting
+  let scaleValueTimeline = Math.min(scaleValueTimelineWidth, scaleValueTimelineHeight) * zoomScale * paperTimelineAdjustmentScale;
+  if (!forPrinting && !showSettings && sheetFit === SHEET_FIT.WIDTH) {
+    scaleValueTimeline = scaleValueTimelineWidth * zoomScale * paperTimelineAdjustmentScale;
+  } else if (!forPrinting && !showSettings && sheetFit === SHEET_FIT.HEIGHT) {
+    scaleValueTimeline = scaleValueTimelineHeight * zoomScale * paperTimelineAdjustmentScale;
+  }
+  // calculate scaleValue for timelineview
+
+  // calculate new values for timelineview
+  const newMoviePrintTimelineHeight = originalTimelineMoviePrintHeight * scaleValueTimeline + DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN;
+  const newMoviePrintTimelineWidth = newMoviePrintTimelineHeight / timelineMoviePrintAspectRatioInv;
+  console.log(`${newMoviePrintTimelineWidth} = ${newMoviePrintTimelineHeight} / ${timelineMoviePrintAspectRatioInv}`);
+  const thumbMarginTimeline = thumbMargin * scaleValueTimeline;
+  const newPixelPerFrameRatioTimeline = getPixelPerFrameRatio(
+    scenesInRows,
+    thumbMarginTimeline,
+    newMoviePrintTimelineWidth,
+    settings.defaultTimelineViewMinDisplaySceneLengthInFrames,
+  );
+  const newTimelineRowHeight = Math.min(
+    newMoviePrintTimelineHeight / 3,
+    Math.floor((newMoviePrintTimelineHeight - (thumbMarginTimeline * ((timelineViewRowCount * 2) + 2))) / timelineViewRowCount)
+  );
+  // calculate new values for timelineview
+  // console.log(getWidthOfLongestRow(
+  //     scenesInRows,
+  //     thumbMarginTimeline,
+  //     newPixelPerFrameRatioTimeline,
+  //     settings.defaultTimelineViewMinDisplaySceneLengthInFrames
+  //   ));
   // timeline view
 
   const scaleValueObject = {
@@ -189,7 +222,6 @@ const getScaleValueObject = (
     newBorderRadius,
     newHeaderHeight,
     newLogoHeight,
-    newScaleValue,
     videoPlayerHeight,
     videoPlayerWidth,
     scrubMovieWidth,
@@ -202,8 +234,11 @@ const getScaleValueObject = (
     newMoviePrintWidthForPrinting,
     newMoviePrintTimelineWidth,
     newMoviePrintTimelineHeight,
-    rowHeightTimeline,
-    adjustedPixelPerFrameRatioTimeline,
+    originalTimelineRowHeight,
+    newTimelineRowHeight,
+    originalTimelineMoviePrintWidth,
+    originalTimelineMoviePrintHeight,
+    newPixelPerFrameRatioTimeline,
     thumbMarginTimeline,
     scenesInRows,
   };

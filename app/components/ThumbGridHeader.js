@@ -22,7 +22,6 @@ const ThumbGridHeader = ({
   headerHeight,
   logoHeight,
   thumbMargin,
-  scaleValue,
   inPointPositionOnTimeline,
   cutWidthOnTimeLine,
   allFrameNumbersInPercentArray,
@@ -172,7 +171,6 @@ ThumbGridHeader.propTypes = {
   headerHeight: PropTypes.number.isRequired,
   logoHeight: PropTypes.number.isRequired,
   thumbMargin: PropTypes.number.isRequired,
-  scaleValue: PropTypes.number.isRequired,
 };
 
 export default ThumbGridHeader;

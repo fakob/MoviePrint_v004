@@ -53,12 +53,12 @@ class SceneGrid extends Component {
     const minSceneLength = this.props.minSceneLength;
     const sceneArray = this.props.scenes;
     const newMoviePrintTimelineWidth = this.props.scaleValueObject.newMoviePrintTimelineWidth;
-    const thumbMargin = this.props.scaleValueObject.thumbMarginTimeline;
-    let rowCounter = 1;
+    const thumbMargin = Math.floor(this.props.scaleValueObject.thumbMarginTimeline);
+    // let rowCounter = 1;
 
-    const rowHeight = this.props.scaleValueObject.rowHeightTimeline;
+    const rowHeight = this.props.moviePrintRowHeight;
     const realWidth = (rowHeight / this.props.scaleValueObject.aspectRatioInv);
-    const adjustedPixelPerFrameRatio = this.props.scaleValueObject.adjustedPixelPerFrameRatioTimeline;
+    const newPixelPerFrameRatio = this.props.scaleValueObject.newPixelPerFrameRatioTimeline;
     const scenesInRows = this.props.scaleValueObject.scenesInRows;
     const indexRowArray = scenesInRows.map(item => item.index);
     // console.log(indexRowArray);
@@ -79,11 +79,11 @@ class SceneGrid extends Component {
             // minutes per row idea
             const selected = this.props.selectedSceneId ? (this.props.selectedSceneId === scene.sceneId) : false;
             const width = selected ? realWidth :
-              Math.max(adjustedPixelPerFrameRatio * scene.length, adjustedPixelPerFrameRatio * minSceneLength);
+              Math.max(newPixelPerFrameRatio * scene.length, newPixelPerFrameRatio * minSceneLength);
             let doLineBreak = false;
             if (indexRowArray.findIndex(item => item === index - 1) > -1) {
               doLineBreak = true;
-              rowCounter += 1;
+              // rowCounter += 1;
             }
 
             return (

@@ -340,7 +340,6 @@ class ThumbGrid extends Component {
             headerHeight={this.props.scaleValueObject.newHeaderHeight}
             logoHeight={this.props.scaleValueObject.newLogoHeight}
             thumbMargin={this.props.scaleValueObject.newThumbMargin}
-            scaleValue={this.props.scaleValueObject.newScaleValue}
             inPointPositionOnTimeline={inPointPositionOnTimeline}
             cutWidthOnTimeLine={cutWidthOnTimeLine}
             allFrameNumbersInPercentArray={allFrameNumbersInPercentArray}

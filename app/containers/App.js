@@ -111,7 +111,6 @@ class App extends Component {
       savingMoviePrint: false,
       selectedThumbObject: undefined,
       selectedSceneObject: undefined,
-      outputScaleCompensator: 1,
       // file match needs to be in sync with setMovieList() and onDrop() !!!
       accept: 'video/*,.divx,.mkv,.ogg,.VOB,',
       dropzoneActive: false,
@@ -631,7 +630,6 @@ class App extends Component {
         // log.debug(tempThumbs);
         const dataToSend = {
           // scale: 1,
-          // scale: this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
           defaultSheet: DEFAULT_SHEET_INTERVAL,
           elementId: 'ThumbGrid',
           file: tempFile,
@@ -681,6 +679,7 @@ class App extends Component {
       prevProps.settings.defaultMarginRatio !== this.props.settings.defaultMarginRatio ||
       prevProps.settings.defaultTimelineViewMinutesPerRow !== this.props.settings.defaultTimelineViewMinutesPerRow ||
       prevProps.settings.defaultTimelineViewMinDisplaySceneLengthInFrames !== this.props.settings.defaultTimelineViewMinDisplaySceneLengthInFrames ||
+      prevProps.settings.defaultTimelineViewPixelPerFrameRatio !== this.props.settings.defaultTimelineViewPixelPerFrameRatio ||
       (prevProps.scenes ? prevProps.scenes.length !== this.props.scenes.length : false) ||
       prevProps.settings.defaultShowHeader !== this.props.settings.defaultShowHeader ||
       prevProps.settings.defaultShowPathInHeader !== this.props.settings.defaultShowPathInHeader ||
@@ -689,7 +688,6 @@ class App extends Component {
       prevProps.settings.defaultRoundedCorners !== this.props.settings.defaultRoundedCorners ||
       prevProps.settings.defaultShowPaperPreview !== this.props.settings.defaultShowPaperPreview ||
       prevProps.settings.defaultPaperAspectRatioInv !== this.props.settings.defaultPaperAspectRatioInv ||
-      prevState.outputScaleCompensator !== this.state.outputScaleCompensator ||
       prevState.zoom !== this.state.zoom ||
       prevProps.visibilitySettings.defaultView !==
         this.props.visibilitySettings.defaultView ||
@@ -854,14 +852,6 @@ class App extends Component {
     this.setState(
       {
         scaleValueObject
-      },
-      () => {
-        if (this.state.outputScaleCompensator !== scaleValueObject.newScaleValue) {
-          // log.debug('got newscalevalue');
-          this.setState({
-            outputScaleCompensator: scaleValueObject.newScaleValue
-          });
-        }
       }
     );
   }
@@ -1029,22 +1019,25 @@ class App extends Component {
 
     const sceneList = []
     differenceArray.map((value, index) => {
-        if (value >= threshold) {
-          if (((lastSceneCut === null) || ((index - lastSceneCut) >= SCENE_DETECTION_MIN_SCENE_LENGTH))) {
-            if (lastSceneCut !== null) {
-              const length = index - lastSceneCut; // length
-              sceneList.push({
-                fileId,
-                start: lastSceneCut, // start
-                length,
-                colorArray: meanColorArray[lastSceneCut + Math.floor(length / 2)],
-                // [frameMean.w, frameMean.x, frameMean.y], // color
-              });
-            }
-            lastSceneCut = index;
-          }
+      // initialise first scene cut
+      if (lastSceneCut === null) {
+        lastSceneCut = index;
+      }
+      if (value >= threshold) {
+        if ((index - lastSceneCut) >= SCENE_DETECTION_MIN_SCENE_LENGTH) {
+          const length = index - lastSceneCut; // length
+          sceneList.push({
+            fileId,
+            start: lastSceneCut, // start
+            length,
+            colorArray: meanColorArray[lastSceneCut + Math.floor(length / 2)],
+            // [frameMean.w, frameMean.x, frameMean.y], // color
+          });
+          lastSceneCut = index;
         }
-        return true;
+      }
+      // console.log(`${index} - ${lastSceneCut} = ${index - lastSceneCut} - ${value >= threshold}`);
+      return true;
       }
     );
     // add last scene
@@ -1273,7 +1266,6 @@ class App extends Component {
   onSaveMoviePrint() {
     const dataToSend = {
       // scale: 1,
-      // scale: this.props.settings.defaultThumbnailScale / this.state.outputScaleCompensator,
       defaultSheet: this.props.visibilitySettings.defaultSheet,
       elementId: this.props.visibilitySettings.defaultView !== VIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
       file: this.props.file,
@@ -1972,6 +1964,7 @@ class App extends Component {
                               selectSceneMethod={this.onSelectSceneMethod}
                               onEnterClick={this.onEnterClick}
                               moviePrintWidth={this.state.scaleValueObject.newMoviePrintTimelineWidth}
+                              moviePrintRowHeight={this.state.scaleValueObject.newTimelineRowHeight}
                               scaleValueObject={this.state.scaleValueObject}
                               scenes={this.props.scenes}
                               settings={this.props.settings}

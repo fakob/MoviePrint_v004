@@ -109,7 +109,7 @@ class WorkerApp extends Component {
               style={{
                 width: `${this.state.sentData.visibilitySettings.defaultView !== VIEW.TIMELINEVIEW ?
                   this.state.sentData.moviePrintWidth :
-                  (this.state.sentData.moviePrintWidth + this.state.sentData.scaleValueObject.thumbMarginTimeline * 2)
+                  (this.state.sentData.scaleValueObject.originalTimelineMoviePrintWidth + this.state.sentData.scaleValueObject.thumbMarginTimeline * 2)
                 }px`
               }}
             >
@@ -147,7 +147,8 @@ class WorkerApp extends Component {
                     minutesPerRow={this.state.sentData.settings.defaultTimelineViewMinutesPerRow}
                     selectedSceneId={undefined}
                     scaleValueObject={this.state.sentData.scaleValueObject}
-                    moviePrintWidth={this.state.sentData.moviePrintWidth}
+                    moviePrintWidth={this.state.sentData.originalTimelineMoviePrintWidth}
+                    moviePrintRowHeight={this.state.sentData.scaleValueObject.originalTimelineRowHeight}
                     scenes={this.state.sentData.scenes}
                     settings={this.state.sentData.settings}
                     showSettings={false}
