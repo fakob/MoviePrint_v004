@@ -1828,6 +1828,7 @@ class App extends Component {
                         onChangeMargin={this.onChangeMargin}
                         onChangeMinDisplaySceneLength={this.onChangeMinDisplaySceneLength}
                         frameScale={this.state.frameScale}
+                        sceneArray={this.props.scenes}
                         onChangeFrameScale={this.onChangeFrameScale}
                         onChangeSceneDetectionThreshold={this.onChangeSceneDetectionThreshold}
                         onChangeTimelineViewMinutesPerRow={this.onChangeTimelineViewMinutesPerRow}

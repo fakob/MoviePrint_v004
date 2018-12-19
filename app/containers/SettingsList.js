@@ -42,24 +42,39 @@ const handle = (props) => {
 const outputSize = (file = {
   width: DEFAULT_MOVIE_WIDTH,
   height: DEFAULT_MOVIE_HEIGHT,
-}, columnCountTemp, thumbCountTemp, settings, visibilitySettings) => {
+}, columnCountTemp, thumbCountTemp, settings, visibilitySettings, sceneArray) => {
   const newScaleValueObject = getScaleValueObject(
     file,
     settings,
     visibilitySettings,
     columnCountTemp, thumbCountTemp,
     4096, undefined,
-    1
+    1,
+    undefined,
+    undefined,
+    sceneArray,
   );
   const sizeLimit = 32767; // due to browser limitations https://html2canvas.hertzen.com/faq
-  const moviePrintSize = [
+  let moviePrintSize;
+  if (visibilitySettings.defaultView !== VIEW.TIMELINEVIEW) {
+    moviePrintSize = [
     { width: 16384, height: Math.round(16384 * newScaleValueObject.moviePrintAspectRatioInv) },
     { width: 8192, height: Math.round(8192 * newScaleValueObject.moviePrintAspectRatioInv) },
     { width: 4096, height: Math.round(4096 * newScaleValueObject.moviePrintAspectRatioInv) },
     { width: 3072, height: Math.round(3072 * newScaleValueObject.moviePrintAspectRatioInv) },
     { width: 2048, height: Math.round(2048 * newScaleValueObject.moviePrintAspectRatioInv) },
     { width: 1024, height: Math.round(1024 * newScaleValueObject.moviePrintAspectRatioInv) },
-  ];
+    ];
+  } else {
+    moviePrintSize = [
+    { height: 16384, width: Math.round(16384 * newScaleValueObject.timelineMoviePrintAspectRatioInv) },
+    { height: 8192, width: Math.round(8192 * newScaleValueObject.timelineMoviePrintAspectRatioInv) },
+    { height: 4096, width: Math.round(4096 * newScaleValueObject.timelineMoviePrintAspectRatioInv) },
+    { height: 3072, width: Math.round(3072 * newScaleValueObject.timelineMoviePrintAspectRatioInv) },
+    { height: 2048, width: Math.round(2048 * newScaleValueObject.timelineMoviePrintAspectRatioInv) },
+    { height: 1024, width: Math.round(1024 * newScaleValueObject.timelineMoviePrintAspectRatioInv) },
+    ];
+  }
   return [
     { value: moviePrintSize[5].width, text: `${moviePrintSize[5].width}px (×${moviePrintSize[5].height}px)`, disabled: ((moviePrintSize[5].width + moviePrintSize[5].height) > sizeLimit), 'data-tid': `${moviePrintSize[5].width}-widthOption` },
     { value: moviePrintSize[4].width, text: `${moviePrintSize[4].width}px (×${moviePrintSize[4].height}px)`, disabled: ((moviePrintSize[4].width + moviePrintSize[4].height) > sizeLimit), 'data-tid': `${moviePrintSize[4].width}-widthOption` },
@@ -616,7 +631,7 @@ class SettingsList extends Component {
                 data-tid='changeMoviePrintWidthDropdown'
                 placeholder="Select..."
                 selection
-                options={outputSize(this.props.file, this.props.columnCountTemp, this.props.thumbCountTemp, this.props.settings, this.props.visibilitySettings)}
+                options={outputSize(this.props.file, this.props.columnCountTemp, this.props.thumbCountTemp, this.props.settings, this.props.visibilitySettings, this.props.sceneArray)}
                 defaultValue={this.props.settings.defaultMoviePrintWidth}
                 onChange={this.onChangeMoviePrintWidth}
               />

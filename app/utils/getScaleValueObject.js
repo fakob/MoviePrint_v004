@@ -144,7 +144,7 @@ const getScaleValueObject = (
   const timelineViewRowCount = scenesInRows.length;
   const originalTimelineRowHeight = Math.min(
     originalTimelineMoviePrintHeight / 3,
-    Math.floor((originalTimelineMoviePrintHeight - (thumbMargin * ((timelineViewRowCount * 2) + 2))) / timelineViewRowCount)
+    Math.floor((originalTimelineMoviePrintHeight - thumbMargin * timelineViewRowCount * 2) / timelineViewRowCount)
   );
 
   const originalTimelineMoviePrintWidth = getWidthOfLongestRow(
@@ -154,6 +154,7 @@ const getScaleValueObject = (
     settings.defaultTimelineViewMinDisplaySceneLengthInFrames
   );
   const timelineMoviePrintAspectRatioInv = (originalTimelineMoviePrintHeight * 1.0) / originalTimelineMoviePrintWidth;
+  console.log(timelineMoviePrintAspectRatioInv);
 
   // calculate paperpreview size for timelineview
   let paperTimelineMoviePrintWidth = originalTimelineMoviePrintWidth;
@@ -163,19 +164,19 @@ const getScaleValueObject = (
     paperTimelineAdjustmentScale = PAPER_ADJUSTMENT_SCALE;
     if (settings.defaultPaperAspectRatioInv < timelineMoviePrintAspectRatioInv) {
       paperTimelineMoviePrintWidth = paperTimelineMoviePrintHeight / settings.defaultPaperAspectRatioInv;
-      console.log(`calculate new paperTimelineMoviePrintWidth ${paperTimelineMoviePrintWidth}`);
+      // console.log(`calculate new paperTimelineMoviePrintWidth ${paperTimelineMoviePrintWidth}`);
     } else {
       paperTimelineMoviePrintHeight = paperTimelineMoviePrintWidth * settings.defaultPaperAspectRatioInv;
-      console.log(`calculate new paperTimelineMoviePrintHeight ${paperTimelineMoviePrintHeight}`);
+      // console.log(`calculate new paperTimelineMoviePrintHeight ${paperTimelineMoviePrintHeight}`);
     }
   }
   // calculate paperpreview size for timelineview
 
   // calculate scaleValue for timelineview
   const scaleValueTimelineWidth = containerWidth / (showPaperPreview ? paperTimelineMoviePrintWidth : originalTimelineMoviePrintWidth);
-  console.log(`${scaleValueTimelineWidth} = ${containerWidth} / (${showPaperPreview} ? ${paperTimelineMoviePrintWidth} : ${originalTimelineMoviePrintWidth})`);
+  // console.log(`${scaleValueTimelineWidth} = ${containerWidth} / (${showPaperPreview} ? ${paperTimelineMoviePrintWidth} : ${originalTimelineMoviePrintWidth})`);
   const scaleValueTimelineHeight = containerHeight / (showPaperPreview ? paperTimelineMoviePrintHeight : originalTimelineMoviePrintHeight);
-  console.log(`${scaleValueTimelineHeight} = ${containerHeight} / (${showPaperPreview} ? ${paperTimelineMoviePrintHeight} : ${originalTimelineMoviePrintHeight})`);
+  // console.log(`${scaleValueTimelineHeight} = ${containerHeight} / (${showPaperPreview} ? ${paperTimelineMoviePrintHeight} : ${originalTimelineMoviePrintHeight})`);
   // default is SHEET_FIT.BOTH which is used when showSettings and forPrinting
   let scaleValueTimeline = Math.min(scaleValueTimelineWidth, scaleValueTimelineHeight) * zoomScale * paperTimelineAdjustmentScale;
   if (!forPrinting && !showSettings && sheetFit === SHEET_FIT.WIDTH) {
@@ -188,7 +189,7 @@ const getScaleValueObject = (
   // calculate new values for timelineview
   const newMoviePrintTimelineHeight = originalTimelineMoviePrintHeight * scaleValueTimeline + DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN;
   const newMoviePrintTimelineWidth = newMoviePrintTimelineHeight / timelineMoviePrintAspectRatioInv;
-  console.log(`${newMoviePrintTimelineWidth} = ${newMoviePrintTimelineHeight} / ${timelineMoviePrintAspectRatioInv}`);
+  // console.log(`${newMoviePrintTimelineWidth} = ${newMoviePrintTimelineHeight} / ${timelineMoviePrintAspectRatioInv}`);
   const thumbMarginTimeline = thumbMargin * scaleValueTimeline;
   const newPixelPerFrameRatioTimeline = getPixelPerFrameRatio(
     scenesInRows,
@@ -238,6 +239,7 @@ const getScaleValueObject = (
     newTimelineRowHeight,
     originalTimelineMoviePrintWidth,
     originalTimelineMoviePrintHeight,
+    timelineMoviePrintAspectRatioInv,
     newPixelPerFrameRatioTimeline,
     thumbMarginTimeline,
     scenesInRows,

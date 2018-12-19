@@ -472,12 +472,12 @@ export const getScenesInRows = (sceneArray, minutesPerRow) => {
     return [];
   }
   const framesPerRow = minutesPerRow * 60 * 25;
-  console.log(framesPerRow);
+  // console.log(framesPerRow);
   const sceneLengthsInRowArray = [];
   // sceneLengthsInRowArray.push(sceneArray[0].length);
   const rowArray = [];
   let previousSceneOutPoint = sceneArray[0].start; // get first sceneStart
-  console.log(sceneArray);
+  // console.log(sceneArray);
   sceneArray.map((scene, index) => {
     // console.log(`${scene.start}, ${scene.length}, ${index}`);
     const sceneOutPoint = previousSceneOutPoint + scene.length;
@@ -515,7 +515,7 @@ export const getScenesInRows = (sceneArray, minutesPerRow) => {
     previousSceneOutPoint = sceneOutPoint;
     return undefined;
   })
-  console.log(rowArray);
+  // console.log(rowArray);
   return rowArray;
 }
 
@@ -579,6 +579,6 @@ export const getPixelPerFrameRatio = (rowArray, thumbMargin, width, minSceneLeng
   })
   const minPixelPerFrameRatio = Math.min(...pixelPerFrameRatioArray);
   // console.log(pixelPerFrameRatioArray);
-  console.log(minPixelPerFrameRatio);
+  // console.log(minPixelPerFrameRatio);
   return minPixelPerFrameRatio;
 }
