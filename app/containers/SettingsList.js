@@ -56,7 +56,8 @@ const outputSize = (file = {
   );
   const sizeLimit = 32767; // due to browser limitations https://html2canvas.hertzen.com/faq
   let moviePrintSize;
-  if (visibilitySettings.defaultView !== VIEW.TIMELINEVIEW) {
+  const isGridView = visibilitySettings.defaultView !== VIEW.TIMELINEVIEW;
+  if (isGridView) {
     moviePrintSize = [
     { width: 16384, height: Math.round(16384 * newScaleValueObject.moviePrintAspectRatioInv) },
     { width: 8192, height: Math.round(8192 * newScaleValueObject.moviePrintAspectRatioInv) },
@@ -67,21 +68,21 @@ const outputSize = (file = {
     ];
   } else {
     moviePrintSize = [
-    { height: 16384, width: Math.round(16384 * newScaleValueObject.timelineMoviePrintAspectRatioInv) },
-    { height: 8192, width: Math.round(8192 * newScaleValueObject.timelineMoviePrintAspectRatioInv) },
-    { height: 4096, width: Math.round(4096 * newScaleValueObject.timelineMoviePrintAspectRatioInv) },
-    { height: 3072, width: Math.round(3072 * newScaleValueObject.timelineMoviePrintAspectRatioInv) },
-    { height: 2048, width: Math.round(2048 * newScaleValueObject.timelineMoviePrintAspectRatioInv) },
-    { height: 1024, width: Math.round(1024 * newScaleValueObject.timelineMoviePrintAspectRatioInv) },
+    { height: 16384, width: Math.round(16384 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
+    { height: 8192, width: Math.round(8192 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
+    { height: 4096, width: Math.round(4096 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
+    { height: 3072, width: Math.round(3072 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
+    { height: 2048, width: Math.round(2048 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
+    { height: 1024, width: Math.round(1024 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
     ];
   }
   return [
-    { value: moviePrintSize[5].width, text: `${moviePrintSize[5].width}px (×${moviePrintSize[5].height}px)`, disabled: ((moviePrintSize[5].width + moviePrintSize[5].height) > sizeLimit), 'data-tid': `${moviePrintSize[5].width}-widthOption` },
-    { value: moviePrintSize[4].width, text: `${moviePrintSize[4].width}px (×${moviePrintSize[4].height}px)`, disabled: ((moviePrintSize[4].width + moviePrintSize[4].height) > sizeLimit), 'data-tid': `${moviePrintSize[4].width}-widthOption` },
-    { value: moviePrintSize[3].width, text: `${moviePrintSize[3].width}px (×${moviePrintSize[3].height}px)`, disabled: ((moviePrintSize[3].width + moviePrintSize[3].height) > sizeLimit), 'data-tid': `${moviePrintSize[3].width}-widthOption` },
-    { value: moviePrintSize[2].width, text: `${moviePrintSize[2].width}px (×${moviePrintSize[2].height}px)`, disabled: ((moviePrintSize[2].width + moviePrintSize[2].height) > sizeLimit), 'data-tid': `${moviePrintSize[2].width}-widthOption` },
-    { value: moviePrintSize[1].width, text: `${moviePrintSize[1].width}px (×${moviePrintSize[1].height}px)`, disabled: ((moviePrintSize[1].width + moviePrintSize[1].height) > sizeLimit), 'data-tid': `${moviePrintSize[1].width}-widthOption` },
-    { value: moviePrintSize[0].width, text: `${moviePrintSize[0].width}px (×${moviePrintSize[0].height}px)`, disabled: ((moviePrintSize[0].width + moviePrintSize[0].height) > sizeLimit), 'data-tid': `${moviePrintSize[0].width}-widthOption` },
+    { value: isGridView ? moviePrintSize[5].width : moviePrintSize[5].height, text: `${moviePrintSize[5].width}px (×${moviePrintSize[5].height}px)`, disabled: ((moviePrintSize[5].width + moviePrintSize[5].height) > sizeLimit), 'data-tid': `${moviePrintSize[5].width}-widthOption` },
+    { value: isGridView ? moviePrintSize[4].width : moviePrintSize[4].height, text: `${moviePrintSize[4].width}px (×${moviePrintSize[4].height}px)`, disabled: ((moviePrintSize[4].width + moviePrintSize[4].height) > sizeLimit), 'data-tid': `${moviePrintSize[4].width}-widthOption` },
+    { value: isGridView ? moviePrintSize[3].width : moviePrintSize[3].height, text: `${moviePrintSize[3].width}px (×${moviePrintSize[3].height}px)`, disabled: ((moviePrintSize[3].width + moviePrintSize[3].height) > sizeLimit), 'data-tid': `${moviePrintSize[3].width}-widthOption` },
+    { value: isGridView ? moviePrintSize[2].width : moviePrintSize[2].height, text: `${moviePrintSize[2].width}px (×${moviePrintSize[2].height}px)`, disabled: ((moviePrintSize[2].width + moviePrintSize[2].height) > sizeLimit), 'data-tid': `${moviePrintSize[2].width}-widthOption` },
+    { value: isGridView ? moviePrintSize[1].width : moviePrintSize[1].height, text: `${moviePrintSize[1].width}px (×${moviePrintSize[1].height}px)`, disabled: ((moviePrintSize[1].width + moviePrintSize[1].height) > sizeLimit), 'data-tid': `${moviePrintSize[1].width}-widthOption` },
+    { value: isGridView ? moviePrintSize[0].width : moviePrintSize[0].height, text: `${moviePrintSize[0].width}px (×${moviePrintSize[0].height}px)`, disabled: ((moviePrintSize[0].width + moviePrintSize[0].height) > sizeLimit), 'data-tid': `${moviePrintSize[0].width}-widthOption` },
   ];
 };
 
@@ -312,21 +313,22 @@ class SettingsList extends Component {
           { (this.props.visibilitySettings.defaultView === VIEW.TIMELINEVIEW) &&
             <Grid.Row>
               <Grid.Column width={4}>
-                Pixel per frame ratio
+                Scene width ratio
               </Grid.Column>
               <Grid.Column width={12}>
                 <SliderWithTooltip
                   // data-tid='sceneDetectionThresholdSlider'
                   className={styles.slider}
-                  min={1}
+                  min={0}
                   max={100}
-                  defaultValue={this.props.settings.defaultTimelineViewPixelPerFrameRatio * 100}
+                  defaultValue={this.props.settings.defaultTimelineViewWidthScale}
                   marks={{
-                    1: '0.01',
-                    100: '1',
+                    0: '-10',
+                    50: '0',
+                    100: '+10',
                   }}
                   handle={handle}
-                  onChange={this.props.onChangeTimelineViewPixelPerFrameRatio}
+                  onChange={this.props.onChangeTimelineViewWidthScale}
                 />
               </Grid.Column>
             </Grid.Row>

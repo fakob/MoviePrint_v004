@@ -290,11 +290,11 @@ export const setDefaultTimelineViewMinDisplaySceneLengthInFrames = (defaultTimel
   };
 };
 
-export const setDefaultTimelineViewPixelPerFrameRatio = (defaultTimelineViewPixelPerFrameRatio) => {
-  log.debug(`action: setDefaultTimelineViewPixelPerFrameRatio - ${defaultTimelineViewPixelPerFrameRatio}`);
+export const setDefaultTimelineViewWidthScale = (defaultTimelineViewWidthScale) => {
+  log.debug(`action: setDefaultTimelineViewWidthScale - ${defaultTimelineViewWidthScale}`);
   return {
     type: 'SET_DEFAULT_TIMELINEVIEW_PIXEL_PER_FRAME_RATIO',
-    defaultTimelineViewPixelPerFrameRatio
+    defaultTimelineViewWidthScale
   };
 };
 

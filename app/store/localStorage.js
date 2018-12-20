@@ -41,7 +41,7 @@ import {
   DEFAULT_SCENE_DETECTION_THRESHOLD,
   DEFAULT_TIMELINEVIEW_MINUTES_PER_ROW,
   DEFAULT_TIMELINEVIEW_MIN_DISPLAY_SCENE_LENGTH_IN_FRAMES,
-  DEFAULT_TIMELINEVIEW_PIXEL_PER_FRAME_RATIO,
+  DEFAULT_TIMELINEVIEW_WIDTH_SCALE,
 } from '../utils/constants';
 
 const { app } = require('electron').remote;
@@ -93,7 +93,7 @@ const initialStateJSON = {
       defaultSceneDetectionThreshold: DEFAULT_SCENE_DETECTION_THRESHOLD,
       defaultTimelineViewMinutesPerRow: DEFAULT_TIMELINEVIEW_MINUTES_PER_ROW,
       defaultTimelineViewMinDisplaySceneLengthInFrames: DEFAULT_TIMELINEVIEW_MIN_DISPLAY_SCENE_LENGTH_IN_FRAMES,
-      defaultTimelineViewPixelPerFrameRatio: DEFAULT_TIMELINEVIEW_PIXEL_PER_FRAME_RATIO,
+      defaultTimelineViewWidthScale: DEFAULT_TIMELINEVIEW_WIDTH_SCALE,
       emailAddress: '',
     },
     scenesByFileId: {},

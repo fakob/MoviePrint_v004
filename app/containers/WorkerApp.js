@@ -31,11 +31,11 @@ class WorkerApp extends Component {
   componentDidMount() {
     log.debug('I am the worker window - responsible for saving a MoviePrint');
     ipcRenderer.on('action-saved-MoviePrint-done', (event) => {
-      this.setState({
-        sentData: {},
-        thumbObjectUrls: {},
-        savingMoviePrint: false,
-      });
+      // this.setState({
+      //   sentData: {},
+      //   thumbObjectUrls: {},
+      //   savingMoviePrint: false,
+      // });
     });
 
     ipcRenderer.on('action-save-MoviePrint', (event, sentData) => {
@@ -109,7 +109,7 @@ class WorkerApp extends Component {
               style={{
                 width: `${this.state.sentData.visibilitySettings.defaultView !== VIEW.TIMELINEVIEW ?
                   this.state.sentData.moviePrintWidth :
-                  (this.state.sentData.scaleValueObject.originalTimelineMoviePrintWidth + this.state.sentData.scaleValueObject.thumbMarginTimeline * 2)
+                  (Math.ceil(this.state.sentData.scaleValueObject.newMoviePrintTimelineWidth) + Math.ceil(this.state.sentData.scaleValueObject.thumbMarginTimeline) * 2)
                 }px`
               }}
             >
@@ -147,8 +147,6 @@ class WorkerApp extends Component {
                     minutesPerRow={this.state.sentData.settings.defaultTimelineViewMinutesPerRow}
                     selectedSceneId={undefined}
                     scaleValueObject={this.state.sentData.scaleValueObject}
-                    moviePrintWidth={this.state.sentData.originalTimelineMoviePrintWidth}
-                    moviePrintRowHeight={this.state.sentData.scaleValueObject.originalTimelineRowHeight}
                     scenes={this.state.sentData.scenes}
                     settings={this.state.sentData.settings}
                     showSettings={false}

@@ -52,7 +52,7 @@ const settings = (state = {}, action) => {
     case 'SET_DEFAULT_TIMELINEVIEW_MIN_DISPLAY_SCENE_LENGTH_IN_FRAMES':
       return { ...state, defaultTimelineViewMinDisplaySceneLengthInFrames: action.defaultTimelineViewMinDisplaySceneLengthInFrames };
     case 'SET_DEFAULT_TIMELINEVIEW_PIXEL_PER_FRAME_RATIO':
-      return { ...state, defaultTimelineViewPixelPerFrameRatio: action.defaultTimelineViewPixelPerFrameRatio };
+      return { ...state, defaultTimelineViewWidthScale: action.defaultTimelineViewWidthScale };
     default:
       return state;
   }

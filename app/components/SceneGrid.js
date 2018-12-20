@@ -52,13 +52,12 @@ class SceneGrid extends Component {
     const minutesPerRow = this.props.minutesPerRow;
     const minSceneLength = this.props.minSceneLength;
     const sceneArray = this.props.scenes;
-    const newMoviePrintTimelineWidth = this.props.scaleValueObject.newMoviePrintTimelineWidth;
-    const thumbMargin = Math.floor(this.props.scaleValueObject.thumbMarginTimeline);
+    const thumbMarginTimeline = Math.floor(this.props.scaleValueObject.thumbMarginTimeline);
     // let rowCounter = 1;
 
-    const rowHeight = this.props.moviePrintRowHeight;
+    const rowHeight = this.props.scaleValueObject.newMoviePrintTimelineRowHeight;
     const realWidth = (rowHeight / this.props.scaleValueObject.aspectRatioInv);
-    const newPixelPerFrameRatio = this.props.scaleValueObject.newPixelPerFrameRatioTimeline;
+    const newPixelPerFrameRatio = this.props.scaleValueObject.newMoviePrintTimelinePixelPerFrameRatio;
     const scenesInRows = this.props.scaleValueObject.scenesInRows;
     const indexRowArray = scenesInRows.map(item => item.index);
     // console.log(indexRowArray);
@@ -98,7 +97,7 @@ class SceneGrid extends Component {
               index={index}
               key={scene.sceneId}
               sceneId={scene.sceneId}
-              margin={thumbMargin}
+              margin={thumbMarginTimeline}
 
               // only allow expanding of scenes which are not already large enough and deselecting
               allowSceneToBeSelected={selected || width < (realWidth * 0.95)}

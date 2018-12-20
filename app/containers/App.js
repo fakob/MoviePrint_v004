@@ -51,7 +51,7 @@ import {
   changeThumb, addThumb, setEmailAddress, addThumbs, updateFileScanData, getFileScanData,
   clearScenes, addScene, addScenes, setDefaultSceneDetectionThreshold, setDefaultTimelineViewMinutesPerRow,
   setSheetFit, clearObjectUrls, updateThumbObjectUrlFromDB, returnObjectUrlsFromFrameList,
-  setDefaultTimelineViewMinDisplaySceneLengthInFrames, deleteSceneSheets, setDefaultTimelineViewPixelPerFrameRatio
+  setDefaultTimelineViewMinDisplaySceneLengthInFrames, deleteSceneSheets, setDefaultTimelineViewWidthScale
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -198,7 +198,7 @@ class App extends Component {
     this.onChangeMinDisplaySceneLength = this.onChangeMinDisplaySceneLength.bind(this);
     this.onChangeSceneDetectionThreshold = this.onChangeSceneDetectionThreshold.bind(this);
     this.onChangeTimelineViewMinutesPerRow = this.onChangeTimelineViewMinutesPerRow.bind(this);
-    this.onChangeTimelineViewPixelPerFrameRatio = this.onChangeTimelineViewPixelPerFrameRatio.bind(this);
+    this.onChangeTimelineViewWidthScale = this.onChangeTimelineViewWidthScale.bind(this);
     this.onShowHeaderClick = this.onShowHeaderClick.bind(this);
     this.onShowPathInHeaderClick = this.onShowPathInHeaderClick.bind(this);
     this.onShowDetailsInHeaderClick = this.onShowDetailsInHeaderClick.bind(this);
@@ -679,7 +679,7 @@ class App extends Component {
       prevProps.settings.defaultMarginRatio !== this.props.settings.defaultMarginRatio ||
       prevProps.settings.defaultTimelineViewMinutesPerRow !== this.props.settings.defaultTimelineViewMinutesPerRow ||
       prevProps.settings.defaultTimelineViewMinDisplaySceneLengthInFrames !== this.props.settings.defaultTimelineViewMinDisplaySceneLengthInFrames ||
-      prevProps.settings.defaultTimelineViewPixelPerFrameRatio !== this.props.settings.defaultTimelineViewPixelPerFrameRatio ||
+      prevProps.settings.defaultTimelineViewWidthScale !== this.props.settings.defaultTimelineViewWidthScale ||
       (prevProps.scenes ? prevProps.scenes.length !== this.props.scenes.length : false) ||
       prevProps.settings.defaultShowHeader !== this.props.settings.defaultShowHeader ||
       prevProps.settings.defaultShowPathInHeader !== this.props.settings.defaultShowPathInHeader ||
@@ -1531,9 +1531,9 @@ class App extends Component {
     store.dispatch(setDefaultTimelineViewMinutesPerRow(value));
   };
 
-  onChangeTimelineViewPixelPerFrameRatio = (value) => {
+  onChangeTimelineViewWidthScale = (value) => {
     const { store } = this.context;
-    store.dispatch(setDefaultTimelineViewPixelPerFrameRatio(value / 100.0));
+    store.dispatch(setDefaultTimelineViewWidthScale(value));
   };
 
   onShowHeaderClick = (value) => {
@@ -1832,7 +1832,7 @@ class App extends Component {
                         onChangeFrameScale={this.onChangeFrameScale}
                         onChangeSceneDetectionThreshold={this.onChangeSceneDetectionThreshold}
                         onChangeTimelineViewMinutesPerRow={this.onChangeTimelineViewMinutesPerRow}
-                        onChangeTimelineViewPixelPerFrameRatio={this.onChangeTimelineViewPixelPerFrameRatio}
+                        onChangeTimelineViewWidthScale={this.onChangeTimelineViewWidthScale}
                         onShowHeaderClick={this.onShowHeaderClick}
                         onShowPathInHeaderClick={this.onShowPathInHeaderClick}
                         onShowDetailsInHeaderClick={this.onShowDetailsInHeaderClick}
@@ -1975,6 +1975,20 @@ class App extends Component {
                               visibilitySettings={this.props.visibilitySettings}
                             />
                           </Conditional>
+                          {false && <div
+                            style={{
+                              // background: 'green',
+                              pointerEvents: 'none',
+                              border: '5px solid green',
+                              width: this.state.scaleValueObject.newMoviePrintTimelineWidth,
+                              height: this.state.scaleValueObject.newMoviePrintTimelineHeight,
+                              position: 'absolute',
+                              left: this.props.visibilitySettings.showSettings ? '' : '50%',
+                              top: '50%',
+                              marginLeft: this.props.visibilitySettings.showSettings ? '' : this.state.scaleValueObject.newMoviePrintTimelineWidth/-2,
+                              marginTop: this.state.scaleValueObject.newMoviePrintTimelineHeight/-2,
+                            }}
+                          />}
                         </Fragment>
                       ) :
                       (
