@@ -63,27 +63,30 @@ MoviePrint_v004 is based on [electron-react-boilerplate](https://github.com/chen
 
 #### For development
 
-* The app was only tested on Mac OSX. Running and building it on other platforms might require additional changes to the code. Especially when it comes to linking and packaging the libraries.
-* For other details check electron-react-boilerplate description
+* The app was tested on Mac OSX and Windows. Running and building it on other platforms might require additional changes to the code. Especially when it comes to linking and packaging the libraries.
+* For other details check [electron-react-boilerplate](https://github.com/chentsulin/electron-react-boilerplate) documentation
 
-First, clone the repo via git:
+##### Mac setup
 
-```bash
-git clone --depth=1 https://github.com/fakob/MoviePrint_v004.git MoviePrint_v004
-```
+1. clone the repo via git: `git clone --depth=1 https://github.com/fakob/MoviePrint_v004.git MoviePrint_v004`
+2. Make sure you have cmake installed `brew install cmake`
+3. Enter the folder `cd MoviePrint_v004`
+4. Install dependencies with [yarn](https://yarnpkg.com/en/) by running the command `yarn`
 
-Make sure you have cmake installed
+##### Windows setup
 
-```bash
-$ brew install cmake
-```
+These instructions should work, if you run into errors maybe [look here](https://github.com/fakob/MoviePrint_v004/issues/1#issuecomment-449582453) and comment.
 
-And then install dependencies with yarn.
+1. `git clone --depth=1 https://github.com/fakob/MoviePrint_v004.git MoviePrint_v004`
+2. install [CMake](https://cmake.org/download/) (v3.13.2 works), choose "add to PATH" option during installation
+3. make sure you have [yarn](https://yarnpkg.com/en/) (v1.12.3 works) installed
+4. you might need to have [ffmpeg](https://www.ffmpeg.org/download.html) installed (v3.4.2 works, v4.1 should too)
+5. we'll need [opencv4nodejs](https://github.com/justadudewhohacks/opencv4nodejs#on-windows) to work which requires `npm install --global windows-build-tools`
+6. make sure you have [python 2](https://www.python.org/downloads/) (_not 3_) installed (v2.7.15 works), test by running `python --version`
+7. run the command `yarn` (this may take 10+ minutes and may automatically download supporting libraries from Microsoft). If this process errors out, try to debug.
 
-```bash
-$ cd MoviePrint_v004
-$ yarn
-```
+The rest of the instructions are the same for Mac and Windows:
+
 ##### First time
 
 ```bash
