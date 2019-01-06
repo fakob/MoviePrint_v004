@@ -1,7 +1,7 @@
 import log from 'electron-log';
 import {
   DEFAULT_THUMB_COUNT, DEFAULT_COLUMN_COUNT, DEFAULT_MOVIE_WIDTH, DEFAULT_MOVIE_HEIGHT,
-  PAPER_ADJUSTMENT_SCALE, DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN, VIEW, SHEET_FIT
+  PAPER_ADJUSTMENT_SCALE, DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN, VIEW, SHEET_FIT, MARGIN_ADJUSTMENT_SCALE
 } from './constants';
 import {
   getWidthOfLongestRow,
@@ -150,20 +150,27 @@ const getScaleValueObject = (
   const originalTimelineMoviePrintWidth = originalTimelineMoviePrintHeight * scale;
   const timelineMoviePrintAspectRatioInv = originalTimelineMoviePrintHeight * 1.0 / originalTimelineMoviePrintWidth;
 
-  const adjustmentScale = showPaperPreview ? PAPER_ADJUSTMENT_SCALE : 1;
-  let previewMoviePrintTimelineHeight = containerWidth * adjustmentScale; // set to container width
-  let previewMoviePrintTimelineWidth = containerWidth * adjustmentScale; // set to container width
+  const adjustmentScale = showPaperPreview ? PAPER_ADJUSTMENT_SCALE * MARGIN_ADJUSTMENT_SCALE : MARGIN_ADJUSTMENT_SCALE; // used to create a small margin around
+  let previewMoviePrintTimelineHeight;
+  let previewMoviePrintTimelineWidth;
 
-  // if container ratio is smaller then calculate new width and height
-  // if container ratio is larger then calculate only new height
-  const containerOrPaperAspectRatioInv = showPaperPreview ? settings.defaultPaperAspectRatioInv : (containerHeight * 1.0 / containerWidth);
+  // if container ratio is smaller then calculate new width and then height from it
+  // if container ratio is larger then calculate new height and then width from it
+  const containerOrPaperAspectRatioInv = showPaperPreview ? settings.defaultPaperAspectRatioInv : containerAspectRatioInv;
   if (containerOrPaperAspectRatioInv < timelineMoviePrintAspectRatioInv) {
-    previewMoviePrintTimelineHeight = containerWidth * adjustmentScale * containerOrPaperAspectRatioInv;
-    previewMoviePrintTimelineWidth = previewMoviePrintTimelineHeight / timelineMoviePrintAspectRatioInv;
-    // log.debug(`calculate new previewMoviePrintTimelineWidth ${previewMoviePrintTimelineWidth}`);
+    // use containerWidth if paper/container ratio is smaller than container ratio else calculate width from container height and paper/container ratio
+    const containerOrPaperWidth = containerOrPaperAspectRatioInv > containerAspectRatioInv ? containerHeight / containerOrPaperAspectRatioInv : containerWidth;
+    previewMoviePrintTimelineHeight = containerOrPaperWidth * containerOrPaperAspectRatioInv * adjustmentScale;
+    previewMoviePrintTimelineWidth = ((containerOrPaperWidth * containerOrPaperAspectRatioInv) / timelineMoviePrintAspectRatioInv) * adjustmentScale;
+    log.debug(`calculate new previewMoviePrintTimelineWidth ${previewMoviePrintTimelineWidth}/${((containerOrPaperWidth * containerOrPaperAspectRatioInv) / timelineMoviePrintAspectRatioInv)}
+      ${previewMoviePrintTimelineHeight}/${containerOrPaperWidth * containerOrPaperAspectRatioInv}`);
   } else {
-    previewMoviePrintTimelineHeight = previewMoviePrintTimelineWidth * timelineMoviePrintAspectRatioInv;
-    // log.debug(`calculate new previewMoviePrintTimelineHeight ${previewMoviePrintTimelineHeight}`);
+    // use containerHeight if paper/container ratio is larger than container ratio else calculate height from container width and paper/container ratio
+    const containerOrPaperHeight = containerOrPaperAspectRatioInv < containerAspectRatioInv ? containerWidth * containerOrPaperAspectRatioInv : containerHeight;
+    previewMoviePrintTimelineWidth = (containerOrPaperHeight / containerOrPaperAspectRatioInv) * adjustmentScale;
+    previewMoviePrintTimelineHeight = (containerOrPaperHeight / containerOrPaperAspectRatioInv) * timelineMoviePrintAspectRatioInv * adjustmentScale;
+    log.debug(`calculate new previewMoviePrintTimelineHeight ${previewMoviePrintTimelineHeight}/${(containerOrPaperHeight / containerOrPaperAspectRatioInv) * timelineMoviePrintAspectRatioInv}
+      ${previewMoviePrintTimelineWidth}/${containerOrPaperHeight / containerOrPaperAspectRatioInv}`);
   }
 
   // get values depending on if printing or not

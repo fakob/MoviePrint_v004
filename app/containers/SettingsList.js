@@ -242,7 +242,7 @@ class SettingsList extends Component {
               </Grid.Column>
               <Grid.Column width={12}>
                 <SliderWithTooltip
-                  // data-tid='columnCountSlider'
+                  data-tid='columnCountSlider'
                   className={styles.slider}
                   min={1}
                   max={20}
@@ -267,7 +267,7 @@ class SettingsList extends Component {
               </Grid.Column>
               <Grid.Column width={12}>
                 <SliderWithTooltip
-                  // data-tid='rowCountSlider'
+                  data-tid='rowCountSlider'
                   disabled={!this.props.reCapture}
                   className={styles.slider}
                   min={1}
@@ -292,7 +292,7 @@ class SettingsList extends Component {
               </Grid.Column>
               <Grid.Column width={12}>
                 <SliderWithTooltip
-                  // data-tid='sceneDetectionThresholdSlider'
+                  data-tid='minutesPerRowSlider'
                   className={styles.slider}
                   min={1}
                   max={30}
@@ -306,51 +306,6 @@ class SettingsList extends Component {
                   }}
                   handle={handle}
                   onChange={this.props.onChangeTimelineViewMinutesPerRow}
-                />
-              </Grid.Column>
-            </Grid.Row>
-          }
-          { (this.props.visibilitySettings.defaultView === VIEW.TIMELINEVIEW) &&
-            <Grid.Row>
-              <Grid.Column width={4}>
-                Scene width ratio
-              </Grid.Column>
-              <Grid.Column width={12}>
-                <SliderWithTooltip
-                  // data-tid='sceneDetectionThresholdSlider'
-                  className={styles.slider}
-                  min={0}
-                  max={100}
-                  defaultValue={this.props.settings.defaultTimelineViewWidthScale}
-                  marks={{
-                    0: '-10',
-                    50: '0',
-                    100: '+10',
-                  }}
-                  handle={handle}
-                  onChange={this.props.onChangeTimelineViewWidthScale}
-                />
-              </Grid.Column>
-            </Grid.Row>
-          }
-          { (this.props.visibilitySettings.defaultView === VIEW.TIMELINEVIEW) &&
-            <Grid.Row>
-              <Grid.Column width={4}>
-                Min scene width
-              </Grid.Column>
-              <Grid.Column width={12}>
-                <SliderWithTooltip
-                  // data-tid='marginSlider'
-                  className={styles.slider}
-                  min={0}
-                  max={10}
-                  defaultValue={Math.round(this.props.settings.defaultTimelineViewMinDisplaySceneLengthInFrames / (this.props.file.fps * 1.0))}
-                  marks={{
-                    0: '0',
-                    10: '10',
-                  }}
-                  handle={handle}
-                  onChange={this.props.onChangeMinDisplaySceneLength}
                 />
               </Grid.Column>
             </Grid.Row>
@@ -467,136 +422,183 @@ class SettingsList extends Component {
               />
             </Grid.Column>
           </Grid.Row>
-          <Grid.Row>
-            <Grid.Column width={4}>
-              Options
-            </Grid.Column>
-            <Grid.Column width={12}>
-              <List>
-                <List.Item>
-                  <Checkbox
-                    data-tid='showHeaderCheckbox'
-                    label={
-                      <label className={styles.label}>
-                        Show header
-                      </label>
-                    }
-                    checked={this.props.settings.defaultShowHeader}
-                    onChange={this.onChangeShowHeader}
-                  />
-                </List.Item>
-                <List.Item>
-                  <Checkbox
-                    data-tid='showFilePathCheckbox'
-                    className={styles.subCheckbox}
-                    label={
-                      <label className={styles.label}>
-                        Show file path
-                      </label>
-                    }
-                    disabled={!this.props.settings.defaultShowHeader}
-                    checked={this.props.settings.defaultShowPathInHeader}
-                    onChange={this.onChangeShowPathInHeader}
-                  />
-                </List.Item>
-                <List.Item>
-                  <Checkbox
-                    data-tid='showFileDetailsCheckbox'
-                    className={styles.subCheckbox}
-                    label={
-                      <label className={styles.label}>
-                        Show file details
-                      </label>
-                    }
-                    disabled={!this.props.settings.defaultShowHeader}
-                    checked={this.props.settings.defaultShowDetailsInHeader}
-                    onChange={this.onChangeShowDetailsInHeader}
-                  />
-                </List.Item>
-                <List.Item>
-                  <Checkbox
-                    data-tid='showTimelineCheckbox'
-                    className={styles.subCheckbox}
-                    label={
-                      <label className={styles.label}>
-                        Show timeline
-                      </label>
-                    }
-                    disabled={!this.props.settings.defaultShowHeader}
-                    checked={this.props.settings.defaultShowTimelineInHeader}
-                    onChange={this.onChangeShowTimelineInHeader}
-                  />
-                </List.Item>
-                <List.Item>
-                  <Checkbox
-                    data-tid='roundedCornersCheckbox'
-                    label={
-                      <label className={styles.label}>
-                        Rounded corners
-                      </label>
-                    }
-                    checked={this.props.settings.defaultRoundedCorners}
-                    onChange={this.onChangeRoundedCorners}
-                  />
-                </List.Item>
-                <List.Item>
-                  <Checkbox
-                    data-tid='showHiddenThumbsCheckbox'
-                    label={
-                      <label className={styles.label}>
-                        Show hidden thumbs
-                      </label>
-                    }
-                    checked={this.props.visibilitySettings.visibilityFilter === 'SHOW_ALL'}
-                    onChange={this.onChangeShowHiddenThumbs}
-                  />
-                </List.Item>
-                <Divider inverted />
-                <List.Item>
-                  <Radio
-                    data-tid='showFramesRadioBtn'
-                    label={
-                      <label className={styles.label}>
-                        Show frames
-                      </label>
+          { (this.props.visibilitySettings.defaultView === VIEW.TIMELINEVIEW) &&
+            <Grid.Row>
+              <Grid.Column width={4}>
+                Scene width ratio
+              </Grid.Column>
+              <Grid.Column width={12}>
+                <SliderWithTooltip
+                  data-tid='sceneWidthRatioSlider'
+                  className={styles.slider}
+                  min={0}
+                  max={100}
+                  defaultValue={this.props.settings.defaultTimelineViewWidthScale}
+                  marks={{
+                    0: '-10',
+                    50: '0',
+                    100: '+10',
+                  }}
+                  handle={handle}
+                  onChange={this.props.onChangeTimelineViewWidthScale}
+                />
+              </Grid.Column>
+            </Grid.Row>
+          }
+          { (this.props.visibilitySettings.defaultView === VIEW.TIMELINEVIEW) &&
+            <Grid.Row>
+              <Grid.Column width={4}>
+                Min scene width
+              </Grid.Column>
+              <Grid.Column width={12}>
+                <SliderWithTooltip
+                  data-tid='minSceneWidthSlider'
+                  className={styles.slider}
+                  min={0}
+                  max={10}
+                  defaultValue={Math.round(this.props.settings.defaultTimelineViewMinDisplaySceneLengthInFrames / (this.props.file.fps * 1.0))}
+                  marks={{
+                    0: '0',
+                    10: '10',
+                  }}
+                  handle={handle}
+                  onChange={this.props.onChangeMinDisplaySceneLength}
+                />
+              </Grid.Column>
+            </Grid.Row>
+          }
+          { (this.props.visibilitySettings.defaultView === VIEW.GRIDVIEW) &&
+            <Grid.Row>
+              <Grid.Column width={4}>
+                Options
+              </Grid.Column>
+              <Grid.Column width={12}>
+                <List>
+                  <List.Item>
+                    <Checkbox
+                      data-tid='showHeaderCheckbox'
+                      label={
+                        <label className={styles.label}>
+                          Show header
+                        </label>
                       }
-                    name="radioGroup"
-                    value="frames"
-                    checked={this.props.settings.defaultThumbInfo === 'frames'}
-                    onChange={this.onChangeThumbInfo}
-                  />
-                </List.Item>
-                <List.Item>
-                  <Radio
-                    data-tid='showTimecodeRadioBtn'
-                    label={
-                      <label className={styles.label}>
-                        Show timecode
-                      </label>
+                      checked={this.props.settings.defaultShowHeader}
+                      onChange={this.onChangeShowHeader}
+                    />
+                  </List.Item>
+                  <List.Item>
+                    <Checkbox
+                      data-tid='showFilePathCheckbox'
+                      className={styles.subCheckbox}
+                      label={
+                        <label className={styles.label}>
+                          Show file path
+                        </label>
                       }
-                    name="radioGroup"
-                    value="timecode"
-                    checked={this.props.settings.defaultThumbInfo === 'timecode'}
-                    onChange={this.onChangeThumbInfo}
-                  />
-                </List.Item>
-                <List.Item>
-                  <Radio
-                    data-tid='hideInfoRadioBtn'
-                    label={
-                      <label className={styles.label}>
-                        Hide info
-                      </label>
+                      disabled={!this.props.settings.defaultShowHeader}
+                      checked={this.props.settings.defaultShowPathInHeader}
+                      onChange={this.onChangeShowPathInHeader}
+                    />
+                  </List.Item>
+                  <List.Item>
+                    <Checkbox
+                      data-tid='showFileDetailsCheckbox'
+                      className={styles.subCheckbox}
+                      label={
+                        <label className={styles.label}>
+                          Show file details
+                        </label>
                       }
-                    name="radioGroup"
-                    value="hideInfo"
-                    checked={this.props.settings.defaultThumbInfo === 'hideInfo'}
-                    onChange={this.onChangeThumbInfo}
-                  />
-                </List.Item>
-              </List>
-            </Grid.Column>
-          </Grid.Row>
+                      disabled={!this.props.settings.defaultShowHeader}
+                      checked={this.props.settings.defaultShowDetailsInHeader}
+                      onChange={this.onChangeShowDetailsInHeader}
+                    />
+                  </List.Item>
+                  <List.Item>
+                    <Checkbox
+                      data-tid='showTimelineCheckbox'
+                      className={styles.subCheckbox}
+                      label={
+                        <label className={styles.label}>
+                          Show timeline
+                        </label>
+                      }
+                      disabled={!this.props.settings.defaultShowHeader}
+                      checked={this.props.settings.defaultShowTimelineInHeader}
+                      onChange={this.onChangeShowTimelineInHeader}
+                    />
+                  </List.Item>
+                  <List.Item>
+                    <Checkbox
+                      data-tid='roundedCornersCheckbox'
+                      label={
+                        <label className={styles.label}>
+                          Rounded corners
+                        </label>
+                      }
+                      checked={this.props.settings.defaultRoundedCorners}
+                      onChange={this.onChangeRoundedCorners}
+                    />
+                  </List.Item>
+                  <List.Item>
+                    <Checkbox
+                      data-tid='showHiddenThumbsCheckbox'
+                      label={
+                        <label className={styles.label}>
+                          Show hidden thumbs
+                        </label>
+                      }
+                      checked={this.props.visibilitySettings.visibilityFilter === 'SHOW_ALL'}
+                      onChange={this.onChangeShowHiddenThumbs}
+                    />
+                  </List.Item>
+                  <Divider inverted />
+                  <List.Item>
+                    <Radio
+                      data-tid='showFramesRadioBtn'
+                      label={
+                        <label className={styles.label}>
+                          Show frames
+                        </label>
+                        }
+                      name="radioGroup"
+                      value="frames"
+                      checked={this.props.settings.defaultThumbInfo === 'frames'}
+                      onChange={this.onChangeThumbInfo}
+                    />
+                  </List.Item>
+                  <List.Item>
+                    <Radio
+                      data-tid='showTimecodeRadioBtn'
+                      label={
+                        <label className={styles.label}>
+                          Show timecode
+                        </label>
+                        }
+                      name="radioGroup"
+                      value="timecode"
+                      checked={this.props.settings.defaultThumbInfo === 'timecode'}
+                      onChange={this.onChangeThumbInfo}
+                    />
+                  </List.Item>
+                  <List.Item>
+                    <Radio
+                      data-tid='hideInfoRadioBtn'
+                      label={
+                        <label className={styles.label}>
+                          Hide info
+                        </label>
+                        }
+                      name="radioGroup"
+                      value="hideInfo"
+                      checked={this.props.settings.defaultThumbInfo === 'hideInfo'}
+                      onChange={this.onChangeThumbInfo}
+                    />
+                  </List.Item>
+                </List>
+              </Grid.Column>
+            </Grid.Row>
+          }
           <Divider inverted />
           <Grid.Row>
             <Grid.Column width={4}>
@@ -690,30 +692,18 @@ class SettingsList extends Component {
           <Divider inverted />
           <Grid.Row>
             <Grid.Column width={16}>
-              Experimental
-            </Grid.Column>
-          </Grid.Row>
-          <Grid.Row>
-            <Grid.Column width={4}>
-              Import options
-            </Grid.Column>
-            <Grid.Column width={12}>
-              <Checkbox
-                data-tid='automaticDetectionInOutPointCheckbox'
-                label={
-                  <label className={styles.label}>
-                    Automatic detection of In and Outpoint
-                  </label>
-                }
-                checked={this.props.settings.defaultDetectInOutPoint}
-                onChange={this.onChangeDetectInOutPoint}
-              />
-            </Grid.Column>
-          </Grid.Row>
-          <Divider inverted />
-          <Grid.Row>
-            <Grid.Column width={4}>
               Shot detection
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={16}>
+              Scans every frame and uses the mean difference value to detect distinct shots. Lower the threshold to increase sensitivity.<br />
+              Running it the first time takes longer as it scans the movie. The larger and longer the movie, the longer it takes.
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Scan/Run
             </Grid.Column>
             <Grid.Column width={12}>
               <Popup
@@ -725,7 +715,7 @@ class SettingsList extends Component {
                     disabled={this.props.fileScanRunning}
                     onClick={() => this.props.runSceneDetection(this.props.file, this.props.settings.defaultSceneDetectionThreshold)}
                   >
-                      Run shot detection
+                      Scan/Run shot detection
                   </Button>
                 }
                 className={stylesPop.popup}
@@ -764,7 +754,7 @@ class SettingsList extends Component {
                 trigger={
                   <Button
                     data-tid='showDetectionChartBtn'
-                    fluid
+                    // fluid
                     onClick={this.props.onToggleDetectionChart}
                   >
                     {this.props.showChart ? 'Hide detection chart' : 'Show detection chart'}
@@ -773,6 +763,29 @@ class SettingsList extends Component {
                 className={stylesPop.popup}
                 content="Show detection chart with mean and difference values per frame"
                 keepInViewPort={false}
+              />
+            </Grid.Column>
+          </Grid.Row>
+          <Divider inverted />
+          <Grid.Row>
+            <Grid.Column width={16}>
+              Experimental
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Import options
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <Checkbox
+                data-tid='automaticDetectionInOutPointCheckbox'
+                label={
+                  <label className={styles.label}>
+                    Automatic detection of In and Outpoint
+                  </label>
+                }
+                checked={this.props.settings.defaultDetectInOutPoint}
+                onChange={this.onChangeDetectInOutPoint}
               />
             </Grid.Column>
           </Grid.Row>

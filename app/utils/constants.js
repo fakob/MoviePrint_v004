@@ -97,6 +97,7 @@ export const MENU_FOOTER_HEIGHT = 35;
 
 export const ZOOM_SCALE = 2;
 export const PAPER_ADJUSTMENT_SCALE = 0.9;
+export const MARGIN_ADJUSTMENT_SCALE = 0.95;
 
 export const DEFAULT_MOVIE_WIDTH = 1920;
 export const DEFAULT_MOVIE_HEIGHT = 1080;
