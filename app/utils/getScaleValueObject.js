@@ -134,6 +134,10 @@ const getScaleValueObject = (
 
 
   // timeline view
+  // * set original size
+  // * calculate aspect ratio
+  // * calculate new width and height depending on container or paper
+
   const minutesPerRow = settings.defaultTimelineViewMinutesPerRow;
 
   // convert 0-50-100 to 0.1-1-10
@@ -162,15 +166,15 @@ const getScaleValueObject = (
     const containerOrPaperWidth = containerOrPaperAspectRatioInv > containerAspectRatioInv ? containerHeight / containerOrPaperAspectRatioInv : containerWidth;
     previewMoviePrintTimelineHeight = containerOrPaperWidth * containerOrPaperAspectRatioInv * adjustmentScale;
     previewMoviePrintTimelineWidth = ((containerOrPaperWidth * containerOrPaperAspectRatioInv) / timelineMoviePrintAspectRatioInv) * adjustmentScale;
-    log.debug(`calculate new previewMoviePrintTimelineWidth ${previewMoviePrintTimelineWidth}/${((containerOrPaperWidth * containerOrPaperAspectRatioInv) / timelineMoviePrintAspectRatioInv)}
-      ${previewMoviePrintTimelineHeight}/${containerOrPaperWidth * containerOrPaperAspectRatioInv}`);
+    // log.debug(`calculate new previewMoviePrintTimelineWidth ${previewMoviePrintTimelineWidth}/${((containerOrPaperWidth * containerOrPaperAspectRatioInv) / timelineMoviePrintAspectRatioInv)}
+    //   ${previewMoviePrintTimelineHeight}/${containerOrPaperWidth * containerOrPaperAspectRatioInv}`);
   } else {
     // use containerHeight if paper/container ratio is larger than container ratio else calculate height from container width and paper/container ratio
     const containerOrPaperHeight = containerOrPaperAspectRatioInv < containerAspectRatioInv ? containerWidth * containerOrPaperAspectRatioInv : containerHeight;
     previewMoviePrintTimelineWidth = (containerOrPaperHeight / containerOrPaperAspectRatioInv) * adjustmentScale;
     previewMoviePrintTimelineHeight = (containerOrPaperHeight / containerOrPaperAspectRatioInv) * timelineMoviePrintAspectRatioInv * adjustmentScale;
-    log.debug(`calculate new previewMoviePrintTimelineHeight ${previewMoviePrintTimelineHeight}/${(containerOrPaperHeight / containerOrPaperAspectRatioInv) * timelineMoviePrintAspectRatioInv}
-      ${previewMoviePrintTimelineWidth}/${containerOrPaperHeight / containerOrPaperAspectRatioInv}`);
+    // log.debug(`calculate new previewMoviePrintTimelineHeight ${previewMoviePrintTimelineHeight}/${(containerOrPaperHeight / containerOrPaperAspectRatioInv) * timelineMoviePrintAspectRatioInv}
+      // ${previewMoviePrintTimelineWidth}/${containerOrPaperHeight / containerOrPaperAspectRatioInv}`);
   }
 
   // get values depending on if printing or not

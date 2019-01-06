@@ -44,10 +44,15 @@ class ThumbGrid extends Component {
       parentPos: undefined,
     };
 
-    this.thumbGridDivRef = null;
+    // this.thumbGridDivRef = null;
+    this.thumbGridBodyDivRef = null;
 
-    this.setThumbGridDivRef = element => {
-      this.thumbGridDivRef = element;
+    // this.setThumbGridDivRef = element => {
+    //   this.thumbGridDivRef = element;
+    // }
+
+    this.setThumbGridBodyDivRef = element => {
+      this.thumbGridBodyDivRef = element;
     }
 
     this.resetHover = this.resetHover.bind(this);
@@ -76,11 +81,14 @@ class ThumbGrid extends Component {
   }
 
   componentDidMount() {
-    console.log(this.thumbGridDivRef)
-    console.log(this.thumbGridDivRef.current)
-    console.log(this.thumbGridDivRef.getBoundingClientRect())
+    // console.log(this.thumbGridDivRef);
+    // console.log(this.thumbGridDivRef.current);
+    // console.log(this.thumbGridDivRef.getBoundingClientRect());
+    // console.log(this.thumbGridBodyDivRef);
+    // console.log(this.thumbGridBodyDivRef.current);
+    // console.log(this.thumbGridBodyDivRef.getBoundingClientRect());
     this.setState({
-      parentPos: this.thumbGridDivRef.getBoundingClientRect(),
+      parentPos: this.thumbGridBodyDivRef.getBoundingClientRect(),
     })
   }
 
@@ -303,8 +311,8 @@ class ThumbGrid extends Component {
     // this.setState({
     //   parentPos: this.thumbGridDivRef.getBoundingClientRect(),
     // })
-    const parentPos = this.thumbGridDivRef !== null ?
-      this.thumbGridDivRef.getBoundingClientRect() :
+    const parentPos = this.thumbGridBodyDivRef !== null ?
+      this.thumbGridBodyDivRef.getBoundingClientRect() :
       {
         left: 0,
         top: 0,
@@ -324,7 +332,7 @@ class ThumbGrid extends Component {
           marginLeft: this.props.visibilitySettings.defaultView === VIEW.GRIDVIEW ? undefined : (thumbWidth / 4),
         }}
         id="ThumbGrid"
-        ref={this.setThumbGridDivRef}
+        // ref={this.setThumbGridDivRef}
       >
         {this.props.settings.defaultShowHeader && this.props.visibilitySettings.defaultView === VIEW.GRIDVIEW &&
           <ThumbGridHeader
@@ -347,6 +355,7 @@ class ThumbGrid extends Component {
         }
         <div
           data-tid='thumbGridBodyDiv'
+          ref={this.setThumbGridBodyDivRef}
         >
           {thumbArray.map(thumb => (
             <SortableThumb
