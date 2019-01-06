@@ -253,7 +253,7 @@ class SettingsList extends Component {
                     20: '20',
                   }}
                   handle={handle}
-                  onChange={this.props.reCapture ? this.props.onChangeColumn :
+                  onChange={(this.props.reCapture && (this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1)) ? this.props.onChangeColumn :
                     this.props.onChangeColumnAndApply}
                 />
               </Grid.Column>
