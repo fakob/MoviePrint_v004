@@ -294,7 +294,7 @@ const Scene = ({
                 onFocus={over}
                 onBlur={out}
               >
-                EXPAND
+                ENTER
               </button>
             }
             className={stylesPop.popup}

@@ -274,11 +274,11 @@ export const setDefaultSceneDetectionThreshold = (defaultSceneDetectionThreshold
   };
 };
 
-export const setDefaultTimelineViewMinutesPerRow = (defaultTimelineViewMinutesPerRow) => {
-  log.debug(`action: setDefaultTimelineViewMinutesPerRow - ${defaultTimelineViewMinutesPerRow}`);
+export const setDefaultTimelineViewSecondsPerRow = (defaultTimelineViewSecondsPerRow) => {
+  log.debug(`action: setDefaultTimelineViewSecondsPerRow - ${defaultTimelineViewSecondsPerRow}`);
   return {
-    type: 'SET_DEFAULT_TIMELINEVIEW_MINUTES_PER_ROW',
-    defaultTimelineViewMinutesPerRow
+    type: 'SET_DEFAULT_TIMELINEVIEW_SECONDS_PER_ROW',
+    defaultTimelineViewSecondsPerRow
   };
 };
 
@@ -295,6 +295,14 @@ export const setDefaultTimelineViewWidthScale = (defaultTimelineViewWidthScale) 
   return {
     type: 'SET_DEFAULT_TIMELINEVIEW_PIXEL_PER_FRAME_RATIO',
     defaultTimelineViewWidthScale
+  };
+};
+
+export const setDefaultTimelineViewFlow = (defaultTimelineViewFlow) => {
+  log.debug(`action: setDefaultTimelineViewFlow - ${defaultTimelineViewFlow}`);
+  return {
+    type: 'SET_DEFAULT_TIMELINEVIEW_FLOW',
+    defaultTimelineViewFlow
   };
 };
 

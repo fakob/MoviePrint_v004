@@ -49,7 +49,6 @@ class SceneGrid extends Component {
   }
 
   render() {
-    const minutesPerRow = this.props.minutesPerRow;
     const minSceneLength = this.props.minSceneLength;
     const sceneArray = this.props.scenes;
     const thumbMarginTimeline = Math.floor(this.props.scaleValueObject.thumbMarginTimeline);
@@ -90,7 +89,7 @@ class SceneGrid extends Component {
               hidden={scene.hidden}
               controllersAreVisible={(this.props.showSettings || scene.sceneId === undefined) ? false : (scene.sceneId === this.state.controllersVisible)}
               selected={selected}
-              doLineBreak={doLineBreak}
+              doLineBreak={this.props.settings.defaultTimelineViewFlow && doLineBreak}
               defaultView={this.props.defaultView}
               keyObject={this.props.keyObject}
               indexForId={index}

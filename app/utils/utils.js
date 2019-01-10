@@ -466,12 +466,12 @@ export const arrayToObject = (array, keyField) => {
    }, {})
  }
 
-export const getScenesInRows = (sceneArray, minutesPerRow) => {
+export const getScenesInRows = (sceneArray, secondsPerRow) => {
   // get scenes in rows
   if (sceneArray.length === 0) {
     return [];
   }
-  const framesPerRow = minutesPerRow * 60 * 25;
+  const framesPerRow = secondsPerRow * 25;
   // console.log(framesPerRow);
   const sceneLengthsInRowArray = [];
   // sceneLengthsInRowArray.push(sceneArray[0].length);

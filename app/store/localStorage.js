@@ -39,9 +39,10 @@ import {
   DEFAULT_SCRUB_CONTAINER_MAXHEIGHTRATIO,
   DEFAULT_SCRUB_WINDOW_WIDTHRATIO,
   DEFAULT_SCENE_DETECTION_THRESHOLD,
-  DEFAULT_TIMELINEVIEW_MINUTES_PER_ROW,
+  DEFAULT_TIMELINEVIEW_SECONDS_PER_ROW,
   DEFAULT_TIMELINEVIEW_MIN_DISPLAY_SCENE_LENGTH_IN_FRAMES,
   DEFAULT_TIMELINEVIEW_WIDTH_SCALE,
+  DEFAULT_TIMELINEVIEW_FLOW,
 } from '../utils/constants';
 
 const { app } = require('electron').remote;
@@ -91,9 +92,10 @@ const initialStateJSON = {
       defaultScrubWindowHeightRatio: DEFAULT_SCRUB_WINDOW_HEIGHTRATIO,
       defaultScrubWindowMargin: DEFAULT_SCRUB_WINDOW_MARGIN,
       defaultSceneDetectionThreshold: DEFAULT_SCENE_DETECTION_THRESHOLD,
-      defaultTimelineViewMinutesPerRow: DEFAULT_TIMELINEVIEW_MINUTES_PER_ROW,
+      defaultTimelineViewSecondsPerRow: DEFAULT_TIMELINEVIEW_SECONDS_PER_ROW,
       defaultTimelineViewMinDisplaySceneLengthInFrames: DEFAULT_TIMELINEVIEW_MIN_DISPLAY_SCENE_LENGTH_IN_FRAMES,
       defaultTimelineViewWidthScale: DEFAULT_TIMELINEVIEW_WIDTH_SCALE,
+      defaultTimelineViewFlow: DEFAULT_TIMELINEVIEW_FLOW,
       emailAddress: '',
     },
     scenesByFileId: {},

@@ -138,7 +138,7 @@ const getScaleValueObject = (
   // * calculate aspect ratio
   // * calculate new width and height depending on container or paper
 
-  const minutesPerRow = settings.defaultTimelineViewMinutesPerRow;
+  const secondsPerRow = settings.defaultTimelineViewSecondsPerRow;
 
   // convert 0-50-100 to 0.1-1-10
   const scale = settings.defaultTimelineViewWidthScale <= 50 ?
@@ -146,7 +146,7 @@ const getScaleValueObject = (
 
   const scenesInRows = getScenesInRows(
     sceneArray,
-    minutesPerRow,
+    secondsPerRow,
   );
   const timelineViewRowCount = scenesInRows.length;
 
@@ -182,7 +182,7 @@ const getScaleValueObject = (
   const newMoviePrintTimelineHeight = forPrinting ? originalTimelineMoviePrintHeight : previewMoviePrintTimelineHeight;
   // calculate thumbMargin relative to rough rowheight
   // const thumbMarginTimeline = (newMoviePrintTimelineHeight / timelineViewRowCount) * (thumbMargin / 200.0);
-  const thumbMarginTimeline = forPrinting ? originalTimelineMoviePrintHeight / 1024 * thumbMargin * 0.1 : thumbMargin * 0.1;
+  const thumbMarginTimeline = forPrinting ? originalTimelineMoviePrintHeight / 1024 * thumbMargin * 0.2 : thumbMargin * 0.2;
 
   // const previewTimelineScaleValue = Math.min(
   //   newMoviePrintTimelineWidth * 1.0 / originalTimelineMoviePrintWidth,

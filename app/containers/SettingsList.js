@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Slider, { Handle, createSliderWithTooltip } from 'rc-slider';
 import Tooltip from 'rc-tooltip';
@@ -94,6 +94,7 @@ class SettingsList extends Component {
 
     this.onChangePaperAspectRatio = this.onChangePaperAspectRatio.bind(this);
     this.onChangeShowPaperPreview = this.onChangeShowPaperPreview.bind(this);
+    this.onChangeTimelineViewFlow = this.onChangeTimelineViewFlow.bind(this);
     this.onChangeDetectInOutPoint = this.onChangeDetectInOutPoint.bind(this);
     this.onChangeReCapture = this.onChangeReCapture.bind(this);
     this.onChangeShowHeader = this.onChangeShowHeader.bind(this);
@@ -108,6 +109,10 @@ class SettingsList extends Component {
     this.onChangeIncludeIndividual = this.onChangeIncludeIndividual.bind(this);
     this.onChangeThumbnailScale = this.onChangeThumbnailScale.bind(this);
     this.onChangeMoviePrintWidth = this.onChangeMoviePrintWidth.bind(this);
+  }
+
+  onChangeTimelineViewFlow = (e, { checked }) => {
+    this.props.onTimelineViewFlowClick(checked);
   }
 
   onChangeShowPaperPreview = (e, { checked }) => {
@@ -286,29 +291,49 @@ class SettingsList extends Component {
             </Grid.Row>
           }
           { (this.props.visibilitySettings.defaultView === VIEW.TIMELINEVIEW) &&
-            <Grid.Row>
-              <Grid.Column width={4}>
-                Minutes per row
-              </Grid.Column>
-              <Grid.Column width={12}>
-                <SliderWithTooltip
-                  data-tid='minutesPerRowSlider'
-                  className={styles.slider}
-                  min={1}
-                  max={30}
-                  defaultValue={this.props.settings.defaultTimelineViewMinutesPerRow}
-                  marks={{
-                    1: '1',
-                    5: '5',
-                    10: '10',
-                    20: '20',
-                    30: '30',
-                  }}
-                  handle={handle}
-                  onChange={this.props.onChangeTimelineViewMinutesPerRow}
-                />
-              </Grid.Column>
-            </Grid.Row>
+            <Fragment>
+              <Grid.Row>
+                <Grid.Column width={4}>
+                  Minutes per row
+                </Grid.Column>
+                <Grid.Column width={12}>
+                  <SliderWithTooltip
+                    data-tid='minutesPerRowSlider'
+                    className={styles.slider}
+                    min={10}
+                    max={1800}
+                    defaultValue={this.props.settings.defaultTimelineViewSecondsPerRow}
+                    marks={{
+                      10: '0.1',
+                      60: '1',
+                      300: '5',
+                      600: '10',
+                      1200: '20',
+                      1800: '30',
+                    }}
+                    handle={handle}
+                    onChange={this.props.onChangeTimelineViewSecondsPerRow}
+                  />
+                </Grid.Column>
+              </Grid.Row>
+              // <Grid.Row>
+              //   <Grid.Column width={4}>
+              //     Flow
+              //   </Grid.Column>
+              //   <Grid.Column width={12}>
+              //     <Checkbox
+              //       // data-tid='showPaperPreviewCheckbox'
+              //       label={
+              //         <label className={styles.label}>
+              //           Flow
+              //         </label>
+              //       }
+              //       checked={this.props.settings.defaultTimelineViewFlow}
+              //       onChange={this.onChangeTimelineViewFlow}
+              //     />
+              //   </Grid.Column>
+              // </Grid.Row>
+            </Fragment>
           }
           { (this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) &&
             <Grid.Row>

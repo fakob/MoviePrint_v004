@@ -69,7 +69,7 @@ class SortedVisibleSceneGrid extends Component {
         onSelectClick={this.onSelectClick}
         onEnterClick={this.props.onEnterClick}
         onToggleClick={this.props.onToggleClick}
-        minutesPerRow={this.props.settings.defaultTimelineViewMinutesPerRow}
+        secondsPerRow={this.props.settings.defaultTimelineViewSecondsPerRow}
         minSceneLength={this.props.settings.defaultTimelineViewMinDisplaySceneLengthInFrames}
         scaleValueObject={this.props.scaleValueObject}
         scenes={this.props.scenes}

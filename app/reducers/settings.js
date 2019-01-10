@@ -47,12 +47,14 @@ const settings = (state = {}, action) => {
       return { ...state, defaultDetectInOutPoint: action.defaultDetectInOutPoint };
     case 'SET_DEFAULT_SCENE_DETECTION_THRESHOLD':
       return { ...state, defaultSceneDetectionThreshold: action.defaultSceneDetectionThreshold };
-    case 'SET_DEFAULT_TIMELINEVIEW_MINUTES_PER_ROW':
-      return { ...state, defaultTimelineViewMinutesPerRow: action.defaultTimelineViewMinutesPerRow };
+    case 'SET_DEFAULT_TIMELINEVIEW_SECONDS_PER_ROW':
+      return { ...state, defaultTimelineViewSecondsPerRow: action.defaultTimelineViewSecondsPerRow };
     case 'SET_DEFAULT_TIMELINEVIEW_MIN_DISPLAY_SCENE_LENGTH_IN_FRAMES':
       return { ...state, defaultTimelineViewMinDisplaySceneLengthInFrames: action.defaultTimelineViewMinDisplaySceneLengthInFrames };
     case 'SET_DEFAULT_TIMELINEVIEW_PIXEL_PER_FRAME_RATIO':
       return { ...state, defaultTimelineViewWidthScale: action.defaultTimelineViewWidthScale };
+    case 'SET_DEFAULT_TIMELINEVIEW_FLOW':
+      return { ...state, defaultTimelineViewFlow: action.defaultTimelineViewFlow };
     default:
       return state;
   }

@@ -49,9 +49,10 @@ import {
   setDefaultMoviePrintWidth, updateFileDetailUseRatio, setDefaultShowPaperPreview,
   setDefaultPaperAspectRatioInv, updateInOutPoint, removeMovieListItem, setDefaultDetectInOutPoint,
   changeThumb, addThumb, setEmailAddress, addThumbs, updateFileScanData, getFileScanData,
-  clearScenes, addScene, addScenes, setDefaultSceneDetectionThreshold, setDefaultTimelineViewMinutesPerRow,
+  clearScenes, addScene, addScenes, setDefaultSceneDetectionThreshold, setDefaultTimelineViewSecondsPerRow,
   setSheetFit, clearObjectUrls, updateThumbObjectUrlFromDB, returnObjectUrlsFromFrameList,
-  setDefaultTimelineViewMinDisplaySceneLengthInFrames, deleteSceneSheets, setDefaultTimelineViewWidthScale
+  setDefaultTimelineViewMinDisplaySceneLengthInFrames, deleteSceneSheets, setDefaultTimelineViewWidthScale,
+  setDefaultTimelineViewFlow
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -197,8 +198,9 @@ class App extends Component {
     this.onChangeMargin = this.onChangeMargin.bind(this);
     this.onChangeMinDisplaySceneLength = this.onChangeMinDisplaySceneLength.bind(this);
     this.onChangeSceneDetectionThreshold = this.onChangeSceneDetectionThreshold.bind(this);
-    this.onChangeTimelineViewMinutesPerRow = this.onChangeTimelineViewMinutesPerRow.bind(this);
+    this.onChangeTimelineViewSecondsPerRow = this.onChangeTimelineViewSecondsPerRow.bind(this);
     this.onChangeTimelineViewWidthScale = this.onChangeTimelineViewWidthScale.bind(this);
+    this.onTimelineViewFlowClick = this.onTimelineViewFlowClick.bind(this);
     this.onShowHeaderClick = this.onShowHeaderClick.bind(this);
     this.onShowPathInHeaderClick = this.onShowPathInHeaderClick.bind(this);
     this.onShowDetailsInHeaderClick = this.onShowDetailsInHeaderClick.bind(this);
@@ -677,7 +679,7 @@ class App extends Component {
       prevProps.settings.defaultThumbnailScale !== this.props.settings.defaultThumbnailScale ||
       prevProps.settings.defaultMoviePrintWidth !== this.props.settings.defaultMoviePrintWidth ||
       prevProps.settings.defaultMarginRatio !== this.props.settings.defaultMarginRatio ||
-      prevProps.settings.defaultTimelineViewMinutesPerRow !== this.props.settings.defaultTimelineViewMinutesPerRow ||
+      prevProps.settings.defaultTimelineViewSecondsPerRow !== this.props.settings.defaultTimelineViewSecondsPerRow ||
       prevProps.settings.defaultTimelineViewMinDisplaySceneLengthInFrames !== this.props.settings.defaultTimelineViewMinDisplaySceneLengthInFrames ||
       prevProps.settings.defaultTimelineViewWidthScale !== this.props.settings.defaultTimelineViewWidthScale ||
       (prevProps.scenes ? prevProps.scenes.length !== this.props.scenes.length : false) ||
@@ -1526,14 +1528,19 @@ class App extends Component {
     store.dispatch(setDefaultSceneDetectionThreshold(value));
   };
 
-  onChangeTimelineViewMinutesPerRow = (value) => {
+  onChangeTimelineViewSecondsPerRow = (value) => {
     const { store } = this.context;
-    store.dispatch(setDefaultTimelineViewMinutesPerRow(value));
+    store.dispatch(setDefaultTimelineViewSecondsPerRow(value));
   };
 
   onChangeTimelineViewWidthScale = (value) => {
     const { store } = this.context;
     store.dispatch(setDefaultTimelineViewWidthScale(value));
+  };
+
+  onTimelineViewFlowClick = (value) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultTimelineViewFlow(value));
   };
 
   onShowHeaderClick = (value) => {
@@ -1831,8 +1838,9 @@ class App extends Component {
                         sceneArray={this.props.scenes}
                         onChangeFrameScale={this.onChangeFrameScale}
                         onChangeSceneDetectionThreshold={this.onChangeSceneDetectionThreshold}
-                        onChangeTimelineViewMinutesPerRow={this.onChangeTimelineViewMinutesPerRow}
+                        onChangeTimelineViewSecondsPerRow={this.onChangeTimelineViewSecondsPerRow}
                         onChangeTimelineViewWidthScale={this.onChangeTimelineViewWidthScale}
+                        onTimelineViewFlowClick={this.onTimelineViewFlowClick}
                         onShowHeaderClick={this.onShowHeaderClick}
                         onShowPathInHeaderClick={this.onShowPathInHeaderClick}
                         onShowDetailsInHeaderClick={this.onShowDetailsInHeaderClick}
