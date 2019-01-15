@@ -316,23 +316,23 @@ class SettingsList extends Component {
                   />
                 </Grid.Column>
               </Grid.Row>
-              // <Grid.Row>
-              //   <Grid.Column width={4}>
-              //     Flow
-              //   </Grid.Column>
-              //   <Grid.Column width={12}>
-              //     <Checkbox
-              //       // data-tid='showPaperPreviewCheckbox'
-              //       label={
-              //         <label className={styles.label}>
-              //           Flow
-              //         </label>
-              //       }
-              //       checked={this.props.settings.defaultTimelineViewFlow}
-              //       onChange={this.onChangeTimelineViewFlow}
-              //     />
-              //   </Grid.Column>
-              // </Grid.Row>
+              {/* <Grid.Row>
+                <Grid.Column width={4}>
+                  Flow
+                </Grid.Column>
+                <Grid.Column width={12}>
+                  <Checkbox
+                    // data-tid='showPaperPreviewCheckbox'
+                    label={
+                      <label className={styles.label}>
+                        Flow
+                      </label>
+                    }
+                    checked={this.props.settings.defaultTimelineViewFlow}
+                    onChange={this.onChangeTimelineViewFlow}
+                  />
+                </Grid.Column>
+              </Grid.Row> */}
             </Fragment>
           }
           { (this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) &&

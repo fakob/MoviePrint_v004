@@ -309,15 +309,12 @@ export const setDefaultTimelineViewFlow = (defaultTimelineViewFlow) => {
 // scenesByFileId
 
 export const clearScenes = (fileId) => {
-  return (dispatch) => {
-    log.debug('action: clearScenes');
-    log.debug('dispatch: CLEAR_SCENES');
-    dispatch({
-      type: 'CLEAR_SCENES',
-      payload: {
-        fileId,
-      }
-    });
+  log.debug('action: clearScenes');
+  return {
+    type: 'CLEAR_SCENES',
+    payload: {
+      fileId,
+    }
   };
 };
 
@@ -675,12 +672,12 @@ export const changeThumb = (sheet, file, thumbId, newFrameNumber, frameScale = 1
   };
 };
 
-export const deleteSceneSheets = (file) => {
+export const deleteSceneSheets = (fileId) => {
   log.debug('action: deleteSceneSheets');
   return {
     type: 'DELETE_SCENE_SHEETS',
     payload: {
-      fileId: file.id,
+      fileId,
     }
   };
 };
@@ -830,7 +827,7 @@ export const updateObjectUrlsFromPosterFrame = () => {
 // thumbsObjUrls
 export const clearObjectUrls = () => {
   return (dispatch) => {
-    log.debug('action: clearScenes');
+    log.debug('action: clearObjectUrls');
     log.debug('dispatch: CLEAR_OBJECTURLS');
     dispatch({
       type: 'CLEAR_OBJECTURLS',

@@ -200,20 +200,33 @@ const thumbsByFileId = (state = {}, action) => {
     case 'DELETE_SCENE_SHEETS':
       // console.log(action.payload);
       if (state[action.payload.fileId] === undefined) {
+        // console.log('fileId does not exist');
         // fileId does not exist, so it does not have to be deleted
         return state;
       }
-      const copyOfState2 = Object.assign({}, state);
       const arrayOfKeys = Object.keys(state[action.payload.fileId]);
       // filter out interval and scenes sheet, as they do not be deleted
-      const arrayOfKeysToDelete = arrayOfKeys.filter(item => !(item.startsWith(SHEET_TYPE.INTERVAL) || item.startsWith(SHEET_TYPE.SCENES)));
+      const arrayOfKeysToDelete = arrayOfKeys.filter(item => (!item.startsWith(SHEET_TYPE.INTERVAL) || item.startsWith(SHEET_TYPE.SCENES)));
+      // console.log(state);
+
+      const fileId = action.payload.fileId;
+      // separate the fileIds which do not change
+      const { [fileId]: fileIdObject, ...otherObjects } = state;
+      // console.log(fileIdObject);
+
+      let newValue = fileIdObject;
+      // loop through the arrayOfKeysToDelete and remove the property of every item in the array
+      arrayOfKeysToDelete.map(childKey => {
+        newValue = deleteProperty(newValue, childKey);
+        // console.log(newValue);
+      });
+
+      // Merge back together
+      const stateWithoutProperties = { ...otherObjects, [fileId]: newValue };
+      // console.log(stateWithoutProperties);
       // console.log(arrayOfKeys);
       // console.log(arrayOfKeysToDelete);
-      arrayOfKeysToDelete.map(key => {
-        delete copyOfState2[action.payload.fileId][key];
-        return undefined;
-      })
-      return copyOfState2;
+      return stateWithoutProperties;
     default:
       return state;
   }

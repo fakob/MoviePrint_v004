@@ -682,7 +682,7 @@ class App extends Component {
       prevProps.settings.defaultTimelineViewSecondsPerRow !== this.props.settings.defaultTimelineViewSecondsPerRow ||
       prevProps.settings.defaultTimelineViewMinDisplaySceneLengthInFrames !== this.props.settings.defaultTimelineViewMinDisplaySceneLengthInFrames ||
       prevProps.settings.defaultTimelineViewWidthScale !== this.props.settings.defaultTimelineViewWidthScale ||
-      (prevProps.scenes ? prevProps.scenes.length !== this.props.scenes.length : false) ||
+      (prevProps.scenes ? (prevProps.scenes.length !== this.props.scenes.length) : false) ||
       prevProps.settings.defaultShowHeader !== this.props.settings.defaultShowHeader ||
       prevProps.settings.defaultShowPathInHeader !== this.props.settings.defaultShowPathInHeader ||
       prevProps.settings.defaultShowDetailsInHeader !== this.props.settings.defaultShowDetailsInHeader ||
@@ -760,6 +760,12 @@ class App extends Component {
             break;
           case 54: // press '6'
             store.dispatch(setView(VIEW.TIMELINEVIEW));
+            break;
+          case 67: // press 'c'
+            // const deleteSceneSheetsResult = store.dispatch(deleteSceneSheets(this.props.file.id));
+            // console.log(deleteSceneSheetsResult);
+            // const clearScenesResult = store.dispatch(clearScenes(this.props.file.id));
+            // console.log(clearScenesResult);
             break;
           default:
         }
@@ -1019,6 +1025,10 @@ class App extends Component {
         return curr;
     }, 0);
 
+    // delete all expanded scene sheets
+    store.dispatch(deleteSceneSheets(this.props.file.id));
+    store.dispatch(clearScenes(this.props.file.id));
+
     const sceneList = []
     differenceArray.map((value, index) => {
       // initialise first scene cut
@@ -1028,13 +1038,21 @@ class App extends Component {
       if (value >= threshold) {
         if ((index - lastSceneCut) >= SCENE_DETECTION_MIN_SCENE_LENGTH) {
           const length = index - lastSceneCut; // length
+          const start = lastSceneCut; // start
+          const colorArray = meanColorArray[lastSceneCut + Math.floor(length / 2)];
+          // [frameMean.w, frameMean.x, frameMean.y], // color
           sceneList.push({
             fileId,
-            start: lastSceneCut, // start
+            start,
             length,
-            colorArray: meanColorArray[lastSceneCut + Math.floor(length / 2)],
-            // [frameMean.w, frameMean.x, frameMean.y], // color
+            colorArray,
           });
+          // store.dispatch(addScene(
+          //   fileId,
+          //   start,
+          //   length,
+          //   colorArray,
+          // ));
           lastSceneCut = index;
         }
       }
@@ -1072,9 +1090,6 @@ class App extends Component {
     });
 
     // console.log(sceneList);
-
-    // delete all expanded scene sheets
-    store.dispatch(deleteSceneSheets(this.props.file));
 
     // check if scenes detected
     if (sceneList.length !== 0) {
