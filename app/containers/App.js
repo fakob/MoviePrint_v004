@@ -52,7 +52,7 @@ import {
   clearScenes, addScene, addScenes, setDefaultSceneDetectionThreshold, setDefaultTimelineViewSecondsPerRow,
   setSheetFit, clearObjectUrls, updateThumbObjectUrlFromDB, returnObjectUrlsFromFrameList,
   setDefaultTimelineViewMinDisplaySceneLengthInFrames, deleteSceneSheets, setDefaultTimelineViewWidthScale,
-  setDefaultTimelineViewFlow
+  setDefaultTimelineViewFlow, setDefaultOutputPathFromMovie
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -188,6 +188,7 @@ class App extends Component {
     this.onChangeColumn = this.onChangeColumn.bind(this);
     this.onChangeColumnAndApply = this.onChangeColumnAndApply.bind(this);
     this.onShowPaperPreviewClick = this.onShowPaperPreviewClick.bind(this);
+    this.onOutputPathFromMovieClick = this.onOutputPathFromMovieClick.bind(this);
     this.onPaperAspectRatioClick = this.onPaperAspectRatioClick.bind(this);
     this.onDetectInOutPointClick = this.onDetectInOutPointClick.bind(this);
     this.onReCaptureClick = this.onReCaptureClick.bind(this);
@@ -642,6 +643,19 @@ class App extends Component {
             this.props.visibilitySettings.visibilityFilter
           ),
           visibilitySettings: this.props.visibilitySettings,
+          scaleValueObject: getScaleValueObject(
+            this.props.file,
+            this.props.settings,
+            this.props.visibilitySettings,
+            getColumnCount(this.props.file, this.props.settings),
+            this.props.file.thumbCount,
+            this.props.settings.defaultMoviePrintWidth,
+            undefined,
+            1,
+            undefined,
+            true,
+            undefined,
+          )
         };
         filesToUpdateStatus.push({
           fileId: fileIdToPrint,
@@ -1444,6 +1458,11 @@ class App extends Component {
     store.dispatch(setDefaultShowPaperPreview(checked));
   };
 
+  onOutputPathFromMovieClick = (checked) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultOutputPathFromMovie(checked));
+  };
+
   onPaperAspectRatioClick = (value) => {
     const { store } = this.context;
     store.dispatch(setDefaultPaperAspectRatioInv(value));
@@ -1842,6 +1861,7 @@ class App extends Component {
                         onChangeColumnAndApply={this.onChangeColumnAndApply}
                         onChangeRow={this.onChangeRow}
                         onShowPaperPreviewClick={this.onShowPaperPreviewClick}
+                        onOutputPathFromMovieClick={this.onOutputPathFromMovieClick}
                         onPaperAspectRatioClick={this.onPaperAspectRatioClick}
                         onDetectInOutPointClick={this.onDetectInOutPointClick}
                         onReCaptureClick={this.onReCaptureClick}

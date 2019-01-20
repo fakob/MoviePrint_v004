@@ -72,6 +72,7 @@ export const DEFAULT_ROUNDED_CORNERS = true;
 export const DEFAULT_THUMB_INFO = 'hideInfo';
 export const DEFAULT_THUMB_INFO_RATIO = 0.075;
 // export const DEFAULT_OUTPUT_PATH = app.getPath('desktop'); // throws error see above
+export const DEFAULT_OUTPUT_PATH_FROM_MOVIE = false;
 export const DEFAULT_OUTPUT_FORMAT = 'png';
 export const DEFAULT_SAVE_OPTION_OVERWRITE = false;
 export const DEFAULT_SAVE_OPTION_INCLUDE_INDIVIDUAL = false;

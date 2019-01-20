@@ -55,6 +55,8 @@ const settings = (state = {}, action) => {
       return { ...state, defaultTimelineViewWidthScale: action.defaultTimelineViewWidthScale };
     case 'SET_DEFAULT_TIMELINEVIEW_FLOW':
       return { ...state, defaultTimelineViewFlow: action.defaultTimelineViewFlow };
+    case 'SET_DEFAULT_OUTPUT_PATH_FROM_MOVIE':
+      return { ...state, defaultOutputPathFromMovie: action.defaultOutputPathFromMovie };
     default:
       return state;
   }

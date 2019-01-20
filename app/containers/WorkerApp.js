@@ -85,15 +85,21 @@ class WorkerApp extends Component {
   componentDidUpdate() {
     if (this.state.savingMoviePrint) {
       log.debug('workerWindow | componentDidUpdate and savingMoviePrint true');
+      const { sentData } = this.state;
+      const { file } = sentData;
+      // save to filePath when defaultOutputPathFromMovie checked
+      const filePath = file.path.substring(0, file.path.lastIndexOf("/"));
+      const outputPath = sentData.settings.defaultOutputPathFromMovie ? filePath : sentData.settings.defaultOutputPath
+      log.debug(`outputPath: ${filePath}`);
       saveMoviePrint(
-        this.state.sentData.elementId,
-        this.state.sentData.settings.defaultOutputPath,
-        this.state.sentData.file,
+        sentData.elementId,
+        outputPath,
+        sentData.file,
         1, // scale
-        this.state.sentData.settings.defaultOutputFormat,
-        this.state.sentData.settings.defaultSaveOptionOverwrite,
-        this.state.sentData.settings.defaultSaveOptionIncludeIndividual,
-        this.state.sentData.thumbs
+        sentData.settings.defaultOutputFormat,
+        sentData.settings.defaultSaveOptionOverwrite,
+        sentData.settings.defaultSaveOptionIncludeIndividual,
+        sentData.thumbs
       );
     }
   }

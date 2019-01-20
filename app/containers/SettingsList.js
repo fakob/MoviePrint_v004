@@ -94,6 +94,7 @@ class SettingsList extends Component {
 
     this.onChangePaperAspectRatio = this.onChangePaperAspectRatio.bind(this);
     this.onChangeShowPaperPreview = this.onChangeShowPaperPreview.bind(this);
+    this.onChangeOutputPathFromMovie = this.onChangeOutputPathFromMovie.bind(this);
     this.onChangeTimelineViewFlow = this.onChangeTimelineViewFlow.bind(this);
     this.onChangeDetectInOutPoint = this.onChangeDetectInOutPoint.bind(this);
     this.onChangeReCapture = this.onChangeReCapture.bind(this);
@@ -117,6 +118,10 @@ class SettingsList extends Component {
 
   onChangeShowPaperPreview = (e, { checked }) => {
     this.props.onShowPaperPreviewClick(checked);
+  }
+
+  onChangeOutputPathFromMovie = (e, { checked }) => {
+    this.props.onOutputPathFromMovieClick(checked);
   }
 
   onChangePaperAspectRatio = (e, { value }) => {
@@ -634,7 +639,8 @@ class SettingsList extends Component {
                 <List.Item>
                   <div
                     style={{
-                      wordWrap: 'break-word'
+                      wordWrap: 'break-word',
+                      opacity: this.props.settings.defaultOutputPathFromMovie ? '0.5' : '1.0'
                     }}
                   >
                     {this.props.settings.defaultOutputPath}
@@ -644,9 +650,25 @@ class SettingsList extends Component {
                   <Button
                     data-tid='changeOutputPathBtn'
                     onClick={this.props.onChangeOutputPathClick}
+                    disabled={this.props.settings.defaultOutputPathFromMovie}
                   >
                     Change...
                   </Button>
+                </List.Item>
+                <List.Item>
+                  <Checkbox
+                    data-tid='showPaperPreviewCheckbox'
+                    label={
+                      <label className={styles.label}>
+                        Same as movie file
+                      </label>
+                    }
+                    style={{
+                      marginTop: '8px',
+                    }}
+                    checked={this.props.settings.defaultOutputPathFromMovie}
+                    onChange={this.onChangeOutputPathFromMovie}
+                  />
                 </List.Item>
               </List>
             </Grid.Column>

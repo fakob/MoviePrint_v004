@@ -306,6 +306,14 @@ export const setDefaultTimelineViewFlow = (defaultTimelineViewFlow) => {
   };
 };
 
+export const setDefaultOutputPathFromMovie = (defaultOutputPathFromMovie) => {
+  log.debug(`action: setDefaultOutputPathFromMovie - ${defaultOutputPathFromMovie}`);
+  return {
+    type: 'SET_DEFAULT_OUTPUT_PATH_FROM_MOVIE',
+    defaultOutputPathFromMovie
+  };
+};
+
 // scenesByFileId
 
 export const clearScenes = (fileId) => {
