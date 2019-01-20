@@ -180,15 +180,9 @@ const getScaleValueObject = (
   // get values depending on if printing or not
   const newMoviePrintTimelineWidth = forPrinting ? originalTimelineMoviePrintWidth : previewMoviePrintTimelineWidth;
   const newMoviePrintTimelineHeight = forPrinting ? originalTimelineMoviePrintHeight : previewMoviePrintTimelineHeight;
-  // calculate thumbMargin relative to rough rowheight
-  // const thumbMarginTimeline = (newMoviePrintTimelineHeight / timelineViewRowCount) * (thumbMargin / 200.0);
-  const thumbMarginTimeline = forPrinting ? originalTimelineMoviePrintHeight / 1024 * thumbMargin * 0.2 : thumbMargin * 0.2;
 
-  // const previewTimelineScaleValue = Math.min(
-  //   newMoviePrintTimelineWidth * 1.0 / originalTimelineMoviePrintWidth,
-  //   newMoviePrintTimelineHeight * 1.0 / originalTimelineMoviePrintHeight
-  // );
-
+  // the value 50.0 compensates for the low value range of defaultMarginRatio as it is also used for the thumbview
+  const thumbMarginTimeline = forPrinting ? originalTimelineMoviePrintHeight / 1024 * settings.defaultMarginRatio * 50.0 : settings.defaultMarginRatio * 50.0;
 
   // calculate rest
   const newMoviePrintTimelineRowHeight = Math.floor((newMoviePrintTimelineHeight - thumbMarginTimeline * timelineViewRowCount * 2) / timelineViewRowCount);

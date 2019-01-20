@@ -100,8 +100,11 @@ class SceneGrid extends Component {
 
               // only allow expanding of scenes which are not already large enough and deselecting
               allowSceneToBeSelected={selected || width < (realWidth * 0.95)}
-              thumbWidth={width}
-              thumbHeight={rowHeight}
+
+              // use minimum value to make sure that scene does not disappear
+              thumbWidth={Math.max(1, width)}
+              thumbHeight={Math.max(1, rowHeight)}
+
               hexColor={`#${((1 << 24) + (Math.round(scene.colorArray[0]) << 16) + (Math.round(scene.colorArray[1]) << 8) + Math.round(scene.colorArray[2])).toString(16).slice(1)}`}
               thumbImageObjectUrl={getObjectProperty(() => {
                 const thumb = this.props.thumbs.find((foundThumb) => foundThumb.sceneId === scene.sceneId);
