@@ -2,6 +2,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import log from 'electron-log';
+import path from 'path';
 import imageDB from './../utils/db';
 import '../app.global.css';
 import styles from './App.css';
@@ -88,7 +89,9 @@ class WorkerApp extends Component {
       const { sentData } = this.state;
       const { file } = sentData;
       // save to filePath when defaultOutputPathFromMovie checked
-      const filePath = file.path.substring(0, file.path.lastIndexOf("/"));
+      const filePath = path.dirname(file.path);
+      console.log(filePath);
+      // const filePath = file.path.substring(0, file.path.lastIndexOf("/"));
       const outputPath = sentData.settings.defaultOutputPathFromMovie ? filePath : sentData.settings.defaultOutputPath
       log.debug(`outputPath: ${filePath}`);
       saveMoviePrint(
