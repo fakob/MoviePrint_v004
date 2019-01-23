@@ -5,14 +5,13 @@ import { createHashHistory } from 'history';
 import { routerMiddleware } from 'react-router-redux';
 import throttle from 'lodash/throttle';
 import rootReducer from '../reducers';
-import type { counterStateType } from '../reducers/index';
 import { loadState, saveState } from './localStorage';
 
 const history = createHashHistory();
 const router = routerMiddleware(history);
 const enhancer = applyMiddleware(thunk, router);
 
-function configureStore(initialState?: counterStateType) {
+function configureStore(initialState) {
   let persistedState;
   if (initialState === undefined) {
     persistedState = loadState();

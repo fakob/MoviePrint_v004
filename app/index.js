@@ -4,7 +4,6 @@ import { AppContainer } from 'react-hot-loader';
 import { ActionCreators as UndoActionCreators } from 'redux-undo';
 import Root from './containers/Root';
 import { configureStore, history } from './store/configureStore';
-// import { loadState, saveState } from './store/localStorage';
 
 const { ipcRenderer } = require('electron');
 

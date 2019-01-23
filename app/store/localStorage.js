@@ -1,3 +1,4 @@
+import log from 'electron-log';
 import {
   VISIBILITY_FILTER,
   SHOW_MOVIELIST,
@@ -115,6 +116,7 @@ export const loadState = () => {
     }
     return JSON.parse(serializedState);
   } catch (err) {
+    log.error('localStorage.js - error in loadState')
     return undefined;
   }
 };
@@ -124,6 +126,7 @@ export const saveState = (state) => {
     const serializedState = JSON.stringify(state);
     localStorage.setItem('state', serializedState);
   } catch (err) {
+    log.error('localStorage.js - error in saveState')
     // Ignore write errors
   }
 };

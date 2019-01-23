@@ -6,13 +6,11 @@ import { createLogger } from 'redux-logger';
 import throttle from 'lodash/throttle';
 import rootReducer from '../reducers';
 import * as thumbActions from '../actions/index';
-import type { counterStateType } from '../reducers/index';
 import { loadState, saveState } from './localStorage';
 
 const history = createHashHistory();
 
-const configureStore = (initialState?: counterStateType) => {
-// const configureStore = (initialState: ?counterStateType) => {
+const configureStore = (initialState) => {
   // store State in localStorage
   let persistedState;
   if (initialState === undefined) {
