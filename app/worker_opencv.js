@@ -1,6 +1,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import log from 'electron-log';
+import Database from 'better-sqlite3';
 import VideoCaptureProperties from './utils/videoCaptureProperties';
 import { limitRange, setPosition, fourccToString } from './utils/utils';
 import { HSVtoRGB } from './utils/utilsForOpencv';
@@ -13,6 +14,10 @@ process.env.OPENCV4NODEJS_DISABLE_EXTERNAL_MEM_TRACKING = 1;
 
 const opencv = require('opencv4nodejs');
 const unhandled = require('electron-unhandled');
+
+const moviePrintDB = new Database('./moviePrint.db', { verbose: console.log });
+moviePrintDB.pragma('journal_mode = WAL');
+
 
 unhandled();
 const searchLimit = 25; // how long to go forward or backward to find a none-empty frame
@@ -653,6 +658,16 @@ ipcRenderer.on(
     log.debug(`opencvWorkerWindow | useRatio: ${useRatio}`);
     const vid = new opencv.VideoCapture(filePath);
 
+    // create frames table
+    const createTable = moviePrintDB.prepare('CREATE TABLE IF NOT EXISTS frameList(frameId TEXT, frameNumber INTEGER, fileId TEXT, isPosterFrame NUMERIC, data NONE)');
+    createTable.run();
+
+    const insert = moviePrintDB.prepare('INSERT INTO frameList (frameId, frameNumber, fileId, isPosterFrame, data) VALUES (@frameId, @frameNumber, @fileId, @isPosterFrame, @data)');
+
+    const insertFrame = moviePrintDB.transaction((item) => {
+      insert.run(item)
+    });
+
     vid.readAsync(err1 => {
       const read = (frameOffset = 0) => {
         // limit frameNumberToCapture between 0 and movie length
@@ -678,6 +693,9 @@ ipcRenderer.on(
             // opencv.imshow('a window name', mat);
             const matRescaled = mat.rescale(frameScale);
             const outBase64 = opencv.imencode('.jpg', matRescaled).toString('base64'); // maybe change to .png?
+            const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
+            insertFrame({ frameId: frameIdArray[iterator], frameNumber , fileId , isPosterFrame: 'false' , data: outBase64 });
+
             ipcRenderer.send(
               'message-from-opencvWorkerWindow-to-mainWindow',
               'receive-get-thumbs',
@@ -686,7 +704,7 @@ ipcRenderer.on(
               thumbIdArray[iterator],
               frameIdArray[iterator],
               outBase64,
-              vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1,
+              frameNumber,
               iterator === (frameNumberArray.length - 1)
             );
             iterator += 1;

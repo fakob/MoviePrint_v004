@@ -8,6 +8,7 @@ import {Line, defaults} from 'react-chartjs-2';
 import throttle from 'lodash/throttle';
 import log from 'electron-log';
 import os from 'os';
+import Database from 'better-sqlite3';
 
 import '../app.global.css';
 import FileList from '../containers/FileList';
@@ -75,6 +76,8 @@ import transparent from '../img/Thumb_TRANSPARENT.png';
 const { ipcRenderer } = require('electron');
 const { dialog, app } = require('electron').remote;
 const opencv = require('opencv4nodejs');
+
+const moviePrintDB = new Database('./moviePrint.db', { verbose: console.log });
 
 // const DEV_OPENCV_SCENE_DETECTION = process.env.DEV_OPENCV_SCENE_DETECTION === 'true';
 
@@ -148,6 +151,7 @@ class App extends Component {
       savingAllMoviePrints: false,
       objectUrlsArray: [],
       frameScale: DEFAULT_FRAME_SCALE,
+      tempBlobArray: [],
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -731,6 +735,15 @@ class App extends Component {
     document.removeEventListener('keyup', this.handleKeyUp);
 
     window.removeEventListener('resize', this.updatecontainerWidthAndHeight);
+
+    // close the database connection
+    moviePrintDB.close((err) => {
+      if (err) {
+        return console.error(err.message);
+      }
+      console.log('Close the database connection.');
+    });
+
   }
 
   handleKeyPress(event) {
@@ -776,10 +789,12 @@ class App extends Component {
             store.dispatch(setView(VIEW.TIMELINEVIEW));
             break;
           case 67: // press 'c'
-            // const deleteSceneSheetsResult = store.dispatch(deleteSceneSheets(this.props.file.id));
-            // console.log(deleteSceneSheetsResult);
-            // const clearScenesResult = store.dispatch(clearScenes(this.props.file.id));
-            // console.log(clearScenesResult);
+            const getFrame = moviePrintDB.prepare('SELECT data FROM frameList');
+            const result = getFrame.all();
+            this.setState({
+              tempBlobArray: result,
+            })
+            console.log(result);
             break;
           default:
         }
@@ -1756,6 +1771,8 @@ class App extends Component {
       );
     }
 
+    const { tempBlobArray } = this.state;
+
     return (
       <ErrorBoundary>
         <Dropzone
@@ -2032,6 +2049,12 @@ class App extends Component {
                               marginTop: this.state.scaleValueObject.newMoviePrintTimelineHeight/-2,
                             }}
                           />}
+                          {tempBlobArray.map((blob) => {
+                            // console.log(blob);
+                            return (
+                              <img style={{display: 'block', width: '100px', height: '100px'}} id='base64image' src={`data:image/png;base64, ${blob.data}`} />
+                            )
+                          })}
                         </Fragment>
                       ) :
                       (
