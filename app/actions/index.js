@@ -13,7 +13,7 @@ const moviePrintDB = new Database('./moviePrint.db', { verbose: console.log });
 moviePrintDB.pragma('journal_mode = WAL');
 
 // create frames table
-const createTable = moviePrintDB.prepare('CREATE TABLE IF NOT EXISTS frameList(frameId TEXT, fileId TEXT, isPosterFrame NUMERIC, data NONE)');
+const createTable = moviePrintDB.prepare('CREATE TABLE IF NOT EXISTS frameList(frameId TEXT, frameNumber INTEGER, fileId TEXT, isPosterFrame NUMERIC, data NONE)');
 createTable.run();
 
 // get frame by fileId and frameNumber
