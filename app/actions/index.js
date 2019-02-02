@@ -1,5 +1,6 @@
 import uuidV4 from 'uuid/v4';
 import log from 'electron-log';
+import Database from 'better-sqlite3';
 import imageDB from './../utils/db';
 import { mapRange, limitRange } from './../utils/utils';
 import {
@@ -7,6 +8,29 @@ import {
 } from '../utils/constants';
 
 const { ipcRenderer } = require('electron');
+
+const moviePrintDB = new Database('./moviePrint.db', { verbose: console.log });
+moviePrintDB.pragma('journal_mode = WAL');
+
+// create frames table
+const createTable = moviePrintDB.prepare('CREATE TABLE IF NOT EXISTS frameList(frameId TEXT, fileId TEXT, isPosterFrame NUMERIC, data NONE)');
+createTable.run();
+
+// get frame by fileId and frameNumber
+// const getFrameByFileIdAndFrameNumber = moviePrintDB.prepare('SELECT * FROM frameList WHERE fileId = @fileId AND frameNumber = @frameNumber');
+const getFrameByFileIdAndFrameNumber = (fileId, frameNumber) => {
+  const stmt = moviePrintDB.prepare('SELECT * FROM frameList WHERE fileId = ? AND frameNumber = ?');
+  return stmt.get(fileId, frameNumber);
+}
+
+// get frames by fileId and frameNumberArray
+// const getFramesByFileIdAndFrameNumberArray = moviePrintDB.prepare('SELECT * FROM frameList WHERE fileId = @fileId AND frameNumber IN (@listOfFrameNumbers)');
+
+const getFramesByFileIdAndFrameNumberArray = (fileId, frameNumberArray) => {
+  const params = '?,'.repeat(frameNumberArray.length).slice(0, -1);
+  const stmt = moviePrintDB.prepare(`SELECT * FROM frameList WHERE fileId = ? AND frameNumber IN (${params})`);
+  return stmt.all(fileId, frameNumberArray);
+}
 
 // visibilitySettings
 export const setVisibilityFilter = (filter) => {
@@ -384,7 +408,7 @@ export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), sc
     //   thumbId = uuidV4();
     // }
     const newFrameNumberWithinBoundaries = limitRange(frameNumber, 0, file.frameCount - 1);
-
+    console.log(getFrameByFileIdAndFrameNumber(file.id, newFrameNumberWithinBoundaries));
     imageDB.frameList.where('[fileId+frameNumber]').equals([file.id, newFrameNumberWithinBoundaries]).toArray().then((frames) => {
       // log.debug(frames.length);
       if (frames.length === 0) {
@@ -550,7 +574,7 @@ export const addDefaultThumbs = (file, sheet, amount = 20, start = 10, stop = fi
     const startWithBoundaries = limitRange(newStart, 0, file.frameCount - 1);
     const stopWithBoundaries = limitRange(newStop, 0, file.frameCount - 1);
     const frameNumberArray = Array.from(Array(newAmount).keys())
-      .map(x => mapRange(x, 0, newAmount - 1, startWithBoundaries, stopWithBoundaries));
+      .map(x => mapRange(x, 0, newAmount - 1, startWithBoundaries, stopWithBoundaries, true));
     // log.debug(frameNumberArray);
     dispatch(clearThumbs(file.id, sheet));
     return dispatch(addThumbs(file, sheet, frameNumberArray, frameScale));
@@ -565,6 +589,7 @@ export const addThumbs = (file, sheet, frameNumberArray, frameScale = 1) => {
     // log.debug(frameNumberArray);
     const fileIdAndFrameNumberArray = frameNumberArray.map((item) => [file.id, item]);
 
+    console.log(getFramesByFileIdAndFrameNumberArray(file.id, frameNumberArray));
     return imageDB.frameList.where('[fileId+frameNumber]').anyOf(fileIdAndFrameNumberArray).toArray().then((frames) => {
       // log.debug(frames.length);
       // log.debug(frames);

@@ -789,7 +789,7 @@ class App extends Component {
             store.dispatch(setView(VIEW.TIMELINEVIEW));
             break;
           case 67: // press 'c'
-            const getFrame = moviePrintDB.prepare('SELECT data FROM frameList');
+            const getFrame = moviePrintDB.prepare('SELECT frameId, data FROM frameList');
             const result = getFrame.all();
             this.setState({
               tempBlobArray: result,
@@ -1740,15 +1740,19 @@ class App extends Component {
   render() {
     const { accept, dropzoneActive } = this.state;
     const { store } = this.context;
+    const { tempBlobArray } = this.state;
+
 
     // get thumbImages by reading all thumbs and get the corresponding objectUrls from the objectUrlsArray
     const arrayOfObjectUrlsOfAllThumbs = this.props.allThumbs === undefined ?
       undefined : this.props.allThumbs.filter(thumb => {
         return this.state.objectUrlsArray.some(item => thumb.frameId === item.frameId); // return true when found
       }).map(thumb => {
+        const blob = tempBlobArray.find(item => thumb.frameId === item.frameId) || {};
         return {
           frameId: thumb.frameId,
           objectUrl: this.state.objectUrlsArray.find(item => thumb.frameId === item.frameId).objectUrl,
+          base64: blob.data || '',
         };
       });
     const thumbImages = arrayToObject(arrayOfObjectUrlsOfAllThumbs, 'frameId');
@@ -1770,8 +1774,6 @@ class App extends Component {
         ).name
       );
     }
-
-    const { tempBlobArray } = this.state;
 
     return (
       <ErrorBoundary>
@@ -2049,12 +2051,12 @@ class App extends Component {
                               marginTop: this.state.scaleValueObject.newMoviePrintTimelineHeight/-2,
                             }}
                           />}
-                          {tempBlobArray.map((blob) => {
+                          {/* tempBlobArray.map((blob) => {
                             // console.log(blob);
                             return (
                               <img style={{display: 'block', width: '100px', height: '100px'}} id='base64image' src={`data:image/png;base64, ${blob.data}`} />
                             )
-                          })}
+                          }) */}
                         </Fragment>
                       ) :
                       (

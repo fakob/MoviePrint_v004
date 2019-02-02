@@ -62,6 +62,7 @@ const Thumb = ({
   defaultView,
   transparentThumb,
   thumbImageObjectUrl,
+  base64,
   thumbInfoRatio,
   thumbInfoValue,
   thumbWidth,
@@ -129,7 +130,8 @@ const Thumb = ({
       <div>
         <img
           data-tid={`thumbImg_${thumbId}`}
-          src={(thumbImageObjectUrl !== undefined) && !transparentThumb ? thumbImageObjectUrl : transparent}
+          // src={(thumbImageObjectUrl !== undefined) && !transparentThumb ? thumbImageObjectUrl : transparent}
+          src={(base64 !== undefined) && !transparentThumb ? `data:image/jpeg;base64, ${base64}` : transparent}
           id={`thumbImage${indexForId}`}
           className={`${styles.image} ${dim ? styles.dim : ''}`}
           alt=""

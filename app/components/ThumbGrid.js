@@ -372,6 +372,9 @@ class ThumbGrid extends Component {
               thumbImageObjectUrl={
                 getObjectProperty(() => this.props.thumbImages[thumb.frameId].objectUrl)
               }
+              base64={
+                getObjectProperty(() => this.props.thumbImages[thumb.frameId].base64)
+              }
               transparentThumb={thumb.transparentThumb || undefined}
               aspectRatioInv={this.props.scaleValueObject.aspectRatioInv}
               thumbWidth={thumbWidth}
