@@ -1,15 +1,19 @@
 import uuidV4 from 'uuid/v4';
 import log from 'electron-log';
 import Database from 'better-sqlite3';
+import path from 'path';
 import imageDB from './../utils/db';
 import { mapRange, limitRange } from './../utils/utils';
 import {
   DEFAULT_SHEET_SCENES,
 } from '../utils/constants';
 
-const { ipcRenderer } = require('electron');
+const { ipcRenderer, remote } = require('electron');
 
-const moviePrintDB = new Database('./moviePrint.db', { verbose: console.log });
+const { app } = remote;
+console.log(app.getPath('userData'));
+const moviePrintDBPath = path.join(app.getPath('userData'), 'moviePrint.db');
+const moviePrintDB = new Database(moviePrintDBPath, { verbose: console.log });
 moviePrintDB.pragma('journal_mode = WAL');
 
 // create frames table

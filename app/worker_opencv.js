@@ -1,6 +1,8 @@
 import React from 'react';
 import { render } from 'react-dom';
 import log from 'electron-log';
+import electron from 'electron';
+import path from 'path';
 import Database from 'better-sqlite3';
 import VideoCaptureProperties from './utils/videoCaptureProperties';
 import { limitRange, setPosition, fourccToString } from './utils/utils';
@@ -15,7 +17,11 @@ process.env.OPENCV4NODEJS_DISABLE_EXTERNAL_MEM_TRACKING = 1;
 const opencv = require('opencv4nodejs');
 const unhandled = require('electron-unhandled');
 
-const moviePrintDB = new Database('./moviePrint.db', { verbose: console.log });
+const { remote } = electron;
+const { app } = remote;
+console.log(app.getPath('userData'));
+const moviePrintDBPath = path.join(app.getPath('userData'), 'moviePrint.db');
+const moviePrintDB = new Database(moviePrintDBPath, { verbose: console.log });
 moviePrintDB.pragma('journal_mode = WAL');
 
 // create frames table

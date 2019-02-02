@@ -5,6 +5,7 @@ import Dropzone from 'react-dropzone';
 import { TransitionablePortal, Segment, Progress, Modal, Button, Icon, Container, Loader, Header, Divider } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
 import {Line, defaults} from 'react-chartjs-2';
+import path from 'path';
 import throttle from 'lodash/throttle';
 import log from 'electron-log';
 import os from 'os';
@@ -77,7 +78,9 @@ const { ipcRenderer } = require('electron');
 const { dialog, app } = require('electron').remote;
 const opencv = require('opencv4nodejs');
 
-const moviePrintDB = new Database('./moviePrint.db', { verbose: console.log });
+const moviePrintDBPath = path.join(app.getPath('userData'), 'moviePrint.db');
+const moviePrintDB = new Database(moviePrintDBPath, { verbose: console.log });
+moviePrintDB.pragma('journal_mode = WAL');
 
 // const DEV_OPENCV_SCENE_DETECTION = process.env.DEV_OPENCV_SCENE_DETECTION === 'true';
 

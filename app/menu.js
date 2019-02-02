@@ -114,6 +114,14 @@ export default class MenuBuilder {
             shell.showItemInFolder(pathOfLogFolder);
           }
         } },
+        { label: 'Show database file', click: () => {
+          const moviePrintDBPath = path.join(app.getPath('userData'), 'moviePrint.db');
+          if (fs.existsSync(moviePrintDBPath)) {
+            shell.showItemInFolder(moviePrintDBPath);
+          } else {
+            shell.showItemInFolder(app.getPath('userData'));
+          }
+        } },
       ]
     };
     const subMenuView = {
@@ -232,6 +240,14 @@ export default class MenuBuilder {
             shell.showItemInFolder(pathOfLogFile);
           } else {
             shell.showItemInFolder(pathOfLogFolder);
+          }
+        } },
+        { label: 'Show database file', click: () => {
+          const moviePrintDBPath = path.join(app.getPath('userData'), 'moviePrint.db');
+          if (fs.existsSync(moviePrintDBPath)) {
+            shell.showItemInFolder(moviePrintDBPath);
+          } else {
+            shell.showItemInFolder(app.getPath('userData'));
           }
         } },
       ]
