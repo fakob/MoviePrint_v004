@@ -11,9 +11,9 @@ class SortedFileList extends Component {
   componentDidMount() {
     const { store } = this.context;
     this.unsubscribe = store.subscribe(() => this.forceUpdate());
-    if (store.getState().undoGroup.present.files.length !== 0) {
-      store.dispatch(updateObjectUrlsFromPosterFrame());
-    }
+    // if (store.getState().undoGroup.present.files.length !== 0) {
+    //   store.dispatch(updateObjectUrlsFromPosterFrame());
+    // }
   }
 
   componentWillUnmount() {

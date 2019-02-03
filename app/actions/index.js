@@ -14,8 +14,18 @@ const moviePrintDB = new Database(FRAMESDB_PATH, { verbose: console.log });
 moviePrintDB.pragma('journal_mode = WAL');
 
 // create frames table
-const createTable = moviePrintDB.prepare('CREATE TABLE IF NOT EXISTS frameList(frameId TEXT, frameNumber INTEGER, fileId TEXT, isPosterFrame NUMERIC, data NONE)');
-createTable.run();
+const createTableFramelist = moviePrintDB.prepare('CREATE TABLE IF NOT EXISTS frameList(frameId TEXT, frameNumber INTEGER, fileId TEXT, isPosterFrame NUMERIC, data NONE)');
+createTableFramelist.run();
+
+// create movies table
+const createTableMovielist = moviePrintDB.prepare('CREATE TABLE IF NOT EXISTS movielist(id TEXT, lastModified INTEGER, name TEXT, path TEXT, size INTEGER, type TEXT, posterFrameId TEXT)');
+createTableMovielist.run();
+
+// insert frame
+const insertMovie = moviePrintDB.transaction((item) => {
+  const insert = moviePrintDB.prepare('INSERT INTO movielist (id, lastModified, name, path, size, type, posterFrameId) VALUES (@id, @lastModified, @name, @path, @size, @type, @posterFrameId)');
+  insert.run(item)
+});
 
 // get frame by fileId and frameNumber
 const getFrameByFrameId = (frameId) => {
@@ -826,18 +836,19 @@ export const setNewMovieList = (files, settings) => {
       // file match need(s) to be in sync with onDrop() and accept in App.js !!!
       if (files[key].type.match('video.*') ||
         files[key].name.match(/.divx|.mkv|.ogg|.VOB/i)) {
-        const tempId = uuidV4();
+        const id = uuidV4();
+        const posterFrameId = uuidV4();
         const fileToAdd = {
-          id: tempId,
+          id,
           lastModified: files[key].lastModified,
-          lastModifiedDate: files[key].lastModifiedDate.toDateString(),
+          // lastModifiedDate: files[key].lastModifiedDate.toDateString(),
           name: files[key].name,
           path: files[key].path,
           size: files[key].size,
           type: files[key].type,
-          webkitRelativePath: files[key].webkitRelativePath,
-          posterFrameId: uuidV4(),
+          posterFrameId,
         };
+        insertMovie(fileToAdd);
         newFiles.push(fileToAdd);
       }
       // return a copy of the array

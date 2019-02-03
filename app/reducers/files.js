@@ -8,7 +8,7 @@ const file = (state = {}, type, payload, index) => {
       return Object.assign({}, {
         id: payload[index].id,
         lastModified: payload[index].lastModified,
-        lastModifiedDate: payload[index].lastModifiedDate,
+        // lastModifiedDate: payload[index].lastModifiedDate,
         name: payload[index].name,
         path: payload[index].path,
         size: payload[index].size,
