@@ -71,6 +71,9 @@ import {
   DEFAULT_SHEET_INTERVAL,
   FRAMESDB_PATH,
 } from '../utils/constants';
+import {
+  getFrameByFrameId,
+} from '../utils/utilsForSqlite';
 
 import startupImg from '../img/MoviePrint-steps.svg';
 import transparent from '../img/Thumb_TRANSPARENT.png';
@@ -155,6 +158,7 @@ class App extends Component {
       objectUrlsArray: [],
       frameScale: DEFAULT_FRAME_SCALE,
       tempBase64Array: [],
+      framesToFetch: [],
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -234,6 +238,8 @@ class App extends Component {
     this.calculateSceneList = this.calculateSceneList.bind(this);
     this.onToggleDetectionChart = this.onToggleDetectionChart.bind(this);
     this.onHideDetectionChart = this.onHideDetectionChart.bind(this);
+
+    this.addToFramesToFetch = this.addToFramesToFetch.bind(this);
   }
 
   componentWillMount() {
@@ -338,6 +344,7 @@ class App extends Component {
     ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, frameNumber, useRatio) => {
       store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
       store.dispatch(updateThumbImage(fileId, DEFAULT_SHEET_INTERVAL, '', posterFrameId, frameNumber, true));
+      this.addToFramesToFetch(posterFrameId); // get frame to be fetched
       ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-in-and-outpoint', fileId, filePath, useRatio, store.getState().undoGroup.present.settings.defaultDetectInOutPoint);
     });
 
@@ -409,6 +416,7 @@ class App extends Component {
       store.dispatch(updateThumbImage(fileId, sheet, thumbId, frameId, frameNumber, false, this.state.objectUrlsArray))
       .then((resolve) => { // receive new objectUrl if not a posterframe
         // console.log(resolve);
+        this.addToFramesToFetch(frameId); // get frame to be fetched
         if (resolve !== false) {
           this.setState({
             objectUrlsArray: [...this.state.objectUrlsArray, resolve] // add objectUrl to array
@@ -695,6 +703,21 @@ class App extends Component {
       }
     }
 
+    // check if state has changed and only then allow setState
+    if (this.state.framesToFetch.length !== prevState.framesToFetch.length) {
+      if (this.state.framesToFetch.length !== 0) {
+        const frameArray = [];
+        this.state.framesToFetch.map((frame => {
+          frameArray.push(getFrameByFrameId(frame));
+          return undefined;
+        }));
+        this.setState(prevState => ({
+          tempBase64Array: [...prevState.tempBase64Array, ...frameArray],
+          framesToFetch: [],
+        }));
+      }
+    }
+
     // updatecontainerWidthAndHeight checks if the containerWidth or height has changed
     // and if so calls updateScaleValue
     this.updatecontainerWidthAndHeight();
@@ -894,6 +917,12 @@ class App extends Component {
       });
     }
     return false;
+  }
+
+  addToFramesToFetch(frameId) {
+    this.setState(prevState => ({
+      framesToFetch: [...prevState.framesToFetch, frameId]
+    }));
   }
 
   applyMimeTypes(event) {

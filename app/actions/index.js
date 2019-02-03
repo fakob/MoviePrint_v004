@@ -7,63 +7,22 @@ import {
   DEFAULT_SHEET_SCENES,
   FRAMESDB_PATH,
 } from '../utils/constants';
+import {
+  createTableFramelist,
+  createTableMovielist,
+  insertMovie,
+  getFrameByFrameId,
+  getFrameByFileIdAndFrameNumber,
+  getFramesByFileIdAndFrameNumberArray,
+  getFramesByIsPosterFrame,
+  clearTableByFileId,
+  clearTable,
+} from '../utils/utilsForSqlite';
 
 const { ipcRenderer } = require('electron');
 
-const moviePrintDB = new Database(FRAMESDB_PATH, { verbose: console.log });
-moviePrintDB.pragma('journal_mode = WAL');
-
-// create frames table
-const createTableFramelist = moviePrintDB.prepare('CREATE TABLE IF NOT EXISTS frameList(frameId TEXT, frameNumber INTEGER, fileId TEXT, isPosterFrame NUMERIC, data NONE)');
-createTableFramelist.run();
-
-// create movies table
-const createTableMovielist = moviePrintDB.prepare('CREATE TABLE IF NOT EXISTS movielist(id TEXT, lastModified INTEGER, name TEXT, path TEXT, size INTEGER, type TEXT, posterFrameId TEXT)');
-createTableMovielist.run();
-
-// insert frame
-const insertMovie = moviePrintDB.transaction((item) => {
-  const insert = moviePrintDB.prepare('INSERT INTO movielist (id, lastModified, name, path, size, type, posterFrameId) VALUES (@id, @lastModified, @name, @path, @size, @type, @posterFrameId)');
-  insert.run(item)
-});
-
-// get frame by fileId and frameNumber
-const getFrameByFrameId = (frameId) => {
-  const stmt = moviePrintDB.prepare('SELECT * FROM frameList WHERE frameId = ?');
-  return stmt.get(frameId);
-}
-
-// get frame by fileId and frameNumber
-const getFrameByFileIdAndFrameNumber = (fileId, frameNumber) => {
-  const stmt = moviePrintDB.prepare('SELECT * FROM frameList WHERE fileId = ? AND frameNumber = ?');
-  return stmt.get(fileId, frameNumber);
-}
-
-// get frames by fileId and frameNumberArray
-const getFramesByFileIdAndFrameNumberArray = (fileId, frameNumberArray) => {
-  const params = '?,'.repeat(frameNumberArray.length).slice(0, -1);
-  const stmt = moviePrintDB.prepare(`SELECT * FROM frameList WHERE fileId = ? AND frameNumber IN (${params})`);
-  return stmt.all(fileId, frameNumberArray);
-}
-
-// get frames by isPosterFrame
-const getFramesByIsPosterFrame = (isPosterFrame) => {
-  const stmt = moviePrintDB.prepare('SELECT * FROM frameList WHERE isPosterFrame = ?');
-  return stmt.all(isPosterFrame);
-}
-
-// clear table by fileId
-const clearTableByFileId = (fileId) => {
-  const stmt = moviePrintDB.prepare('DELETE FROM frameList WHERE fileId = ?');
-  return stmt.run(fileId);
-}
-
-// clear table by fileId
-const clearTable = () => {
-  const stmt = moviePrintDB.prepare('DELETE FROM frameList');
-  return stmt.run();
-}
-
+createTableFramelist(); // create table if not exist
+createTableMovielist(); // create table if not exist
 
 // visibilitySettings
 export const setVisibilityFilter = (filter) => {
