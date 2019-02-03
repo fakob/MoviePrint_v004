@@ -69,6 +69,7 @@ import {
   DEFAULT_FRAME_SCALE,
   DEFAULT_SHEET_SCENES,
   DEFAULT_SHEET_INTERVAL,
+  FRAMESDB_PATH,
 } from '../utils/constants';
 
 import startupImg from '../img/MoviePrint-steps.svg';
@@ -78,8 +79,7 @@ const { ipcRenderer } = require('electron');
 const { dialog, app } = require('electron').remote;
 const opencv = require('opencv4nodejs');
 
-const moviePrintDBPath = path.join(app.getPath('userData'), 'moviePrint.db');
-const moviePrintDB = new Database(moviePrintDBPath, { verbose: console.log });
+const moviePrintDB = new Database(FRAMESDB_PATH, { verbose: console.log });
 moviePrintDB.pragma('journal_mode = WAL');
 
 // const DEV_OPENCV_SCENE_DETECTION = process.env.DEV_OPENCV_SCENE_DETECTION === 'true';
@@ -154,7 +154,7 @@ class App extends Component {
       savingAllMoviePrints: false,
       objectUrlsArray: [],
       frameScale: DEFAULT_FRAME_SCALE,
-      tempBlobArray: [],
+      tempBase64Array: [],
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -239,17 +239,24 @@ class App extends Component {
   componentWillMount() {
     const { store } = this.context;
 
-    // get objecturls from all frames in imagedb
-    store.dispatch(returnObjectUrlsFromFrameList()).then(arrayOfObjectUrls => {
-      console.log(arrayOfObjectUrls);
-      this.setState({
-        objectUrlsArray: arrayOfObjectUrls
-      })
-      return undefined;
+    const getFrame = moviePrintDB.prepare('SELECT frameId, fileId, data FROM frameList');
+    const result = getFrame.all();
+    this.setState({
+      tempBase64Array: result,
     })
-    .catch((err) => {
-      log.error(err);
-    });
+    // console.log(result);
+
+    // get objecturls from all frames in imagedb
+    // store.dispatch(returnObjectUrlsFromFrameList()).then(arrayOfObjectUrls => {
+    //   console.log(arrayOfObjectUrls);
+    //   this.setState({
+    //     objectUrlsArray: arrayOfObjectUrls
+    //   })
+    //   return undefined;
+    // })
+    // .catch((err) => {
+    //   log.error(err);
+    // });
 
     setColumnAndThumbCount(
       this,
@@ -328,9 +335,9 @@ class App extends Component {
     });
 
     // poster frames don't have thumbId
-    ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, base64, frameNumber, useRatio) => {
+    ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, frameNumber, useRatio) => {
       store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
-      store.dispatch(updateThumbImage(fileId, DEFAULT_SHEET_INTERVAL, '', posterFrameId, base64, frameNumber, true));
+      store.dispatch(updateThumbImage(fileId, DEFAULT_SHEET_INTERVAL, '', posterFrameId, frameNumber, true));
       ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-in-and-outpoint', fileId, filePath, useRatio, store.getState().undoGroup.present.settings.defaultDetectInOutPoint);
     });
 
@@ -383,7 +390,7 @@ class App extends Component {
       }
     });
 
-    ipcRenderer.on('receive-get-thumbs', (event, fileId, sheet, thumbId, frameId, base64, frameNumber, lastThumb) => {
+    ipcRenderer.on('receive-get-thumbs', (event, fileId, sheet, thumbId, frameId, frameNumber, lastThumb) => {
       if (lastThumb && this.state.timeBefore !== undefined) {
         const timeAfter = Date.now();
         log.debug(`receive-get-thumbs took ${timeAfter - this.state.timeBefore}ms`);
@@ -399,7 +406,7 @@ class App extends Component {
           }, 3000);
         });
       }
-      store.dispatch(updateThumbImage(fileId, sheet, thumbId, frameId, base64, frameNumber, false, this.state.objectUrlsArray))
+      store.dispatch(updateThumbImage(fileId, sheet, thumbId, frameId, frameNumber, false, this.state.objectUrlsArray))
       .then((resolve) => { // receive new objectUrl if not a posterframe
         // console.log(resolve);
         if (resolve !== false) {
@@ -792,12 +799,33 @@ class App extends Component {
             store.dispatch(setView(VIEW.TIMELINEVIEW));
             break;
           case 67: // press 'c'
-            const getFrame = moviePrintDB.prepare('SELECT frameId, data FROM frameList');
+            const getFrame = moviePrintDB.prepare('SELECT frameId, fileId, data FROM frameList');
             const result = getFrame.all();
             this.setState({
-              tempBlobArray: result,
+              tempBase64Array: result,
             })
             console.log(result);
+            break;
+          case 68: // press 'd'
+            // create frames table
+            const createTable = moviePrintDB.prepare('CREATE TABLE IF NOT EXISTS blobTest(frameId, blob BLOB)');
+            createTable.run();
+            const insertFrame = moviePrintDB.transaction((item1, item2) => {
+              const insert = moviePrintDB.prepare('INSERT INTO blobTest (frameId, blob) VALUES (?, ?)');
+              insert.run(item1, item2)
+            });
+            const base64 = 'iVBORw0KGgoAAAANSUhEUgAAAA0AAAAPCAYAAAA/I0V3AAAAAXNSR0IArs4c6QAAAZtpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IlhNUCBDb3JlIDUuNC4wIj4KICAgPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICAgICAgPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIKICAgICAgICAgICAgeG1sbnM6ZXhpZj0iaHR0cDovL25zLmFkb2JlLmNvbS9leGlmLzEuMC8iPgogICAgICAgICA8ZXhpZjpQaXhlbFhEaW1lbnNpb24+MTM8L2V4aWY6UGl4ZWxYRGltZW5zaW9uPgogICAgICAgICA8ZXhpZjpQaXhlbFlEaW1lbnNpb24+MTU8L2V4aWY6UGl4ZWxZRGltZW5zaW9uPgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KyYRoSgAAAGNJREFUKBVjdJ7F8J8BC+Bk5WUQ5pLEIsPAwIRVFCj4/z9Ws8DKcWrCZRhIHKem////4dSHU9M/BjI0AT2F0yYWbDKLfV9gE4aLYdUEkpWUEIcrQmfg9BO6QmT+qCZoaJAVEABY7w5iLo8mGQAAAABJRU5ErkJggg=='
+            fetch(`data:image/jpeg;base64,${base64}`)
+            .then(response => {
+              if (response.ok) {
+                return response.clone().blob();
+              }
+              throw new Error('fetch base64 to blob was not ok.');
+            })
+            .then(blob => {
+              console.log(blob);
+              insertFrame('testId', blob)
+            })
             break;
           default:
         }
@@ -1743,21 +1771,33 @@ class App extends Component {
   render() {
     const { accept, dropzoneActive } = this.state;
     const { store } = this.context;
-    const { tempBlobArray } = this.state;
+    const { tempBase64Array } = this.state;
+    const { currentFileId } = this.props;
 
 
     // get thumbImages by reading all thumbs and get the corresponding objectUrls from the objectUrlsArray
-    const arrayOfObjectUrlsOfAllThumbs = this.props.allThumbs === undefined ?
-      undefined : this.props.allThumbs.filter(thumb => {
-        return this.state.objectUrlsArray.some(item => thumb.frameId === item.frameId); // return true when found
-      }).map(thumb => {
-        const blob = tempBlobArray.find(item => thumb.frameId === item.frameId) || {};
-        return {
-          frameId: thumb.frameId,
-          objectUrl: this.state.objectUrlsArray.find(item => thumb.frameId === item.frameId).objectUrl,
-          base64: blob.data || '',
-        };
-      });
+    // const arrayOfObjectUrlsOfAllThumbs = this.props.allThumbs === undefined ?
+    //   undefined : this.props.allThumbs.filter(thumb => {
+    //     return this.state.objectUrlsArray.some(item => thumb.frameId === item.frameId); // return true when found
+    //   }).map(thumb => {
+    //     const base64 = tempBase64Array.find(item => thumb.frameId === item.frameId) || {};
+    //     console.log(base64);
+    //     return {
+    //       frameId: thumb.frameId,
+    //       objectUrl: this.state.objectUrlsArray.find(item => thumb.frameId === item.frameId).objectUrl,
+    //       base64: base64.data || '',
+    //     };
+    //   });
+    const arrayOfObjectUrlsOfAllThumbs = tempBase64Array === undefined ? undefined :
+        tempBase64Array.filter(frame => frame.fileId === currentFileId).map(frame => {
+          // console.log(frame);
+          return {
+            frameId: frame.frameId,
+            base64: frame.data || '',
+          };
+        });
+
+    // console.log(arrayOfObjectUrlsOfAllThumbs);
     const thumbImages = arrayToObject(arrayOfObjectUrlsOfAllThumbs, 'frameId');
 
     // const chartHeight = this.state.containerHeight / 4;
@@ -2054,7 +2094,7 @@ class App extends Component {
                               marginTop: this.state.scaleValueObject.newMoviePrintTimelineHeight/-2,
                             }}
                           />}
-                          {/* tempBlobArray.map((blob) => {
+                          {/* tempBase64Array.map((blob) => {
                             // console.log(blob);
                             return (
                               <img style={{display: 'block', width: '100px', height: '100px'}} id='base64image' src={`data:image/png;base64, ${blob.data}`} />

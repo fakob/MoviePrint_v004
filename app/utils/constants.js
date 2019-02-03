@@ -1,5 +1,8 @@
-// const { app } = require('electron').remote;
+import path from 'path';
+
+const { app } = require('electron').remote;
 // throws error as it would be packed into main.js where this is can not be required
+// tried it again and it seems to work, lets see
 
 export const SHEET_FIT = {
   WIDTH: 'width',
@@ -121,3 +124,5 @@ export const IN_OUT_POINT_SEARCH_THRESHOLD = 20; // previous 15
 export const SCENE_DETECTION_MIN_SCENE_LENGTH = 15; // for scene detection
 
 export const DEFAULT_FRAME_SCALE = 1; // scale of frames to be stored in the database if 1 then original size is stored
+
+export const FRAMESDB_PATH = path.join(app.getPath('userData'), 'moviePrint_frames.db');

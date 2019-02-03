@@ -115,7 +115,7 @@ export default class MenuBuilder {
           }
         } },
         { label: 'Show database file', click: () => {
-          const moviePrintDBPath = path.join(app.getPath('userData'), 'moviePrint.db');
+          const moviePrintDBPath = path.join(app.getPath('userData'), 'moviePrint_frames.db');
           if (fs.existsSync(moviePrintDBPath)) {
             shell.showItemInFolder(moviePrintDBPath);
           } else {
@@ -243,7 +243,7 @@ export default class MenuBuilder {
           }
         } },
         { label: 'Show database file', click: () => {
-          const moviePrintDBPath = path.join(app.getPath('userData'), 'moviePrint.db');
+          const moviePrintDBPath = path.join(app.getPath('userData'), 'moviePrint_frames.db');
           if (fs.existsSync(moviePrintDBPath)) {
             shell.showItemInFolder(moviePrintDBPath);
           } else {

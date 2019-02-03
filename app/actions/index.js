@@ -1,19 +1,16 @@
 import uuidV4 from 'uuid/v4';
 import log from 'electron-log';
 import Database from 'better-sqlite3';
-import path from 'path';
 import imageDB from './../utils/db';
 import { mapRange, limitRange } from './../utils/utils';
 import {
   DEFAULT_SHEET_SCENES,
+  FRAMESDB_PATH,
 } from '../utils/constants';
 
-const { ipcRenderer, remote } = require('electron');
+const { ipcRenderer } = require('electron');
 
-const { app } = remote;
-console.log(app.getPath('userData'));
-const moviePrintDBPath = path.join(app.getPath('userData'), 'moviePrint.db');
-const moviePrintDB = new Database(moviePrintDBPath, { verbose: console.log });
+const moviePrintDB = new Database(FRAMESDB_PATH, { verbose: console.log });
 moviePrintDB.pragma('journal_mode = WAL');
 
 // create frames table
@@ -21,20 +18,42 @@ const createTable = moviePrintDB.prepare('CREATE TABLE IF NOT EXISTS frameList(f
 createTable.run();
 
 // get frame by fileId and frameNumber
-// const getFrameByFileIdAndFrameNumber = moviePrintDB.prepare('SELECT * FROM frameList WHERE fileId = @fileId AND frameNumber = @frameNumber');
+const getFrameByFrameId = (frameId) => {
+  const stmt = moviePrintDB.prepare('SELECT * FROM frameList WHERE frameId = ?');
+  return stmt.get(frameId);
+}
+
+// get frame by fileId and frameNumber
 const getFrameByFileIdAndFrameNumber = (fileId, frameNumber) => {
   const stmt = moviePrintDB.prepare('SELECT * FROM frameList WHERE fileId = ? AND frameNumber = ?');
   return stmt.get(fileId, frameNumber);
 }
 
 // get frames by fileId and frameNumberArray
-// const getFramesByFileIdAndFrameNumberArray = moviePrintDB.prepare('SELECT * FROM frameList WHERE fileId = @fileId AND frameNumber IN (@listOfFrameNumbers)');
-
 const getFramesByFileIdAndFrameNumberArray = (fileId, frameNumberArray) => {
   const params = '?,'.repeat(frameNumberArray.length).slice(0, -1);
   const stmt = moviePrintDB.prepare(`SELECT * FROM frameList WHERE fileId = ? AND frameNumber IN (${params})`);
   return stmt.all(fileId, frameNumberArray);
 }
+
+// get frames by isPosterFrame
+const getFramesByIsPosterFrame = (isPosterFrame) => {
+  const stmt = moviePrintDB.prepare('SELECT * FROM frameList WHERE isPosterFrame = ?');
+  return stmt.all(isPosterFrame);
+}
+
+// clear table by fileId
+const clearTableByFileId = (fileId) => {
+  const stmt = moviePrintDB.prepare('DELETE FROM frameList WHERE fileId = ?');
+  return stmt.run(fileId);
+}
+
+// clear table by fileId
+const clearTable = () => {
+  const stmt = moviePrintDB.prepare('DELETE FROM frameList');
+  return stmt.run();
+}
+
 
 // visibilitySettings
 export const setVisibilityFilter = (filter) => {
@@ -412,10 +431,10 @@ export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), sc
     //   thumbId = uuidV4();
     // }
     const newFrameNumberWithinBoundaries = limitRange(frameNumber, 0, file.frameCount - 1);
-    console.log(getFrameByFileIdAndFrameNumber(file.id, newFrameNumberWithinBoundaries));
-    imageDB.frameList.where('[fileId+frameNumber]').equals([file.id, newFrameNumberWithinBoundaries]).toArray().then((frames) => {
+    const frame = getFrameByFileIdAndFrameNumber(file.id, newFrameNumberWithinBoundaries);
+    // imageDB.frameList.where('[fileId+frameNumber]').equals([file.id, newFrameNumberWithinBoundaries]).toArray().then((frames) => {
       // log.debug(frames.length);
-      if (frames.length === 0) {
+      if (frame === undefined) {
         log.debug(`frame number: ${frameNumber} not yet in database - need(s) to be captured`);
         ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheet, [thumbId], [frameId], [newFrameNumberWithinBoundaries], file.useRatio, frameScale);
         log.debug('dispatch: ADD_THUMB');
@@ -440,7 +459,7 @@ export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), sc
         payload: {
           sheet,
           thumbId,
-          frameId: frames[0].frameId,
+          frameId: frame.frameId,
           frameNumber,
           fileId: file.id,
           index,
@@ -448,10 +467,10 @@ export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), sc
           sceneId,
         }
       });
-    })
-    .catch(error => {
-      log.error(`There has been a problem with your fetch operation: ${error.message}`);
-    });
+    // })
+    // .catch(error => {
+    //   log.error(`There has been a problem with your fetch operation: ${error.message}`);
+    // });
   };
 };
 
@@ -505,44 +524,45 @@ export const updateFrameNumber = (fileId, sheet, thumbId, frameNumber) => {
 };
 
 
-export const updateThumbImage = (fileId, sheet, thumbId, frameId, base64, frameNumber, isPosterFrame = false, objectUrlsArray = []) =>
+export const updateThumbImage = (fileId, sheet, thumbId, frameId, frameNumber, isPosterFrame = false, objectUrlsArray = []) =>
   ((dispatch, getState) => {
     log.debug(`action: updateThumbImage frameNumber=${frameNumber}`);
-    if (base64 === '') {
-      log.warn('base64 empty');
-      // return a rejected Promise with error message
-      return Promise.reject(new Error('base64 empty'));
-    }
-    return fetch(`data:image/jpeg;base64,${base64}`)
-    .then(response => {
-      if (response.ok) {
-        return response.blob();
-      }
-      throw new Error('fetch base64 to blob was not ok.');
-    })
-    .then(blob =>
-      imageDB.frameList.put({
-        frameId,
-        fileId,
-        frameNumber,
-        isPosterFrame: isPosterFrame ? 1 : 0, // 0 and 1 is used as dexie/indexDB can not use boolean values
-        data: blob
-      }))
-    .then(() => {
+    // if (base64 === '') {
+    //   log.warn('base64 empty');
+    //   // return a rejected Promise with error message
+    //   return Promise.reject(new Error('base64 empty'));
+    // }
+    // return fetch(`data:image/jpeg;base64,${base64}`)
+    // .then(response => {
+    //   if (response.ok) {
+    //     return response.clone().blob();
+    //   }
+    //   throw new Error('fetch base64 to blob was not ok.');
+    // })
+    // .then(blob =>
+    //   imageDB.frameList.put({
+    //     frameId,
+    //     fileId,
+    //     frameNumber,
+    //     isPosterFrame: isPosterFrame ? 1 : 0, // 0 and 1 is used as dexie/indexDB can not use boolean values
+    //     data: blob
+    //   }))
+    // .then(() => {
       // only update frameNumber if not posterframe and frameNumber is different
       if (!isPosterFrame &&
         getState().undoGroup.present.thumbsByFileId[fileId][sheet].find((thumb) =>
         thumb.thumbId === thumbId).frameNumber !== frameNumber) {
-          dispatch(updateFrameNumber(fileId, sheet, thumbId, frameNumber));
-        }
-        if (isPosterFrame) {
-          return Promise.resolve(false); // return false if objecturl not updated - does not need rerender
-        }
-        return dispatch(returnObjectUrlFromFrameList(frameId, objectUrlsArray)); // get objecturl from imagedb
-      })
-    .catch(error => {
-      log.error(`There has been a problem with your fetch operation: ${error.message}`);
-    });
+        dispatch(updateFrameNumber(fileId, sheet, thumbId, frameNumber));
+      }
+      if (isPosterFrame) {
+        return Promise.resolve(false); // return false if objecturl not updated - does not need rerender
+      }
+      return Promise.resolve(false); // get objecturl from imagedb
+      // return Promise.resolve(dispatch(returnObjectUrlFromFrameList(frameId, objectUrlsArray))); // get objecturl from imagedb
+      // })
+    // .catch(error => {
+    //   log.error(`There has been a problem with your fetch operation: ${error.message}`);
+    // });
   });
 
 export const clearThumbs = (fileId = '', sheet = '') => {
@@ -591,10 +611,10 @@ export const addThumbs = (file, sheet, frameNumberArray, frameScale = 1) => {
 
     // create compound array to search for both fileId and frameNumber
     // log.debug(frameNumberArray);
-    const fileIdAndFrameNumberArray = frameNumberArray.map((item) => [file.id, item]);
+    // const fileIdAndFrameNumberArray = frameNumberArray.map((item) => [file.id, item]);
 
-    console.log(getFramesByFileIdAndFrameNumberArray(file.id, frameNumberArray));
-    return imageDB.frameList.where('[fileId+frameNumber]').anyOf(fileIdAndFrameNumberArray).toArray().then((frames) => {
+    const frames = getFramesByFileIdAndFrameNumberArray(file.id, frameNumberArray);
+    // return imageDB.frameList.where('[fileId+frameNumber]').anyOf(fileIdAndFrameNumberArray).toArray().then((frames) => {
       // log.debug(frames.length);
       // log.debug(frames);
 
@@ -661,10 +681,10 @@ export const addThumbs = (file, sheet, frameNumberArray, frameScale = 1) => {
           }
         });
       }
-      return true;
-    }).catch((err) => {
-      log.error(err);
-    });
+      return Promise.resolve(frames);
+    // }).catch((err) => {
+    //   log.error(err);
+    // });
   };
 };
 
@@ -674,8 +694,9 @@ export const changeThumb = (sheet, file, thumbId, newFrameNumber, frameScale = 1
     const newFrameId = uuidV4();
     const newFrameNumberWithinBoundaries = limitRange(newFrameNumber, 0, file.frameCount - 1);
 
-    imageDB.frameList.where('[fileId+frameNumber]').equals([file.id, newFrameNumberWithinBoundaries]).toArray().then((frames) => {
-      if (frames.length === 0) {
+    const frame = getFrameByFileIdAndFrameNumber(file.id, newFrameNumberWithinBoundaries);
+    // imageDB.frameList.where('[fileId+frameNumber]').equals([file.id, newFrameNumberWithinBoundaries]).toArray().then((frames) => {
+      if (frame === undefined) {
         log.debug(`frame number: ${newFrameNumber} not yet in database - need(s) to be captured`);
         ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheet, [thumbId], [newFrameId], [newFrameNumberWithinBoundaries], file.useRatio, frameScale);
         log.debug('dispatch: CHANGE_THUMB');
@@ -696,16 +717,16 @@ export const changeThumb = (sheet, file, thumbId, newFrameNumber, frameScale = 1
         type: 'CHANGE_THUMB',
         payload: {
           sheet,
-          newFrameId: frames[0].frameId,
+          newFrameId: frame.frameId,
           thumbId,
-          newFrameNumber: frames[0].frameNumber,
+          newFrameNumber: frame.frameNumber,
           fileId: file.id,
         }
       });
-    })
-    .catch((err) => {
-      log.error(err);
-    });
+    // })
+    // .catch((err) => {
+    //   log.error(err);
+    // });
   };
 };
 
@@ -830,8 +851,8 @@ export const setNewMovieList = (files, settings) => {
       type: 'CLEAR_MOVIE_LIST',
     });
     log.debug('dispatch: CLEAR_MOVIE_LIST');
-    return imageDB.frameList.clear()
-      .then(() => imageDB.fileScanList.clear())
+    clearTable();
+    return imageDB.fileScanList.clear()
       .then(() => {
         log.debug('dispatch: LOAD_MOVIE_LIST_FROM_DROP');
         log.debug(newFiles);
@@ -847,8 +868,9 @@ export const setNewMovieList = (files, settings) => {
 export const updateObjectUrlsFromPosterFrame = () => {
   return (dispatch, getState) => {
     // log.debug('action: updateObjectUrlsFromPosterFrame');
-    return imageDB.frameList.where('isPosterFrame').equals(1).toArray() // 1 for true is used as dexie/indexDB can not use boolean values
-      .then((frames) => {
+    const frames = getFramesByIsPosterFrame(1);
+    // return imageDB.frameList.where('isPosterFrame').equals(1).toArray() // 1 for true is used as dexie/indexDB can not use boolean values
+    //   .then((frames) => {
         log.debug(frames);
         return dispatch({
           type: 'UPDATE_OBJECTURLS_FROM_POSTERFRAME',
@@ -857,7 +879,7 @@ export const updateObjectUrlsFromPosterFrame = () => {
             frames
           },
         });
-      });
+      // });
   };
 };
 
@@ -872,39 +894,40 @@ export const clearObjectUrls = () => {
   };
 };
 
-export const updateThumbObjectUrlFromDB = (fileId, sheet, thumbId, frameId, isPosterFrame = false) =>
-  (dispatch) => {
-    // log.debug('action: updateThumbObjectUrlFromDB');
-    // log.debug(frameId);
-    return imageDB.frameList.where('frameId').equals(frameId).toArray().then((frames) => {
-      // log.debug(frames);
-      if (frames.length !== 0) {
-        if (isPosterFrame) {
-          // log.debug('dispatch: UPDATE_OBJECTURL_FROM_POSTERFRAME');
-          return dispatch({
-            type: 'UPDATE_OBJECTURL_FROM_POSTERFRAME',
-            payload: {
-              frameId,
-              frames
-            },
-          });
-        }
-        // log.debug('dispatch: UPDATE_OBJECTURL_FROM_THUMBLIST');
-        return dispatch({
-          type: 'UPDATE_OBJECTURL_FROM_THUMBLIST',
-          payload: {
-            fileId,
-            sheet,
-            frameId,
-            frames
-          },
-        });
-      }
-      return false;
-    }).catch((err) => {
-      log.error(err);
-    });
-  };
+// export const updateThumbObjectUrlFromDB = (fileId, sheet, thumbId, frameId, isPosterFrame = false) =>
+//   (dispatch) => {
+//     // log.debug('action: updateThumbObjectUrlFromDB');
+//     // log.debug(frameId);
+//     const frame = getFrameByFrameId(frameId);
+//     // return imageDB.frameList.where('frameId').equals(frameId).toArray().then((frames) => {
+//       // log.debug(frames);
+//       if (frame !== undefined) {
+//         if (isPosterFrame) {
+//           // log.debug('dispatch: UPDATE_OBJECTURL_FROM_POSTERFRAME');
+//           return dispatch({
+//             type: 'UPDATE_OBJECTURL_FROM_POSTERFRAME',
+//             payload: {
+//               frameId,
+//               frames
+//             },
+//           });
+//         }
+//         // log.debug('dispatch: UPDATE_OBJECTURL_FROM_THUMBLIST');
+//         return dispatch({
+//           type: 'UPDATE_OBJECTURL_FROM_THUMBLIST',
+//           payload: {
+//             fileId,
+//             sheet,
+//             frameId,
+//             frames
+//           },
+//         });
+//       }
+//       return false;
+//     // }).catch((err) => {
+//     //   log.error(err);
+//     // });
+//   };
 
 export const updateFileScanData = (fileId, meanArray, meanColorArray) =>
   ((dispatch) => {
@@ -936,8 +959,9 @@ export const getFileScanData = (fileId) =>
   export const returnObjectUrlsFromFrameList = () => {
     return (dispatch, getState) => {
       log.debug('action: returnObjectUrlsFromFrameList');
-      return imageDB.frameList.where('isPosterFrame').equals(0).toArray() // get all frames which are not posterframes
-        .then((frames) => {
+      const frames = getFramesByIsPosterFrame(0);
+      // return imageDB.frameList.where('isPosterFrame').equals(0).toArray() // get all frames which are not posterframes
+      //   .then((frames) => {
           // log.debug(frames);
           if (frames.length === 0) {
             return Promise.resolve([]);
@@ -954,10 +978,10 @@ export const getFileScanData = (fileId) =>
             return undefined;
           });
           return Promise.resolve(frameArray);
-        })
-        .catch((err) => {
-          log.error(err);
-        });
+        // })
+        // .catch((err) => {
+        //   log.error(err);
+        // });
     };
   };
 
@@ -968,20 +992,21 @@ export const getFileScanData = (fileId) =>
       if (objectUrlsArray.some(item => frameId === item.frameId)) {
         return Promise.resolve(objectUrlsArray.find(item => frameId === item.frameId)); // return immediately if already available
       }
-      return imageDB.frameList.where('frameId').equals(frameId).toArray() // get the one frame
-        .then((frames) => {
+      const frame = getFrameByFrameId(frameId);
+      // return imageDB.frameList.where('frameId').equals(frameId).toArray() // get the one frame
+      //   .then((frames) => {
           // console.log(frames);
           // log.debug(frames);
-          if (frames.length === 0) {
+          if (frame === undefined) {
             return Promise.reject(new Error('frame not found')); // return false if objecturl not updated - does not need rerender
           }
           return Promise.resolve({
-            frameId: frames[0].frameId,
-            objectUrl: window.URL.createObjectURL(frames[0].data),
+            frameId: frame.frameId,
+            objectUrl: window.URL.createObjectURL(frame.data),
           });
-        })
-        .catch((err) => {
-          log.error(err);
-        });
+        // })
+        // .catch((err) => {
+        //   log.error(err);
+        // });
       };
     };

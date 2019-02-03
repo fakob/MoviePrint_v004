@@ -55,7 +55,7 @@ const file = (state = {}, type, payload, index) => {
         return state;
       }
       return Object.assign({}, state, {
-        objectUrl: window.URL.createObjectURL(payload.frames[0].data)
+        objectUrl: window.URL.createObjectURL(payload.frame.data)
       });
       // return {
         // objectUrl: window.URL.createObjectURL(payload[index].data)
