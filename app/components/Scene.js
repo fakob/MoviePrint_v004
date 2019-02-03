@@ -84,6 +84,7 @@ const Scene = ({
   thumbHeight,
   thumbId,
   thumbImageObjectUrl,
+  base64,
   thumbInfoRatio,
   thumbInfoValue,
   thumbWidth,
@@ -244,7 +245,7 @@ const Scene = ({
         outlineWidth: `${defaultView === VIEW.TIMELINEVIEW ? margin : Math.max(1, margin)}px`,
         borderRadius: `${(selected && defaultView !== VIEW.TIMELINEVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: hexColor,
-        backgroundImage: `url(${thumbImageObjectUrl !== undefined ? thumbImageObjectUrl : transparent})`,
+        backgroundImage: base64 !== undefined ? `url(data:image/jpeg;base64,${base64})` : `url(${transparent})`,
         backgroundSize: `auto ${thumbHeight + 20}px`,
         borderWidth: '0px',
       }}

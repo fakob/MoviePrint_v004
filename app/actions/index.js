@@ -12,7 +12,7 @@ import {
   insertMovie,
   getFrameByFrameId,
   getFrameByFileIdAndFrameNumber,
-  getFramesByFrameNumberArray,
+  getFramesByFileIdAndFrameNumberArray,
   getFramesByIsPosterFrame,
   clearTableByFileId,
   clearTable,
@@ -581,7 +581,7 @@ export const addThumbs = (file, sheet, frameNumberArray, frameScale = 1) => {
     // log.debug(frameNumberArray);
     // const fileIdAndFrameNumberArray = frameNumberArray.map((item) => [file.id, item]);
 
-    const frames = getFramesByFrameNumberArray(frameNumberArray);
+    const frames = getFramesByFileIdAndFrameNumberArray(file.id, frameNumberArray);
     // return imageDB.frameList.where('[fileId+frameNumber]').anyOf(fileIdAndFrameNumberArray).toArray().then((frames) => {
       // log.debug(frames.length);
       // log.debug(frames);

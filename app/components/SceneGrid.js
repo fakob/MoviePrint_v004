@@ -110,6 +110,10 @@ class SceneGrid extends Component {
                 const thumb = this.props.thumbs.find((foundThumb) => foundThumb.sceneId === scene.sceneId);
                 return this.props.thumbImages[thumb.frameId].objectUrl
               })}
+              base64={getObjectProperty(() => {
+                const thumb = this.props.thumbs.find((foundThumb) => foundThumb.sceneId === scene.sceneId);
+                return this.props.thumbImages[thumb.frameId].base64
+              })}
               onOver={this.props.showSettings ? null : () => {
                 // only setState if controllersVisible has changed
                 if (this.state.controllersVisible !== scene.sceneId) {
