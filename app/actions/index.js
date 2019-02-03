@@ -1,6 +1,5 @@
 import uuidV4 from 'uuid/v4';
 import log from 'electron-log';
-import Database from 'better-sqlite3';
 import imageDB from './../utils/db';
 import { mapRange, limitRange } from './../utils/utils';
 import {
@@ -13,7 +12,7 @@ import {
   insertMovie,
   getFrameByFrameId,
   getFrameByFileIdAndFrameNumber,
-  getFramesByFileIdAndFrameNumberArray,
+  getFramesByFrameNumberArray,
   getFramesByIsPosterFrame,
   clearTableByFileId,
   clearTable,
@@ -582,7 +581,7 @@ export const addThumbs = (file, sheet, frameNumberArray, frameScale = 1) => {
     // log.debug(frameNumberArray);
     // const fileIdAndFrameNumberArray = frameNumberArray.map((item) => [file.id, item]);
 
-    const frames = getFramesByFileIdAndFrameNumberArray(file.id, frameNumberArray);
+    const frames = getFramesByFrameNumberArray(frameNumberArray);
     // return imageDB.frameList.where('[fileId+frameNumber]').anyOf(fileIdAndFrameNumberArray).toArray().then((frames) => {
       // log.debug(frames.length);
       // log.debug(frames);

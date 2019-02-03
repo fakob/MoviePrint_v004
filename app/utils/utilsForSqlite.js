@@ -37,10 +37,10 @@ export const getFrameByFileIdAndFrameNumber = (fileId, frameNumber) => {
 }
 
 // get frames by fileId and frameNumberArray
-export const getFramesByFileIdAndFrameNumberArray = (fileId, frameNumberArray) => {
+export const getFramesByFrameNumberArray = (frameNumberArray) => {
   const params = '?,'.repeat(frameNumberArray.length).slice(0, -1);
-  const stmt = moviePrintDB.prepare(`SELECT * FROM frameList WHERE fileId = ? AND frameNumber IN (${params})`);
-  return stmt.all(fileId, frameNumberArray);
+  const stmt = moviePrintDB.prepare(`SELECT * FROM frameList WHERE frameNumber IN (${params})`);
+  return stmt.all(frameNumberArray);
 }
 
 // get frames by isPosterFrame
