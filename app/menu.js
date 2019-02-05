@@ -91,7 +91,10 @@ export default class MenuBuilder {
     const subMenuDev = {
       label: 'Development',
       submenu: [
-        { label: 'Reset application', accelerator: 'Shift+Alt+Command+C', click: () => { clearCache(this.mainWindow); } },
+        { label: 'Reset application', accelerator: 'Shift+Alt+Command+C', click: () => {
+          clearCache(this.mainWindow);
+          this.mainWindow.webContents.send('delete-all-tables');
+          } },
         { label: 'Reload application', accelerator: 'Command+R', click: () => {
           this.mainWindow.webContents.reload();
           this.workerWindow.webContents.reload();
@@ -129,7 +132,10 @@ export default class MenuBuilder {
       submenu: [
         { label: 'Toggle Full Screen', accelerator: 'Ctrl+Command+F', click: () => { this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen()); } },
         { type: 'separator' },
-        { label: 'Reset application', accelerator: 'Shift+Alt+Command+C', click: () => { clearCache(this.mainWindow); } },
+        { label: 'Reset application', accelerator: 'Shift+Alt+Command+C', click: () => {
+          clearCache(this.mainWindow);
+          this.mainWindow.webContents.send('delete-all-tables');
+          } },
         { label: 'Reload application', accelerator: 'Command+R', click: () => {
           this.mainWindow.webContents.reload();
           this.workerWindow.webContents.reload();
@@ -219,7 +225,10 @@ export default class MenuBuilder {
     const subMenuDev = {
       label: 'Development',
       submenu: [
-        { label: 'Reset application', accelerator: 'Shift+Alt+Ctrl+C', click: () => { clearCache(this.mainWindow); } },
+        { label: 'Reset application', accelerator: 'Shift+Alt+Ctrl+C', click: () => {
+          clearCache(this.mainWindow);
+          this.mainWindow.webContents.send('delete-all-tables');
+          } },
         { label: '&Reload application', accelerator: 'Ctrl+R', click: () => {
           this.mainWindow.webContents.reload();
           this.workerWindow.webContents.reload();
@@ -265,7 +274,10 @@ export default class MenuBuilder {
           }
         },
         { type: 'separator' },
-        { label: 'Reset application', accelerator: 'Shift+Alt+Ctrl+C', click: () => { clearCache(this.mainWindow); } },
+        { label: 'Reset application', accelerator: 'Shift+Alt+Ctrl+C', click: () => {
+          clearCache(this.mainWindow);
+          this.mainWindow.webContents.send('delete-all-tables');
+          } },
         { label: 'Reload application', accelerator: 'Ctrl+R', click: () => {
           this.mainWindow.webContents.reload();
           this.workerWindow.webContents.reload();

@@ -12,6 +12,12 @@ export const createTableMovielist = () => {
   stmt.run();
 }
 
+// delete movies table
+export const deleteTableMovielist = () => {
+  const stmt = moviePrintDB.prepare('DROP TABLE IF EXISTS movielist');
+  stmt.run();
+}
+
 // insert movie
 export const insertMovie = moviePrintDB.transaction((item) => {
   const insert = moviePrintDB.prepare('INSERT INTO movielist (id, lastModified, name, path, size, type, posterFrameId) VALUES (@id, @lastModified, @name, @path, @size, @type, @posterFrameId)');
@@ -21,6 +27,12 @@ export const insertMovie = moviePrintDB.transaction((item) => {
 // create frames table
 export const createTableFramelist = () => {
   const stmt = moviePrintDB.prepare('CREATE TABLE IF NOT EXISTS frameList(frameId TEXT, frameNumber INTEGER, fileId TEXT, isPosterFrame NUMERIC, base64_640 NONE)');
+  stmt.run();
+}
+
+// delete frames table
+export const deleteTableFramelist = () => {
+  const stmt = moviePrintDB.prepare('DROP TABLE IF EXISTS framelist');
   stmt.run();
 }
 

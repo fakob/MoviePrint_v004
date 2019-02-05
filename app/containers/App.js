@@ -72,6 +72,8 @@ import {
   FRAMESDB_PATH,
 } from '../utils/constants';
 import {
+  deleteTableMovielist,
+  deleteTableFramelist,
   getFrameByFrameId,
   getAllFrames,
 } from '../utils/utilsForSqlite';
@@ -303,6 +305,11 @@ class App extends Component {
 
   componentDidMount() {
     const { store } = this.context;
+
+    ipcRenderer.on('delete-all-tables', (event) => {
+      deleteTableMovielist();
+      deleteTableFramelist();
+    });
 
     ipcRenderer.on('progress', (event, fileId, progressBarPercentage) => {
       this.setState({
