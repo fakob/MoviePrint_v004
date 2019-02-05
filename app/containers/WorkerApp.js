@@ -11,7 +11,11 @@ import SortedVisibleSceneGrid from '../containers/VisibleSceneGrid';
 import Conditional from '../components/Conditional';
 import ErrorBoundary from '../components/ErrorBoundary';
 import getScaleValueObject from '../utils/getScaleValueObject';
-import { getMoviePrintColor, getColumnCount } from '../utils/utils';
+import {
+  arrayToObject,
+  getMoviePrintColor,
+  setPosition,
+ } from '../utils/utils';
 import saveMoviePrint from '../utils/saveMoviePrint';
 import {
   VIEW,
@@ -21,6 +25,7 @@ import {
 } from '../utils/utilsForSqlite';
 
 const { ipcRenderer } = require('electron');
+const opencv = require('opencv4nodejs');
 
 // const moviePrintDB = new Database('./db/moviePrint.db', { verbose: console.log });
 
@@ -47,61 +52,36 @@ class WorkerApp extends Component {
     ipcRenderer.on('action-save-MoviePrint', (event, sentData) => {
       log.debug('workerWindow | action-save-MoviePrint');
       log.debug(sentData);
-      const arrayOfFrameIds = sentData.thumbs.map(thumb => thumb.frameId);
-      // log.debug(arrayOfFrameIds);
-      // const arrayOfFrameNumbersFromDB = imageDB.thumbList.where('id').equals(arrayOfFrameIds)
-      const frames = getFramesByFrameIdArray(arrayOfFrameIds);
-      console.log(arrayOfFrameIds);
-      console.log(frames);
-      const base64Object = frames.reduce((previous, current) => {
-        // log.debug(previous);
-        console.log(current);
-        console.log(current.frameId);
-        const tempObject = Object.assign({}, previous,
-          { [current.frameId]: { base64: current.data } }
-        );
-        return tempObject;
-      }, {});
+      const opencvVideo = new opencv.VideoCapture(sentData.file.path);
+
+      const arrayOfThumbs = sentData.thumbs.map(thumb => ({
+          frameId: thumb.frameId,
+          frameNumber: thumb.frameNumber,
+        }));
+
+      const arrayOfFrames = [];
+
+      arrayOfThumbs.map(thumb => {
+        setPosition(opencvVideo, thumb.frameNumber, sentData.file.useRatio);
+        const frame = opencvVideo.read();
+        let base64 = '';
+        if (!frame.empty) {
+          base64 = opencv.imencode('.jpg', frame).toString('base64'); // maybe change to .png?
+        }
+        arrayOfFrames.push({
+          frameId: thumb.frameId,
+          base64,
+          });
+        return undefined;
+      });
+
+      const base64Object = arrayToObject(arrayOfFrames, 'frameId');
+
       this.setState({
         sentData,
         thumbObjectBase64s: base64Object,
-        savingMoviePrint: true
+        savingMoviePrint: true,
       });
-      // imageDB.frameList.where('frameId').anyOf(arrayOfFrameIds).toArray().then((thumbs) => {
-      //   log.debug(thumbs);
-      //   const objectUrlsObject = thumbs.reduce((previous, current) => {
-      //     // log.debug(previous);
-      //     // log.debug(current.frameId);
-      //     const tempObject = Object.assign({}, previous,
-      //       { [current.frameId]: { objectUrl: window.URL.createObjectURL(current.data) } }
-      //     );
-      //     return tempObject;
-      //   }, {});
-      //   // log.debug(objectUrlsObject);
-      //   return objectUrlsObject;
-      // }).then((objectUrlsObject) => {
-      //   this.setState({
-      //     sentData,
-      //     thumbObjectBase64s: objectUrlsObject,
-      //     savingMoviePrint: true
-      //   });
-      //   return objectUrlsObject;
-      // })
-      // .catch(error => {
-      //   log.error(`workerWindow | There has been a problem with the action-save-MoviePrint operation: ${error.message}`);
-      //   ipcRenderer.send(
-      //     'message-from-opencvWorkerWindow-to-mainWindow',
-      //     'progressMessage',
-      //     '',
-      //     '',
-      //     'There was an error while saving the MoviePrint. Please try again!',
-      //     20000,
-      //   );
-      //   ipcRenderer.send(
-      //     'message-from-opencvWorkerWindow-to-mainWindow',
-      //     'error-savingMoviePrint',
-      //   );
-      // });
     });
   }
 
