@@ -14,7 +14,6 @@ import {
   getFrameByFileIdAndFrameNumber,
   getFramesByFileIdAndFrameNumberArray,
   getFramesByIsPosterFrame,
-  clearTableByFileId,
   clearTable,
 } from '../utils/utilsForSqlite';
 

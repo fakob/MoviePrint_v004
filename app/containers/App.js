@@ -73,6 +73,7 @@ import {
 } from '../utils/constants';
 import {
   getFrameByFrameId,
+  getAllFrames,
 } from '../utils/utilsForSqlite';
 
 import startupImg from '../img/MoviePrint-steps.svg';
@@ -157,7 +158,7 @@ class App extends Component {
       savingAllMoviePrints: false,
       objectUrlsArray: [],
       frameScale: DEFAULT_FRAME_SCALE,
-      tempBase64Array: [],
+      frameBase64Array: [],
       framesToFetch: [],
     };
 
@@ -245,12 +246,11 @@ class App extends Component {
   componentWillMount() {
     const { store } = this.context;
 
-    const getFrame = moviePrintDB.prepare('SELECT frameId, fileId, data FROM frameList');
-    const result = getFrame.all();
+    const allFrames = getAllFrames();
     this.setState({
-      tempBase64Array: result,
+      frameBase64Array: allFrames,
     })
-    // console.log(result);
+    console.log(allFrames);
 
     // get objecturls from all frames in imagedb
     // store.dispatch(returnObjectUrlsFromFrameList()).then(arrayOfObjectUrls => {
@@ -712,7 +712,7 @@ class App extends Component {
           return undefined;
         }));
         this.setState(prevState => ({
-          tempBase64Array: [...prevState.tempBase64Array, ...frameArray],
+          frameBase64Array: [...prevState.frameBase64Array, ...frameArray],
           framesToFetch: [],
         }));
       }
@@ -822,33 +822,13 @@ class App extends Component {
             store.dispatch(setView(VIEW.TIMELINEVIEW));
             break;
           case 67: // press 'c'
-            const getFrame = moviePrintDB.prepare('SELECT frameId, fileId, data FROM frameList');
-            const result = getFrame.all();
+            const allFrames = getAllFrames();
             this.setState({
-              tempBase64Array: result,
+              frameBase64Array: allFrames,
             })
-            console.log(result);
+            console.log(allFrames);
             break;
           case 68: // press 'd'
-            // create frames table
-            const createTable = moviePrintDB.prepare('CREATE TABLE IF NOT EXISTS blobTest(frameId, blob BLOB)');
-            createTable.run();
-            const insertFrame = moviePrintDB.transaction((item1, item2) => {
-              const insert = moviePrintDB.prepare('INSERT INTO blobTest (frameId, blob) VALUES (?, ?)');
-              insert.run(item1, item2)
-            });
-            const base64 = 'iVBORw0KGgoAAAANSUhEUgAAAA0AAAAPCAYAAAA/I0V3AAAAAXNSR0IArs4c6QAAAZtpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IlhNUCBDb3JlIDUuNC4wIj4KICAgPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICAgICAgPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIKICAgICAgICAgICAgeG1sbnM6ZXhpZj0iaHR0cDovL25zLmFkb2JlLmNvbS9leGlmLzEuMC8iPgogICAgICAgICA8ZXhpZjpQaXhlbFhEaW1lbnNpb24+MTM8L2V4aWY6UGl4ZWxYRGltZW5zaW9uPgogICAgICAgICA8ZXhpZjpQaXhlbFlEaW1lbnNpb24+MTU8L2V4aWY6UGl4ZWxZRGltZW5zaW9uPgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KyYRoSgAAAGNJREFUKBVjdJ7F8J8BC+Bk5WUQ5pLEIsPAwIRVFCj4/z9Ws8DKcWrCZRhIHKem////4dSHU9M/BjI0AT2F0yYWbDKLfV9gE4aLYdUEkpWUEIcrQmfg9BO6QmT+qCZoaJAVEABY7w5iLo8mGQAAAABJRU5ErkJggg=='
-            fetch(`data:image/jpeg;base64,${base64}`)
-            .then(response => {
-              if (response.ok) {
-                return response.clone().blob();
-              }
-              throw new Error('fetch base64 to blob was not ok.');
-            })
-            .then(blob => {
-              console.log(blob);
-              insertFrame('testId', blob)
-            })
             break;
           default:
         }
@@ -1800,34 +1780,14 @@ class App extends Component {
   render() {
     const { accept, dropzoneActive } = this.state;
     const { store } = this.context;
-    const { tempBase64Array } = this.state;
+    const { frameBase64Array } = this.state;
     const { currentFileId } = this.props;
 
+    const frameBaseArrayFiltered = frameBase64Array === undefined ? undefined :
+        frameBase64Array.filter(frame => frame.fileId === currentFileId);
 
-    // get thumbImages by reading all thumbs and get the corresponding objectUrls from the objectUrlsArray
-    // const arrayOfObjectUrlsOfAllThumbs = this.props.allThumbs === undefined ?
-    //   undefined : this.props.allThumbs.filter(thumb => {
-    //     return this.state.objectUrlsArray.some(item => thumb.frameId === item.frameId); // return true when found
-    //   }).map(thumb => {
-    //     const base64 = tempBase64Array.find(item => thumb.frameId === item.frameId) || {};
-    //     console.log(base64);
-    //     return {
-    //       frameId: thumb.frameId,
-    //       objectUrl: this.state.objectUrlsArray.find(item => thumb.frameId === item.frameId).objectUrl,
-    //       base64: base64.data || '',
-    //     };
-    //   });
-    const arrayOfObjectUrlsOfAllThumbs = tempBase64Array === undefined ? undefined :
-        tempBase64Array.filter(frame => frame.fileId === currentFileId).map(frame => {
-          // console.log(frame);
-          return {
-            frameId: frame.frameId,
-            base64: frame.data || '',
-          };
-        });
-
-    // console.log(arrayOfObjectUrlsOfAllThumbs);
-    const thumbImages = arrayToObject(arrayOfObjectUrlsOfAllThumbs, 'frameId');
+    // console.log(frameBaseArrayFiltered);
+    const thumbImages = arrayToObject(frameBaseArrayFiltered, 'frameId');
 
     // const chartHeight = this.state.containerHeight / 4;
     const chartHeight = 250;
@@ -2123,7 +2083,7 @@ class App extends Component {
                               marginTop: this.state.scaleValueObject.newMoviePrintTimelineHeight/-2,
                             }}
                           />}
-                          {/* tempBase64Array.map((blob) => {
+                          {/* frameBase64Array.map((blob) => {
                             // console.log(blob);
                             return (
                               <img style={{display: 'block', width: '100px', height: '100px'}} id='base64image' src={`data:image/png;base64, ${blob.data}`} />
