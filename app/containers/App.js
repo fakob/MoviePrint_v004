@@ -77,6 +77,7 @@ import {
   getFrameByFrameId,
   getAllFrames,
   getAllFramesByFileId,
+  getFramesByIsPosterFrame,
 } from '../utils/utilsForSqlite';
 
 import startupImg from '../img/MoviePrint-steps.svg';
@@ -160,6 +161,7 @@ class App extends Component {
       filesToPrint: [],
       savingAllMoviePrints: false,
       objectUrlsArray: [],
+      posterframeBase64Array: [],
       frameBase64Array: [],
       framesToFetch: [],
     };
@@ -248,6 +250,14 @@ class App extends Component {
   componentWillMount() {
     const { store } = this.context;
     const { currentFileId } = this.props;
+
+    // get all posterframes
+    const frames = getFramesByIsPosterFrame(1);
+    this.setState({
+      posterframeBase64Array: frames,
+    });
+
+    // get all frames for currentFileId
     if (currentFileId !== undefined) {
       const frames = getAllFramesByFileId(currentFileId);
       this.setState({
@@ -355,7 +365,8 @@ class App extends Component {
     ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, frameNumber, useRatio) => {
       store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
       store.dispatch(updateThumbImage(fileId, DEFAULT_SHEET_INTERVAL, '', posterFrameId, frameNumber, true));
-      this.addToFramesToFetch(posterFrameId); // get frame to be fetched
+      this.addToFramesToFetch(posterFrameId, true); // get posterframe to be fetched
+      // get all posterframes
       ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-in-and-outpoint', fileId, filePath, useRatio, store.getState().undoGroup.present.settings.defaultDetectInOutPoint);
     });
 
@@ -715,15 +726,22 @@ class App extends Component {
     }
 
     // check if state has changed and only then allow setState
-    if (this.state.framesToFetch.length !== prevState.framesToFetch.length) {
-      if (this.state.framesToFetch.length !== 0) {
+    const { framesToFetch } = this.state;
+    if (framesToFetch.length !== prevState.framesToFetch.length) {
+      if (framesToFetch.length !== 0) {
         const frameArray = [];
-        this.state.framesToFetch.map((frame => {
-          frameArray.push(getFrameByFrameId(frame));
+        const posterFrameArray = [];
+        framesToFetch.map(item => {
+          if (item.isPosterFrame) {
+            posterFrameArray.push(getFrameByFrameId(item.frameId));
+          } else {
+            frameArray.push(getFrameByFrameId(item.frameId));
+          }
           return undefined;
-        }));
-        this.setState(prevState => ({
-          frameBase64Array: [...prevState.frameBase64Array, ...frameArray],
+        });
+        this.setState(prevState1 => ({
+          posterframeBase64Array: [...prevState1.posterframeBase64Array, ...posterFrameArray],
+          frameBase64Array: [...prevState1.frameBase64Array, ...frameArray],
           framesToFetch: [],
         }));
       }
@@ -900,6 +918,8 @@ class App extends Component {
         this.setState({
           filesToLoad: response,
           objectUrlsArray: [], // clear objectUrlsArray
+          frameBase64Array: [], // clear frameBase64Array
+          posterframeBase64Array: [], // clear posterframeBase64Array
         });
         log.debug(response);
         return response;
@@ -910,9 +930,9 @@ class App extends Component {
     return false;
   }
 
-  addToFramesToFetch(frameId) {
+  addToFramesToFetch(frameId, isPosterFrame = false) {
     this.setState(prevState => ({
-      framesToFetch: [...prevState.framesToFetch, frameId]
+      framesToFetch: [...prevState.framesToFetch, { frameId, isPosterFrame }]
     }));
   }
 
@@ -1796,14 +1816,12 @@ class App extends Component {
   render() {
     const { accept, dropzoneActive } = this.state;
     const { store } = this.context;
-    const { frameBase64Array } = this.state;
+    const { frameBase64Array, posterframeBase64Array } = this.state;
     const { currentFileId } = this.props;
 
-    const frameBaseArrayFiltered = frameBase64Array === undefined ? undefined :
-        frameBase64Array.filter(frame => frame.fileId === currentFileId);
-
-    // console.log(frameBaseArrayFiltered);
-    const thumbImages = arrayToObject(frameBaseArrayFiltered, 'frameId');
+    // console.log(frameBase64Array);
+    const thumbImages = arrayToObject(frameBase64Array, 'frameId');
+    const posterImages = arrayToObject(posterframeBase64Array, 'frameId');
 
     // const chartHeight = this.state.containerHeight / 4;
     const chartHeight = 250;
@@ -1907,6 +1925,7 @@ class App extends Component {
                       <FileList
                         onFileListElementClick={this.onFileListElementClick}
                         onErrorPosterFrame={this.onErrorPosterFrame}
+                        posterImages={posterImages}
                       />
                     </div>
                     <div

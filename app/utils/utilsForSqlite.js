@@ -54,6 +54,12 @@ export const getAllFrames = (dataSource = 'base64_640') => {
   return stmt.all();
 }
 
+// get all frames but without base64 data
+export const getAllFramesNoBase64 = () => {
+  const stmt = moviePrintDB.prepare(`SELECT frameId, fileId, frameNumber FROM frameList`);
+  return stmt.all();
+}
+
 // get all frames by fileId
 export const getAllFramesByFileId = (fileId, dataSource = 'base64_640') => {
   const stmt = moviePrintDB.prepare(`SELECT frameId, fileId, frameNumber, ${dataSource} AS base64 FROM frameList WHERE fileId = ?`);

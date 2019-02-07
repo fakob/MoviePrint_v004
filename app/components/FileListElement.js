@@ -7,7 +7,7 @@ import transparent from '../img/Thumb_TRANSPARENT.png';
 
 const FileListElement = ({
   id, frameCount, fps, width, height, name, path,
-  size, objectUrl, onClick, currentFileId, onErrorPosterFrame
+  size, objectUrl, onClick, currentFileId, onErrorPosterFrame, base64
 }) => (
   <li
     data-tid={`fileListItem_${id}`}
@@ -22,7 +22,8 @@ const FileListElement = ({
     <img
       // using image to use onError if objectUrl is not valid
       // this introduces a squeezed image though
-      src={objectUrl !== undefined ? objectUrl : transparent}
+      // src={objectUrl !== undefined ? objectUrl : transparent}
+      src={(base64 !== undefined) ? `data:image/jpeg;base64, ${base64}` : transparent}
       className={`${styles.croppedThumb}`}
       alt={`${name}`}
       onError={onErrorPosterFrame}

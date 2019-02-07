@@ -2,9 +2,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import FileListElement from '../components/FileListElement';
+// import {
+//   updateObjectUrlsFromPosterFrame,
+// } from '../actions';
 import {
-  updateObjectUrlsFromPosterFrame,
-} from '../actions';
+  getObjectProperty,
+} from '../utils/utils';
 import { MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT } from '../utils/constants';
 
 class SortedFileList extends Component {
@@ -23,6 +26,7 @@ class SortedFileList extends Component {
   render() {
     const { store } = this.context;
     const state = store.getState();
+    const { posterImages } = this.props;
 
     return (
       <div
@@ -41,6 +45,9 @@ class SortedFileList extends Component {
               }}
               currentFileId={state.undoGroup.present.settings.currentFileId}
               onErrorPosterFrame={() => this.props.onErrorPosterFrame(file)}
+              base64={
+                getObjectProperty(() => posterImages[file.posterFrameId].base64)
+              }
             />
           ))}
         </ul>

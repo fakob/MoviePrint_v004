@@ -3,6 +3,8 @@ import log from 'electron-log';
 
 const opencv = require('opencv4nodejs');
 
+
+
 export const getDominantColor = (image, k=4) => {
   // takes an image as input
   // returns the dominant color of the image as a list

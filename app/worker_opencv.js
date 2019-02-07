@@ -10,6 +10,7 @@ import {
 } from './utils/constants';
 import {
   insertFrame,
+  getAllFramesNoBase64,
 } from './utils/utilsForSqlite';
 
 process.env.OPENCV4NODEJS_DISABLE_EXTERNAL_MEM_TRACKING = 1;
@@ -55,6 +56,10 @@ process.on('SIGTERM', err => {
 // ipcRenderer.on('message-from-mainWindow-to-opencvWorkerWindow', (event, ...args) => {
 //   log.debug(...args);
 // });
+
+ipcRenderer.on('recapture-all-frames', (event) => {
+  // log.debug(...args); getAllFramesNoBase64
+});
 
 ipcRenderer.on(
   'send-get-file-details',
