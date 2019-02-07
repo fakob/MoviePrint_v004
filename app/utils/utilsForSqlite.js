@@ -42,41 +42,53 @@ export const insertFrame = moviePrintDB.transaction((item) => {
   insert.run(item)
 });
 
+// insert frame
+export const updateFrameBase64 = moviePrintDB.transaction((frameId, data, dataSource = 'base64_640') => {
+  const insert = moviePrintDB.prepare(`UPDATE frameList SET ${dataSource} = ? WHERE frameId = ?`);
+  insert.run(data, frameId)
+});
+
 // get all frames
 export const getAllFrames = (dataSource = 'base64_640') => {
-  const stmt = moviePrintDB.prepare(`SELECT frameId, fileId, ${dataSource} AS base64 FROM frameList`);
+  const stmt = moviePrintDB.prepare(`SELECT frameId, fileId, frameNumber, ${dataSource} AS base64 FROM frameList`);
   return stmt.all();
+}
+
+// get all frames by fileId
+export const getAllFramesByFileId = (fileId, dataSource = 'base64_640') => {
+  const stmt = moviePrintDB.prepare(`SELECT frameId, fileId, frameNumber, ${dataSource} AS base64 FROM frameList WHERE fileId = ?`);
+  return stmt.all(fileId);
 }
 
 // get frame by fileId and frameNumber
 export const getFrameByFrameId = (frameId, dataSource = 'base64_640') => {
-  const stmt = moviePrintDB.prepare(`SELECT frameId, fileId, ${dataSource} AS base64 FROM frameList WHERE frameId = ?`);
+  const stmt = moviePrintDB.prepare(`SELECT frameId, fileId, frameNumber, ${dataSource} AS base64 FROM frameList WHERE frameId = ?`);
   return stmt.get(frameId);
 }
 
 // get frame by fileId and frameNumber
 export const getFrameByFileIdAndFrameNumber = (fileId, frameNumber, dataSource = 'base64_640') => {
-  const stmt = moviePrintDB.prepare(`SELECT frameId, fileId, ${dataSource} AS base64 FROM frameList WHERE fileId = ? AND frameNumber = ?`);
+  const stmt = moviePrintDB.prepare(`SELECT frameId, fileId, frameNumber, ${dataSource} AS base64 FROM frameList WHERE fileId = ? AND frameNumber = ?`);
   return stmt.get(fileId, frameNumber);
 }
 
 // get frames by fileId and frameNumberArray
 export const getFramesByFileIdAndFrameNumberArray = (fileId, frameNumberArray, dataSource = 'base64_640') => {
   const params = '?,'.repeat(frameNumberArray.length).slice(0, -1);
-  const stmt = moviePrintDB.prepare(`SELECT frameId, fileId, ${dataSource} AS base64 FROM frameList WHERE fileId = ? AND frameNumber IN (${params})`);
+  const stmt = moviePrintDB.prepare(`SELECT frameId, fileId, frameNumber, ${dataSource} AS base64 FROM frameList WHERE fileId = ? AND frameNumber IN (${params})`);
   return stmt.all(fileId, frameNumberArray);
 }
 
 // get frames by frameIdArray
 export const getFramesByFrameIdArray = (frameIdArray, dataSource = 'base64_640') => {
   const params = '?,'.repeat(frameIdArray.length).slice(0, -1);
-  const stmt = moviePrintDB.prepare(`SELECT frameId, fileId, ${dataSource} AS base64 FROM frameList WHERE frameId IN (${params})`);
+  const stmt = moviePrintDB.prepare(`SELECT frameId, fileId, frameNumber, ${dataSource} AS base64 FROM frameList WHERE frameId IN (${params})`);
   return stmt.all(frameIdArray);
 }
 
 // get frames by isPosterFrame
 export const getFramesByIsPosterFrame = (isPosterFrame, dataSource = 'base64_640') => {
-  const stmt = moviePrintDB.prepare(`SELECT frameId, fileId, ${dataSource} AS base64 FROM frameList WHERE isPosterFrame = ?`);
+  const stmt = moviePrintDB.prepare(`SELECT frameId, fileId, frameNumber, ${dataSource} AS base64 FROM frameList WHERE isPosterFrame = ?`);
   return stmt.all(isPosterFrame);
 }
 

@@ -670,7 +670,7 @@ ipcRenderer.on(
     frameIdArray,
     frameNumberArray,
     useRatio,
-    frameScale
+    frameSize
   ) => {
     log.debug('opencvWorkerWindow | on send-get-thumbs');
     // log.debug(frameNumberArray);
@@ -701,8 +701,12 @@ ipcRenderer.on(
 
           if (mat.empty === false) {
             // opencv.imshow('a window name', mat);
-            const matRescaled = mat.rescale(frameScale);
-            const outBase64 = opencv.imencode('.jpg', matRescaled).toString('base64'); // maybe change to .png?
+            // const matRescaled = mat.rescale(frameSize);
+            let matRescaled;
+            if (frameSize !== 0) { // 0 stands for keep original size
+              matRescaled = mat.resizeToMax(frameSize);
+            }
+            const outBase64 = opencv.imencode('.jpg', matRescaled || mat).toString('base64'); // maybe change to .png?
             const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
             const frameId = frameIdArray[iterator];
             insertFrame({

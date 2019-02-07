@@ -15,6 +15,7 @@ import {
   DEFAULT_MOVIE_HEIGHT,
   PAPER_LAYOUT_OPTIONS,
   OUTPUT_FORMAT_OPTIONS,
+  CACHED_FRAMES_SIZE_OPTIONS,
   SHEET_TYPE,
   VIEW,
 } from '../utils/constants';
@@ -106,6 +107,7 @@ class SettingsList extends Component {
     this.onChangeShowHiddenThumbs = this.onChangeShowHiddenThumbs.bind(this);
     this.onChangeThumbInfo = this.onChangeThumbInfo.bind(this);
     this.onChangeOutputFormat = this.onChangeOutputFormat.bind(this);
+    this.onChangeCachedFramesSize = this.onChangeCachedFramesSize.bind(this);
     this.onChangeOverwrite = this.onChangeOverwrite.bind(this);
     this.onChangeIncludeIndividual = this.onChangeIncludeIndividual.bind(this);
     this.onChangeThumbnailScale = this.onChangeThumbnailScale.bind(this);
@@ -168,6 +170,10 @@ class SettingsList extends Component {
     this.props.onOutputFormatClick(value);
   }
 
+  onChangeCachedFramesSize = (e, { value }) => {
+    this.props.onCachedFramesSizeClick(value);
+  }
+
   onChangeOverwrite = (e, { checked }) => {
     this.props.onOverwriteClick(checked);
   }
@@ -185,9 +191,32 @@ class SettingsList extends Component {
   }
 
   render() {
-    const minutes = this.props.file ? frameCountToMinutes(this.props.file.frameCount, this.props.file.fps) : undefined;
+    const {
+      columnCountTemp,
+      file,
+      fileScanRunning,
+      onApplyNewGridClick,
+      onChangeColumn,
+      onChangeColumnAndApply,
+      onChangeMargin,
+      onChangeMinDisplaySceneLength,
+      onChangeOutputPathClick,
+      onChangeRow,
+      onChangeSceneDetectionThreshold,
+      onChangeTimelineViewWidthScale,
+      onToggleDetectionChart,
+      reCapture,
+      rowCountTemp,
+      sceneArray,
+      settings,
+      showChart,
+      thumbCount,
+      thumbCountTemp,
+      visibilitySettings,
+    } = this.props;
+    const minutes = file ? frameCountToMinutes(file.frameCount, file.fps) : undefined;
     const minutesRounded = Math.round(minutes);
-    const cutsPerMinuteRounded = Math.round((this.props.thumbCountTemp - 1) / minutes);
+    const cutsPerMinuteRounded = Math.round((thumbCountTemp - 1) / minutes);
     return (
       <Container
         style={{
@@ -195,12 +224,12 @@ class SettingsList extends Component {
         }}
       >
         <Grid padded inverted>
-          { (this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) > -1) &&
+          { (visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) > -1) &&
             <Grid.Row>
               <Grid.Column width={16}>
                 <Statistic inverted size="tiny">
-                  <Statistic.Value>{this.props.thumbCountTemp}</Statistic.Value>
-                  <Statistic.Label>{(this.props.thumbCountTemp === 1) ? 'Shot' : 'Shots'}</Statistic.Label>
+                  <Statistic.Value>{thumbCountTemp}</Statistic.Value>
+                  <Statistic.Label>{(thumbCountTemp === 1) ? 'Shot' : 'Shots'}</Statistic.Label>
                 </Statistic>
                 <Statistic inverted size="tiny">
                   <Statistic.Value>/</Statistic.Value>
@@ -219,33 +248,33 @@ class SettingsList extends Component {
               </Grid.Column>
             </Grid.Row>
           }
-          { (this.props.visibilitySettings.defaultView === VIEW.GRIDVIEW) &&
+          { (visibilitySettings.defaultView === VIEW.GRIDVIEW) &&
             <Grid.Row>
               <Grid.Column width={16}>
                 <Statistic inverted size="tiny">
-                  <Statistic.Value>{this.props.columnCountTemp}</Statistic.Value>
-                  <Statistic.Label>{(this.props.columnCountTemp === 1) ? 'Column' : 'Columns'}</Statistic.Label>
+                  <Statistic.Value>{columnCountTemp}</Statistic.Value>
+                  <Statistic.Label>{(columnCountTemp === 1) ? 'Column' : 'Columns'}</Statistic.Label>
                 </Statistic>
                 <Statistic inverted size="tiny">
                   <Statistic.Value>×</Statistic.Value>
                 </Statistic>
                 <Statistic inverted size="tiny">
-                  <Statistic.Value>{this.props.rowCountTemp}</Statistic.Value>
-                  <Statistic.Label>{(this.props.rowCountTemp === 1) ? 'Row' : 'Rows'}</Statistic.Label>
+                  <Statistic.Value>{rowCountTemp}</Statistic.Value>
+                  <Statistic.Label>{(rowCountTemp === 1) ? 'Row' : 'Rows'}</Statistic.Label>
                 </Statistic>
                 <Statistic inverted size="tiny">
-                  <Statistic.Value>{(this.props.columnCountTemp * this.props.rowCountTemp ===
-                    this.props.thumbCountTemp) ? '=' : '≈'}
+                  <Statistic.Value>{(columnCountTemp * rowCountTemp ===
+                    thumbCountTemp) ? '=' : '≈'}
                   </Statistic.Value>
                 </Statistic>
-                <Statistic inverted size="tiny" color={(this.props.reCapture) ? 'orange' : undefined}>
-                  <Statistic.Value>{this.props.thumbCountTemp}</Statistic.Value>
-                  <Statistic.Label>{(this.props.reCapture) ? 'Count' : 'Count'}</Statistic.Label>
+                <Statistic inverted size="tiny" color={(reCapture) ? 'orange' : undefined}>
+                  <Statistic.Value>{thumbCountTemp}</Statistic.Value>
+                  <Statistic.Label>{(reCapture) ? 'Count' : 'Count'}</Statistic.Label>
                 </Statistic>
               </Grid.Column>
             </Grid.Row>
           }
-          { (this.props.visibilitySettings.defaultView === VIEW.GRIDVIEW) &&
+          { (visibilitySettings.defaultView === VIEW.GRIDVIEW) &&
             <Grid.Row>
               <Grid.Column width={4}>
                 Columns
@@ -256,21 +285,21 @@ class SettingsList extends Component {
                   className={styles.slider}
                   min={1}
                   max={20}
-                  defaultValue={this.props.columnCountTemp}
-                  value={this.props.columnCountTemp}
+                  defaultValue={columnCountTemp}
+                  value={columnCountTemp}
                   marks={{
                     1: '1',
                     20: '20',
                   }}
                   handle={handle}
-                  onChange={(this.props.reCapture && (this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1)) ? this.props.onChangeColumn :
-                    this.props.onChangeColumnAndApply}
+                  onChange={(reCapture && (visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1)) ? onChangeColumn :
+                    onChangeColumnAndApply}
                 />
               </Grid.Column>
             </Grid.Row>
           }
-          { (this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) &&
-            this.props.reCapture &&
+          { (visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) &&
+            reCapture &&
             <Grid.Row>
               <Grid.Column width={4}>
                 Rows
@@ -278,24 +307,24 @@ class SettingsList extends Component {
               <Grid.Column width={12}>
                 <SliderWithTooltip
                   data-tid='rowCountSlider'
-                  disabled={!this.props.reCapture}
+                  disabled={!reCapture}
                   className={styles.slider}
                   min={1}
                   max={20}
-                  defaultValue={this.props.rowCountTemp}
-                  value={this.props.rowCountTemp}
-                  {...(this.props.reCapture ? {} : { value: this.props.rowCountTemp })}
+                  defaultValue={rowCountTemp}
+                  value={rowCountTemp}
+                  {...(reCapture ? {} : { value: rowCountTemp })}
                   marks={{
                     1: '1',
                     20: '20',
                   }}
                   handle={handle}
-                  onChange={this.props.onChangeRow}
+                  onChange={onChangeRow}
                 />
               </Grid.Column>
             </Grid.Row>
           }
-          { (this.props.visibilitySettings.defaultView === VIEW.TIMELINEVIEW) &&
+          { (visibilitySettings.defaultView === VIEW.TIMELINEVIEW) &&
             <Fragment>
               <Grid.Row>
                 <Grid.Column width={4}>
@@ -307,7 +336,7 @@ class SettingsList extends Component {
                     className={styles.slider}
                     min={10}
                     max={1800}
-                    defaultValue={this.props.settings.defaultTimelineViewSecondsPerRow}
+                    defaultValue={settings.defaultTimelineViewSecondsPerRow}
                     marks={{
                       10: '0.1',
                       60: '1',
@@ -333,14 +362,14 @@ class SettingsList extends Component {
                         Flow
                       </label>
                     }
-                    checked={this.props.settings.defaultTimelineViewFlow}
+                    checked={settings.defaultTimelineViewFlow}
                     onChange={this.onChangeTimelineViewFlow}
                   />
                 </Grid.Column>
               </Grid.Row> */}
             </Fragment>
           }
-          { (this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) &&
+          { (visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) &&
             <Grid.Row>
               <Grid.Column width={4}>
                 Count
@@ -353,14 +382,14 @@ class SettingsList extends Component {
                       Change thumb count
                     </label>
                   }
-                  checked={this.props.reCapture}
+                  checked={reCapture}
                   onChange={this.onChangeReCapture}
                 />
               </Grid.Column>
             </Grid.Row>
           }
-          { (this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) &&
-            (this.props.thumbCount !== this.props.thumbCountTemp) &&
+          { (visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) &&
+            (thumbCount !== thumbCountTemp) &&
             <Grid.Row>
               <Grid.Column width={4} />
               <Grid.Column width={12}>
@@ -374,7 +403,7 @@ class SettingsList extends Component {
               </Grid.Column>
             </Grid.Row>
           }
-          { (this.props.visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) &&
+          { (visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) &&
             <Grid.Row>
               <Grid.Column width={4} />
               <Grid.Column width={12}>
@@ -384,8 +413,8 @@ class SettingsList extends Component {
                       data-tid='applyNewGridBtn'
                       fluid
                       color="orange"
-                      disabled={(this.props.thumbCount === this.props.thumbCountTemp)}
-                      onClick={this.props.onApplyNewGridClick}
+                      disabled={(thumbCount === thumbCountTemp)}
+                      onClick={onApplyNewGridClick}
                     >
                         Apply
                     </Button>
@@ -410,7 +439,7 @@ class SettingsList extends Component {
                     Show paper preview
                   </label>
                 }
-                checked={this.props.settings.defaultShowPaperPreview}
+                checked={settings.defaultShowPaperPreview}
                 onChange={this.onChangeShowPaperPreview}
               />
             </Grid.Column>
@@ -424,9 +453,9 @@ class SettingsList extends Component {
                 data-tid='paperLayoutOptionsDropdown'
                 placeholder="Select..."
                 selection
-                disabled={!this.props.settings.defaultShowPaperPreview}
+                disabled={!settings.defaultShowPaperPreview}
                 options={PAPER_LAYOUT_OPTIONS}
-                defaultValue={this.props.settings.defaultPaperAspectRatioInv}
+                defaultValue={settings.defaultPaperAspectRatioInv}
                 onChange={this.onChangePaperAspectRatio}
               />
             </Grid.Column>
@@ -442,17 +471,17 @@ class SettingsList extends Component {
                 className={styles.slider}
                 min={0}
                 max={20}
-                defaultValue={this.props.settings.defaultMarginRatio * this.props.settings.defaultMarginSliderFactor}
+                defaultValue={settings.defaultMarginRatio * settings.defaultMarginSliderFactor}
                 marks={{
                   0: '0',
                   20: '20',
                 }}
                 handle={handle}
-                onChange={this.props.onChangeMargin}
+                onChange={onChangeMargin}
               />
             </Grid.Column>
           </Grid.Row>
-          { (this.props.visibilitySettings.defaultView === VIEW.TIMELINEVIEW) &&
+          { (visibilitySettings.defaultView === VIEW.TIMELINEVIEW) &&
             <Grid.Row>
               <Grid.Column width={4}>
                 Scene width ratio
@@ -463,19 +492,19 @@ class SettingsList extends Component {
                   className={styles.slider}
                   min={0}
                   max={100}
-                  defaultValue={this.props.settings.defaultTimelineViewWidthScale}
+                  defaultValue={settings.defaultTimelineViewWidthScale}
                   marks={{
                     0: '-10',
                     50: '0',
                     100: '+10',
                   }}
                   handle={handle}
-                  onChange={this.props.onChangeTimelineViewWidthScale}
+                  onChange={onChangeTimelineViewWidthScale}
                 />
               </Grid.Column>
             </Grid.Row>
           }
-          { (this.props.visibilitySettings.defaultView === VIEW.TIMELINEVIEW) &&
+          { (visibilitySettings.defaultView === VIEW.TIMELINEVIEW) &&
             <Grid.Row>
               <Grid.Column width={4}>
                 Min scene width
@@ -486,18 +515,18 @@ class SettingsList extends Component {
                   className={styles.slider}
                   min={0}
                   max={10}
-                  defaultValue={Math.round(this.props.settings.defaultTimelineViewMinDisplaySceneLengthInFrames / (this.props.file.fps * 1.0))}
+                  defaultValue={Math.round(settings.defaultTimelineViewMinDisplaySceneLengthInFrames / (file.fps * 1.0))}
                   marks={{
                     0: '0',
                     10: '10',
                   }}
                   handle={handle}
-                  onChange={this.props.onChangeMinDisplaySceneLength}
+                  onChange={onChangeMinDisplaySceneLength}
                 />
               </Grid.Column>
             </Grid.Row>
           }
-          { (this.props.visibilitySettings.defaultView === VIEW.GRIDVIEW) &&
+          { (visibilitySettings.defaultView === VIEW.GRIDVIEW) &&
             <Grid.Row>
               <Grid.Column width={4}>
                 Options
@@ -512,7 +541,7 @@ class SettingsList extends Component {
                           Show header
                         </label>
                       }
-                      checked={this.props.settings.defaultShowHeader}
+                      checked={settings.defaultShowHeader}
                       onChange={this.onChangeShowHeader}
                     />
                   </List.Item>
@@ -525,8 +554,8 @@ class SettingsList extends Component {
                           Show file path
                         </label>
                       }
-                      disabled={!this.props.settings.defaultShowHeader}
-                      checked={this.props.settings.defaultShowPathInHeader}
+                      disabled={!settings.defaultShowHeader}
+                      checked={settings.defaultShowPathInHeader}
                       onChange={this.onChangeShowPathInHeader}
                     />
                   </List.Item>
@@ -539,8 +568,8 @@ class SettingsList extends Component {
                           Show file details
                         </label>
                       }
-                      disabled={!this.props.settings.defaultShowHeader}
-                      checked={this.props.settings.defaultShowDetailsInHeader}
+                      disabled={!settings.defaultShowHeader}
+                      checked={settings.defaultShowDetailsInHeader}
                       onChange={this.onChangeShowDetailsInHeader}
                     />
                   </List.Item>
@@ -553,8 +582,8 @@ class SettingsList extends Component {
                           Show timeline
                         </label>
                       }
-                      disabled={!this.props.settings.defaultShowHeader}
-                      checked={this.props.settings.defaultShowTimelineInHeader}
+                      disabled={!settings.defaultShowHeader}
+                      checked={settings.defaultShowTimelineInHeader}
                       onChange={this.onChangeShowTimelineInHeader}
                     />
                   </List.Item>
@@ -566,7 +595,7 @@ class SettingsList extends Component {
                           Rounded corners
                         </label>
                       }
-                      checked={this.props.settings.defaultRoundedCorners}
+                      checked={settings.defaultRoundedCorners}
                       onChange={this.onChangeRoundedCorners}
                     />
                   </List.Item>
@@ -578,7 +607,7 @@ class SettingsList extends Component {
                           Show hidden thumbs
                         </label>
                       }
-                      checked={this.props.visibilitySettings.visibilityFilter === 'SHOW_ALL'}
+                      checked={visibilitySettings.visibilityFilter === 'SHOW_ALL'}
                       onChange={this.onChangeShowHiddenThumbs}
                     />
                   </List.Item>
@@ -593,7 +622,7 @@ class SettingsList extends Component {
                         }
                       name="radioGroup"
                       value="frames"
-                      checked={this.props.settings.defaultThumbInfo === 'frames'}
+                      checked={settings.defaultThumbInfo === 'frames'}
                       onChange={this.onChangeThumbInfo}
                     />
                   </List.Item>
@@ -607,7 +636,7 @@ class SettingsList extends Component {
                         }
                       name="radioGroup"
                       value="timecode"
-                      checked={this.props.settings.defaultThumbInfo === 'timecode'}
+                      checked={settings.defaultThumbInfo === 'timecode'}
                       onChange={this.onChangeThumbInfo}
                     />
                   </List.Item>
@@ -621,7 +650,7 @@ class SettingsList extends Component {
                         }
                       name="radioGroup"
                       value="hideInfo"
-                      checked={this.props.settings.defaultThumbInfo === 'hideInfo'}
+                      checked={settings.defaultThumbInfo === 'hideInfo'}
                       onChange={this.onChangeThumbInfo}
                     />
                   </List.Item>
@@ -640,17 +669,17 @@ class SettingsList extends Component {
                   <div
                     style={{
                       wordWrap: 'break-word',
-                      opacity: this.props.settings.defaultOutputPathFromMovie ? '0.5' : '1.0'
+                      opacity: settings.defaultOutputPathFromMovie ? '0.5' : '1.0'
                     }}
                   >
-                    {this.props.settings.defaultOutputPath}
+                    {settings.defaultOutputPath}
                   </div>
                 </List.Item>
                 <List.Item>
                   <Button
                     data-tid='changeOutputPathBtn'
-                    onClick={this.props.onChangeOutputPathClick}
-                    disabled={this.props.settings.defaultOutputPathFromMovie}
+                    onClick={onChangeOutputPathClick}
+                    disabled={settings.defaultOutputPathFromMovie}
                   >
                     Change...
                   </Button>
@@ -666,7 +695,7 @@ class SettingsList extends Component {
                     style={{
                       marginTop: '8px',
                     }}
-                    checked={this.props.settings.defaultOutputPathFromMovie}
+                    checked={settings.defaultOutputPathFromMovie}
                     onChange={this.onChangeOutputPathFromMovie}
                   />
                 </List.Item>
@@ -682,8 +711,8 @@ class SettingsList extends Component {
                 data-tid='changeMoviePrintWidthDropdown'
                 placeholder="Select..."
                 selection
-                options={outputSize(this.props.file, this.props.columnCountTemp, this.props.thumbCountTemp, this.props.settings, this.props.visibilitySettings, this.props.sceneArray)}
-                defaultValue={this.props.settings.defaultMoviePrintWidth}
+                options={outputSize(file, columnCountTemp, thumbCountTemp, settings, visibilitySettings, sceneArray)}
+                defaultValue={settings.defaultMoviePrintWidth}
                 onChange={this.onChangeMoviePrintWidth}
               />
             </Grid.Column>
@@ -698,7 +727,7 @@ class SettingsList extends Component {
                 placeholder="Select..."
                 selection
                 options={OUTPUT_FORMAT_OPTIONS}
-                defaultValue={this.props.settings.defaultOutputFormat}
+                defaultValue={settings.defaultOutputFormat}
                 onChange={this.onChangeOutputFormat}
               />
             </Grid.Column>
@@ -717,7 +746,7 @@ class SettingsList extends Component {
                         Overwrite existing
                       </label>
                     }
-                    checked={this.props.settings.defaultSaveOptionOverwrite}
+                    checked={settings.defaultSaveOptionOverwrite}
                     onChange={this.onChangeOverwrite}
                   />
                 </List.Item>
@@ -729,7 +758,7 @@ class SettingsList extends Component {
                         Include individual frames
                       </label>
                     }
-                    checked={this.props.settings.defaultSaveOptionIncludeIndividual}
+                    checked={settings.defaultSaveOptionIncludeIndividual}
                     onChange={this.onChangeIncludeIndividual}
                   />
                 </List.Item>
@@ -758,9 +787,9 @@ class SettingsList extends Component {
                   <Button
                     data-tid='runSceneDetectionBtn'
                     fluid
-                    loading={this.props.fileScanRunning}
-                    disabled={this.props.fileScanRunning}
-                    onClick={() => this.props.runSceneDetection(this.props.file, this.props.settings.defaultSceneDetectionThreshold)}
+                    loading={fileScanRunning}
+                    disabled={fileScanRunning}
+                    onClick={() => this.props.runSceneDetection(file, settings.defaultSceneDetectionThreshold)}
                   >
                       Scan/Run shot detection
                   </Button>
@@ -781,14 +810,14 @@ class SettingsList extends Component {
                 className={styles.slider}
                 min={5}
                 max={40}
-                defaultValue={this.props.settings.defaultSceneDetectionThreshold}
+                defaultValue={settings.defaultSceneDetectionThreshold}
                 marks={{
                   5: '5',
                   20: '20',
                   40: '40',
                 }}
                 handle={handle}
-                onChange={this.props.onChangeSceneDetectionThreshold}
+                onChange={onChangeSceneDetectionThreshold}
               />
             </Grid.Column>
           </Grid.Row>
@@ -802,9 +831,9 @@ class SettingsList extends Component {
                   <Button
                     data-tid='showDetectionChartBtn'
                     // fluid
-                    onClick={this.props.onToggleDetectionChart}
+                    onClick={onToggleDetectionChart}
                   >
-                    {this.props.showChart ? 'Hide detection chart' : 'Show detection chart'}
+                    {showChart ? 'Hide detection chart' : 'Show detection chart'}
                   </Button>
                 }
                 className={stylesPop.popup}
@@ -831,7 +860,7 @@ class SettingsList extends Component {
                     Automatic detection of In and Outpoint
                   </label>
                 }
-                checked={this.props.settings.defaultDetectInOutPoint}
+                checked={settings.defaultDetectInOutPoint}
                 onChange={this.onChangeDetectInOutPoint}
               />
             </Grid.Column>
@@ -839,22 +868,17 @@ class SettingsList extends Component {
           <Divider inverted />
           <Grid.Row>
             <Grid.Column width={4}>
-              Frame scale
+              Max size of cached frames
             </Grid.Column>
             <Grid.Column width={12}>
-              <SliderWithTooltip
-                // data-tid='marginSlider'
-                className={styles.slider}
-                min={1}
-                max={10}
-                defaultValue={this.props.frameScale * 10}
-                marks={{
-                  1: '0.1',
-                  10: '1',
-                }}
-                handle={handle}
-                onChange={this.props.onChangeFrameScale}
-              />
+            <Dropdown
+              data-tid='changeCachedFramesSizeDropdown'
+              placeholder="Select..."
+              selection
+              options={CACHED_FRAMES_SIZE_OPTIONS}
+              defaultValue={settings.defaultCachedFramesSize || 0}
+              onChange={this.onChangeCachedFramesSize}
+            />
             </Grid.Column>
           </Grid.Row>
         </Grid>

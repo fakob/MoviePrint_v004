@@ -45,6 +45,7 @@ import {
   DEFAULT_TIMELINEVIEW_MIN_DISPLAY_SCENE_LENGTH_IN_FRAMES,
   DEFAULT_TIMELINEVIEW_WIDTH_SCALE,
   DEFAULT_TIMELINEVIEW_FLOW,
+  DEFAULT_CACHED_FRAMES_SIZE,
 } from '../utils/constants';
 
 const { app } = require('electron').remote;
@@ -99,6 +100,7 @@ const initialStateJSON = {
       defaultTimelineViewMinDisplaySceneLengthInFrames: DEFAULT_TIMELINEVIEW_MIN_DISPLAY_SCENE_LENGTH_IN_FRAMES,
       defaultTimelineViewWidthScale: DEFAULT_TIMELINEVIEW_WIDTH_SCALE,
       defaultTimelineViewFlow: DEFAULT_TIMELINEVIEW_FLOW,
+      defaultCachedFramesSize: DEFAULT_CACHED_FRAMES_SIZE,
       emailAddress: '',
     },
     scenesByFileId: {},

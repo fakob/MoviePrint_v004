@@ -232,6 +232,14 @@ export const setDefaultOutputFormat = (defaultOutputFormat) => {
   };
 };
 
+export const setDefaultCachedFramesSize = (defaultCachedFramesSize) => {
+  log.debug(`action: setDefaultCachedFramesSize - ${defaultCachedFramesSize}`);
+  return {
+    type: 'SET_DEFAULT_CACHED_FRAMES_SIZE',
+    defaultCachedFramesSize
+  };
+};
+
 export const setDefaultSaveOptionOverwrite = (defaultSaveOptionOverwrite) => {
   log.debug(`action: setDefaultSaveOptionOverwrite - ${defaultSaveOptionOverwrite}`);
   return {
@@ -357,7 +365,7 @@ export const addScene = (fileId, start, length, colorArray, sceneId = uuidV4()) 
   };
 };
 
-export const addScenes = (file, sceneList, clearOldScenes = false, frameScale) => {
+export const addScenes = (file, sceneList, clearOldScenes = false, frameSize) => {
   return (dispatch) => {
     log.debug('action: addScenes');
     if (clearOldScenes) {
@@ -367,7 +375,7 @@ export const addScenes = (file, sceneList, clearOldScenes = false, frameScale) =
     sceneList.map((scene, index) => {
       const sceneId = uuidV4();
       const thumbId = uuidV4();
-      dispatch(addThumb(file, DEFAULT_SHEET_SCENES, scene.start + Math.floor(scene.length / 2), index, thumbId, sceneId, frameScale));
+      dispatch(addThumb(file, DEFAULT_SHEET_SCENES, scene.start + Math.floor(scene.length / 2), index, thumbId, sceneId, frameSize));
       return dispatch(addScene(file.id, scene.start, scene.length, scene.colorArray, sceneId));
     })
   };
@@ -387,7 +395,7 @@ export const toggleScene = (currentFileId, sheet, sceneId) => {
 
 // thumbs
 
-export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), sceneId = undefined, frameScale = 1) => {
+export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), sceneId = undefined, frameSize = 0) => {
   return (dispatch) => {
     log.debug('action: addThumb');
     const frameId = uuidV4();
@@ -403,7 +411,7 @@ export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), sc
       // log.debug(frames.length);
       if (frame === undefined) {
         log.debug(`frame number: ${frameNumber} not yet in database - need(s) to be captured`);
-        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheet, [thumbId], [frameId], [newFrameNumberWithinBoundaries], file.useRatio, frameScale);
+        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheet, [thumbId], [frameId], [newFrameNumberWithinBoundaries], file.useRatio, frameSize);
         log.debug('dispatch: ADD_THUMB');
         return dispatch({
           type: 'ADD_THUMB',
@@ -543,7 +551,7 @@ export const clearThumbs = (fileId = '', sheet = '') => {
   };
 };
 
-export const addDefaultThumbs = (file, sheet, amount = 20, start = 10, stop = file.frameCount - 1, frameScale) => {
+export const addDefaultThumbs = (file, sheet, amount = 20, start = 10, stop = file.frameCount - 1, frameSize) => {
   return (dispatch) => {
     log.debug('action: addDefaultThumbs');
 
@@ -568,20 +576,15 @@ export const addDefaultThumbs = (file, sheet, amount = 20, start = 10, stop = fi
       .map(x => mapRange(x, 0, newAmount - 1, startWithBoundaries, stopWithBoundaries, true));
     // log.debug(frameNumberArray);
     dispatch(clearThumbs(file.id, sheet));
-    return dispatch(addThumbs(file, sheet, frameNumberArray, frameScale));
+    return dispatch(addThumbs(file, sheet, frameNumberArray, frameSize));
   };
 };
 
-export const addThumbs = (file, sheet, frameNumberArray, frameScale = 1) => {
+export const addThumbs = (file, sheet, frameNumberArray, frameSize = 0) => {
   return (dispatch) => {
     log.debug('action: addThumbs');
 
-    // create compound array to search for both fileId and frameNumber
-    // log.debug(frameNumberArray);
-    // const fileIdAndFrameNumberArray = frameNumberArray.map((item) => [file.id, item]);
-
     const frames = getFramesByFileIdAndFrameNumberArray(file.id, frameNumberArray);
-    // return imageDB.frameList.where('[fileId+frameNumber]').anyOf(fileIdAndFrameNumberArray).toArray().then((frames) => {
       // log.debug(frames.length);
       // log.debug(frames);
 
@@ -600,10 +603,7 @@ export const addThumbs = (file, sheet, frameNumberArray, frameScale = 1) => {
       // log.debug(frameNumberArray);
       // log.debug(alreadyExistingFrameNumbersArray);
       const filteredArray = frameNumberArray.filter(
-        function(e) {
-          return this.indexOf(e) < 0;
-        },
-        alreadyExistingFrameNumbersArray
+        value => alreadyExistingFrameNumbersArray.indexOf(value) < 0
       );
       // log.debug(filteredArray);
 
@@ -613,7 +613,7 @@ export const addThumbs = (file, sheet, frameNumberArray, frameScale = 1) => {
         // add new thumbs
         const frameIdArray = filteredArray.map(() => uuidV4());
         const thumbIdArray = filteredArray.map(() => uuidV4());
-        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheet, thumbIdArray, frameIdArray, filteredArray, file.useRatio, frameScale);
+        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheet, thumbIdArray, frameIdArray, filteredArray, file.useRatio, frameSize);
         log.debug('dispatch: ADD_THUMBS');
         dispatch({
           type: 'ADD_THUMBS',
@@ -655,7 +655,7 @@ export const addThumbs = (file, sheet, frameNumberArray, frameScale = 1) => {
   };
 };
 
-export const changeThumb = (sheet, file, thumbId, newFrameNumber, frameScale = 1) => {
+export const changeThumb = (sheet, file, thumbId, newFrameNumber, frameSize = 0) => {
   return (dispatch) => {
     log.debug(`action: changeThumb - ${newFrameNumber}`);
     const newFrameId = uuidV4();
@@ -665,7 +665,7 @@ export const changeThumb = (sheet, file, thumbId, newFrameNumber, frameScale = 1
     // imageDB.frameList.where('[fileId+frameNumber]').equals([file.id, newFrameNumberWithinBoundaries]).toArray().then((frames) => {
       if (frame === undefined) {
         log.debug(`frame number: ${newFrameNumber} not yet in database - need(s) to be captured`);
-        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheet, [thumbId], [newFrameId], [newFrameNumberWithinBoundaries], file.useRatio, frameScale);
+        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheet, [thumbId], [newFrameId], [newFrameNumberWithinBoundaries], file.useRatio, frameSize);
         log.debug('dispatch: CHANGE_THUMB');
         return dispatch({
           type: 'CHANGE_THUMB',
@@ -696,6 +696,18 @@ export const changeThumb = (sheet, file, thumbId, newFrameNumber, frameScale = 1
     // });
   };
 };
+
+// export const updateAllFrameData = (sheet, file, frameSize = 0) => {
+//   return (dispatch) => {
+//     log.debug(`action: updateAllFrameData`);
+//     const newFrameId = uuidV4();
+//     const newFrameNumberWithinBoundaries = limitRange(newFrameNumber, 0, file.frameCount - 1);
+//
+//     const frame = getFrameByFileIdAndFrameNumber(file.id, newFrameNumberWithinBoundaries);
+//     ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheet, thumbIdArray, frameIdArray, filteredArray, file.useRatio, frameSize);
+//
+//   };
+// };
 
 export const deleteSceneSheets = (fileId) => {
   log.debug('action: deleteSceneSheets');

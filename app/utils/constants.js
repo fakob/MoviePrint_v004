@@ -47,6 +47,13 @@ export const OUTPUT_FORMAT_OPTIONS = [
   { value: 'jpg', text: 'JPG', 'data-tid': 'jpgOption' },
 ];
 
+export const CACHED_FRAMES_SIZE_OPTIONS = [
+  { value: 0, text: 'Original size', 'data-tid': 'originalSizeOption' }, // 0 stands for original size
+  { value: 320, text: '320px', 'data-tid': '320option' },
+  { value: 640, text: '640px', 'data-tid': '640option' },
+  { value: 720, text: '720px', 'data-tid': '720option' },
+];
+
 // start initialStateJSON
 export const VISIBILITY_FILTER = 'SHOW_VISIBLE';
 export const SHOW_MOVIELIST = false;
@@ -95,6 +102,7 @@ export const DEFAULT_TIMELINEVIEW_SECONDS_PER_ROW = 120.0;
 export const DEFAULT_TIMELINEVIEW_MIN_DISPLAY_SCENE_LENGTH_IN_FRAMES = 15;
 export const DEFAULT_TIMELINEVIEW_WIDTH_SCALE = 50;
 export const DEFAULT_TIMELINEVIEW_FLOW = false;
+export const DEFAULT_CACHED_FRAMES_SIZE = 0; // 0 stands for original size
 // end initialStateJSON
 
 export const MENU_HEADER_HEIGHT = 35;

@@ -32,6 +32,8 @@ const settings = (state = {}, action) => {
       return { ...state, defaultOutputPath: action.defaultOutputPath };
     case 'SET_DEFAULT_OUTPUT_FORMAT':
       return { ...state, defaultOutputFormat: action.defaultOutputFormat };
+    case 'SET_DEFAULT_CACHED_FRAMES_SIZE':
+      return { ...state, defaultCachedFramesSize: action.defaultCachedFramesSize };
     case 'SET_DEFAULT_SAVE_OPTION_OVERWRITE':
       return { ...state, defaultSaveOptionOverwrite: action.defaultSaveOptionOverwrite };
     case 'SET_DEFAULT_SAVE_OPTION_INCLUDE_INDIVIDUAL':

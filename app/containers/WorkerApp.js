@@ -42,11 +42,11 @@ class WorkerApp extends Component {
   componentDidMount() {
     log.debug('I am the worker window - responsible for saving a MoviePrint');
     ipcRenderer.on('action-saved-MoviePrint-done', (event) => {
-      // this.setState({
-      //   sentData: {},
-      //   thumbObjectBase64s: {},
-      //   savingMoviePrint: false,
-      // });
+      this.setState({
+        savingMoviePrint: false,
+        sentData: {},
+        thumbObjectBase64s: {},
+      });
     });
 
     ipcRenderer.on('action-save-MoviePrint', (event, sentData) => {
@@ -78,9 +78,9 @@ class WorkerApp extends Component {
       const base64Object = arrayToObject(arrayOfFrames, 'frameId');
 
       this.setState({
+        savingMoviePrint: true,
         sentData,
         thumbObjectBase64s: base64Object,
-        savingMoviePrint: true,
       });
     });
   }

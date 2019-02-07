@@ -54,7 +54,7 @@ import {
   clearScenes, addScene, addScenes, setDefaultSceneDetectionThreshold, setDefaultTimelineViewSecondsPerRow,
   setSheetFit, clearObjectUrls, updateThumbObjectUrlFromDB, returnObjectUrlsFromFrameList,
   setDefaultTimelineViewMinDisplaySceneLengthInFrames, deleteSceneSheets, setDefaultTimelineViewWidthScale,
-  setDefaultTimelineViewFlow, setDefaultOutputPathFromMovie
+  setDefaultTimelineViewFlow, setDefaultOutputPathFromMovie, setDefaultCachedFramesSize
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -66,7 +66,7 @@ import {
   SHEET_TYPE,
   SHEET_FIT,
   DEFAULT_THUMB_COUNT,
-  DEFAULT_FRAME_SCALE,
+  DEFAULT_CACHED_FRAMES_SIZE,
   DEFAULT_SHEET_SCENES,
   DEFAULT_SHEET_INTERVAL,
   FRAMESDB_PATH,
@@ -76,6 +76,7 @@ import {
   deleteTableFramelist,
   getFrameByFrameId,
   getAllFrames,
+  getAllFramesByFileId,
 } from '../utils/utilsForSqlite';
 
 import startupImg from '../img/MoviePrint-steps.svg';
@@ -159,7 +160,6 @@ class App extends Component {
       filesToPrint: [],
       savingAllMoviePrints: false,
       objectUrlsArray: [],
-      frameScale: DEFAULT_FRAME_SCALE,
       frameBase64Array: [],
       framesToFetch: [],
     };
@@ -209,7 +209,6 @@ class App extends Component {
     this.onApplyNewGridClick = this.onApplyNewGridClick.bind(this);
     this.onCancelClick = this.onCancelClick.bind(this);
 
-    this.onChangeFrameScale = this.onChangeFrameScale.bind(this);
     this.onChangeMargin = this.onChangeMargin.bind(this);
     this.onChangeMinDisplaySceneLength = this.onChangeMinDisplaySceneLength.bind(this);
     this.onChangeSceneDetectionThreshold = this.onChangeSceneDetectionThreshold.bind(this);
@@ -231,6 +230,7 @@ class App extends Component {
     this.onSetSheetClick = this.onSetSheetClick.bind(this);
     this.onChangeOutputPathClick = this.onChangeOutputPathClick.bind(this);
     this.onOutputFormatClick = this.onOutputFormatClick.bind(this);
+    this.onCachedFramesSizeClick = this.onCachedFramesSizeClick.bind(this);
     this.onOverwriteClick = this.onOverwriteClick.bind(this);
     this.onIncludeIndividualClick = this.onIncludeIndividualClick.bind(this);
     this.onThumbnailScaleClick = this.onThumbnailScaleClick.bind(this);
@@ -247,12 +247,16 @@ class App extends Component {
 
   componentWillMount() {
     const { store } = this.context;
-
-    const allFrames = getAllFrames();
-    this.setState({
-      frameBase64Array: allFrames,
-    })
-    console.log(allFrames);
+    const { currentFileId } = this.props;
+    if (currentFileId !== undefined) {
+      const frames = getAllFramesByFileId(currentFileId);
+      this.setState({
+        frameBase64Array: frames,
+      })
+      console.log(frames);
+    } else {
+      console.log('No frames loaded from database');
+    }
 
     // get objecturls from all frames in imagedb
     // store.dispatch(returnObjectUrlsFromFrameList()).then(arrayOfObjectUrls => {
@@ -374,7 +378,7 @@ class App extends Component {
           store.getState().undoGroup.present.settings.defaultThumbCount,
           fadeInPoint,
           fadeOutPoint,
-          this.state.frameScale,
+          this.props.settings.defaultCachedFramesSize
         ));
       }
       if (this.state.filesToLoad.length > 0) {
@@ -1181,7 +1185,7 @@ class App extends Component {
       //   DEFAULT_SHEET_SCENES,
       //   listOfFrameNumbers,
       // ));
-      store.dispatch(addScenes(tempFile, sceneList, clearOldScenes, this.state.frameScale));
+      store.dispatch(addScenes(tempFile, sceneList, clearOldScenes, this.props.settings.defaultCachedFramesSize));
     } else {
       this.setState({
         progressMessage: 'No scenes detected',
@@ -1241,7 +1245,7 @@ class App extends Component {
           DEFAULT_THUMB_COUNT, // use constant value instead of defaultThumbCount
           sceneArray[sceneIndex].start,
           sceneArray[sceneIndex].start + sceneArray[sceneIndex].length - 1,
-          this.state.frameScale,
+          this.props.settings.defaultCachedFramesSize
         ));
     }
     store.dispatch(setSheet(sheetName));
@@ -1268,7 +1272,7 @@ class App extends Component {
         newFrameNumberAfter,
         indexOfAllThumbs + 1,
         newThumbId,
-        this.state.frameScale,
+        this.props.settings.defaultCachedFramesSize
       ));
     } else if (insertWhere === 'before') { // if shiftKey
       store.dispatch(addThumb(
@@ -1277,7 +1281,7 @@ class App extends Component {
         newFrameNumberBefore,
         indexOfAllThumbs,
         newThumbId,
-        this.state.frameScale,
+        this.props.settings.defaultCachedFramesSize,
       ));
     }
   }
@@ -1324,7 +1328,7 @@ class App extends Component {
             scrubFrameNumber,
             this.props.thumbs.find((thumb) => thumb.thumbId === this.state.scrubThumb.thumbId).index + 1,
             newThumbId,
-            this.state.frameScale,
+            this.props.settings.defaultCachedFramesSize,
           ));
         } else { // if shiftKey
           store.dispatch(addThumb(
@@ -1333,11 +1337,11 @@ class App extends Component {
             scrubFrameNumber,
             this.props.thumbs.find((thumb) => thumb.thumbId === this.state.scrubThumb.thumbId).index,
             newThumbId,
-            this.state.frameScale,
+            this.props.settings.defaultCachedFramesSize,
           ));
         }
       } else { // if normal set new thumb
-        store.dispatch(changeThumb(this.props.visibilitySettings.defaultSheet, this.props.file, this.state.scrubThumb.thumbId, scrubFrameNumber, this.state.frameScale));
+        store.dispatch(changeThumb(this.props.visibilitySettings.defaultSheet, this.props.file, this.state.scrubThumb.thumbId, scrubFrameNumber, this.props.settings.defaultCachedFramesSize));
       }
     }
     this.setState({
@@ -1424,12 +1428,17 @@ class App extends Component {
     store.dispatch(setCurrentFileId(file.id));
     this.onSetSheetClick(DEFAULT_SHEET_INTERVAL);
 
+    // load all frames from database into memory
+    const frames = getAllFramesByFileId(file.id);
+    this.setState({
+      frameBase64Array: frames,
+    })
+
     // When clicking on a filelist element for the first time
     // set columnCount as it is not defined yet
     if (file.columnCount === undefined) {
       store.dispatch(updateFileColumnCount(file.id, getColumnCount(file, this.props.settings)));
     }
-
     this.getThumbsForFile(file);
   }
 
@@ -1449,7 +1458,7 @@ class App extends Component {
           this.props.settings.defaultThumbCount,
           file.fadeInPoint,
           file.fadeOutPoint,
-          this.state.frameScale,
+          this.props.settings.defaultCachedFramesSize,
         )).catch(error => {
           console.log(error)
         });
@@ -1591,15 +1600,9 @@ class App extends Component {
             ? undefined : this.props.thumbsByFileId[this.props.currentFileId][this.props.visibilitySettings.defaultSheet],
           this.props.visibilitySettings.visibilityFilter
         )),
-        this.state.frameScale,
+        this.props.settings.defaultCachedFramesSize,
       ));
     }
-  };
-
-  onChangeFrameScale = (value) => {
-    this.setState({
-      frameScale: (value / 10.0)
-    })
   };
 
   onChangeMinDisplaySceneLength = (value) => {
@@ -1738,6 +1741,12 @@ class App extends Component {
     const { store } = this.context;
     // log.debug(value);
     store.dispatch(setDefaultOutputFormat(value));
+  };
+
+  onCachedFramesSizeClick = (value) => {
+    const { store } = this.context;
+    // log.debug(value);
+    store.dispatch(setDefaultCachedFramesSize(value));
   };
 
   onOverwriteClick = (value) => {
@@ -1927,9 +1936,7 @@ class App extends Component {
                         onCancelClick={this.onCancelClick}
                         onChangeMargin={this.onChangeMargin}
                         onChangeMinDisplaySceneLength={this.onChangeMinDisplaySceneLength}
-                        frameScale={this.state.frameScale}
                         sceneArray={this.props.scenes}
-                        onChangeFrameScale={this.onChangeFrameScale}
                         onChangeSceneDetectionThreshold={this.onChangeSceneDetectionThreshold}
                         onChangeTimelineViewSecondsPerRow={this.onChangeTimelineViewSecondsPerRow}
                         onChangeTimelineViewWidthScale={this.onChangeTimelineViewWidthScale}
@@ -1943,6 +1950,7 @@ class App extends Component {
                         onThumbInfoClick={this.onThumbInfoClick}
                         onChangeOutputPathClick={this.onChangeOutputPathClick}
                         onOutputFormatClick={this.onOutputFormatClick}
+                        onCachedFramesSizeClick={this.onCachedFramesSizeClick}
                         onOverwriteClick={this.onOverwriteClick}
                         onIncludeIndividualClick={this.onIncludeIndividualClick}
                         onThumbnailScaleClick={this.onThumbnailScaleClick}
@@ -1980,7 +1988,7 @@ class App extends Component {
                           selectThumbMethod={this.onSelectThumbMethod}
                           keyObject={this.state.keyObject}
                           opencvVideo={this.state.opencvVideo}
-                          frameScale={this.state.frameScale}
+                          frameSize={this.props.settings.defaultCachedFramesSize}
                         />
                       ) :
                       (
@@ -2052,7 +2060,7 @@ class App extends Component {
                               thumbs={this.props.thumbs}
                               viewForPrinting={false}
                               visibilitySettings={this.props.visibilitySettings}
-                              frameScale={this.state.frameScale}
+                              frameSize={this.props.settings.defaultCachedFramesSize}
                             />
                           </Conditional>
                           <Conditional if={this.props.visibilitySettings.defaultView === VIEW.TIMELINEVIEW}>
