@@ -3,7 +3,10 @@ import { render } from 'react-dom';
 import log from 'electron-log';
 import VideoCaptureProperties from './utils/videoCaptureProperties';
 import { limitRange, setPosition, fourccToString } from './utils/utils';
-import { HSVtoRGB } from './utils/utilsForOpencv';
+import {
+  HSVtoRGB,
+  recaptureThumbs,
+ } from './utils/utilsForOpencv';
 import {
   IN_OUT_POINT_SEARCH_LENGTH,
   IN_OUT_POINT_SEARCH_THRESHOLD,
@@ -57,8 +60,38 @@ process.on('SIGTERM', err => {
 //   log.debug(...args);
 // });
 
-ipcRenderer.on('recapture-all-frames', (event) => {
-  // log.debug(...args); getAllFramesNoBase64
+ipcRenderer.on('recapture-all-frames', (event, files, frameSize) => {
+  log.debug('opencvWorkerWindow | on recapture all frames');
+  log.debug(`opencvWorkerWindow | frameSize: ${frameSize}`);
+
+  log.debug(files);
+  files.map(file => {
+    log.debug(`opencvWorkerWindow | ${file.path}`);
+    log.debug(`opencvWorkerWindow | useRatio: ${file.useRatio}`);
+    const frames = getAllFramesNoBase64(file.id);
+    console.log(frames);
+    const frameNumberArray = frames.map(frame => frame.frameNumber)
+    const frameIdArray = frames.map(frame => frame.frameId)
+    recaptureThumbs(
+      frameSize,
+      file.path,
+      file.useRatio,
+      frameIdArray,
+      frameNumberArray,
+    );
+    return true; // finished capturing
+  });
+  ipcRenderer.send(
+    'message-from-opencvWorkerWindow-to-mainWindow',
+    'update-frames-from-database',
+  );
+  ipcRenderer.send(
+    'message-from-opencvWorkerWindow-to-mainWindow',
+    'progressMessage',
+    'success',
+    `Finished recapturing all frames with ${frameSize === 0 ? 'original size' : frameSize}px`,
+    3000
+  );
 });
 
 ipcRenderer.on(
@@ -98,7 +131,6 @@ ipcRenderer.on(
       ipcRenderer.send(
         'message-from-opencvWorkerWindow-to-mainWindow',
         'progressMessage',
-        fileId,
         'error',
         `Failed to open ${filePath}`,
         3000
@@ -197,7 +229,6 @@ ipcRenderer.on(
       ipcRenderer.send(
         'message-from-opencvWorkerWindow-to-mainWindow',
         'progressMessage',
-        fileId,
         'info',
         'Detecting in and outpoint'
       );
@@ -366,7 +397,6 @@ ipcRenderer.on(
               ipcRenderer.send(
                 'message-from-opencvWorkerWindow-to-mainWindow',
                 'progressMessage',
-                fileId,
                 'info',
                 `In and Outpoint detection finished - ${timeAfterInOutPointDetection -
                   timeBeforeInOutPointDetection}ms`,
@@ -555,7 +585,6 @@ ipcRenderer.on(
             ipcRenderer.send(
               'message-from-opencvWorkerWindow-to-mainWindow',
               'progressMessage',
-              fileId,
               'info',
               messageToSend,
               6000

@@ -195,6 +195,7 @@ class App extends Component {
 
     this.updatecontainerWidthAndHeight = this.updatecontainerWidthAndHeight.bind(this);
     this.updateScaleValue = this.updateScaleValue.bind(this);
+    this.updateFramesFromDatabase = this.updateFramesFromDatabase.bind(this);
 
     this.onFileListElementClick = this.onFileListElementClick.bind(this);
     this.onErrorPosterFrame = this.onErrorPosterFrame.bind(this);
@@ -249,36 +250,8 @@ class App extends Component {
 
   componentWillMount() {
     const { store } = this.context;
-    const { currentFileId } = this.props;
 
-    // get all posterframes
-    const frames = getFramesByIsPosterFrame(1);
-    this.setState({
-      posterframeBase64Array: frames,
-    });
-
-    // get all frames for currentFileId
-    if (currentFileId !== undefined) {
-      const frames = getAllFramesByFileId(currentFileId);
-      this.setState({
-        frameBase64Array: frames,
-      })
-      console.log(frames);
-    } else {
-      console.log('No frames loaded from database');
-    }
-
-    // get objecturls from all frames in imagedb
-    // store.dispatch(returnObjectUrlsFromFrameList()).then(arrayOfObjectUrls => {
-    //   console.log(arrayOfObjectUrls);
-    //   this.setState({
-    //     objectUrlsArray: arrayOfObjectUrls
-    //   })
-    //   return undefined;
-    // })
-    // .catch((err) => {
-    //   log.error(err);
-    // });
+    this.updateFramesFromDatabase();
 
     setColumnAndThumbCount(
       this,
@@ -325,13 +298,17 @@ class App extends Component {
       deleteTableFramelist();
     });
 
+    ipcRenderer.on('update-frames-from-database', (event) => {
+      this.updateFramesFromDatabase();
+    });
+
     ipcRenderer.on('progress', (event, fileId, progressBarPercentage) => {
       this.setState({
         progressBarPercentage: Math.ceil(progressBarPercentage)
       });
     });
 
-    ipcRenderer.on('progressMessage', (event, fileId, status, message, time) => {
+    ipcRenderer.on('progressMessage', (event, status, message, time) => {
       this.setState({
         progressMessage: message,
         showMessage: true
@@ -851,13 +828,20 @@ class App extends Component {
             store.dispatch(setView(VIEW.TIMELINEVIEW));
             break;
           case 67: // press 'c'
+            const { files, settings } = this.props;
+            ipcRenderer.send(
+              'message-from-mainWindow-to-opencvWorkerWindow',
+              'recapture-all-frames',
+              files,
+              settings.defaultCachedFramesSize
+            );
+            break;
+          case 68: // press 'd'
             const allFrames = getAllFrames();
             this.setState({
               frameBase64Array: allFrames,
             })
             console.log(allFrames);
-            break;
-          case 68: // press 'd'
             break;
           default:
         }
@@ -871,6 +855,27 @@ class App extends Component {
           }
         });
       }
+    }
+  }
+
+  updateFramesFromDatabase(event) {
+    const { currentFileId } = this.props;
+
+    // get all posterframes
+    const posterframes = getFramesByIsPosterFrame(1);
+    this.setState({
+      posterframeBase64Array: posterframes,
+    });
+
+    // get all frames for currentFileId
+    if (currentFileId !== undefined) {
+      const frames = getAllFramesByFileId(currentFileId);
+      this.setState({
+        frameBase64Array: frames,
+      })
+      console.log(frames);
+    } else {
+      console.log('No frames loaded from database');
     }
   }
 
@@ -2117,12 +2122,6 @@ class App extends Component {
                               marginTop: this.state.scaleValueObject.newMoviePrintTimelineHeight/-2,
                             }}
                           />}
-                          {/* frameBase64Array.map((blob) => {
-                            // console.log(blob);
-                            return (
-                              <img style={{display: 'block', width: '100px', height: '100px'}} id='base64image' src={`data:image/png;base64, ${blob.data}`} />
-                            )
-                          }) */}
                         </Fragment>
                       ) :
                       (

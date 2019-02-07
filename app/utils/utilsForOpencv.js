@@ -1,9 +1,41 @@
 import log from 'electron-log';
 // import nj from 'numjs';
+import VideoCaptureProperties from './videoCaptureProperties';
+import {
+  setPosition,
+} from './utils';
+import {
+  updateFrameBase64,
+} from './utilsForSqlite';
 
 const opencv = require('opencv4nodejs');
 
+export const recaptureThumbs = (
+  frameSize,
+  filePath,
+  useRatio,
+  frameIdArray,
+  frameNumberArray,
+) => {
+  const vid = new opencv.VideoCapture(filePath);
 
+  for (let i = 0; i < frameNumberArray.length; i += 1) {
+    setPosition(vid, frameNumberArray[i], useRatio);
+    const mat = vid.read();
+    const frameId = frameIdArray[i];
+    if (mat.empty) {
+      log.info('opencvWorkerWindow | frame is empty');
+      updateFrameBase64(frameId, '');
+    } else {
+      let matRescaled;
+      if (frameSize !== 0) { // 0 stands for keep original size
+        matRescaled = mat.resizeToMax(frameSize);
+      }
+      const outBase64 = opencv.imencode('.jpg', matRescaled || mat).toString('base64'); // maybe change to .png?
+      updateFrameBase64(frameId, outBase64);
+    }
+  }
+}
 
 export const getDominantColor = (image, k=4) => {
   // takes an image as input

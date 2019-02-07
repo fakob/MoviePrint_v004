@@ -55,9 +55,14 @@ export const getAllFrames = (dataSource = 'base64_640') => {
 }
 
 // get all frames but without base64 data
-export const getAllFramesNoBase64 = () => {
-  const stmt = moviePrintDB.prepare(`SELECT frameId, fileId, frameNumber FROM frameList`);
-  return stmt.all();
+export const getAllFramesNoBase64 = (fileId = undefined) => {
+  let stmt;
+  if (fileId === undefined) {
+    stmt = moviePrintDB.prepare(`SELECT frameId, fileId, frameNumber FROM frameList ORDER BY fileId, frameNumber ASC`);
+    return stmt.all();
+  }
+  stmt = moviePrintDB.prepare(`SELECT frameId, fileId, frameNumber FROM frameList WHERE fileId = ? ORDER BY fileId, frameNumber ASC`);
+  return stmt.all(fileId);
 }
 
 // get all frames by fileId
