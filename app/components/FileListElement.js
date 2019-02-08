@@ -17,7 +17,7 @@ const FileListElement = ({
     <div
       className={`${styles.croppedThumb}`}
       style={{
-        backgroundColor: '#00ff00',
+        backgroundColor: '#1e1e1e',
         backgroundImage: `url(data:image/jpeg;base64,${base64})`
       }}
       alt={`${name}`}

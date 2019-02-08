@@ -1,26 +1,29 @@
 import uuidV4 from 'uuid/v4';
 import log from 'electron-log';
-import imageDB from './../utils/db';
-import { mapRange, limitRange } from './../utils/utils';
+import imageDB from '../utils/db';
+import { mapRange, limitRange } from '../utils/utils';
 import {
   DEFAULT_SHEET_SCENES,
-  FRAMESDB_PATH,
 } from '../utils/constants';
 import {
+  clearTableFramelist,
+  clearTableFrameScanList,
   createTableFramelist,
+  createTableFrameScanList,
   createTableMovielist,
-  insertMovie,
-  getFrameByFrameId,
   getFrameByFileIdAndFrameNumber,
+  getFrameByFrameId,
   getFramesByFileIdAndFrameNumberArray,
   getFramesByIsPosterFrame,
-  clearTable,
+  getFrameScanByFileId,
+  insertMovie,
 } from '../utils/utilsForSqlite';
 
 const { ipcRenderer } = require('electron');
 
 createTableFramelist(); // create table if not exist
 createTableMovielist(); // create table if not exist
+createTableFrameScanList(); // create table if not exist
 
 // visibilitySettings
 export const setVisibilityFilter = (filter) => {
@@ -96,27 +99,6 @@ export const setSheetFit = (defaultSheetFit) => {
     defaultSheetFit
   };
 };
-
-// export const toggleZoomOut = () => {
-  // log.debug(const'action: ');
-//   return {
-//     type: 'TOGGLE_ZOOM_OUT'
-//   };
-// };
-
-// export const zoomOut = () => {
-  // log.debug(const'action: ');
-//   return {
-//     type: 'ZOOM_OUT'
-//   };
-// };
-
-// export const zoomIn = () => {
-  // log.debug(const'action: ');
-//   return {
-//     type: 'ZOOM_IN'
-//   };
-// };
 
 // settings
 
@@ -831,17 +813,15 @@ export const setNewMovieList = (files, settings) => {
       type: 'CLEAR_MOVIE_LIST',
     });
     log.debug('dispatch: CLEAR_MOVIE_LIST');
-    clearTable();
-    return imageDB.fileScanList.clear()
-      .then(() => {
-        log.debug('dispatch: LOAD_MOVIE_LIST_FROM_DROP');
-        log.debug(newFiles);
-        dispatch({
-          type: 'LOAD_MOVIE_LIST_FROM_DROP',
-          payload: newFiles,
-        });
-        return newFiles;
-      });
+    clearTableFramelist();
+    clearTableFrameScanList();
+    log.debug('dispatch: LOAD_MOVIE_LIST_FROM_DROP');
+    log.debug(newFiles);
+    dispatch({
+      type: 'LOAD_MOVIE_LIST_FROM_DROP',
+      payload: newFiles,
+    });
+    return Promise.resolve(newFiles);
   };
 };
 
@@ -873,68 +853,6 @@ export const clearObjectUrls = () => {
     });
   };
 };
-
-// export const updateThumbObjectUrlFromDB = (fileId, sheet, thumbId, frameId, isPosterFrame = false) =>
-//   (dispatch) => {
-//     // log.debug('action: updateThumbObjectUrlFromDB');
-//     // log.debug(frameId);
-//     const frame = getFrameByFrameId(frameId);
-//     // return imageDB.frameList.where('frameId').equals(frameId).toArray().then((frames) => {
-//       // log.debug(frames);
-//       if (frame !== undefined) {
-//         if (isPosterFrame) {
-//           // log.debug('dispatch: UPDATE_OBJECTURL_FROM_POSTERFRAME');
-//           return dispatch({
-//             type: 'UPDATE_OBJECTURL_FROM_POSTERFRAME',
-//             payload: {
-//               frameId,
-//               frames
-//             },
-//           });
-//         }
-//         // log.debug('dispatch: UPDATE_OBJECTURL_FROM_THUMBLIST');
-//         return dispatch({
-//           type: 'UPDATE_OBJECTURL_FROM_THUMBLIST',
-//           payload: {
-//             fileId,
-//             sheet,
-//             frameId,
-//             frames
-//           },
-//         });
-//       }
-//       return false;
-//     // }).catch((err) => {
-//     //   log.error(err);
-//     // });
-//   };
-
-export const updateFileScanData = (fileId, meanArray, meanColorArray) =>
-  ((dispatch) => {
-    log.debug('action: updateFileScanData');
-    imageDB.fileScanList.put({
-      fileId,
-      meanArray,
-      meanColorArray
-    })
-  });
-
-export const getFileScanData = (fileId) =>
-  ((dispatch) => {
-    log.debug('action: getFileScanData');
-    return imageDB.fileScanList.where('fileId').equals(fileId).toArray()
-      .then((fileScan) => {
-        if (fileScan.length !== 0) {
-          const returnObject = {
-            meanArray: fileScan[0].meanArray,
-            meanColorArray: fileScan[0].meanColorArray
-          };
-          console.log(returnObject);
-          return returnObject;
-        }
-        return undefined;
-      })
-  });
 
   export const returnObjectUrlsFromFrameList = () => {
     return (dispatch, getState) => {

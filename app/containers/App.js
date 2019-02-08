@@ -50,10 +50,9 @@ import {
   setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
   setDefaultMoviePrintWidth, updateFileDetailUseRatio, setDefaultShowPaperPreview,
   setDefaultPaperAspectRatioInv, updateInOutPoint, removeMovieListItem, setDefaultDetectInOutPoint,
-  changeThumb, addThumb, setEmailAddress, addThumbs, updateFileScanData, getFileScanData,
+  changeThumb, addThumb, setEmailAddress, setDefaultTimelineViewWidthScale,
   clearScenes, addScene, addScenes, setDefaultSceneDetectionThreshold, setDefaultTimelineViewSecondsPerRow,
-  setSheetFit, clearObjectUrls, updateThumbObjectUrlFromDB, returnObjectUrlsFromFrameList,
-  setDefaultTimelineViewMinDisplaySceneLengthInFrames, deleteSceneSheets, setDefaultTimelineViewWidthScale,
+  setSheetFit, clearObjectUrls, setDefaultTimelineViewMinDisplaySceneLengthInFrames, deleteSceneSheets,
   setDefaultTimelineViewFlow, setDefaultOutputPathFromMovie, setDefaultCachedFramesSize
 } from '../actions';
 import {
@@ -72,12 +71,14 @@ import {
   FRAMESDB_PATH,
 } from '../utils/constants';
 import {
-  deleteTableMovielist,
   deleteTableFramelist,
-  getFrameByFrameId,
+  deleteTableFrameScanList,
+  deleteTableMovielist,
   getAllFrames,
   getAllFramesByFileId,
+  getFrameByFrameId,
   getFramesByIsPosterFrame,
+  getFrameScanByFileId,
 } from '../utils/utilsForSqlite';
 
 import startupImg from '../img/MoviePrint-steps.svg';
@@ -296,6 +297,7 @@ class App extends Component {
     ipcRenderer.on('delete-all-tables', (event) => {
       deleteTableMovielist();
       deleteTableFramelist();
+      deleteTableFrameScanList();
     });
 
     ipcRenderer.on('update-frames-from-database', (event) => {
@@ -467,12 +469,11 @@ class App extends Component {
       ));
     });
 
-    ipcRenderer.on('received-get-file-scan', (event, fileId, meanArray, meanColorArray) => {
+    ipcRenderer.on('received-get-file-scan', (event, fileId, filePath, useRatio) => {
       this.setState({
         fileScanRunning: false,
       });
-      store.dispatch(updateFileScanData(fileId, meanArray, meanColorArray));
-      this.calculateSceneList(fileId, meanArray, meanColorArray);
+      this.runSceneDetection(fileId, filePath, useRatio);
     });
 
     ipcRenderer.on('received-saved-file', (event, id, path) => {
@@ -806,8 +807,9 @@ class App extends Component {
             }
             break;
           case 83: // press 's'
-            if (this.props.currentFileId) {
-              this.runSceneDetection(this.props.file, 20.0)
+            const { file, currentFileId } = this.props;
+            if (currentFileId) {
+              this.runSceneDetection(file.id, file.path, file.useRatio, 20.0)
             }
             break;
           case 70: // press 'f'
@@ -1099,25 +1101,24 @@ class App extends Component {
     });
   }
 
-  runSceneDetection(file, threshold = this.props.settings.defaultSceneDetectionThreshold) {
+  runSceneDetection(fileId, filePath, useRatio, threshold = this.props.settings.defaultSceneDetectionThreshold) {
     this.hideSettings();
     this.onHideDetectionChart();
     const { store } = this.context;
     store.dispatch(setView(VIEW.TIMELINEVIEW));
     // get meanArray if it is stored else return false
-    store.dispatch(getFileScanData(file.id)).then((returnObject) => {
-      console.log(returnObject);
-      // if meanArray not stored, runFileScan
-      if (returnObject === undefined) {
-        this.runFileScan(file, threshold);
-      } else {
-        // console.log(returnObject);
-        this.calculateSceneList(file.id, returnObject.meanArray, returnObject.meanColorArray, threshold);
-      }
-      return true;
-    }).catch(error => {
-      log.error(error);
-    });
+    const arrayOfFrameScanData = getFrameScanByFileId(fileId);
+    // console.log(arrayOfFrameScanData);
+    // if meanArray not stored, runFileScan
+    if (arrayOfFrameScanData.length === 0) {
+      this.runFileScan(fileId, filePath, useRatio, threshold);
+    } else {
+      const meanValueArray = arrayOfFrameScanData.map(frame => frame.meanValue)
+      const meanColorArray = arrayOfFrameScanData.map(frame => JSON.parse(frame.meanColor))
+      // console.log(meanColorArray);
+      this.calculateSceneList(fileId, meanValueArray, meanColorArray, threshold);
+    }
+    return true;
   }
 
   calculateSceneList(fileId, meanArray, meanColorArray, threshold = this.props.settings.defaultSceneDetectionThreshold) {
@@ -1225,10 +1226,10 @@ class App extends Component {
     }
   }
 
-  runFileScan(file, threshold) {
+  runFileScan(fileId, filePath, useRatio, threshold) {
     if (this.state.fileScanRunning === false) {
       this.setState({ fileScanRunning: true });
-      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-scan', file.id, file.path, file.useRatio, threshold);
+      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-scan', fileId, filePath, useRatio, threshold);
     }
   }
 

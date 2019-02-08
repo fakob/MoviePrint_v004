@@ -1,11 +1,13 @@
 import Database from 'better-sqlite3';
+import log from 'electron-log';
 import {
   FRAMESDB_PATH,
 } from './constants';
 
-const moviePrintDB = new Database(FRAMESDB_PATH, { verbose: console.log });
+const moviePrintDB = new Database(FRAMESDB_PATH, { verbose: log.debug });
 moviePrintDB.pragma('journal_mode = WAL');
 
+// movies table actions
 // create movies table
 export const createTableMovielist = () => {
   const stmt = moviePrintDB.prepare('CREATE TABLE IF NOT EXISTS movielist(id TEXT, lastModified INTEGER, name TEXT, path TEXT, size INTEGER, type TEXT, posterFrameId TEXT)');
@@ -24,6 +26,7 @@ export const insertMovie = moviePrintDB.transaction((item) => {
   insert.run(item)
 });
 
+// frames table actions
 // create frames table
 export const createTableFramelist = () => {
   const stmt = moviePrintDB.prepare('CREATE TABLE IF NOT EXISTS frameList(frameId TEXT, frameNumber INTEGER, fileId TEXT, isPosterFrame NUMERIC, base64_640 NONE)');
@@ -32,20 +35,30 @@ export const createTableFramelist = () => {
 
 // delete frames table
 export const deleteTableFramelist = () => {
-  const stmt = moviePrintDB.prepare('DROP TABLE IF EXISTS framelist');
+  const stmt = moviePrintDB.prepare('DROP TABLE IF EXISTS frameList');
   stmt.run();
 }
 
 // insert frame
 export const insertFrame = moviePrintDB.transaction((item) => {
-  const insert = moviePrintDB.prepare('INSERT INTO frameList (frameId, frameNumber, fileId, isPosterFrame, base64_640) VALUES (@frameId, @frameNumber, @fileId, @isPosterFrame, @base64_640)');
-  insert.run(item)
+  try {
+    const insert = moviePrintDB.prepare('INSERT INTO frameList (frameId, frameNumber, fileId, isPosterFrame, base64_640) VALUES (@frameId, @frameNumber, @fileId, @isPosterFrame, @base64_640)');
+    insert.run(item)
+  } catch (e) {
+    log.error('catch error in insertFrame', e);
+    return undefined;
+  }
 });
 
-// insert frame
+// update frame
 export const updateFrameBase64 = moviePrintDB.transaction((frameId, data, dataSource = 'base64_640') => {
-  const insert = moviePrintDB.prepare(`UPDATE frameList SET ${dataSource} = ? WHERE frameId = ?`);
-  insert.run(data, frameId)
+  try {
+    const insert = moviePrintDB.prepare(`UPDATE frameList SET ${dataSource} = ? WHERE frameId = ?`);
+    insert.run(data, frameId)
+  } catch (e) {
+    log.error('catch error in updateFrameBase64', e);
+    return undefined;
+  }
 });
 
 // get all frames
@@ -109,8 +122,39 @@ export const clearTableByFileId = (fileId) => {
   return stmt.run(fileId);
 }
 
-// clear table by fileId
-export const clearTable = () => {
+// clear table
+export const clearTableFramelist = () => {
   const stmt = moviePrintDB.prepare('DELETE FROM frameList');
+  return stmt.run();
+}
+
+// framescan table actions
+// create frames table
+export const createTableFrameScanList = () => {
+  const stmt = moviePrintDB.prepare('CREATE TABLE IF NOT EXISTS frameScanList(fileId TEXT, frameNumber INTEGER, meanValue REAL, meanColor TEXT)');
+  stmt.run();
+}
+
+// delete frames table
+export const deleteTableFrameScanList = () => {
+  const stmt = moviePrintDB.prepare('DROP TABLE IF EXISTS frameScanList');
+  stmt.run();
+}
+
+// insert frame
+export const insertFrameScan = moviePrintDB.transaction((item) => {
+  const insert = moviePrintDB.prepare('INSERT INTO frameScanList (fileId, frameNumber, meanValue, meanColor) VALUES (@fileId, @frameNumber, @meanValue, @meanColor)');
+  insert.run(item)
+});
+
+// get all frames by fileId
+export const getFrameScanByFileId = (fileId) => {
+  const stmt = moviePrintDB.prepare(`SELECT frameNumber, meanValue, meanColor FROM frameScanList WHERE fileId = ? ORDER BY frameNumber ASC`);
+  return stmt.all(fileId);
+}
+
+// clear table
+export const clearTableFrameScanList = () => {
+  const stmt = moviePrintDB.prepare('DELETE FROM frameScanList');
   return stmt.run();
 }

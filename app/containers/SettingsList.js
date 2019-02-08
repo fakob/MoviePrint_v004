@@ -789,7 +789,7 @@ class SettingsList extends Component {
                     fluid
                     loading={fileScanRunning}
                     disabled={fileScanRunning}
-                    onClick={() => this.props.runSceneDetection(file, settings.defaultSceneDetectionThreshold)}
+                    onClick={() => this.props.runSceneDetection(file.id, file.path, file.useRatio, settings.defaultSceneDetectionThreshold)}
                   >
                       Scan/Run shot detection
                   </Button>

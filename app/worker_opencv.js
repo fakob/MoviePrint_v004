@@ -12,8 +12,9 @@ import {
   IN_OUT_POINT_SEARCH_THRESHOLD,
 } from './utils/constants';
 import {
-  insertFrame,
   getAllFramesNoBase64,
+  insertFrame,
+  insertFrameScan,
 } from './utils/utilsForSqlite';
 
 process.env.OPENCV4NODEJS_DISABLE_EXTERNAL_MEM_TRACKING = 1;
@@ -522,12 +523,20 @@ ipcRenderer.on(
 
             log.debug(frameMean);
             log.debug(`h: ${frameMean.w}, s: ${frameMean.x}, v: ${frameMean.y}`);
-            frameMetrics.push({
-              frame,
-              mean: frameMean.y,
-              meanColor: HSVtoRGB(frameMean.w, frameMean.x, frameMean.y)
-              // meanColor: hsvToHsl(frameMean.w, frameMean.x, frameMean.y)
+            const meanValue = frameMean.y;
+            const meanColor = JSON.stringify(HSVtoRGB(frameMean.w, frameMean.x, frameMean.y));
+            insertFrameScan({
+              fileId,
+              frameNumber: frame,
+              meanValue,
+              meanColor,
             });
+            // frameMetrics.push({
+            //   frame,
+            //   mean: frameMean.y,
+            //   meanColor: HSVtoRGB(frameMean.w, frameMean.x, frameMean.y)
+            //   // meanColor: hsvToHsl(frameMean.w, frameMean.x, frameMean.y)
+            // });
           } else {
             log.error(
               `empty frame: iterator:${iterator} frame:${frame} (${vid.get(
@@ -536,11 +545,17 @@ ipcRenderer.on(
                 VideoCaptureProperties.CAP_PROP_FRAME_COUNT
               )}`
             );
-            frameMetrics.push({
-              frame: iterator,
-              mean: undefined,
-              meanColor: undefined
+            insertFrameScan({
+              fileId,
+              frameNumber: frame,
+              meanValue: undefined,
+              meanColor: undefined,
             });
+            // frameMetrics.push({
+            //   frame: iterator,
+            //   mean: undefined,
+            //   meanColor: undefined
+            // });
           }
           iterator += 1;
           if (iterator < vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)) {
@@ -564,16 +579,16 @@ ipcRenderer.on(
               HSVtoRGB(frameMean.w, frameMean.x, frameMean.y), // color
             );
 
-            const tempMeanArray = frameMetrics.map((item) => item.mean);
-            const tempMeanColorArray = frameMetrics.map((item) => item.meanColor);
+            // const tempMeanArray = frameMetrics.map((item) => item.mean);
+            // const tempMeanColorArray = frameMetrics.map((item) => item.meanColor);
             // log.debug(tempMeanArray);
 
             ipcRenderer.send(
               'message-from-opencvWorkerWindow-to-mainWindow',
               'received-get-file-scan',
               fileId,
-              tempMeanArray,
-              tempMeanColorArray
+              filePath,
+              useRatio,
             );
 
             ipcRenderer.send(
