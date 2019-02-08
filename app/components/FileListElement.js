@@ -14,19 +14,13 @@ const FileListElement = ({
     onClick={onClick}
     className={(currentFileId === id) ? `${styles.Highlight}` : ''}
   >
-    {/* <div
+    <div
       className={`${styles.croppedThumb}`}
-      style={(objectUrl !== undefined) ? { backgroundImage: `url(${objectUrl})` } : { backgroundColor: '#1e1e1e' }}
+      style={{
+        backgroundColor: '#00ff00',
+        backgroundImage: `url(data:image/jpeg;base64,${base64})`
+      }}
       alt={`${name}`}
-    /> */}
-    <img
-      // using image to use onError if objectUrl is not valid
-      // this introduces a squeezed image though
-      // src={objectUrl !== undefined ? objectUrl : transparent}
-      src={(base64 !== undefined) ? `data:image/jpeg;base64, ${base64}` : transparent}
-      className={`${styles.croppedThumb}`}
-      alt={`${name}`}
-      onError={onErrorPosterFrame}
     />
     <div
       className={`${styles.Path}`}
