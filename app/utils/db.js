@@ -1,5 +1,5 @@
 import Dexie from 'dexie';
-import FileObject from './fileObject';
+// import FileObject from './fileObject';
 
 // Force debug mode to get async stacks from exceptions.
 if (process.env.NODE_ENV === 'production') {
@@ -12,6 +12,68 @@ imageDB.version(1).stores({
   frameList: '&frameId, fileId, frameNumber, isPosterFrame, [fileId+frameNumber]',
   fileScanList: '&fileId'
 });
-imageDB.frameList.mapToClass(FileObject);
+
+const FileObject = imageDB.frameList.defineClass({
+  frameId: String,
+  fileId: String,
+  frameNumber: Number,
+  isPosterFrame: Number,
+  data: Blob
+});
+
+FileObject.prototype.objectUrl = '';
+
+FileObject.prototype.getObjectUrl2 = () => {
+  console.log(this);
+  const objectUrl = window.URL.createObjectURL(this.data);
+  return objectUrl;
+};
+
+FileObject.prototype.getObjectUrl = () => {
+  if (this.objectUrl !== '' && !this.disposed) {
+    return this.objectUrl;
+  }
+  if (!this.disposed) {
+    this.objectUrl = window.URL.createObjectURL(this.data);
+    return this.objectUrl;
+  }
+  log.warn('File disposed!');
+  throw 'File disposed!';
+};
+
+FileObject.prototype.revokeObjectURL = () => {
+  URL.revokeObjectURL(this.objectUrl);
+  this.objectUrl = '';
+};
+
+FileObject.prototype.disposed = false;
+
+FileObject.prototype.disposeData = () => {
+  URL.revokeObjectURL(this.objectUrl);
+  this.objectUrl = '';
+  this.data = null;
+  this.disposed = true;
+};
+
+
+// imageDB.frameList.mapToClass(FileObject);
+// imageDB.frameList.mapToClass(File2);
+
+// var Friend = db.friends.defineClass ({
+//     name: String,
+//     shoeSize: Number,
+//     cars: [Car],
+//     address: {
+//         street: String,
+//         city: String,
+//         country: String
+//     }
+// });
+
+// function Car() {}
+//
+// Friend.prototype.log = function () {
+//     console.log(JSON.stringify(this));
+// }
 
 export default imageDB;

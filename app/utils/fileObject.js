@@ -1,7 +1,8 @@
-import Dexie from 'dexie';
+// import Dexie from 'dexie';
 import log from 'electron-log';
+import imageDB from './db';
 
-const FileObject = Dexie.defineClass({
+const FileObject = imageDB.frameList.defineClass({
   frameId: String,
   lastModified: Number,
   lastModifiedDate: String,
@@ -17,10 +18,17 @@ const FileObject = Dexie.defineClass({
 
 FileObject.prototype.objectUrl = '';
 
-FileObject.prototype.getObjectUrl = function () {
+FileObject.prototype.getObjectUrl2 = () => {
+  console.log(this);
+  const objectUrl = window.URL.createObjectURL(this.data);
+  return objectUrl;
+};
+
+FileObject.prototype.getObjectUrl = () => {
   if (this.objectUrl !== '' && !this.disposed) {
     return this.objectUrl;
-  } else if (!this.disposed) {
+  }
+  if (!this.disposed) {
     this.objectUrl = window.URL.createObjectURL(this.data);
     return this.objectUrl;
   }
@@ -28,14 +36,14 @@ FileObject.prototype.getObjectUrl = function () {
   throw 'File disposed!';
 };
 
-FileObject.prototype.revokeObjectURL = function () {
+FileObject.prototype.revokeObjectURL = () => {
   URL.revokeObjectURL(this.objectUrl);
   this.objectUrl = '';
 };
 
 FileObject.prototype.disposed = false;
 
-FileObject.prototype.disposeData = function () {
+FileObject.prototype.disposeData = () => {
   URL.revokeObjectURL(this.objectUrl);
   this.objectUrl = '';
   this.data = null;
