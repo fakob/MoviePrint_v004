@@ -111,12 +111,12 @@ import {
 } from '../utils/constants';
 import {
   deleteTableFramelist,
+} from '../utils/utilsForIndexedDB';
+import {
   deleteTableFrameScanList,
   deleteTableMovielist,
   getAllFrames,
   getAllFramesByFileId,
-  getFrameByFrameId,
-  getFramesByIsPosterFrame,
   getFrameScanByFileId,
 } from '../utils/utilsForSqlite';
 

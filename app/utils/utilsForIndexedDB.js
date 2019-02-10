@@ -17,6 +17,11 @@ export const openDBConnection = () => {
   }
 }
 
+export const deleteTableFramelist = () =>
+  imageDB.frameList.clear().catch((err) => {
+    log.error(`Failed to delete all objects in frameList: ${  err.stack || err}`);
+  })
+
 export const addFrameToIndexedDB = (frameId, fileId, frameNumber, isPosterFrame, outBase64) => {
   const url = `data:image/jpg;base64,${outBase64}`;
   fetch(url)
