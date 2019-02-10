@@ -67,7 +67,6 @@ export const updateFrameInIndexedDB = (frameId, outBase64) => {
   )
   .then(() => {
     const key = imageDB.frameList.get(frameId);
-    console.log(key);
     return key;
   })
   .then(frame => {

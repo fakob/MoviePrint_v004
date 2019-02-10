@@ -93,6 +93,8 @@ export default class MenuBuilder {
       submenu: [
         { label: 'Reset application', accelerator: 'Shift+Alt+Command+C', click: () => {
           clearCache(this.mainWindow);
+          this.workerWindow.webContents.reload();
+          this.opencvWorkerWindow.webContents.reload(); // needs reload to open indexedDB connection
           this.mainWindow.webContents.send('delete-all-tables');
           } },
         { label: 'Reload application', accelerator: 'Command+R', click: () => {
@@ -134,6 +136,8 @@ export default class MenuBuilder {
         { type: 'separator' },
         { label: 'Reset application', accelerator: 'Shift+Alt+Command+C', click: () => {
           clearCache(this.mainWindow);
+          this.workerWindow.webContents.reload();
+          this.opencvWorkerWindow.webContents.reload(); // needs reload to open indexedDB connection
           this.mainWindow.webContents.send('delete-all-tables');
           } },
         { label: 'Reload application', accelerator: 'Command+R', click: () => {
@@ -227,6 +231,8 @@ export default class MenuBuilder {
       submenu: [
         { label: 'Reset application', accelerator: 'Shift+Alt+Ctrl+C', click: () => {
           clearCache(this.mainWindow);
+          this.workerWindow.webContents.reload();
+          this.opencvWorkerWindow.webContents.reload(); // needs reload to open indexedDB connection
           this.mainWindow.webContents.send('delete-all-tables');
           } },
         { label: '&Reload application', accelerator: 'Ctrl+R', click: () => {
@@ -276,6 +282,8 @@ export default class MenuBuilder {
         { type: 'separator' },
         { label: 'Reset application', accelerator: 'Shift+Alt+Ctrl+C', click: () => {
           clearCache(this.mainWindow);
+          this.workerWindow.webContents.reload();
+          this.opencvWorkerWindow.webContents.reload(); // needs reload to open indexedDB connection
           this.mainWindow.webContents.send('delete-all-tables');
           } },
         { label: 'Reload application', accelerator: 'Ctrl+R', click: () => {
