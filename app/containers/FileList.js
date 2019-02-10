@@ -26,7 +26,7 @@ class SortedFileList extends Component {
   render() {
     const { store } = this.context;
     const state = store.getState();
-    const { posterImages } = this.props;
+    const { thumbImages } = this.props;
 
     return (
       <div
@@ -45,8 +45,8 @@ class SortedFileList extends Component {
               }}
               currentFileId={state.undoGroup.present.settings.currentFileId}
               onErrorPosterFrame={() => this.props.onErrorPosterFrame(file)}
-              base64={
-                getObjectProperty(() => posterImages[file.posterFrameId].base64)
+              objectUrl={
+                getObjectProperty(() => thumbImages[file.posterFrameId].objectUrl)
               }
             />
           ))}

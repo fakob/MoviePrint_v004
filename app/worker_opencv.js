@@ -1,11 +1,11 @@
 import React from 'react';
 import { render } from 'react-dom';
 import log from 'electron-log';
-import imageDB from './utils/db';
 // import FileObject from './utils/fileObject';
 import VideoCaptureProperties from './utils/videoCaptureProperties';
 import { limitRange, setPosition, fourccToString } from './utils/utils';
 import {
+  addFrameToIndexedDB,
   HSVtoRGB,
   recaptureThumbs,
  } from './utils/utilsForOpencv';
@@ -15,7 +15,7 @@ import {
 } from './utils/constants';
 import {
   getAllFramesNoBase64,
-  insertFrame,
+  // insertFrame,
   insertFrameScan,
 } from './utils/utilsForSqlite';
 
@@ -182,13 +182,14 @@ ipcRenderer.on(
           if (mat.empty === false) {
             const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // maybe change to .png?
             const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES);
-            insertFrame({
-              frameId: posterFrameId,
-              frameNumber,
-              fileId,
-              isPosterFrame: 1,
-              base64_640: outBase64,
-            });
+            // insertFrame({
+            //   frameId: posterFrameId,
+            //   frameNumber,
+            //   fileId,
+            //   isPosterFrame: 1,
+            //   base64_640: outBase64,
+            // });
+            addFrameToIndexedDB(posterFrameId, fileId, frameNumber, true, outBase64);
             ipcRenderer.send(
               'message-from-opencvWorkerWindow-to-mainWindow',
               'receive-get-poster-frame',
@@ -655,13 +656,14 @@ ipcRenderer.on(
       if (frame.empty) {
         log.info('opencvWorkerWindow | frame is empty');
         const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
-        insertFrame({
-          frameId: frameIdArray[i],
-          frameNumber,
-          fileId,
-          isPosterFrame: 0,
-          base64_640: '',
-        });
+        // insertFrame({
+        //   frameId: frameIdArray[i],
+        //   frameNumber,
+        //   fileId,
+        //   isPosterFrame: 0,
+        //   base64_640: '',
+        // });
+        addFrameToIndexedDB(frameIdArray[i], fileId, frameNumber, false, '');
         ipcRenderer.send(
           'message-from-opencvWorkerWindow-to-mainWindow',
           'receive-get-thumbs',
@@ -686,13 +688,14 @@ ipcRenderer.on(
         const outBase64 = opencv.imencode('.jpg', frame).toString('base64'); // maybe change to .png?
         const lastThumb = i === (frameNumberArray.length - 1);
         const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
-        insertFrame({
-          frameId: frameIdArray[i],
-          frameNumber,
-          fileId,
-          isPosterFrame: 0,
-          base64_640: outBase64,
-        });
+        // insertFrame({
+        //   frameId: frameIdArray[i],
+        //   frameNumber,
+        //   fileId,
+        //   isPosterFrame: 0,
+        //   base64_640: outBase64,
+        // });
+        addFrameToIndexedDB(frameIdArray[i], fileId, frameNumber, false, outBase64);
         ipcRenderer.send(
           'message-from-opencvWorkerWindow-to-mainWindow',
           'receive-get-thumbs',
@@ -708,34 +711,6 @@ ipcRenderer.on(
     }
   }
 );
-
-const addFrameToIndexedDB = (frameId, fileId, frameNumber, isPosterFrame, outBase64) => {
-  const url = `data:image/jpg;base64,${outBase64}`;
-  fetch(url)
-  .then(res => res.blob())
-  .then(blob =>
-    imageDB.frameList.put({
-      frameId,
-      fileId,
-      frameNumber,
-      isPosterFrame: isPosterFrame ? 1 : 0, // 0 and 1 is used as dexie/indexDB can not use boolean values
-      data: blob
-    })
-  )
-  .then(key => {
-    console.log(key);
-    return imageDB.frameList.get(key);
-  })
-  .then(frame => {
-    console.log(frame);
-    const objectUrl = window.URL.createObjectURL(frame.data);
-    console.log(objectUrl);
-    return objectUrl
-  })
-  .catch(e => {
-    log.error(e.stack || e);
-  });
-}
 
 // read async
 ipcRenderer.on(
@@ -789,13 +764,13 @@ ipcRenderer.on(
             const outBase64 = opencv.imencode('.jpg', matRescaled || mat).toString('base64'); // maybe change to .png?
             const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
             const frameId = frameIdArray[iterator];
-            insertFrame({
-              frameId,
-              frameNumber,
-              fileId,
-              isPosterFrame: 0,
-              base64_640: outBase64,
-            });
+            // insertFrame({
+            //   frameId,
+            //   frameNumber,
+            //   fileId,
+            //   isPosterFrame: 0,
+            //   base64_640: outBase64,
+            // });
             addFrameToIndexedDB(frameId, fileId, frameNumber, false, outBase64);
             ipcRenderer.send(
               'message-from-opencvWorkerWindow-to-mainWindow',
@@ -833,13 +808,14 @@ ipcRenderer.on(
               );
               const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
               const frameId = frameIdArray[iterator];
-              insertFrame({
-                frameId,
-                frameNumber,
-                fileId,
-                isPosterFrame: 0,
-                base64_640: '',
-              });
+              // insertFrame({
+              //   frameId,
+              //   frameNumber,
+              //   fileId,
+              //   isPosterFrame: 0,
+              //   base64_640: '',
+              // });
+              addFrameToIndexedDB(frameId, fileId, frameNumber, false, '');
               ipcRenderer.send(
                 'message-from-opencvWorkerWindow-to-mainWindow',
                 'receive-get-thumbs',

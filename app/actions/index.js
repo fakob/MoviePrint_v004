@@ -511,11 +511,11 @@ export const updateThumbImage = (fileId, sheet, thumbId, frameId, frameNumber, i
         thumb.thumbId === thumbId).frameNumber !== frameNumber) {
         dispatch(updateFrameNumber(fileId, sheet, thumbId, frameNumber));
       }
-      if (isPosterFrame) {
-        return Promise.resolve(false); // return false if objecturl not updated - does not need rerender
-      }
-      return Promise.resolve(false); // get objecturl from imagedb
-      // return Promise.resolve(dispatch(returnObjectUrlFromFrameList(frameId, objectUrlsArray))); // get objecturl from imagedb
+      // if (isPosterFrame) {
+      //   return Promise.resolve(false); // return false if objecturl not updated - does not need rerender
+      // }
+      // return Promise.resolve(false); // get objecturl from imagedb
+      return Promise.resolve(dispatch(returnObjectUrlFromFrameList(frameId, objectUrlsArray))); // get objecturl from imagedb
       // })
     // .catch(error => {
     //   log.error(`There has been a problem with your fetch operation: ${error.message}`);
@@ -857,10 +857,11 @@ export const clearObjectUrls = () => {
   export const returnObjectUrlsFromFrameList = () => {
     return (dispatch, getState) => {
       log.debug('action: returnObjectUrlsFromFrameList');
-      const frames = getFramesByIsPosterFrame(0);
-      // return imageDB.frameList.where('isPosterFrame').equals(0).toArray() // get all frames which are not posterframes
-      //   .then((frames) => {
-          // log.debug(frames);
+      // const frames = getFramesByIsPosterFrame(0);
+      // return imageDB.frameList.where('isPosterFrame').equals(isPosterFrameValue).toArray() // get all frames which are not posterframes
+      return imageDB.frameList.toArray() // get all frames which are not posterframes
+        .then((frames) => {
+          log.debug(frames);
           if (frames.length === 0) {
             return Promise.resolve([]);
           }
@@ -876,10 +877,10 @@ export const clearObjectUrls = () => {
             return undefined;
           });
           return Promise.resolve(frameArray);
-        // })
-        // .catch((err) => {
-        //   log.error(err);
-        // });
+        })
+        .catch((err) => {
+          log.error(err);
+        });
     };
   };
 
@@ -890,21 +891,21 @@ export const clearObjectUrls = () => {
       if (objectUrlsArray.some(item => frameId === item.frameId)) {
         return Promise.resolve(objectUrlsArray.find(item => frameId === item.frameId)); // return immediately if already available
       }
-      const frame = getFrameByFrameId(frameId);
-      // return imageDB.frameList.where('frameId').equals(frameId).toArray() // get the one frame
-      //   .then((frames) => {
-          // console.log(frames);
-          // log.debug(frames);
-          if (frame === undefined) {
+      // const frame = getFrameByFrameId(frameId);
+      return imageDB.frameList.where('frameId').equals(frameId).toArray() // get the one frame
+        .then((frames) => {
+          console.log(frames);
+          log.debug(frames);
+          if (frames.length === 0) {
             return Promise.reject(new Error('frame not found')); // return false if objecturl not updated - does not need rerender
           }
           return Promise.resolve({
-            frameId: frame.frameId,
-            objectUrl: window.URL.createObjectURL(frame.data),
+            frameId: frames[0].frameId,
+            objectUrl: window.URL.createObjectURL(frames[0].data),
           });
-        // })
-        // .catch((err) => {
-        //   log.error(err);
-        // });
+        })
+        .catch((err) => {
+          log.error(err);
+        });
       };
     };

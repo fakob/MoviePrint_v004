@@ -41,19 +41,58 @@ import { getLowestFrame,
 import styles from './App.css';
 import stylesPop from './../components/Popup.css';
 import {
-  setNewMovieList, showMovielist, hideMovielist, showSettings, hideSettings,
-  setView, setSheet, addDefaultThumbs, setDefaultThumbCount, setDefaultColumnCount,
-  setVisibilityFilter, setCurrentFileId, updateFileColumnCount,
-  updateFileDetails, clearThumbs, updateThumbImage, setDefaultMarginRatio, setDefaultShowHeader,
-  setDefaultShowPathInHeader, setDefaultShowDetailsInHeader, setDefaultShowTimelineInHeader,
-  setDefaultRoundedCorners, setDefaultThumbInfo, setDefaultOutputPath, setDefaultOutputFormat,
-  setDefaultSaveOptionOverwrite, setDefaultSaveOptionIncludeIndividual, setDefaultThumbnailScale,
-  setDefaultMoviePrintWidth, updateFileDetailUseRatio, setDefaultShowPaperPreview,
-  setDefaultPaperAspectRatioInv, updateInOutPoint, removeMovieListItem, setDefaultDetectInOutPoint,
-  changeThumb, addThumb, setEmailAddress, setDefaultTimelineViewWidthScale,
-  clearScenes, addScene, addScenes, setDefaultSceneDetectionThreshold, setDefaultTimelineViewSecondsPerRow,
-  setSheetFit, clearObjectUrls, setDefaultTimelineViewMinDisplaySceneLengthInFrames, deleteSceneSheets,
-  setDefaultTimelineViewFlow, setDefaultOutputPathFromMovie, setDefaultCachedFramesSize
+  addDefaultThumbs,
+  addScene,
+  addScenes,
+  addThumb,
+  changeThumb,
+  clearObjectUrls,
+  clearScenes,
+  clearThumbs,
+  deleteSceneSheets,
+  hideMovielist,
+  hideSettings,
+  removeMovieListItem,
+  returnObjectUrlsFromFrameList,
+  setCurrentFileId,
+  setDefaultCachedFramesSize,
+  setDefaultColumnCount,
+  setDefaultDetectInOutPoint,
+  setDefaultMarginRatio,
+  setDefaultMoviePrintWidth,
+  setDefaultOutputFormat,
+  setDefaultOutputPath,
+  setDefaultOutputPathFromMovie,
+  setDefaultPaperAspectRatioInv,
+  setDefaultRoundedCorners,
+  setDefaultSaveOptionIncludeIndividual,
+  setDefaultSaveOptionOverwrite,
+  setDefaultSceneDetectionThreshold,
+  setDefaultShowDetailsInHeader,
+  setDefaultShowHeader,
+  setDefaultShowPaperPreview,
+  setDefaultShowPathInHeader,
+  setDefaultShowTimelineInHeader,
+  setDefaultThumbCount,
+  setDefaultThumbInfo,
+  setDefaultThumbnailScale,
+  setDefaultTimelineViewFlow,
+  setDefaultTimelineViewMinDisplaySceneLengthInFrames,
+  setDefaultTimelineViewSecondsPerRow,
+  setDefaultTimelineViewWidthScale,
+  setEmailAddress,
+  setNewMovieList,
+  setSheet,
+  setSheetFit,
+  setView,
+  setVisibilityFilter,
+  showMovielist,
+  showSettings,
+  updateFileColumnCount,
+  updateFileDetails,
+  updateFileDetailUseRatio,
+  updateInOutPoint,
+  updateThumbImage,
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -162,6 +201,7 @@ class App extends Component {
       filesToPrint: [],
       savingAllMoviePrints: false,
       objectUrlsArray: [],
+      // posterObjectUrlsArray: [],
       posterframeBase64Array: [],
       frameBase64Array: [],
       framesToFetch: [],
@@ -246,13 +286,25 @@ class App extends Component {
     this.onToggleDetectionChart = this.onToggleDetectionChart.bind(this);
     this.onHideDetectionChart = this.onHideDetectionChart.bind(this);
 
-    this.addToFramesToFetch = this.addToFramesToFetch.bind(this);
+    // this.addToFramesToFetch = this.addToFramesToFetch.bind(this);
   }
 
   componentWillMount() {
     const { store } = this.context;
 
-    this.updateFramesFromDatabase();
+    // get objecturls from all frames in imagedb
+    store.dispatch(returnObjectUrlsFromFrameList()).then(arrayOfObjectUrls => {
+      console.log(arrayOfObjectUrls);
+      this.setState({
+        objectUrlsArray: arrayOfObjectUrls
+      })
+      return undefined;
+    })
+    .catch((err) => {
+      log.error(err);
+    });
+
+    // this.updateFramesFromDatabase();
 
     setColumnAndThumbCount(
       this,
@@ -344,7 +396,7 @@ class App extends Component {
     ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, frameNumber, useRatio) => {
       store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
       store.dispatch(updateThumbImage(fileId, DEFAULT_SHEET_INTERVAL, '', posterFrameId, frameNumber, true));
-      this.addToFramesToFetch(posterFrameId, true); // get posterframe to be fetched
+      // this.addToFramesToFetch(posterFrameId, true); // get posterframe to be fetched
       // get all posterframes
       ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-in-and-outpoint', fileId, filePath, useRatio, store.getState().undoGroup.present.settings.defaultDetectInOutPoint);
     });
@@ -417,7 +469,7 @@ class App extends Component {
       store.dispatch(updateThumbImage(fileId, sheet, thumbId, frameId, frameNumber, false, this.state.objectUrlsArray))
       .then((resolve) => { // receive new objectUrl if not a posterframe
         // console.log(resolve);
-        this.addToFramesToFetch(frameId); // get frame to be fetched
+        // this.addToFramesToFetch(frameId); // get frame to be fetched
         if (resolve !== false) {
           this.setState({
             objectUrlsArray: [...this.state.objectUrlsArray, resolve] // add objectUrl to array
@@ -703,27 +755,27 @@ class App extends Component {
       }
     }
 
-    // check if state has changed and only then allow setState
-    const { framesToFetch } = this.state;
-    if (framesToFetch.length !== prevState.framesToFetch.length) {
-      if (framesToFetch.length !== 0) {
-        const frameArray = [];
-        const posterFrameArray = [];
-        framesToFetch.map(item => {
-          if (item.isPosterFrame) {
-            posterFrameArray.push(getFrameByFrameId(item.frameId));
-          } else {
-            frameArray.push(getFrameByFrameId(item.frameId));
-          }
-          return undefined;
-        });
-        this.setState(prevState1 => ({
-          posterframeBase64Array: [...prevState1.posterframeBase64Array, ...posterFrameArray],
-          frameBase64Array: [...prevState1.frameBase64Array, ...frameArray],
-          framesToFetch: [],
-        }));
-      }
-    }
+    // // check if state has changed and only then allow setState
+    // const { framesToFetch } = this.state;
+    // if (framesToFetch.length !== prevState.framesToFetch.length) {
+    //   if (framesToFetch.length !== 0) {
+    //     const frameArray = [];
+    //     const posterFrameArray = [];
+    //     framesToFetch.map(item => {
+    //       if (item.isPosterFrame) {
+    //         posterFrameArray.push(getFrameByFrameId(item.frameId));
+    //       } else {
+    //         frameArray.push(getFrameByFrameId(item.frameId));
+    //       }
+    //       return undefined;
+    //     });
+    //     this.setState(prevState1 => ({
+    //       posterframeBase64Array: [...prevState1.posterframeBase64Array, ...posterFrameArray],
+    //       frameBase64Array: [...prevState1.frameBase64Array, ...frameArray],
+    //       framesToFetch: [],
+    //     }));
+    //   }
+    // }
 
     // updatecontainerWidthAndHeight checks if the containerWidth or height has changed
     // and if so calls updateScaleValue
@@ -937,11 +989,11 @@ class App extends Component {
     return false;
   }
 
-  addToFramesToFetch(frameId, isPosterFrame = false) {
-    this.setState(prevState => ({
-      framesToFetch: [...prevState.framesToFetch, { frameId, isPosterFrame }]
-    }));
-  }
+  // addToFramesToFetch(frameId, isPosterFrame = false) {
+  //   this.setState(prevState => ({
+  //     framesToFetch: [...prevState.framesToFetch, { frameId, isPosterFrame }]
+  //   }));
+  // }
 
   applyMimeTypes(event) {
     this.setState({
@@ -1822,12 +1874,24 @@ class App extends Component {
   render() {
     const { accept, dropzoneActive } = this.state;
     const { store } = this.context;
-    const { frameBase64Array, posterframeBase64Array } = this.state;
-    const { currentFileId } = this.props;
+    const { frameBase64Array, posterframeBase64Array, objectUrlsArray } = this.state;
+    const { currentFileId, allThumbs } = this.props;
 
-    // console.log(frameBase64Array);
-    const thumbImages = arrayToObject(frameBase64Array, 'frameId');
-    const posterImages = arrayToObject(posterframeBase64Array, 'frameId');
+
+    // get thumbImages by reading all thumbs and get the corresponding objectUrls from the objectUrlsArray
+    const arrayOfObjectUrlsOfAllThumbs = allThumbs === undefined ?
+      undefined : allThumbs.filter(thumb => {
+        return objectUrlsArray.some(item => thumb.frameId === item.frameId); // return true when found
+      }).map(thumb => {
+        return {
+          frameId: thumb.frameId,
+          objectUrl: objectUrlsArray.find(item => thumb.frameId === item.frameId).objectUrl,
+        };
+      });
+    const thumbImages = arrayToObject(arrayOfObjectUrlsOfAllThumbs, 'frameId');
+
+    // const thumbImages = arrayToObject(frameBase64Array, 'frameId');
+    // const posterImages = arrayToObject(posterObjectUrlsArray, 'frameId');
 
     // const chartHeight = this.state.containerHeight / 4;
     const chartHeight = 250;
@@ -1931,7 +1995,7 @@ class App extends Component {
                       <FileList
                         onFileListElementClick={this.onFileListElementClick}
                         onErrorPosterFrame={this.onErrorPosterFrame}
-                        posterImages={posterImages}
+                        thumbImages={thumbImages}
                       />
                     </div>
                     <div

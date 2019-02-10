@@ -18,7 +18,8 @@ const FileListElement = ({
       className={`${styles.croppedThumb}`}
       style={{
         backgroundColor: '#1e1e1e',
-        backgroundImage: `url(data:image/jpeg;base64,${base64})`
+        backgroundImage: `url(${objectUrl})`
+        // backgroundImage: `url(data:image/jpeg;base64,${base64})`
       }}
       alt={`${name}`}
     />
