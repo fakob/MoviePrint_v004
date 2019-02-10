@@ -1,4 +1,5 @@
 import Dexie from 'dexie';
+import log from 'electron-log';
 // import FileObject from './fileObject';
 
 // Force debug mode to get async stacks from exceptions.
@@ -10,7 +11,7 @@ if (process.env.NODE_ENV === 'production') {
 const imageDB = new Dexie('ImageDatabase');
 imageDB.version(1).stores({
   frameList: '&frameId, fileId, frameNumber, isPosterFrame, [fileId+frameNumber]',
-  fileScanList: '&fileId'
+  // fileScanList: '&fileId',
 });
 
 const FileObject = imageDB.frameList.defineClass({
@@ -54,26 +55,5 @@ FileObject.prototype.disposeData = () => {
   this.data = null;
   this.disposed = true;
 };
-
-
-// imageDB.frameList.mapToClass(FileObject);
-// imageDB.frameList.mapToClass(File2);
-
-// var Friend = db.friends.defineClass ({
-//     name: String,
-//     shoeSize: Number,
-//     cars: [Car],
-//     address: {
-//         street: String,
-//         city: String,
-//         country: String
-//     }
-// });
-
-// function Car() {}
-//
-// Friend.prototype.log = function () {
-//     console.log(JSON.stringify(this));
-// }
 
 export default imageDB;

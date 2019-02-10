@@ -6,6 +6,9 @@ import VideoCaptureProperties from './utils/videoCaptureProperties';
 import { limitRange, setPosition, fourccToString } from './utils/utils';
 import {
   addFrameToIndexedDB,
+  openDBConnection,
+} from './utils/utilsForIndexedDB';
+import {
   HSVtoRGB,
   recaptureThumbs,
  } from './utils/utilsForOpencv';
@@ -23,7 +26,7 @@ process.env.OPENCV4NODEJS_DISABLE_EXTERNAL_MEM_TRACKING = 1;
 
 const opencv = require('opencv4nodejs');
 const unhandled = require('electron-unhandled');
-const assert = require('assert');
+// const assert = require('assert');
 
 unhandled();
 const searchLimit = 25; // how long to go forward or backward to find a none-empty frame
@@ -151,6 +154,10 @@ ipcRenderer.on(
     // log.debug(fileId);
     log.debug(`opencvWorkerWindow | ${filePath}`);
     const vid = new opencv.VideoCapture(filePath);
+
+    // openDB if not already open
+    // to avoid errors as Chrome sometimes closes the connection after a while
+    openDBConnection();
 
     const frameNumberToCapture = Math.floor(
       vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) / 2
@@ -650,6 +657,10 @@ ipcRenderer.on(
     // opencv.utils.setLogLevel('LOG_LEVEL_DEBUG');
     const vid = new opencv.VideoCapture(filePath);
 
+    // openDB if not already open
+    // to avoid errors as Chrome sometimes closes the connection after a while
+    openDBConnection();
+
     for (let i = 0; i < frameNumberArray.length; i += 1) {
       setPosition(vid, frameNumberArray[i], useRatio);
       const frame = vid.read();
@@ -732,6 +743,10 @@ ipcRenderer.on(
     log.debug(`opencvWorkerWindow | ${filePath}`);
     log.debug(`opencvWorkerWindow | useRatio: ${useRatio}`);
     const vid = new opencv.VideoCapture(filePath);
+
+    // openDB if not already open
+    // to avoid errors as Chrome sometimes closes the connection after a while
+    openDBConnection();
 
     vid.readAsync(err1 => {
       const read = (frameOffset = 0) => {
