@@ -108,11 +108,11 @@ class SceneGrid extends Component {
               hexColor={`#${((1 << 24) + (Math.round(scene.colorArray[0]) << 16) + (Math.round(scene.colorArray[1]) << 8) + Math.round(scene.colorArray[2])).toString(16).slice(1)}`}
               thumbImageObjectUrl={getObjectProperty(() => {
                 const thumb = this.props.thumbs.find((foundThumb) => foundThumb.sceneId === scene.sceneId);
-                return this.props.thumbImages[thumb.frameId].objectUrl
+                return this.props.objectUrlObjects[thumb.frameId].objectUrl
               })}
               base64={getObjectProperty(() => {
                 const thumb = this.props.thumbs.find((foundThumb) => foundThumb.sceneId === scene.sceneId);
-                return this.props.thumbImages[thumb.frameId].base64
+                return this.props.objectUrlObjects[thumb.frameId].base64
               })}
               onOver={this.props.showSettings ? null : () => {
                 // only setState if controllersVisible has changed

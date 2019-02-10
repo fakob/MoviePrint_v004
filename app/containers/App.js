@@ -1874,23 +1874,39 @@ class App extends Component {
     const { accept, dropzoneActive } = this.state;
     const { store } = this.context;
     const { frameBase64Array, posterframeBase64Array, objectUrlsArray } = this.state;
-    const { currentFileId, allThumbs } = this.props;
+    const { currentFileId, allThumbs, files } = this.props;
 
-
-    // get thumbImages by reading all thumbs and get the corresponding objectUrls from the objectUrlsArray
-    const arrayOfObjectUrlsOfAllThumbs = allThumbs === undefined ?
-      undefined : allThumbs.filter(thumb => {
-        return objectUrlsArray.some(item => thumb.frameId === item.frameId); // return true when found
-      }).map(thumb => {
-        return {
-          frameId: thumb.frameId,
-          objectUrl: objectUrlsArray.find(item => thumb.frameId === item.frameId).objectUrl,
-        };
+    // get objectUrls by reading all thumbs and get the corresponding objectUrls from the objectUrlsArray
+    const arrayOfObjectUrlsOfAllThumbs = [];
+    if (allThumbs !== undefined) {
+      allThumbs.map(thumb => {
+        if (objectUrlsArray.find(item => thumb.frameId === item.frameId)) {
+          arrayOfObjectUrlsOfAllThumbs.push({
+            frameId: thumb.frameId,
+            objectUrl: objectUrlsArray.find(item => thumb.frameId === item.frameId).objectUrl,
+          });
+        }
+        return undefined;
       });
-    const thumbImages = arrayToObject(arrayOfObjectUrlsOfAllThumbs, 'frameId');
+      // console.log(arrayOfObjectUrlsOfAllThumbs);
+    }
+    const objectUrlObjects = arrayToObject(arrayOfObjectUrlsOfAllThumbs, 'frameId');
 
-    // const thumbImages = arrayToObject(frameBase64Array, 'frameId');
-    // const posterImages = arrayToObject(posterObjectUrlsArray, 'frameId');
+    // get objectUrls by reading all files and get the corresponding objectUrls from the objectUrlsArray
+    const arrayOfObjectUrlsOfAllPosterFrames = [];
+    if (files !== undefined) {
+      files.map(file => {
+        if (objectUrlsArray.find(item => file.posterFrameId === item.frameId)) {
+          arrayOfObjectUrlsOfAllPosterFrames.push({
+            frameId: file.posterFrameId,
+            objectUrl: objectUrlsArray.find(item => file.posterFrameId === item.frameId).objectUrl,
+          });
+        }
+        return undefined;
+      });
+      // console.log(arrayOfObjectUrlsOfAllPosterFrames);
+    }
+    const posterObjectUrlObjects = arrayToObject(arrayOfObjectUrlsOfAllPosterFrames, 'frameId');
 
     // const chartHeight = this.state.containerHeight / 4;
     const chartHeight = 250;
@@ -1992,9 +2008,10 @@ class App extends Component {
                       className={`${styles.ItemSideBar} ${styles.ItemMovielist} ${this.props.visibilitySettings.showMovielist ? styles.ItemMovielistAnim : ''}`}
                     >
                       <FileList
+                        files={this.props.files}
+                        settings={this.props.settings}
                         onFileListElementClick={this.onFileListElementClick}
-                        onErrorPosterFrame={this.onErrorPosterFrame}
-                        thumbImages={thumbImages}
+                        posterObjectUrlObjects={posterObjectUrlObjects}
                       />
                     </div>
                     <div
@@ -2066,7 +2083,7 @@ class App extends Component {
                           aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
                           height={this.state.scaleValueObject.videoPlayerHeight}
                           width={this.state.scaleValueObject.videoPlayerWidth}
-                          thumbImages={thumbImages}
+                          objectUrlObjects={objectUrlObjects}
                           controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
                           selectedThumbId={this.state.selectedThumbObject ?
                             this.state.selectedThumbObject.thumbId : undefined}
@@ -2144,7 +2161,7 @@ class App extends Component {
                               settings={this.props.settings}
                               showSettings={this.props.visibilitySettings.showSettings}
                               thumbCount={this.state.thumbCountTemp}
-                              thumbImages={thumbImages}
+                              objectUrlObjects={objectUrlObjects}
                               thumbs={this.props.thumbs}
                               viewForPrinting={false}
                               visibilitySettings={this.props.visibilitySettings}
@@ -2167,7 +2184,7 @@ class App extends Component {
                               scenes={this.props.scenes}
                               settings={this.props.settings}
                               showSettings={this.props.visibilitySettings.showSettings}
-                              thumbImages={thumbImages}
+                              objectUrlObjects={objectUrlObjects}
                               thumbs={this.props.thumbs}
                               visibilitySettings={this.props.visibilitySettings}
                             />
@@ -2335,7 +2352,7 @@ class App extends Component {
                     opencvVideoCanvasRef={this.opencvVideoCanvasRef}
                     file={this.props.file}
                     settings={this.props.settings}
-                    thumbImages={thumbImages}
+                    objectUrlObjects={objectUrlObjects}
                     keyObject={this.state.keyObject}
                     scrubThumb={this.state.scrubThumb}
                     scrubThumbLeft={this.state.scrubThumbLeft}
@@ -2472,7 +2489,6 @@ const mapStateToProps = state => {
     defaultThumbCount: state.undoGroup.present.settings.defaultThumbCount,
     defaultColumnCount: state.undoGroup.present.settings.defaultColumnCount,
     thumbsByFileId: state.undoGroup.present.thumbsByFileId,
-    thumbsObjUrls: state.undoGroup.present.thumbsObjUrls,
   };
 };
 
@@ -2485,7 +2501,6 @@ App.defaultProps = {
   file: undefined,
   thumbs: [],
   thumbsByFileId: {},
-  thumbsObjUrls: {},
 };
 
 App.propTypes = {
@@ -2501,7 +2516,6 @@ App.propTypes = {
   settings: PropTypes.object.isRequired,
   thumbs: PropTypes.array,
   thumbsByFileId: PropTypes.object,
-  thumbsObjUrls: PropTypes.object,
   visibilitySettings: PropTypes.object.isRequired,
 };
 

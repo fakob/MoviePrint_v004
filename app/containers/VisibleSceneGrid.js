@@ -77,7 +77,7 @@ class SortedVisibleSceneGrid extends Component {
         settings={this.props.settings}
         showSettings={this.props.showSettings}
         thumbCount={this.props.thumbCount}
-        thumbImages={this.props.thumbImages}
+        objectUrlObjects={this.props.objectUrlObjects}
         thumbs={this.props.thumbs}
         visibilitySettings={this.props.visibilitySettings}
 

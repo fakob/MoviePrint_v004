@@ -801,7 +801,7 @@ export const updateObjectUrlsFromPosterFrame = () => {
   };
 };
 
-// thumbsObjUrls
+// objectUrls
 export const clearObjectUrls = () => {
   return (dispatch) => {
     log.debug('action: clearObjectUrls');

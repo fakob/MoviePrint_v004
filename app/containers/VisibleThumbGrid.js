@@ -118,7 +118,7 @@ class SortedVisibleThumbGrid extends Component {
         settings={this.props.settings}
         showSettings={this.props.showSettings}
         thumbCount={this.props.thumbCount}
-        thumbImages={this.props.thumbImages}
+        objectUrlObjects={this.props.objectUrlObjects}
         thumbs={this.props.thumbs}
         viewForPrinting={this.props.viewForPrinting}
         visibilitySettings={this.props.visibilitySettings}
@@ -150,8 +150,6 @@ const mapStateToProps = state => {
     //   tempThumbs,
     //   state.visibilitySettings.visibilityFilter
     // ),
-    // thumbImages: (state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId] === undefined)
-    //   ? undefined : state.thumbsObjUrls[state.undoGroup.present.settings.currentFileId],
     // files: state.undoGroup.present.files,
     // file: state.undoGroup.present.files.find((file) =>
     //   file.id === state.undoGroup.present.settings.currentFileId),
@@ -252,7 +250,7 @@ SortedVisibleThumbGrid.propTypes = {
   defaultSheet: PropTypes.string.isRequired,
   showSettings: PropTypes.bool.isRequired,
   thumbCount: PropTypes.number.isRequired,
-  thumbImages: PropTypes.object,
+  objectUrlObjects: PropTypes.object,
   thumbs: PropTypes.arrayOf(PropTypes.shape({
     thumbId: PropTypes.string.isRequired,
     index: PropTypes.number.isRequired,

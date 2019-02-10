@@ -7,7 +7,7 @@ import transparent from '../img/Thumb_TRANSPARENT.png';
 
 const FileListElement = ({
   id, frameCount, fps, width, height, name, path,
-  size, objectUrl, onClick, currentFileId, onErrorPosterFrame, base64
+  size, objectUrl, onClick, currentFileId,
 }) => (
   <li
     data-tid={`fileListItem_${id}`}

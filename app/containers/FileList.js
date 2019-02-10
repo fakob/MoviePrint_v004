@@ -24,9 +24,7 @@ class SortedFileList extends Component {
   }
 
   render() {
-    const { store } = this.context;
-    const state = store.getState();
-    const { thumbImages } = this.props;
+    const { files, settings, posterObjectUrlObjects } = this.props;
 
     return (
       <div
@@ -35,7 +33,7 @@ class SortedFileList extends Component {
         }}
       >
         <ul>
-          {state.undoGroup.present.files.map((file, index) => (
+          {files.map((file, index) => (
             <FileListElement
               key={file.id}
               {...file}
@@ -43,10 +41,9 @@ class SortedFileList extends Component {
               onClick={() => {
                 this.props.onFileListElementClick(file);
               }}
-              currentFileId={state.undoGroup.present.settings.currentFileId}
-              onErrorPosterFrame={() => this.props.onErrorPosterFrame(file)}
+              currentFileId={settings.currentFileId}
               objectUrl={
-                getObjectProperty(() => thumbImages[file.posterFrameId].objectUrl)
+                getObjectProperty(() => posterObjectUrlObjects[file.posterFrameId].objectUrl)
               }
             />
           ))}

@@ -97,7 +97,7 @@ class ThumbGrid extends Component {
 
   componentDidUpdate(prevProps) {
     // console.log('ThumbGrid componentDidUpdate');
-    // console.log(this.props.thumbImages);
+    // console.log(this.props.objectUrlObjects);
   }
 
   over(e) {
@@ -289,7 +289,7 @@ class ThumbGrid extends Component {
         } else if (this.props.thumbs.length === tempArrayLength) {
           tempThumbObject = this.props.thumbs[i];
         } else {
-          if ((this.props.thumbImages !== undefined) &&
+          if ((this.props.objectUrlObjects !== undefined) &&
             (i === 0 || i === (tempArrayLength - 1))
           ) {
             tempThumbObject = this.props.thumbs[mappedIterator];
@@ -370,10 +370,10 @@ class ThumbGrid extends Component {
                 this.props.inputRefThumb : undefined} // for the thumb scrollIntoView function
               color={(this.props.colorArray !== undefined ? this.props.colorArray[thumb.index] : undefined)}
               thumbImageObjectUrl={
-                getObjectProperty(() => this.props.thumbImages[thumb.frameId].objectUrl)
+                getObjectProperty(() => this.props.objectUrlObjects[thumb.frameId].objectUrl)
               }
               base64={
-                getObjectProperty(() => this.props.thumbImages[thumb.frameId].base64)
+                getObjectProperty(() => this.props.objectUrlObjects[thumb.frameId].base64)
               }
               transparentThumb={thumb.transparentThumb || undefined}
               aspectRatioInv={this.props.scaleValueObject.aspectRatioInv}
@@ -654,7 +654,7 @@ ThumbGrid.propTypes = {
   defaultView: PropTypes.string.isRequired,
   showSettings: PropTypes.bool.isRequired,
   thumbCount: PropTypes.number.isRequired,
-  thumbImages: PropTypes.object,
+  objectUrlObjects: PropTypes.object,
   thumbs: PropTypes.arrayOf(PropTypes.shape({
     thumbId: PropTypes.string.isRequired,
     index: PropTypes.number.isRequired,

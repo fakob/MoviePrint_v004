@@ -142,7 +142,7 @@ class WorkerApp extends Component {
                     showSettings={false}
                     file={this.state.sentData.file}
                     thumbs={this.state.sentData.thumbs}
-                    thumbImages={this.state.thumbObjectBase64s}
+                    objectUrlObjects={this.state.thumbObjectBase64s}
                     settings={this.state.sentData.settings}
                     visibilitySettings={this.state.sentData.visibilitySettings}
 
@@ -171,7 +171,7 @@ class WorkerApp extends Component {
                     scenes={this.state.sentData.scenes}
                     settings={this.state.sentData.settings}
                     showSettings={false}
-                    thumbImages={this.state.thumbObjectBase64s}
+                    objectUrlObjects={this.state.thumbObjectBase64s}
                     thumbs={this.state.sentData.thumbs}
                     visibilitySettings={this.state.sentData.visibilitySettings}
                   />
