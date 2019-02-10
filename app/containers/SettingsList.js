@@ -206,6 +206,7 @@ class SettingsList extends Component {
       onChangeTimelineViewWidthScale,
       onToggleDetectionChart,
       reCapture,
+      recaptureAllFrames,
       rowCountTemp,
       sceneArray,
       settings,
@@ -879,6 +880,24 @@ class SettingsList extends Component {
               defaultValue={settings.defaultCachedFramesSize || 0}
               onChange={this.onChangeCachedFramesSize}
             />
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4} />
+            <Grid.Column width={12}>
+              <Popup
+                trigger={
+                  <Button
+                    data-tid='updateFrameCacheBtn'
+                    onClick={recaptureAllFrames}
+                  >
+                    Update frame cache
+                  </Button>
+                }
+                className={stylesPop.popup}
+                content="Recapture all frames and store it in the frame cache (uses max size)"
+                keepInViewPort={false}
+              />
             </Grid.Column>
           </Grid.Row>
         </Grid>

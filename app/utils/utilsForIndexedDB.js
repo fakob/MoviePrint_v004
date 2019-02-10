@@ -30,9 +30,40 @@ export const addFrameToIndexedDB = (frameId, fileId, frameNumber, isPosterFrame,
       data: blob
     })
   )
-  .then(key => {
+  .then(() => {
+    const key = imageDB.frameList.get(frameId);
     console.log(key);
-    return imageDB.frameList.get(key);
+    return key;
+  })
+  .then(frame => {
+    console.log(frame);
+    const objectUrl = window.URL.createObjectURL(frame.data);
+    ipcRenderer.send(
+      'message-from-opencvWorkerWindow-to-mainWindow',
+      'update-objectUrl',
+      frameId,
+      objectUrl,
+    );
+    return objectUrl
+  })
+  .catch(e => {
+    log.error(e.stack || e);
+  });
+}
+
+export const updateFrameInIndexedDB = (frameId, outBase64) => {
+  const url = `data:image/jpg;base64,${outBase64}`;
+  fetch(url)
+  .then(res => res.blob())
+  .then(blob =>
+    imageDB.frameList.where('frameId').equals(frameId).modify({
+      data: blob
+    })
+  )
+  .then(() => {
+    const key = imageDB.frameList.get(frameId);
+    console.log(key);
+    return key;
   })
   .then(frame => {
     console.log(frame);

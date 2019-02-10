@@ -8,6 +8,9 @@ import {
 import {
   updateFrameBase64,
 } from './utilsForSqlite';
+import {
+  updateFrameInIndexedDB,
+} from './utilsForIndexedDB';
 
 const opencv = require('opencv4nodejs');
 
@@ -26,14 +29,16 @@ export const recaptureThumbs = (
     const frameId = frameIdArray[i];
     if (mat.empty) {
       log.info('opencvWorkerWindow | frame is empty');
-      updateFrameBase64(frameId, '');
+      // updateFrameBase64(frameId, '');
+      updateFrameInIndexedDB(frameId, '');
     } else {
       let matRescaled;
       if (frameSize !== 0) { // 0 stands for keep original size
         matRescaled = mat.resizeToMax(frameSize);
       }
       const outBase64 = opencv.imencode('.jpg', matRescaled || mat).toString('base64'); // maybe change to .png?
-      updateFrameBase64(frameId, outBase64);
+      // updateFrameBase64(frameId, outBase64);
+      updateFrameInIndexedDB(frameId, outBase64);
     }
   }
 }

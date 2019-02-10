@@ -67,7 +67,7 @@ process.on('SIGTERM', err => {
 //   log.debug(...args);
 // });
 
-ipcRenderer.on('recapture-all-frames', (event, files, frameSize) => {
+ipcRenderer.on('recapture-all-frames', (event, files, thumbsByFileId, frameSize) => {
   log.debug('opencvWorkerWindow | on recapture all frames');
   log.debug(`opencvWorkerWindow | frameSize: ${frameSize}`);
 
@@ -75,23 +75,24 @@ ipcRenderer.on('recapture-all-frames', (event, files, frameSize) => {
   files.map(file => {
     log.debug(`opencvWorkerWindow | ${file.path}`);
     log.debug(`opencvWorkerWindow | useRatio: ${file.useRatio}`);
-    const frames = getAllFramesNoBase64(file.id);
-    console.log(frames);
-    const frameNumberArray = frames.map(frame => frame.frameNumber)
-    const frameIdArray = frames.map(frame => frame.frameId)
-    recaptureThumbs(
-      frameSize,
-      file.path,
-      file.useRatio,
-      frameIdArray,
-      frameNumberArray,
-    );
-    return true; // finished capturing
+    // iterate through all sheets
+    console.log(thumbsByFileId);
+    Object.keys(thumbsByFileId).map(sheet => {
+      const currentSheetArray = Object.values(thumbsByFileId[sheet])[0];
+      console.log(currentSheetArray);
+      const frameNumberArray = currentSheetArray.map(frame => frame.frameNumber)
+      const frameIdArray = currentSheetArray.map(frame => frame.frameId)
+      recaptureThumbs(
+        frameSize,
+        file.path,
+        file.useRatio,
+        frameIdArray,
+        frameNumberArray,
+      );
+      return true; // finished capturing one sheet
+    });
+    return true; // finished capturing one file
   });
-  ipcRenderer.send(
-    'message-from-opencvWorkerWindow-to-mainWindow',
-    'update-frames-from-database',
-  );
   ipcRenderer.send(
     'message-from-opencvWorkerWindow-to-mainWindow',
     'progressMessage',

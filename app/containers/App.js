@@ -236,7 +236,7 @@ class App extends Component {
 
     this.updatecontainerWidthAndHeight = this.updatecontainerWidthAndHeight.bind(this);
     this.updateScaleValue = this.updateScaleValue.bind(this);
-    this.updateFramesFromDatabase = this.updateFramesFromDatabase.bind(this);
+    this.recaptureAllFrames = this.recaptureAllFrames.bind(this);
 
     this.onFileListElementClick = this.onFileListElementClick.bind(this);
     this.onErrorPosterFrame = this.onErrorPosterFrame.bind(this);
@@ -304,8 +304,6 @@ class App extends Component {
       log.error(err);
     });
 
-    // this.updateFramesFromDatabase();
-
     setColumnAndThumbCount(
       this,
       getColumnCount(
@@ -350,10 +348,6 @@ class App extends Component {
       deleteTableMovielist();
       deleteTableFramelist();
       deleteTableFrameScanList();
-    });
-
-    ipcRenderer.on('update-frames-from-database', (event) => {
-      this.updateFramesFromDatabase();
     });
 
     ipcRenderer.on('progress', (event, fileId, progressBarPercentage) => {
@@ -881,13 +875,7 @@ class App extends Component {
             store.dispatch(setView(VIEW.TIMELINEVIEW));
             break;
           case 67: // press 'c'
-            const { files, settings } = this.props;
-            ipcRenderer.send(
-              'message-from-mainWindow-to-opencvWorkerWindow',
-              'recapture-all-frames',
-              files,
-              settings.defaultCachedFramesSize
-            );
+            this.recaptureAllFrames();
             break;
           case 68: // press 'd'
             const allFrames = getAllFrames();
@@ -911,25 +899,16 @@ class App extends Component {
     }
   }
 
-  updateFramesFromDatabase(event) {
-    const { currentFileId } = this.props;
+  recaptureAllFrames() {
+    const { files, settings, thumbsByFileId } = this.props;
 
-    // get all posterframes
-    const posterframes = getFramesByIsPosterFrame(1);
-    this.setState({
-      posterframeBase64Array: posterframes,
-    });
-
-    // get all frames for currentFileId
-    if (currentFileId !== undefined) {
-      const frames = getAllFramesByFileId(currentFileId);
-      this.setState({
-        frameBase64Array: frames,
-      })
-      console.log(frames);
-    } else {
-      console.log('No frames loaded from database');
-    }
+    ipcRenderer.send(
+      'message-from-mainWindow-to-opencvWorkerWindow',
+      'recapture-all-frames',
+      files,
+      thumbsByFileId,
+      settings.defaultCachedFramesSize
+    );
   }
 
   handleKeyUp(event) {
@@ -2065,6 +2044,7 @@ class App extends Component {
                         fileScanRunning={this.state.fileScanRunning}
                         showChart={this.state.showChart}
                         onToggleDetectionChart={this.onToggleDetectionChart}
+                        recaptureAllFrames={this.recaptureAllFrames}
                       />
                     </div>
                     <div
