@@ -91,8 +91,8 @@ import {
   updateFileColumnCount,
   updateFileDetails,
   updateFileDetailUseRatio,
+  updateFrameNumber,
   updateInOutPoint,
-  updateThumbImage,
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -395,7 +395,6 @@ class App extends Component {
     // poster frames don't have thumbId
     ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, frameNumber, useRatio) => {
       store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
-      store.dispatch(updateThumbImage(fileId, DEFAULT_SHEET_INTERVAL, '', posterFrameId, frameNumber, true));
       // this.addToFramesToFetch(posterFrameId, true); // get posterframe to be fetched
       // get all posterframes
       ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-in-and-outpoint', fileId, filePath, useRatio, store.getState().undoGroup.present.settings.defaultDetectInOutPoint);
@@ -450,6 +449,16 @@ class App extends Component {
       }
     });
 
+    ipcRenderer.on('update-objectUrl', (event, frameId, objectUrl) => {
+      const { objectUrlsArray } = this.state;
+      this.setState({
+        objectUrlsArray: [...objectUrlsArray, {
+          frameId,
+          objectUrl,
+        }] // add objectUrl to array
+      });
+    });
+
     ipcRenderer.on('receive-get-thumbs', (event, fileId, sheet, thumbId, frameId, frameNumber, lastThumb) => {
       if (lastThumb && this.state.timeBefore !== undefined) {
         const timeAfter = Date.now();
@@ -466,44 +475,34 @@ class App extends Component {
           }, 3000);
         });
       }
-      store.dispatch(updateThumbImage(fileId, sheet, thumbId, frameId, frameNumber, false, this.state.objectUrlsArray))
-      .then((resolve) => { // receive new objectUrl if not a posterframe
-        // console.log(resolve);
-        // this.addToFramesToFetch(frameId); // get frame to be fetched
-        if (resolve !== false) {
-          this.setState({
-            objectUrlsArray: [...this.state.objectUrlsArray, resolve] // add objectUrl to array
-          });
-        }
-        // check if this is the lastThumb of the filesToPrint when savingAllMoviePrints
-        // if so change its status from gettingThumbs to readyForPrinting
-        if (lastThumb && this.state.savingAllMoviePrints
-          && this.state.filesToPrint.length > 0) {
-            if (this.state.filesToPrint.findIndex(item => item.fileId === fileId && item.status === 'gettingThumbs' ) > -1) {
-              // log.debug(this.state.filesToPrint);
-              // state should be immutable, therefor
-              const filesToPrint = this.state.filesToPrint.map((item) => {
-                if(item.fileId !== fileId) {
-                  // This isn't the item we care about - keep it as-is
-                  return item;
-                }
-                // Otherwise, this is the one we want - return an updated value
-                return {
-                  ...item,
-                  status: 'readyForPrinting'
-                };
-              });
-              // log.debug(filesToPrint);
-              this.setState({
-                filesToPrint,
-              });
-            }
+      if (this.props.thumbsByFileId[fileId][sheet].find((thumb) =>
+        thumb.thumbId === thumbId).frameNumber !== frameNumber) {
+        store.dispatch(updateFrameNumber(fileId, sheet, thumbId, frameNumber));
+      }
+      // check if this is the lastThumb of the filesToPrint when savingAllMoviePrints
+      // if so change its status from gettingThumbs to readyForPrinting
+      if (lastThumb && this.state.savingAllMoviePrints
+        && this.state.filesToPrint.length > 0) {
+          if (this.state.filesToPrint.findIndex(item => item.fileId === fileId && item.status === 'gettingThumbs' ) > -1) {
+            // log.debug(this.state.filesToPrint);
+            // state should be immutable, therefor
+            const filesToPrint = this.state.filesToPrint.map((item) => {
+              if(item.fileId !== fileId) {
+                // This isn't the item we care about - keep it as-is
+                return item;
+              }
+              // Otherwise, this is the one we want - return an updated value
+              return {
+                ...item,
+                status: 'readyForPrinting'
+              };
+            });
+            // log.debug(filesToPrint);
+            this.setState({
+              filesToPrint,
+            });
           }
-        return true;
-      })
-      .catch(error => {
-        log.error(`There has been a problem with the updateThumbImage dispatch: ${error.message}`);
-      });
+        }
     });
 
     ipcRenderer.on('clearScenes', (event, fileId) => {

@@ -1,6 +1,8 @@
 import log from 'electron-log';
 import imageDB from './db';
 
+const { ipcRenderer } = require('electron');
+
 export const openDBConnection = () => {
   // dexie documentation:
   // Even though open() is asynchronous,
@@ -35,7 +37,12 @@ export const addFrameToIndexedDB = (frameId, fileId, frameNumber, isPosterFrame,
   .then(frame => {
     console.log(frame);
     const objectUrl = window.URL.createObjectURL(frame.data);
-    console.log(objectUrl);
+    ipcRenderer.send(
+      'message-from-opencvWorkerWindow-to-mainWindow',
+      'update-objectUrl',
+      frameId,
+      objectUrl,
+    );
     return objectUrl
   })
   .catch(e => {

@@ -480,48 +480,6 @@ export const updateFrameNumber = (fileId, sheet, thumbId, frameNumber) => {
   };
 };
 
-
-export const updateThumbImage = (fileId, sheet, thumbId, frameId, frameNumber, isPosterFrame = false, objectUrlsArray = []) =>
-  ((dispatch, getState) => {
-    log.debug(`action: updateThumbImage frameNumber=${frameNumber}`);
-    // if (base64 === '') {
-    //   log.warn('base64 empty');
-    //   // return a rejected Promise with error message
-    //   return Promise.reject(new Error('base64 empty'));
-    // }
-    // return fetch(`data:image/jpeg;base64,${base64}`)
-    // .then(response => {
-    //   if (response.ok) {
-    //     return response.clone().blob();
-    //   }
-    //   throw new Error('fetch base64 to blob was not ok.');
-    // })
-    // .then(blob =>
-    //   imageDB.frameList.put({
-    //     frameId,
-    //     fileId,
-    //     frameNumber,
-    //     isPosterFrame: isPosterFrame ? 1 : 0, // 0 and 1 is used as dexie/indexDB can not use boolean values
-    //     data: blob
-    //   }))
-    // .then(() => {
-      // only update frameNumber if not posterframe and frameNumber is different
-      if (!isPosterFrame &&
-        getState().undoGroup.present.thumbsByFileId[fileId][sheet].find((thumb) =>
-        thumb.thumbId === thumbId).frameNumber !== frameNumber) {
-        dispatch(updateFrameNumber(fileId, sheet, thumbId, frameNumber));
-      }
-      // if (isPosterFrame) {
-      //   return Promise.resolve(false); // return false if objecturl not updated - does not need rerender
-      // }
-      // return Promise.resolve(false); // get objecturl from imagedb
-      return Promise.resolve(dispatch(returnObjectUrlFromFrameList(frameId, objectUrlsArray))); // get objecturl from imagedb
-      // })
-    // .catch(error => {
-    //   log.error(`There has been a problem with your fetch operation: ${error.message}`);
-    // });
-  });
-
 export const clearThumbs = (fileId = '', sheet = '') => {
   log.debug('action: clearThumbs');
   return {
@@ -883,29 +841,3 @@ export const clearObjectUrls = () => {
         });
     };
   };
-
-  export const returnObjectUrlFromFrameList = (frameId, objectUrlsArray) => {
-    return dispatch => {
-      log.debug('action: returnObjectUrlFromFrameList');
-      // console.log(frameId);
-      if (objectUrlsArray.some(item => frameId === item.frameId)) {
-        return Promise.resolve(objectUrlsArray.find(item => frameId === item.frameId)); // return immediately if already available
-      }
-      // const frame = getFrameByFrameId(frameId);
-      return imageDB.frameList.where('frameId').equals(frameId).toArray() // get the one frame
-        .then((frames) => {
-          console.log(frames);
-          log.debug(frames);
-          if (frames.length === 0) {
-            return Promise.reject(new Error('frame not found')); // return false if objecturl not updated - does not need rerender
-          }
-          return Promise.resolve({
-            frameId: frames[0].frameId,
-            objectUrl: window.URL.createObjectURL(frames[0].data),
-          });
-        })
-        .catch((err) => {
-          log.error(err);
-        });
-      };
-    };
