@@ -187,8 +187,8 @@ const mapDispatchToProps = (dispatch, ownProps) => {
         ownProps.frameSize,
       ));
     },
-    onSaveThumbClick: (fileName, frameNumber, frameId) => {
-      saveThumb(fileName, frameNumber, frameId);
+    onSaveThumbClick: (filePath, fileUseRatio, fileName, frameNumber, frameId) => {
+      saveThumb(filePath, fileUseRatio, fileName, frameNumber, frameId);
     },
     onBackClick: (file, thumbId, frameNumber) => {
       const [stepValue0, stepValue1, stepValue2] = CHANGE_THUMB_STEP;

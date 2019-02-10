@@ -10,7 +10,6 @@ import {
 import styles from '../components/ThumbGrid.css';
 import SortableSceneGrid from '../components/SceneGrid';
 import { getLowestFrame, getHighestFrame } from '../utils/utils';
-import saveThumb from '../utils/saveThumb';
 import { CHANGE_THUMB_STEP } from '../utils/constants';
 
 class SortedVisibleSceneGrid extends Component {
@@ -104,49 +103,6 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     onToggleClick: (fileId, sceneId) => {
       dispatch(toggleScene(fileId, ownProps.visibilitySettings.defaultSheet, sceneId));
     },
-    // onInPointClick: (file, thumbs, thumbId, frameNumber) => {
-    //   dispatch(addDefaultThumbs(
-    //     file,
-    //     ownProps.visibilitySettings.defaultSheet,
-    //     thumbs.length,
-    //     frameNumber,
-    //     getHighestFrame(thumbs)
-    //   ));
-    // },
-    // onOutPointClick: (file, thumbs, thumbId, frameNumber) => {
-    //   dispatch(addDefaultThumbs(
-    //     file,
-    //     ownProps.visibilitySettings.defaultSheet,
-    //     thumbs.length,
-    //     getLowestFrame(thumbs),
-    //     frameNumber
-    //   ));
-    // },
-    // onSaveThumbClick: (fileName, frameNumber, frameId) => {
-    //   saveThumb(fileName, frameNumber, frameId);
-    // },
-    // onBackClick: (file, thumbId, frameNumber) => {
-    //   const [stepValue0, stepValue1, stepValue2] = CHANGE_THUMB_STEP;
-    //   let stepValue = stepValue1;
-    //   if (ownProps.keyObject.shiftKey) {
-    //     stepValue = stepValue0;
-    //   }
-    //   if (ownProps.keyObject.altKey) {
-    //     stepValue = stepValue2;
-    //   }
-    //   dispatch(changeThumb(ownProps.visibilitySettings.defaultSheet, file, thumbId, frameNumber - stepValue));
-    // },
-    // onForwardClick: (file, thumbId, frameNumber) => {
-    //   const [stepValue0, stepValue1, stepValue2] = CHANGE_THUMB_STEP;
-    //   let stepValue = stepValue1;
-    //   if (ownProps.keyObject.shiftKey) {
-    //     stepValue = stepValue0;
-    //   }
-    //   if (ownProps.keyObject.altKey) {
-    //     stepValue = stepValue2;
-    //   }
-    //   dispatch(changeThumb(ownProps.visibilitySettings.defaultSheet, file, thumbId, frameNumber + stepValue));
-    // }
   };
 };
 

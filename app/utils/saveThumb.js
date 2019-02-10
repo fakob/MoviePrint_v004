@@ -2,11 +2,12 @@ import pathR from 'path';
 import log from 'electron-log';
 import imageDB from './db';
 import { ensureDirectoryExistence, getFilePathObject, pad } from './utils';
+import { getBase64Object } from './utilsForOpencv';
 
 const { ipcRenderer } = require('electron');
 const { app } = require('electron').remote;
 
-const saveThumb = (fileName, frameNumber, frameId = undefined, saveToFolder = '', overwrite = false) => {
+const saveThumb = (filePath, fileUseRatio, fileName, frameNumber, frameId, saveToFolder = '', overwrite = false) => {
   // save thumbs in folder with the same name as moviePrint
   let newFolderName = app.getPath('desktop');
   if (saveToFolder) {
@@ -20,22 +21,23 @@ const saveThumb = (fileName, frameNumber, frameId = undefined, saveToFolder = ''
     newFilePathObject.base
   );
 
-  return imageDB.frameList.where('frameId').equals(frameId).toArray().then((frames) => {
-    // log.debug(frames[0]);
-    const reader = new FileReader();
-
-    // This event is triggered each time the reading operation is successfully completed.
-    reader.onload = () => {
-      if (reader.readyState === 2) {
-        const buffer = Buffer.from(reader.result);
-        ipcRenderer.send('send-save-file', frameId, newFilePathAndName, buffer);
-        log.debug(`Saving ${JSON.stringify({ newFilePathAndName, size: frames[0].data.size })}`);
+  const base64Object = getBase64Object(
+    filePath,
+    fileUseRatio,
+    [
+      {
+      frameId,
+      frameNumber,
       }
-    };
+    ]
+  );
 
-    reader.readAsArrayBuffer(frames[0].data);
-    return true;
-  });
+  const { base64 } = base64Object[frameId];
+  const buf = Buffer.from(base64, 'base64');
+
+  ipcRenderer.send('send-save-file', frameId, newFilePathAndName, buf);
+  log.debug(`Saving ${JSON.stringify({ newFilePathAndName, size: buf.length })}`);
+
 };
 
 export default saveThumb;

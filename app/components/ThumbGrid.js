@@ -141,7 +141,7 @@ class ThumbGrid extends Component {
   onSaveThumb(e) {
     e.stopPropagation();
     const thumb = this.props.thumbs.find(thumb => thumb.thumbId === this.state.controllersVisible);
-    this.props.onSaveThumbClick(this.props.file.id, thumb.frameNumber, thumb.frameId);
+    this.props.onSaveThumbClick(this.props.file.path, this.props.file.useRatio, this.props.file.name, thumb.frameNumber, thumb.frameId);
     this.resetHover();
   }
 

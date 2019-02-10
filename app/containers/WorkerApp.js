@@ -12,14 +12,15 @@ import Conditional from '../components/Conditional';
 import ErrorBoundary from '../components/ErrorBoundary';
 import getScaleValueObject from '../utils/getScaleValueObject';
 import {
-  arrayToObject,
   getMoviePrintColor,
-  setPosition,
  } from '../utils/utils';
 import saveMoviePrint from '../utils/saveMoviePrint';
 import {
   VIEW,
 } from '../utils/constants';
+import {
+  getBase64Object,
+} from '../utils/utilsForOpencv';
 import {
   getFramesByFrameIdArray,
 } from '../utils/utilsForSqlite';
@@ -52,30 +53,8 @@ class WorkerApp extends Component {
     ipcRenderer.on('action-save-MoviePrint', (event, sentData) => {
       log.debug('workerWindow | action-save-MoviePrint');
       log.debug(sentData);
-      const opencvVideo = new opencv.VideoCapture(sentData.file.path);
 
-      const arrayOfThumbs = sentData.thumbs.map(thumb => ({
-          frameId: thumb.frameId,
-          frameNumber: thumb.frameNumber,
-        }));
-
-      const arrayOfFrames = [];
-
-      arrayOfThumbs.map(thumb => {
-        setPosition(opencvVideo, thumb.frameNumber, sentData.file.useRatio);
-        const frame = opencvVideo.read();
-        let base64 = '';
-        if (!frame.empty) {
-          base64 = opencv.imencode('.jpg', frame).toString('base64'); // maybe change to .png?
-        }
-        arrayOfFrames.push({
-          frameId: thumb.frameId,
-          base64,
-          });
-        return undefined;
-      });
-
-      const base64Object = arrayToObject(arrayOfFrames, 'frameId');
+      const base64Object = getBase64Object(sentData.file.path, sentData.file.useRatio, sentData.thumbs);
 
       this.setState({
         savingMoviePrint: true,

@@ -39,8 +39,7 @@ const saveMoviePrint = (
 
   if (saveIndividualThumbs) {
     thumbs.map(thumb => {
-      saveThumb(
-        newFilePathObject.name, thumb.frameNumber, thumb.frameId,
+      saveThumb(file.path, file.useRatio, newFilePathObject.name, thumb.frameNumber, thumb.frameId,
         newFilePathAndNameWithoutExtension, overwrite
       );
     });

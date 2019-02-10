@@ -3,6 +3,7 @@ import log from 'electron-log';
 import VideoCaptureProperties from './videoCaptureProperties';
 import imageDB from './db';
 import {
+  arrayToObject,
   setPosition,
 } from './utils';
 import {
@@ -41,6 +42,27 @@ export const recaptureThumbs = (
       updateFrameInIndexedDB(frameId, outBase64);
     }
   }
+}
+
+export const getBase64Object = (filePath, useRatio, arrayOfThumbs) => {
+  const arrayOfFrames = [];
+  const opencvVideo = new opencv.VideoCapture(filePath);
+
+  arrayOfThumbs.map(thumb => {
+    setPosition(opencvVideo, thumb.frameNumber, useRatio);
+    const frame = opencvVideo.read();
+    let base64 = '';
+    if (!frame.empty) {
+      base64 = opencv.imencode('.jpg', frame).toString('base64'); // maybe change to .png?
+    }
+    arrayOfFrames.push({
+      frameId: thumb.frameId,
+      base64,
+      });
+    return undefined;
+  });
+
+  return arrayToObject(arrayOfFrames, 'frameId');
 }
 
 export const getDominantColor = (image, k=4) => {
