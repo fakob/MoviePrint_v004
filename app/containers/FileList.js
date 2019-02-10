@@ -2,9 +2,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import FileListElement from '../components/FileListElement';
-// import {
-//   updateObjectUrlsFromPosterFrame,
-// } from '../actions';
 import {
   getObjectProperty,
 } from '../utils/utils';
@@ -14,9 +11,6 @@ class SortedFileList extends Component {
   componentDidMount() {
     const { store } = this.context;
     this.unsubscribe = store.subscribe(() => this.forceUpdate());
-    // if (store.getState().undoGroup.present.files.length !== 0) {
-    //   store.dispatch(updateObjectUrlsFromPosterFrame());
-    // }
   }
 
   componentWillUnmount() {

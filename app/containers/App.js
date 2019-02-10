@@ -166,7 +166,7 @@ class App extends Component {
       savingMoviePrint: false,
       selectedThumbObject: undefined,
       selectedSceneObject: undefined,
-      // file match needs to be in sync with setMovieList() and onDrop() !!!
+      // file match needs to be in sync with setNewMovieList() and onDrop() !!!
       accept: 'video/*,.divx,.mkv,.ogg,.VOB,',
       dropzoneActive: false,
       loadingFirstFile: false,
@@ -946,7 +946,7 @@ class App extends Component {
     const { settings } = store.getState().undoGroup.present;
     log.debug('Files where dropped');
     log.debug(files);
-    // file match needs to be in sync with setMovieList() and accept !!!
+    // file match needs to be in sync with setNewMovieList() and accept !!!
     if (Array.from(files).some(file => (file.type.match('video.*') ||
       file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
       store.dispatch(setSheet(DEFAULT_SHEET_INTERVAL));
@@ -1483,12 +1483,6 @@ class App extends Component {
     const { store } = this.context;
     store.dispatch(setCurrentFileId(file.id));
     this.onSetSheetClick(DEFAULT_SHEET_INTERVAL);
-
-    // load all frames from database into memory
-    const frames = getAllFramesByFileId(file.id);
-    this.setState({
-      frameBase64Array: frames,
-    })
 
     // When clicking on a filelist element for the first time
     // set columnCount as it is not defined yet

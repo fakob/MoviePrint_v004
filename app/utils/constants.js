@@ -102,7 +102,7 @@ export const DEFAULT_TIMELINEVIEW_SECONDS_PER_ROW = 120.0;
 export const DEFAULT_TIMELINEVIEW_MIN_DISPLAY_SCENE_LENGTH_IN_FRAMES = 15;
 export const DEFAULT_TIMELINEVIEW_WIDTH_SCALE = 50;
 export const DEFAULT_TIMELINEVIEW_FLOW = false;
-export const DEFAULT_CACHED_FRAMES_SIZE = 0; // 0 stands for original size
+export const DEFAULT_CACHED_FRAMES_SIZE = 640; // 0 stands for original size
 // end initialStateJSON
 
 export const MENU_HEADER_HEIGHT = 35;

@@ -6,23 +6,15 @@ import {
   DEFAULT_SHEET_SCENES,
 } from '../utils/constants';
 import {
-  clearTableFramelist,
   clearTableFrameScanList,
-  createTableFramelist,
   createTableFrameScanList,
-  createTableMovielist,
-  getFrameByFileIdAndFrameNumber,
-  getFrameByFrameId,
-  getFramesByFileIdAndFrameNumberArray,
-  getFramesByIsPosterFrame,
-  getFrameScanByFileId,
-  insertMovie,
+  // createTableMovielist,
+  // insertMovie,
 } from '../utils/utilsForSqlite';
 
 const { ipcRenderer } = require('electron');
 
-createTableFramelist(); // create table if not exist
-createTableMovielist(); // create table if not exist
+// createTableMovielist(); // create table if not exist
 createTableFrameScanList(); // create table if not exist
 
 // visibilitySettings
@@ -381,17 +373,12 @@ export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), sc
   return (dispatch) => {
     log.debug('action: addThumb');
     const frameId = uuidV4();
-    // let thumbId;
-    // if (presetThumbId) {
-    //   thumbId = presetThumbId;
-    // } else {
-    //   thumbId = uuidV4();
-    // }
+
     const newFrameNumberWithinBoundaries = limitRange(frameNumber, 0, file.frameCount - 1);
-    const frame = getFrameByFileIdAndFrameNumber(file.id, newFrameNumberWithinBoundaries);
-    // imageDB.frameList.where('[fileId+frameNumber]').equals([file.id, newFrameNumberWithinBoundaries]).toArray().then((frames) => {
-      // log.debug(frames.length);
-      if (frame === undefined) {
+
+    imageDB.frameList.where('[fileId+frameNumber]').equals([file.id, newFrameNumberWithinBoundaries]).toArray().then((frames) => {
+      log.debug(frames.length);
+      if (frames.length === 0) {
         log.debug(`frame number: ${frameNumber} not yet in database - need(s) to be captured`);
         ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheet, [thumbId], [frameId], [newFrameNumberWithinBoundaries], file.useRatio, frameSize);
         log.debug('dispatch: ADD_THUMB');
@@ -416,7 +403,7 @@ export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), sc
         payload: {
           sheet,
           thumbId,
-          frameId: frame.frameId,
+          frameId: frames[0].frameId,
           frameNumber,
           fileId: file.id,
           index,
@@ -424,10 +411,10 @@ export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), sc
           sceneId,
         }
       });
-    // })
-    // .catch(error => {
-    //   log.error(`There has been a problem with your fetch operation: ${error.message}`);
-    // });
+    })
+    .catch(error => {
+      log.error(`There has been a problem with your fetch operation: ${error.message}`);
+    });
   };
 };
 
@@ -524,7 +511,11 @@ export const addThumbs = (file, sheet, frameNumberArray, frameSize = 0) => {
   return (dispatch) => {
     log.debug('action: addThumbs');
 
-    const frames = getFramesByFileIdAndFrameNumberArray(file.id, frameNumberArray);
+    // create compound array to search for both fileId and frameNumber
+    // log.debug(frameNumberArray);
+    const fileIdAndFrameNumberArray = frameNumberArray.map((item) => [file.id, item]);
+
+    return imageDB.frameList.where('[fileId+frameNumber]').anyOf(fileIdAndFrameNumberArray).toArray().then((frames) => {
       // log.debug(frames.length);
       // log.debug(frames);
 
@@ -589,9 +580,9 @@ export const addThumbs = (file, sheet, frameNumberArray, frameSize = 0) => {
         });
       }
       return Promise.resolve(frames);
-    // }).catch((err) => {
-    //   log.error(err);
-    // });
+    }).catch((err) => {
+      log.error(err);
+    });
   };
 };
 
@@ -601,9 +592,8 @@ export const changeThumb = (sheet, file, thumbId, newFrameNumber, frameSize = 0)
     const newFrameId = uuidV4();
     const newFrameNumberWithinBoundaries = limitRange(newFrameNumber, 0, file.frameCount - 1);
 
-    const frame = getFrameByFileIdAndFrameNumber(file.id, newFrameNumberWithinBoundaries);
-    // imageDB.frameList.where('[fileId+frameNumber]').equals([file.id, newFrameNumberWithinBoundaries]).toArray().then((frames) => {
-      if (frame === undefined) {
+    imageDB.frameList.where('[fileId+frameNumber]').equals([file.id, newFrameNumberWithinBoundaries]).toArray().then((frames) => {
+      if (frames.length === 0) {
         log.debug(`frame number: ${newFrameNumber} not yet in database - need(s) to be captured`);
         ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheet, [thumbId], [newFrameId], [newFrameNumberWithinBoundaries], file.useRatio, frameSize);
         log.debug('dispatch: CHANGE_THUMB');
@@ -624,30 +614,18 @@ export const changeThumb = (sheet, file, thumbId, newFrameNumber, frameSize = 0)
         type: 'CHANGE_THUMB',
         payload: {
           sheet,
-          newFrameId: frame.frameId,
+          newFrameId: frames[0].frameId,
           thumbId,
-          newFrameNumber: frame.frameNumber,
+          newFrameNumber: frames[0].frameNumber,
           fileId: file.id,
         }
       });
-    // })
-    // .catch((err) => {
-    //   log.error(err);
-    // });
+    })
+    .catch((err) => {
+      log.error(err);
+    });
   };
 };
-
-// export const updateAllFrameData = (sheet, file, frameSize = 0) => {
-//   return (dispatch) => {
-//     log.debug(`action: updateAllFrameData`);
-//     const newFrameId = uuidV4();
-//     const newFrameNumberWithinBoundaries = limitRange(newFrameNumber, 0, file.frameCount - 1);
-//
-//     const frame = getFrameByFileIdAndFrameNumber(file.id, newFrameNumberWithinBoundaries);
-//     ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheet, thumbIdArray, frameIdArray, filteredArray, file.useRatio, frameSize);
-//
-//   };
-// };
 
 export const deleteSceneSheets = (fileId) => {
   log.debug('action: deleteSceneSheets');
@@ -729,14 +707,6 @@ export const updateInOutPoint = (fileId, fadeInPoint, fadeOutPoint) => {
   };
 };
 
-export const setMovieList = (files) => {
-  log.debug('action: setMovieList');
-  return {
-    type: 'SET_MOVIE_LIST',
-    files
-  };
-};
-
 export const setNewMovieList = (files, settings) => {
   return (dispatch, getState) => {
     log.debug('action: setNewMovieList');
@@ -757,7 +727,7 @@ export const setNewMovieList = (files, settings) => {
           type: files[key].type,
           posterFrameId,
         };
-        insertMovie(fileToAdd);
+        // insertMovie(fileToAdd);
         newFiles.push(fileToAdd);
       }
       // return a copy of the array
@@ -771,33 +741,12 @@ export const setNewMovieList = (files, settings) => {
       type: 'CLEAR_MOVIE_LIST',
     });
     log.debug('dispatch: CLEAR_MOVIE_LIST');
-    clearTableFramelist();
     clearTableFrameScanList();
-    log.debug('dispatch: LOAD_MOVIE_LIST_FROM_DROP');
-    log.debug(newFiles);
     dispatch({
       type: 'LOAD_MOVIE_LIST_FROM_DROP',
       payload: newFiles,
     });
     return Promise.resolve(newFiles);
-  };
-};
-
-export const updateObjectUrlsFromPosterFrame = () => {
-  return (dispatch, getState) => {
-    // log.debug('action: updateObjectUrlsFromPosterFrame');
-    const frames = getFramesByIsPosterFrame(1);
-    // return imageDB.frameList.where('isPosterFrame').equals(1).toArray() // 1 for true is used as dexie/indexDB can not use boolean values
-    //   .then((frames) => {
-        log.debug(frames);
-        return dispatch({
-          type: 'UPDATE_OBJECTURLS_FROM_POSTERFRAME',
-          payload: {
-            files: getState().undoGroup.present.files,
-            frames
-          },
-        });
-      // });
   };
 };
 
@@ -815,8 +764,6 @@ export const clearObjectUrls = () => {
   export const returnObjectUrlsFromFrameList = () => {
     return (dispatch, getState) => {
       log.debug('action: returnObjectUrlsFromFrameList');
-      // const frames = getFramesByIsPosterFrame(0);
-      // return imageDB.frameList.where('isPosterFrame').equals(isPosterFrameValue).toArray() // get all frames which are not posterframes
       return imageDB.frameList.toArray() // get all frames which are not posterframes
         .then((frames) => {
           log.debug(frames);
