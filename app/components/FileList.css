@@ -29,8 +29,8 @@ li p {
 }
 
 li {
-  /*margin: 8px 0px 8px 8px;*/
-  padding: 8px;
+  margin: 8px 0px 8px 8px;
+  padding: 8px 8px 8px 0px;
   width: 336px;
   overflow: hidden;
   overflow-wrap: break-word;
@@ -43,7 +43,7 @@ li {
 }
 
 li:hover {
-  background: #1e1e1e;
+  background-color: #5e5e5e;
   border-color: transparent;
   border-width: 1px;
   border-style: solid;
@@ -52,12 +52,12 @@ li:hover {
 }
 
 .Highlight {
-    background-color: #5e5e5e;
+  background: #1e1e1e;
 }
 
 .Title {
   padding-top: 4px;
-  padding-left: 84px;
+  padding-left: 92px;
 	height: 32px;
 	/*width: 336px;*/
 	color: #EEEEEE;
@@ -81,7 +81,7 @@ li:hover {
 }
 
 .Detail {
-  padding-left: 84px;
+  padding-left: 92px;
   padding-right: 4px;
   padding-top: 8px;
 	/*height: 13px;*/

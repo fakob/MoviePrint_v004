@@ -24,6 +24,7 @@ class SortedFileList extends Component {
       <div
         style={{
           marginBottom: `${MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT}px`,
+          direction: 'ltr', // compensate for rtl on ItemMovieList to get scroolbar appear on left hand side
         }}
       >
         <ul>

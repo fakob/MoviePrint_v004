@@ -80,7 +80,7 @@ const Header = ({
                   name="list"
                 />
                 {/* {file === undefined ? '' : truncate(file.name, 32)} */}
-                {(visibilitySettings.showMovielist === false) ? file === undefined ? '' : truncate(file.name, 32) : 'Hide Movie list'}
+                {file === undefined ? '' : truncate(file.name, 32)}
               </Menu.Item>
             }
             className={stylesPop.popup}
@@ -128,7 +128,7 @@ const Header = ({
         <Menu.Menu position="right">
           {file &&
             visibilitySettings.defaultView === VIEW.GRIDVIEW &&
-            !visibilitySettings.showSettings &&
+            // !visibilitySettings.showSettings &&
             visibilitySettings.defaultSheetFit !== SHEET_FIT.HEIGHT &&
             scaleValueObject.moviePrintAspectRatioInv < scaleValueObject.containerAspectRatioInv &&
             <Popup
@@ -150,7 +150,7 @@ const Header = ({
           }
           {file &&
             visibilitySettings.defaultView === VIEW.GRIDVIEW &&
-            !visibilitySettings.showSettings &&
+            // !visibilitySettings.showSettings &&
             visibilitySettings.defaultSheetFit !== SHEET_FIT.WIDTH &&
             scaleValueObject.moviePrintAspectRatioInv > scaleValueObject.containerAspectRatioInv &&
             <Popup
@@ -170,7 +170,7 @@ const Header = ({
               keepInViewPort={false}
             />
           }
-          {file && visibilitySettings.defaultView === VIEW.GRIDVIEW && !visibilitySettings.showSettings && visibilitySettings.defaultSheetFit !== SHEET_FIT.BOTH &&
+          {file && visibilitySettings.defaultView === VIEW.GRIDVIEW && visibilitySettings.defaultSheetFit !== SHEET_FIT.BOTH &&
             <Popup
               trigger={
                 <Menu.Item
@@ -188,7 +188,7 @@ const Header = ({
               keepInViewPort={false}
             />
           }
-          {file && visibilitySettings.defaultView === VIEW.GRIDVIEW && !visibilitySettings.showSettings &&
+          {file && visibilitySettings.defaultView === VIEW.GRIDVIEW &&
             <Popup
               trigger={
                 <Menu.Item

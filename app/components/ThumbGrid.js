@@ -320,8 +320,8 @@ class ThumbGrid extends Component {
     // console.log(this.state.hoverPos);
     // console.log(parentPos);
 
-    const showBeforeController = (this.props.showSettings ? false : (this.state.controllersVisible === this.state.addThumbBeforeController)) || this.props.keyObject.shiftKey;
-    const showAfterController = (this.props.showSettings ? false : (this.state.controllersVisible === this.state.addThumbAfterController)) || this.props.keyObject.altKey;
+    const showBeforeController = (this.state.controllersVisible === this.state.addThumbBeforeController) || this.props.keyObject.shiftKey;
+    const showAfterController = (this.state.controllersVisible === this.state.addThumbAfterController) || this.props.keyObject.altKey;
 
     return (
       <div
@@ -383,9 +383,9 @@ class ThumbGrid extends Component {
               thumbInfoValue={getThumbInfoValue(this.props.settings.defaultThumbInfo, thumb.frameNumber, fps)}
               thumbInfoRatio={this.props.settings.defaultThumbInfoRatio}
               hidden={thumb.hidden}
-              controllersAreVisible={(this.props.showSettings || thumb.thumbId === undefined) ? false : (thumb.thumbId === this.state.controllersVisible)}
+              controllersAreVisible={(thumb.thumbId === undefined) ? false : (thumb.thumbId === this.state.controllersVisible)}
               selected={this.props.selectedThumbId ? (this.props.selectedThumbId === thumb.thumbId) : false}
-              onOver={this.props.showSettings ? null : (event) => {
+              onOver={(event) => {
                 // only setState if controllersVisible has changed
                 // console.log(event.target.getBoundingClientRect());
                 const hoverPos = event.target.getBoundingClientRect();
@@ -398,7 +398,7 @@ class ThumbGrid extends Component {
                 }
               }}
               onThumbDoubleClick={this.props.onThumbDoubleClick}
-              onSelect={(this.props.showSettings || (thumb.thumbId !== this.state.controllersVisible)) ?
+              onSelect={(thumb.thumbId !== this.state.controllersVisible) ?
                 null : () => {
                   this.props.onSelectClick(thumb.thumbId, thumb.frameNumber);
                 }}
@@ -412,7 +412,7 @@ class ThumbGrid extends Component {
         </div>
         {!this.props.isSorting && // only show when not sorting
         this.state.hoverPos !== undefined && // only show when hoveringOver a thumb
-        !this.props.showSettings && // only show when not showSettings
+        // !this.props.showSettings && // only show when not showSettings
           <div
             className={styles.overlayContainer}
             onMouseLeave={this.onContainerOut}

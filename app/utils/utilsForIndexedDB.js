@@ -27,19 +27,19 @@ export const addFrameToIndexedDB = (frameId, fileId, frameNumber, isPosterFrame,
   fetch(url)
   .then(res => res.blob())
   .then(blob =>
-    imageDB.frameList.put({
-      frameId,
-      fileId,
-      frameNumber,
-      isPosterFrame: isPosterFrame ? 1 : 0, // 0 and 1 is used as dexie/indexDB can not use boolean values
-      data: blob
+    imageDB.transaction('rw', imageDB.frameList, async ()=>{
+      await imageDB.frameList.put({
+        frameId,
+        fileId,
+        frameNumber,
+        isPosterFrame: isPosterFrame ? 1 : 0, // 0 and 1 is used as dexie/indexDB can not use boolean values
+        data: blob
+      });
+      const key = await imageDB.frameList.get(frameId);
+      console.log(key);
+      return key;
     })
   )
-  .then(() => {
-    const key = imageDB.frameList.get(frameId);
-    console.log(key);
-    return key;
-  })
   .then(frame => {
     console.log(frame);
     const objectUrl = window.URL.createObjectURL(frame.data);
@@ -61,14 +61,15 @@ export const updateFrameInIndexedDB = (frameId, outBase64) => {
   fetch(url)
   .then(res => res.blob())
   .then(blob =>
-    imageDB.frameList.where('frameId').equals(frameId).modify({
-      data: blob
+    imageDB.transaction('rw', imageDB.frameList, async ()=>{
+      await imageDB.frameList.where('frameId').equals(frameId).modify({
+        data: blob
+      });
+      const key = await imageDB.frameList.get(frameId);
+      console.log(key);
+      return key;
     })
   )
-  .then(() => {
-    const key = imageDB.frameList.get(frameId);
-    return key;
-  })
   .then(frame => {
     console.log(frame);
     const objectUrl = window.URL.createObjectURL(frame.data);
