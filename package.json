@@ -57,6 +57,7 @@
       "credits.html",
       "worker.html",
       "worker_opencv.html",
+      "worker_indexedDB.html",
       "main.prod.js",
       "main.prod.js.map",
       "renderer.prod.js",

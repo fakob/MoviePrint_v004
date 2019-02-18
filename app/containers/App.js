@@ -46,14 +46,12 @@ import {
   addScenes,
   addThumb,
   changeThumb,
-  clearObjectUrls,
   clearScenes,
   clearThumbs,
   deleteSceneSheets,
   hideMovielist,
   hideSettings,
   removeMovieListItem,
-  returnObjectUrlsFromFrameList,
   setCurrentFileId,
   setDefaultCachedFramesSize,
   setDefaultColumnCount,
@@ -293,16 +291,10 @@ class App extends Component {
     const { store } = this.context;
 
     // get objecturls from all frames in imagedb
-    store.dispatch(returnObjectUrlsFromFrameList()).then(arrayOfObjectUrls => {
-      console.log(arrayOfObjectUrls);
-      this.setState({
-        objectUrlsArray: arrayOfObjectUrls
-      })
-      return undefined;
-    })
-    .catch((err) => {
-      log.error(err);
-    });
+    ipcRenderer.send(
+      'message-from-mainWindow-to-indexedDBWorkerWindow',
+      'get-arrayOfObjectUrls'
+    );
 
     setColumnAndThumbCount(
       this,
@@ -348,6 +340,14 @@ class App extends Component {
       deleteTableMovielist();
       deleteTableFramelist();
       deleteTableFrameScanList();
+    });
+
+    ipcRenderer.on('send-arrayOfObjectUrls', (event, arrayOfObjectUrls) => {
+      console.log(event);
+      console.log(arrayOfObjectUrls);
+      this.setState({
+        objectUrlsArray: arrayOfObjectUrls
+      });
     });
 
     ipcRenderer.on('progress', (event, fileId, progressBarPercentage) => {
@@ -813,8 +813,6 @@ class App extends Component {
 
   componentWillUnmount() {
     const { store } = this.context;
-    store.dispatch(clearObjectUrls());
-
 
     document.removeEventListener('keydown', this.handleKeyPress);
     document.removeEventListener('keyup', this.handleKeyUp);
@@ -1021,6 +1019,7 @@ class App extends Component {
       }
       return true;
     } catch (e) {
+      log.error(e);
       return undefined;
     }
   }
@@ -1849,9 +1848,11 @@ class App extends Component {
     const { frameBase64Array, posterframeBase64Array, objectUrlsArray } = this.state;
     const { currentFileId, allThumbs, files } = this.props;
 
+    // console.log(objectUrlsArray);
+
     // get objectUrls by reading all thumbs and get the corresponding objectUrls from the objectUrlsArray
     const arrayOfObjectUrlsOfAllThumbs = [];
-    if (allThumbs !== undefined) {
+    if (allThumbs !== undefined && objectUrlsArray.length !== 0) {
       allThumbs.map(thumb => {
         if (objectUrlsArray.find(item => thumb.frameId === item.frameId)) {
           arrayOfObjectUrlsOfAllThumbs.push({
@@ -1867,7 +1868,7 @@ class App extends Component {
 
     // get objectUrls by reading all files and get the corresponding objectUrls from the objectUrlsArray
     const arrayOfObjectUrlsOfAllPosterFrames = [];
-    if (files !== undefined) {
+    if (files !== undefined && objectUrlsArray.length !== 0) {
       files.map(file => {
         if (objectUrlsArray.find(item => file.posterFrameId === item.frameId)) {
           arrayOfObjectUrlsOfAllPosterFrames.push({

@@ -44,7 +44,7 @@ export const addFrameToIndexedDB = (frameId, fileId, frameNumber, isPosterFrame,
     console.log(frame);
     const objectUrl = window.URL.createObjectURL(frame.data);
     ipcRenderer.send(
-      'message-from-opencvWorkerWindow-to-mainWindow',
+      'message-from-indexedDBWorkerWindow-to-mainWindow',
       'update-objectUrl',
       frameId,
       objectUrl,
@@ -57,31 +57,64 @@ export const addFrameToIndexedDB = (frameId, fileId, frameNumber, isPosterFrame,
 }
 
 export const updateFrameInIndexedDB = (frameId, outBase64) => {
-  const url = `data:image/jpg;base64,${outBase64}`;
-  fetch(url)
-  .then(res => res.blob())
-  .then(blob =>
-    imageDB.transaction('rw', imageDB.frameList, async ()=>{
-      await imageDB.frameList.where('frameId').equals(frameId).modify({
-        data: blob
-      });
-      const key = await imageDB.frameList.get(frameId);
-      console.log(key);
-      return key;
+  if (outBase64 === '') {
+    return undefined;
+  }
+  try {
+    const url = `data:image/jpg;base64,${outBase64}`;
+    fetch(url)
+    .then(res => res.blob())
+    .then(blob =>
+      imageDB.transaction('rw', imageDB.frameList, async ()=>{
+        await imageDB.frameList.where('frameId').equals(frameId).modify({
+          data: blob
+        });
+        const key = await imageDB.frameList.get(frameId);
+        console.log(key);
+        return key;
+      })
+    )
+    .then(frame => {
+      console.log(frame);
+      const objectUrl = window.URL.createObjectURL(frame.data);
+      ipcRenderer.send(
+        'message-from-indexedDBWorkerWindow-to-mainWindow',
+        'update-objectUrl',
+        frameId,
+        objectUrl,
+      );
+      return objectUrl
     })
-  )
-  .then(frame => {
-    console.log(frame);
-    const objectUrl = window.URL.createObjectURL(frame.data);
+    .catch(e => {
+      log.error(e.stack || e);
+    });
+  } catch (e) {
+    log.error(e);
+  }
+}
+
+export const getObjectUrlsFromFramelist = () => {
+  imageDB.transaction('r', imageDB.frameList, async ()=>{
+    const array = await imageDB.frameList.toArray();
+    if (array.length === 0) {
+      return [];
+    }
+    const arrayOfObjectUrls = [];
+    array.map((frame) => {
+      const objectUrl = window.URL.createObjectURL(frame.data);
+      if (objectUrl !== undefined) {
+        arrayOfObjectUrls.push({
+          frameId: frame.frameId,
+          objectUrl: window.URL.createObjectURL(frame.data),
+        })
+      }
+      return undefined;
+    });
     ipcRenderer.send(
-      'message-from-opencvWorkerWindow-to-mainWindow',
-      'update-objectUrl',
-      frameId,
-      objectUrl,
+      'message-from-indexedDBWorkerWindow-to-mainWindow',
+      'send-arrayOfObjectUrls',
+      arrayOfObjectUrls,
     );
-    return objectUrl
+    return undefined;
   })
-  .catch(e => {
-    log.error(e.stack || e);
-  });
 }

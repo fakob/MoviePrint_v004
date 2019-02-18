@@ -28,7 +28,7 @@
 			* components/Scrub.js
 
 
-#### Worker thread (renders the MoviePrint for saving as image)
+#### Worker thread (grabs frames via opencv and renders the MoviePrint for saving as image)
 * worker.js
 	* containers/WorkerRoot.js
 		* containers/WorkerApp.js
@@ -36,8 +36,11 @@
 		   * --> containers/VisibleSceneGrid.js
 
 
-#### Worker openCV thread (handles all opencv interaction, like grabbing frames)
+#### Worker openCV thread (handles most opencv interaction, like grabbing frames)
 * worker_opencv.js
+
+#### Worker IndexedDB thread (handles most IndexedDB interaction, like storing frames and getting objectUrls)
+* worker_indexedDB.js
 
 
 # Action processes

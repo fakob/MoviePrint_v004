@@ -25,6 +25,7 @@ let appAboutToQuit = false;
 let creditsWindow = null;
 let workerWindow = null;
 let opencvWorkerWindow = null;
+let indexedDBWorkerWindow = null;
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -229,11 +230,41 @@ app.on('ready', async () => {
     log.warn(event);
   });
 
+  indexedDBWorkerWindow = new BrowserWindow();
+  indexedDBWorkerWindow.hide();
+  // indexedDBWorkerWindow.webContents.openDevTools();
+  indexedDBWorkerWindow.loadURL(`file://${__dirname}/worker_indexedDB.html`);
+
+  indexedDBWorkerWindow.on('close', event => {
+    // only hide window and prevent default if app not quitting
+    if (!appAboutToQuit) {
+      indexedDBWorkerWindow.hide();
+      event.preventDefault();
+    }
+  });
+
+  indexedDBWorkerWindow.webContents.on('crashed', event => {
+    log.error('mainThread | indexedDBWorkerWindow just crashed, will try to reload window');
+    log.error(event);
+    indexedDBWorkerWindow.webContents.reload();
+  });
+
+  indexedDBWorkerWindow.webContents.on('unresponsive', event => {
+    log.warn('mainThread | indexedDBWorkerWindow is unresponsive');
+    log.warn(event);
+  });
+
+  indexedDBWorkerWindow.webContents.on('responsive', event => {
+    log.warn('mainThread | indexedDBWorkerWindow is responsive again');
+    log.warn(event);
+  });
+
   const menuBuilder = new MenuBuilder(
     mainWindow,
     creditsWindow,
     workerWindow,
-    opencvWorkerWindow
+    opencvWorkerWindow,
+    indexedDBWorkerWindow
   );
   menuBuilder.buildMenu();
 });
@@ -244,6 +275,10 @@ ipcMain.on('reload-workerWindow', (event) => {
 
 ipcMain.on('reload-opencvWorkerWindow', (event) => {
   opencvWorkerWindow.webContents.reload();
+});
+
+ipcMain.on('reload-indexedDBWorkerWindow', (event) => {
+  indexedDBWorkerWindow.webContents.reload();
 });
 
 ipcMain.on('request-save-MoviePrint', (event, arg) => {
@@ -313,10 +348,43 @@ ipcMain.on(
 );
 
 ipcMain.on(
+  'message-from-mainWindow-to-indexedDBWorkerWindow',
+  (e, ipcName, ...args) => {
+    log.debug(
+      `mainThread | passing ${ipcName} from mainWindow to indexedDBWorkerWindow`
+    );
+    // log.debug(...args);
+    indexedDBWorkerWindow.webContents.send(ipcName, ...args);
+  }
+);
+
+ipcMain.on(
   'message-from-opencvWorkerWindow-to-mainWindow',
   (e, ipcName, ...args) => {
     log.debug(
       `mainThread | passing ${ipcName} from opencvWorkerWindow to mainWindow`
+    );
+    // log.debug(...args);
+    mainWindow.webContents.send(ipcName, ...args);
+  }
+);
+
+ipcMain.on(
+  'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
+  (e, ipcName, ...args) => {
+    log.debug(
+      `mainThread | passing ${ipcName} from opencvWorkerWindow to indexedDBWorkerWindow`
+    );
+    // log.debug(...args);
+    indexedDBWorkerWindow.webContents.send(ipcName, ...args);
+  }
+);
+
+ipcMain.on(
+  'message-from-indexedDBWorkerWindow-to-mainWindow',
+  (e, ipcName, ...args) => {
+    log.debug(
+      `mainThread | passing ${ipcName} from indexedDBWorkerWindow to mainWindow`
     );
     // log.debug(...args);
     mainWindow.webContents.send(ipcName, ...args);

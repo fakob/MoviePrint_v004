@@ -7,13 +7,11 @@ import {
   setPosition,
 } from './utils';
 import {
-  updateFrameBase64,
+  // updateFrameBase64,
 } from './utilsForSqlite';
-import {
-  updateFrameInIndexedDB,
-} from './utilsForIndexedDB';
 
 const opencv = require('opencv4nodejs');
+const { ipcRenderer } = require('electron');
 
 export const recaptureThumbs = (
   frameSize,
@@ -30,16 +28,24 @@ export const recaptureThumbs = (
     const frameId = frameIdArray[i];
     if (mat.empty) {
       log.info('opencvWorkerWindow | frame is empty');
-      // updateFrameBase64(frameId, '');
-      updateFrameInIndexedDB(frameId, '');
+      ipcRenderer.send(
+        'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
+        'update-base64-frame',
+        frameId,
+        ''
+      );
     } else {
       let matRescaled;
       if (frameSize !== 0) { // 0 stands for keep original size
         matRescaled = mat.resizeToMax(frameSize);
       }
       const outBase64 = opencv.imencode('.jpg', matRescaled || mat).toString('base64'); // maybe change to .png?
-      // updateFrameBase64(frameId, outBase64);
-      updateFrameInIndexedDB(frameId, outBase64);
+      ipcRenderer.send(
+        'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
+        'update-base64-frame',
+        frameId,
+        outBase64
+      );
     }
   }
 }

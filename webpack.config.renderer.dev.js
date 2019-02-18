@@ -64,6 +64,12 @@ export default merge.smart(baseConfig, {
       'webpack/hot/only-dev-server',
       path.join(__dirname, 'app/worker_opencv.js'),
     ],
+    worker_indexedDB: [
+      'react-hot-loader/patch',
+      `webpack-dev-server/client?http://localhost:${port}/`,
+      'webpack/hot/only-dev-server',
+      path.join(__dirname, 'app/worker_indexedDB.js'),
+    ],
   },
 
   output: {

@@ -25,6 +25,7 @@ export default merge.smart(baseConfig, {
     renderer: './app/index',
     worker: './app/worker',
     worker_opencv: './app/worker_opencv',
+    worker_indexedDB: './app/worker_indexedDB',
   },
 
   output: {

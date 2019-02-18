@@ -6,14 +6,23 @@ import { clearCache } from './utils/utils';
 
 export default class MenuBuilder {
   mainWindow: BrowserWindow;
+
   creditsWindow: BrowserWindow;
+
   workerWindow: BrowserWindow;
 
-  constructor(mainWindow: BrowserWindow, creditsWindow: BrowserWindow, workerWindow: BrowserWindow, opencvWorkerWindow: BrowserWindow) {
+  constructor(
+    mainWindow: BrowserWindow,
+    creditsWindow: BrowserWindow,
+    workerWindow: BrowserWindow,
+    opencvWorkerWindow: BrowserWindow,
+    indexedDBWorkerWindow: BrowserWindow,
+    ) {
     this.mainWindow = mainWindow;
     this.creditsWindow = creditsWindow;
     this.workerWindow = workerWindow;
     this.opencvWorkerWindow = opencvWorkerWindow;
+    this.indexedDBWorkerWindow = indexedDBWorkerWindow;
   }
 
   buildMenu() {
@@ -94,22 +103,27 @@ export default class MenuBuilder {
         { label: 'Reset application', accelerator: 'Shift+Alt+Command+C', click: () => {
           clearCache(this.mainWindow);
           this.workerWindow.webContents.reload();
-          this.opencvWorkerWindow.webContents.reload(); // needs reload to open indexedDB connection
+          this.opencvWorkerWindow.webContents.reload();
+          this.indexedDBWorkerWindow.webContents.reload(); // needs reload to open indexedDB connection
           this.mainWindow.webContents.send('delete-all-tables');
           } },
         { label: 'Reload application', accelerator: 'Command+R', click: () => {
           this.mainWindow.webContents.reload();
           this.workerWindow.webContents.reload();
           this.opencvWorkerWindow.webContents.reload();
+          this.indexedDBWorkerWindow.webContents.reload();
         } },
         { label: 'Reload mainWindow', accelerator: 'Ctrl+Command+R', click: () => { this.mainWindow.webContents.reload(); } },
         { label: 'Reload Worker', accelerator: 'Alt+Command+R', click: () => { this.workerWindow.webContents.reload(); } },
         { label: 'Reload Opencv Worker', accelerator: 'Shift+Command+R', click: () => { this.opencvWorkerWindow.webContents.reload(); } },
+        { label: 'Reload IndexedDB Worker', accelerator: 'Alt+Shift+Command+R', click: () => { this.indexedDBWorkerWindow.webContents.reload(); } },
         { label: 'Toggle Developer Tools', accelerator: 'Alt+Command+I', click: () => { this.mainWindow.toggleDevTools(); } },
         { label: 'Toggle Developer Tools for Worker', accelerator: 'Alt+Command+J', click: () => { this.workerWindow.toggleDevTools(); } },
         { label: 'Toggle Developer Tools for Opencv Worker', accelerator: 'Alt+Command+K', click: () => { this.opencvWorkerWindow.toggleDevTools(); } },
+        { label: 'Toggle Developer Tools for IndexedDB Worker', accelerator: 'Alt+Shift+Command+K', click: () => { this.indexedDBWorkerWindow.toggleDevTools(); } },
         { label: 'Show Worker', click: () => { this.workerWindow.show(); } },
-        { label: 'Show OpenCvWorker', click: () => { this.opencvWorkerWindow.show(); } },
+        { label: 'Show OpenCv Worker', click: () => { this.opencvWorkerWindow.show(); } },
+        { label: 'Show IndexedDB Worker', click: () => { this.indexedDBWorkerWindow.show(); } },
         { label: 'Show log file', click: () => {
           const pathOfLogFolder = path.resolve(process.env.HOME || process.env.USERPROFILE, 'Library/Logs/', `${app.getName()}/`);
           const pathOfLogFile = path.resolve(pathOfLogFolder, 'log.log');
@@ -137,13 +151,15 @@ export default class MenuBuilder {
         { label: 'Reset application', accelerator: 'Shift+Alt+Command+C', click: () => {
           clearCache(this.mainWindow);
           this.workerWindow.webContents.reload();
-          this.opencvWorkerWindow.webContents.reload(); // needs reload to open indexedDB connection
+          this.opencvWorkerWindow.webContents.reload();
+          this.indexedDBWorkerWindow.webContents.reload(); // needs reload to open indexedDB connection
           this.mainWindow.webContents.send('delete-all-tables');
           } },
         { label: 'Reload application', accelerator: 'Command+R', click: () => {
           this.mainWindow.webContents.reload();
           this.workerWindow.webContents.reload();
           this.opencvWorkerWindow.webContents.reload();
+          this.indexedDBWorkerWindow.webContents.reload();
         } },
         { type: 'separator' },
         { label: 'Restart in debug mode', accelerator: 'Shift+Alt+Ctrl+X', click: () => {
@@ -232,22 +248,27 @@ export default class MenuBuilder {
         { label: 'Reset application', accelerator: 'Shift+Alt+Ctrl+C', click: () => {
           clearCache(this.mainWindow);
           this.workerWindow.webContents.reload();
-          this.opencvWorkerWindow.webContents.reload(); // needs reload to open indexedDB connection
+          this.opencvWorkerWindow.webContents.reload();
+          this.indexedDBWorkerWindow.webContents.reload(); // needs reload to open indexedDB connection
           this.mainWindow.webContents.send('delete-all-tables');
           } },
         { label: '&Reload application', accelerator: 'Ctrl+R', click: () => {
           this.mainWindow.webContents.reload();
           this.workerWindow.webContents.reload();
           this.opencvWorkerWindow.webContents.reload();
+          this.indexedDBWorkerWindow.webContents.reload();
         } },
         { label: 'Reload mainWindow', accelerator: 'Ctrl+R', click: () => { this.mainWindow.webContents.reload(); } },
         { label: 'Reload Worker', accelerator: 'Alt+Ctrl+R', click: () => { this.workerWindow.webContents.reload(); } },
         { label: 'Reload Opencv Worker', accelerator: 'Shift+Ctrl+R', click: () => { this.opencvWorkerWindow.webContents.reload(); } },
+        { label: 'Reload IndexedDB Worker', accelerator: 'Alt+Shift+Ctrl+R', click: () => { this.indexedDBWorkerWindow.webContents.reload(); } },
         { label: 'Toggle Developer Tools', accelerator: 'Alt+Ctrl+I', click: () => { this.mainWindow.toggleDevTools(); } },
         { label: 'Toggle Developer Tools for Worker', accelerator: 'Alt+Ctrl+J', click: () => { this.workerWindow.toggleDevTools(); } },
         { label: 'Toggle Developer Tools for Opencv Worker', accelerator: 'Alt+Ctrl+K', click: () => { this.opencvWorkerWindow.toggleDevTools(); } },
+        { label: 'Toggle Developer Tools for IndexedDB Worker', accelerator: 'Alt+Shift+Ctrl+K', click: () => { this.indexedDBWorkerWindow.toggleDevTools(); } },
         { label: 'Show Worker', click: () => { this.workerWindow.show(); } },
-        { label: 'Show OpenCvWorker', click: () => { this.opencvWorkerWindow.show(); } },
+        { label: 'Show OpenCv Worker', click: () => { this.opencvWorkerWindow.show(); } },
+        { label: 'Show IndexedDB Worker', click: () => { this.indexedDBWorkerWindow.show(); } },
         { label: 'Show log file', click: () => {
           const pathOfLogFolder = path.resolve(process.env.HOME || process.env.USERPROFILE, 'AppData\\Roaming\\', `${app.getName()}/`);
           const pathOfLogFile = path.resolve(pathOfLogFolder, 'log.log');
@@ -283,13 +304,15 @@ export default class MenuBuilder {
         { label: 'Reset application', accelerator: 'Shift+Alt+Ctrl+C', click: () => {
           clearCache(this.mainWindow);
           this.workerWindow.webContents.reload();
-          this.opencvWorkerWindow.webContents.reload(); // needs reload to open indexedDB connection
+          this.opencvWorkerWindow.webContents.reload();
+          this.indexedDBWorkerWindow.webContents.reload(); // needs reload to open indexedDB connection
           this.mainWindow.webContents.send('delete-all-tables');
           } },
         { label: 'Reload application', accelerator: 'Ctrl+R', click: () => {
           this.mainWindow.webContents.reload();
           this.workerWindow.webContents.reload();
           this.opencvWorkerWindow.webContents.reload();
+          this.indexedDBWorkerWindow.webContents.reload();
         } },
         { type: 'separator' },
         { label: 'Restart in debug mode', accelerator: 'Shift+Alt+Ctrl+X', click: () => {
