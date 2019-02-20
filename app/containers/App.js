@@ -342,14 +342,6 @@ class App extends Component {
       deleteTableFrameScanList();
     });
 
-    ipcRenderer.on('send-arrayOfObjectUrls', (event, arrayOfObjectUrls) => {
-      console.log(event);
-      console.log(arrayOfObjectUrls);
-      this.setState({
-        objectUrlsArray: arrayOfObjectUrls
-      });
-    });
-
     ipcRenderer.on('progress', (event, fileId, progressBarPercentage) => {
       this.setState({
         progressBarPercentage: Math.ceil(progressBarPercentage)
@@ -451,6 +443,19 @@ class App extends Component {
           objectUrl,
         }] // add objectUrl to array
       });
+    });
+
+    ipcRenderer.on('send-arrayOfObjectUrls', (event, arrayOfObjectUrls, append) => {
+      const { objectUrlsArray } = this.state;
+      if (append) {
+        this.setState({
+          objectUrlsArray: [...objectUrlsArray, ...arrayOfObjectUrls] // add objectUrls to array
+        });
+      } else {
+        this.setState({
+          objectUrlsArray: arrayOfObjectUrls
+        });
+      }
     });
 
     ipcRenderer.on('receive-get-thumbs', (event, fileId, sheet, thumbId, frameId, frameNumber, lastThumb) => {

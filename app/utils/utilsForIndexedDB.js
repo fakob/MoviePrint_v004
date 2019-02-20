@@ -22,7 +22,7 @@ export const deleteTableFramelist = () =>
     log.error(`Failed to delete all objects in frameList: ${  err.stack || err}`);
   })
 
-export const addFrameToIndexedDB = (frameId, fileId, frameNumber, isPosterFrame, outBase64) => {
+export const addFrameToIndexedDB = (frameId, fileId, frameNumber, isPosterFrame, outBase64, objectUrlQueue) => {
   const url = `data:image/jpg;base64,${outBase64}`;
   fetch(url)
   .then(res => res.blob())
@@ -43,12 +43,16 @@ export const addFrameToIndexedDB = (frameId, fileId, frameNumber, isPosterFrame,
   .then(frame => {
     console.log(frame);
     const objectUrl = window.URL.createObjectURL(frame.data);
-    ipcRenderer.send(
-      'message-from-indexedDBWorkerWindow-to-mainWindow',
-      'update-objectUrl',
+    objectUrlQueue.add({
       frameId,
       objectUrl,
-    );
+    });
+    // ipcRenderer.send(
+    //   'message-from-indexedDBWorkerWindow-to-mainWindow',
+    //   'update-objectUrl',
+    //   frameId,
+    //   objectUrl,
+    // );
     return objectUrl
   })
   .catch(e => {
@@ -56,7 +60,7 @@ export const addFrameToIndexedDB = (frameId, fileId, frameNumber, isPosterFrame,
   });
 }
 
-export const updateFrameInIndexedDB = (frameId, outBase64) => {
+export const updateFrameInIndexedDB = (frameId, outBase64, objectUrlQueue) => {
   if (outBase64 === '') {
     return undefined;
   }
@@ -77,12 +81,16 @@ export const updateFrameInIndexedDB = (frameId, outBase64) => {
     .then(frame => {
       console.log(frame);
       const objectUrl = window.URL.createObjectURL(frame.data);
-      ipcRenderer.send(
-        'message-from-indexedDBWorkerWindow-to-mainWindow',
-        'update-objectUrl',
+      objectUrlQueue.add({
         frameId,
         objectUrl,
-      );
+      });
+      // ipcRenderer.send(
+      //   'message-from-indexedDBWorkerWindow-to-mainWindow',
+      //   'update-objectUrl',
+      //   frameId,
+      //   objectUrl,
+      // );
       return objectUrl
     })
     .catch(e => {
@@ -93,7 +101,8 @@ export const updateFrameInIndexedDB = (frameId, outBase64) => {
   }
 }
 
-export const getObjectUrlsFromFramelist = () => {
+export const getObjectUrlsFromFramelist = (objectUrlQueue) => {
+  console.log('inside getObjectUrlsFromFramelist');
   imageDB.transaction('r', imageDB.frameList, async ()=>{
     const array = await imageDB.frameList.toArray();
     if (array.length === 0) {
@@ -110,11 +119,12 @@ export const getObjectUrlsFromFramelist = () => {
       }
       return undefined;
     });
-    ipcRenderer.send(
-      'message-from-indexedDBWorkerWindow-to-mainWindow',
-      'send-arrayOfObjectUrls',
-      arrayOfObjectUrls,
-    );
+    objectUrlQueue.addArray(arrayOfObjectUrls);
+    // ipcRenderer.send(
+    //   'message-from-indexedDBWorkerWindow-to-mainWindow',
+    //   'send-arrayOfObjectUrls',
+    //   arrayOfObjectUrls,
+    // );
     return undefined;
   })
 }

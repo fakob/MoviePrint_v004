@@ -7,6 +7,7 @@ import {
   openDBConnection,
   updateFrameInIndexedDB,
 } from './utils/utilsForIndexedDB';
+import Queue from './utils/queue';
 
 const unhandled = require('electron-unhandled');
 // const assert = require('assert');
@@ -19,6 +20,38 @@ log.debug('I am the indexedDBWorkerWindow - responsible for storing things in in
 // openDB if not already open
 // to avoid errors as Chrome sometimes closes the connection after a while
 openDBConnection();
+
+// set up a queue and check it in a regular interval
+const objectUrlQueue = new Queue();
+// const objectUrlQueue = Queue.bind(this);
+
+// is set to false in case of reload/getObjectUrlsFromFramelist to overwrite objectUrls in App.js state
+let append = true;
+
+// objectUrlQueue = objectUrlQueueUnbound.bind(this);
+console.log(objectUrlQueue);
+console.log(typeof objectUrlQueue);
+
+setInterval(() => {
+  const size = objectUrlQueue.size();
+  const arrayOfObjectUrls = objectUrlQueue.data;
+  console.log(`the queue size is: ${size}`);
+  console.log(arrayOfObjectUrls);
+  if (size !== 0) {
+    ipcRenderer.send(
+      'message-from-indexedDBWorkerWindow-to-mainWindow',
+      'send-arrayOfObjectUrls',
+      arrayOfObjectUrls,
+      append
+    );
+    objectUrlQueue.clear();
+
+    // reset append again
+    if (!append) {
+      append = true;
+    }
+  }
+}, 1000);
 
 window.addEventListener('error', event => {
   log.error(event.error);
@@ -51,17 +84,18 @@ process.on('SIGTERM', err => {
 
 ipcRenderer.on('send-base64-frame', (event, frameId, fileId, frameNumber, isPosterFrame, outBase64) => {
   log.debug('indexedDBWorkerWindow | on send-base64-frame');
-  addFrameToIndexedDB(frameId, fileId, frameNumber, isPosterFrame, outBase64);
+  addFrameToIndexedDB(frameId, fileId, frameNumber, isPosterFrame, outBase64, objectUrlQueue);
 });
 
 ipcRenderer.on('update-base64-frame', (event, frameId, outBase64) => {
   log.debug('indexedDBWorkerWindow | on update-base64-frame');
-  updateFrameInIndexedDB(frameId, outBase64);
+  updateFrameInIndexedDB(frameId, outBase64, objectUrlQueue);
 });
 
 ipcRenderer.on('get-arrayOfObjectUrls', (event) => {
   log.debug('indexedDBWorkerWindow | on get-arrayOfObjectUrls');
-  getObjectUrlsFromFramelist();
+  getObjectUrlsFromFramelist(objectUrlQueue);
+  append = false; // is set to false to overwrite objectUrls in App.js state
 });
 
 render(
