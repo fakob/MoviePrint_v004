@@ -45,6 +45,12 @@ export const insertFrameScan = moviePrintDB.transaction((item) => {
   insert.run(item)
 });
 
+// insert multiple frames
+export const insertFrameScanArray = moviePrintDB.transaction((array) => {
+  const insert = moviePrintDB.prepare('INSERT INTO frameScanList (fileId, frameNumber, meanValue, meanColor) VALUES (@fileId, @frameNumber, @meanValue, @meanColor)');
+  for (const item of array) insert.run(item);
+});
+
 // get all frames by fileId
 export const getFrameScanByFileId = (fileId) => {
   const stmt = moviePrintDB.prepare(`SELECT frameNumber, meanValue, meanColor FROM frameScanList WHERE fileId = ? ORDER BY frameNumber ASC`);
