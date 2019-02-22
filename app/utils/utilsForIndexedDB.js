@@ -47,12 +47,6 @@ export const addFrameToIndexedDB = (frameId, fileId, frameNumber, isPosterFrame,
       frameId,
       objectUrl,
     });
-    // ipcRenderer.send(
-    //   'message-from-indexedDBWorkerWindow-to-mainWindow',
-    //   'update-objectUrl',
-    //   frameId,
-    //   objectUrl,
-    // );
     return objectUrl
   })
   .catch(e => {
@@ -64,41 +58,38 @@ export const updateFrameInIndexedDB = (frameId, outBase64, objectUrlQueue) => {
   if (outBase64 === '') {
     return undefined;
   }
-  try {
-    const url = `data:image/jpg;base64,${outBase64}`;
-    fetch(url)
-    .then(res => res.blob())
-    .then(blob =>
-      imageDB.transaction('rw', imageDB.frameList, async ()=>{
-        await imageDB.frameList.where('frameId').equals(frameId).modify({
-          data: blob
-        });
-        const key = await imageDB.frameList.get(frameId);
-        console.log(key);
-        return key;
-      })
-    )
-    .then(frame => {
-      console.log(frame);
-      const objectUrl = window.URL.createObjectURL(frame.data);
-      objectUrlQueue.add({
-        frameId,
-        objectUrl,
+  const url = `data:image/jpg;base64,${outBase64}`;
+  fetch(url)
+  .then(res => res.blob())
+  .then(blob => {
+    return imageDB.transaction('rw', imageDB.frameList, async ()=>{
+      await imageDB.frameList.where('frameId').equals(frameId).modify({
+        data: blob
       });
-      // ipcRenderer.send(
-      //   'message-from-indexedDBWorkerWindow-to-mainWindow',
-      //   'update-objectUrl',
-      //   frameId,
-      //   objectUrl,
-      // );
-      return objectUrl
+      const key = await imageDB.frameList.get(frameId);
+      console.log(key);
+      return key;
+    })
+    .then(key => {
+      console.log("Transaction committed");
+      return key;
     })
     .catch(e => {
       log.error(e.stack || e);
     });
-  } catch (e) {
-    log.error(e);
-  }
+  })
+  .then(frame => {
+    console.log(frame);
+    const objectUrl = window.URL.createObjectURL(frame.data);
+    objectUrlQueue.add({
+      frameId,
+      objectUrl,
+    });
+    return objectUrl
+  })
+  .catch(e => {
+    log.error(e.stack || e);
+  });
 }
 
 export const getObjectUrlsFromFramelist = (objectUrlQueue) => {
@@ -120,11 +111,6 @@ export const getObjectUrlsFromFramelist = (objectUrlQueue) => {
       return undefined;
     });
     objectUrlQueue.addArray(arrayOfObjectUrls);
-    // ipcRenderer.send(
-    //   'message-from-indexedDBWorkerWindow-to-mainWindow',
-    //   'send-arrayOfObjectUrls',
-    //   arrayOfObjectUrls,
-    // );
     return undefined;
   })
 }
