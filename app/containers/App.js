@@ -304,7 +304,7 @@ class App extends Component {
       ),
       getThumbsCount(
         this.props.file,
-        this.props.thumbsByFileId,
+        this.props.sheetsByFileId,
         store.getState().undoGroup.present.settings,
         store.getState().visibilitySettings
       ),
@@ -474,7 +474,7 @@ class App extends Component {
           }, 3000);
         });
       }
-      if (this.props.thumbsByFileId[fileId][sheet].find((thumb) =>
+      if (this.props.sheetsByFileId[fileId][sheet].find((thumb) =>
         thumb.thumbId === thumbId).frameNumber !== frameNumber) {
         store.dispatch(updateFrameNumber(fileId, sheet, thumbId, frameNumber));
       }
@@ -605,7 +605,7 @@ class App extends Component {
       if (this.props.file.id !== nextProps.file.id) {
         const newThumbCount = getThumbsCount(
           nextProps.file,
-          nextProps.thumbsByFileId,
+          nextProps.sheetsByFileId,
           state.undoGroup.present.settings,
           nextProps.visibilitySettings
         );
@@ -620,13 +620,13 @@ class App extends Component {
       }
       const oldThumbCount = getThumbsCount(
         this.props.file,
-        this.props.thumbsByFileId,
+        this.props.sheetsByFileId,
         state.undoGroup.present.settings,
         this.props.visibilitySettings
       );
       const newThumbCount = getThumbsCount(
         nextProps.file,
-        nextProps.thumbsByFileId,
+        nextProps.sheetsByFileId,
         state.undoGroup.present.settings,
         nextProps.visibilitySettings
       );
@@ -700,8 +700,8 @@ class App extends Component {
         const tempFile = this.props.files
         .find((file) => file.id === fileIdToPrint);
         // log.debug(tempFile);
-        // log.debug(this.props.thumbsByFileId);
-        const tempThumbs = this.props.thumbsByFileId[fileIdToPrint][DEFAULT_SHEET_INTERVAL];
+        // log.debug(this.props.sheetsByFileId);
+        const tempThumbs = this.props.sheetsByFileId[fileIdToPrint][DEFAULT_SHEET_INTERVAL];
         // log.debug(tempThumbs);
         const dataToSend = {
           // scale: 1,
@@ -903,13 +903,13 @@ class App extends Component {
   }
 
   recaptureAllFrames() {
-    const { files, settings, thumbsByFileId } = this.props;
+    const { files, settings, sheetsByFileId } = this.props;
 
     ipcRenderer.send(
       'message-from-mainWindow-to-opencvWorkerWindow',
       'recapture-all-frames',
       files,
-      thumbsByFileId,
+      sheetsByFileId,
       settings.defaultCachedFramesSize
     );
   }
@@ -1084,7 +1084,7 @@ class App extends Component {
       ),
       getThumbsCount(
         this.props.file,
-        this.props.thumbsByFileId,
+        this.props.sheetsByFileId,
         store.getState().undoGroup.present.settings,
         store.getState().visibilitySettings
       ),
@@ -1462,7 +1462,7 @@ class App extends Component {
 
     const filesToPrint = [];
     tempFileIds.forEach(fileId => {
-      if (this.props.thumbsByFileId[fileId] === undefined) {
+      if (this.props.sheetsByFileId[fileId] === undefined) {
         // if no thumbs were found then initiate to getThumbsForFile
         filesToPrint.push({
           fileId,
@@ -1504,7 +1504,7 @@ class App extends Component {
   getThumbsForFile(file) {
     log.debug(`inside getThumbsForFile: ${file.name}`);
     const { store } = this.context;
-    if (this.props.thumbsByFileId[file.id] === undefined) {
+    if (this.props.sheetsByFileId[file.id] === undefined) {
       log.debug(`addDefaultThumbs as no thumbs were found for: ${file.name}`);
       store.dispatch(addDefaultThumbs(
           file,
@@ -1645,13 +1645,13 @@ class App extends Component {
         this.props.visibilitySettings.defaultSheet,
         thumbCount,
         getLowestFrame(getVisibleThumbs(
-          (this.props.thumbsByFileId[this.props.currentFileId] === undefined)
-            ? undefined : this.props.thumbsByFileId[this.props.currentFileId][this.props.visibilitySettings.defaultSheet],
+          (this.props.sheetsByFileId[this.props.currentFileId] === undefined)
+            ? undefined : this.props.sheetsByFileId[this.props.currentFileId][this.props.visibilitySettings.defaultSheet],
           this.props.visibilitySettings.visibilityFilter
         )),
         getHighestFrame(getVisibleThumbs(
-          (this.props.thumbsByFileId[this.props.currentFileId] === undefined)
-            ? undefined : this.props.thumbsByFileId[this.props.currentFileId][this.props.visibilitySettings.defaultSheet],
+          (this.props.sheetsByFileId[this.props.currentFileId] === undefined)
+            ? undefined : this.props.sheetsByFileId[this.props.currentFileId][this.props.visibilitySettings.defaultSheet],
           this.props.visibilitySettings.visibilityFilter
         )),
         this.props.settings.defaultCachedFramesSize,
@@ -2441,12 +2441,12 @@ class App extends Component {
 
 const mapStateToProps = state => {
   const tempCurrentFileId = state.undoGroup.present.settings.currentFileId;
-  const sheetsArray = (state.undoGroup.present.thumbsByFileId[tempCurrentFileId] === undefined)
-    ? [] : Object.getOwnPropertyNames(state.undoGroup.present.thumbsByFileId[tempCurrentFileId]);
+  const sheetsArray = (state.undoGroup.present.sheetsByFileId[tempCurrentFileId] === undefined)
+    ? [] : Object.getOwnPropertyNames(state.undoGroup.present.sheetsByFileId[tempCurrentFileId]);
   const allThumbs = (state.undoGroup.present
-    .thumbsByFileId[tempCurrentFileId] === undefined)
+    .sheetsByFileId[tempCurrentFileId] === undefined)
     ? undefined : state.undoGroup.present
-      .thumbsByFileId[tempCurrentFileId][state.visibilitySettings.defaultSheet];
+      .sheetsByFileId[tempCurrentFileId][state.visibilitySettings.defaultSheet];
   const allScenes = (state.undoGroup.present.scenesByFileId[tempCurrentFileId] === undefined)
     ? [] : state.undoGroup.present.scenesByFileId[tempCurrentFileId].sceneArray;
   return {
@@ -2468,7 +2468,7 @@ const mapStateToProps = state => {
     visibilitySettings: state.visibilitySettings,
     defaultThumbCount: state.undoGroup.present.settings.defaultThumbCount,
     defaultColumnCount: state.undoGroup.present.settings.defaultColumnCount,
-    thumbsByFileId: state.undoGroup.present.thumbsByFileId,
+    sheetsByFileId: state.undoGroup.present.sheetsByFileId,
   };
 };
 
@@ -2480,7 +2480,7 @@ App.defaultProps = {
   currentFileId: undefined,
   file: undefined,
   thumbs: [],
-  thumbsByFileId: {},
+  sheetsByFileId: {},
 };
 
 App.propTypes = {
@@ -2495,7 +2495,7 @@ App.propTypes = {
   }),
   settings: PropTypes.object.isRequired,
   thumbs: PropTypes.array,
-  thumbsByFileId: PropTypes.object,
+  sheetsByFileId: PropTypes.object,
   visibilitySettings: PropTypes.object.isRequired,
 };
 

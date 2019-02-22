@@ -342,16 +342,16 @@ export const getColumnCount = (file, settings) => {
   return file.columnCount;
 };
 
-export const getThumbsCount = (file, thumbsByFileId, settings, visibilitySettings) => {
+export const getThumbsCount = (file, sheetsByFileId, settings, visibilitySettings) => {
   if (file === undefined || file.id === undefined ||
-    thumbsByFileId[file.id] === undefined || thumbsByFileId[file.id][visibilitySettings.defaultSheet] === undefined) {
+    sheetsByFileId[file.id] === undefined || sheetsByFileId[file.id][visibilitySettings.defaultSheet] === undefined) {
     return settings.defaultThumbCount;
   }
   if (visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') {
-    return thumbsByFileId[file.id][visibilitySettings.defaultSheet]
+    return sheetsByFileId[file.id][visibilitySettings.defaultSheet]
       .filter(thumb => thumb.hidden === false).length;
   }
-  return thumbsByFileId[file.id][visibilitySettings.defaultSheet].length;
+  return sheetsByFileId[file.id][visibilitySettings.defaultSheet].length;
 };
 
 export const setPosition = (vid, frameNumberToCapture, useRatio) => {

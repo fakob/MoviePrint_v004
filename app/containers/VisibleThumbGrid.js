@@ -60,7 +60,7 @@ class SortedVisibleThumbGrid extends Component {
       isSorting: false,
     });
     const newOrderedThumbs = arrayMove(store.getState().undoGroup.present
-      .thumbsByFileId[store.getState().undoGroup.present.settings.currentFileId][this.props.defaultSheet],
+      .sheetsByFileId[store.getState().undoGroup.present.settings.currentFileId][this.props.defaultSheet],
       oldIndex,
       newIndex);
     store.dispatch(updateOrder(
@@ -142,9 +142,9 @@ class SortedVisibleThumbGrid extends Component {
 
 const mapStateToProps = state => {
   // const tempThumbs = (state.undoGroup.present
-  //   .thumbsByFileId[state.undoGroup.present.settings.currentFileId] === undefined)
+  //   .sheetsByFileId[state.undoGroup.present.settings.currentFileId] === undefined)
   //   ? undefined : state.undoGroup.present
-  //     .thumbsByFileId[state.undoGroup.present.settings.currentFileId].thumbs;
+  //     .sheetsByFileId[state.undoGroup.present.settings.currentFileId].thumbs;
   return {
     // thumbs: getVisibleThumbs(
     //   tempThumbs,

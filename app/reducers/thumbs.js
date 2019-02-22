@@ -57,7 +57,7 @@ const thumb = (state = {}, action, index) => {
   }
 };
 
-const thumbsByFileId = (state = {}, action) => {
+const sheetsByFileId = (state = {}, action) => {
   switch (action.type) {
     case 'ADD_THUMB': {
       // load the current thumbs array, if it does not exist it stays empty
@@ -232,4 +232,4 @@ const thumbsByFileId = (state = {}, action) => {
   }
 };
 
-export default thumbsByFileId;
+export default sheetsByFileId;

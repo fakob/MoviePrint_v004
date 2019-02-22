@@ -61,7 +61,7 @@ process.on('SIGTERM', err => {
 //   log.debug(...args);
 // });
 
-ipcRenderer.on('recapture-all-frames', (event, files, thumbsByFileId, frameSize) => {
+ipcRenderer.on('recapture-all-frames', (event, files, sheetsByFileId, frameSize) => {
   log.debug('opencvWorkerWindow | on recapture all frames');
   log.debug(`opencvWorkerWindow | frameSize: ${frameSize}`);
 
@@ -70,9 +70,9 @@ ipcRenderer.on('recapture-all-frames', (event, files, thumbsByFileId, frameSize)
     log.debug(`opencvWorkerWindow | ${file.path}`);
     log.debug(`opencvWorkerWindow | useRatio: ${file.useRatio}`);
     // iterate through all sheets
-    console.log(thumbsByFileId);
-    Object.keys(thumbsByFileId).map(sheet => {
-      const currentSheetArray = Object.values(thumbsByFileId[sheet])[0];
+    console.log(sheetsByFileId);
+    Object.keys(sheetsByFileId).map(sheet => {
+      const currentSheetArray = Object.values(sheetsByFileId[sheet])[0];
       console.log(currentSheetArray);
       const frameNumberArray = currentSheetArray.map(frame => frame.frameNumber)
       const frameIdArray = currentSheetArray.map(frame => frame.frameId)

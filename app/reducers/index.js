@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import undoable, { excludeAction, groupByActionTypes } from 'redux-undo';
-import thumbsByFileId from './thumbs';
+import sheetsByFileId from './thumbs';
 import files from './files';
 import settings from './settings';
 import scenesByFileId from './scenesByFileId';
@@ -11,7 +11,7 @@ const rootReducer = combineReducers({
   undoGroup: undoable(combineReducers({
     settings,
     scenesByFileId,
-    thumbsByFileId,
+    sheetsByFileId,
     files
   }), {
     filter: excludeAction([

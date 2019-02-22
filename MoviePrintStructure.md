@@ -128,7 +128,7 @@
 * fileId
   * sceneArray
 
-##### thumbsByFileId (in undoGroup)
+##### sheetsByFileId (in undoGroup)
 * fileId
   * thumbs Array
     * frameId

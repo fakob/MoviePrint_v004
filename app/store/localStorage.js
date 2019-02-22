@@ -104,7 +104,7 @@ const initialStateJSON = {
       emailAddress: '',
     },
     scenesByFileId: {},
-    thumbsByFileId: {},
+    sheetsByFileId: {},
     files: []
   }
 };
