@@ -80,12 +80,15 @@ export const updateFrameInIndexedDB = (frameId, outBase64, objectUrlQueue) => {
   })
   .then(frame => {
     console.log(frame);
-    const objectUrl = window.URL.createObjectURL(frame.data);
-    objectUrlQueue.add({
-      frameId,
-      objectUrl,
-    });
-    return objectUrl
+    if (frame !== undefined) {
+      const objectUrl = window.URL.createObjectURL(frame.data);
+      objectUrlQueue.add({
+        frameId,
+        objectUrl,
+      });
+      return objectUrl
+    }
+    return undefined;
   })
   .catch(e => {
     log.error(e.stack || e);
