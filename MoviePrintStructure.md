@@ -62,7 +62,7 @@
 * ipc receive-get-in-and-outpoint
 	* dispatch updateInOutPoint
 	* dispatch setCurrentFileId if first
-	* dispatch clearThumbs
+	* dispatch clearSheets
 	* dispatch addDefaultThumbs
 		* dispatch addThumbs
 			* check DB if thumb is already grabbed

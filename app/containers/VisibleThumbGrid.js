@@ -60,7 +60,7 @@ class SortedVisibleThumbGrid extends Component {
       isSorting: false,
     });
     const newOrderedThumbs = arrayMove(store.getState().undoGroup.present
-      .sheetsByFileId[store.getState().undoGroup.present.settings.currentFileId][this.props.defaultSheet],
+      .sheetsByFileId[store.getState().undoGroup.present.settings.currentFileId][this.props.defaultSheet].thumbsArray,
       oldIndex,
       newIndex);
     store.dispatch(updateOrder(

@@ -630,17 +630,20 @@ class VideoPlayer extends Component {
 }
 
 const mapStateToProps = state => {
-  const tempThumbs = (state.undoGroup.present
-    .sheetsByFileId[state.undoGroup.present.settings.currentFileId] === undefined)
-    ? undefined : state.undoGroup.present
-      .sheetsByFileId[state.undoGroup.present.settings.currentFileId][state.visibilitySettings.defaultSheet];
+  const { visibilitySettings } = state;
+  const { settings, sheetsByFileId } = state.undoGroup.present;
+  const { currentFileId } = settings;
+
+  const allThumbs = (sheetsByFileId[currentFileId] === undefined ||
+    sheetsByFileId[currentFileId][visibilitySettings.defaultSheet] === undefined)
+    ? undefined : sheetsByFileId[currentFileId][visibilitySettings.defaultSheet].thumbsArray;
   return {
     thumbs: getVisibleThumbs(
-      tempThumbs,
-      state.visibilitySettings.visibilityFilter
+      allThumbs,
+      visibilitySettings.visibilityFilter
     ),
-    settings: state.undoGroup.present.settings,
-    visibilitySettings: state.visibilitySettings
+    settings,
+    visibilitySettings
   };
 };
 

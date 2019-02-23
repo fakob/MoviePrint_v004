@@ -70,10 +70,8 @@ ipcRenderer.on('recapture-all-frames', (event, files, sheetsByFileId, frameSize)
     log.debug(`opencvWorkerWindow | ${file.path}`);
     log.debug(`opencvWorkerWindow | useRatio: ${file.useRatio}`);
     // iterate through all sheets
-    console.log(sheetsByFileId);
-    Object.keys(sheetsByFileId).map(sheet => {
-      const currentSheetArray = Object.values(sheetsByFileId[sheet])[0];
-      console.log(currentSheetArray);
+    Object.keys(sheetsByFileId[file.id]).map(sheet => {
+      const currentSheetArray = sheetsByFileId[file.id][sheet].thumbsArray;
       const frameNumberArray = currentSheetArray.map(frame => frame.frameNumber)
       const frameIdArray = currentSheetArray.map(frame => frame.frameId)
       recaptureThumbs(

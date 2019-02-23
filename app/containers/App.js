@@ -47,7 +47,7 @@ import {
   addThumb,
   changeThumb,
   clearScenes,
-  clearThumbs,
+  clearSheets,
   deleteSceneSheets,
   hideMovielist,
   hideSettings,
@@ -397,7 +397,7 @@ class App extends Component {
         this.updateScaleValue(); // so the aspect ratio of the thumbs are correct after drag
         store.dispatch(updateFileColumnCount(firstFile.id, getColumnCount(firstFile, this.props.settings))); // set columnCount on firstFile
         store.dispatch(clearScenes());
-        store.dispatch(clearThumbs());
+        store.dispatch(clearSheets());
         // log.debug(firstFile);
         store.dispatch(addDefaultThumbs(
           firstFile,
@@ -474,7 +474,7 @@ class App extends Component {
           }, 3000);
         });
       }
-      if (this.props.sheetsByFileId[fileId][sheet].find((thumb) =>
+      if (this.props.sheetsByFileId[fileId][sheet].thumbsArray.find((thumb) =>
         thumb.thumbId === thumbId).frameNumber !== frameNumber) {
         store.dispatch(updateFrameNumber(fileId, sheet, thumbId, frameNumber));
       }
@@ -701,7 +701,7 @@ class App extends Component {
         .find((file) => file.id === fileIdToPrint);
         // log.debug(tempFile);
         // log.debug(this.props.sheetsByFileId);
-        const tempThumbs = this.props.sheetsByFileId[fileIdToPrint][DEFAULT_SHEET_INTERVAL];
+        const tempThumbs = this.props.sheetsByFileId[fileIdToPrint][DEFAULT_SHEET_INTERVAL].thumbsArray;
         // log.debug(tempThumbs);
         const dataToSend = {
           // scale: 1,
@@ -1238,7 +1238,7 @@ class App extends Component {
       store.dispatch(setSheet(DEFAULT_SHEET_SCENES));
       store.dispatch(setView(VIEW.TIMELINEVIEW));
       // store.dispatch(setDefaultShowPaperPreview(true));
-      // store.dispatch(clearThumbs(fileId, DEFAULT_SHEET_SCENES));
+      // store.dispatch(clearSheets(fileId, DEFAULT_SHEET_SCENES));
       // const listOfFrameNumbers = sceneList.map(scene => (scene.start + Math.floor(scene.length / 2)));
       // store.dispatch(addThumbs(
       //   tempFile,
@@ -1646,12 +1646,12 @@ class App extends Component {
         thumbCount,
         getLowestFrame(getVisibleThumbs(
           (this.props.sheetsByFileId[this.props.currentFileId] === undefined)
-            ? undefined : this.props.sheetsByFileId[this.props.currentFileId][this.props.visibilitySettings.defaultSheet],
+            ? undefined : this.props.sheetsByFileId[this.props.currentFileId][this.props.visibilitySettings.defaultSheet].thumbsArray,
           this.props.visibilitySettings.visibilityFilter
         )),
         getHighestFrame(getVisibleThumbs(
           (this.props.sheetsByFileId[this.props.currentFileId] === undefined)
-            ? undefined : this.props.sheetsByFileId[this.props.currentFileId][this.props.visibilitySettings.defaultSheet],
+            ? undefined : this.props.sheetsByFileId[this.props.currentFileId][this.props.visibilitySettings.defaultSheet].thumbsArray,
           this.props.visibilitySettings.visibilityFilter
         )),
         this.props.settings.defaultCachedFramesSize,
@@ -2443,36 +2443,36 @@ class App extends Component {
 }
 
 const mapStateToProps = state => {
-  const tempCurrentFileId = state.undoGroup.present.settings.currentFileId;
-  const sheetsArray = (state.undoGroup.present.sheetsByFileId[tempCurrentFileId] === undefined)
-    ? [] : Object.getOwnPropertyNames(state.undoGroup.present.sheetsByFileId[tempCurrentFileId]);
-  const allThumbs = (state.undoGroup.present
-    .sheetsByFileId[tempCurrentFileId] === undefined)
-    ? undefined : state.undoGroup.present
-      .sheetsByFileId[tempCurrentFileId][state.visibilitySettings.defaultSheet];
-  const allScenes = (state.undoGroup.present.scenesByFileId[tempCurrentFileId] === undefined)
-    ? [] : state.undoGroup.present.scenesByFileId[tempCurrentFileId].sceneArray;
+  const { visibilitySettings } = state;
+  const { settings, sheetsByFileId, scenesByFileId, files } = state.undoGroup.present;
+  const { currentFileId } = settings;
+  const sheetsArray = (sheetsByFileId[currentFileId] === undefined)
+    ? [] : Object.getOwnPropertyNames(sheetsByFileId[currentFileId]);
+  const allThumbs = (sheetsByFileId[currentFileId] === undefined ||
+    sheetsByFileId[currentFileId][visibilitySettings.defaultSheet] === undefined)
+    ? undefined : sheetsByFileId[currentFileId][visibilitySettings.defaultSheet].thumbsArray;
+  const allScenes = (scenesByFileId[currentFileId] === undefined)
+    ? [] : scenesByFileId[currentFileId].sceneArray;
   return {
     sheetsArray,
-    sheetsByFileId: state.undoGroup.present.sheetsByFileId,
+    sheetsByFileId,
     thumbs: getVisibleThumbs(
       allThumbs,
-      state.visibilitySettings.visibilityFilter
+      visibilitySettings.visibilityFilter
     ),
     allThumbs,
-    currentFileId: tempCurrentFileId,
-    files: state.undoGroup.present.files,
-    file: state.undoGroup.present.files
-      .find((file) => file.id === tempCurrentFileId),
+    currentFileId,
+    files,
+    file: files
+      .find((file) => file.id === currentFileId),
     scenes: getVisibleThumbs(
       allScenes,
-      state.visibilitySettings.visibilityFilter
+      visibilitySettings.visibilityFilter
     ),
-    settings: state.undoGroup.present.settings,
-    visibilitySettings: state.visibilitySettings,
-    defaultThumbCount: state.undoGroup.present.settings.defaultThumbCount,
-    defaultColumnCount: state.undoGroup.present.settings.defaultColumnCount,
-    sheetsByFileId: state.undoGroup.present.sheetsByFileId,
+    settings,
+    visibilitySettings,
+    defaultThumbCount: settings.defaultThumbCount,
+    defaultColumnCount: settings.defaultColumnCount,
   };
 };
 

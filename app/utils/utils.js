@@ -348,10 +348,10 @@ export const getThumbsCount = (file, sheetsByFileId, settings, visibilitySetting
     return settings.defaultThumbCount;
   }
   if (visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') {
-    return sheetsByFileId[file.id][visibilitySettings.defaultSheet]
+    return sheetsByFileId[file.id][visibilitySettings.defaultSheet].thumbsArray
       .filter(thumb => thumb.hidden === false).length;
   }
-  return sheetsByFileId[file.id][visibilitySettings.defaultSheet].length;
+  return sheetsByFileId[file.id][visibilitySettings.defaultSheet].thumbsArray.length;
 };
 
 export const setPosition = (vid, frameNumberToCapture, useRatio) => {

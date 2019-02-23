@@ -61,9 +61,11 @@ const sheetsByFileId = (state = {}, action) => {
   switch (action.type) {
     case 'ADD_THUMB': {
       // load the current thumbs array, if it does not exist it stays empty
+      log.debug(action.payload);
+      log.debug(state);
       let currentArray = [];
       if (state[action.payload.fileId] && state[action.payload.fileId][action.payload.sheet]) {
-        currentArray = state[action.payload.fileId][action.payload.sheet].slice();
+        currentArray = state[action.payload.fileId][action.payload.sheet].thumbsArray.slice();
       }
       currentArray.splice(action.payload.index, 0, action.payload);
       const combinedArrayReordered = currentArray.map((t, index) => thumb(t, action, index));
@@ -71,15 +73,24 @@ const sheetsByFileId = (state = {}, action) => {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          [action.payload.sheet]: combinedArrayReordered
+          [action.payload.sheet]: {
+            // conditional adding of properties
+            ...(state[action.payload.fileId] === undefined ?
+              {} :
+              state[action.payload.fileId][action.payload.sheet]
+            ),
+            thumbsArray: combinedArrayReordered
+          }
         }
       };
     }
     case 'ADD_THUMBS': {
       // load the current thumbs array, if it does not exist it stays empty
+      log.debug(action.payload);
+      log.debug(state);
       let currentArray = [];
       if (state[action.payload.fileId] && state[action.payload.fileId][action.payload.sheet]) {
-        currentArray = state[action.payload.fileId][action.payload.sheet].slice();
+        currentArray = state[action.payload.fileId][action.payload.sheet].thumbsArray.slice();
       }
 
       // create new thumbs array
@@ -98,7 +109,14 @@ const sheetsByFileId = (state = {}, action) => {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          [action.payload.sheet]: reIndexedArray
+          [action.payload.sheet]: {
+            // conditional adding of properties
+            ...(state[action.payload.fileId] === undefined ?
+              {} :
+              state[action.payload.fileId][action.payload.sheet]
+            ),
+            thumbsArray: reIndexedArray
+          }
         }
       };
     }
@@ -107,9 +125,12 @@ const sheetsByFileId = (state = {}, action) => {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          [action.payload.sheet]: state[action.payload.fileId][action.payload.sheet].map((t, index) =>
-            thumb(t, action)
-          )
+          [action.payload.sheet]: {
+            ...state[action.payload.fileId][action.payload.sheet],
+            thumbsArray: state[action.payload.fileId][action.payload.sheet].thumbsArray.map((t, index) =>
+              thumb(t, action)
+            )
+          }
         }
       };
     case 'TOGGLE_THUMB':
@@ -117,9 +138,12 @@ const sheetsByFileId = (state = {}, action) => {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          [action.payload.sheet]: state[action.payload.fileId][action.payload.sheet].map((t, index) =>
-            thumb(t, action)
-          )
+          [action.payload.sheet]: {
+            ...state[action.payload.fileId][action.payload.sheet],
+            thumbsArray: state[action.payload.fileId][action.payload.sheet].thumbsArray.map((t, index) =>
+              thumb(t, action)
+            )
+          }
         }
       };
     case 'UPDATE_FRAMENUMBER_OF_THUMB':
@@ -127,9 +151,12 @@ const sheetsByFileId = (state = {}, action) => {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          [action.payload.sheet]: state[action.payload.fileId][action.payload.sheet].map((t, index) =>
-            thumb(t, action)
-          )
+          [action.payload.sheet]: {
+            ...state[action.payload.fileId][action.payload.sheet],
+            thumbsArray: state[action.payload.fileId][action.payload.sheet].thumbsArray.map(t =>
+              thumb(t, action)
+            )
+          }
         }
       };
     case 'UPDATE_ORDER':
@@ -137,45 +164,17 @@ const sheetsByFileId = (state = {}, action) => {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          [action.payload.sheet]: state[action.payload.fileId][action.payload.sheet].map((t, index) =>
-            thumb(t, action, index)
-          )
+          [action.payload.sheet]: {
+            ...state[action.payload.fileId][action.payload.sheet],
+            thumbsArray: state[action.payload.fileId][action.payload.sheet].thumbsArray.map((t, index) =>
+              thumb(t, action, index)
+            )
+          }
         }
       };
-    case 'REMOVE_THUMB':
-      // create new state with thumb removed
-      // log.debug(state);
-      const tempState = state[action.payload.fileId][action.payload.sheet]
-        .slice(0, state[action.payload.fileId][action.payload.sheet]
-          .find(x => x.thumbId === action.payload.thumbId).index)
-        .concat(state[action.payload.fileId][action.payload.sheet]
-          .slice(state[action.payload.fileId][action.payload.sheet]
-            .find(x => x.thumbId === action.payload.thumbId).index + 1)
-      );
-      // log.debug(tempState);
-
-      // construct new UPDATE_ORDER action
-      const tempAction = Object.assign({}, action, {
-        type: 'UPDATE_ORDER',
-        payload: {
-          sheet: action.payload.sheet,
-          currentFileId: action.payload.fileId,
-          array: tempState
-        },
-      });
-
-      // run UPDATE_ORDER on thumb
-      return {
-        ...state,
-        [action.payload.fileId]: {
-          [action.payload.sheet]: tempState.map((t, index) =>
-            thumb(t, tempAction, index)
-          )
-        }
-      };
-    case 'CLEAR_THUMBS':
-      // if fileId is an empty string, then clear all thumbs
-      // else only clear thumbs of specific fileId
+    case 'CLEAR_SHEETS':
+      // if fileId is an empty string, then clear all sheets
+      // else only clear sheets of specific fileId
       // console.log(action.payload);
       if (action.payload.fileId === '') {
         // fileId is empty, so delete everything

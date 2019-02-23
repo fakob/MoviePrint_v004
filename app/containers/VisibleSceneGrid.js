@@ -34,7 +34,7 @@ class SortedVisibleSceneGrid extends Component {
   onSortEnd = ({ oldIndex, newIndex }) => {
     const { store } = this.context;
     const newOrderedThumbs = arrayMove(store.getState().undoGroup.present
-      .sheetsByFileId[store.getState().undoGroup.present.settings.currentFileId][store.getState().visibilitySettings.defaultSheet],
+      .sheetsByFileId[store.getState().undoGroup.present.settings.currentFileId][store.getState().visibilitySettings.defaultSheet].thumbsArray,
       oldIndex,
       newIndex);
     store.dispatch(updateOrder(

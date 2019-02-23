@@ -344,7 +344,7 @@ export const addScenes = (file, sceneList, clearOldScenes = false, frameSize) =>
     log.debug('action: addScenes');
     if (clearOldScenes) {
       dispatch(clearScenes(file.id));
-      dispatch(clearThumbs(file.id, DEFAULT_SHEET_SCENES));
+      dispatch(clearSheets(file.id, DEFAULT_SHEET_SCENES));
     }
     sceneList.map((scene, index) => {
       const sceneId = uuidV4();
@@ -442,18 +442,6 @@ export const updateOrder = (currentFileId, sheet, array) => {
   };
 };
 
-export const removeThumb = (currentFileId, sheet, thumbId) => {
-  log.debug(`action: removeThumb - ${thumbId}`);
-  return {
-    type: 'REMOVE_THUMB',
-    payload: {
-      fileId: currentFileId,
-      sheet,
-      thumbId
-    },
-  };
-};
-
 export const updateFrameNumber = (fileId, sheet, thumbId, frameNumber) => {
   log.debug('action: updateFrameNumber');
   return {
@@ -467,10 +455,10 @@ export const updateFrameNumber = (fileId, sheet, thumbId, frameNumber) => {
   };
 };
 
-export const clearThumbs = (fileId = '', sheet = '') => {
-  log.debug('action: clearThumbs');
+export const clearSheets = (fileId = '', sheet = '') => {
+  log.debug('action: clearSheets');
   return {
-    type: 'CLEAR_THUMBS',
+    type: 'CLEAR_SHEETS',
     payload: {
       fileId,
       sheet,
@@ -502,7 +490,7 @@ export const addDefaultThumbs = (file, sheet, amount = 20, start = 10, stop = fi
     const frameNumberArray = Array.from(Array(newAmount).keys())
       .map(x => mapRange(x, 0, newAmount - 1, startWithBoundaries, stopWithBoundaries, true));
     // log.debug(frameNumberArray);
-    dispatch(clearThumbs(file.id, sheet));
+    dispatch(clearSheets(file.id, sheet));
     return dispatch(addThumbs(file, sheet, frameNumberArray, frameSize));
   };
 };
