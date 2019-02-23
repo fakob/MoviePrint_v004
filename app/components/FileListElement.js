@@ -7,47 +7,68 @@ import transparent from '../img/Thumb_TRANSPARENT.png';
 
 const FileListElement = ({
   id, frameCount, fps, width, height, name, path,
-  size, objectUrl, onClick, currentFileId,
-}) => (
-  <li
-    data-tid={`fileListItem_${id}`}
-    onClick={onClick}
-    className={(currentFileId === id) ? `${styles.Highlight}` : ''}
-  >
-    <div
-      className={`${styles.croppedThumb}`}
-      style={{
-        backgroundColor: '#1e1e1e',
-        backgroundImage: `url(${objectUrl})`
-        // backgroundImage: `url(data:image/jpeg;base64,${base64})`
-      }}
-      alt={`${name}`}
-    />
-    <div
-      className={`${styles.Path}`}
-      title={path.slice(0, path.lastIndexOf('/'))}
+  size, objectUrl, onClick, currentFileId, sheetsObject, onSheetClick, currentSheet
+}) => {
+  const sheetsArray = Object.getOwnPropertyNames(sheetsObject);
+
+  function onSheetClickWithStop(e, sheet) {
+    e.stopPropagation();
+    onSheetClick(sheet);
+  }
+
+  return (
+    <li
+      data-tid={`fileListItem_${id}`}
+      onClick={onClick}
+      className={(currentFileId === id) ? `${styles.Highlight}` : ''}
     >
-      {truncatePath(path.slice(0, path.lastIndexOf('/')), 40)}
-    </div>
-    <div
-      className={`${styles.Title}`}
-      title={name}
-    >
-      {truncate(name, 48)}
-    </div>
-    <div className={`${styles.Detail}`}>
-      <div className={`${styles.DetailLeft}`}>
-        {frameCountToTimeCode(frameCount, fps)}
+      <div
+        className={`${styles.croppedThumb}`}
+        style={{
+          backgroundColor: '#1e1e1e',
+          backgroundImage: `url(${objectUrl})`
+          // backgroundImage: `url(data:image/jpeg;base64,${base64})`
+        }}
+        alt={`${name}`}
+      />
+      <div
+        className={`${styles.Path}`}
+        title={path.slice(0, path.lastIndexOf('/'))}
+      >
+        {truncatePath(path.slice(0, path.lastIndexOf('/')), 40)}
       </div>
-      <div className={`${styles.DetailRight}`}>
-        {formatBytes(size, 1)}
+      <div
+        className={`${styles.Title}`}
+        title={name}
+      >
+        {truncate(name, 48)}
       </div>
-      <div className={`${styles.DetailCenter}`}>
-        {width} x {height}
+      <div className={`${styles.Detail}`}>
+        <div className={`${styles.DetailLeft}`}>
+          {frameCountToTimeCode(frameCount, fps)}
+        </div>
+        <div className={`${styles.DetailRight}`}>
+          {formatBytes(size, 1)}
+        </div>
+        <div className={`${styles.DetailCenter}`}>
+          {width} x {height}
+        </div>
       </div>
-    </div>
-  </li>
-);
+      <ul
+        className={`${styles.SheetList}`}
+      >
+        {(currentFileId === id) && sheetsArray.map(sheet => (
+          <li
+            onClick={e => onSheetClickWithStop(e, sheet)}
+            className={`${(currentSheet === sheet) ? styles.SheetHighlight : ''}`}
+          >
+            { sheet }
+          </li>
+        ))}
+      </ul>
+    </li>
+  )
+};
 
 FileListElement.propTypes = {
   id: PropTypes.string.isRequired,

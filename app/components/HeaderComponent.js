@@ -35,6 +35,7 @@ const Header = ({
     });
     return mappedArray;
   };
+
   const viewOptions = [
     { value: VIEW.GRIDVIEW, text: 'Grid view', 'data-tid':'gridViewOption'},
     { value: VIEW.PLAYERVIEW, text: 'Player view', 'data-tid':'playerViewOption', disabled: visibilitySettings.showSettings },

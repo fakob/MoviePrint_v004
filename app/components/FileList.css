@@ -28,10 +28,10 @@ li p {
   font: 0.8em Georgia, Times New Roman, serif;
 }
 
-li {
+.MainList > li {
   margin: 8px 0px 8px 8px;
-  padding: 8px 8px 8px 0px;
-  width: 336px;
+  padding: 8px 8px 0px 8px;
+  /* width: 336px; */
   overflow: hidden;
   overflow-wrap: break-word;
   word-wrap: break-word;
@@ -41,7 +41,7 @@ li {
   border-radius: 4px;
 }
 
-li:hover {
+.MainList > li:hover {
   border-color: transparent;
   border-width: 1px;
   border-style: solid;
@@ -111,4 +111,43 @@ li:hover {
 .DetailRight {
   float: right;
 	text-align: right;
+}
+
+.SheetList {
+    margin: 12px 0 0 0;
+}
+
+.SheetList > li {
+  margin: 8px 0px 8px 0px;
+  padding: 8px 8px 8px 8px;
+  width: 336px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  border-width: 1px;
+  border-style: solid;
+  border-color: transparent;
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.SheetList > li:hover {
+  border-color: transparent;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 4px;
+  cursor: pointer;
+  background: #1e1e1e;
+  border-radius: 0;
+  /* border-left: 1px solid rgba(0, 0, 0, 1); */
+  background-color: rgba(0, 0, 0, 0.1);
+  /* background-color: rgba(255, 133, 27, 0.1); */
+  color: rgba(255, 255, 255, 1);
+}
+
+.SheetHighlight {
+  border-radius: 0;
+  border-left: 1px solid rgba(255, 133, 27, 1);
+  background-color: rgba(0, 0, 0, 0.1);
+  color: rgba(255, 255, 255, 1) !important;
 }

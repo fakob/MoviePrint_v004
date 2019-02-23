@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import FileListElement from '../components/FileListElement';
+import styles from '../components/FileList.css';
 import {
   getObjectProperty,
 } from '../utils/utils';
@@ -18,7 +19,7 @@ class SortedFileList extends Component {
   }
 
   render() {
-    const { files, settings, posterObjectUrlObjects } = this.props;
+    const { files, settings, posterObjectUrlObjects, visibilitySettings } = this.props;
 
     return (
       <div
@@ -27,7 +28,9 @@ class SortedFileList extends Component {
           direction: 'ltr', // compensate for rtl on ItemMovieList to get scroolbar appear on left hand side
         }}
       >
-        <ul>
+        <ul
+          className={`${styles.MainList}`}
+        >
           {files.map((file, index) => (
             <FileListElement
               key={file.id}
@@ -36,9 +39,17 @@ class SortedFileList extends Component {
               onClick={() => {
                 this.props.onFileListElementClick(file);
               }}
+              onSheetClick={sheetId => {
+                this.props.onSetSheetClick(sheetId);
+              }}
               currentFileId={settings.currentFileId}
+              currentSheet={visibilitySettings.defaultSheet}
               objectUrl={
                 getObjectProperty(() => posterObjectUrlObjects[file.posterFrameId].objectUrl)
+              }
+              sheetsObject={
+                this.props.sheetsByFileId[file.id] === undefined ?
+                [] : this.props.sheetsByFileId[file.id]
               }
             />
           ))}

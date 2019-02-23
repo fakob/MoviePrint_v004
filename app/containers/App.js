@@ -1989,8 +1989,11 @@ class App extends Component {
                       <FileList
                         files={this.props.files}
                         settings={this.props.settings}
+                        visibilitySettings={this.props.visibilitySettings}
                         onFileListElementClick={this.onFileListElementClick}
                         posterObjectUrlObjects={posterObjectUrlObjects}
+                        sheetsByFileId={this.props.sheetsByFileId}
+                        onSetSheetClick={this.onSetSheetClick}
                       />
                     </div>
                     <div
@@ -2451,6 +2454,7 @@ const mapStateToProps = state => {
     ? [] : state.undoGroup.present.scenesByFileId[tempCurrentFileId].sceneArray;
   return {
     sheetsArray,
+    sheetsByFileId: state.undoGroup.present.sheetsByFileId,
     thumbs: getVisibleThumbs(
       allThumbs,
       state.visibilitySettings.visibilityFilter
