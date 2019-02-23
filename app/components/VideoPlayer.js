@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { Popup } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
 import log from 'electron-log';
-import { changeThumb, addDefaultThumbs, addThumb } from '../actions';
+import { changeThumb, addIntervalSheet, addThumb } from '../actions';
 import {
   MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
   CHANGE_THUMB_STEP, MOVIEPRINT_COLORS
@@ -149,7 +149,7 @@ class VideoPlayer extends Component {
   onInPointClick() {
     const { store } = this.context;
     const newFrameNumber = this.getCurrentFrameNumber();
-    store.dispatch(addDefaultThumbs(
+    store.dispatch(addIntervalSheet(
       this.props.file,
       this.props.visibilitySettings.defaultSheet,
       this.props.thumbs.length,
@@ -162,7 +162,7 @@ class VideoPlayer extends Component {
   onOutPointClick() {
     const { store } = this.context;
     const newFrameNumber = this.getCurrentFrameNumber();
-    store.dispatch(addDefaultThumbs(
+    store.dispatch(addIntervalSheet(
       this.props.file,
       this.props.visibilitySettings.defaultSheet,
       this.props.thumbs.length,

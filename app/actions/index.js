@@ -466,9 +466,9 @@ export const clearSheets = (fileId = '', sheet = '') => {
   };
 };
 
-export const addDefaultThumbs = (file, sheet, amount = 20, start = 10, stop = file.frameCount - 1, frameSize) => {
+export const addIntervalSheet = (file, sheet, amount = 20, start = 10, stop = file.frameCount - 1, frameSize) => {
   return (dispatch) => {
-    log.debug('action: addDefaultThumbs');
+    log.debug('action: addIntervalSheet');
 
     // amount should not be more than the frameCount
     // stop - start should be at least amount

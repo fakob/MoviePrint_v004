@@ -63,7 +63,7 @@
 	* dispatch updateInOutPoint
 	* dispatch setCurrentFileId if first
 	* dispatch clearSheets
-	* dispatch addDefaultThumbs
+	* dispatch addIntervalSheet
 		* dispatch addThumbs
 			* check DB if thumb is already grabbed
 			* ipc send-get-thumbs to opencvWorkerWindow for every single thumb
@@ -82,7 +82,7 @@
   * set status to readyForPrinting for files which already have thumbs
 * in componentDidUpdate
   * getThumbsForFile if there is a file which needsThumbs
-  	* --> dispatch addDefaultThumbs
+  	* --> dispatch addIntervalSheet
     * ipc receive-get-thumbs
       * when last thumb while saveAllMoviePrints then set status to readyForPrinting
   * ipc action-save-MoviePrint if there is a file which is readyForPrinting

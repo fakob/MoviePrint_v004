@@ -5,7 +5,7 @@ import { arrayMove } from 'react-sortable-hoc';
 import scrollIntoView from 'scroll-into-view';
 import {
   toggleThumb, updateOrder,
-  changeThumb, addDefaultThumbs, setSheet, setView, updateThumbObjectUrlFromDB
+  changeThumb, addIntervalSheet, setSheet, setView, updateThumbObjectUrlFromDB
 } from '../actions';
 import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
@@ -168,7 +168,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       dispatch(toggleThumb(fileId, ownProps.defaultSheet, thumbId));
     },
     onInPointClick: (file, thumbs, thumbId, frameNumber) => {
-      dispatch(addDefaultThumbs(
+      dispatch(addIntervalSheet(
         file,
         ownProps.defaultSheet,
         thumbs.length,
@@ -178,7 +178,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       ));
     },
     onOutPointClick: (file, thumbs, thumbId, frameNumber) => {
-      dispatch(addDefaultThumbs(
+      dispatch(addIntervalSheet(
         file,
         ownProps.defaultSheet,
         thumbs.length,

@@ -41,7 +41,7 @@ import { getLowestFrame,
 import styles from './App.css';
 import stylesPop from './../components/Popup.css';
 import {
-  addDefaultThumbs,
+  addIntervalSheet,
   addScene,
   addScenes,
   addThumb,
@@ -399,7 +399,7 @@ class App extends Component {
         store.dispatch(clearScenes());
         store.dispatch(clearSheets());
         // log.debug(firstFile);
-        store.dispatch(addDefaultThumbs(
+        store.dispatch(addIntervalSheet(
           firstFile,
           DEFAULT_SHEET_INTERVAL,
           store.getState().undoGroup.present.settings.defaultThumbCount,
@@ -1298,8 +1298,8 @@ class App extends Component {
     const sheetName = sceneId;
     console.log(sheetName);
     if (this.props.sheetsArray.findIndex(item => item === sheetName) === -1) {
-      // log.debug(`addDefaultThumbs as no thumbs were found for: ${file.name}`);
-      store.dispatch(addDefaultThumbs(
+      // log.debug(`addIntervalSheet as no thumbs were found for: ${file.name}`);
+      store.dispatch(addIntervalSheet(
           file,
           sheetName,
           DEFAULT_THUMB_COUNT, // use constant value instead of defaultThumbCount
@@ -1505,8 +1505,8 @@ class App extends Component {
     log.debug(`inside getThumbsForFile: ${file.name}`);
     const { store } = this.context;
     if (this.props.sheetsByFileId[file.id] === undefined) {
-      log.debug(`addDefaultThumbs as no thumbs were found for: ${file.name}`);
-      store.dispatch(addDefaultThumbs(
+      log.debug(`addIntervalSheet as no thumbs were found for: ${file.name}`);
+      store.dispatch(addIntervalSheet(
           file,
           DEFAULT_SHEET_INTERVAL,
           this.props.settings.defaultThumbCount,
@@ -1640,7 +1640,7 @@ class App extends Component {
     store.dispatch(setDefaultColumnCount(columnCount));
     store.dispatch(setDefaultThumbCount(thumbCount));
     if (this.props.currentFileId !== undefined) {
-      store.dispatch(addDefaultThumbs(
+      store.dispatch(addIntervalSheet(
         this.props.file,
         this.props.visibilitySettings.defaultSheet,
         thumbCount,
