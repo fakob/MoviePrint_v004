@@ -14,8 +14,6 @@ const visibilitySettings = (state = {}, action) => {
       return { ...state, showSettings: true };
     case 'HIDE_SETTINGS':
       return { ...state, showSettings: false };
-    case 'SET_SHEET':
-      return { ...state, defaultSheet: action.defaultSheet };
     case 'SET_VIEW':
       return { ...state, defaultView: action.defaultView };
     case 'SET_SHEET_FIT':

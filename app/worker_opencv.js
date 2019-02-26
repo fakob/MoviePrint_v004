@@ -70,19 +70,22 @@ ipcRenderer.on('recapture-all-frames', (event, files, sheetsByFileId, frameSize)
     log.debug(`opencvWorkerWindow | ${file.path}`);
     log.debug(`opencvWorkerWindow | useRatio: ${file.useRatio}`);
     // iterate through all sheets
-    Object.keys(sheetsByFileId[file.id]).map(sheet => {
-      const currentSheetArray = sheetsByFileId[file.id][sheet].thumbsArray;
-      const frameNumberArray = currentSheetArray.map(frame => frame.frameNumber)
-      const frameIdArray = currentSheetArray.map(frame => frame.frameId)
-      recaptureThumbs(
-        frameSize,
-        file.path,
-        file.useRatio,
-        frameIdArray,
-        frameNumberArray,
-      );
-      return true; // finished capturing one sheet
-    });
+    const sheets = sheetsByFileId[file.id];
+    if (sheets !== undefined) {
+      Object.keys(sheets).map(sheetId => {
+        const currentSheetArray = sheets[sheetId].thumbsArray;
+        const frameNumberArray = currentSheetArray.map(frame => frame.frameNumber);
+        const frameIdArray = currentSheetArray.map(frame => frame.frameId);
+        recaptureThumbs(
+          frameSize,
+          file.path,
+          file.useRatio,
+          frameIdArray,
+          frameNumberArray,
+        );
+        return true; // finished capturing one sheet
+      });
+    }
     return true; // finished capturing one file
   });
   ipcRenderer.send(
@@ -623,7 +626,7 @@ ipcRenderer.on(
     event,
     fileId,
     filePath,
-    sheet,
+    sheetId,
     thumbIdArray,
     frameIdArray,
     frameNumberArray,
@@ -655,7 +658,7 @@ ipcRenderer.on(
           'message-from-opencvWorkerWindow-to-mainWindow',
           'receive-get-thumbs',
           fileId,
-          sheet,
+          sheetId,
           thumbIdArray[i],
           frameIdArray[i],
           '',
@@ -688,7 +691,7 @@ ipcRenderer.on(
           'message-from-opencvWorkerWindow-to-mainWindow',
           'receive-get-thumbs',
           fileId,
-          sheet,
+          sheetId,
           thumbIdArray[i],
           frameIdArray[i],
           frameNumber,
@@ -708,7 +711,7 @@ ipcRenderer.on(
     event,
     fileId,
     filePath,
-    sheet,
+    sheetId,
     thumbIdArray,
     frameIdArray,
     frameNumberArray,
@@ -765,7 +768,7 @@ ipcRenderer.on(
               'message-from-opencvWorkerWindow-to-mainWindow',
               'receive-get-thumbs',
               fileId,
-              sheet,
+              sheetId,
               thumbIdArray[iterator],
               frameId,
               frameNumber,
@@ -810,7 +813,7 @@ ipcRenderer.on(
                 'message-from-opencvWorkerWindow-to-mainWindow',
                 'receive-get-thumbs',
                 fileId,
-                sheet,
+                sheetId,
                 thumbIdArray[iterator],
                 frameId,
                 '',

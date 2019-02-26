@@ -12,7 +12,7 @@ const Header = ({
   file, visibilitySettings, toggleMovielist, toggleSettings,
   onToggleShowHiddenThumbsClick, settings, onThumbInfoClick,
   openMoviesDialog, toggleZoom, zoom, toggleView, onSetViewClick, onSetSheetClick,
-  sheetsArray, sceneArray, onSetSheetFitClick, scaleValueObject
+  sheetsArray, sceneArray, onSetSheetFitClick, scaleValueObject, isSheetTypeInterval
 }) => {
 
   const thumbInfoOptions = [
@@ -24,10 +24,10 @@ const Header = ({
   const sheetOptions = (sheetsArray, sceneArray) => {
     sheetsArray.sort();
     const mappedArray = sheetsArray.map(sheet => {
-      if (sheet.indexOf(SHEET_TYPE.SCENES) > -1) {
+      if (!isSheetTypeInterval) {
         return ({ value: sheet, text: `Scenes Print`, 'data-tid':`${sheet}SheetOption` });
       }
-      if (sheet.indexOf(SHEET_TYPE.INTERVAL) > -1) {
+      if (isSheetTypeInterval) {
         return ({ value: sheet, text: `Interval Print`, 'data-tid':`${sheet}SheetOption` });
       }
       const sceneIndex = sceneArray.findIndex(item => item.sceneId === sheet);
@@ -39,7 +39,7 @@ const Header = ({
   const viewOptions = [
     { value: VIEW.GRIDVIEW, text: 'Grid view', 'data-tid':'gridViewOption'},
     { value: VIEW.PLAYERVIEW, text: 'Player view', 'data-tid':'playerViewOption', disabled: visibilitySettings.showSettings },
-    { value: VIEW.TIMELINEVIEW, text: 'Timeline view', 'data-tid':'timelineViewOption', disabled: (visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) },
+    { value: VIEW.TIMELINEVIEW, text: 'Timeline view', 'data-tid':'timelineViewOption', disabled: isSheetTypeInterval },
   ];
 
   return (
@@ -86,23 +86,6 @@ const Header = ({
             }
             className={stylesPop.popup}
             content={(visibilitySettings.showMovielist === false) ? 'Show Movie list' : 'Hide Movie list'}
-            keepInViewPort={false}
-          />
-        }
-        {file &&
-          <Popup
-            trigger={
-              <Dropdown
-                data-tid='setSheetDropdown'
-                placeholder="Show Print"
-                item
-                options={sheetOptions(sheetsArray, sceneArray)}
-                value={visibilitySettings.defaultSheet}
-                onChange={(e, { value }) => onSetSheetClick(value)}
-              />
-            }
-            className={stylesPop.popup}
-            content="Set sheet"
             keepInViewPort={false}
           />
         }

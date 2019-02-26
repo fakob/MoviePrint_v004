@@ -5,7 +5,7 @@ import { arrayMove } from 'react-sortable-hoc';
 import scrollIntoView from 'scroll-into-view';
 import {
   toggleThumb, updateOrder,
-  changeThumb, addIntervalSheet, setSheet, setView, updateThumbObjectUrlFromDB
+  changeThumb, addIntervalSheet, setCurrentSheetId, setView, updateThumbObjectUrlFromDB
 } from '../actions';
 import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
@@ -60,12 +60,12 @@ class SortedVisibleThumbGrid extends Component {
       isSorting: false,
     });
     const newOrderedThumbs = arrayMove(store.getState().undoGroup.present
-      .sheetsByFileId[store.getState().undoGroup.present.settings.currentFileId][this.props.defaultSheet].thumbsArray,
+      .sheetsByFileId[store.getState().undoGroup.present.settings.currentFileId][this.props.currentSheetId].thumbsArray,
       oldIndex,
       newIndex);
     store.dispatch(updateOrder(
       store.getState().undoGroup.present.settings.currentFileId,
-      this.props.defaultSheet,
+      this.props.currentSheetId,
       newOrderedThumbs));
   };
 
@@ -73,7 +73,7 @@ class SortedVisibleThumbGrid extends Component {
     this.props.selectThumbMethod(thumbId, frameNumber);
   }
 
-  onErrorThumb = (file, sheet, thumbId, frameId) => {
+  onErrorThumb = (file, sheetId, thumbId, frameId) => {
     const { store } = this.context;
     console.log('inside onErrorThumb');
     // onErrorThumb seems to slow things down quite a bit, maybe because it is called multiple times?
@@ -95,7 +95,7 @@ class SortedVisibleThumbGrid extends Component {
       <SortableThumbGrid
         colorArray={this.props.colorArray}
         defaultView={this.props.defaultView}
-        defaultSheet={this.props.defaultSheet}
+        currentSheetId={this.props.currentSheetId}
         file={this.props.file}
         inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
         keyObject={this.props.keyObject}
@@ -122,6 +122,7 @@ class SortedVisibleThumbGrid extends Component {
         thumbs={this.props.thumbs}
         viewForPrinting={this.props.viewForPrinting}
         visibilitySettings={this.props.visibilitySettings}
+        isSheetTypeInterval={this.props.isSheetTypeInterval}
         isSorting={this.state.isSorting}
 
         useDragHandle
@@ -161,16 +162,16 @@ const mapStateToProps = state => {
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     onExitClick: () => {
-      dispatch(setSheet(DEFAULT_SHEET_SCENES));
+      dispatch(setCurrentSheetId(DEFAULT_SHEET_SCENES));
       dispatch(setView(VIEW.TIMELINEVIEW));
     },
     onToggleClick: (fileId, thumbId) => {
-      dispatch(toggleThumb(fileId, ownProps.defaultSheet, thumbId));
+      dispatch(toggleThumb(fileId, ownProps.currentSheetId, thumbId));
     },
     onInPointClick: (file, thumbs, thumbId, frameNumber) => {
       dispatch(addIntervalSheet(
         file,
-        ownProps.defaultSheet,
+        ownProps.currentSheetId,
         thumbs.length,
         frameNumber,
         getHighestFrame(thumbs),
@@ -180,7 +181,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     onOutPointClick: (file, thumbs, thumbId, frameNumber) => {
       dispatch(addIntervalSheet(
         file,
-        ownProps.defaultSheet,
+        ownProps.currentSheetId,
         thumbs.length,
         getLowestFrame(thumbs),
         frameNumber,
@@ -199,7 +200,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       if (ownProps.keyObject.altKey) {
         stepValue = stepValue2;
       }
-      dispatch(changeThumb(ownProps.defaultSheet, file, thumbId, frameNumber - stepValue, ownProps.frameSize));
+      dispatch(changeThumb(ownProps.currentSheetId, file, thumbId, frameNumber - stepValue, ownProps.frameSize));
     },
     onForwardClick: (file, thumbId, frameNumber) => {
       const [stepValue0, stepValue1, stepValue2] = CHANGE_THUMB_STEP;
@@ -210,7 +211,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       if (ownProps.keyObject.altKey) {
         stepValue = stepValue2;
       }
-      dispatch(changeThumb(ownProps.defaultSheet, file, thumbId, frameNumber + stepValue, ownProps.frameSize));
+      dispatch(changeThumb(ownProps.currentSheetId, file, thumbId, frameNumber + stepValue, ownProps.frameSize));
     }
   };
 };
@@ -247,7 +248,7 @@ SortedVisibleThumbGrid.propTypes = {
   selectThumbMethod: PropTypes.func,
   settings: PropTypes.object.isRequired,
   defaultView: PropTypes.string.isRequired,
-  defaultSheet: PropTypes.string.isRequired,
+  // currentSheetId: PropTypes.string.isRequired,
   showSettings: PropTypes.bool.isRequired,
   thumbCount: PropTypes.number.isRequired,
   objectUrlObjects: PropTypes.object,

@@ -151,7 +151,7 @@ class VideoPlayer extends Component {
     const newFrameNumber = this.getCurrentFrameNumber();
     store.dispatch(addIntervalSheet(
       this.props.file,
-      this.props.visibilitySettings.defaultSheet,
+      this.props.settings.currentSheetId,
       this.props.thumbs.length,
       newFrameNumber,
       getHighestFrame(this.props.thumbs),
@@ -164,7 +164,7 @@ class VideoPlayer extends Component {
     const newFrameNumber = this.getCurrentFrameNumber();
     store.dispatch(addIntervalSheet(
       this.props.file,
-      this.props.visibilitySettings.defaultSheet,
+      this.props.settings.currentSheetId,
       this.props.thumbs.length,
       getLowestFrame(this.props.thumbs),
       newFrameNumber,
@@ -353,7 +353,7 @@ class VideoPlayer extends Component {
         if (this.props.keyObject.altKey) {
           store.dispatch(addThumb(
             this.props.file,
-            this.props.visibilitySettings.defaultSheet,
+            this.props.settings.currentSheetId,
             newFrameNumber,
             this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index + 1,
             newThumbId,
@@ -362,7 +362,7 @@ class VideoPlayer extends Component {
         } else { // if shiftKey
           store.dispatch(addThumb(
             this.props.file,
-            this.props.visibilitySettings.defaultSheet,
+            this.props.settings.currentSheetId,
             newFrameNumber,
             this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index,
             newThumbId,
@@ -374,7 +374,7 @@ class VideoPlayer extends Component {
           this.props.selectThumbMethod(newThumbId, newFrameNumber);
         }, 500);
       } else { // if normal set new thumb
-        store.dispatch(changeThumb(this.props.visibilitySettings.defaultSheet, this.props.file, this.props.selectedThumbId, newFrameNumber, this.props.frameSize));
+        store.dispatch(changeThumb(this.props.settings.currentSheetId, this.props.file, this.props.selectedThumbId, newFrameNumber, this.props.frameSize));
       }
     }
   }
@@ -635,8 +635,8 @@ const mapStateToProps = state => {
   const { currentFileId } = settings;
 
   const allThumbs = (sheetsByFileId[currentFileId] === undefined ||
-    sheetsByFileId[currentFileId][visibilitySettings.defaultSheet] === undefined)
-    ? undefined : sheetsByFileId[currentFileId][visibilitySettings.defaultSheet].thumbsArray;
+    sheetsByFileId[currentFileId][settings.currentSheetId] === undefined)
+    ? undefined : sheetsByFileId[currentFileId][settings.currentSheetId].thumbsArray;
   return {
     thumbs: getVisibleThumbs(
       allThumbs,

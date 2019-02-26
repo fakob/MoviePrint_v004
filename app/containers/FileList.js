@@ -35,15 +35,15 @@ class SortedFileList extends Component {
             <FileListElement
               key={file.id}
               {...file}
-              index
+              index={index}
               onClick={() => {
                 this.props.onFileListElementClick(file);
               }}
-              onSheetClick={sheetId => {
-                this.props.onSetSheetClick(sheetId);
-              }}
+              onSheetClick={this.props.onSetSheetClick}
+              onDuplicateSheetClick={this.props.onDuplicateSheetClick}
+              onDeleteSheetClick={this.props.onDeleteSheetClick}
               currentFileId={settings.currentFileId}
-              currentSheet={visibilitySettings.defaultSheet}
+              currentSheetId={this.props.currentSheetId}
               objectUrl={
                 getObjectProperty(() => posterObjectUrlObjects[file.posterFrameId].objectUrl)
               }

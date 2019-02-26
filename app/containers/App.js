@@ -28,6 +28,8 @@ import { getLowestFrame,
   getHighestFrame,
   getVisibleThumbs,
   getColumnCount,
+  getSheetId,
+  getSheetType,
   getThumbsCount,
   getMoviePrintColor,
   getObjectProperty,
@@ -47,8 +49,9 @@ import {
   addThumb,
   changeThumb,
   clearScenes,
-  clearSheets,
+  deleteSheets,
   deleteSceneSheets,
+  duplicateSheet,
   hideMovielist,
   hideSettings,
   removeMovieListItem,
@@ -80,13 +83,13 @@ import {
   setDefaultTimelineViewWidthScale,
   setEmailAddress,
   setNewMovieList,
-  setSheet,
+  setCurrentSheetId,
   setSheetFit,
   setView,
   setVisibilityFilter,
   showMovielist,
   showSettings,
-  updateFileColumnCount,
+  updateSheetColumnCount,
   updateFileDetails,
   updateFileDetailUseRatio,
   updateFrameNumber,
@@ -270,6 +273,8 @@ class App extends Component {
     this.onThumbInfoClick = this.onThumbInfoClick.bind(this);
     this.onSetViewClick = this.onSetViewClick.bind(this);
     this.onSetSheetClick = this.onSetSheetClick.bind(this);
+    this.onDuplicateSheetClick = this.onDuplicateSheetClick.bind(this);
+    this.onDeleteSheetClick = this.onDeleteSheetClick.bind(this);
     this.onChangeOutputPathClick = this.onChangeOutputPathClick.bind(this);
     this.onOutputFormatClick = this.onOutputFormatClick.bind(this);
     this.onCachedFramesSizeClick = this.onCachedFramesSizeClick.bind(this);
@@ -298,10 +303,7 @@ class App extends Component {
 
     setColumnAndThumbCount(
       this,
-      getColumnCount(
-        this.props.file,
-        store.getState().undoGroup.present.settings
-      ),
+      getColumnCount(this.props.sheetsByFileId, undefined, undefined, store.getState().undoGroup.present.settings),
       getThumbsCount(
         this.props.file,
         this.props.sheetsByFileId,
@@ -392,21 +394,24 @@ class App extends Component {
       // log.debug(this.props.currentFileId);
       if (this.props.currentFileId === undefined) {
         // log.debug('Hello, log, I am the firstItem');
+        const newSheetId = uuidV4();
         const firstFile = store.getState().undoGroup.present.files.find((file) => file.id === fileId);
         store.dispatch(setCurrentFileId(firstFile.id));
         this.updateScaleValue(); // so the aspect ratio of the thumbs are correct after drag
-        store.dispatch(updateFileColumnCount(firstFile.id, getColumnCount(firstFile, this.props.settings))); // set columnCount on firstFile
         store.dispatch(clearScenes());
-        store.dispatch(clearSheets());
+        store.dispatch(deleteSheets());
         // log.debug(firstFile);
         store.dispatch(addIntervalSheet(
           firstFile,
-          DEFAULT_SHEET_INTERVAL,
+          newSheetId,
           store.getState().undoGroup.present.settings.defaultThumbCount,
           fadeInPoint,
           fadeOutPoint,
           this.props.settings.defaultCachedFramesSize
         ));
+        const newColumnCount = getColumnCount(this.props.sheetsByFileId, firstFile.id, newSheetId, this.props.settings);
+        store.dispatch(updateSheetColumnCount(firstFile.id, newSheetId, newColumnCount)); // set columnCount on firstFile
+        store.dispatch(setCurrentSheetId(newSheetId));
       }
       if (this.state.filesToLoad.length > 0) {
         // state should be immutable, therefor
@@ -458,7 +463,7 @@ class App extends Component {
       }
     });
 
-    ipcRenderer.on('receive-get-thumbs', (event, fileId, sheet, thumbId, frameId, frameNumber, lastThumb) => {
+    ipcRenderer.on('receive-get-thumbs', (event, fileId, sheetId, thumbId, frameId, frameNumber, lastThumb) => {
       if (lastThumb && this.state.timeBefore !== undefined) {
         const timeAfter = Date.now();
         log.debug(`receive-get-thumbs took ${timeAfter - this.state.timeBefore}ms`);
@@ -474,9 +479,9 @@ class App extends Component {
           }, 3000);
         });
       }
-      if (this.props.sheetsByFileId[fileId][sheet].thumbsArray.find((thumb) =>
+      if (this.props.sheetsByFileId[fileId][sheetId].thumbsArray.find((thumb) =>
         thumb.thumbId === thumbId).frameNumber !== frameNumber) {
-        store.dispatch(updateFrameNumber(fileId, sheet, thumbId, frameNumber));
+        store.dispatch(updateFrameNumber(fileId, sheetId, thumbId, frameNumber));
       }
       // check if this is the lastThumb of the filesToPrint when savingAllMoviePrints
       // if so change its status from gettingThumbs to readyForPrinting
@@ -601,22 +606,34 @@ class App extends Component {
     if (this.props.file !== undefined &&
       nextProps.file !== undefined &&
       this.props.file.id !== undefined) {
+
+      const columnCount = getColumnCount(
+        nextProps.sheetsByFileId,
+        nextProps.file.id,
+        nextProps.currentSheetId,
+        nextProps.settings
+      );
+
       // check if currentFileId changed
-      if (this.props.file.id !== nextProps.file.id) {
+      if (this.props.file.id !== nextProps.file.id ||
+        this.props.currentSheetId !== nextProps.currentSheetId
+      ) {
         const newThumbCount = getThumbsCount(
           nextProps.file,
           nextProps.sheetsByFileId,
           state.undoGroup.present.settings,
           nextProps.visibilitySettings
         );
+
+
         setColumnAndThumbCount(
           this,
-          getColumnCount(nextProps.file, nextProps.settings),
+          columnCount,
           newThumbCount
         );
-        // log.debug('currentFileId changed');
-        // log.debug(getColumnCount(nextProps.file, nextProps.settings));
-        // log.debug(newThumbCount);
+        log.debug('currentFileId or currentSheetId changed');
+        log.debug(columnCount);
+        log.debug(newThumbCount);
       }
       const oldThumbCount = getThumbsCount(
         this.props.file,
@@ -634,7 +651,7 @@ class App extends Component {
         // check if visibleThumbCount changed
         setColumnAndThumbCount(
           this,
-          getColumnCount(nextProps.file, nextProps.settings),
+          columnCount,
           newThumbCount
         );
         log.debug(`visibleThumbCount changed to ${newThumbCount}`);
@@ -687,7 +704,7 @@ class App extends Component {
         // log.debug(filesToUpdateStatus);
       }
 
-      // run if there is a file readyForPrinting, but not if there is on already printing
+      // run if there is a file readyForPrinting, but not if there is one already printing
       if ((this.state.filesToPrint.findIndex(item => item.status === 'printing' ) === -1) &&
         (this.state.filesToPrint.findIndex(item => item.status === 'readyForPrinting' ) > -1)) {
         const timeBefore = Date.now();
@@ -703,9 +720,10 @@ class App extends Component {
         // log.debug(this.props.sheetsByFileId);
         const tempThumbs = this.props.sheetsByFileId[fileIdToPrint][DEFAULT_SHEET_INTERVAL].thumbsArray;
         // log.debug(tempThumbs);
+        const defaultSheet = DEFAULT_SHEET_INTERVAL;
         const dataToSend = {
           // scale: 1,
-          defaultSheet: DEFAULT_SHEET_INTERVAL,
+          defaultSheet,
           elementId: 'ThumbGrid',
           file: tempFile,
           moviePrintWidth: this.props.settings.defaultMoviePrintWidth,
@@ -719,7 +737,7 @@ class App extends Component {
             this.props.file,
             this.props.settings,
             this.props.visibilitySettings,
-            getColumnCount(this.props.file, this.props.settings),
+            getColumnCount(this.props.sheetsByFileId, this.props.file.id, defaultSheet, this.props.settings),
             this.props.file.thumbCount,
             this.props.settings.defaultMoviePrintWidth,
             undefined,
@@ -877,8 +895,8 @@ class App extends Component {
           case 54: // press '6'
             store.dispatch(setView(VIEW.TIMELINEVIEW));
             break;
-          case 67: // press 'c'
-            this.recaptureAllFrames();
+          case 67: // press 'c' - Careful!!! might also be triggered when doing reset application Shift+Alt+Command+C
+            // this.recaptureAllFrames();
             break;
           case 68: // press 'd'
             const allFrames = getAllFrames();
@@ -952,7 +970,7 @@ class App extends Component {
     // file match needs to be in sync with setNewMovieList() and accept !!!
     if (Array.from(files).some(file => (file.type.match('video.*') ||
       file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
-      store.dispatch(setSheet(DEFAULT_SHEET_INTERVAL));
+      // store.dispatch(setCurrentSheetId(DEFAULT_SHEET_INTERVAL));
       store.dispatch(setView(VIEW.GRIDVIEW));
       store.dispatch(setNewMovieList(files, settings)).then((response) => {
         this.setState({
@@ -1079,7 +1097,9 @@ class App extends Component {
     setColumnAndThumbCount(
       this,
       getColumnCount(
-        this.props.file,
+        this.props.sheetsByFileId,
+        this.props.file.id,
+        this.props.currentSheetId,
         store.getState().undoGroup.present.settings
       ),
       getThumbsCount(
@@ -1235,16 +1255,8 @@ class App extends Component {
     if (sceneList.length !== 0) {
       const tempFile = this.props.files.find((file) => file.id === fileId);
       const clearOldScenes = true;
-      store.dispatch(setSheet(DEFAULT_SHEET_SCENES));
+      store.dispatch(setCurrentSheetId(DEFAULT_SHEET_SCENES));
       store.dispatch(setView(VIEW.TIMELINEVIEW));
-      // store.dispatch(setDefaultShowPaperPreview(true));
-      // store.dispatch(clearSheets(fileId, DEFAULT_SHEET_SCENES));
-      // const listOfFrameNumbers = sceneList.map(scene => (scene.start + Math.floor(scene.length / 2)));
-      // store.dispatch(addThumbs(
-      //   tempFile,
-      //   DEFAULT_SHEET_SCENES,
-      //   listOfFrameNumbers,
-      // ));
       store.dispatch(addScenes(tempFile, sceneList, clearOldScenes, this.props.settings.defaultCachedFramesSize));
     } else {
       this.setState({
@@ -1308,9 +1320,8 @@ class App extends Component {
           this.props.settings.defaultCachedFramesSize
         ));
     }
-    store.dispatch(setSheet(sheetName));
+    store.dispatch(setCurrentSheetId(sheetName));
     store.dispatch(setView(VIEW.GRIDVIEW));
-    // store.dispatch(updateFileColumnCount(DEFAULT_COLUMN_COUNT));
   }
 
   onAddThumbClick(file, existingThumb, insertWhere) {
@@ -1328,7 +1339,7 @@ class App extends Component {
     if (insertWhere === 'after') {
       store.dispatch(addThumb(
         this.props.file,
-        this.props.visibilitySettings.defaultSheet,
+        this.props.settings.currentSheetId,
         newFrameNumberAfter,
         indexOfAllThumbs + 1,
         newThumbId,
@@ -1337,7 +1348,7 @@ class App extends Component {
     } else if (insertWhere === 'before') { // if shiftKey
       store.dispatch(addThumb(
         this.props.file,
-        this.props.visibilitySettings.defaultSheet,
+        this.props.settings.currentSheetId,
         newFrameNumberBefore,
         indexOfAllThumbs,
         newThumbId,
@@ -1384,7 +1395,7 @@ class App extends Component {
         if (this.state.keyObject.altKey) {
           store.dispatch(addThumb(
             this.props.file,
-            this.props.visibilitySettings.defaultSheet,
+            this.props.settings.currentSheetId,
             scrubFrameNumber,
             this.props.thumbs.find((thumb) => thumb.thumbId === this.state.scrubThumb.thumbId).index + 1,
             newThumbId,
@@ -1393,7 +1404,7 @@ class App extends Component {
         } else { // if shiftKey
           store.dispatch(addThumb(
             this.props.file,
-            this.props.visibilitySettings.defaultSheet,
+            this.props.settings.currentSheetId,
             scrubFrameNumber,
             this.props.thumbs.find((thumb) => thumb.thumbId === this.state.scrubThumb.thumbId).index,
             newThumbId,
@@ -1401,7 +1412,7 @@ class App extends Component {
           ));
         }
       } else { // if normal set new thumb
-        store.dispatch(changeThumb(this.props.visibilitySettings.defaultSheet, this.props.file, this.state.scrubThumb.thumbId, scrubFrameNumber, this.props.settings.defaultCachedFramesSize));
+        store.dispatch(changeThumb(this.props.settings.currentSheetId, this.props.file, this.state.scrubThumb.thumbId, scrubFrameNumber, this.props.settings.defaultCachedFramesSize));
       }
     }
     this.setState({
@@ -1421,9 +1432,10 @@ class App extends Component {
   }
 
   onSaveMoviePrint() {
+    const { currentSheetId } = this.props.settings
     const dataToSend = {
       // scale: 1,
-      defaultSheet: this.props.visibilitySettings.defaultSheet,
+      currentSheetId,
       elementId: this.props.visibilitySettings.defaultView !== VIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
       file: this.props.file,
       moviePrintWidth: this.props.settings.defaultMoviePrintWidth,
@@ -1435,7 +1447,7 @@ class App extends Component {
         this.props.file,
         this.props.settings,
         this.props.visibilitySettings,
-        getColumnCount(this.props.file, this.props.settings),
+        getColumnCount(this.props.sheetsByFileId, this.props.file.id, currentSheetId, this.props.settings),
         this.props.file.thumbCount,
         this.props.settings.defaultMoviePrintWidth,
         // HARDCODED FOR NOW timelineview needs height
@@ -1485,15 +1497,23 @@ class App extends Component {
   onFileListElementClick(file) {
     // log.debug(`FileListElement clicked: ${file.name}`);
     const { store } = this.context;
+    const { sheetsByFileId, settings } = this.props;
+
     store.dispatch(setCurrentFileId(file.id));
-    this.onSetSheetClick(DEFAULT_SHEET_INTERVAL);
+
+    let newSheetId = getSheetId(sheetsByFileId, file.id);
 
     // When clicking on a filelist element for the first time
-    // set columnCount as it is not defined yet
-    if (file.columnCount === undefined) {
-      store.dispatch(updateFileColumnCount(file.id, getColumnCount(file, this.props.settings)));
+    if (newSheetId === undefined) {
+      // there are no sheetIds, so create a new sheetId
+      newSheetId = uuidV4();
+      // set columnCount as it is not defined yet
+      this.getThumbsForFile(file, newSheetId);
+      const newColumnCount = getColumnCount(sheetsByFileId, file.id, newSheetId, settings);
+      store.dispatch(updateSheetColumnCount(file.id, newSheetId, newColumnCount));
     }
-    this.getThumbsForFile(file);
+
+    this.onSetSheetClick(newSheetId);
   }
 
   onErrorPosterFrame(file) {
@@ -1501,18 +1521,21 @@ class App extends Component {
     // store.dispatch(updateThumbObjectUrlFromDB(file.id, undefined, undefined, file.posterFrameId, true));
   }
 
-  getThumbsForFile(file) {
+  getThumbsForFile(file, newSheetId = uuidV4()) {
     log.debug(`inside getThumbsForFile: ${file.name}`);
     const { store } = this.context;
-    if (this.props.sheetsByFileId[file.id] === undefined) {
+    const { sheetsByFileId, settings } = this.props;
+    if (sheetsByFileId[file.id] === undefined ||
+    sheetsByFileId[file.id][newSheetId] === undefined ||
+    sheetsByFileId[file.id][newSheetId].thumbsArray === undefined) {
       log.debug(`addIntervalSheet as no thumbs were found for: ${file.name}`);
       store.dispatch(addIntervalSheet(
           file,
-          DEFAULT_SHEET_INTERVAL,
-          this.props.settings.defaultThumbCount,
+          newSheetId,
+          settings.defaultThumbCount,
           file.fadeInPoint,
           file.fadeOutPoint,
-          this.props.settings.defaultCachedFramesSize,
+          settings.defaultCachedFramesSize,
         )).catch(error => {
           console.log(error)
         });
@@ -1553,9 +1576,10 @@ class App extends Component {
       this.setState({ thumbCountTemp: tempRowCount * value });
     }
     if (this.props.file !== undefined) {
-      store.dispatch(updateFileColumnCount(
+      store.dispatch(updateSheetColumnCount(
         this.props.file.id,
-        value
+        this.props.currentSheetId,
+        value,
       ));
       store.dispatch(setDefaultColumnCount(value));
     }
@@ -1569,9 +1593,10 @@ class App extends Component {
       columnCount: value
     });
     if (this.props.file !== undefined) {
-      store.dispatch(updateFileColumnCount(
+      store.dispatch(updateSheetColumnCount(
         this.props.file.id,
-        value
+        this.props.currentSheetId,
+        value,
       ));
       store.dispatch(setDefaultColumnCount(value));
     }
@@ -1619,9 +1644,10 @@ class App extends Component {
       this.onThumbCountChange(this.state.columnCountTemp, this.state.thumbCountTemp);
     }
     if (this.props.file !== undefined) {
-      store.dispatch(updateFileColumnCount(
+      store.dispatch(updateSheetColumnCount(
         this.props.file.id,
-        this.state.columnCountTemp
+        this.props.currentSheetId,
+        this.state.columnCountTemp,
       ));
     }
     // this.hideSettings();
@@ -1642,16 +1668,16 @@ class App extends Component {
     if (this.props.currentFileId !== undefined) {
       store.dispatch(addIntervalSheet(
         this.props.file,
-        this.props.visibilitySettings.defaultSheet,
+        this.props.settings.currentSheetId,
         thumbCount,
         getLowestFrame(getVisibleThumbs(
           (this.props.sheetsByFileId[this.props.currentFileId] === undefined)
-            ? undefined : this.props.sheetsByFileId[this.props.currentFileId][this.props.visibilitySettings.defaultSheet].thumbsArray,
+            ? undefined : this.props.sheetsByFileId[this.props.currentFileId][this.props.settings.currentSheetId].thumbsArray,
           this.props.visibilitySettings.visibilityFilter
         )),
         getHighestFrame(getVisibleThumbs(
           (this.props.sheetsByFileId[this.props.currentFileId] === undefined)
-            ? undefined : this.props.sheetsByFileId[this.props.currentFileId][this.props.visibilitySettings.defaultSheet].thumbsArray,
+            ? undefined : this.props.sheetsByFileId[this.props.currentFileId][this.props.settings.currentSheetId].thumbsArray,
           this.props.visibilitySettings.visibilityFilter
         )),
         this.props.settings.defaultCachedFramesSize,
@@ -1763,15 +1789,30 @@ class App extends Component {
     store.dispatch(setDefaultThumbInfo(value));
   };
 
+  onDuplicateSheetClick = (fileId, sheet) => {
+    const { store } = this.context;
+    const newSheetId = uuidV4();
+    store.dispatch(duplicateSheet(fileId, sheet, newSheetId));
+    store.dispatch(setCurrentSheetId(newSheetId));
+  };
+
+  onDeleteSheetClick = (fileId, sheet) => {
+    const { store } = this.context;
+    const { sheetsByFileId } = this.props;
+    store.dispatch(deleteSheets(fileId, sheet));
+    const newSheetId = getSheetId(sheetsByFileId, fileId);
+    store.dispatch(setCurrentSheetId(newSheetId));
+  };
+
   onSetSheetClick = (value) => {
     const { store } = this.context;
-    store.dispatch(setSheet(value));
-    if (value.indexOf(SHEET_TYPE.SCENES) > -1) {
-      store.dispatch(setView(VIEW.TIMELINEVIEW));
-      this.onReCaptureClick(false);
-    } else {
-      store.dispatch(setView(VIEW.GRIDVIEW));
-    }
+    store.dispatch(setCurrentSheetId(value));
+    // if (value.indexOf(SHEET_TYPE.SCENES) > -1) {
+    //   store.dispatch(setView(VIEW.TIMELINEVIEW));
+    //   this.onReCaptureClick(false);
+    // } else {
+    //   store.dispatch(setView(VIEW.GRIDVIEW));
+    // }
   };
 
   onSetViewClick = (value) => {
@@ -1851,7 +1892,11 @@ class App extends Component {
     const { accept, dropzoneActive } = this.state;
     const { store } = this.context;
     const { frameBase64Array, posterframeBase64Array, objectUrlsArray } = this.state;
-    const { currentFileId, allThumbs, files } = this.props;
+    const { currentFileId, allThumbs, files, sheetsByFileId, settings, visibilitySettings } = this.props;
+
+    const sheetType = getSheetType(sheetsByFileId, currentFileId, this.props.currentSheetId, settings)
+    const isSheetTypeInterval = sheetType.indexOf(SHEET_TYPE.SCENES) === -1;
+
 
     // console.log(objectUrlsArray);
 
@@ -1943,6 +1988,7 @@ class App extends Component {
                     openMoviesDialog={this.openMoviesDialog}
                     zoom={this.state.zoom}
                     scaleValueObject={this.state.scaleValueObject}
+                    isSheetTypeInterval
                   />
                   <TransitionablePortal
                     // onClose={this.setState({ progressMessage: undefined })}
@@ -1994,6 +2040,9 @@ class App extends Component {
                         posterObjectUrlObjects={posterObjectUrlObjects}
                         sheetsByFileId={this.props.sheetsByFileId}
                         onSetSheetClick={this.onSetSheetClick}
+                        onDuplicateSheetClick={this.onDuplicateSheetClick}
+                        onDeleteSheetClick={this.onDeleteSheetClick}
+                        currentSheetId={this.props.currentSheetId}
                       />
                     </div>
                     <div
@@ -2048,6 +2097,7 @@ class App extends Component {
                         showChart={this.state.showChart}
                         onToggleDetectionChart={this.onToggleDetectionChart}
                         recaptureAllFrames={this.recaptureAllFrames}
+                        isSheetTypeInterval
                       />
                     </div>
                     <div
@@ -2130,7 +2180,7 @@ class App extends Component {
                             <SortedVisibleThumbGrid
                               colorArray={this.state.colorArray}
                               defaultView={this.props.visibilitySettings.defaultView}
-                              defaultSheet={this.props.visibilitySettings.defaultSheet}
+                              currentSheetId={this.props.settings.currentSheetId}
                               file={this.props.file}
                               inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                               keyObject={this.state.keyObject}
@@ -2149,6 +2199,7 @@ class App extends Component {
                               viewForPrinting={false}
                               visibilitySettings={this.props.visibilitySettings}
                               frameSize={this.props.settings.defaultCachedFramesSize}
+                              isSheetTypeInterval
                             />
                           </Conditional>
                           <Conditional if={this.props.visibilitySettings.defaultView === VIEW.TIMELINEVIEW}>
@@ -2170,6 +2221,7 @@ class App extends Component {
                               objectUrlObjects={objectUrlObjects}
                               thumbs={this.props.thumbs}
                               visibilitySettings={this.props.visibilitySettings}
+                              currentSheetId={this.props.settings.currentSheetId}
                             />
                           </Conditional>
                           {false && <div
@@ -2445,12 +2497,12 @@ class App extends Component {
 const mapStateToProps = state => {
   const { visibilitySettings } = state;
   const { settings, sheetsByFileId, scenesByFileId, files } = state.undoGroup.present;
-  const { currentFileId } = settings;
+  const { currentFileId, currentSheetId } = settings;
   const sheetsArray = (sheetsByFileId[currentFileId] === undefined)
     ? [] : Object.getOwnPropertyNames(sheetsByFileId[currentFileId]);
   const allThumbs = (sheetsByFileId[currentFileId] === undefined ||
-    sheetsByFileId[currentFileId][visibilitySettings.defaultSheet] === undefined)
-    ? undefined : sheetsByFileId[currentFileId][visibilitySettings.defaultSheet].thumbsArray;
+    sheetsByFileId[currentFileId][settings.currentSheetId] === undefined)
+    ? undefined : sheetsByFileId[currentFileId][settings.currentSheetId].thumbsArray;
   const allScenes = (scenesByFileId[currentFileId] === undefined)
     ? [] : scenesByFileId[currentFileId].sceneArray;
   return {
@@ -2462,6 +2514,7 @@ const mapStateToProps = state => {
     ),
     allThumbs,
     currentFileId,
+    currentSheetId,
     files,
     file: files
       .find((file) => file.id === currentFileId),

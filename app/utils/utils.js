@@ -1,7 +1,7 @@
 import pathR from 'path';
 import fsR from 'fs';
 import log from 'electron-log';
-import VideoCaptureProperties from '../utils/videoCaptureProperties';
+import VideoCaptureProperties from './videoCaptureProperties';
 
 const randomColor = require('randomcolor');
 const { ipcRenderer } = require('electron');
@@ -335,23 +335,54 @@ export const getAspectRatio = (file) => {
   return ((file.width * 1.0) / file.height);
 };
 
-export const getColumnCount = (file, settings) => {
-  if (file === undefined || file.columnCount === undefined) {
+export const getSheetId = (sheetsByFileId, fileId) => {
+  if (sheetsByFileId[fileId] === undefined) {
+    // there is no file yet, so return undefined
+    return undefined;
+  }
+  const sheetIdArray = Object.getOwnPropertyNames(sheetsByFileId[fileId]);
+  if (sheetIdArray.length === 0) {
+    // there are no sheetIds yet, so return undefined
+    return undefined;
+  }
+  // return first sheetId in array
+  return sheetIdArray[0];
+};
+
+export const getSheetType = (sheetsByFileId, fileId, sheetId, settings) => {
+  if (sheetsByFileId === undefined ||
+    sheetsByFileId[fileId] === undefined ||
+    sheetsByFileId[fileId][sheetId] === undefined ||
+    sheetsByFileId[fileId][sheetId].sheetType === undefined) {
+    return settings.defaultSheetType;
+  }
+  return sheetsByFileId[fileId][sheetId].sheetType;
+};
+
+export const getColumnCount = (sheetsByFileId, fileId, sheetId, settings) => {
+  if (sheetsByFileId === undefined ||
+    sheetsByFileId[fileId] === undefined ||
+    sheetsByFileId[fileId][sheetId] === undefined ||
+    sheetsByFileId[fileId][sheetId].columnCount === undefined) {
     return settings.defaultColumnCount;
   }
-  return file.columnCount;
+  return sheetsByFileId[fileId][sheetId].columnCount;
 };
 
 export const getThumbsCount = (file, sheetsByFileId, settings, visibilitySettings) => {
-  if (file === undefined || file.id === undefined ||
-    sheetsByFileId[file.id] === undefined || sheetsByFileId[file.id][visibilitySettings.defaultSheet] === undefined) {
+  if (file === undefined ||
+    file.id === undefined ||
+    sheetsByFileId[file.id] === undefined ||
+    settings.currentSheetId === undefined ||
+    sheetsByFileId[file.id][settings.currentSheetId] === undefined ||
+    sheetsByFileId[file.id][settings.currentSheetId].thumbsArray === undefined) {
     return settings.defaultThumbCount;
   }
   if (visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') {
-    return sheetsByFileId[file.id][visibilitySettings.defaultSheet].thumbsArray
+    return sheetsByFileId[file.id][settings.currentSheetId].thumbsArray
       .filter(thumb => thumb.hidden === false).length;
   }
-  return sheetsByFileId[file.id][visibilitySettings.defaultSheet].thumbsArray.length;
+  return sheetsByFileId[file.id][settings.currentSheetId].thumbsArray.length;
 };
 
 export const setPosition = (vid, frameNumberToCapture, useRatio) => {

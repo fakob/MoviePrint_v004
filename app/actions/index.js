@@ -68,14 +68,6 @@ export const hideSettings = () => {
   };
 };
 
-export const setSheet = (defaultSheet) => {
-  log.debug(`action: setSheet - ${defaultSheet}`);
-  return {
-    type: 'SET_SHEET',
-    defaultSheet
-  };
-};
-
 export const setView = (defaultView) => {
   log.debug(`action: setView - ${defaultView}`);
   return {
@@ -93,6 +85,14 @@ export const setSheetFit = (defaultSheetFit) => {
 };
 
 // settings
+
+export const setCurrentSheetId = (currentSheetId) => {
+  log.debug(`action: setCurrentSheetId - ${currentSheetId}`);
+  return {
+    type: 'SET_CURRENT_SHEETID',
+    currentSheetId
+  };
+};
 
 export const setCurrentFileId = (fileId) => {
   log.debug(`action: setCurrentFileId - ${fileId}`);
@@ -344,7 +344,7 @@ export const addScenes = (file, sceneList, clearOldScenes = false, frameSize) =>
     log.debug('action: addScenes');
     if (clearOldScenes) {
       dispatch(clearScenes(file.id));
-      dispatch(clearSheets(file.id, DEFAULT_SHEET_SCENES));
+      dispatch(deleteSheets(file.id, DEFAULT_SHEET_SCENES));
     }
     sceneList.map((scene, index) => {
       const sceneId = uuidV4();
@@ -355,13 +355,13 @@ export const addScenes = (file, sceneList, clearOldScenes = false, frameSize) =>
   };
 };
 
-export const toggleScene = (currentFileId, sheet, sceneId) => {
+export const toggleScene = (currentFileId, sheetId, sceneId) => {
   log.debug(`action: toggleScene - ${sceneId}`);
   return {
     type: 'TOGGLE_SCENE',
     payload: {
       fileId: currentFileId,
-      sheet,
+      sheetId,
       sceneId
     },
   };
@@ -369,7 +369,7 @@ export const toggleScene = (currentFileId, sheet, sceneId) => {
 
 // thumbs
 
-export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), sceneId = undefined, frameSize = 0) => {
+export const addThumb = (file, sheetId, frameNumber, index, thumbId = uuidV4(), sceneId = undefined, frameSize = 0) => {
   return (dispatch) => {
     log.debug('action: addThumb');
     const frameId = uuidV4();
@@ -380,12 +380,12 @@ export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), sc
       log.debug(frames.length);
       if (frames.length === 0) {
         log.debug(`frame number: ${frameNumber} not yet in database - need(s) to be captured`);
-        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheet, [thumbId], [frameId], [newFrameNumberWithinBoundaries], file.useRatio, frameSize);
+        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheetId, [thumbId], [frameId], [newFrameNumberWithinBoundaries], file.useRatio, frameSize);
         log.debug('dispatch: ADD_THUMB');
         return dispatch({
           type: 'ADD_THUMB',
           payload: {
-            sheet,
+            sheetId,
             thumbId,
             frameId,
             frameNumber,
@@ -401,7 +401,7 @@ export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), sc
       dispatch({
         type: 'ADD_THUMB',
         payload: {
-          sheet,
+          sheetId,
           thumbId,
           frameId: frames[0].frameId,
           frameNumber,
@@ -418,55 +418,78 @@ export const addThumb = (file, sheet, frameNumber, index, thumbId = uuidV4(), sc
   };
 };
 
-export const toggleThumb = (currentFileId, sheet, thumbId) => {
+export const toggleThumb = (currentFileId, sheetId, thumbId) => {
   log.debug(`action: toggleThumb - ${thumbId}`);
   return {
     type: 'TOGGLE_THUMB',
     payload: {
       fileId: currentFileId,
-      sheet,
+      sheetId,
       thumbId
     },
   };
 };
 
-export const updateOrder = (currentFileId, sheet, array) => {
+export const updateOrder = (currentFileId, sheetId, array) => {
   log.debug('action: updateOrder');
   return {
     type: 'UPDATE_ORDER',
     payload: {
       fileId: currentFileId,
-      sheet,
+      sheetId,
       array
     },
   };
 };
 
-export const updateFrameNumber = (fileId, sheet, thumbId, frameNumber) => {
+export const updateFrameNumber = (fileId, sheetId, thumbId, frameNumber) => {
   log.debug('action: updateFrameNumber');
   return {
     type: 'UPDATE_FRAMENUMBER_OF_THUMB',
     payload: {
       fileId,
-      sheet,
+      sheetId,
       thumbId,
       frameNumber
     }
   };
 };
 
-export const clearSheets = (fileId = '', sheet = '') => {
-  log.debug('action: clearSheets');
+export const duplicateSheet = (fileId, sheetId, newSheetId) => {
+  log.debug('action: duplicateSheet');
   return {
-    type: 'CLEAR_SHEETS',
+    type: 'DUPLICATE_SHEET',
     payload: {
       fileId,
-      sheet,
+      sheetId,
+      newSheetId,
     }
   };
 };
 
-export const addIntervalSheet = (file, sheet, amount = 20, start = 10, stop = file.frameCount - 1, frameSize) => {
+
+export const deleteSceneSheets = (fileId) => {
+  log.debug('action: deleteSceneSheets');
+  return {
+    type: 'DELETE_SCENE_SHEETS',
+    payload: {
+      fileId,
+    }
+  };
+};
+
+export const deleteSheets = (fileId = '', sheetId = '') => {
+  log.debug('action: deleteSheets');
+  return {
+    type: 'DELETE_SHEETS',
+    payload: {
+      fileId,
+      sheetId,
+    }
+  };
+};
+
+export const addIntervalSheet = (file, sheetId, amount = 20, start = 10, stop = file.frameCount - 1, frameSize) => {
   return (dispatch) => {
     log.debug('action: addIntervalSheet');
 
@@ -490,12 +513,12 @@ export const addIntervalSheet = (file, sheet, amount = 20, start = 10, stop = fi
     const frameNumberArray = Array.from(Array(newAmount).keys())
       .map(x => mapRange(x, 0, newAmount - 1, startWithBoundaries, stopWithBoundaries, true));
     // log.debug(frameNumberArray);
-    dispatch(clearSheets(file.id, sheet));
-    return dispatch(addThumbs(file, sheet, frameNumberArray, frameSize));
+    dispatch(deleteSheets(file.id, sheetId));
+    return dispatch(addThumbs(file, sheetId, frameNumberArray, frameSize));
   };
 };
 
-export const addThumbs = (file, sheet, frameNumberArray, frameSize = 0) => {
+export const addThumbs = (file, sheetId, frameNumberArray, frameSize = 0) => {
   return (dispatch) => {
     log.debug('action: addThumbs');
 
@@ -532,12 +555,12 @@ export const addThumbs = (file, sheet, frameNumberArray, frameSize = 0) => {
         // add new thumbs
         const frameIdArray = filteredArray.map(() => uuidV4());
         const thumbIdArray = filteredArray.map(() => uuidV4());
-        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheet, thumbIdArray, frameIdArray, filteredArray, file.useRatio, frameSize);
+        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheetId, thumbIdArray, frameIdArray, filteredArray, file.useRatio, frameSize);
         log.debug('dispatch: ADD_THUMBS');
         dispatch({
           type: 'ADD_THUMBS',
           payload: {
-            sheet,
+            sheetId,
             thumbIdArray,
             frameIdArray,
             frameNumberArray: filteredArray,
@@ -557,7 +580,7 @@ export const addThumbs = (file, sheet, frameNumberArray, frameSize = 0) => {
         dispatch({
           type: 'ADD_THUMBS',
           payload: {
-            sheet,
+            sheetId,
             thumbIdArray: thumbIdArray2,
             frameIdArray: alreadyExistingFrameIdsArray,
             frameNumberArray: alreadyExistingFrameNumbersArray,
@@ -574,7 +597,7 @@ export const addThumbs = (file, sheet, frameNumberArray, frameSize = 0) => {
   };
 };
 
-export const changeThumb = (sheet, file, thumbId, newFrameNumber, frameSize = 0) => {
+export const changeThumb = (sheetId, file, thumbId, newFrameNumber, frameSize = 0) => {
   return (dispatch) => {
     log.debug(`action: changeThumb - ${newFrameNumber}`);
     const newFrameId = uuidV4();
@@ -583,12 +606,12 @@ export const changeThumb = (sheet, file, thumbId, newFrameNumber, frameSize = 0)
     imageDB.frameList.where('[fileId+frameNumber]').equals([file.id, newFrameNumberWithinBoundaries]).toArray().then((frames) => {
       if (frames.length === 0) {
         log.debug(`frame number: ${newFrameNumber} not yet in database - need(s) to be captured`);
-        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheet, [thumbId], [newFrameId], [newFrameNumberWithinBoundaries], file.useRatio, frameSize);
+        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheetId, [thumbId], [newFrameId], [newFrameNumberWithinBoundaries], file.useRatio, frameSize);
         log.debug('dispatch: CHANGE_THUMB');
         return dispatch({
           type: 'CHANGE_THUMB',
           payload: {
-            sheet,
+            sheetId,
             newFrameId,
             thumbId,
             newFrameNumber: newFrameNumberWithinBoundaries,
@@ -601,7 +624,7 @@ export const changeThumb = (sheet, file, thumbId, newFrameNumber, frameSize = 0)
       return dispatch({
         type: 'CHANGE_THUMB',
         payload: {
-          sheet,
+          sheetId,
           newFrameId: frames[0].frameId,
           thumbId,
           newFrameNumber: frames[0].frameNumber,
@@ -612,16 +635,6 @@ export const changeThumb = (sheet, file, thumbId, newFrameNumber, frameSize = 0)
     .catch((err) => {
       log.error(err);
     });
-  };
-};
-
-export const deleteSceneSheets = (fileId) => {
-  log.debug('action: deleteSceneSheets');
-  return {
-    type: 'DELETE_SCENE_SHEETS',
-    payload: {
-      fileId,
-    }
   };
 };
 
@@ -638,13 +651,14 @@ export const removeMovieListItem = (fileId) => {
   };
 };
 
-export const updateFileColumnCount = (fileId, columnCount) => {
+export const updateSheetColumnCount = (fileId, sheetId, columnCount) => {
   return (dispatch) => {
-    log.debug(`action: updateFileColumnCount - ${columnCount}`);
+    log.debug(`action: updateSheetColumnCount - ${columnCount}`);
     dispatch({
-      type: 'UPDATE_COLUMNCOUNT_OF_MOVIE_LIST_ITEM',
+      type: 'UPDATE_SHEET_COLUMNCOUNT',
       payload: {
         fileId,
+        sheetId,
         columnCount,
       }
     });

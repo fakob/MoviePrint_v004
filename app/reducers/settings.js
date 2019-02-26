@@ -6,6 +6,8 @@ const settings = (state = {}, action) => {
       return { ...state, emailAddress: action.emailAddress };
     case 'SET_CURRENT_FILEID':
       return { ...state, currentFileId: action.fileId };
+    case 'SET_CURRENT_SHEETID':
+      return { ...state, currentSheetId: action.currentSheetId };
     case 'SET_DEFAULT_THUMB_COUNT':
       return { ...state, defaultThumbCount: action.defaultThumbCount };
     case 'SET_DEFAULT_COLUMN_COUNT':

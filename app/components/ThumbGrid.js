@@ -303,8 +303,7 @@ class ThumbGrid extends Component {
     }
     const thumbWidth = this.props.scaleValueObject.newThumbWidth;
 
-    const isScene = this.props.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1 &&
-      this.props.defaultSheet.indexOf(SHEET_TYPE.INTERVAL) === -1;
+    const { isSheetTypeInterval } = this.props;
     const hoverThumbIndex = thumbArray.findIndex(thumb => thumb.thumbId === this.state.controllersVisible);
     const isHidden = hoverThumbIndex !== -1 ? thumbArray[hoverThumbIndex].hidden : undefined;
     // console.log(this.thumbGridDivRef !== null ? this.thumbGridDivRef.getBoundingClientRect() : 'not set yet')
@@ -404,7 +403,7 @@ class ThumbGrid extends Component {
                 }}
               onErrorThumb={() => this.props.onErrorThumb(
                   this.props.file,
-                  this.props.defaultSheet,
+                  this.props.currentSheetId,
                   thumb.thumbId,
                   thumb.frameId)
                 }
@@ -427,7 +426,7 @@ class ThumbGrid extends Component {
               height: `${(thumbWidth * this.props.scaleValueObject.aspectRatioInv)}px`,
             }}
           >
-              {isScene && <Popup
+              {!isSheetTypeInterval && <Popup
                 trigger={
                   <button
                     data-tid={`ExitThumbBtn_${this.state.controllersVisible}`}

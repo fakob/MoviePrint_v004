@@ -131,7 +131,7 @@ class WorkerApp extends Component {
                     thumbCount={this.state.sentData.file.thumbCount}
 
                     defaultView={VIEW.GRIDVIEW}
-                    defaultSheet={this.state.sentData.defaultSheet || this.state.sentData.visibilitySettings.defaultSheet}
+                    currentSheetId={this.state.sentData.currentSheetId || this.state.sentData.settings.currentSheetId}
                     scaleValueObject={this.state.sentData.scaleValueObject}
                     moviePrintWidth={this.state.sentData.moviePrintWidth}
                     keyObject={{}}

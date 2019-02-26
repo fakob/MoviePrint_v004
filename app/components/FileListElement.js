@@ -1,19 +1,31 @@
 // @flow
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Menu, Icon, Popup, Button } from 'semantic-ui-react';
 import { truncate, truncatePath, frameCountToTimeCode, formatBytes } from '../utils/utils';
 import styles from './FileList.css';
 import transparent from '../img/Thumb_TRANSPARENT.png';
 
 const FileListElement = ({
   id, frameCount, fps, width, height, name, path,
-  size, objectUrl, onClick, currentFileId, sheetsObject, onSheetClick, currentSheet
+  size, objectUrl, onClick, currentFileId, sheetsObject, onSheetClick, currentSheetId,
+  onDuplicateSheetClick, onDeleteSheetClick
 }) => {
   const sheetsArray = Object.getOwnPropertyNames(sheetsObject);
 
-  function onSheetClickWithStop(e, sheet) {
+  function onSheetClickWithStop(e, sheetId) {
     e.stopPropagation();
-    onSheetClick(sheet);
+    onSheetClick(sheetId);
+  }
+
+  function onDuplicateSheetClickWithStop(e, fileId, sheetId) {
+    e.stopPropagation();
+    onDuplicateSheetClick(fileId, sheetId);
+  }
+
+  function onDeleteSheetClickWithStop(e, fileId, sheetId) {
+    e.stopPropagation();
+    onDeleteSheetClick(fileId, sheetId);
   }
 
   return (
@@ -57,12 +69,44 @@ const FileListElement = ({
       <ul
         className={`${styles.SheetList}`}
       >
-        {(currentFileId === id) && sheetsArray.map(sheet => (
+        {(currentFileId === id) && sheetsArray.map((sheetId, index) => (
           <li
-            onClick={e => onSheetClickWithStop(e, sheet)}
-            className={`${(currentSheet === sheet) ? styles.SheetHighlight : ''}`}
+            key={sheetId}
+            index={index}
+            data-tid={`sheetListItem_${id}`}
+            onClick={e => onSheetClickWithStop(e, sheetId)}
+            className={`${styles.SheetListItem} ${(currentSheetId === sheetId) ? styles.SheetHighlight : ''}`}
           >
-            { sheet }
+            { sheetId }
+            <Popup
+              inverted
+              hoverable
+              position='bottom center'
+              style={{
+                boxShadow: '0 0 40px rgb(0,0,0,0.5)'
+                }}
+              trigger={
+                <Icon
+                  name='ellipsis vertical'
+                  className={styles.overflow}
+                />
+              }
+            >
+            <Menu
+              inverted
+              secondary
+              vertical
+            >
+              <Menu.Item
+                name='duplicate'
+                onClick={e => onDuplicateSheetClickWithStop(e, id, sheetId)}
+              />
+              <Menu.Item
+                name='delete'
+                onClick={e => onDeleteSheetClickWithStop(e, id, sheetId)}
+              />
+              </Menu>
+            </Popup>
           </li>
         ))}
       </ul>

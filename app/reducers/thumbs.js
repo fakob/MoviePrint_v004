@@ -59,13 +59,32 @@ const thumb = (state = {}, action, index) => {
 
 const sheetsByFileId = (state = {}, action) => {
   switch (action.type) {
+    // case 'ADD_SHEET': {
+    //   log.debug(action.payload);
+    //   log.debug(state);
+    //
+    //   return {
+    //     ...state,
+    //     [action.payload.fileId]: {
+    //       ...state[action.payload.fileId],
+    //       [action.payload.sheetId]: {
+    //         // conditional adding of properties
+    //         ...(state[action.payload.fileId] === undefined ?
+    //           {} :
+    //           state[action.payload.fileId][action.payload.sheetId]
+    //         ),
+    //         thumbsArray: combinedArrayReordered
+    //       }
+    //     }
+    //   };
+    // }
     case 'ADD_THUMB': {
       // load the current thumbs array, if it does not exist it stays empty
       log.debug(action.payload);
       log.debug(state);
       let currentArray = [];
-      if (state[action.payload.fileId] && state[action.payload.fileId][action.payload.sheet]) {
-        currentArray = state[action.payload.fileId][action.payload.sheet].thumbsArray.slice();
+      if (state[action.payload.fileId] && state[action.payload.fileId][action.payload.sheetId]) {
+        currentArray = state[action.payload.fileId][action.payload.sheetId].thumbsArray.slice();
       }
       currentArray.splice(action.payload.index, 0, action.payload);
       const combinedArrayReordered = currentArray.map((t, index) => thumb(t, action, index));
@@ -73,11 +92,11 @@ const sheetsByFileId = (state = {}, action) => {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          [action.payload.sheet]: {
+          [action.payload.sheetId]: {
             // conditional adding of properties
             ...(state[action.payload.fileId] === undefined ?
               {} :
-              state[action.payload.fileId][action.payload.sheet]
+              state[action.payload.fileId][action.payload.sheetId]
             ),
             thumbsArray: combinedArrayReordered
           }
@@ -89,8 +108,10 @@ const sheetsByFileId = (state = {}, action) => {
       log.debug(action.payload);
       log.debug(state);
       let currentArray = [];
-      if (state[action.payload.fileId] && state[action.payload.fileId][action.payload.sheet]) {
-        currentArray = state[action.payload.fileId][action.payload.sheet].thumbsArray.slice();
+      if (state[action.payload.fileId] &&
+        state[action.payload.fileId][action.payload.sheetId] &&
+        state[action.payload.fileId][action.payload.sheetId].thumbsArray) {
+        currentArray = state[action.payload.fileId][action.payload.sheetId].thumbsArray.slice();
       }
 
       // create new thumbs array
@@ -109,11 +130,11 @@ const sheetsByFileId = (state = {}, action) => {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          [action.payload.sheet]: {
+          [action.payload.sheetId]: {
             // conditional adding of properties
             ...(state[action.payload.fileId] === undefined ?
               {} :
-              state[action.payload.fileId][action.payload.sheet]
+              state[action.payload.fileId][action.payload.sheetId]
             ),
             thumbsArray: reIndexedArray
           }
@@ -125,9 +146,9 @@ const sheetsByFileId = (state = {}, action) => {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          [action.payload.sheet]: {
-            ...state[action.payload.fileId][action.payload.sheet],
-            thumbsArray: state[action.payload.fileId][action.payload.sheet].thumbsArray.map((t, index) =>
+          [action.payload.sheetId]: {
+            ...state[action.payload.fileId][action.payload.sheetId],
+            thumbsArray: state[action.payload.fileId][action.payload.sheetId].thumbsArray.map((t, index) =>
               thumb(t, action)
             )
           }
@@ -138,9 +159,9 @@ const sheetsByFileId = (state = {}, action) => {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          [action.payload.sheet]: {
-            ...state[action.payload.fileId][action.payload.sheet],
-            thumbsArray: state[action.payload.fileId][action.payload.sheet].thumbsArray.map((t, index) =>
+          [action.payload.sheetId]: {
+            ...state[action.payload.fileId][action.payload.sheetId],
+            thumbsArray: state[action.payload.fileId][action.payload.sheetId].thumbsArray.map((t, index) =>
               thumb(t, action)
             )
           }
@@ -151,9 +172,9 @@ const sheetsByFileId = (state = {}, action) => {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          [action.payload.sheet]: {
-            ...state[action.payload.fileId][action.payload.sheet],
-            thumbsArray: state[action.payload.fileId][action.payload.sheet].thumbsArray.map(t =>
+          [action.payload.sheetId]: {
+            ...state[action.payload.fileId][action.payload.sheetId],
+            thumbsArray: state[action.payload.fileId][action.payload.sheetId].thumbsArray.map(t =>
               thumb(t, action)
             )
           }
@@ -164,15 +185,43 @@ const sheetsByFileId = (state = {}, action) => {
         ...state,
         [action.payload.fileId]: {
           ...state[action.payload.fileId],
-          [action.payload.sheet]: {
-            ...state[action.payload.fileId][action.payload.sheet],
-            thumbsArray: state[action.payload.fileId][action.payload.sheet].thumbsArray.map((t, index) =>
+          [action.payload.sheetId]: {
+            ...state[action.payload.fileId][action.payload.sheetId],
+            thumbsArray: state[action.payload.fileId][action.payload.sheetId].thumbsArray.map((t, index) =>
               thumb(t, action, index)
             )
           }
         }
       };
-    case 'CLEAR_SHEETS':
+    case 'DUPLICATE_SHEET':
+      const sheetToDuplicate = state[action.payload.fileId][action.payload.sheetId];
+      const duplicatedSheet = Object.assign({}, sheetToDuplicate);
+      return {
+        ...state,
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          [action.payload.newSheetId]: {
+            ...duplicatedSheet,
+          }
+        }
+      };
+    case 'UPDATE_SHEET_COLUMNCOUNT':
+      return {
+        ...state,
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          [action.payload.sheetId]: {
+            // conditional adding of properties
+            // only add when fileId exists
+            ...(state[action.payload.fileId] === undefined ?
+              {} :
+              state[action.payload.fileId][action.payload.sheetId]
+            ),
+            columnCount: action.payload.columnCount,
+          }
+        }
+      };
+    case 'DELETE_SHEETS':
       // if fileId is an empty string, then clear all sheets
       // else only clear sheets of specific fileId
       // console.log(action.payload);
@@ -185,16 +234,16 @@ const sheetsByFileId = (state = {}, action) => {
         return state;
       }
       const copyOfState = Object.assign({}, state);
-      if (action.payload.sheet === '') {
+      if (action.payload.sheetId === '') {
         // sheet is empty, so delete whole fileId
         delete copyOfState[action.payload.fileId];
         return copyOfState;
       }
-      if (state[action.payload.fileId][action.payload.sheet] === undefined) {
+      if (state[action.payload.fileId][action.payload.sheetId] === undefined) {
         // sheet does not exist, so it does not have to be deleted
         return state;
       }
-      delete copyOfState[action.payload.fileId][action.payload.sheet];
+      delete copyOfState[action.payload.fileId][action.payload.sheetId];
       return copyOfState;
     case 'DELETE_SCENE_SHEETS':
       // console.log(action.payload);

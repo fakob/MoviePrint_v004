@@ -34,12 +34,12 @@ class SortedVisibleSceneGrid extends Component {
   onSortEnd = ({ oldIndex, newIndex }) => {
     const { store } = this.context;
     const newOrderedThumbs = arrayMove(store.getState().undoGroup.present
-      .sheetsByFileId[store.getState().undoGroup.present.settings.currentFileId][store.getState().visibilitySettings.defaultSheet].thumbsArray,
+      .sheetsByFileId[store.getState().undoGroup.present.settings.currentFileId][store.getState().settings.currentSheetId].thumbsArray,
       oldIndex,
       newIndex);
     store.dispatch(updateOrder(
       store.getState().undoGroup.present.settings.currentFileId,
-      store.getState().visibilitySettings.defaultSheet,
+      store.getState().settings.currentSheetId,
       newOrderedThumbs));
   };
 
@@ -101,7 +101,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     onToggleClick: (fileId, sceneId) => {
-      dispatch(toggleScene(fileId, ownProps.visibilitySettings.defaultSheet, sceneId));
+      dispatch(toggleScene(fileId, ownProps.settings.currentSheetId, sceneId));
     },
   };
 };

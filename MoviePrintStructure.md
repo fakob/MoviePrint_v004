@@ -62,7 +62,7 @@
 * ipc receive-get-in-and-outpoint
 	* dispatch updateInOutPoint
 	* dispatch setCurrentFileId if first
-	* dispatch clearSheets
+	* dispatch deleteSheets
 	* dispatch addIntervalSheet
 		* dispatch addThumbs
 			* check DB if thumb is already grabbed
@@ -119,7 +119,6 @@
 * showSettings
 * defaultView
 * defaultSheet
-* defaultSheetType
 
 ##### settings (in undoGroup)
 * many different settings

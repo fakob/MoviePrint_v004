@@ -7,7 +7,7 @@ import Tooltip from 'rc-tooltip';
 import { Button, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List, Message, Popup } from 'semantic-ui-react';
 import styles from './Settings.css';
 import stylesPop from '../components/Popup.css';
-import { frameCountToMinutes } from '../utils/utils';
+import { frameCountToMinutes, getSheetType } from '../utils/utils';
 import {
   MENU_HEADER_HEIGHT,
   MENU_FOOTER_HEIGHT,
@@ -195,6 +195,7 @@ class SettingsList extends Component {
       columnCountTemp,
       file,
       fileScanRunning,
+      isSheetTypeInterval,
       onApplyNewGridClick,
       onChangeColumn,
       onChangeColumnAndApply,
@@ -225,7 +226,7 @@ class SettingsList extends Component {
         }}
       >
         <Grid padded inverted>
-          { (visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) > -1) &&
+          { !isSheetTypeInterval &&
             <Grid.Row>
               <Grid.Column width={16}>
                 <Statistic inverted size="tiny">
@@ -293,13 +294,13 @@ class SettingsList extends Component {
                     20: '20',
                   }}
                   handle={handle}
-                  onChange={(reCapture && (visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1)) ? onChangeColumn :
+                  onChange={(reCapture && isSheetTypeInterval) ? onChangeColumn :
                     onChangeColumnAndApply}
                 />
               </Grid.Column>
             </Grid.Row>
           }
-          { (visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) &&
+          { isSheetTypeInterval &&
             reCapture &&
             <Grid.Row>
               <Grid.Column width={4}>
@@ -370,7 +371,7 @@ class SettingsList extends Component {
               </Grid.Row> */}
             </Fragment>
           }
-          { (visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) &&
+          { isSheetTypeInterval &&
             <Grid.Row>
               <Grid.Column width={4}>
                 Count
@@ -389,7 +390,7 @@ class SettingsList extends Component {
               </Grid.Column>
             </Grid.Row>
           }
-          { (visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) &&
+          { isSheetTypeInterval &&
             (thumbCount !== thumbCountTemp) &&
             <Grid.Row>
               <Grid.Column width={4} />
@@ -404,7 +405,7 @@ class SettingsList extends Component {
               </Grid.Column>
             </Grid.Row>
           }
-          { (visibilitySettings.defaultSheet.indexOf(SHEET_TYPE.SCENES) === -1) &&
+          { isSheetTypeInterval &&
             <Grid.Row>
               <Grid.Column width={4} />
               <Grid.Column width={12}>

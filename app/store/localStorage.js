@@ -57,8 +57,6 @@ const initialStateJSON = {
     showMovielist: SHOW_MOVIELIST,
     showSettings: SHOW_SETTINGS,
     defaultView: DEFAULT_VIEW,
-    defaultSheet: DEFAULT_SHEET,
-    defaultSheetType: DEFAULT_SHEET_TYPE,
     defaultSheetFit: DEFAULT_SHEET_FIT,
   },
   undoGroup: {
@@ -72,6 +70,7 @@ const initialStateJSON = {
       defaultMarginSliderFactor: DEFAULT_MARGIN_SLIDER_FACTOR,
       defaultBorderRadiusRatio: DEFAULT_BORDER_RADIUS_RATIO,
       defaultHeaderHeightRatio: DEFAULT_HEADER_HEIGHT_RATIO,
+      defaultSheetType: DEFAULT_SHEET_TYPE,
       defaultShowHeader: DEFAULT_SHOW_HEADER,
       defaultShowPathInHeader: DEFAULT_SHOW_PATH_IN_HEADER,
       defaultShowDetailsInHeader: DEFAULT_SHOW_DETAILS_IN_HEADER,

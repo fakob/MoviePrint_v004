@@ -17,13 +17,6 @@ const file = (state = {}, type, payload, index) => {
         posterFrameId: payload[index].posterFrameId,
         columnCount: payload[index].columnCount,
       });
-    case 'UPDATE_COLUMNCOUNT_OF_MOVIE_LIST_ITEM':
-      if (state.id !== payload.fileId) {
-        return state;
-      }
-      return Object.assign({}, state, {
-        columnCount: payload.columnCount,
-      });
     case 'UPDATE_MOVIE_LIST_ITEM_USERATIO':
       if (state.id !== payload.fileId) {
         return state;
@@ -90,10 +83,6 @@ const files = (state = [], { type, payload }) => {
       newArray.splice(indexOfItemToRemove, 1);
       return newArray;
     }
-    case 'UPDATE_COLUMNCOUNT_OF_MOVIE_LIST_ITEM':
-      return state.map((t, index) =>
-        file(t, type, payload, index)
-      );
     case 'UPDATE_MOVIE_LIST_ITEM_USERATIO':
     case 'UPDATE_MOVIE_LIST_ITEM':
     case 'UPDATE_IN_OUT_POINT':

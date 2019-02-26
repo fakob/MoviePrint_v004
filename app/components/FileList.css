@@ -151,3 +151,18 @@ li p {
   background-color: rgba(0, 0, 0, 0.1);
   color: rgba(255, 255, 255, 1) !important;
 }
+
+.overflow {
+  float: right;
+  margin-right: 8px !important;
+  margin-top: 2px !important;
+  display: none !important; /* generally hide, only display on hover. !important to override display value from icon */
+}
+
+.SheetListItem:hover .overflow {
+  display:block !important; /* show overflow only on hover. !important to override display value from overflow */
+}
+
+/*
+.showOverflow {
+} */
