@@ -9,9 +9,14 @@ import transparent from '../img/Thumb_TRANSPARENT.png';
 const FileListElement = ({
   id, frameCount, fps, width, height, name, path,
   size, objectUrl, onClick, currentFileId, sheetsObject, onSheetClick, currentSheetId,
-  onDuplicateSheetClick, onDeleteSheetClick
+  onDuplicateSheetClick, onDeleteSheetClick, onRemoveMovieListItem
 }) => {
   const sheetsArray = Object.getOwnPropertyNames(sheetsObject);
+
+  function onRemoveMovieListItemClickWithStop(e, fileId) {
+    e.stopPropagation();
+    onRemoveMovieListItem(fileId);
+  }
 
   function onSheetClickWithStop(e, sheetId) {
     e.stopPropagation();
@@ -32,8 +37,33 @@ const FileListElement = ({
     <li
       data-tid={`fileListItem_${id}`}
       onClick={onClick}
-      className={(currentFileId === id) ? `${styles.Highlight}` : ''}
+      className={`${styles.FileListItem} ${(currentFileId === id) ? styles.Highlight : ''}`}
     >
+      <Popup
+        inverted
+        hoverable
+        position='bottom center'
+        style={{
+          boxShadow: '0 0 40px rgb(0,0,0,0.5)'
+          }}
+        trigger={
+          <Icon
+            name='ellipsis vertical'
+            className={`${styles.overflow} ${styles.overflowHidden}`}
+          />
+        }
+      >
+      <Menu
+        inverted
+        secondary
+        vertical
+      >
+        <Menu.Item
+          name='remove from list'
+          onClick={e => onRemoveMovieListItemClickWithStop(e, id)}
+        />
+        </Menu>
+      </Popup>
       <div
         className={`${styles.croppedThumb}`}
         style={{
@@ -88,7 +118,7 @@ const FileListElement = ({
               trigger={
                 <Icon
                   name='ellipsis vertical'
-                  className={styles.overflow}
+                  className={`${styles.overflow} ${styles.overflowHidden}`}
                 />
               }
             >

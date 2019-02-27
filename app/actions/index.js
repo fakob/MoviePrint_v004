@@ -478,7 +478,7 @@ export const deleteSceneSheets = (fileId) => {
   };
 };
 
-export const deleteSheets = (fileId = '', sheetId = '') => {
+export const deleteSheets = (fileId = undefined, sheetId = undefined) => {
   log.debug('action: deleteSheets');
   return {
     type: 'DELETE_SHEETS',
@@ -642,11 +642,32 @@ export const changeThumb = (sheetId, file, thumbId, newFrameNumber, frameSize = 
 export const removeMovieListItem = (fileId) => {
   return (dispatch) => {
     log.debug(`action: removeMovieListItem - ${fileId}`);
+
+    // remove from file list
     dispatch({
       type: 'REMOVE_MOVIE_LIST_ITEM',
       payload: {
         fileId
       }
+    });
+
+    // remove fileId from sheetsByFileId
+    dispatch({
+      type: 'DELETE_SHEETS',
+      payload: {
+        fileId
+      }
+    });
+
+
+    // remove frames from indexedDB
+    imageDB.frameList.where('fileId').equals(fileId).delete()
+    .then(deleteCount => {
+      console.log(`Deleted ${deleteCount} objects`);
+      return Promise.resolve(deleteCount);
+    })
+    .catch((err) => {
+      log.error(err);
     });
   };
 };

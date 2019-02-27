@@ -15,15 +15,12 @@ const rootReducer = combineReducers({
     files
   }), {
     filter: excludeAction([
-      // 'UPDATE_OBJECTURL_FROM_POSTERFRAME',
-      // 'UPDATE_OBJECTURLS_FROM_POSTERFRAME'
       // 'UPDATE_MOVIE_LIST_ITEM_USERATIO'
     ]),
     groupBy: groupByActionTypes([
       'UPDATE_MOVIE_LIST_ITEM_USERATIO',
       'UPDATE_FRAMENUMBER_OF_THUMB',
       'UPDATE_OBJECTURL_FROM_THUMBLIST',
-      'UPDATE_OBJECTURL_FROM_POSTERFRAME',
       'UPDATE_SHEET_COLUMNCOUNT',
       'SET_DEFAULT_MARGIN',
       'SET_DEFAULT_SHOW_HEADER',

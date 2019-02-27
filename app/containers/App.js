@@ -274,6 +274,7 @@ class App extends Component {
     this.onSetViewClick = this.onSetViewClick.bind(this);
     this.onSetSheetClick = this.onSetSheetClick.bind(this);
     this.onDuplicateSheetClick = this.onDuplicateSheetClick.bind(this);
+    this.onRemoveMovieListItem = this.onRemoveMovieListItem.bind(this);
     this.onDeleteSheetClick = this.onDeleteSheetClick.bind(this);
     this.onChangeOutputPathClick = this.onChangeOutputPathClick.bind(this);
     this.onOutputFormatClick = this.onOutputFormatClick.bind(this);
@@ -1789,6 +1790,12 @@ class App extends Component {
     store.dispatch(setDefaultThumbInfo(value));
   };
 
+  onRemoveMovieListItem = (fileId) => {
+    const { store } = this.context;
+    store.dispatch(removeMovieListItem(fileId));
+    // store.dispatch(setCurrentSheetId(newSheetId));
+  };
+
   onDuplicateSheetClick = (fileId, sheet) => {
     const { store } = this.context;
     const newSheetId = uuidV4();
@@ -2041,6 +2048,7 @@ class App extends Component {
                         sheetsByFileId={this.props.sheetsByFileId}
                         onSetSheetClick={this.onSetSheetClick}
                         onDuplicateSheetClick={this.onDuplicateSheetClick}
+                        onRemoveMovieListItem={this.onRemoveMovieListItem}
                         onDeleteSheetClick={this.onDeleteSheetClick}
                         currentSheetId={this.props.currentSheetId}
                       />

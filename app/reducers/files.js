@@ -43,27 +43,6 @@ const file = (state = {}, type, payload, index) => {
         fadeInPoint: payload.fadeInPoint,
         fadeOutPoint: payload.fadeOutPoint
       });
-    case 'UPDATE_OBJECTURL_FROM_POSTERFRAME':
-      if (state.posterFrameId !== payload.frameId) {
-        return state;
-      }
-      return Object.assign({}, state, {
-        objectUrl: window.URL.createObjectURL(payload.frame.data)
-      });
-      // return {
-        // objectUrl: window.URL.createObjectURL(payload[index].data)
-      // };
-    case 'UPDATE_OBJECTURLS_FROM_POSTERFRAME':
-      try {
-        return Object.assign({}, state, {
-          objectUrl: window.URL.createObjectURL(
-            payload.frames.filter(obj => obj.frameId === payload.files[index].posterFrameId)[0].data
-          )
-        });
-      } catch (e) {
-        log.error('catch error in UPDATE_OBJECTURLS_FROM_POSTERFRAME', e);
-        return state;
-      }
     default:
       return state;
   }
@@ -87,14 +66,6 @@ const files = (state = [], { type, payload }) => {
     case 'UPDATE_MOVIE_LIST_ITEM':
     case 'UPDATE_IN_OUT_POINT':
       return state.map((t, index) =>
-        file(t, type, payload, index)
-      );
-    case 'UPDATE_OBJECTURL_FROM_POSTERFRAME':
-      return state.map((t, index) =>
-        file(t, type, payload, index)
-      );
-    case 'UPDATE_OBJECTURLS_FROM_POSTERFRAME':
-      return payload.files.map((t, index) =>
         file(t, type, payload, index)
       );
     default:

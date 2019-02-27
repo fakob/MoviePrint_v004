@@ -153,16 +153,29 @@ li p {
 }
 
 .overflow {
-  float: right;
-  margin-right: 8px !important;
+  z-index: 1;
+  position: absolute;
+  right: 0px;
+  margin-right: 16px !important;
   margin-top: 2px !important;
-  display: none !important; /* generally hide, only display on hover. !important to override display value from icon */
 }
 
-.SheetListItem:hover .overflow {
-  display:block !important; /* show overflow only on hover. !important to override display value from overflow */
+.overflowHidden {
+  /* generally hide, only display on hover. !important to override display value from icon */
+  display: none !important;
 }
 
-/*
-.showOverflow {
-} */
+.SheetListItem {
+  position: relative;
+}
+
+.SheetListItem:hover > .overflow {
+  /* show overflow only on hover. !important to override display value from overflow */
+  display:block !important;
+  margin-top: -18px !important;
+}
+
+.FileListItem:hover > .overflow {
+  /* show overflow only on hover. !important to override display value from overflow */
+  display:block !important;
+}

@@ -224,8 +224,8 @@ const sheetsByFileId = (state = {}, action) => {
     case 'DELETE_SHEETS':
       // if fileId is an empty string, then clear all sheets
       // else only clear sheets of specific fileId
-      // console.log(action.payload);
-      if (action.payload.fileId === '') {
+      console.log(action.payload);
+      if (action.payload.fileId === undefined) {
         // fileId is empty, so delete everything
         return {};
       }
@@ -234,7 +234,7 @@ const sheetsByFileId = (state = {}, action) => {
         return state;
       }
       const copyOfState = Object.assign({}, state);
-      if (action.payload.sheetId === '') {
+      if (action.payload.sheetId === undefined) {
         // sheet is empty, so delete whole fileId
         delete copyOfState[action.payload.fileId];
         return copyOfState;
