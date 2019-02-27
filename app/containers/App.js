@@ -82,7 +82,7 @@ import {
   setDefaultTimelineViewSecondsPerRow,
   setDefaultTimelineViewWidthScale,
   setEmailAddress,
-  setNewMovieList,
+  addMoviesToList,
   setCurrentSheetId,
   setSheetFit,
   setView,
@@ -167,7 +167,7 @@ class App extends Component {
       savingMoviePrint: false,
       selectedThumbObject: undefined,
       selectedSceneObject: undefined,
-      // file match needs to be in sync with setNewMovieList() and onDrop() !!!
+      // file match needs to be in sync with addMoviesToList() and onDrop() !!!
       accept: 'video/*,.divx,.mkv,.ogg,.VOB,',
       dropzoneActive: false,
       loadingFirstFile: false,
@@ -202,9 +202,6 @@ class App extends Component {
       filesToPrint: [],
       savingAllMoviePrints: false,
       objectUrlsArray: [],
-      // posterObjectUrlsArray: [],
-      posterframeBase64Array: [],
-      frameBase64Array: [],
       framesToFetch: [],
     };
 
@@ -772,28 +769,6 @@ class App extends Component {
       }
     }
 
-    // // check if state has changed and only then allow setState
-    // const { framesToFetch } = this.state;
-    // if (framesToFetch.length !== prevState.framesToFetch.length) {
-    //   if (framesToFetch.length !== 0) {
-    //     const frameArray = [];
-    //     const posterFrameArray = [];
-    //     framesToFetch.map(item => {
-    //       if (item.isPosterFrame) {
-    //         posterFrameArray.push(getFrameByFrameId(item.frameId));
-    //       } else {
-    //         frameArray.push(getFrameByFrameId(item.frameId));
-    //       }
-    //       return undefined;
-    //     });
-    //     this.setState(prevState1 => ({
-    //       posterframeBase64Array: [...prevState1.posterframeBase64Array, ...posterFrameArray],
-    //       frameBase64Array: [...prevState1.frameBase64Array, ...frameArray],
-    //       framesToFetch: [],
-    //     }));
-    //   }
-    // }
-
     // updatecontainerWidthAndHeight checks if the containerWidth or height has changed
     // and if so calls updateScaleValue
     this.updatecontainerWidthAndHeight();
@@ -900,11 +875,6 @@ class App extends Component {
             // this.recaptureAllFrames();
             break;
           case 68: // press 'd'
-            const allFrames = getAllFrames();
-            this.setState({
-              frameBase64Array: allFrames,
-            })
-            console.log(allFrames);
             break;
           default:
         }
@@ -960,26 +930,29 @@ class App extends Component {
   }
 
   onDrop(files) {
+    // when user presses alt key on drop then clear list and add movies
+    const clearList = this.state.keyObject.altKey;
     this.setState({
       dropzoneActive: false,
       loadingFirstFile: true
     });
     const { store } = this.context;
-    const { settings } = store.getState().undoGroup.present;
     log.debug('Files where dropped');
     log.debug(files);
-    // file match needs to be in sync with setNewMovieList() and accept !!!
+    // file match needs to be in sync with addMoviesToList() and accept !!!
     if (Array.from(files).some(file => (file.type.match('video.*') ||
       file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
       // store.dispatch(setCurrentSheetId(DEFAULT_SHEET_INTERVAL));
       store.dispatch(setView(VIEW.GRIDVIEW));
-      store.dispatch(setNewMovieList(files, settings)).then((response) => {
+      store.dispatch(addMoviesToList(files, clearList)).then((response) => {
         this.setState({
           filesToLoad: response,
-          objectUrlsArray: [], // clear objectUrlsArray
-          frameBase64Array: [], // clear frameBase64Array
-          posterframeBase64Array: [], // clear posterframeBase64Array
         });
+        if (clearList) {
+          this.setState({
+            objectUrlsArray: [], // clear objectUrlsArray
+          });
+        }
         log.debug(response);
         return response;
       }).catch((error) => {
@@ -1898,7 +1871,7 @@ class App extends Component {
   render() {
     const { accept, dropzoneActive } = this.state;
     const { store } = this.context;
-    const { frameBase64Array, posterframeBase64Array, objectUrlsArray } = this.state;
+    const { objectUrlsArray } = this.state;
     const { currentFileId, allThumbs, files, sheetsByFileId, settings, visibilitySettings } = this.props;
 
     const sheetType = getSheetType(sheetsByFileId, currentFileId, this.props.currentSheetId, settings)
@@ -2489,7 +2462,12 @@ class App extends Component {
                     <div
                       className={styles.dropzoneshowContent}
                     >
-                      {`${isDragAccept ? 'DROP' : ''} ${isDragReject ? 'NOT ALLOWED' : ''}`}
+                      {`${isDragAccept ? (this.state.keyObject.altKey ? 'CLEAR LIST AND ADD MOVIES' : 'ADD MOVIES TO LIST') : ''} ${isDragReject ? 'NOT ALLOWED' : ''}`}
+                      <div
+                        className={styles.dropZoneSubline}
+                      >
+                        {`${isDragAccept ? (this.state.keyObject.altKey ? '' : 'PRESS ALT TO CLEAR LIST AND ADD MOVIES') : ''}`}
+                      </div>
                     </div>
                   </div>
                 }

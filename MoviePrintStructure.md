@@ -45,7 +45,7 @@
 
 # Action processes
 ##### on drop
-* dispatch setNewMovieList
+* dispatch addMoviesToList
 	* dispatch CLEAR_CURRENT_FILEID
 	* dispatch CLEAR_MOVIE_LIST
 	* dispatch LOAD_MOVIE_LIST_FROM_DROP

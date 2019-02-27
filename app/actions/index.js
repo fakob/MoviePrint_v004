@@ -6,9 +6,12 @@ import {
   DEFAULT_SHEET_SCENES,
 } from '../utils/constants';
 import {
+  deleteTableFramelist,
+} from '../utils/utilsForIndexedDB';
+import {
   clearTableFrameScanList,
   createTableFrameScanList,
-  // createTableMovielist,
+  deleteFileIdFromFrameScanList,
   // insertMovie,
 } from '../utils/utilsForSqlite';
 
@@ -659,6 +662,8 @@ export const removeMovieListItem = (fileId) => {
       }
     });
 
+    // remove entries from frameScanList sqlite3
+    deleteFileIdFromFrameScanList(fileId);
 
     // remove frames from indexedDB
     imageDB.frameList.where('fileId').equals(fileId).delete()
@@ -730,9 +735,11 @@ export const updateInOutPoint = (fileId, fadeInPoint, fadeOutPoint) => {
   };
 };
 
-export const setNewMovieList = (files, settings) => {
-  return (dispatch, getState) => {
-    log.debug('action: setNewMovieList');
+export const addMoviesToList = (files, clearList) => {
+  return (dispatch) => {
+    log.debug('action: addMoviesToList');
+
+    // create array with new files
     const newFiles = [];
     Object.keys(files).map((key) => {
       // file match need(s) to be in sync with onDrop() and accept in App.js !!!
@@ -756,17 +763,26 @@ export const setNewMovieList = (files, settings) => {
       // return a copy of the array
       return newFiles.slice();
     });
+    if (clearList) {
+      dispatch({
+        type: 'CLEAR_CURRENT_FILEID',
+      });
+      log.debug('dispatch: CLEAR_CURRENT_FILEID');
+      dispatch({
+        type: 'CLEAR_MOVIE_LIST',
+      });
+      log.debug('dispatch: CLEAR_MOVIE_LIST');
+
+      clearTableFrameScanList();
+      log.debug('clear fileId from frameScanList in sqlite3');
+
+      deleteTableFramelist();
+      log.debug('clear frameList in indexedDB');
+    }
+
     dispatch({
-      type: 'CLEAR_CURRENT_FILEID',
-    });
-    log.debug('dispatch: CLEAR_CURRENT_FILEID');
-    dispatch({
-      type: 'CLEAR_MOVIE_LIST',
-    });
-    log.debug('dispatch: CLEAR_MOVIE_LIST');
-    clearTableFrameScanList();
-    dispatch({
-      type: 'LOAD_MOVIE_LIST_FROM_DROP',
+      type: 'ADD_MOVIE_LIST_ITEMS',
+      // type: 'LOAD_MOVIE_LIST_FROM_DROP',
       payload: newFiles,
     });
     return Promise.resolve(newFiles);

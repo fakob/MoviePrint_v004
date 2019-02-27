@@ -73,6 +73,10 @@
   font-family: 'Franchise', 'Roboto Condensed';
 }
 
+.dropZoneSubline {
+  font-size: 40px;
+}
+
 .SidebarPushable {
   /*overflow-y: scroll;*/
   /*overflow-x: hidden;*/
