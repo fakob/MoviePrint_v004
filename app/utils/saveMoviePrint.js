@@ -5,13 +5,13 @@ import { getFilePathObject, getMimeType, saveBlob } from './utils';
 import saveThumb from './saveThumb';
 
 const saveMoviePrint = (
-  elementId, exportPath, file, scale, outputFormat, overwrite,
+  elementId, exportPath, file, sheetId, scale, outputFormat, overwrite,
   saveIndividualThumbs = false, thumbs
 ) => {
   log.debug(file);
   const node = document.getElementById(elementId);
-
-  const newFilePathObject = getFilePathObject(file.name, '-MoviePrint', outputFormat, exportPath, overwrite);
+  const fileNameWithSheetName = `${file.name}-${sheetId}`;
+  const newFilePathObject = getFilePathObject(fileNameWithSheetName, '-MoviePrint', outputFormat, exportPath, overwrite);
   const newFilePathAndName = pathR.join(
     newFilePathObject.dir,
     newFilePathObject.base
@@ -28,7 +28,7 @@ const saveMoviePrint = (
     scale,
   }).then((canvas) => {
     canvas.toBlob((blob) => {
-      saveBlob(blob, file.id, newFilePathAndName);
+      saveBlob(blob, sheetId, newFilePathAndName);
     }, getMimeType(outputFormat), qualityArgument);
   });
 

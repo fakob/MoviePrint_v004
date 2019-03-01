@@ -21,12 +21,8 @@ import {
 import {
   getBase64Object,
 } from '../utils/utilsForOpencv';
-import {
-  getFramesByFrameIdArray,
-} from '../utils/utilsForSqlite';
 
 const { ipcRenderer } = require('electron');
-const opencv = require('opencv4nodejs');
 
 // const moviePrintDB = new Database('./db/moviePrint.db', { verbose: console.log });
 
@@ -79,6 +75,7 @@ class WorkerApp extends Component {
         sentData.elementId,
         outputPath,
         sentData.file,
+        sentData.sheetId,
         1, // scale
         sentData.settings.defaultOutputFormat,
         sentData.settings.defaultSaveOptionOverwrite,

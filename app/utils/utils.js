@@ -156,12 +156,12 @@ export const formatBytes = (bytes, decimals) => {
   return `${parseFloat((bytes / (k ** i)).toFixed(dm))} ${sizes[i]}`;
 };
 
-export const saveBlob = (blob, fileId, fileName) => {
+export const saveBlob = (blob, sheetId, fileName) => {
   const reader = new FileReader();
   reader.onload = () => {
     if (reader.readyState === 2) {
       const buffer = Buffer.from(reader.result);
-      ipcRenderer.send('send-save-file', fileId, fileName, buffer, true);
+      ipcRenderer.send('send-save-file', sheetId, fileName, buffer, true);
       log.debug(`Saving ${JSON.stringify({ fileName, size: blob.size })}`);
     }
   };
@@ -347,6 +347,20 @@ export const getSheetId = (sheetsByFileId, fileId) => {
   }
   // return first sheetId in array
   return sheetIdArray[0];
+};
+
+export const getSheetIdArray = (sheetsByFileId, fileId) => {
+  if (sheetsByFileId[fileId] === undefined) {
+    // there is no file yet, so return undefined
+    return undefined;
+  }
+  const sheetIdArray = Object.getOwnPropertyNames(sheetsByFileId[fileId]);
+  if (sheetIdArray.length === 0) {
+    // there are no sheetIds yet, so return undefined
+    return undefined;
+  }
+  // return first sheetId in array
+  return sheetIdArray;
 };
 
 export const getSheetType = (sheetsByFileId, fileId, sheetId, settings) => {

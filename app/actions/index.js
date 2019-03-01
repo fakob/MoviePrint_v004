@@ -470,16 +470,15 @@ export const duplicateSheet = (fileId, sheetId, newSheetId) => {
   };
 };
 
-
-export const deleteSceneSheets = (fileId) => {
-  log.debug('action: deleteSceneSheets');
-  return {
-    type: 'DELETE_SCENE_SHEETS',
-    payload: {
-      fileId,
-    }
-  };
-};
+// export const deleteSceneSheets = (fileId) => {
+//   log.debug('action: deleteSceneSheets');
+//   return {
+//     type: 'DELETE_SCENE_SHEETS',
+//     payload: {
+//       fileId,
+//     }
+//   };
+// };
 
 export const deleteSheets = (fileId = undefined, sheetId = undefined) => {
   log.debug('action: deleteSheets');

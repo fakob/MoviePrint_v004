@@ -29,6 +29,7 @@ import { getLowestFrame,
   getVisibleThumbs,
   getColumnCount,
   getSheetId,
+  getSheetIdArray,
   getSheetType,
   getThumbsCount,
   getMoviePrintColor,
@@ -199,7 +200,7 @@ class App extends Component {
         }]
       },
       fileScanRunning: false,
-      filesToPrint: [],
+      sheetsToPrint: [],
       savingAllMoviePrints: false,
       objectUrlsArray: [],
       framesToFetch: [],
@@ -481,14 +482,14 @@ class App extends Component {
         thumb.thumbId === thumbId).frameNumber !== frameNumber) {
         store.dispatch(updateFrameNumber(fileId, sheetId, thumbId, frameNumber));
       }
-      // check if this is the lastThumb of the filesToPrint when savingAllMoviePrints
+      // check if this is the lastThumb of the sheetsToPrint when savingAllMoviePrints
       // if so change its status from gettingThumbs to readyForPrinting
       if (lastThumb && this.state.savingAllMoviePrints
-        && this.state.filesToPrint.length > 0) {
-          if (this.state.filesToPrint.findIndex(item => item.fileId === fileId && item.status === 'gettingThumbs' ) > -1) {
-            // log.debug(this.state.filesToPrint);
+        && this.state.sheetsToPrint.length > 0) {
+          if (this.state.sheetsToPrint.findIndex(item => item.fileId === fileId && item.status === 'gettingThumbs' ) > -1) {
+            // log.debug(this.state.sheetsToPrint);
             // state should be immutable, therefor
-            const filesToPrint = this.state.filesToPrint.map((item) => {
+            const sheetsToPrint = this.state.sheetsToPrint.map((item) => {
               if(item.fileId !== fileId) {
                 // This isn't the item we care about - keep it as-is
                 return item;
@@ -499,9 +500,9 @@ class App extends Component {
                 status: 'readyForPrinting'
               };
             });
-            // log.debug(filesToPrint);
+            // log.debug(sheetsToPrint);
             this.setState({
-              filesToPrint,
+              sheetsToPrint,
             });
           }
         }
@@ -536,11 +537,12 @@ class App extends Component {
           1000
         ); // adding timeout to prevent clicking multiple times
       } else if (this.state.savingAllMoviePrints) {
-        // check if the file which was saved has been printing, then set status to done
-        if (this.state.filesToPrint.findIndex(item => item.status === 'printing' ) > -1) {
-          // log.debug(this.state.filesToPrint);
+        // check if the sheet which was saved has been printing, then set status to done
+        console.log(this.state.sheetsToPrint);
+        if (this.state.sheetsToPrint.findIndex(item => item.status === 'printing' ) > -1) {
+          console.log(this.state.sheetsToPrint);
           // state should be immutable, therefor
-          const filesToPrint = this.state.filesToPrint.map((item) => {
+          const sheetsToPrint = this.state.sheetsToPrint.map((item) => {
             if(item.status !== 'printing') {
               // This isn't the item we care about - keep it as-is
               return item;
@@ -551,13 +553,13 @@ class App extends Component {
               status: 'done'
             };
           });
-          // log.debug(filesToPrint);
+          // log.debug(sheetsToPrint);
           this.setState({
-            filesToPrint,
+            sheetsToPrint,
           });
           // check if all files have been printed, then set savingAllMoviePrints to false
-          if (this.state.filesToPrint.filter(item => item.status === 'done').length ===
-            this.state.filesToPrint.filter(item => item.status !== 'undefined').length) {
+          if (this.state.sheetsToPrint.filter(item => item.status === 'done').length ===
+            this.state.sheetsToPrint.filter(item => item.status !== 'undefined').length) {
               this.setState({ savingAllMoviePrints: false });
           }
         }
@@ -659,43 +661,47 @@ class App extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     // log.debug('App.js componentDidUpdate');
+    const { filesToLoad, sheetsToPrint } = this.state;
+    const { files, file, settings, visibilitySettings, sheetsByFileId } = this.props;
 
-    if ((this.state.filesToLoad.length !== 0) &&
-    (prevState.filesToLoad.length !== this.state.filesToLoad.length)) {
+    if ((filesToLoad.length !== 0) &&
+    (prevState.filesToLoad.length !== filesToLoad.length)) {
       const timeBefore = Date.now();
       this.setState({
         timeBefore
       });
-      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', this.state.filesToLoad[0].id, this.state.filesToLoad[0].path, this.state.filesToLoad[0].posterFrameId);
+      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', filesToLoad[0].id, filesToLoad[0].path, filesToLoad[0].posterFrameId);
     }
 
-    // run if there was a change in the filesToPrint array
-    if (this.state.filesToPrint.length !== 0 &&
-      !isEquivalent(this.state.filesToPrint, prevState.filesToPrint)
+    // run if there was a change in the sheetsToPrint array
+    if (sheetsToPrint.length !== 0 &&
+      !isEquivalent(sheetsToPrint, prevState.sheetsToPrint)
     ) {
 
       const filesToUpdateStatus = [];
-      // run if there is a file which needsThumbs, but not if there is one already gettingThumbs
-      if ((this.state.filesToPrint.findIndex(item => item.status === 'gettingThumbs' ) === -1) &&
-        (this.state.filesToPrint.findIndex(item => item.status === 'needsThumbs' ) > -1)) {
-        // log.debug(this.state.filesToPrint);
-        const fileIdToGetThumbsFor = this.state.filesToPrint.find(item => item.status === 'needsThumbs' ).fileId;
-        // log.debug(fileIdToGetThumbsFor);
-        const tempFile = this.props.files.find((file) => file.id === fileIdToGetThumbsFor);
+      // run if there is a sheet which needsThumbs, but not if there is one already gettingThumbs
+      if ((sheetsToPrint.findIndex(item => item.status === 'gettingThumbs' ) === -1) &&
+        (sheetsToPrint.findIndex(item => item.status === 'needsThumbs' ) > -1)) {
+        // log.debug(sheetsToPrint);
+        const sheetToGetThumbsFor = sheetsToPrint.find(item => item.status === 'needsThumbs' );
+        // log.debug(sheetToGetThumbsFor);
+        const tempFile = files.find(file1 => file1.id === sheetToGetThumbsFor.fileId);
         // log.debug(tempFile);
 
         // check if file could be found within files to cover the following case
         // files who could be added to the filelist, but then could not be read by opencv get removed again from the FileList
         if (tempFile !== undefined) {
-          this.getThumbsForFile(tempFile);
+          this.getThumbsForFile(tempFile, sheetToGetThumbsFor.sheetId);
           filesToUpdateStatus.push({
-            fileId: fileIdToGetThumbsFor,
+            fileId: sheetToGetThumbsFor.fileId,
+            sheetId: sheetToGetThumbsFor.sheetId,
             status: 'gettingThumbs'
           });
         } else {
           // status of file which could not be found gets set to undefined
           filesToUpdateStatus.push({
-            fileId: fileIdToGetThumbsFor,
+            fileId: sheetToGetThumbsFor.fileId,
+            sheetId: sheetToGetThumbsFor.sheetId,
             status: 'undefined'
           });
         }
@@ -703,41 +709,39 @@ class App extends Component {
       }
 
       // run if there is a file readyForPrinting, but not if there is one already printing
-      if ((this.state.filesToPrint.findIndex(item => item.status === 'printing' ) === -1) &&
-        (this.state.filesToPrint.findIndex(item => item.status === 'readyForPrinting' ) > -1)) {
+      if ((sheetsToPrint.findIndex(item => item.status === 'printing' ) === -1) &&
+        (sheetsToPrint.findIndex(item => item.status === 'readyForPrinting' ) > -1)) {
         const timeBefore = Date.now();
         this.setState({
           timeBefore
         });
-        // log.debug(this.state.filesToPrint);
-        const fileIdToPrint = this.state.filesToPrint.find(item => item.status === 'readyForPrinting' ).fileId;
-        // log.debug(fileIdToPrint);
-        const tempFile = this.props.files
-        .find((file) => file.id === fileIdToPrint);
+        // log.debug(sheetsToPrint);
+        const sheetToPrint = sheetsToPrint.find(item => item.status === 'readyForPrinting' );
+        // log.debug(sheetToPrint);
+        const tempFile = files
+        .find(file2 => file2.id === sheetToPrint.fileId);
         // log.debug(tempFile);
         // log.debug(this.props.sheetsByFileId);
-        const tempThumbs = this.props.sheetsByFileId[fileIdToPrint][DEFAULT_SHEET_INTERVAL].thumbsArray;
+        const tempThumbs = sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId].thumbsArray;
         // log.debug(tempThumbs);
-        const defaultSheet = DEFAULT_SHEET_INTERVAL;
         const dataToSend = {
-          // scale: 1,
-          defaultSheet,
           elementId: 'ThumbGrid',
           file: tempFile,
-          moviePrintWidth: this.props.settings.defaultMoviePrintWidth,
-          settings: this.props.settings,
+          sheetId: sheetToPrint.sheetId,
+          moviePrintWidth: settings.defaultMoviePrintWidth,
+          settings,
           thumbs: getVisibleThumbs(
             tempThumbs,
-            this.props.visibilitySettings.visibilityFilter
+            visibilitySettings.visibilityFilter
           ),
-          visibilitySettings: this.props.visibilitySettings,
+          visibilitySettings,
           scaleValueObject: getScaleValueObject(
-            this.props.file,
-            this.props.settings,
-            this.props.visibilitySettings,
-            getColumnCount(this.props.sheetsByFileId, this.props.file.id, defaultSheet, this.props.settings),
-            this.props.file.thumbCount,
-            this.props.settings.defaultMoviePrintWidth,
+            file,
+            settings,
+            visibilitySettings,
+            getColumnCount(sheetsByFileId, sheetToPrint.fileId, sheetToPrint.sheetId, settings),
+            file.thumbCount,
+            settings.defaultMoviePrintWidth,
             undefined,
             1,
             undefined,
@@ -746,25 +750,26 @@ class App extends Component {
           )
         };
         filesToUpdateStatus.push({
-          fileId: fileIdToPrint,
+          fileId: sheetToPrint.fileId,
+          sheetId: sheetToPrint.sheetId,
           status: 'printing'
         });
-        // console.log(filesToUpdateStatus);
+        console.log(filesToUpdateStatus);
         // console.log(dataToSend);
         ipcRenderer.send('message-from-mainWindow-to-workerWindow', 'action-save-MoviePrint', dataToSend);
       }
 
-      // only update filesToPrint if there is any update
+      // only update sheetsToPrint if there is any update
       if (filesToUpdateStatus.length !== 0) {
-        const filesToPrint = this.state.filesToPrint.map(el => {
-          const found = filesToUpdateStatus.find(s => s.fileId === el.fileId);
+        const newSheetsToPrint = sheetsToPrint.map(el => {
+          const found = filesToUpdateStatus.find(s => s.sheetId === el.sheetId);
           if (found) {
             return Object.assign(el, found);
           }
           return el;
         });
         this.setState({
-          filesToPrint,
+          sheetsToPrint: newSheetsToPrint,
         });
       }
     }
@@ -1159,8 +1164,6 @@ class App extends Component {
         return curr;
     }, 0);
 
-    // delete all expanded scene sheets
-    store.dispatch(deleteSceneSheets(this.props.file.id));
     store.dispatch(clearScenes(this.props.file.id));
 
     const sceneList = []
@@ -1442,28 +1445,54 @@ class App extends Component {
 
   onSaveAllMoviePrints() {
     log.debug('inside onSaveAllMoviePrints');
-    const tempFiles = this.props.files;
-    const tempFileIds = tempFiles.map(item => item.id);
-    // log.debug(tempFileIds);
-
-    const filesToPrint = [];
-    tempFileIds.forEach(fileId => {
-      if (this.props.sheetsByFileId[fileId] === undefined) {
-        // if no thumbs were found then initiate to getThumbsForFile
-        filesToPrint.push({
-          fileId,
-          status: 'needsThumbs'
+    const { files, sheetsByFileId } = this.props;
+    const tempFileIds = files.map(file => file.id);
+    const tempSheetObjects = [];
+    files.map(file => {
+      const fileId = file.id;
+      const sheetIdArray = getSheetIdArray(sheetsByFileId, fileId);
+      if (sheetIdArray !== undefined) {
+        sheetIdArray.map(sheetId => {
+          tempSheetObjects.push({
+            fileId,
+            sheetId,
+          });
+          return undefined;
         });
       } else {
-        // if thumbs were found then go directly to filesToPrint
-        filesToPrint.push({
+        // if there are no sheets yet, add a new sheetId which
+        tempSheetObjects.push({
           fileId,
-          status: 'readyForPrinting'
+          sheetId: uuidV4(),
+        });
+      }
+      return undefined;
+    });
+    log.debug(tempFileIds);
+    log.debug(tempSheetObjects);
+
+    const sheetsToPrint = [];
+    tempSheetObjects.forEach(sheet => {
+      if (sheetsByFileId[sheet.fileId] === undefined ||
+      sheetsByFileId[sheet.fileId][sheet.sheetId] === undefined ||
+      sheetsByFileId[sheet.fileId][sheet.sheetId].thumbsArray === undefined) {
+        // if no thumbs were found then initiate to getThumbsForFile
+        sheetsToPrint.push({
+          fileId: sheet.fileId,
+          sheetId: sheet.sheetId,
+          status: 'needsThumbs',
+        });
+      } else {
+        // if thumbs were found then go directly to sheetsToPrint
+        sheetsToPrint.push({
+          fileId: sheet.fileId,
+          sheetId: sheet.sheetId,
+          status: 'readyForPrinting',
         });
       }
     })
     this.setState({
-      filesToPrint,
+      sheetsToPrint,
       savingAllMoviePrints: true
     });
   }
@@ -1922,7 +1951,7 @@ class App extends Component {
       fileToPrint = getObjectProperty(
         () => this.props.files.find(
           file => file.id === getObjectProperty(
-            () => this.state.filesToPrint.find(
+            () => this.state.sheetsToPrint.find(
               item => item.status === 'printing'
             ).fileId
           )
@@ -2429,7 +2458,7 @@ class App extends Component {
                     textAlign='center'
                   >
                     <Header as='h2' inverted>
-                      {`Saving ${this.state.filesToPrint.filter(item => item.status === 'done').length + 1} of ${this.state.filesToPrint.filter(item => item.status !== 'undefined').length} MoviePrints`}
+                      {`Saving ${this.state.sheetsToPrint.filter(item => item.status === 'done').length + 1} of ${this.state.sheetsToPrint.filter(item => item.status !== 'undefined').length} MoviePrints`}
                     </Header>
                     {!fileToPrint && <Loader
                       active
@@ -2439,8 +2468,8 @@ class App extends Component {
                     {fileToPrint || ' '}
                     <Progress
                       percent={
-                        ((this.state.filesToPrint.filter(item => item.status === 'done').length + 1.0) /
-                        this.state.filesToPrint.filter(item => item.status !== 'undefined').length) * 100
+                        ((this.state.sheetsToPrint.filter(item => item.status === 'done').length + 1.0) /
+                        this.state.sheetsToPrint.filter(item => item.status !== 'undefined').length) * 100
                       }
                       size='tiny'
                       indicating

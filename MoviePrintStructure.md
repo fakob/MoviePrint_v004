@@ -76,7 +76,7 @@
 * --> in componentDidUpdate
 
 ##### on saveAllMoviePrints
-* set filesToPrint
+* set sheetsToPrint
   * set status to needsThumbs for files which do not have any thumbs loaded
   * set status to undefined for files which can not be printed
   * set status to readyForPrinting for files which already have thumbs
