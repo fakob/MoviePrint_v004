@@ -107,7 +107,7 @@ const FileListElement = ({
             onClick={e => onSheetClickWithStop(e, sheetId)}
             className={`${styles.SheetListItem} ${(currentSheetId === sheetId) ? styles.SheetHighlight : ''}`}
           >
-            { sheetId }
+            { sheetsObject[sheetId].name }
             <Popup
               inverted
               hoverable

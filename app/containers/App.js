@@ -28,6 +28,7 @@ import { getLowestFrame,
   getHighestFrame,
   getVisibleThumbs,
   getColumnCount,
+  getRandomSheetName,
   getSheetId,
   getSheetIdArray,
   getSheetType,
@@ -91,6 +92,7 @@ import {
   showMovielist,
   showSettings,
   updateSheetColumnCount,
+  updateSheetName,
   updateFileDetails,
   updateFileDetailUseRatio,
   updateFrameNumber,
@@ -410,6 +412,7 @@ class App extends Component {
         ));
         const newColumnCount = getColumnCount(this.props.sheetsByFileId, firstFile.id, newSheetId, this.props.settings);
         store.dispatch(updateSheetColumnCount(firstFile.id, newSheetId, newColumnCount)); // set columnCount on firstFile
+        store.dispatch(updateSheetName(firstFile.id, newSheetId, getRandomSheetName())); // set name on firstFile
         store.dispatch(setCurrentSheetId(newSheetId));
       }
       if (this.state.filesToLoad.length > 0) {
@@ -661,6 +664,7 @@ class App extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     // log.debug('App.js componentDidUpdate');
+    const { store } = this.context;
     const { filesToLoad, sheetsToPrint } = this.state;
     const { files, file, settings, visibilitySettings, sheetsByFileId } = this.props;
 
@@ -692,6 +696,7 @@ class App extends Component {
         // files who could be added to the filelist, but then could not be read by opencv get removed again from the FileList
         if (tempFile !== undefined) {
           this.getThumbsForFile(tempFile, sheetToGetThumbsFor.sheetId);
+          store.dispatch(updateSheetName(tempFile.id, sheetToGetThumbsFor.sheetId, getRandomSheetName()));
           filesToUpdateStatus.push({
             fileId: sheetToGetThumbsFor.fileId,
             sheetId: sheetToGetThumbsFor.sheetId,
@@ -1514,6 +1519,7 @@ class App extends Component {
       this.getThumbsForFile(file, newSheetId);
       const newColumnCount = getColumnCount(sheetsByFileId, file.id, newSheetId, settings);
       store.dispatch(updateSheetColumnCount(file.id, newSheetId, newColumnCount));
+      store.dispatch(updateSheetName(file.id, newSheetId, getRandomSheetName()));
     }
 
     this.onSetSheetClick(newSheetId);

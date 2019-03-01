@@ -2,6 +2,7 @@ import pathR from 'path';
 import fsR from 'fs';
 import log from 'electron-log';
 import VideoCaptureProperties from './videoCaptureProperties';
+import sheetNames from '../img/listOfNames.json'
 
 const randomColor = require('randomcolor');
 const { ipcRenderer } = require('electron');
@@ -333,6 +334,12 @@ export const getAspectRatio = (file) => {
     return (16 * 1.0) / 9; // default 16:9
   }
   return ((file.width * 1.0) / file.height);
+};
+
+export const getRandomSheetName = () => {
+  // return random name from sheetNames array
+  const randomNameObject = sheetNames[Math.floor(Math.random()*sheetNames.length)];
+  return randomNameObject.fullName;
 };
 
 export const getSheetId = (sheetsByFileId, fileId) => {

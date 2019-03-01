@@ -690,6 +690,20 @@ export const updateSheetColumnCount = (fileId, sheetId, columnCount) => {
   };
 };
 
+export const updateSheetName = (fileId, sheetId, name) => {
+  return (dispatch) => {
+    log.debug(`action: updateSheetName - ${name}`);
+    dispatch({
+      type: 'UPDATE_SHEET_NAME',
+      payload: {
+        fileId,
+        sheetId,
+        name,
+      }
+    });
+  };
+};
+
 export const updateFileDetailUseRatio = (fileId, useRatio) => {
   return (dispatch) => {
     log.debug('action: updateFileDetailUseRatio');
