@@ -491,6 +491,20 @@ export const deleteSheets = (fileId = undefined, sheetId = undefined) => {
   };
 };
 
+export const deleteThumbsArray = (fileId = undefined, sheetId = undefined) => {
+  log.debug('action: deleteThumbsArray');
+  if (fileId === undefined || sheetId === undefined) {
+    return undefined;
+  }
+  return {
+    type: 'DELETE_THUMBSARRAY',
+    payload: {
+      fileId,
+      sheetId,
+    }
+  };
+};
+
 export const addIntervalSheet = (file, sheetId, amount = 20, start = 10, stop = file.frameCount - 1, frameSize) => {
   return (dispatch) => {
     log.debug('action: addIntervalSheet');
@@ -515,7 +529,7 @@ export const addIntervalSheet = (file, sheetId, amount = 20, start = 10, stop = 
     const frameNumberArray = Array.from(Array(newAmount).keys())
       .map(x => mapRange(x, 0, newAmount - 1, startWithBoundaries, stopWithBoundaries, true));
     // log.debug(frameNumberArray);
-    dispatch(deleteSheets(file.id, sheetId));
+    dispatch(deleteThumbsArray(file.id, sheetId));
     return dispatch(addThumbs(file, sheetId, frameNumberArray, frameSize));
   };
 };

@@ -261,6 +261,22 @@ const sheetsByFileId = (state = {}, action) => {
       }
       delete copyOfState[action.payload.fileId][action.payload.sheetId];
       return copyOfState;
+    case 'DELETE_THUMBSARRAY':
+      return {
+        ...state,
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          [action.payload.sheetId]: {
+            // conditional adding of properties
+            // only add when fileId exists
+            ...(state[action.payload.fileId] === undefined ?
+              {} :
+              state[action.payload.fileId][action.payload.sheetId]
+            ),
+            thumbsArray: [],
+          }
+        }
+      };
     // case 'DELETE_SCENE_SHEETS':
     //   // console.log(action.payload);
     //   if (state[action.payload.fileId] === undefined) {
