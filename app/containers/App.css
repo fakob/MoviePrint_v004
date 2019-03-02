@@ -134,7 +134,7 @@
 
 .ItemMovielist {
   transform: translate(-350px, 0);
-  direction:rtl; /* move scrollbar to the left (needs compensation on next level) */
+  /* direction:rtl; /* move scrollbar to the left (needs compensation on next level) */
 }
 
 .ItemSettings {

@@ -32,7 +32,7 @@ li p {
   margin: 8px 0px 8px 8px;
   padding: 8px 8px 0px 8px;
   /* width: 336px; */
-  overflow: hidden;
+  /* overflow: hidden; */
   overflow-wrap: break-word;
   word-wrap: break-word;
   border-width: 1px;
@@ -62,25 +62,27 @@ li p {
 }
 
 .Title {
-  padding-top: 4px;
+  /* padding-top: 4px; */
   padding-left: 92px;
+  padding-right: 16px;
 	height: 32px;
+  opacity: 0.8;
 	color: #EEEEEE;
 	font-family: "Roboto Condensed";
 	font-size: 14px;
-	font-weight: bold;
+	/* font-weight: bold; */
 	line-height: 16px;
 }
 
 .Path {
   padding-top: 4px;
-  padding-left: 84px;
+  padding-left: 92px;
 	/*height: 14px;*/
 	/*width: 336px;*/
 	opacity: 0.5;
 	color: #EEEEEE;
 	font-family: "Roboto Condensed";
-	font-size: 12px;
+	font-size: 10px;
 	font-weight: 300;
 	line-height: 14px;
 }
@@ -88,7 +90,7 @@ li p {
 .Detail {
   padding-left: 92px;
   padding-right: 4px;
-  padding-top: 8px;
+  padding-top: 4px;
 	/*height: 13px;*/
 	width: 100%;
 	color: #FFD3BF;
@@ -113,15 +115,21 @@ li p {
 	text-align: right;
 }
 
+.SheetLabel {
+  position: absolute;
+  top: 6px;
+}
+
 .SheetList {
-    margin: 12px 0 0 0;
+    margin: 18px 0 0 0;
 }
 
 .SheetList > li {
   margin: 8px 0px 8px 0px;
-  padding: 8px 8px 8px 8px;
-  width: 336px;
-  overflow: hidden;
+  padding: 4px 4px 4px 4px;
+  /* margin-left: 92px; */
+  /* width: 336px; */
+  /* overflow: hidden; */
   overflow-wrap: break-word;
   word-wrap: break-word;
   border-width: 1px;
@@ -140,7 +148,7 @@ li p {
   background: #1e1e1e;
   border-radius: 0;
   /* border-left: 1px solid rgba(0, 0, 0, 1); */
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.6);
   /* background-color: rgba(255, 133, 27, 0.1); */
   color: rgba(255, 255, 255, 1);
 }
@@ -148,16 +156,43 @@ li p {
 .SheetHighlight {
   border-radius: 0;
   border-left: 1px solid rgba(255, 133, 27, 1);
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 1);
+  /* background-color: #eeeeee; */
   color: rgba(255, 255, 255, 1) !important;
+}
+
+.SheetName {
+  /* padding-top: 4px; */
+  /* padding-left: 92px; */
+  /* padding-right: 16px; */
+	/* height: 32px; */
+  margin-left: 8px;
+  opacity: 0.8;
+	color: #EEEEEE;
+	font-family: "Roboto Condensed";
+	font-size: 12px;
+	/* font-weight: bold; */
+	/* line-height: 16px; */
+}
+
+.SheetNameInput {
+  margin-left: 88px;
+  opacity: 0.8;
+}
+
+.SheetNameInput > input {
+	color: #EEEEEE !important;
+	font-family: "Roboto Condensed" !important;
+	font-size: 12px !important;
+  width: 300px !important;
 }
 
 .overflow {
   z-index: 1;
-  position: absolute;
+  position: absolute !important;
   right: 0px;
-  margin-right: 16px !important;
-  margin-top: 2px !important;
+  margin-right: 4px !important;
+  margin-top: -1px !important;
 }
 
 .overflowHidden {
@@ -172,7 +207,8 @@ li p {
 .SheetListItem:hover > .overflow {
   /* show overflow only on hover. !important to override display value from overflow */
   display:block !important;
-  margin-top: -18px !important;
+  margin-top: -20px !important;
+  margin-right: 4px !important;
 }
 
 .FileListItem:hover > .overflow {

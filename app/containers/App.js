@@ -110,7 +110,6 @@ import {
   DEFAULT_THUMB_COUNT,
   DEFAULT_CACHED_FRAMES_SIZE,
   DEFAULT_SHEET_SCENES,
-  DEFAULT_SHEET_INTERVAL,
   FRAMESDB_PATH,
 } from '../utils/constants';
 import {
@@ -842,7 +841,7 @@ class App extends Component {
     // this.props.keyPressAction(event.keyCode);
 
     // only listen to key events when feedback form is not shown
-    if (!this.state.showFeedbackForm) {
+    if (!this.state.showFeedbackForm && event.target.tagName !== 'INPUT') {
       const { store } = this.context;
 
       if (event) {
@@ -951,7 +950,6 @@ class App extends Component {
     // file match needs to be in sync with addMoviesToList() and accept !!!
     if (Array.from(files).some(file => (file.type.match('video.*') ||
       file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
-      // store.dispatch(setCurrentSheetId(DEFAULT_SHEET_INTERVAL));
       store.dispatch(setView(VIEW.GRIDVIEW));
       store.dispatch(addMoviesToList(files, clearList)).then((response) => {
         this.setState({
@@ -1807,6 +1805,7 @@ class App extends Component {
     const { store } = this.context;
     const newSheetId = uuidV4();
     store.dispatch(duplicateSheet(fileId, sheet, newSheetId));
+    store.dispatch(updateSheetName(fileId, newSheetId, getRandomSheetName())); // set name on firstFile
     store.dispatch(setCurrentSheetId(newSheetId));
   };
 
@@ -2040,7 +2039,7 @@ class App extends Component {
                     className={`${styles.SiteContent}`}
                     ref={(el) => { this.siteContent = el; }}
                     style={{
-                      height: `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)`
+                      height: `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)`,
                     }}
                   >
                     <div

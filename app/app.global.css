@@ -37,3 +37,24 @@ mark::before {
 mark::after {
   content: '\00a0\00a0';
 }
+
+/* width */
+::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #1e1e1e !important;
+}
+
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #1e1e1e !important;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #2c2c2c !important;
+}
