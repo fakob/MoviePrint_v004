@@ -121,7 +121,7 @@
 .ItemSideBar {
   min-height: calc(100vh);
   /* background: linear-gradient(270deg, #444242 0%, #3B3B3B 100%); */
-  background: rgba(0,0,0,0.2);
+  background: rgba(0,0,0,0.6);
   width: 350px;
   position: fixed;
   transition: transform 0.5s ease;
