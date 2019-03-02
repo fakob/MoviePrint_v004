@@ -59,7 +59,7 @@ const Thumb = ({
   onErrorThumb,
   onThumbDoubleClick,
   selected,
-  defaultView,
+  view,
   transparentThumb,
   thumbImageObjectUrl,
   base64,
@@ -71,7 +71,7 @@ const Thumb = ({
   function onThumbDoubleClickWithStop(e) {
     e.stopPropagation();
     if (controllersAreVisible) {
-      if (defaultView === VIEW.GRIDVIEW) {
+      if (view === VIEW.GRIDVIEW) {
         onSelect();
       }
       onThumbDoubleClick();
@@ -114,14 +114,14 @@ const Thumb = ({
       onKeyPress={onSelectWithStop}
       onDoubleClick={onThumbDoubleClickWithStop}
       id={`thumb${indexForId}`}
-      className={`${styles.gridItem} ${(defaultView !== VIEW.GRIDVIEW && selected && !(keyObject.altKey || keyObject.shiftKey)) ? styles.gridItemSelected : ''}`}
+      className={`${styles.gridItem} ${(view !== VIEW.GRIDVIEW && selected && !(keyObject.altKey || keyObject.shiftKey)) ? styles.gridItemSelected : ''}`}
       width={`${thumbWidth}px`}
       height={`${(thumbWidth * aspectRatioInv)}px`}
       style={{
         width: thumbWidth,
-        margin: `${defaultView === VIEW.GRIDVIEW ? margin : Math.max(1, margin)}px`,
-        outlineWidth: `${defaultView === VIEW.GRIDVIEW ? margin : Math.max(1, margin)}px`,
-        borderRadius: `${(selected && defaultView !== VIEW.GRIDVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
+        margin: `${view === VIEW.GRIDVIEW ? margin : Math.max(1, margin)}px`,
+        outlineWidth: `${view === VIEW.GRIDVIEW ? margin : Math.max(1, margin)}px`,
+        borderRadius: `${(selected && view !== VIEW.GRIDVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: transparentThumb ||
           (thumbImageObjectUrl === undefined)  ||
           (thumbImageObjectUrl === 'blob:file:///fakeURL')? color : undefined,
@@ -139,7 +139,7 @@ const Thumb = ({
           style={{
             filter: `${controllersAreVisible ? 'brightness(80%)' : ''}`,
             opacity: hidden ? '0.2' : '1',
-            borderRadius: `${(selected && defaultView !== VIEW.GRIDVIEW) ? 0 : borderRadius}px`,
+            borderRadius: `${(selected && view !== VIEW.GRIDVIEW) ? 0 : borderRadius}px`,
           }}
           onError={onErrorThumb}
         />
@@ -159,7 +159,7 @@ const Thumb = ({
             display: controllersAreVisible ? 'block' : 'none'
           }}
         >
-          {defaultView === VIEW.GRIDVIEW &&
+          {view === VIEW.GRIDVIEW &&
             <DragHandle
               width={thumbWidth - 1} // shrink it to prevent rounding issues
               height={(thumbWidth * aspectRatioInv) - 1}
@@ -232,7 +232,7 @@ Thumb.propTypes = {
   onThumbDoubleClick: PropTypes.func,
   onToggle: PropTypes.func,
   selected: PropTypes.bool,
-  defaultView: PropTypes.string.isRequired,
+  view: PropTypes.string.isRequired,
   index: PropTypes.number,
   indexForId: PropTypes.number,
   thumbImageObjectUrl: PropTypes.string,

@@ -336,7 +336,7 @@ class ThumbGrid extends Component {
         {this.props.settings.defaultShowHeader && this.props.view === VIEW.GRIDVIEW &&
           <ThumbGridHeader
             viewForPrinting={this.props.viewForPrinting}
-            defaultView={this.props.defaultView}
+            view={this.props.view}
             fileName={this.props.file.name || ''}
             filePath={this.props.file.path || ''}
             fileDetails={fileDetails}
@@ -358,7 +358,7 @@ class ThumbGrid extends Component {
         >
           {thumbArray.map(thumb => (
             <SortableThumb
-              defaultView={this.props.defaultView}
+              view={this.props.view}
               keyObject={this.props.keyObject}
               key={thumb.thumbId || uuidV4()}
               thumbId={thumb.thumbId}
@@ -650,7 +650,7 @@ ThumbGrid.propTypes = {
   scaleValueObject: PropTypes.object.isRequired,
   selectedThumbId: PropTypes.string,
   settings: PropTypes.object.isRequired,
-  defaultView: PropTypes.string.isRequired,
+  view: PropTypes.string.isRequired,
   showSettings: PropTypes.bool.isRequired,
   thumbCount: PropTypes.number.isRequired,
   objectUrlObjects: PropTypes.object,
