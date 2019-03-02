@@ -352,7 +352,7 @@ export const addScenes = (file, sceneList, clearOldScenes = false, frameSize, ne
     sceneList.map((scene, index) => {
       const sceneId = uuidV4();
       const thumbId = uuidV4();
-      dispatch(addThumb(file, newSheetId, scene.start + Math.floor(scene.length / 2), index, thumbId, sceneId, frameSize));
+      dispatch(addThumb(file, newSheetId, scene.start + Math.floor(scene.length / 2), index, thumbId, frameSize, sceneId));
       return dispatch(addScene(file.id, scene.start, scene.length, scene.colorArray, sceneId));
     })
   };
@@ -372,7 +372,7 @@ export const toggleScene = (currentFileId, sheetId, sceneId) => {
 
 // thumbs
 
-export const addThumb = (file, sheetId, frameNumber, index, thumbId = uuidV4(), sceneId = undefined, frameSize = 0) => {
+export const addThumb = (file, sheetId, frameNumber, index, thumbId = uuidV4(), frameSize = 0, sceneId = undefined) => {
   return (dispatch) => {
     log.debug('action: addThumb');
     const frameId = uuidV4();

@@ -661,7 +661,6 @@ ipcRenderer.on(
           sheetId,
           thumbIdArray[i],
           frameIdArray[i],
-          '',
           frameNumber,
           i === (frameNumberArray.length - 1)
         );
@@ -816,8 +815,8 @@ ipcRenderer.on(
                 sheetId,
                 thumbIdArray[iterator],
                 frameId,
-                '',
                 frameNumber,
+                iterator === (frameNumberArray.length - 1),
               );
               iterator += 1;
               if (iterator < frameNumberArray.length) {

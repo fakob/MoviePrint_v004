@@ -215,7 +215,8 @@ class SettingsList extends Component {
       thumbCountTemp,
       visibilitySettings,
     } = this.props;
-    const minutes = file ? frameCountToMinutes(file.frameCount, file.fps) : undefined;
+    const fileFps = file !== undefined ? file.fps : 25;
+    const minutes = file !== undefined ? frameCountToMinutes(file.frameCount, fileFps) : undefined;
     const minutesRounded = Math.round(minutes);
     const cutsPerMinuteRounded = Math.round((thumbCountTemp - 1) / minutes);
     return (
@@ -516,7 +517,7 @@ class SettingsList extends Component {
                   className={styles.slider}
                   min={0}
                   max={10}
-                  defaultValue={Math.round(settings.defaultTimelineViewMinDisplaySceneLengthInFrames / (file.fps * 1.0))}
+                  defaultValue={Math.round(settings.defaultTimelineViewMinDisplaySceneLengthInFrames / (fileFps * 1.0))}
                   marks={{
                     0: '0',
                     10: '10',

@@ -82,7 +82,9 @@ const sheetsByFileId = (state = {}, action) => {
       log.debug(action.payload);
       log.debug(state);
       let currentArray = [];
-      if (state[action.payload.fileId] && state[action.payload.fileId][action.payload.sheetId]) {
+      if (state[action.payload.fileId] !== undefined &&
+        state[action.payload.fileId][action.payload.sheetId] !== undefined &&
+        state[action.payload.fileId][action.payload.sheetId].thumbsArray !== undefined) {
         currentArray = state[action.payload.fileId][action.payload.sheetId].thumbsArray.slice();
       }
       currentArray.splice(action.payload.index, 0, action.payload);
@@ -107,9 +109,9 @@ const sheetsByFileId = (state = {}, action) => {
       log.debug(action.payload);
       log.debug(state);
       let currentArray = [];
-      if (state[action.payload.fileId] &&
-        state[action.payload.fileId][action.payload.sheetId] &&
-        state[action.payload.fileId][action.payload.sheetId].thumbsArray) {
+      if (state[action.payload.fileId] !== undefined &&
+        state[action.payload.fileId][action.payload.sheetId] !== undefined &&
+        state[action.payload.fileId][action.payload.sheetId].thumbsArray !== undefined) {
         currentArray = state[action.payload.fileId][action.payload.sheetId].thumbsArray.slice();
       }
 

@@ -1250,8 +1250,9 @@ class App extends Component {
       const tempFile = this.props.files.find((file) => file.id === fileId);
       const clearOldScenes = true;
       const newSheetId = uuidV4();
-      store.dispatch(setCurrentSheetId(newSheetId));
       store.dispatch(updateSheetType(tempFile.id, newSheetId, SHEET_TYPE.SCENES));
+      store.dispatch(updateSheetName(tempFile.id, newSheetId, getRandomSheetName()));
+      store.dispatch(setCurrentSheetId(newSheetId));
       store.dispatch(setView(VIEW.TIMELINEVIEW));
       store.dispatch(addScenes(tempFile, sceneList, clearOldScenes, this.props.settings.defaultCachedFramesSize, newSheetId));
     } else {
