@@ -723,7 +723,8 @@ class App extends Component {
         const tempFile = files.find(file2 => file2.id === sheetToPrint.fileId);
         // log.debug(tempFile);
         // log.debug(this.props.sheetsByFileId);
-        const tempThumbs = sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId].thumbsArray;
+        const sheet = sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId];
+        // const tempThumbs = sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId].thumbsArray;
         // log.debug(tempThumbs);
         const scaleValueObject = getScaleValueObject(
           tempFile,
@@ -745,10 +746,11 @@ class App extends Component {
           sheetId: sheetToPrint.sheetId,
           moviePrintWidth: settings.defaultMoviePrintWidth,
           settings,
-          thumbs: getVisibleThumbs(
-            tempThumbs,
-            visibilitySettings.visibilityFilter
-          ),
+          sheet,
+          // thumbs: getVisibleThumbs(
+          //   tempThumbs,
+          //   visibilitySettings.visibilityFilter
+          // ),
           visibilitySettings,
           scaleValueObject,
         };
@@ -961,6 +963,10 @@ class App extends Component {
           });
         }
         log.debug(response);
+        // showMovielist if more than one movie
+        if (response.length > 1 || (!clearList && this.props.files !== undefined && this.props.files.length > 0)) {
+          store.dispatch(showMovielist());
+        }
         return response;
       }).catch((error) => {
         log.error(error);

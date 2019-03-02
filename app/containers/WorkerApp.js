@@ -13,6 +13,7 @@ import ErrorBoundary from '../components/ErrorBoundary';
 import getScaleValueObject from '../utils/getScaleValueObject';
 import {
   getMoviePrintColor,
+  getVisibleThumbs,
  } from '../utils/utils';
 import saveMoviePrint from '../utils/saveMoviePrint';
 import {
@@ -42,6 +43,7 @@ class WorkerApp extends Component {
       this.setState({
         savingMoviePrint: false,
         sentData: {},
+        visibleThumbs: [],
         thumbObjectBase64s: {},
       });
     });
@@ -50,18 +52,24 @@ class WorkerApp extends Component {
       log.debug('workerWindow | action-save-MoviePrint');
       log.debug(sentData);
 
-      const base64Object = getBase64Object(sentData.file.path, sentData.file.useRatio, sentData.thumbs);
+      const visibleThumbs = getVisibleThumbs(
+        sentData.sheet.thumbsArray,
+        sentData.visibilitySettings.visibilityFilter
+      );
+
+      const base64Object = getBase64Object(sentData.file.path, sentData.file.useRatio, visibleThumbs);
 
       this.setState({
         savingMoviePrint: true,
         sentData,
+        visibleThumbs,
         thumbObjectBase64s: base64Object,
       });
     });
   }
 
   componentDidUpdate() {
-    const { sentData, savingMoviePrint } = this.state;
+    const { sentData, savingMoviePrint, visibleThumbs } = this.state;
 
     if (savingMoviePrint) {
       log.debug('workerWindow | componentDidUpdate and savingMoviePrint true');
@@ -77,11 +85,12 @@ class WorkerApp extends Component {
         outputPath,
         sentData.file,
         sentData.sheetId,
+        sentData.sheet.name,
         1, // scale
         sentData.settings.defaultOutputFormat,
         sentData.settings.defaultSaveOptionOverwrite,
         sentData.settings.defaultSaveOptionIncludeIndividual,
-        sentData.thumbs
+        visibleThumbs
       );
     }
   }
@@ -97,7 +106,7 @@ class WorkerApp extends Component {
   // }
 
   render() {
-    const { sentData, savingMoviePrint, thumbObjectBase64s } = this.state;
+    const { sentData, savingMoviePrint, thumbObjectBase64s, visibleThumbs } = this.state;
 
     return (
       <ErrorBoundary>
@@ -120,7 +129,7 @@ class WorkerApp extends Component {
                     inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                     showSettings={false}
                     file={sentData.file}
-                    thumbs={sentData.thumbs}
+                    thumbs={visibleThumbs}
                     objectUrlObjects={thumbObjectBase64s}
                     settings={sentData.settings}
                     visibilitySettings={sentData.visibilitySettings}
@@ -151,7 +160,7 @@ class WorkerApp extends Component {
                     settings={sentData.settings}
                     showSettings={false}
                     objectUrlObjects={thumbObjectBase64s}
-                    thumbs={sentData.thumbs}
+                    thumbs={visibleThumbs}
                     visibilitySettings={sentData.visibilitySettings}
                   />
                 </Conditional>
