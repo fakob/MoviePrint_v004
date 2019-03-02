@@ -61,9 +61,10 @@ class WorkerApp extends Component {
   }
 
   componentDidUpdate() {
-    if (this.state.savingMoviePrint) {
+    const { sentData, savingMoviePrint } = this.state;
+
+    if (savingMoviePrint) {
       log.debug('workerWindow | componentDidUpdate and savingMoviePrint true');
-      const { sentData } = this.state;
       const { file } = sentData;
       // save to filePath when defaultOutputPathFromMovie checked
       const filePath = path.dirname(file.path);
@@ -96,60 +97,62 @@ class WorkerApp extends Component {
   // }
 
   render() {
+    const { sentData, savingMoviePrint, thumbObjectBase64s } = this.state;
+
     return (
       <ErrorBoundary>
         <div>
-          {this.state.savingMoviePrint &&
+          {savingMoviePrint &&
             <div
               ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
               className={`${styles.ItemMain}`}
               style={{
-                width: `${this.state.sentData.visibilitySettings.defaultView !== VIEW.TIMELINEVIEW ?
-                  this.state.sentData.moviePrintWidth :
-                  (Math.ceil(this.state.sentData.scaleValueObject.newMoviePrintTimelineWidth) + Math.ceil(this.state.sentData.scaleValueObject.thumbMarginTimeline) * 2)
+                width: `${sentData.visibilitySettings.defaultView !== VIEW.TIMELINEVIEW ?
+                  sentData.moviePrintWidth :
+                  (Math.ceil(sentData.scaleValueObject.newMoviePrintTimelineWidth) + Math.ceil(sentData.scaleValueObject.thumbMarginTimeline) * 2)
                 }px`
               }}
             >
               <Fragment>
-                <Conditional if={this.state.sentData.visibilitySettings.defaultView !== VIEW.TIMELINEVIEW}>
+                <Conditional if={sentData.visibilitySettings.defaultView !== VIEW.TIMELINEVIEW}>
                   <SortedVisibleThumbGrid
                     viewForPrinting
                     inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                     showSettings={false}
-                    file={this.state.sentData.file}
-                    thumbs={this.state.sentData.thumbs}
-                    objectUrlObjects={this.state.thumbObjectBase64s}
-                    settings={this.state.sentData.settings}
-                    visibilitySettings={this.state.sentData.visibilitySettings}
+                    file={sentData.file}
+                    thumbs={sentData.thumbs}
+                    objectUrlObjects={thumbObjectBase64s}
+                    settings={sentData.settings}
+                    visibilitySettings={sentData.visibilitySettings}
 
                     selectedThumbId={undefined}
 
-                    colorArray={getMoviePrintColor(this.state.sentData.settings.defaultThumbCountMax)}
-                    thumbCount={this.state.sentData.file.thumbCount}
+                    colorArray={getMoviePrintColor(sentData.settings.defaultThumbCountMax)}
+                    thumbCount={sentData.file.thumbCount}
 
                     defaultView={VIEW.GRIDVIEW}
-                    currentSheetId={this.state.sentData.currentSheetId || this.state.sentData.settings.currentSheetId}
-                    scaleValueObject={this.state.sentData.scaleValueObject}
-                    moviePrintWidth={this.state.sentData.moviePrintWidth}
+                    currentSheetId={sentData.currentSheetId || sentData.settings.currentSheetId}
+                    scaleValueObject={sentData.scaleValueObject}
+                    moviePrintWidth={sentData.moviePrintWidth}
                     keyObject={{}}
                   />
                 </Conditional>
-                <Conditional if={this.state.sentData.visibilitySettings.defaultView === VIEW.TIMELINEVIEW}>
+                <Conditional if={sentData.visibilitySettings.defaultView === VIEW.TIMELINEVIEW}>
                   <SortedVisibleSceneGrid
-                    defaultView={this.state.sentData.visibilitySettings.defaultView}
-                    file={this.state.sentData.file}
-                    frameCount={this.state.sentData.file ? this.state.sentData.file.frameCount : undefined}
+                    defaultView={sentData.visibilitySettings.defaultView}
+                    file={sentData.file}
+                    frameCount={sentData.file ? sentData.file.frameCount : undefined}
                     inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                     keyObject={{}}
-                    secondsPerRow={this.state.sentData.settings.defaultTimelineViewSecondsPerRow}
+                    secondsPerRow={sentData.settings.defaultTimelineViewSecondsPerRow}
                     selectedSceneId={undefined}
-                    scaleValueObject={this.state.sentData.scaleValueObject}
-                    scenes={this.state.sentData.scenes}
-                    settings={this.state.sentData.settings}
+                    scaleValueObject={sentData.scaleValueObject}
+                    scenes={sentData.scenes}
+                    settings={sentData.settings}
                     showSettings={false}
-                    objectUrlObjects={this.state.thumbObjectBase64s}
-                    thumbs={this.state.sentData.thumbs}
-                    visibilitySettings={this.state.sentData.visibilitySettings}
+                    objectUrlObjects={thumbObjectBase64s}
+                    thumbs={sentData.thumbs}
+                    visibilitySettings={sentData.visibilitySettings}
                   />
                 </Conditional>
               </Fragment>

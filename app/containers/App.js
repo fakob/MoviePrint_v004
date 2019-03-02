@@ -541,9 +541,7 @@ class App extends Component {
         ); // adding timeout to prevent clicking multiple times
       } else if (this.state.savingAllMoviePrints) {
         // check if the sheet which was saved has been printing, then set status to done
-        console.log(this.state.sheetsToPrint);
         if (this.state.sheetsToPrint.findIndex(item => item.status === 'printing' ) > -1) {
-          console.log(this.state.sheetsToPrint);
           // state should be immutable, therefor
           const sheetsToPrint = this.state.sheetsToPrint.map((item) => {
             if(item.status !== 'printing') {
@@ -723,12 +721,25 @@ class App extends Component {
         // log.debug(sheetsToPrint);
         const sheetToPrint = sheetsToPrint.find(item => item.status === 'readyForPrinting' );
         // log.debug(sheetToPrint);
-        const tempFile = files
-        .find(file2 => file2.id === sheetToPrint.fileId);
+        const tempFile = files.find(file2 => file2.id === sheetToPrint.fileId);
         // log.debug(tempFile);
         // log.debug(this.props.sheetsByFileId);
         const tempThumbs = sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId].thumbsArray;
         // log.debug(tempThumbs);
+        const scaleValueObject = getScaleValueObject(
+          tempFile,
+          settings,
+          visibilitySettings,
+          getColumnCount(sheetsByFileId, sheetToPrint.fileId, sheetToPrint.sheetId, settings),
+          file.thumbCount,
+          settings.defaultMoviePrintWidth,
+          undefined,
+          1,
+          undefined,
+          true,
+          undefined,
+        );
+        console.log(scaleValueObject);
         const dataToSend = {
           elementId: 'ThumbGrid',
           file: tempFile,
@@ -740,26 +751,14 @@ class App extends Component {
             visibilitySettings.visibilityFilter
           ),
           visibilitySettings,
-          scaleValueObject: getScaleValueObject(
-            file,
-            settings,
-            visibilitySettings,
-            getColumnCount(sheetsByFileId, sheetToPrint.fileId, sheetToPrint.sheetId, settings),
-            file.thumbCount,
-            settings.defaultMoviePrintWidth,
-            undefined,
-            1,
-            undefined,
-            true,
-            undefined,
-          )
+          scaleValueObject,
         };
         filesToUpdateStatus.push({
           fileId: sheetToPrint.fileId,
           sheetId: sheetToPrint.sheetId,
           status: 'printing'
         });
-        console.log(filesToUpdateStatus);
+        // console.log(filesToUpdateStatus);
         // console.log(dataToSend);
         ipcRenderer.send('message-from-mainWindow-to-workerWindow', 'action-save-MoviePrint', dataToSend);
       }
