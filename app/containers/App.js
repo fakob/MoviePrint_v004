@@ -747,10 +747,6 @@ class App extends Component {
           moviePrintWidth: settings.defaultMoviePrintWidth,
           settings,
           sheet,
-          // thumbs: getVisibleThumbs(
-          //   tempThumbs,
-          //   visibilitySettings.visibilityFilter
-          // ),
           visibilitySettings,
           scaleValueObject,
         };
@@ -1417,32 +1413,35 @@ class App extends Component {
   }
 
   onSaveMoviePrint() {
-    const { currentSheetId } = this.props.settings
+    const { file, settings, scenes, sheetsByFileId, visibilitySettings } = this.props;
+    const { currentSheetId } = this.props.settings;
+
+    const sheet = sheetsByFileId[file.id][currentSheetId];
+    const scaleValueObject = getScaleValueObject(
+      file,
+      settings,
+      visibilitySettings,
+      getColumnCount(sheetsByFileId, file.id, currentSheetId, settings),
+      file.thumbCount,
+      settings.defaultMoviePrintWidth,
+      visibilitySettings.defaultView === VIEW.TIMELINEVIEW ? settings.defaultMoviePrintWidth * settings.defaultPaperAspectRatioInv : undefined,
+      1,
+      undefined,
+      true,
+      visibilitySettings.defaultView !== VIEW.TIMELINEVIEW ? undefined : scenes,
+    );
+
     const dataToSend = {
       // scale: 1,
-      currentSheetId,
-      elementId: this.props.visibilitySettings.defaultView !== VIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
-      file: this.props.file,
-      moviePrintWidth: this.props.settings.defaultMoviePrintWidth,
-      settings: this.props.settings,
-      thumbs: this.props.thumbs,
-      scenes: this.props.visibilitySettings.defaultView !== VIEW.TIMELINEVIEW ? undefined : this.props.scenes,
-      visibilitySettings: this.props.visibilitySettings,
-      scaleValueObject: getScaleValueObject(
-        this.props.file,
-        this.props.settings,
-        this.props.visibilitySettings,
-        getColumnCount(this.props.sheetsByFileId, this.props.file.id, currentSheetId, this.props.settings),
-        this.props.file.thumbCount,
-        this.props.settings.defaultMoviePrintWidth,
-        // HARDCODED FOR NOW timelineview needs height
-        // this.state.sentData.visibilitySettings.defaultView === VIEW.TIMELINEVIEW ? 2048 : undefined,
-        this.props.visibilitySettings.defaultView === VIEW.TIMELINEVIEW ? this.props.settings.defaultMoviePrintWidth * this.props.settings.defaultPaperAspectRatioInv : undefined,
-        1,
-        undefined,
-        true,
-        this.props.visibilitySettings.defaultView !== VIEW.TIMELINEVIEW ? undefined : this.props.scenes,
-      )
+      elementId: visibilitySettings.defaultView !== VIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
+      file,
+      sheetId: currentSheetId,
+      moviePrintWidth: settings.defaultMoviePrintWidth,
+      settings,
+      sheet,
+      visibilitySettings,
+      scaleValueObject,
+      scenes: visibilitySettings.defaultView !== VIEW.TIMELINEVIEW ? undefined : scenes,
     };
     // log.debug(dataToSend);
     this.setState(

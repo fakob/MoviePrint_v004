@@ -39,7 +39,7 @@ const Header = ({
   const viewOptions = [
     { value: VIEW.GRIDVIEW, text: 'Grid view', 'data-tid':'gridViewOption'},
     { value: VIEW.PLAYERVIEW, text: 'Player view', 'data-tid':'playerViewOption', disabled: visibilitySettings.showSettings },
-    { value: VIEW.TIMELINEVIEW, text: 'Timeline view', 'data-tid':'timelineViewOption', disabled: isSheetTypeInterval },
+    { value: VIEW.TIMELINEVIEW, text: 'Timeline view', 'data-tid':'timelineViewOption' },
   ];
 
   return (
