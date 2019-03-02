@@ -39,7 +39,8 @@ class SortedFileList extends Component {
               onClick={() => {
                 this.props.onFileListElementClick(file);
               }}
-              onSheetClick={this.props.onSetSheetClick}
+              onSetSheetClick={this.props.onSetSheetClick}
+              onChangeSheetTypeClick={this.props.onChangeSheetTypeClick}
               onDuplicateSheetClick={this.props.onDuplicateSheetClick}
               onRemoveMovieListItem={this.props.onRemoveMovieListItem}
               onDeleteSheetClick={this.props.onDeleteSheetClick}

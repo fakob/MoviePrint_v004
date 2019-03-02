@@ -36,8 +36,8 @@ class SortedVisibleThumbGrid extends Component {
       this.scrollThumbIntoView();
     }
     // delay when switching to gridView so it waits for the view to be ready
-    if ((prevProps.defaultView !== this.props.defaultView) &&
-    prevProps.defaultView) {
+    if ((prevProps.view !== this.props.view) &&
+    prevProps.view) {
       setTimeout(() => {
         this.scrollThumbIntoView();
       }, 500);
@@ -94,7 +94,7 @@ class SortedVisibleThumbGrid extends Component {
     return (
       <SortableThumbGrid
         colorArray={this.props.colorArray}
-        defaultView={this.props.defaultView}
+        view={this.props.view}
         currentSheetId={this.props.currentSheetId}
         file={this.props.file}
         inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
@@ -121,7 +121,6 @@ class SortedVisibleThumbGrid extends Component {
         objectUrlObjects={this.props.objectUrlObjects}
         thumbs={this.props.thumbs}
         viewForPrinting={this.props.viewForPrinting}
-        visibilitySettings={this.props.visibilitySettings}
         isSheetTypeInterval={this.props.isSheetTypeInterval}
         isSorting={this.state.isSorting}
 
@@ -162,7 +161,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     onExitClick: () => {
-      dispatch(setCurrentSheetId(DEFAULT_SHEET_SCENES));
+      // dispatch(setCurrentSheetId(DEFAULT_SHEET_SCENES));
       dispatch(setView(VIEW.TIMELINEVIEW));
     },
     onToggleClick: (fileId, thumbId) => {
@@ -247,7 +246,7 @@ SortedVisibleThumbGrid.propTypes = {
   selectedThumbId: PropTypes.string,
   selectThumbMethod: PropTypes.func,
   settings: PropTypes.object.isRequired,
-  defaultView: PropTypes.string.isRequired,
+  view: PropTypes.string.isRequired,
   // currentSheetId: PropTypes.string.isRequired,
   showSettings: PropTypes.bool.isRequired,
   thumbCount: PropTypes.number.isRequired,

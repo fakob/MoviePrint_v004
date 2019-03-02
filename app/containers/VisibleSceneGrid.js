@@ -53,7 +53,7 @@ class SortedVisibleSceneGrid extends Component {
     // const state = store.getState();
     return (
       <SortableSceneGrid
-        defaultView={this.props.defaultView}
+        view={this.props.view}
         file={this.props.file}
         frameCount={this.props.file ? this.props.file.frameCount : undefined}
         keyObject={this.props.keyObject}
@@ -78,7 +78,6 @@ class SortedVisibleSceneGrid extends Component {
         thumbCount={this.props.thumbCount}
         objectUrlObjects={this.props.objectUrlObjects}
         thumbs={this.props.thumbs}
-        visibilitySettings={this.props.visibilitySettings}
 
         useDragHandle
         axis="xy"

@@ -26,7 +26,7 @@ import {
   MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
   MINIMUM_WIDTH_TO_SHRINK_HOVER,
   MINIMUM_WIDTH_TO_SHOW_HOVER,
-  VIEW, SHEET_TYPE
+  VIEW,
 } from './../utils/constants';
 
 const SortableThumb = SortableElement(Thumb);
@@ -328,12 +328,12 @@ class ThumbGrid extends Component {
         className={styles.grid}
         style={{
           width: this.props.moviePrintWidth,
-          marginLeft: this.props.visibilitySettings.defaultView === VIEW.GRIDVIEW ? undefined : (thumbWidth / 4),
+          marginLeft: this.props.view === VIEW.GRIDVIEW ? undefined : (thumbWidth / 4),
         }}
         id="ThumbGrid"
         // ref={this.setThumbGridDivRef}
       >
-        {this.props.settings.defaultShowHeader && this.props.visibilitySettings.defaultView === VIEW.GRIDVIEW &&
+        {this.props.settings.defaultShowHeader && this.props.view === VIEW.GRIDVIEW &&
           <ThumbGridHeader
             viewForPrinting={this.props.viewForPrinting}
             defaultView={this.props.defaultView}
@@ -575,7 +575,7 @@ class ThumbGrid extends Component {
                   />
                 </div>
               }
-              {this.props.visibilitySettings.defaultView !== VIEW.GRIDVIEW && (showBeforeController || showAfterController) &&
+              {this.props.view !== VIEW.GRIDVIEW && (showBeforeController || showAfterController) &&
                 <div
                   data-tid={`insertThumb${(!showAfterController && showBeforeController) ? 'Before' : 'After'}Div_${this.state.controllersVisible}`}
                   style={{

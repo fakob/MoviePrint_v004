@@ -342,17 +342,17 @@ export const addScene = (fileId, start, length, colorArray, sceneId = uuidV4()) 
   };
 };
 
-export const addScenes = (file, sceneList, clearOldScenes = false, frameSize) => {
+export const addScenes = (file, sceneList, clearOldScenes = false, frameSize, newSheetId) => {
   return (dispatch) => {
     log.debug('action: addScenes');
     if (clearOldScenes) {
       dispatch(clearScenes(file.id));
-      dispatch(deleteSheets(file.id, DEFAULT_SHEET_SCENES));
+      // dispatch(deleteSheets(file.id, DEFAULT_SHEET_SCENES));
     }
     sceneList.map((scene, index) => {
       const sceneId = uuidV4();
       const thumbId = uuidV4();
-      dispatch(addThumb(file, DEFAULT_SHEET_SCENES, scene.start + Math.floor(scene.length / 2), index, thumbId, sceneId, frameSize));
+      dispatch(addThumb(file, newSheetId, scene.start + Math.floor(scene.length / 2), index, thumbId, sceneId, frameSize));
       return dispatch(addScene(file.id, scene.start, scene.length, scene.colorArray, sceneId));
     })
   };
@@ -713,6 +713,20 @@ export const updateSheetName = (fileId, sheetId, name) => {
         fileId,
         sheetId,
         name,
+      }
+    });
+  };
+};
+
+export const updateSheetType = (fileId, sheetId, type) => {
+  return (dispatch) => {
+    log.debug(`action: updateSheetType - ${type}`);
+    dispatch({
+      type: 'UPDATE_SHEET_TYPE',
+      payload: {
+        fileId,
+        sheetId,
+        type,
       }
     });
   };

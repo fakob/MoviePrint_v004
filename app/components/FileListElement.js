@@ -5,22 +5,43 @@ import { Menu, Icon, Popup, Dropdown, Label, Input } from 'semantic-ui-react';
 import { truncate, truncatePath, frameCountToTimeCode, formatBytes } from '../utils/utils';
 import styles from './FileList.css';
 import transparent from '../img/Thumb_TRANSPARENT.png';
+import {
+  SHEET_TYPE,
+  SHEET_TYPE_OPTIONS,
+} from '../utils/constants';
+
 
 const FileListElement = ({
   id, frameCount, fps, width, height, name, path,
-  size, objectUrl, onClick, currentFileId, sheetsObject, onSheetClick, currentSheetId,
-  onDuplicateSheetClick, onDeleteSheetClick, onRemoveMovieListItem
+  size, objectUrl, onClick, currentFileId, sheetsObject, onSetSheetClick, currentSheetId,
+  onDuplicateSheetClick, onDeleteSheetClick, onRemoveMovieListItem, onChangeSheetTypeClick
 }) => {
   const sheetsArray = Object.getOwnPropertyNames(sheetsObject);
+
+  function getSheetIcon(type) {
+    switch (type) {
+      case SHEET_TYPE.INTERVAL:
+        return 'grid layout';
+      case SHEET_TYPE.SCENES:
+        return 'barcode';
+      default:
+        return 'exclamation';
+    }
+  }
 
   function onRemoveMovieListItemClickWithStop(e, fileId) {
     e.stopPropagation();
     onRemoveMovieListItem(fileId);
   }
 
-  function onSheetClickWithStop(e, sheetId) {
+  function onSheetClickWithStop(e, sheetId, type) {
     e.stopPropagation();
-    onSheetClick(sheetId);
+    onSetSheetClick(sheetId, type);
+  }
+
+  function onChangeSheetTypeClickWithStop(e, fileId, sheetId, type) {
+    e.stopPropagation();
+    onChangeSheetTypeClick(fileId, sheetId, type);
   }
 
   function onDuplicateSheetClickWithStop(e, fileId, sheetId) {
@@ -95,7 +116,7 @@ const FileListElement = ({
             key={sheetId}
             index={index}
             data-tid={`sheetListItem_${id}`}
-            onClick={e => onSheetClickWithStop(e, sheetId)}
+            onClick={e => onSheetClickWithStop(e, sheetId, sheetsObject[sheetId].type)}
             className={`${styles.SheetListItem} ${(currentSheetId === sheetId) ? styles.SheetHighlight : ''}`}
           >
             {/* {(currentSheetId === sheetId) &&
@@ -107,7 +128,7 @@ const FileListElement = ({
               Selected sheet
             </Label>} */}
             <span className={`${styles.SheetName}`}>
-                <Icon name='grid layout' inverted />
+                <Icon name={getSheetIcon(sheetsObject[sheetId].type)} inverted />
                 &nbsp;{sheetsObject[sheetId].name}
             </span>
             {/* <Input
@@ -142,6 +163,18 @@ const FileListElement = ({
                     text="Rename"
                     onClick={e => onRenameSheetClickWithStop(e, id, sheetId)}
                   /> */}
+                <Dropdown.Item
+                  data-tid='changeTypeSheetItemOption'
+                  icon="grid layout"
+                  text="Switch type to interval"
+                  onClick={e => onChangeSheetTypeClickWithStop(e, id, sheetId, SHEET_TYPE.INTERVAL)}
+                />
+                <Dropdown.Item
+                  data-tid='changeTypeSheetItemOption'
+                  icon="barcode"
+                  text="Switch type to scenes"
+                  onClick={e => onChangeSheetTypeClickWithStop(e, id, sheetId, SHEET_TYPE.SCENES)}
+                />
                 <Dropdown.Item
                   data-tid='duplicateSheetItemOption'
                   icon="copy"

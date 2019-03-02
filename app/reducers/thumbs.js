@@ -1,7 +1,6 @@
 import log from 'electron-log';
 import { deleteProperty } from './../utils/utils';
 import {
-  SHEET_TYPE,
 } from '../utils/constants';
 
 const thumb = (state = {}, action, index) => {
@@ -234,6 +233,22 @@ const sheetsByFileId = (state = {}, action) => {
               state[action.payload.fileId][action.payload.sheetId]
             ),
             name: action.payload.name,
+          }
+        }
+      };
+    case 'UPDATE_SHEET_TYPE':
+      return {
+        ...state,
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          [action.payload.sheetId]: {
+            // conditional adding of properties
+            // only add when fileId exists
+            ...(state[action.payload.fileId] === undefined ?
+              {} :
+              state[action.payload.fileId][action.payload.sheetId]
+            ),
+            type: action.payload.type,
           }
         }
       };

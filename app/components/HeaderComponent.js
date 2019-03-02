@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Menu, Dropdown, Icon, Popup } from 'semantic-ui-react';
 import {
-  MENU_HEADER_HEIGHT, VIEW, SHEET_TYPE, SHEET_FIT
+  MENU_HEADER_HEIGHT, VIEW, SHEET_FIT
 } from '../utils/constants';
 import { truncate } from '../utils/utils';
 import styles from './Menu.css';
@@ -11,7 +11,7 @@ import stylesPop from './Popup.css';
 const Header = ({
   file, visibilitySettings, toggleMovielist, toggleSettings,
   onToggleShowHiddenThumbsClick, settings, onThumbInfoClick,
-  openMoviesDialog, toggleZoom, zoom, toggleView, onSetViewClick, onSetSheetClick,
+  openMoviesDialog, toggleZoom, zoom, toggleView, onSetViewClick,
   sheetsArray, sceneArray, onSetSheetFitClick, scaleValueObject, isSheetTypeInterval
 }) => {
 

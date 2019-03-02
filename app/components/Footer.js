@@ -73,7 +73,7 @@ const Footer = ({
               keepInViewPort={false}
             />
           }
-          {file && defaultView === VIEW.GRIDVIEW &&
+          {file &&
             <Popup
               trigger={
                 <Dropdown

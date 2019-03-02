@@ -16,7 +16,6 @@ import {
   PAPER_LAYOUT_OPTIONS,
   OUTPUT_FORMAT_OPTIONS,
   CACHED_FRAMES_SIZE_OPTIONS,
-  SHEET_TYPE,
   VIEW,
 } from '../utils/constants';
 import getScaleValueObject from '../utils/getScaleValueObject';

@@ -54,6 +54,7 @@ import {
   deleteSheets,
   deleteSceneSheets,
   duplicateSheet,
+  updateSheetType,
   hideMovielist,
   hideSettings,
   removeMovieListItem,
@@ -105,11 +106,10 @@ import {
   SCENE_DETECTION_MIN_SCENE_LENGTH,
   DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN,
   VIEW,
-  SHEET_TYPE,
   SHEET_FIT,
+  SHEET_TYPE,
   DEFAULT_THUMB_COUNT,
   DEFAULT_CACHED_FRAMES_SIZE,
-  DEFAULT_SHEET_SCENES,
   FRAMESDB_PATH,
 } from '../utils/constants';
 import {
@@ -271,6 +271,7 @@ class App extends Component {
     this.onShowHiddenThumbsClick = this.onShowHiddenThumbsClick.bind(this);
     this.onThumbInfoClick = this.onThumbInfoClick.bind(this);
     this.onSetViewClick = this.onSetViewClick.bind(this);
+    this.onChangeSheetTypeClick = this.onChangeSheetTypeClick.bind(this);
     this.onSetSheetClick = this.onSetSheetClick.bind(this);
     this.onDuplicateSheetClick = this.onDuplicateSheetClick.bind(this);
     this.onRemoveMovieListItem = this.onRemoveMovieListItem.bind(this);
@@ -412,6 +413,7 @@ class App extends Component {
         const newColumnCount = getColumnCount(this.props.sheetsByFileId, firstFile.id, newSheetId, this.props.settings);
         store.dispatch(updateSheetColumnCount(firstFile.id, newSheetId, newColumnCount)); // set columnCount on firstFile
         store.dispatch(updateSheetName(firstFile.id, newSheetId, getRandomSheetName())); // set name on firstFile
+        store.dispatch(updateSheetType(firstFile.id, newSheetId, SHEET_TYPE.INTERVAL));
         store.dispatch(setCurrentSheetId(newSheetId));
       }
       if (this.state.filesToLoad.length > 0) {
@@ -663,7 +665,7 @@ class App extends Component {
     // log.debug('App.js componentDidUpdate');
     const { store } = this.context;
     const { filesToLoad, sheetsToPrint } = this.state;
-    const { files, file, settings, visibilitySettings, sheetsByFileId } = this.props;
+    const { files, file, scenes, settings, visibilitySettings, sheetsByFileId } = this.props;
 
     if ((filesToLoad.length !== 0) &&
     (prevState.filesToLoad.length !== filesToLoad.length)) {
@@ -726,6 +728,15 @@ class App extends Component {
         const sheet = sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId];
         // const tempThumbs = sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId].thumbsArray;
         // log.debug(tempThumbs);
+
+        let view = VIEW.GRIDVIEW;
+        const sheetType = sheet.type;
+        if (sheetType === SHEET_TYPE.SCENES) {
+          view = VIEW.TIMELINEVIEW;
+        } else {
+          view = VIEW.GRIDVIEW;
+        }
+
         const scaleValueObject = getScaleValueObject(
           tempFile,
           settings,
@@ -733,23 +744,25 @@ class App extends Component {
           getColumnCount(sheetsByFileId, sheetToPrint.fileId, sheetToPrint.sheetId, settings),
           file.thumbCount,
           settings.defaultMoviePrintWidth,
-          undefined,
+          view === VIEW.TIMELINEVIEW ? settings.defaultMoviePrintWidth * settings.defaultPaperAspectRatioInv : undefined,
           1,
           undefined,
           true,
-          undefined,
+          view !== VIEW.TIMELINEVIEW ? undefined : scenes,
         );
         console.log(scaleValueObject);
         const dataToSend = {
-          elementId: 'ThumbGrid',
+          elementId: view !== VIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
           file: tempFile,
           sheetId: sheetToPrint.sheetId,
           moviePrintWidth: settings.defaultMoviePrintWidth,
           settings,
           sheet,
-          visibilitySettings,
+          visibilityFilter: visibilitySettings.visibilityFilter,
           scaleValueObject,
+          scenes: view !== VIEW.TIMELINEVIEW ? undefined : scenes,
         };
+
         filesToUpdateStatus.push({
           fileId: sheetToPrint.fileId,
           sheetId: sheetToPrint.sheetId,
@@ -1236,9 +1249,11 @@ class App extends Component {
     if (sceneList.length !== 0) {
       const tempFile = this.props.files.find((file) => file.id === fileId);
       const clearOldScenes = true;
-      store.dispatch(setCurrentSheetId(DEFAULT_SHEET_SCENES));
+      const newSheetId = uuidV4();
+      store.dispatch(setCurrentSheetId(newSheetId));
+      store.dispatch(updateSheetType(tempFile.id, newSheetId, SHEET_TYPE.SCENES));
       store.dispatch(setView(VIEW.TIMELINEVIEW));
-      store.dispatch(addScenes(tempFile, sceneList, clearOldScenes, this.props.settings.defaultCachedFramesSize));
+      store.dispatch(addScenes(tempFile, sceneList, clearOldScenes, this.props.settings.defaultCachedFramesSize, newSheetId));
     } else {
       this.setState({
         progressMessage: 'No scenes detected',
@@ -1439,7 +1454,7 @@ class App extends Component {
       moviePrintWidth: settings.defaultMoviePrintWidth,
       settings,
       sheet,
-      visibilitySettings,
+      visibilityFilter: visibilitySettings.visibilityFilter,
       scaleValueObject,
       scenes: visibilitySettings.defaultView !== VIEW.TIMELINEVIEW ? undefined : scenes,
     };
@@ -1522,9 +1537,10 @@ class App extends Component {
       const newColumnCount = getColumnCount(sheetsByFileId, file.id, newSheetId, settings);
       store.dispatch(updateSheetColumnCount(file.id, newSheetId, newColumnCount));
       store.dispatch(updateSheetName(file.id, newSheetId, getRandomSheetName()));
+      store.dispatch(updateSheetType(file.id, newSheetId, SHEET_TYPE.INTERVAL));
     }
 
-    this.onSetSheetClick(newSheetId);
+    this.onSetSheetClick(newSheetId, SHEET_TYPE.INTERVAL);
   }
 
   onErrorPosterFrame(file) {
@@ -1822,15 +1838,26 @@ class App extends Component {
     store.dispatch(setCurrentSheetId(newSheetId));
   };
 
-  onSetSheetClick = (value) => {
+  onSetSheetClick = (sheetId, type) => {
     const { store } = this.context;
-    store.dispatch(setCurrentSheetId(value));
-    // if (value.indexOf(SHEET_TYPE.SCENES) > -1) {
-    //   store.dispatch(setView(VIEW.TIMELINEVIEW));
-    //   this.onReCaptureClick(false);
-    // } else {
-    //   store.dispatch(setView(VIEW.GRIDVIEW));
-    // }
+    store.dispatch(setCurrentSheetId(sheetId));
+    if (type === SHEET_TYPE.SCENES) {
+      store.dispatch(setView(VIEW.TIMELINEVIEW));
+      this.onReCaptureClick(false);
+    } else {
+      store.dispatch(setView(VIEW.GRIDVIEW));
+    }
+  };
+
+  onChangeSheetTypeClick = (fileId, sheetId, type) => {
+    const { store } = this.context;
+    store.dispatch(updateSheetType(fileId, sheetId, type));
+    if (type === SHEET_TYPE.SCENES) {
+      store.dispatch(setView(VIEW.TIMELINEVIEW));
+      this.onReCaptureClick(false);
+    } else {
+      store.dispatch(setView(VIEW.GRIDVIEW));
+    }
   };
 
   onSetViewClick = (value) => {
@@ -1913,7 +1940,6 @@ class App extends Component {
     const { currentFileId, allThumbs, files, sheetsByFileId, settings, visibilitySettings } = this.props;
 
     const sheetType = getSheetType(sheetsByFileId, currentFileId, this.props.currentSheetId, settings)
-    const isSheetTypeInterval = sheetType.indexOf(SHEET_TYPE.SCENES) === -1;
 
 
     // console.log(objectUrlsArray);
@@ -2057,6 +2083,7 @@ class App extends Component {
                         onFileListElementClick={this.onFileListElementClick}
                         posterObjectUrlObjects={posterObjectUrlObjects}
                         sheetsByFileId={this.props.sheetsByFileId}
+                        onChangeSheetTypeClick={this.onChangeSheetTypeClick}
                         onSetSheetClick={this.onSetSheetClick}
                         onDuplicateSheetClick={this.onDuplicateSheetClick}
                         onRemoveMovieListItem={this.onRemoveMovieListItem}
@@ -2198,7 +2225,7 @@ class App extends Component {
                           <Conditional if={this.props.visibilitySettings.defaultView !== VIEW.TIMELINEVIEW}>
                             <SortedVisibleThumbGrid
                               colorArray={this.state.colorArray}
-                              defaultView={this.props.visibilitySettings.defaultView}
+                              view={this.props.visibilitySettings.defaultView}
                               currentSheetId={this.props.settings.currentSheetId}
                               file={this.props.file}
                               inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
@@ -2216,14 +2243,13 @@ class App extends Component {
                               objectUrlObjects={objectUrlObjects}
                               thumbs={this.props.thumbs}
                               viewForPrinting={false}
-                              visibilitySettings={this.props.visibilitySettings}
                               frameSize={this.props.settings.defaultCachedFramesSize}
                               isSheetTypeInterval
                             />
                           </Conditional>
                           <Conditional if={this.props.visibilitySettings.defaultView === VIEW.TIMELINEVIEW}>
                             <SortedVisibleSceneGrid
-                              defaultView={this.props.visibilitySettings.defaultView}
+                              view={this.props.visibilitySettings.defaultView}
                               file={this.props.file}
                               frameCount={this.props.file ? this.props.file.frameCount : undefined}
                               inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
@@ -2239,7 +2265,6 @@ class App extends Component {
                               showSettings={this.props.visibilitySettings.showSettings}
                               objectUrlObjects={objectUrlObjects}
                               thumbs={this.props.thumbs}
-                              visibilitySettings={this.props.visibilitySettings}
                               currentSheetId={this.props.settings.currentSheetId}
                             />
                           </Conditional>

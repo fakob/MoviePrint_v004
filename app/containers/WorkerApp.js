@@ -17,6 +17,7 @@ import {
  } from '../utils/utils';
 import saveMoviePrint from '../utils/saveMoviePrint';
 import {
+  SHEET_TYPE,
   VIEW,
 } from '../utils/constants';
 import {
@@ -54,7 +55,7 @@ class WorkerApp extends Component {
 
       const visibleThumbs = getVisibleThumbs(
         sentData.sheet.thumbsArray,
-        sentData.visibilitySettings.visibilityFilter
+        sentData.visibilityFilter
       );
 
       const base64Object = getBase64Object(sentData.file.path, sentData.file.useRatio, visibleThumbs);
@@ -108,6 +109,19 @@ class WorkerApp extends Component {
   render() {
     const { sentData, savingMoviePrint, thumbObjectBase64s, visibleThumbs } = this.state;
 
+    let view = VIEW.GRIDVIEW;
+    if (savingMoviePrint) {
+      const sheetType = sentData.sheet.type;
+      if (sheetType === SHEET_TYPE.SCENES) {
+        view = VIEW.TIMELINEVIEW;
+      } else {
+        view = VIEW.GRIDVIEW;
+      }
+      console.log(view);
+      console.log(sheetType);
+    }
+
+
     return (
       <ErrorBoundary>
         <div>
@@ -116,14 +130,14 @@ class WorkerApp extends Component {
               ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
               className={`${styles.ItemMain}`}
               style={{
-                width: `${sentData.visibilitySettings.defaultView !== VIEW.TIMELINEVIEW ?
+                width: `${view !== VIEW.TIMELINEVIEW ?
                   sentData.moviePrintWidth :
                   (Math.ceil(sentData.scaleValueObject.newMoviePrintTimelineWidth) + Math.ceil(sentData.scaleValueObject.thumbMarginTimeline) * 2)
                 }px`
               }}
             >
               <Fragment>
-                <Conditional if={sentData.visibilitySettings.defaultView !== VIEW.TIMELINEVIEW}>
+                <Conditional if={view === VIEW.GRIDVIEW}>
                   <SortedVisibleThumbGrid
                     viewForPrinting
                     inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
@@ -132,23 +146,22 @@ class WorkerApp extends Component {
                     thumbs={visibleThumbs}
                     objectUrlObjects={thumbObjectBase64s}
                     settings={sentData.settings}
-                    visibilitySettings={sentData.visibilitySettings}
 
                     selectedThumbId={undefined}
 
                     colorArray={getMoviePrintColor(sentData.settings.defaultThumbCountMax)}
                     thumbCount={sentData.file.thumbCount}
 
-                    defaultView={VIEW.GRIDVIEW}
+                    view={view}
                     currentSheetId={sentData.currentSheetId || sentData.settings.currentSheetId}
                     scaleValueObject={sentData.scaleValueObject}
                     moviePrintWidth={sentData.moviePrintWidth}
                     keyObject={{}}
                   />
                 </Conditional>
-                <Conditional if={sentData.visibilitySettings.defaultView === VIEW.TIMELINEVIEW}>
+                <Conditional if={view === VIEW.TIMELINEVIEW}>
                   <SortedVisibleSceneGrid
-                    defaultView={sentData.visibilitySettings.defaultView}
+                    view={view}
                     file={sentData.file}
                     frameCount={sentData.file ? sentData.file.frameCount : undefined}
                     inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
@@ -161,7 +174,6 @@ class WorkerApp extends Component {
                     showSettings={false}
                     objectUrlObjects={thumbObjectBase64s}
                     thumbs={visibleThumbs}
-                    visibilitySettings={sentData.visibilitySettings}
                   />
                 </Conditional>
               </Fragment>

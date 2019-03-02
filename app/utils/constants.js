@@ -16,6 +16,11 @@ export const SHEET_TYPE = {
   SCENES: 'scenes',
 };
 
+export const SHEET_TYPE_OPTIONS = [
+  { value: SHEET_TYPE.INTERVAL, text: 'Interval' , 'data-tid': 'sheetTypeOptionsInterval'},
+  { value: SHEET_TYPE.SCENES, text: 'Scenes' , 'data-tid': 'sheetTypeOptionsScenes'},
+];
+
 export const VIEW = {
   GRIDVIEW: 'gridView',
   PLAYERVIEW: 'playerView',
@@ -60,9 +65,6 @@ export const SHOW_MOVIELIST = false;
 export const SHOW_SETTINGS = false;
 export const DEFAULT_VIEW = VIEW.GRIDVIEW;
 export const DEFAULT_SHEET_TYPE = SHEET_TYPE.INTERVAL;
-export const DEFAULT_SHEET = `${SHEET_TYPE.INTERVAL}-0`;
-export const DEFAULT_SHEET_INTERVAL = `${SHEET_TYPE.INTERVAL}-0`;
-export const DEFAULT_SHEET_SCENES = `${SHEET_TYPE.SCENES}-0`;
 export const SH = SHEET_FIT.BOTH;
 
 export const DEFAULT_THUMB_COUNT_MAX = 400;
