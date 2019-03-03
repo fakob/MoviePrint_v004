@@ -28,6 +28,7 @@ import { getLowestFrame,
   getHighestFrame,
   getVisibleThumbs,
   getColumnCount,
+  getSecondsPerRow,
   getRandomSheetName,
   getSheetId,
   getSheetIdArray,
@@ -92,6 +93,7 @@ import {
   setVisibilityFilter,
   showMovielist,
   showSettings,
+  updateSheetSecondsPerRow,
   updateSheetColumnCount,
   updateSheetName,
   updateFileDetails,
@@ -138,13 +140,18 @@ moviePrintDB.pragma('journal_mode = WAL');
 // Disable animating charts by default.
 defaults.global.animation = false;
 
-const setColumnAndThumbCount = (that,
-  columnCount, thumbCount) => {
+const loadSheetPropertiesIntoState = (
+  that,
+  columnCount,
+  thumbCount,
+  secondsPerRowTemp = undefined,
+) => {
   that.setState({
     columnCountTemp: columnCount,
     thumbCountTemp: thumbCount,
     columnCount,
     thumbCount,
+    secondsPerRowTemp
   });
 };
 
@@ -159,6 +166,7 @@ class App extends Component {
     this.state = {
       containerHeight: 0,
       containerWidth: 0,
+      secondsPerRowTemp: undefined,
       columnCountTemp: undefined,
       thumbCountTemp: undefined,
       columnCount: undefined,
@@ -294,7 +302,9 @@ class App extends Component {
   }
 
   componentWillMount() {
-    const { store } = this.context;
+    const { columnCountTemp, thumbCountTemp, containerWidth, containerHeight, zoom } = this.state;
+    const { currentFileId, currentSheetId, file, scenes, settings, sheetsByFileId, visibilitySettings } = this.props;
+    const { defaultShowPaperPreview, defaultThumbCountMax } = settings;
 
     // get objecturls from all frames in imagedb
     ipcRenderer.send(
@@ -302,36 +312,39 @@ class App extends Component {
       'get-arrayOfObjectUrls'
     );
 
-    setColumnAndThumbCount(
+    const secondsPerRow = getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings);
+
+    loadSheetPropertiesIntoState(
       this,
-      getColumnCount(this.props.sheetsByFileId, undefined, undefined, store.getState().undoGroup.present.settings),
+      getColumnCount(sheetsByFileId, undefined, undefined, settings),
       getThumbsCount(
-        this.props.file,
-        this.props.sheetsByFileId,
-        store.getState().undoGroup.present.settings,
-        store.getState().visibilitySettings
+        file,
+        sheetsByFileId,
+        settings,
+        visibilitySettings
       ),
+      secondsPerRow,
     );
     this.setState({
-      colorArray: getMoviePrintColor(store.getState()
-        .undoGroup.present.settings.defaultThumbCountMax),
+      colorArray: getMoviePrintColor(defaultThumbCountMax),
       scaleValueObject: getScaleValueObject(
-        this.props.file,
-        this.props.settings,
-        this.props.visibilitySettings,
-        this.state.columnCountTemp,
-        this.state.thumbCountTemp,
-        this.state.containerWidth,
-        this.state.containerHeight,
-        this.state.zoom ? ZOOM_SCALE : 0.95,
-        this.state.zoom ? false : this.props.settings.defaultShowPaperPreview,
+        file,
+        settings,
+        visibilitySettings,
+        columnCountTemp,
+        thumbCountTemp,
+        containerWidth,
+        containerHeight,
+        zoom ? ZOOM_SCALE : 0.95,
+        zoom ? false : defaultShowPaperPreview,
         undefined,
-        this.props.scenes,
+        scenes,
+        secondsPerRow,
       )
     });
-    if (getObjectProperty(() => this.props.file.id)) {
+    if (getObjectProperty(() => file.id)) {
       this.setState({
-        opencvVideo: new opencv.VideoCapture(this.props.file.path),
+        opencvVideo: new opencv.VideoCapture(file.path),
       });
     }
   }
@@ -596,18 +609,20 @@ class App extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { store } = this.context;
-    const state = store.getState();
+    const { currentFileId, currentSheetId, file, settings, sheetsByFileId, visibilitySettings } = this.props;
+
+    const secondsPerRow = getSecondsPerRow(nextProps.sheetsByFileId, nextProps.currentFileId, nextProps.currentSheetId, nextProps.settings);
 
     if (nextProps.file !== undefined &&
-      (getObjectProperty(() => this.props.file.id) !== nextProps.file.id)) {
+      (getObjectProperty(() => file.id) !== nextProps.file.id)) {
       this.setState({
         opencvVideo: new opencv.VideoCapture(nextProps.file.path),
       });
     }
 
-    if (this.props.file !== undefined &&
+    if (file !== undefined &&
       nextProps.file !== undefined &&
-      this.props.file.id !== undefined) {
+      file.id !== undefined) {
 
       const columnCount = getColumnCount(
         nextProps.sheetsByFileId,
@@ -616,45 +631,45 @@ class App extends Component {
         nextProps.settings
       );
 
-      // check if currentFileId changed
-      if (this.props.file.id !== nextProps.file.id ||
-        this.props.currentSheetId !== nextProps.currentSheetId
+      // check if currentFileId or currentSheetId changed
+      if (currentFileId !== nextProps.currentFileId ||
+        currentSheetId !== nextProps.currentSheetId
       ) {
         const newThumbCount = getThumbsCount(
           nextProps.file,
           nextProps.sheetsByFileId,
-          state.undoGroup.present.settings,
+          nextProps.settings,
           nextProps.visibilitySettings
         );
 
-
-        setColumnAndThumbCount(
+        loadSheetPropertiesIntoState(
           this,
           columnCount,
-          newThumbCount
+          newThumbCount,
+          secondsPerRow,
         );
         log.debug('currentFileId or currentSheetId changed');
-        log.debug(columnCount);
-        log.debug(newThumbCount);
       }
+
+      // check if visibleThumbCount changed
       const oldThumbCount = getThumbsCount(
-        this.props.file,
-        this.props.sheetsByFileId,
-        state.undoGroup.present.settings,
-        this.props.visibilitySettings
+        file,
+        sheetsByFileId,
+        settings,
+        visibilitySettings
       );
       const newThumbCount = getThumbsCount(
         nextProps.file,
         nextProps.sheetsByFileId,
-        state.undoGroup.present.settings,
+        nextProps.settings,
         nextProps.visibilitySettings
       );
       if (oldThumbCount !== newThumbCount) {
-        // check if visibleThumbCount changed
-        setColumnAndThumbCount(
+        loadSheetPropertiesIntoState(
           this,
           columnCount,
-          newThumbCount
+          newThumbCount,
+          secondsPerRow,
         );
         log.debug(`visibleThumbCount changed to ${newThumbCount}`);
       }
@@ -665,7 +680,9 @@ class App extends Component {
     // log.debug('App.js componentDidUpdate');
     const { store } = this.context;
     const { filesToLoad, sheetsToPrint } = this.state;
-    const { files, file, scenes, settings, visibilitySettings, sheetsByFileId } = this.props;
+    const { files, file, scenesByFileId, settings, sheetsByFileId, visibilitySettings } = this.props;
+    const { defaultMoviePrintWidth, defaultPaperAspectRatioInv } = settings;
+    const { visibilityFilter } = visibilitySettings;
 
     if ((filesToLoad.length !== 0) &&
     (prevState.filesToLoad.length !== filesToLoad.length)) {
@@ -694,8 +711,9 @@ class App extends Component {
         // check if file could be found within files to cover the following case
         // files who could be added to the filelist, but then could not be read by opencv get removed again from the FileList
         if (tempFile !== undefined) {
-          this.getThumbsForFile(tempFile, sheetToGetThumbsFor.sheetId);
-          store.dispatch(updateSheetName(tempFile.id, sheetToGetThumbsFor.sheetId, getRandomSheetName()));
+          this.getThumbsForFile(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId);
+          store.dispatch(updateSheetName(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, getRandomSheetName()));
+          store.dispatch(updateSheetType(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, SHEET_TYPE.INTERVAL));
           filesToUpdateStatus.push({
             fileId: sheetToGetThumbsFor.fileId,
             sheetId: sheetToGetThumbsFor.sheetId,
@@ -721,14 +739,11 @@ class App extends Component {
         });
         // log.debug(sheetsToPrint);
         const sheetToPrint = sheetsToPrint.find(item => item.status === 'readyForPrinting' );
-        // log.debug(sheetToPrint);
-        const tempFile = files.find(file2 => file2.id === sheetToPrint.fileId);
-        // log.debug(tempFile);
-        // log.debug(this.props.sheetsByFileId);
-        const sheet = sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId];
-        // const tempThumbs = sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId].thumbsArray;
-        // log.debug(tempThumbs);
 
+        // get sheet to print
+        const sheet = sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId];
+
+        // define what view to print depending on type
         let view = VIEW.GRIDVIEW;
         const sheetType = sheet.type;
         if (sheetType === SHEET_TYPE.SCENES) {
@@ -737,30 +752,46 @@ class App extends Component {
           view = VIEW.GRIDVIEW;
         }
 
+        // get file to print
+        const tempFile = files.find(file2 => file2.id === sheetToPrint.fileId);
+
+        // get scenes to print
+        let tempScenes;
+        if (view === VIEW.TIMELINEVIEW && scenesByFileId[sheetToPrint.fileId] !== undefined) {
+          tempScenes = getVisibleThumbs(
+            scenesByFileId[sheetToPrint.fileId].sceneArray,
+            visibilitySettings.visibilityFilter
+          );
+        }
+
+        const secondsPerRow = getSecondsPerRow(sheetsByFileId, sheetToPrint.fileId, sheetToPrint.sheetId, settings);
+
         const scaleValueObject = getScaleValueObject(
           tempFile,
           settings,
           visibilitySettings,
           getColumnCount(sheetsByFileId, sheetToPrint.fileId, sheetToPrint.sheetId, settings),
           file.thumbCount,
-          settings.defaultMoviePrintWidth,
-          view === VIEW.TIMELINEVIEW ? settings.defaultMoviePrintWidth * settings.defaultPaperAspectRatioInv : undefined,
+          defaultMoviePrintWidth,
+          view === VIEW.TIMELINEVIEW ? defaultMoviePrintWidth * defaultPaperAspectRatioInv : undefined,
           1,
           undefined,
           true,
-          view !== VIEW.TIMELINEVIEW ? undefined : scenes,
+          tempScenes,
+          secondsPerRow,
         );
         console.log(scaleValueObject);
         const dataToSend = {
           elementId: view !== VIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
           file: tempFile,
           sheetId: sheetToPrint.sheetId,
-          moviePrintWidth: settings.defaultMoviePrintWidth,
+          moviePrintWidth: defaultMoviePrintWidth,
           settings,
           sheet,
-          visibilityFilter: visibilitySettings.visibilityFilter,
+          visibilityFilter,
           scaleValueObject,
-          scenes: view !== VIEW.TIMELINEVIEW ? undefined : scenes,
+          scenes: tempScenes,
+          secondsPerRow,
         };
 
         filesToUpdateStatus.push({
@@ -816,6 +847,7 @@ class App extends Component {
         this.props.visibilitySettings.defaultView ||
       prevProps.visibilitySettings.defaultSheetFit !==
         this.props.visibilitySettings.defaultSheetFit ||
+      prevState.secondsPerRowTemp !== this.state.secondsPerRowTemp ||
       prevState.columnCountTemp !== this.state.columnCountTemp ||
       prevState.thumbCountTemp !== this.state.thumbCountTemp ||
       prevState.columnCount !== this.state.columnCount ||
@@ -997,19 +1029,23 @@ class App extends Component {
   }
 
   updateScaleValue() {
+    const { columnCountTemp, thumbCountTemp, containerWidth, containerHeight, zoom } = this.state;
+    const { currentFileId, currentSheetId, file, scenes, settings, sheetsByFileId, visibilitySettings } = this.props;
+
     // log.debug(`inside updateScaleValue and containerWidth: ${this.state.containerWidth}`);
     const scaleValueObject = getScaleValueObject(
-      this.props.file,
-      this.props.settings,
-      this.props.visibilitySettings,
-      this.state.columnCountTemp,
-      this.state.thumbCountTemp,
-      this.state.containerWidth,
-      this.state.containerHeight,
-      this.state.zoom ? ZOOM_SCALE : 0.95,
-      this.state.zoom ? false : this.props.settings.defaultShowPaperPreview,
+      file,
+      settings,
+      visibilitySettings,
+      columnCountTemp,
+      thumbCountTemp,
+      containerWidth,
+      containerHeight,
+      zoom ? ZOOM_SCALE : 0.95,
+      zoom ? false : settings.defaultShowPaperPreview,
       undefined,
-      this.props.scenes,
+      scenes,
+      getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings),
     );
     this.setState(
       {
@@ -1087,23 +1123,26 @@ class App extends Component {
 
   showSettings() {
     const { store } = this.context;
+    const { currentFileId, currentSheetId, file, settings, sheetsByFileId, visibilitySettings } = this.props;
+    const secondsPerRow = getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings);
+
     store.dispatch(showSettings());
-    // log.debug(this.state.columnCount);
-    // log.debug(this.state.thumbCount);
-    setColumnAndThumbCount(
+
+    loadSheetPropertiesIntoState(
       this,
       getColumnCount(
-        this.props.sheetsByFileId,
-        this.props.file.id,
-        this.props.currentSheetId,
-        store.getState().undoGroup.present.settings
+        sheetsByFileId,
+        currentFileId,
+        currentSheetId,
+        settings
       ),
       getThumbsCount(
-        this.props.file,
-        this.props.sheetsByFileId,
-        store.getState().undoGroup.present.settings,
-        store.getState().visibilitySettings
+        file,
+        sheetsByFileId,
+        settings,
+        visibilitySettings
       ),
+      secondsPerRow,
     );
     this.switchToPrintView();
     this.disableZoom();
@@ -1430,34 +1469,39 @@ class App extends Component {
 
   onSaveMoviePrint() {
     const { file, settings, scenes, sheetsByFileId, visibilitySettings } = this.props;
-    const { currentSheetId } = this.props.settings;
+    const { currentFileId, currentSheetId, defaultMoviePrintWidth, defaultPaperAspectRatioInv } = settings;
+    const { defaultView, visibilityFilter } = visibilitySettings;
 
     const sheet = sheetsByFileId[file.id][currentSheetId];
+    const secondsPerRow = getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings);
+
     const scaleValueObject = getScaleValueObject(
       file,
       settings,
       visibilitySettings,
       getColumnCount(sheetsByFileId, file.id, currentSheetId, settings),
       file.thumbCount,
-      settings.defaultMoviePrintWidth,
-      visibilitySettings.defaultView === VIEW.TIMELINEVIEW ? settings.defaultMoviePrintWidth * settings.defaultPaperAspectRatioInv : undefined,
+      defaultMoviePrintWidth,
+      defaultView === VIEW.TIMELINEVIEW ? defaultMoviePrintWidth * defaultPaperAspectRatioInv : undefined,
       1,
       undefined,
       true,
-      visibilitySettings.defaultView !== VIEW.TIMELINEVIEW ? undefined : scenes,
+      defaultView !== VIEW.TIMELINEVIEW ? undefined : scenes,
+      secondsPerRow,
     );
 
     const dataToSend = {
       // scale: 1,
-      elementId: visibilitySettings.defaultView !== VIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
+      elementId: defaultView !== VIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
       file,
       sheetId: currentSheetId,
-      moviePrintWidth: settings.defaultMoviePrintWidth,
+      moviePrintWidth: defaultMoviePrintWidth,
       settings,
       sheet,
-      visibilityFilter: visibilitySettings.visibilityFilter,
+      visibilityFilter: visibilityFilter,
       scaleValueObject,
-      scenes: visibilitySettings.defaultView !== VIEW.TIMELINEVIEW ? undefined : scenes,
+      scenes: defaultView !== VIEW.TIMELINEVIEW ? undefined : scenes,
+      secondsPerRow,
     };
     // log.debug(dataToSend);
     this.setState(
@@ -1520,28 +1564,28 @@ class App extends Component {
     });
   }
 
-  onFileListElementClick(file) {
+  onFileListElementClick(fileId) {
     // log.debug(`FileListElement clicked: ${file.name}`);
     const { store } = this.context;
     const { sheetsByFileId, settings } = this.props;
 
-    store.dispatch(setCurrentFileId(file.id));
+    store.dispatch(setCurrentFileId(fileId));
 
-    let newSheetId = getSheetId(sheetsByFileId, file.id);
+    let newSheetId = getSheetId(sheetsByFileId, fileId);
 
     // When clicking on a filelist element for the first time
     if (newSheetId === undefined) {
       // there are no sheetIds, so create a new sheetId
       newSheetId = uuidV4();
       // set columnCount as it is not defined yet
-      this.getThumbsForFile(file, newSheetId);
-      const newColumnCount = getColumnCount(sheetsByFileId, file.id, newSheetId, settings);
-      store.dispatch(updateSheetColumnCount(file.id, newSheetId, newColumnCount));
-      store.dispatch(updateSheetName(file.id, newSheetId, getRandomSheetName()));
-      store.dispatch(updateSheetType(file.id, newSheetId, SHEET_TYPE.INTERVAL));
+      this.getThumbsForFile(fileId, newSheetId);
+      const newColumnCount = getColumnCount(sheetsByFileId, fileId, newSheetId, settings);
+      store.dispatch(updateSheetColumnCount(fileId, newSheetId, newColumnCount));
+      store.dispatch(updateSheetName(fileId, newSheetId, getRandomSheetName()));
+      store.dispatch(updateSheetType(fileId, newSheetId, SHEET_TYPE.INTERVAL));
     }
 
-    this.onSetSheetClick(newSheetId, SHEET_TYPE.INTERVAL);
+    this.onSetSheetClick(fileId, newSheetId, SHEET_TYPE.INTERVAL);
   }
 
   onErrorPosterFrame(file) {
@@ -1549,13 +1593,14 @@ class App extends Component {
     // store.dispatch(updateThumbObjectUrlFromDB(file.id, undefined, undefined, file.posterFrameId, true));
   }
 
-  getThumbsForFile(file, newSheetId = uuidV4()) {
-    log.debug(`inside getThumbsForFile: ${file.name}`);
+  getThumbsForFile(fileId, newSheetId = uuidV4()) {
+    log.debug(`inside getThumbsForFileId: ${fileId}`);
     const { store } = this.context;
-    const { sheetsByFileId, settings } = this.props;
-    if (sheetsByFileId[file.id] === undefined ||
-    sheetsByFileId[file.id][newSheetId] === undefined ||
-    sheetsByFileId[file.id][newSheetId].thumbsArray === undefined) {
+    const { files, sheetsByFileId, settings } = this.props;
+    const file = files.find(file2 =>file2.id === fileId);
+    if (sheetsByFileId[fileId] === undefined ||
+    sheetsByFileId[fileId][newSheetId] === undefined ||
+    sheetsByFileId[fileId][newSheetId].thumbsArray === undefined) {
       log.debug(`addIntervalSheet as no thumbs were found for: ${file.name}`);
       store.dispatch(addIntervalSheet(
           file,
@@ -1737,6 +1782,15 @@ class App extends Component {
 
   onChangeTimelineViewSecondsPerRow = (value) => {
     const { store } = this.context;
+    const { file, currentSheetId } = this.props;
+
+    if (file !== undefined) {
+      store.dispatch(updateSheetSecondsPerRow(
+        file.id,
+        currentSheetId,
+        value,
+      ));
+    }
     store.dispatch(setDefaultTimelineViewSecondsPerRow(value));
   };
 
@@ -1839,8 +1893,12 @@ class App extends Component {
     store.dispatch(setCurrentSheetId(newSheetId));
   };
 
-  onSetSheetClick = (sheetId, type) => {
+  onSetSheetClick = (fileId, sheetId, type) => {
     const { store } = this.context;
+    const { currentFileId } = this.props;
+    if (fileId !== currentFileId) {
+      store.dispatch(setCurrentFileId(fileId));
+    }
     store.dispatch(setCurrentSheetId(sheetId));
     if (type === SHEET_TYPE.SCENES) {
       store.dispatch(setView(VIEW.TIMELINEVIEW));
@@ -1938,12 +1996,15 @@ class App extends Component {
     const { accept, dropzoneActive } = this.state;
     const { store } = this.context;
     const { objectUrlsArray } = this.state;
-    const { currentFileId, allThumbs, files, sheetsByFileId, settings, visibilitySettings } = this.props;
+    const { currentFileId, currentSheetId, allThumbs, files, sheetsByFileId, settings, visibilitySettings } = this.props;
 
-    const sheetType = getSheetType(sheetsByFileId, currentFileId, this.props.currentSheetId, settings)
+    const secondsPerRow = getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings);
+    const sheetType = getSheetType(sheetsByFileId, currentFileId, currentSheetId, settings);
 
-
-    // console.log(objectUrlsArray);
+    let isGridView = true;
+    if (sheetType === SHEET_TYPE.SCENES) {
+      isGridView = false;
+    }
 
     // get objectUrls by reading all thumbs and get the corresponding objectUrls from the objectUrlsArray
     const arrayOfObjectUrlsOfAllThumbs = [];
@@ -2028,12 +2089,11 @@ class App extends Component {
                     onToggleShowHiddenThumbsClick={this.onToggleShowHiddenThumbsClick}
                     onThumbInfoClick={this.onThumbInfoClick}
                     onSetViewClick={this.onSetViewClick}
-                    onSetSheetClick={this.onSetSheetClick}
                     onSetSheetFitClick={this.onSetSheetFitClick}
                     openMoviesDialog={this.openMoviesDialog}
                     zoom={this.state.zoom}
                     scaleValueObject={this.state.scaleValueObject}
-                    isSheetTypeInterval
+                    isGridView
                   />
                   <TransitionablePortal
                     // onClose={this.setState({ progressMessage: undefined })}
@@ -2120,6 +2180,8 @@ class App extends Component {
                         onChangeMargin={this.onChangeMargin}
                         onChangeMinDisplaySceneLength={this.onChangeMinDisplaySceneLength}
                         sceneArray={this.props.scenes}
+                        secondsPerRowTemp={secondsPerRow}
+                        // secondsPerRowTemp={this.state.secondsPerRowTemp}
                         onChangeSceneDetectionThreshold={this.onChangeSceneDetectionThreshold}
                         onChangeTimelineViewSecondsPerRow={this.onChangeTimelineViewSecondsPerRow}
                         onChangeTimelineViewWidthScale={this.onChangeTimelineViewWidthScale}
@@ -2144,7 +2206,7 @@ class App extends Component {
                         showChart={this.state.showChart}
                         onToggleDetectionChart={this.onToggleDetectionChart}
                         recaptureAllFrames={this.recaptureAllFrames}
-                        isSheetTypeInterval
+                        isGridView={isGridView}
                       />
                     </div>
                     <div
@@ -2245,7 +2307,7 @@ class App extends Component {
                               thumbs={this.props.thumbs}
                               viewForPrinting={false}
                               frameSize={this.props.settings.defaultCachedFramesSize}
-                              isSheetTypeInterval
+                              isGridView={isGridView}
                             />
                           </Conditional>
                           <Conditional if={this.props.visibilitySettings.defaultView === VIEW.TIMELINEVIEW}>
@@ -2568,6 +2630,7 @@ const mapStateToProps = state => {
     files,
     file: files
       .find((file) => file.id === currentFileId),
+    scenesByFileId,
     scenes: getVisibleThumbs(
       allScenes,
       visibilitySettings.visibilityFilter
@@ -2585,13 +2648,16 @@ App.contextTypes = {
 
 App.defaultProps = {
   currentFileId: undefined,
+  currentSheetId: undefined,
   file: undefined,
   thumbs: [],
   sheetsByFileId: {},
+  scenes: [],
 };
 
 App.propTypes = {
   currentFileId: PropTypes.string,
+  currentSheetId: PropTypes.string,
   file: PropTypes.shape({
     id: PropTypes.string,
     width: PropTypes.number,
@@ -2603,6 +2669,7 @@ App.propTypes = {
   settings: PropTypes.object.isRequired,
   thumbs: PropTypes.array,
   sheetsByFileId: PropTypes.object,
+  scenes: PropTypes.array,
   visibilitySettings: PropTypes.object.isRequired,
 };
 

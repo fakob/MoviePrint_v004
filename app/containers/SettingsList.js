@@ -7,7 +7,7 @@ import Tooltip from 'rc-tooltip';
 import { Button, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List, Message, Popup } from 'semantic-ui-react';
 import styles from './Settings.css';
 import stylesPop from '../components/Popup.css';
-import { frameCountToMinutes, getSheetType } from '../utils/utils';
+import { frameCountToMinutes } from '../utils/utils';
 import {
   MENU_HEADER_HEIGHT,
   MENU_FOOTER_HEIGHT,
@@ -16,7 +16,6 @@ import {
   PAPER_LAYOUT_OPTIONS,
   OUTPUT_FORMAT_OPTIONS,
   CACHED_FRAMES_SIZE_OPTIONS,
-  VIEW,
 } from '../utils/constants';
 import getScaleValueObject from '../utils/getScaleValueObject';
 
@@ -42,21 +41,23 @@ const handle = (props) => {
 const outputSize = (file = {
   width: DEFAULT_MOVIE_WIDTH,
   height: DEFAULT_MOVIE_HEIGHT,
-}, columnCountTemp, thumbCountTemp, settings, visibilitySettings, sceneArray) => {
+}, columnCountTemp, thumbCountTemp, settings, visibilitySettings, sceneArray, secondsPerRowTemp, isGridView) => {
   const newScaleValueObject = getScaleValueObject(
     file,
     settings,
     visibilitySettings,
-    columnCountTemp, thumbCountTemp,
-    4096, undefined,
+    columnCountTemp,
+    thumbCountTemp,
+    4096,
+    undefined,
     1,
     undefined,
     undefined,
     sceneArray,
+    secondsPerRowTemp,
   );
   const sizeLimit = 32767; // due to browser limitations https://html2canvas.hertzen.com/faq
   let moviePrintSize;
-  const isGridView = visibilitySettings.defaultView !== VIEW.TIMELINEVIEW;
   if (isGridView) {
     moviePrintSize = [
     { width: 16384, height: Math.round(16384 * newScaleValueObject.moviePrintAspectRatioInv) },
@@ -194,7 +195,7 @@ class SettingsList extends Component {
       columnCountTemp,
       file,
       fileScanRunning,
-      isSheetTypeInterval,
+      isGridView,
       onApplyNewGridClick,
       onChangeColumn,
       onChangeColumnAndApply,
@@ -209,6 +210,7 @@ class SettingsList extends Component {
       recaptureAllFrames,
       rowCountTemp,
       sceneArray,
+      secondsPerRowTemp,
       settings,
       showChart,
       thumbCount,
@@ -226,7 +228,7 @@ class SettingsList extends Component {
         }}
       >
         <Grid padded inverted>
-          { !isSheetTypeInterval &&
+          { !isGridView &&
             <Grid.Row>
               <Grid.Column width={16}>
                 <Statistic inverted size="tiny">
@@ -250,7 +252,7 @@ class SettingsList extends Component {
               </Grid.Column>
             </Grid.Row>
           }
-          { (visibilitySettings.defaultView === VIEW.GRIDVIEW) &&
+          { isGridView &&
             <Grid.Row>
               <Grid.Column width={16}>
                 <Statistic inverted size="tiny">
@@ -276,7 +278,7 @@ class SettingsList extends Component {
               </Grid.Column>
             </Grid.Row>
           }
-          { (visibilitySettings.defaultView === VIEW.GRIDVIEW) &&
+          { isGridView &&
             <Grid.Row>
               <Grid.Column width={4}>
                 Columns
@@ -294,13 +296,13 @@ class SettingsList extends Component {
                     20: '20',
                   }}
                   handle={handle}
-                  onChange={(reCapture && isSheetTypeInterval) ? onChangeColumn :
+                  onChange={(reCapture && isGridView) ? onChangeColumn :
                     onChangeColumnAndApply}
                 />
               </Grid.Column>
             </Grid.Row>
           }
-          { isSheetTypeInterval &&
+          { isGridView &&
             reCapture &&
             <Grid.Row>
               <Grid.Column width={4}>
@@ -326,7 +328,7 @@ class SettingsList extends Component {
               </Grid.Column>
             </Grid.Row>
           }
-          { (visibilitySettings.defaultView === VIEW.TIMELINEVIEW) &&
+          { !isGridView &&
             <Fragment>
               <Grid.Row>
                 <Grid.Column width={4}>
@@ -338,7 +340,8 @@ class SettingsList extends Component {
                     className={styles.slider}
                     min={10}
                     max={1800}
-                    defaultValue={settings.defaultTimelineViewSecondsPerRow}
+                    defaultValue={secondsPerRowTemp}
+                    value={secondsPerRowTemp}
                     marks={{
                       10: '0.1',
                       60: '1',
@@ -371,7 +374,7 @@ class SettingsList extends Component {
               </Grid.Row> */}
             </Fragment>
           }
-          { isSheetTypeInterval &&
+          { isGridView &&
             <Grid.Row>
               <Grid.Column width={4}>
                 Count
@@ -390,7 +393,7 @@ class SettingsList extends Component {
               </Grid.Column>
             </Grid.Row>
           }
-          { isSheetTypeInterval &&
+          { isGridView &&
             (thumbCount !== thumbCountTemp) &&
             <Grid.Row>
               <Grid.Column width={4} />
@@ -405,7 +408,7 @@ class SettingsList extends Component {
               </Grid.Column>
             </Grid.Row>
           }
-          { isSheetTypeInterval &&
+          { isGridView &&
             <Grid.Row>
               <Grid.Column width={4} />
               <Grid.Column width={12}>
@@ -483,7 +486,7 @@ class SettingsList extends Component {
               />
             </Grid.Column>
           </Grid.Row>
-          { (visibilitySettings.defaultView === VIEW.TIMELINEVIEW) &&
+          { !isGridView &&
             <Grid.Row>
               <Grid.Column width={4}>
                 Scene width ratio
@@ -506,7 +509,7 @@ class SettingsList extends Component {
               </Grid.Column>
             </Grid.Row>
           }
-          { (visibilitySettings.defaultView === VIEW.TIMELINEVIEW) &&
+          { !isGridView &&
             <Grid.Row>
               <Grid.Column width={4}>
                 Min scene width
@@ -528,7 +531,7 @@ class SettingsList extends Component {
               </Grid.Column>
             </Grid.Row>
           }
-          { (visibilitySettings.defaultView === VIEW.GRIDVIEW) &&
+          { isGridView &&
             <Grid.Row>
               <Grid.Column width={4}>
                 Options
@@ -713,7 +716,7 @@ class SettingsList extends Component {
                 data-tid='changeMoviePrintWidthDropdown'
                 placeholder="Select..."
                 selection
-                options={outputSize(file, columnCountTemp, thumbCountTemp, settings, visibilitySettings, sceneArray)}
+                options={outputSize(file, columnCountTemp, thumbCountTemp, settings, visibilitySettings, sceneArray, secondsPerRowTemp, isGridView)}
                 defaultValue={settings.defaultMoviePrintWidth}
                 onChange={this.onChangeMoviePrintWidth}
               />

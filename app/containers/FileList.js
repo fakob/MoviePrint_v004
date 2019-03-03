@@ -34,11 +34,10 @@ class SortedFileList extends Component {
           {files.map((file, index) => (
             <FileListElement
               key={file.id}
+              fileId={file.id}
               {...file}
               index={index}
-              onClick={() => {
-                this.props.onFileListElementClick(file);
-              }}
+              onFileListElementClick={this.props.onFileListElementClick}
               onSetSheetClick={this.props.onSetSheetClick}
               onChangeSheetTypeClick={this.props.onChangeSheetTypeClick}
               onDuplicateSheetClick={this.props.onDuplicateSheetClick}
@@ -51,7 +50,7 @@ class SortedFileList extends Component {
               }
               sheetsObject={
                 this.props.sheetsByFileId[file.id] === undefined ?
-                [] : this.props.sheetsByFileId[file.id]
+                {} : this.props.sheetsByFileId[file.id]
               }
             />
           ))}

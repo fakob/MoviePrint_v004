@@ -206,6 +206,22 @@ const sheetsByFileId = (state = {}, action) => {
           }
         }
       };
+    case 'UPDATE_SHEET_SECONDSPERROW':
+      return {
+        ...state,
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          [action.payload.sheetId]: {
+            // conditional adding of properties
+            // only add when fileId exists
+            ...(state[action.payload.fileId] === undefined ?
+              {} :
+              state[action.payload.fileId][action.payload.sheetId]
+            ),
+            secondsPerRow: action.payload.secondsPerRow,
+          }
+        }
+      };
     case 'UPDATE_SHEET_COLUMNCOUNT':
       return {
         ...state,

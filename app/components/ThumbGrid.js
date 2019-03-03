@@ -303,7 +303,7 @@ class ThumbGrid extends Component {
     }
     const thumbWidth = this.props.scaleValueObject.newThumbWidth;
 
-    const { isSheetTypeInterval } = this.props;
+    const { isGridView } = this.props;
     const hoverThumbIndex = thumbArray.findIndex(thumb => thumb.thumbId === this.state.controllersVisible);
     const isHidden = hoverThumbIndex !== -1 ? thumbArray[hoverThumbIndex].hidden : undefined;
     // console.log(this.thumbGridDivRef !== null ? this.thumbGridDivRef.getBoundingClientRect() : 'not set yet')
@@ -426,7 +426,7 @@ class ThumbGrid extends Component {
               height: `${(thumbWidth * this.props.scaleValueObject.aspectRatioInv)}px`,
             }}
           >
-              {!isSheetTypeInterval && <Popup
+              {!isGridView && <Popup
                 trigger={
                   <button
                     data-tid={`ExitThumbBtn_${this.state.controllersVisible}`}

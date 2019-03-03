@@ -121,7 +121,7 @@ class SortedVisibleThumbGrid extends Component {
         objectUrlObjects={this.props.objectUrlObjects}
         thumbs={this.props.thumbs}
         viewForPrinting={this.props.viewForPrinting}
-        isSheetTypeInterval={this.props.isSheetTypeInterval}
+        isGridView={this.props.isGridView}
         isSorting={this.state.isSorting}
 
         useDragHandle

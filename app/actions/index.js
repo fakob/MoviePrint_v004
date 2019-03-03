@@ -690,6 +690,20 @@ export const removeMovieListItem = (fileId) => {
   };
 };
 
+export const updateSheetSecondsPerRow = (fileId, sheetId, secondsPerRow) => {
+  return (dispatch) => {
+    log.debug(`action: updateSheetSecondsPerRow - ${secondsPerRow}`);
+    dispatch({
+      type: 'UPDATE_SHEET_SECONDSPERROW',
+      payload: {
+        fileId,
+        sheetId,
+        secondsPerRow,
+      }
+    });
+  };
+};
+
 export const updateSheetColumnCount = (fileId, sheetId, columnCount) => {
   return (dispatch) => {
     log.debug(`action: updateSheetColumnCount - ${columnCount}`);

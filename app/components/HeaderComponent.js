@@ -12,7 +12,7 @@ const Header = ({
   file, visibilitySettings, toggleMovielist, toggleSettings,
   onToggleShowHiddenThumbsClick, settings, onThumbInfoClick,
   openMoviesDialog, toggleZoom, zoom, toggleView, onSetViewClick,
-  sheetsArray, sceneArray, onSetSheetFitClick, scaleValueObject, isSheetTypeInterval
+  sheetsArray, sceneArray, onSetSheetFitClick, scaleValueObject,
 }) => {
 
   const thumbInfoOptions = [
@@ -20,21 +20,6 @@ const Header = ({
     { value: 'timecode', text: 'Show timecode', 'data-tid':'timecodeOption'},
     { value: 'hideInfo', text: 'Hide info', 'data-tid':'hideInfoOption'},
   ];
-
-  const sheetOptions = (sheetsArray, sceneArray) => {
-    sheetsArray.sort();
-    const mappedArray = sheetsArray.map(sheet => {
-      if (!isSheetTypeInterval) {
-        return ({ value: sheet, text: `Scenes Print`, 'data-tid':`${sheet}SheetOption` });
-      }
-      if (isSheetTypeInterval) {
-        return ({ value: sheet, text: `Interval Print`, 'data-tid':`${sheet}SheetOption` });
-      }
-      const sceneIndex = sceneArray.findIndex(item => item.sceneId === sheet);
-      return ({ value: sheet, text: `Interval Print - Scene ${sceneIndex}`, 'data-tid':`${sheet}SheetOption` });
-    });
-    return mappedArray;
-  };
 
   const viewOptions = [
     { value: VIEW.GRIDVIEW, text: 'Grid view', 'data-tid':'gridViewOption'},

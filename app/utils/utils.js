@@ -374,10 +374,10 @@ export const getSheetType = (sheetsByFileId, fileId, sheetId, settings) => {
   if (sheetsByFileId === undefined ||
     sheetsByFileId[fileId] === undefined ||
     sheetsByFileId[fileId][sheetId] === undefined ||
-    sheetsByFileId[fileId][sheetId].sheetType === undefined) {
+    sheetsByFileId[fileId][sheetId].type === undefined) {
     return settings.defaultSheetType;
   }
-  return sheetsByFileId[fileId][sheetId].sheetType;
+  return sheetsByFileId[fileId][sheetId].type;
 };
 
 export const getColumnCount = (sheetsByFileId, fileId, sheetId, settings) => {
@@ -388,6 +388,16 @@ export const getColumnCount = (sheetsByFileId, fileId, sheetId, settings) => {
     return settings.defaultColumnCount;
   }
   return sheetsByFileId[fileId][sheetId].columnCount;
+};
+
+export const getSecondsPerRow = (sheetsByFileId, fileId, sheetId, settings) => {
+  if (sheetsByFileId === undefined ||
+    sheetsByFileId[fileId] === undefined ||
+    sheetsByFileId[fileId][sheetId] === undefined ||
+    sheetsByFileId[fileId][sheetId].secondsPerRow === undefined) {
+    return settings.defaultTimelineViewSecondsPerRow;
+  }
+  return sheetsByFileId[fileId][sheetId].secondsPerRow;
 };
 
 export const getThumbsCount = (file, sheetsByFileId, settings, visibilitySettings) => {

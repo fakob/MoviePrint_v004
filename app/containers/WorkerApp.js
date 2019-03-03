@@ -6,11 +6,10 @@ import path from 'path';
 // import imageDB from './../utils/db';
 import '../app.global.css';
 import styles from './App.css';
-import SortedVisibleThumbGrid from '../containers/VisibleThumbGrid';
-import SortedVisibleSceneGrid from '../containers/VisibleSceneGrid';
+import SortedVisibleThumbGrid from './VisibleThumbGrid';
+import SortedVisibleSceneGrid from './VisibleSceneGrid';
 import Conditional from '../components/Conditional';
 import ErrorBoundary from '../components/ErrorBoundary';
-import getScaleValueObject from '../utils/getScaleValueObject';
 import {
   getMoviePrintColor,
   getVisibleThumbs,
@@ -166,7 +165,6 @@ class WorkerApp extends Component {
                     frameCount={sentData.file ? sentData.file.frameCount : undefined}
                     inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                     keyObject={{}}
-                    secondsPerRow={sentData.settings.defaultTimelineViewSecondsPerRow}
                     selectedSceneId={undefined}
                     scaleValueObject={sentData.scaleValueObject}
                     scenes={sentData.scenes}

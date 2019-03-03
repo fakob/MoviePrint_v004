@@ -12,8 +12,8 @@ import {
 
 
 const FileListElement = ({
-  id, frameCount, fps, width, height, name, path,
-  size, objectUrl, onClick, currentFileId, sheetsObject, onSetSheetClick, currentSheetId,
+  fileId, frameCount, fps, width, height, name, path,
+  size, objectUrl, onFileListElementClick, currentFileId, sheetsObject, onSetSheetClick, currentSheetId,
   onDuplicateSheetClick, onDeleteSheetClick, onRemoveMovieListItem, onChangeSheetTypeClick
 }) => {
   const sheetsArray = Object.getOwnPropertyNames(sheetsObject);
@@ -34,9 +34,9 @@ const FileListElement = ({
     onRemoveMovieListItem(fileId);
   }
 
-  function onSheetClickWithStop(e, sheetId, type) {
+  function onSheetClickWithStop(e, fileId, sheetId, type) {
     e.stopPropagation();
-    onSetSheetClick(sheetId, type);
+    onSetSheetClick(fileId, sheetId, type);
   }
 
   function onChangeSheetTypeClickWithStop(e, fileId, sheetId, type) {
@@ -54,11 +54,16 @@ const FileListElement = ({
     onDeleteSheetClick(fileId, sheetId);
   }
 
+  function onFileListElementClickWithStop(e, fileId) {
+    e.stopPropagation();
+    onFileListElementClick(fileId);
+  }
+
   return (
     <li
-      data-tid={`fileListItem_${id}`}
-      onClick={onClick}
-      className={`${styles.FileListItem} ${(currentFileId === id) ? styles.Highlight : ''}`}
+      data-tid={`fileListItem_${fileId}`}
+      onClick={e => onFileListElementClickWithStop(e, fileId)}
+      className={`${styles.FileListItem} ${(currentFileId === fileId) ? styles.Highlight : ''}`}
     >
       <Dropdown
         data-tid='movieListItemOptionsDropdown'
@@ -72,7 +77,7 @@ const FileListElement = ({
             data-tid='removeMovieListItemOption'
             icon="delete"
             text="Remove from list"
-            onClick={e => onRemoveMovieListItemClickWithStop(e, id)}
+            onClick={e => onRemoveMovieListItemClickWithStop(e, fileId)}
           />
         </Dropdown.Menu>
       </Dropdown>
@@ -111,12 +116,12 @@ const FileListElement = ({
       <ul
         className={`${styles.SheetList}`}
       >
-        {(currentFileId === id) && sheetsArray.map((sheetId, index) => (
+        {sheetsArray.map((sheetId, index) => (
           <li
             key={sheetId}
             index={index}
-            data-tid={`sheetListItem_${id}`}
-            onClick={e => onSheetClickWithStop(e, sheetId, sheetsObject[sheetId].type)}
+            data-tid={`sheetListItem_${fileId}`}
+            onClick={e => onSheetClickWithStop(e, fileId, sheetId, sheetsObject[sheetId].type)}
             className={`${styles.SheetListItem} ${(currentSheetId === sheetId) ? styles.SheetHighlight : ''}`}
           >
             {/* {(currentSheetId === sheetId) &&
@@ -161,31 +166,31 @@ const FileListElement = ({
                     data-tid='renameSheetItemOption'
                     icon="edit"
                     text="Rename"
-                    onClick={e => onRenameSheetClickWithStop(e, id, sheetId)}
+                    onClick={e => onRenameSheetClickWithStop(e, fileId, sheetId)}
                   /> */}
                 <Dropdown.Item
                   data-tid='changeTypeSheetItemOption'
                   icon="grid layout"
                   text="Switch type to interval"
-                  onClick={e => onChangeSheetTypeClickWithStop(e, id, sheetId, SHEET_TYPE.INTERVAL)}
+                  onClick={e => onChangeSheetTypeClickWithStop(e, fileId, sheetId, SHEET_TYPE.INTERVAL)}
                 />
                 <Dropdown.Item
                   data-tid='changeTypeSheetItemOption'
                   icon="barcode"
                   text="Switch type to scenes"
-                  onClick={e => onChangeSheetTypeClickWithStop(e, id, sheetId, SHEET_TYPE.SCENES)}
+                  onClick={e => onChangeSheetTypeClickWithStop(e, fileId, sheetId, SHEET_TYPE.SCENES)}
                 />
                 <Dropdown.Item
                   data-tid='duplicateSheetItemOption'
                   icon="copy"
                   text="Duplicate"
-                  onClick={e => onDuplicateSheetClickWithStop(e, id, sheetId)}
+                  onClick={e => onDuplicateSheetClickWithStop(e, fileId, sheetId)}
                 />
                 <Dropdown.Item
                   data-tid='deleteSheetItemOption'
                   icon="delete"
                   text="Delete"
-                  onClick={e => onDeleteSheetClickWithStop(e, id, sheetId)}
+                  onClick={e => onDeleteSheetClickWithStop(e, fileId, sheetId)}
                 />
               </Dropdown.Menu>
             </Dropdown>
@@ -197,7 +202,7 @@ const FileListElement = ({
 };
 
 FileListElement.propTypes = {
-  id: PropTypes.string.isRequired,
+  fileId: PropTypes.string.isRequired,
   frameCount: PropTypes.number,
   fps: PropTypes.number,
   width: PropTypes.number,
@@ -207,7 +212,7 @@ FileListElement.propTypes = {
   name: PropTypes.string.isRequired,
   path: PropTypes.string.isRequired,
   size: PropTypes.number.isRequired,
-  onClick: PropTypes.func.isRequired
+  onFileListElementClick: PropTypes.func.isRequired
 };
 
 export default FileListElement;
