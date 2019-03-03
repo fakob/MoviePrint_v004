@@ -96,7 +96,7 @@ const Thumb = ({
     e.stopPropagation();
     // check if function is not null (passed from thumbgrid)
     // if (onOut) {
-    //   onOut();
+    //   onOut(e);
     // }
   }
 
@@ -105,7 +105,7 @@ const Thumb = ({
       ref={inputRefThumb}
       role="button"
       tabIndex={index}
-      onMouseOver={onOverWithStop}
+      onMouseEnter={onOverWithStop}
       onMouseLeave={onOutWithStop}
       onFocus={onOverWithStop}
       onBlur={onOutWithStop}
