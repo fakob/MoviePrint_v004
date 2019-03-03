@@ -4,29 +4,29 @@ import PropTypes from 'prop-types';
 import { SortableHandle } from 'react-sortable-hoc';
 import styles from './ThumbGrid.css';
 import {
-  VIEW
+  SHEETVIEW
 } from '../utils/constants';
 import transparent from './../img/Thumb_TRANSPARENT.png';
 
 const ThumbEmpty = ({
   onSelect, onToggle, onInPoint, onOutPoint, onBack, onForward, tempId, color, scaleValue,
   onOver, onOut, onScrub, hidden, thumbImageObjectUrl, aspectRatioInv, thumbInfoRatio,
-  controlersAreVisible, thumbWidth, margin, defaultView, borderRadius, thumbInfoValue, selected,
+  controlersAreVisible, thumbWidth, margin, defaultSheetView, borderRadius, thumbInfoValue, selected,
   inputRefThumb, onThumbDoubleClick
 }) => {
 
   return (
     <div
       onDoubleClick={onThumbDoubleClick}
-      className={`${styles.gridItem} ${(selected && defaultView !== VIEW.GRIDVIEW) ? styles.gridItemSelected : ''}`}
+      className={`${styles.gridItem} ${(selected && defaultSheetView !== SHEETVIEW.GRIDVIEW) ? styles.gridItemSelected : ''}`}
       width={`${thumbWidth}px`}
       height={`${(thumbWidth * aspectRatioInv)}px`}
       style={{
         opacity: hidden ? '0.2' : '1',
         width: thumbWidth,
         margin: `${margin}px`,
-        outlineWidth: `${(selected && defaultView !== VIEW.GRIDVIEW) ? margin : 0}px`,
-        borderRadius: `${(selected && defaultView !== VIEW.GRIDVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
+        outlineWidth: `${(selected && defaultSheetView !== SHEETVIEW.GRIDVIEW) ? margin : 0}px`,
+        borderRadius: `${(selected && defaultSheetView !== SHEETVIEW.GRIDVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: thumbImageObjectUrl !== undefined ? undefined : color,
       }}
     >
@@ -41,7 +41,7 @@ const ThumbEmpty = ({
         height={`${(thumbWidth * aspectRatioInv)}px`}
         style={{
           filter: `${controlersAreVisible ? 'brightness(80%)' : ''}`,
-          borderRadius: `${(selected && defaultView !== VIEW.GRIDVIEW) ? 0 : borderRadius}px`,
+          borderRadius: `${(selected && defaultSheetView !== SHEETVIEW.GRIDVIEW) ? 0 : borderRadius}px`,
         }}
       />
     </div>
@@ -53,7 +53,7 @@ ThumbEmpty.defaultProps = {
 };
 
 ThumbEmpty.propTypes = {
-  // defaultView: PropTypes.string,
+  // defaultSheetView: PropTypes.string,
   // aspectRatioInv: PropTypes.number,
   // thumbWidth: PropTypes.number,
   // margin: PropTypes.number,

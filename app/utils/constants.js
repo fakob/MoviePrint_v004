@@ -21,10 +21,14 @@ export const SHEET_TYPE_OPTIONS = [
   { value: SHEET_TYPE.SCENES, text: 'Scenes' , 'data-tid': 'sheetTypeOptionsScenes'},
 ];
 
-export const VIEW = {
+export const SHEETVIEW = {
   GRIDVIEW: 'gridView',
-  PLAYERVIEW: 'playerView',
   TIMELINEVIEW: 'timelineView',
+};
+
+export const VIEW = {
+  PLAYERVIEW: 'playerView',
+  STANDARDVIEW: 'standardView',
 };
 
 export const MOVIEPRINT_COLORS = [
@@ -63,7 +67,7 @@ export const CACHED_FRAMES_SIZE_OPTIONS = [
 export const VISIBILITY_FILTER = 'SHOW_VISIBLE';
 export const SHOW_MOVIELIST = false;
 export const SHOW_SETTINGS = false;
-export const DEFAULT_VIEW = VIEW.GRIDVIEW;
+export const DEFAULT_SHEETVIEW = SHEETVIEW.GRIDVIEW;
 export const DEFAULT_SHEET_TYPE = SHEET_TYPE.INTERVAL;
 export const SH = SHEET_FIT.BOTH;
 

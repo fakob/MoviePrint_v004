@@ -11,7 +11,7 @@ import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
 import { getLowestFrame, getHighestFrame } from '../utils/utils';
 import saveThumb from '../utils/saveThumb';
-import { CHANGE_THUMB_STEP, VIEW, DEFAULT_SHEET_SCENES } from '../utils/constants';
+import { CHANGE_THUMB_STEP, SHEETVIEW, DEFAULT_SHEET_SCENES } from '../utils/constants';
 
 class SortedVisibleThumbGrid extends Component {
   constructor(props) {
@@ -35,7 +35,7 @@ class SortedVisibleThumbGrid extends Component {
     if (prevProps.selectedThumbId !== this.props.selectedThumbId) {
       this.scrollThumbIntoView();
     }
-    // delay when switching to gridView so it waits for the view to be ready
+    // delay when switching to gridView so it waits for the sheetView to be ready
     if ((prevProps.view !== this.props.view) &&
     prevProps.view) {
       setTimeout(() => {
@@ -94,6 +94,7 @@ class SortedVisibleThumbGrid extends Component {
     return (
       <SortableThumbGrid
         colorArray={this.props.colorArray}
+        sheetView={this.props.sheetView}
         view={this.props.view}
         currentSheetId={this.props.currentSheetId}
         file={this.props.file}
@@ -162,7 +163,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     onExitClick: () => {
       // dispatch(setCurrentSheetId(DEFAULT_SHEET_SCENES));
-      dispatch(setView(VIEW.TIMELINEVIEW));
+      dispatch(setView(SHEETVIEW.TIMELINEVIEW));
     },
     onToggleClick: (fileId, thumbId) => {
       dispatch(toggleThumb(fileId, ownProps.currentSheetId, thumbId));
@@ -246,7 +247,7 @@ SortedVisibleThumbGrid.propTypes = {
   selectedThumbId: PropTypes.string,
   selectThumbMethod: PropTypes.func,
   settings: PropTypes.object.isRequired,
-  view: PropTypes.string.isRequired,
+  sheetView: PropTypes.string.isRequired,
   // currentSheetId: PropTypes.string.isRequired,
   showSettings: PropTypes.bool.isRequired,
   thumbCount: PropTypes.number.isRequired,

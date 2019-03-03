@@ -4,6 +4,7 @@ import {
   SHOW_MOVIELIST,
   SHOW_SETTINGS,
   DEFAULT_VIEW,
+  DEFAULT_SHEETVIEW,
   DEFAULT_SHEET_TYPE,
   DEFAULT_SHEET_FIT,
   DEFAULT_THUMB_COUNT_MAX,
@@ -56,6 +57,7 @@ const initialStateJSON = {
     showMovielist: SHOW_MOVIELIST,
     showSettings: SHOW_SETTINGS,
     defaultView: DEFAULT_VIEW,
+    defaultSheetView: DEFAULT_SHEETVIEW,
     defaultSheetFit: DEFAULT_SHEET_FIT,
   },
   undoGroup: {

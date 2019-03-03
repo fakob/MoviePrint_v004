@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Menu, Popup, Icon, Dropdown } from 'semantic-ui-react';
 import {
   MENU_FOOTER_HEIGHT,
+  SHEETVIEW,
   VIEW,
 } from '../utils/constants';
 import styles from './Menu.css';
@@ -10,8 +11,8 @@ import stylesPop from './Popup.css';
 
 const Footer = ({
   file, visibilitySettings, toggleMovielist, toggleSettings, onSaveMoviePrint,
-  savingMoviePrint, defaultView, showFeedbackForm, onOpenFeedbackForm,
-  onSaveAllMoviePrints
+  savingMoviePrint, defaultSheetView, showFeedbackForm, onOpenFeedbackForm,
+  onSaveAllMoviePrints, defaultView
 }) => {
 
   return (
@@ -44,7 +45,9 @@ const Footer = ({
             content="Share Feedback"
             keepInViewPort={false}
           />
-          {file && (defaultView === VIEW.GRIDVIEW || defaultView === VIEW.TIMELINEVIEW) &&
+          {file &&
+            (defaultSheetView === SHEETVIEW.GRIDVIEW || defaultSheetView === SHEETVIEW.TIMELINEVIEW) &&
+            defaultView === VIEW.STANDARDVIEW &&
             <Popup
               trigger={
                 <Menu.Item

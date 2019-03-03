@@ -17,7 +17,7 @@ import {
 import saveMoviePrint from '../utils/saveMoviePrint';
 import {
   SHEET_TYPE,
-  VIEW,
+  SHEETVIEW,
 } from '../utils/constants';
 import {
   getBase64Object,
@@ -108,15 +108,15 @@ class WorkerApp extends Component {
   render() {
     const { sentData, savingMoviePrint, thumbObjectBase64s, visibleThumbs } = this.state;
 
-    let view = VIEW.GRIDVIEW;
+    let sheetView = SHEETVIEW.GRIDVIEW;
     if (savingMoviePrint) {
       const sheetType = sentData.sheet.type;
       if (sheetType === SHEET_TYPE.SCENES) {
-        view = VIEW.TIMELINEVIEW;
+        sheetView = SHEETVIEW.TIMELINEVIEW;
       } else {
-        view = VIEW.GRIDVIEW;
+        sheetView = SHEETVIEW.GRIDVIEW;
       }
-      console.log(view);
+      console.log(sheetView);
       console.log(sheetType);
     }
 
@@ -129,14 +129,14 @@ class WorkerApp extends Component {
               ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
               className={`${styles.ItemMain}`}
               style={{
-                width: `${view !== VIEW.TIMELINEVIEW ?
+                width: `${sheetView !== SHEETVIEW.TIMELINEVIEW ?
                   sentData.moviePrintWidth :
                   (Math.ceil(sentData.scaleValueObject.newMoviePrintTimelineWidth) + Math.ceil(sentData.scaleValueObject.thumbMarginTimeline) * 2)
                 }px`
               }}
             >
               <Fragment>
-                <Conditional if={view === VIEW.GRIDVIEW}>
+                <Conditional if={sheetView === SHEETVIEW.GRIDVIEW}>
                   <SortedVisibleThumbGrid
                     viewForPrinting
                     inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
@@ -151,16 +151,16 @@ class WorkerApp extends Component {
                     colorArray={getMoviePrintColor(sentData.settings.defaultThumbCountMax)}
                     thumbCount={sentData.file.thumbCount}
 
-                    view={view}
+                    sheetView={sheetView}
                     currentSheetId={sentData.currentSheetId || sentData.settings.currentSheetId}
                     scaleValueObject={sentData.scaleValueObject}
                     moviePrintWidth={sentData.moviePrintWidth}
                     keyObject={{}}
                   />
                 </Conditional>
-                <Conditional if={view === VIEW.TIMELINEVIEW}>
+                <Conditional if={sheetView === SHEETVIEW.TIMELINEVIEW}>
                   <SortedVisibleSceneGrid
-                    view={view}
+                    sheetView={sheetView}
                     file={sentData.file}
                     frameCount={sentData.file ? sentData.file.frameCount : undefined}
                     inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}

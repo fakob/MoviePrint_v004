@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Menu, Dropdown, Icon, Popup } from 'semantic-ui-react';
 import {
-  MENU_HEADER_HEIGHT, VIEW, SHEET_FIT
+  MENU_HEADER_HEIGHT, SHEETVIEW, VIEW, SHEET_FIT
 } from '../utils/constants';
 import { truncate } from '../utils/utils';
 import styles from './Menu.css';
@@ -11,8 +11,8 @@ import stylesPop from './Popup.css';
 const Header = ({
   file, visibilitySettings, toggleMovielist, toggleSettings,
   onToggleShowHiddenThumbsClick, settings, onThumbInfoClick,
-  openMoviesDialog, toggleZoom, zoom, toggleView, onSetViewClick,
-  sheetsArray, sceneArray, onSetSheetFitClick, scaleValueObject,
+  openMoviesDialog, toggleZoom, zoom, onSetViewClick,
+  onSetSheetFitClick, scaleValueObject,
 }) => {
 
   const thumbInfoOptions = [
@@ -22,9 +22,8 @@ const Header = ({
   ];
 
   const viewOptions = [
-    { value: VIEW.GRIDVIEW, text: 'Grid view', 'data-tid':'gridViewOption'},
-    { value: VIEW.PLAYERVIEW, text: 'Player view', 'data-tid':'playerViewOption', disabled: visibilitySettings.showSettings },
-    { value: VIEW.TIMELINEVIEW, text: 'Timeline view', 'data-tid':'timelineViewOption' },
+    { value: VIEW.PLAYERVIEW, text: 'Player view', 'data-tid':'playerViewOption' },
+    { value: VIEW.STANDARDVIEW, text: 'Standard view', 'data-tid':'standardViewOption' },
   ];
 
   return (
@@ -39,22 +38,6 @@ const Header = ({
         inverted
         // widths={3}
       >
-        <Popup
-          trigger={
-            <Menu.Item
-              data-tid='openMoviesBtn'
-              onClick={openMoviesDialog}
-            >
-              <Icon
-                name="folder open outline"
-              />
-              {file ? '' : 'Open Movies'}
-            </Menu.Item>
-          }
-          className={stylesPop.popup}
-          content="Open one or more movies"
-          keepInViewPort={false}
-        />
         {file &&
           <Popup
             trigger={
@@ -65,8 +48,7 @@ const Header = ({
                 <Icon
                   name="list"
                 />
-                {/* {file === undefined ? '' : truncate(file.name, 32)} */}
-                {file === undefined ? '' : truncate(file.name, 32)}
+                {(visibilitySettings.showMovielist === false) ? 'Show Movie list' : 'Hide Movie list'}
               </Menu.Item>
             }
             className={stylesPop.popup}
@@ -74,29 +56,42 @@ const Header = ({
             keepInViewPort={false}
           />
         }
-        {file &&
-          <Popup
-            trigger={
-              <Dropdown
-                data-tid='setViewDropdown'
-                placeholder="Set view"
-                item
-                options={viewOptions}
-                value={visibilitySettings.defaultView}
-                onChange={(e, { value }) => onSetViewClick(value)}
+        <Popup
+          trigger={
+            <Menu.Item
+              data-tid='openMoviesBtn'
+              onClick={openMoviesDialog}
+            >
+              <Icon
+                name="folder open outline"
               />
-            }
-            className={stylesPop.popup}
-            content="Set view"
-            keepInViewPort={false}
-          />
-        }
-        {/* <Menu.Item>
-          {file === undefined ? '' : file.name}
-        </Menu.Item> */}
+              {file ? 'Add Movies' : 'Add Movies'}
+            </Menu.Item>
+          }
+          className={stylesPop.popup}
+          content="Open one or more movies"
+          keepInViewPort={false}
+        />
         <Menu.Menu position="right">
           {file &&
-            visibilitySettings.defaultView === VIEW.GRIDVIEW &&
+            <Popup
+              trigger={
+                <Dropdown
+                  data-tid='setViewDropdown'
+                  placeholder="Switch view"
+                  item
+                  options={viewOptions}
+                  value={visibilitySettings.defaultView}
+                  onChange={(e, { value }) => onSetViewClick(value)}
+                />
+              }
+              className={stylesPop.popup}
+              content="Set view"
+              keepInViewPort={false}
+            />
+          }
+          {file &&
+            visibilitySettings.defaultSheetView === SHEETVIEW.GRIDVIEW &&
             // !visibilitySettings.showSettings &&
             visibilitySettings.defaultSheetFit !== SHEET_FIT.HEIGHT &&
             scaleValueObject.moviePrintAspectRatioInv < scaleValueObject.containerAspectRatioInv &&
@@ -118,7 +113,7 @@ const Header = ({
             />
           }
           {file &&
-            visibilitySettings.defaultView === VIEW.GRIDVIEW &&
+            visibilitySettings.defaultSheetView === SHEETVIEW.GRIDVIEW &&
             // !visibilitySettings.showSettings &&
             visibilitySettings.defaultSheetFit !== SHEET_FIT.WIDTH &&
             scaleValueObject.moviePrintAspectRatioInv > scaleValueObject.containerAspectRatioInv &&
@@ -139,7 +134,7 @@ const Header = ({
               keepInViewPort={false}
             />
           }
-          {file && visibilitySettings.defaultView === VIEW.GRIDVIEW && visibilitySettings.defaultSheetFit !== SHEET_FIT.BOTH &&
+          {file && visibilitySettings.defaultSheetView === SHEETVIEW.GRIDVIEW && visibilitySettings.defaultSheetFit !== SHEET_FIT.BOTH &&
             <Popup
               trigger={
                 <Menu.Item
@@ -157,7 +152,7 @@ const Header = ({
               keepInViewPort={false}
             />
           }
-          {file && visibilitySettings.defaultView === VIEW.GRIDVIEW &&
+          {file && visibilitySettings.defaultSheetView === SHEETVIEW.GRIDVIEW &&
             <Popup
               trigger={
                 <Menu.Item

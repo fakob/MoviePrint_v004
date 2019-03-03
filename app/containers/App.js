@@ -89,6 +89,7 @@ import {
   addMoviesToList,
   setCurrentSheetId,
   setSheetFit,
+  setSheetView,
   setView,
   setVisibilityFilter,
   showMovielist,
@@ -109,6 +110,7 @@ import {
   SCENE_DETECTION_MIN_SCENE_LENGTH,
   DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN,
   VIEW,
+  SHEETVIEW,
   SHEET_FIT,
   SHEET_TYPE,
   DEFAULT_THUMB_COUNT,
@@ -747,13 +749,13 @@ class App extends Component {
         // get sheet to print
         const sheet = sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId];
 
-        // define what view to print depending on type
-        let view = VIEW.GRIDVIEW;
+        // define what sheetView to print depending on type
+        let sheetView = SHEETVIEW.GRIDVIEW;
         const sheetType = sheet.type;
         if (sheetType === SHEET_TYPE.SCENES) {
-          view = VIEW.TIMELINEVIEW;
+          sheetView = SHEETVIEW.TIMELINEVIEW;
         } else {
-          view = VIEW.GRIDVIEW;
+          sheetView = SHEETVIEW.GRIDVIEW;
         }
 
         // get file to print
@@ -761,7 +763,7 @@ class App extends Component {
 
         // get scenes to print
         let tempScenes;
-        if (view === VIEW.TIMELINEVIEW &&
+        if (sheetView === SHEETVIEW.TIMELINEVIEW &&
           sheetsByFileId[sheetToPrint.fileId] !== undefined &&
           sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId] !== undefined) {
           tempScenes = getVisibleThumbs(
@@ -779,7 +781,7 @@ class App extends Component {
           getColumnCount(sheetsByFileId, sheetToPrint.fileId, sheetToPrint.sheetId, settings),
           file.thumbCount,
           defaultMoviePrintWidth,
-          view === VIEW.TIMELINEVIEW ? defaultMoviePrintWidth * defaultPaperAspectRatioInv : undefined,
+          sheetView === SHEETVIEW.TIMELINEVIEW ? defaultMoviePrintWidth * defaultPaperAspectRatioInv : undefined,
           1,
           undefined,
           true,
@@ -788,7 +790,7 @@ class App extends Component {
         );
         console.log(scaleValueObject);
         const dataToSend = {
-          elementId: view !== VIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
+          elementId: sheetView !== SHEETVIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
           file: tempFile,
           sheetId: sheetToPrint.sheetId,
           moviePrintWidth: defaultMoviePrintWidth,
@@ -851,6 +853,8 @@ class App extends Component {
       prevState.zoom !== this.state.zoom ||
       prevProps.visibilitySettings.defaultView !==
         this.props.visibilitySettings.defaultView ||
+      prevProps.visibilitySettings.defaultSheetView !==
+        this.props.visibilitySettings.defaultSheetView ||
       prevProps.visibilitySettings.defaultSheetFit !==
         this.props.visibilitySettings.defaultSheetFit ||
       prevState.secondsPerRowTemp !== this.state.secondsPerRowTemp ||
@@ -920,13 +924,13 @@ class App extends Component {
             this.onSaveMoviePrint();
             break;
           case 52: // press '4'
-            store.dispatch(setView(VIEW.GRIDVIEW));
+            store.dispatch(setSheetView(SHEETVIEW.GRIDVIEW));
             break;
           case 53: // press '5'
             store.dispatch(setView(VIEW.PLAYERVIEW));
             break;
           case 54: // press '6'
-            store.dispatch(setView(VIEW.TIMELINEVIEW));
+            store.dispatch(setSheetView(SHEETVIEW.TIMELINEVIEW));
             break;
           case 67: // press 'c' - Careful!!! might also be triggered when doing reset application Shift+Alt+Command+C
             // this.recaptureAllFrames();
@@ -999,7 +1003,7 @@ class App extends Component {
     // file match needs to be in sync with addMoviesToList() and accept !!!
     if (Array.from(files).some(file => (file.type.match('video.*') ||
       file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
-      store.dispatch(setView(VIEW.GRIDVIEW));
+      store.dispatch(setSheetView(SHEETVIEW.GRIDVIEW));
       store.dispatch(addMoviesToList(files, clearList)).then((response) => {
         this.setState({
           filesToLoad: response,
@@ -1180,7 +1184,7 @@ class App extends Component {
   switchToPrintView() {
     const { store } = this.context;
     if (this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW) {
-      store.dispatch(setView(VIEW.GRIDVIEW));
+      store.dispatch(setSheetView(SHEETVIEW.GRIDVIEW));
     }
   }
 
@@ -1200,7 +1204,7 @@ class App extends Component {
     this.hideSettings();
     this.onHideDetectionChart();
     const { store } = this.context;
-    store.dispatch(setView(VIEW.TIMELINEVIEW));
+    store.dispatch(setSheetView(SHEETVIEW.TIMELINEVIEW));
     store.dispatch(setCurrentSheetId(sheetId));
     store.dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.SCENES));
     // get meanArray if it is stored else return false
@@ -1293,7 +1297,7 @@ class App extends Component {
       store.dispatch(updateSheetType(tempFile.id, sheetId, SHEET_TYPE.SCENES));
       store.dispatch(updateSheetName(tempFile.id, sheetId, getRandomSheetName()));
       store.dispatch(setCurrentSheetId(sheetId));
-      store.dispatch(setView(VIEW.TIMELINEVIEW));
+      store.dispatch(setSheetView(SHEETVIEW.TIMELINEVIEW));
       store.dispatch(addScenes(tempFile, sceneList, clearOldScenes, this.props.settings.defaultCachedFramesSize, sheetId));
     } else {
       this.setState({
@@ -1358,7 +1362,7 @@ class App extends Component {
         ));
     }
     store.dispatch(setCurrentSheetId(sheetName));
-    store.dispatch(setView(VIEW.GRIDVIEW));
+    store.dispatch(setSheetView(SHEETVIEW.GRIDVIEW));
   }
 
   onAddThumbClick(file, existingThumb, insertWhere) {
@@ -1459,19 +1463,19 @@ class App extends Component {
 
   onViewToggle() {
     const { store } = this.context;
-    if (this.props.visibilitySettings.defaultView === VIEW.GRIDVIEW) {
+    if (this.props.visibilitySettings.defaultView === VIEW.STANDARDVIEW) {
       this.hideSettings();
       this.hideMovielist();
       store.dispatch(setView(VIEW.PLAYERVIEW));
     } else {
-      store.dispatch(setView(VIEW.GRIDVIEW));
+      store.dispatch(setView(VIEW.STANDARDVIEW));
     }
   }
 
   onSaveMoviePrint() {
     const { file, settings, scenes, sheetsByFileId, visibilitySettings } = this.props;
     const { currentFileId, currentSheetId, defaultMoviePrintWidth, defaultPaperAspectRatioInv } = settings;
-    const { defaultView, visibilityFilter } = visibilitySettings;
+    const { defaultSheetView, visibilityFilter } = visibilitySettings;
 
     const sheet = sheetsByFileId[file.id][currentSheetId];
     const secondsPerRow = getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings);
@@ -1483,17 +1487,17 @@ class App extends Component {
       getColumnCount(sheetsByFileId, file.id, currentSheetId, settings),
       file.thumbCount,
       defaultMoviePrintWidth,
-      defaultView === VIEW.TIMELINEVIEW ? defaultMoviePrintWidth * defaultPaperAspectRatioInv : undefined,
+      defaultSheetView === SHEETVIEW.TIMELINEVIEW ? defaultMoviePrintWidth * defaultPaperAspectRatioInv : undefined,
       1,
       undefined,
       true,
-      defaultView !== VIEW.TIMELINEVIEW ? undefined : scenes,
+      defaultSheetView !== SHEETVIEW.TIMELINEVIEW ? undefined : scenes,
       secondsPerRow,
     );
 
     const dataToSend = {
       // scale: 1,
-      elementId: defaultView !== VIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
+      elementId: defaultSheetView !== SHEETVIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
       file,
       sheetId: currentSheetId,
       moviePrintWidth: defaultMoviePrintWidth,
@@ -1501,7 +1505,7 @@ class App extends Component {
       sheet,
       visibilityFilter: visibilityFilter,
       scaleValueObject,
-      scenes: defaultView !== VIEW.TIMELINEVIEW ? undefined : scenes,
+      scenes: defaultSheetView !== SHEETVIEW.TIMELINEVIEW ? undefined : scenes,
       secondsPerRow,
     };
     // log.debug(dataToSend);
@@ -1908,10 +1912,10 @@ class App extends Component {
     }
     store.dispatch(setCurrentSheetId(sheetId));
     if (type === SHEET_TYPE.SCENES) {
-      store.dispatch(setView(VIEW.TIMELINEVIEW));
+      store.dispatch(setSheetView(SHEETVIEW.TIMELINEVIEW));
       this.onReCaptureClick(false);
     } else {
-      store.dispatch(setView(VIEW.GRIDVIEW));
+      store.dispatch(setSheetView(SHEETVIEW.GRIDVIEW));
     }
   };
 
@@ -1919,15 +1923,19 @@ class App extends Component {
     const { store } = this.context;
     store.dispatch(updateSheetType(fileId, sheetId, type));
     if (type === SHEET_TYPE.SCENES) {
-      store.dispatch(setView(VIEW.TIMELINEVIEW));
+      store.dispatch(setSheetView(SHEETVIEW.TIMELINEVIEW));
       this.onReCaptureClick(false);
     } else {
-      store.dispatch(setView(VIEW.GRIDVIEW));
+      store.dispatch(setSheetView(SHEETVIEW.GRIDVIEW));
     }
   };
 
   onSetViewClick = (value) => {
     const { store } = this.context;
+    if (value === VIEW.PLAYERVIEW) {
+      this.hideSettings();
+      this.hideMovielist();
+    }
     store.dispatch(setView(value));
   };
 
@@ -2087,12 +2095,9 @@ class App extends Component {
                     visibilitySettings={this.props.visibilitySettings}
                     settings={this.props.settings}
                     file={this.props.file}
-                    sheetsArray={this.props.sheetsArray}
-                    sceneArray={this.props.scenes}
                     toggleMovielist={this.toggleMovielist}
                     toggleSettings={this.toggleSettings}
                     toggleZoom={this.toggleZoom}
-                    toggleView={this.onViewToggle}
                     onToggleShowHiddenThumbsClick={this.onToggleShowHiddenThumbsClick}
                     onThumbInfoClick={this.onThumbInfoClick}
                     onSetViewClick={this.onSetViewClick}
@@ -2291,11 +2296,12 @@ class App extends Component {
                       }}
                     >
                       { (this.props.file || this.props.visibilitySettings.showSettings || this.state.loadingFirstFile) ? (
-                        // (this.props.visibilitySettings.defaultView === 'gridView') ? (
+                        // (this.props.visibilitySettings.defaultSheetView === 'gridView') ? (
                         <Fragment>
-                          <Conditional if={this.props.visibilitySettings.defaultView !== VIEW.TIMELINEVIEW}>
+                          <Conditional if={this.props.visibilitySettings.defaultSheetView !== SHEETVIEW.TIMELINEVIEW}>
                             <SortedVisibleThumbGrid
                               colorArray={this.state.colorArray}
+                              sheetView={this.props.visibilitySettings.defaultSheetView}
                               view={this.props.visibilitySettings.defaultView}
                               currentSheetId={this.props.settings.currentSheetId}
                               file={this.props.file}
@@ -2318,9 +2324,9 @@ class App extends Component {
                               isGridView={isGridView}
                             />
                           </Conditional>
-                          <Conditional if={this.props.visibilitySettings.defaultView === VIEW.TIMELINEVIEW}>
+                          <Conditional if={this.props.visibilitySettings.defaultSheetView === SHEETVIEW.TIMELINEVIEW}>
                             <SortedVisibleSceneGrid
-                              view={this.props.visibilitySettings.defaultView}
+                              sheetView={this.props.visibilitySettings.defaultSheetView}
                               file={this.props.file}
                               frameCount={this.props.file ? this.props.file.frameCount : undefined}
                               inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
@@ -2494,6 +2500,7 @@ class App extends Component {
                     onSaveAllMoviePrints={this.onSaveAllMoviePrints}
                     savingMoviePrint={this.state.savingMoviePrint}
                     savingAllMoviePrints={this.state.savingAllMoviePrints}
+                    defaultSheetView={this.props.visibilitySettings.defaultSheetView}
                     defaultView={this.props.visibilitySettings.defaultView}
                   />
                 </div>

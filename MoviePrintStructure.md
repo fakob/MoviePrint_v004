@@ -128,6 +128,7 @@
 * showMovielist
 * showSettings
 * defaultView
+* defaultSheetView
 * defaultSheet
 
 ##### settings (in undoGroup)

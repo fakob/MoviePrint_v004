@@ -26,6 +26,7 @@ import {
   MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
   MINIMUM_WIDTH_TO_SHRINK_HOVER,
   MINIMUM_WIDTH_TO_SHOW_HOVER,
+  SHEETVIEW,
   VIEW,
 } from './../utils/constants';
 
@@ -328,15 +329,14 @@ class ThumbGrid extends Component {
         className={styles.grid}
         style={{
           width: this.props.moviePrintWidth,
-          marginLeft: this.props.view === VIEW.GRIDVIEW ? undefined : (thumbWidth / 4),
+          marginLeft: this.props.view === VIEW.STANDARDVIEW ? undefined : (thumbWidth / 4),
         }}
         id="ThumbGrid"
         // ref={this.setThumbGridDivRef}
       >
-        {this.props.settings.defaultShowHeader && this.props.view === VIEW.GRIDVIEW &&
+        {this.props.settings.defaultShowHeader && this.props.sheetView === SHEETVIEW.GRIDVIEW &&
           <ThumbGridHeader
             viewForPrinting={this.props.viewForPrinting}
-            view={this.props.view}
             fileName={this.props.file.name || ''}
             filePath={this.props.file.path || ''}
             fileDetails={fileDetails}
@@ -358,6 +358,7 @@ class ThumbGrid extends Component {
         >
           {thumbArray.map(thumb => (
             <SortableThumb
+              sheetView={this.props.sheetView}
               view={this.props.view}
               keyObject={this.props.keyObject}
               key={thumb.thumbId || uuidV4()}
@@ -575,7 +576,7 @@ class ThumbGrid extends Component {
                   />
                 </div>
               }
-              {this.props.view !== VIEW.GRIDVIEW && (showBeforeController || showAfterController) &&
+              {this.props.sheetView !== SHEETVIEW.GRIDVIEW && (showBeforeController || showAfterController) &&
                 <div
                   data-tid={`insertThumb${(!showAfterController && showBeforeController) ? 'Before' : 'After'}Div_${this.state.controllersVisible}`}
                   style={{
@@ -650,7 +651,7 @@ ThumbGrid.propTypes = {
   scaleValueObject: PropTypes.object.isRequired,
   selectedThumbId: PropTypes.string,
   settings: PropTypes.object.isRequired,
-  view: PropTypes.string.isRequired,
+  sheetView: PropTypes.string.isRequired,
   showSettings: PropTypes.bool.isRequired,
   thumbCount: PropTypes.number.isRequired,
   objectUrlObjects: PropTypes.object,

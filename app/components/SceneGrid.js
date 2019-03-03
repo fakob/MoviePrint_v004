@@ -90,7 +90,7 @@ class SceneGrid extends Component {
               controllersAreVisible={(this.props.showSettings || scene.sceneId === undefined) ? false : (scene.sceneId === this.state.controllersVisible)}
               selected={selected}
               doLineBreak={!this.props.settings.defaultTimelineViewFlow && doLineBreak}
-              view={this.props.view}
+              sheetView={this.props.sheetView}
               keyObject={this.props.keyObject}
               indexForId={index}
               index={index}

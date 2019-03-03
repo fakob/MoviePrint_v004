@@ -79,6 +79,14 @@ export const setView = (defaultView) => {
   };
 };
 
+export const setSheetView = (defaultSheetView) => {
+  log.debug(`action: setView - ${defaultSheetView}`);
+  return {
+    type: 'SET_SHEETVIEW',
+    defaultSheetView
+  };
+};
+
 export const setSheetFit = (defaultSheetFit) => {
   log.debug(`action: setSheetFitView - ${defaultSheetFit}`);
   return {
