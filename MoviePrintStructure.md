@@ -91,6 +91,16 @@
       * ipc received-saved-file
         * set status to done
 
+##### on shot detection
+* runSceneDetection
+* runFileScan if file not scanned yet
+  * ipc send-get-file-scan to opencvWorkerWindow
+    * ipc addScene to mainWindow for every single scene
+    * ipc addScene to mainWindow for every single scene
+    * ipc received-get-file-scan to mainWindow
+* dispatch updateFileScanStatus
+* runSceneDetection again
+
 # Database concept
 * IndexedDB is used to store frames
   * objectUrls (from blob) are stored in react state of App.js

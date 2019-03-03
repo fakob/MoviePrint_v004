@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Menu, Icon, Popup, Dropdown, Label, Input } from 'semantic-ui-react';
+import { Image, Icon, Popup, Dropdown, Label, Input } from 'semantic-ui-react';
 import { truncate, truncatePath, frameCountToTimeCode, formatBytes } from '../utils/utils';
 import styles from './FileList.css';
 import transparent from '../img/Thumb_TRANSPARENT.png';
@@ -12,9 +12,25 @@ import {
 
 
 const FileListElement = ({
-  fileId, frameCount, fps, width, height, name, path,
-  size, objectUrl, onFileListElementClick, currentFileId, sheetsObject, onSetSheetClick, currentSheetId,
-  onDuplicateSheetClick, onDeleteSheetClick, onRemoveMovieListItem, onChangeSheetTypeClick
+  currentFileId,
+  currentSheetId,
+  fileId,
+  fps,
+  frameCount,
+  fileScanStatus,
+  height,
+  name,
+  objectUrl,
+  onChangeSheetTypeClick,
+  onDeleteSheetClick,
+  onDuplicateSheetClick,
+  onFileListElementClick,
+  onRemoveMovieListItem,
+  onSetSheetClick,
+  path,
+  sheetsObject,
+  size,
+  width,
 }) => {
   const sheetsArray = Object.getOwnPropertyNames(sheetsObject);
 
@@ -81,15 +97,26 @@ const FileListElement = ({
           />
         </Dropdown.Menu>
       </Dropdown>
-      <div
-        className={`${styles.croppedThumb}`}
-        style={{
-          backgroundColor: '#1e1e1e',
-          backgroundImage: `url(${objectUrl})`
-          // backgroundImage: `url(data:image/jpeg;base64,${base64})`
-        }}
-        alt={`${name}`}
-      />
+      <Image
+         as='div'
+         floated='left'
+         className={`${styles.croppedThumb}`}
+         style={{
+           backgroundColor: '#1e1e1e',
+           backgroundImage: `url(${objectUrl})`
+         }}
+       >
+         {fileScanStatus && <Label
+           as='a'
+           color='orange'
+           size='mini'
+           circular
+           alt='Movie has been scanned'
+           className={`${styles.ThumbLabel}`}
+         >
+          S
+        </Label>}
+      </Image>
       <div
         className={`${styles.Title}`}
         title={name}

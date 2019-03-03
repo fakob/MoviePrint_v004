@@ -15,13 +15,20 @@ h3 {
 
 .croppedThumb {
   float: left;
-  width: 76px;
-  height: 76px;
+  width: 76px !important;
+  height: 76px !important;
   background-size: cover;
   background-position: center;
   overflow: hidden;
   position: relative;
   border-radius: 8px;
+}
+
+.ThumbLabel {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  opacity: 0.4;
 }
 
 li p {

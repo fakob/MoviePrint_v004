@@ -746,6 +746,19 @@ export const updateSheetType = (fileId, sheetId, type) => {
   };
 };
 
+export const updateFileScanStatus = (fileId, fileScanStatus) => {
+  return (dispatch) => {
+    log.debug('action: updateFileScanStatus');
+    dispatch({
+      type: 'UPDATE_FILESCAN_STATUS',
+      payload: {
+        fileId,
+        fileScanStatus
+      }
+    });
+  };
+};
+
 export const updateFileDetailUseRatio = (fileId, useRatio) => {
   return (dispatch) => {
     log.debug('action: updateFileDetailUseRatio');

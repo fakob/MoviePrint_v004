@@ -2,6 +2,13 @@ import log from 'electron-log';
 
 const file = (state = {}, type, payload, index) => {
   switch (type) {
+    case 'UPDATE_FILESCAN_STATUS':
+      if (state.id !== payload.fileId) {
+        return state;
+      }
+      return Object.assign({}, state, {
+        fileScanStatus: payload.fileScanStatus
+      });
     case 'UPDATE_MOVIE_LIST_ITEM_USERATIO':
       if (state.id !== payload.fileId) {
         return state;
@@ -55,6 +62,7 @@ const files = (state = [], { type, payload }) => {
     case 'UPDATE_MOVIE_LIST_ITEM_USERATIO':
     case 'UPDATE_MOVIE_LIST_ITEM':
     case 'UPDATE_IN_OUT_POINT':
+    case 'UPDATE_FILESCAN_STATUS':
       return state.map((t, index) =>
         file(t, type, payload, index)
       );

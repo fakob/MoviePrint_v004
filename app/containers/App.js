@@ -100,6 +100,7 @@ import {
   updateFileDetailUseRatio,
   updateFrameNumber,
   updateInOutPoint,
+  updateFileScanStatus,
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -544,6 +545,7 @@ class App extends Component {
       this.setState({
         fileScanRunning: false,
       });
+      store.dispatch(updateFileScanStatus(fileId, true));
       this.runSceneDetection(fileId, filePath, useRatio);
     });
 
