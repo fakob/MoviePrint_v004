@@ -91,8 +91,10 @@ class SettingsList extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      changeSceneCount: false,
     };
 
+    this.onChangeSceneCount = this.onChangeSceneCount.bind(this);
     this.onChangePaperAspectRatio = this.onChangePaperAspectRatio.bind(this);
     this.onChangeShowPaperPreview = this.onChangeShowPaperPreview.bind(this);
     this.onChangeOutputPathFromMovie = this.onChangeOutputPathFromMovie.bind(this);
@@ -112,6 +114,10 @@ class SettingsList extends Component {
     this.onChangeIncludeIndividual = this.onChangeIncludeIndividual.bind(this);
     this.onChangeThumbnailScale = this.onChangeThumbnailScale.bind(this);
     this.onChangeMoviePrintWidth = this.onChangeMoviePrintWidth.bind(this);
+  }
+
+  onChangeSceneCount = (e, { checked }) => {
+    this.setState({changeSceneCount: checked});
   }
 
   onChangeTimelineViewFlow = (e, { checked }) => {
@@ -372,6 +378,70 @@ class SettingsList extends Component {
                   />
                 </Grid.Column>
               </Grid.Row> */}
+              <Grid.Row>
+                <Grid.Column width={4}>
+                  Count
+                </Grid.Column>
+                <Grid.Column width={12}>
+                  <Checkbox
+                    data-tid='changeSceneCountCheckbox'
+                    label={
+                      <label className={styles.label}>
+                        Change scene count
+                      </label>
+                    }
+                    checked={this.state.changeSceneCount}
+                    onChange={this.onChangeSceneCount}
+                  />
+                </Grid.Column>
+              </Grid.Row>
+              {this.state.changeSceneCount && <Fragment>
+                <Grid.Row>
+                  <Grid.Column width={4}>
+                    Shot detection threshold
+                  </Grid.Column>
+                  <Grid.Column width={12}>
+                    <SliderWithTooltip
+                      // data-tid='sceneDetectionThresholdSlider'
+                      className={styles.slider}
+                      min={5}
+                      max={40}
+                      defaultValue={settings.defaultSceneDetectionThreshold}
+                      marks={{
+                        5: '5',
+                        20: '20',
+                        40: '40',
+                      }}
+                      handle={handle}
+                      onChange={onChangeSceneDetectionThreshold}
+                    />
+                  </Grid.Column>
+                </Grid.Row>
+                <Grid.Row>
+                  <Grid.Column width={4}>
+
+                  </Grid.Column>
+                  <Grid.Column width={12}>
+                    <Popup
+                      trigger={
+                        <Button
+                          data-tid='runSceneDetectionBtn'
+                          fluid
+                          color="orange"
+                          loading={fileScanRunning}
+                          disabled={fileScanRunning}
+                          onClick={() => this.props.runSceneDetection(file.id, file.path, file.useRatio, settings.defaultSceneDetectionThreshold)}
+                        >
+                          Apply
+                        </Button>
+                      }
+                      className={stylesPop.popup}
+                      content="Run shot detection with new threshold"
+                      keepInViewPort={false}
+                    />
+                  </Grid.Column>
+                </Grid.Row>
+              </Fragment>}
             </Fragment>
           }
           { isGridView &&
@@ -773,57 +843,7 @@ class SettingsList extends Component {
           <Divider inverted />
           <Grid.Row>
             <Grid.Column width={16}>
-              Shot detection
-            </Grid.Column>
-          </Grid.Row>
-          <Grid.Row>
-            <Grid.Column width={16}>
-              Scans every frame and uses the mean difference value to detect distinct shots. Lower the threshold to increase sensitivity.<br />
-              Running it the first time takes longer as it scans the movie. The larger and longer the movie, the longer it takes.
-            </Grid.Column>
-          </Grid.Row>
-          <Grid.Row>
-            <Grid.Column width={4}>
-              Scan/Run
-            </Grid.Column>
-            <Grid.Column width={12}>
-              <Popup
-                trigger={
-                  <Button
-                    data-tid='runSceneDetectionBtn'
-                    fluid
-                    loading={fileScanRunning}
-                    disabled={fileScanRunning}
-                    onClick={() => this.props.runSceneDetection(file.id, file.path, file.useRatio, settings.defaultSceneDetectionThreshold)}
-                  >
-                      Scan/Run shot detection
-                  </Button>
-                }
-                className={stylesPop.popup}
-                content="Run shot detection (running for the first time might take longer)"
-                keepInViewPort={false}
-              />
-            </Grid.Column>
-          </Grid.Row>
-          <Grid.Row>
-            <Grid.Column width={4}>
-              Threshold
-            </Grid.Column>
-            <Grid.Column width={12}>
-              <SliderWithTooltip
-                // data-tid='sceneDetectionThresholdSlider'
-                className={styles.slider}
-                min={5}
-                max={40}
-                defaultValue={settings.defaultSceneDetectionThreshold}
-                marks={{
-                  5: '5',
-                  20: '20',
-                  40: '40',
-                }}
-                handle={handle}
-                onChange={onChangeSceneDetectionThreshold}
-              />
+              Experimental
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
@@ -847,12 +867,6 @@ class SettingsList extends Component {
               />
             </Grid.Column>
           </Grid.Row>
-          <Divider inverted />
-          <Grid.Row>
-            <Grid.Column width={16}>
-              Experimental
-            </Grid.Column>
-          </Grid.Row>
           <Grid.Row>
             <Grid.Column width={4}>
               Import options
@@ -873,7 +887,7 @@ class SettingsList extends Component {
           <Divider inverted />
           <Grid.Row>
             <Grid.Column width={4}>
-              Max size of cached frames
+              Max size cached frames
             </Grid.Column>
             <Grid.Column width={12}>
             <Dropdown

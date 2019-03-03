@@ -454,7 +454,7 @@ ipcRenderer.on(
 
 ipcRenderer.on(
   'send-get-file-scan',
-  (event, fileId, filePath, useRatio, threshold = 20.0) => {
+  (event, fileId, filePath, useRatio, threshold = 20.0, sheetId) => {
     log.debug('opencvWorkerWindow | on send-get-file-scan');
     // log.debug(fileId);
     log.debug(`opencvWorkerWindow | ${filePath}`);
@@ -516,6 +516,7 @@ ipcRenderer.on(
                   'message-from-opencvWorkerWindow-to-mainWindow',
                   'addScene',
                   fileId,
+                  sheetId,
                   lastSceneCut, // start
                   length,
                   HSVtoRGB(frameMean.w, frameMean.x, frameMean.y), // color
@@ -568,6 +569,7 @@ ipcRenderer.on(
               'message-from-opencvWorkerWindow-to-mainWindow',
               'addScene',
               fileId,
+              sheetId,
               lastSceneCut, // start
               length,
               HSVtoRGB(frameMean.w, frameMean.x, frameMean.y), // color
@@ -582,6 +584,7 @@ ipcRenderer.on(
               fileId,
               filePath,
               useRatio,
+              sheetId,
             );
 
             ipcRenderer.send(
@@ -610,6 +613,7 @@ ipcRenderer.on(
         'message-from-opencvWorkerWindow-to-mainWindow',
         'clearScenes',
         fileId,
+        sheetId,
       );
 
       setPosition(vid, startFrame, useRatio);

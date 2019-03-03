@@ -283,6 +283,7 @@ class App extends Component {
     this.onChangeSheetTypeClick = this.onChangeSheetTypeClick.bind(this);
     this.onSetSheetClick = this.onSetSheetClick.bind(this);
     this.onDuplicateSheetClick = this.onDuplicateSheetClick.bind(this);
+    this.onScanMovieListItemClick = this.onScanMovieListItemClick.bind(this);
     this.onRemoveMovieListItem = this.onRemoveMovieListItem.bind(this);
     this.onDeleteSheetClick = this.onDeleteSheetClick.bind(this);
     this.onChangeOutputPathClick = this.onChangeOutputPathClick.bind(this);
@@ -413,7 +414,6 @@ class App extends Component {
         const firstFile = store.getState().undoGroup.present.files.find((file) => file.id === fileId);
         store.dispatch(setCurrentFileId(firstFile.id));
         this.updateScaleValue(); // so the aspect ratio of the thumbs are correct after drag
-        store.dispatch(clearScenes());
         store.dispatch(deleteSheets());
         // log.debug(firstFile);
         store.dispatch(addIntervalSheet(
@@ -526,27 +526,29 @@ class App extends Component {
         }
     });
 
-    ipcRenderer.on('clearScenes', (event, fileId) => {
+    ipcRenderer.on('clearScenes', (event, fileId, sheetId) => {
       store.dispatch(clearScenes(
         fileId,
+        sheetId,
       ));
     });
 
-    ipcRenderer.on('addScene', (event, fileId, start, length, colorArray) => {
+    ipcRenderer.on('addScene', (event, fileId, sheetId, start, length, colorArray) => {
       store.dispatch(addScene(
         fileId,
+        sheetId,
         start,
         length,
         colorArray,
       ));
     });
 
-    ipcRenderer.on('received-get-file-scan', (event, fileId, filePath, useRatio) => {
+    ipcRenderer.on('received-get-file-scan', (event, fileId, filePath, useRatio, sheetId) => {
       this.setState({
         fileScanRunning: false,
       });
       store.dispatch(updateFileScanStatus(fileId, true));
-      this.runSceneDetection(fileId, filePath, useRatio);
+      this.runSceneDetection(fileId, filePath, useRatio, undefined, sheetId);
     });
 
     ipcRenderer.on('received-saved-file', (event, id, path) => {
@@ -682,7 +684,7 @@ class App extends Component {
     // log.debug('App.js componentDidUpdate');
     const { store } = this.context;
     const { filesToLoad, sheetsToPrint } = this.state;
-    const { files, file, scenesByFileId, settings, sheetsByFileId, visibilitySettings } = this.props;
+    const { files, file, settings, sheetsByFileId, visibilitySettings } = this.props;
     const { defaultMoviePrintWidth, defaultPaperAspectRatioInv } = settings;
     const { visibilityFilter } = visibilitySettings;
 
@@ -759,9 +761,11 @@ class App extends Component {
 
         // get scenes to print
         let tempScenes;
-        if (view === VIEW.TIMELINEVIEW && scenesByFileId[sheetToPrint.fileId] !== undefined) {
+        if (view === VIEW.TIMELINEVIEW &&
+          sheetsByFileId[sheetToPrint.fileId] !== undefined &&
+          sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId] !== undefined) {
           tempScenes = getVisibleThumbs(
-            scenesByFileId[sheetToPrint.fileId].sceneArray,
+            sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId].sceneArray,
             visibilitySettings.visibilityFilter
           );
         }
@@ -1192,27 +1196,29 @@ class App extends Component {
     });
   }
 
-  runSceneDetection(fileId, filePath, useRatio, threshold = this.props.settings.defaultSceneDetectionThreshold) {
+  runSceneDetection(fileId, filePath, useRatio, threshold = this.props.settings.defaultSceneDetectionThreshold, sheetId = uuidV4()) {
     this.hideSettings();
     this.onHideDetectionChart();
     const { store } = this.context;
     store.dispatch(setView(VIEW.TIMELINEVIEW));
+    store.dispatch(setCurrentSheetId(sheetId));
+    store.dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.SCENES));
     // get meanArray if it is stored else return false
     const arrayOfFrameScanData = getFrameScanByFileId(fileId);
     // console.log(arrayOfFrameScanData);
     // if meanArray not stored, runFileScan
     if (arrayOfFrameScanData.length === 0) {
-      this.runFileScan(fileId, filePath, useRatio, threshold);
+      this.runFileScan(fileId, filePath, useRatio, threshold, sheetId);
     } else {
       const meanValueArray = arrayOfFrameScanData.map(frame => frame.meanValue)
       const meanColorArray = arrayOfFrameScanData.map(frame => JSON.parse(frame.meanColor))
       // console.log(meanColorArray);
-      this.calculateSceneList(fileId, meanValueArray, meanColorArray, threshold);
+      this.calculateSceneList(fileId, meanValueArray, meanColorArray, threshold, sheetId);
     }
     return true;
   }
 
-  calculateSceneList(fileId, meanArray, meanColorArray, threshold = this.props.settings.defaultSceneDetectionThreshold) {
+  calculateSceneList(fileId, meanArray, meanColorArray, threshold = this.props.settings.defaultSceneDetectionThreshold, sheetId) {
     const { store } = this.context;
     let lastSceneCut = null;
 
@@ -1222,7 +1228,7 @@ class App extends Component {
         return curr;
     }, 0);
 
-    store.dispatch(clearScenes(this.props.file.id));
+    store.dispatch(clearScenes(fileId, sheetId));
 
     const sceneList = []
     differenceArray.map((value, index) => {
@@ -1242,12 +1248,6 @@ class App extends Component {
             length,
             colorArray,
           });
-          // store.dispatch(addScene(
-          //   fileId,
-          //   start,
-          //   length,
-          //   colorArray,
-          // ));
           lastSceneCut = index;
         }
       }
@@ -1290,12 +1290,11 @@ class App extends Component {
     if (sceneList.length !== 0) {
       const tempFile = this.props.files.find((file) => file.id === fileId);
       const clearOldScenes = true;
-      const newSheetId = uuidV4();
-      store.dispatch(updateSheetType(tempFile.id, newSheetId, SHEET_TYPE.SCENES));
-      store.dispatch(updateSheetName(tempFile.id, newSheetId, getRandomSheetName()));
-      store.dispatch(setCurrentSheetId(newSheetId));
+      store.dispatch(updateSheetType(tempFile.id, sheetId, SHEET_TYPE.SCENES));
+      store.dispatch(updateSheetName(tempFile.id, sheetId, getRandomSheetName()));
+      store.dispatch(setCurrentSheetId(sheetId));
       store.dispatch(setView(VIEW.TIMELINEVIEW));
-      store.dispatch(addScenes(tempFile, sceneList, clearOldScenes, this.props.settings.defaultCachedFramesSize, newSheetId));
+      store.dispatch(addScenes(tempFile, sceneList, clearOldScenes, this.props.settings.defaultCachedFramesSize, sheetId));
     } else {
       this.setState({
         progressMessage: 'No scenes detected',
@@ -1310,10 +1309,10 @@ class App extends Component {
     }
   }
 
-  runFileScan(fileId, filePath, useRatio, threshold) {
+  runFileScan(fileId, filePath, useRatio, threshold, sheetId) {
     if (this.state.fileScanRunning === false) {
       this.setState({ fileScanRunning: true });
-      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-scan', fileId, filePath, useRatio, threshold);
+      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-scan', fileId, filePath, useRatio, threshold, sheetId);
     }
   }
 
@@ -1879,6 +1878,12 @@ class App extends Component {
     // store.dispatch(setCurrentSheetId(newSheetId));
   };
 
+  onScanMovieListItemClick = (fileId) => {
+    const { files } = this.props;
+    const file = files.find(file2 => file2.id === fileId);
+    this.runSceneDetection(fileId, file.path, file.useRatio, 20.0);
+  };
+
   onDuplicateSheetClick = (fileId, sheet) => {
     const { store } = this.context;
     const newSheetId = uuidV4();
@@ -2149,6 +2154,7 @@ class App extends Component {
                         onChangeSheetTypeClick={this.onChangeSheetTypeClick}
                         onSetSheetClick={this.onSetSheetClick}
                         onDuplicateSheetClick={this.onDuplicateSheetClick}
+                        onScanMovieListItemClick={this.onScanMovieListItemClick}
                         onRemoveMovieListItem={this.onRemoveMovieListItem}
                         onDeleteSheetClick={this.onDeleteSheetClick}
                         currentSheetId={this.props.currentSheetId}
@@ -2610,15 +2616,16 @@ class App extends Component {
 
 const mapStateToProps = state => {
   const { visibilitySettings } = state;
-  const { settings, sheetsByFileId, scenesByFileId, files } = state.undoGroup.present;
+  const { settings, sheetsByFileId, files } = state.undoGroup.present;
   const { currentFileId, currentSheetId } = settings;
   const sheetsArray = (sheetsByFileId[currentFileId] === undefined)
     ? [] : Object.getOwnPropertyNames(sheetsByFileId[currentFileId]);
   const allThumbs = (sheetsByFileId[currentFileId] === undefined ||
     sheetsByFileId[currentFileId][settings.currentSheetId] === undefined)
     ? undefined : sheetsByFileId[currentFileId][settings.currentSheetId].thumbsArray;
-  const allScenes = (scenesByFileId[currentFileId] === undefined)
-    ? [] : scenesByFileId[currentFileId].sceneArray;
+  const allScenes = (sheetsByFileId[currentFileId] === undefined ||
+    sheetsByFileId[currentFileId][settings.currentSheetId] === undefined)
+    ? undefined : sheetsByFileId[currentFileId][settings.currentSheetId].sceneArray;
   return {
     sheetsArray,
     sheetsByFileId,
@@ -2632,7 +2639,6 @@ const mapStateToProps = state => {
     files,
     file: files
       .find((file) => file.id === currentFileId),
-    scenesByFileId,
     scenes: getVisibleThumbs(
       allScenes,
       visibilitySettings.visibilityFilter

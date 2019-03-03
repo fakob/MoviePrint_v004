@@ -139,13 +139,19 @@
 
 ##### sheetsByFileId (in undoGroup)
 * fileId
-  * thumbs Array
-    * frameId
-    * thumbId
-    * frameNumber
-    * fileId
-    * index
-    * hidden
+	* sheetId
+		* columnCount
+		* secondsPerRow
+		* type
+		* name
+	  * thumbsArray
+	    * frameId
+	    * thumbId
+	    * frameNumber
+	    * fileId
+	    * index
+	    * hidden
+		* sceneArray
 
 ##### files Array (in undoGroup)
   * id

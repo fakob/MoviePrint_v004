@@ -101,7 +101,6 @@ const initialStateJSON = {
       defaultCachedFramesSize: DEFAULT_CACHED_FRAMES_SIZE,
       emailAddress: '',
     },
-    scenesByFileId: {},
     sheetsByFileId: {},
     files: []
   }

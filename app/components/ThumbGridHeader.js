@@ -11,7 +11,6 @@ import styles from './ThumbGrid.css';
 import movieprint from './../img/MoviePrint-titleimage.svg';
 
 const ThumbGridHeader = ({
-  defaultView,
   filePath,
   fileName,
   fileDetails,
@@ -164,7 +163,6 @@ ThumbGridHeader.defaultProps = {
 };
 
 ThumbGridHeader.propTypes = {
-  defaultView: PropTypes.string.isRequired,
   filePath: PropTypes.string.isRequired,
   fileName: PropTypes.string.isRequired,
   fileDetails: PropTypes.string.isRequired,

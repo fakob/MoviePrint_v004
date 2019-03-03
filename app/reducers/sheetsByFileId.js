@@ -5,6 +5,13 @@ import {
 
 const thumb = (state = {}, action, index) => {
   switch (action.type) {
+    case 'TOGGLE_SCENE':
+      if (state.sceneId !== action.payload.sceneId) {
+        return state;
+      }
+      return Object.assign({}, state, {
+        hidden: !state.hidden
+      });
     case 'ADD_THUMB':
       return Object.assign({}, state, {
         index
@@ -58,25 +65,61 @@ const thumb = (state = {}, action, index) => {
 
 const sheetsByFileId = (state = {}, action) => {
   switch (action.type) {
-    // case 'ADD_SHEET': {
-    //   log.debug(action.payload);
-    //   log.debug(state);
-    //
-    //   return {
-    //     ...state,
-    //     [action.payload.fileId]: {
-    //       ...state[action.payload.fileId],
-    //       [action.payload.sheetId]: {
-    //         // conditional adding of properties
-    //         ...(state[action.payload.fileId] === undefined ?
-    //           {} :
-    //           state[action.payload.fileId][action.payload.sheetId]
-    //         ),
-    //         thumbsArray: combinedArrayReordered
-    //       }
-    //     }
-    //   };
-    // }
+    case 'ADD_SCENE': {
+      // load the current scenes array, if it does not exist it stays empty
+      // log.debug(action.payload);
+      // log.debug(state);
+      let currentArray = [];
+      if (state[action.payload.fileId] !== undefined &&
+        state[action.payload.fileId][action.payload.sheetId] !== undefined &&
+        state[action.payload.fileId][action.payload.sheetId].sceneArray !== undefined) {
+        currentArray = state[action.payload.fileId][action.payload.sheetId].sceneArray.slice();
+      }
+      const combinedArray = currentArray.concat(action.payload);
+      return {
+        ...state,
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          [action.payload.sheetId]: {
+            // conditional adding of properties
+            ...(state[action.payload.fileId] === undefined ?
+              {} :
+              state[action.payload.fileId][action.payload.sheetId]
+            ),
+            sceneArray: combinedArray
+          }
+        }
+      };
+    }
+    case 'TOGGLE_SCENE':
+      return {
+        ...state,
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          [action.payload.sheetId]: {
+            ...state[action.payload.fileId][action.payload.sheetId],
+            sceneArray: state[action.payload.fileId][action.payload.sheetId].sceneArray.map((t, index) =>
+              thumb(t, action)
+            )
+          }
+        }
+      };
+    case 'CLEAR_SCENES':
+      return {
+        ...state,
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          [action.payload.sheetId]: {
+            // conditional adding of properties
+            // only add when fileId exists
+            ...(state[action.payload.fileId] === undefined ?
+              {} :
+              state[action.payload.fileId][action.payload.sheetId]
+            ),
+            sceneArray: [],
+          }
+        }
+      };
     case 'ADD_THUMB': {
       // load the current thumbs array, if it does not exist it stays empty
       log.debug(action.payload);

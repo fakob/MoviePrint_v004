@@ -25,6 +25,7 @@ const FileListElement = ({
   onDeleteSheetClick,
   onDuplicateSheetClick,
   onFileListElementClick,
+  onScanMovieListItemClick,
   onRemoveMovieListItem,
   onSetSheetClick,
   path,
@@ -75,6 +76,11 @@ const FileListElement = ({
     onFileListElementClick(fileId);
   }
 
+  function onScanMovieListItemClickWithStop(e, fileId) {
+    e.stopPropagation();
+    onScanMovieListItemClick(fileId);
+  }
+
   return (
     <li
       data-tid={`fileListItem_${fileId}`}
@@ -89,6 +95,12 @@ const FileListElement = ({
         className={`${styles.overflow} ${styles.overflowHidden}`}
       >
         <Dropdown.Menu>
+          <Dropdown.Item
+            data-tid='scanMovieListItemOption'
+            icon="barcode"
+            text="Scan movie"
+            onClick={e => onScanMovieListItemClickWithStop(e, fileId)}
+          />
           <Dropdown.Item
             data-tid='removeMovieListItemOption'
             icon="delete"

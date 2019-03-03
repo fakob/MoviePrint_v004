@@ -1,16 +1,14 @@
 import { combineReducers } from 'redux';
 import undoable, { excludeAction, groupByActionTypes } from 'redux-undo';
-import sheetsByFileId from './thumbs';
+import sheetsByFileId from './sheetsByFileId';
 import files from './files';
 import settings from './settings';
-import scenesByFileId from './scenesByFileId';
 import visibilitySettings from './visibilitySettings';
 
 const rootReducer = combineReducers({
   visibilitySettings,
   undoGroup: undoable(combineReducers({
     settings,
-    scenesByFileId,
     sheetsByFileId,
     files
   }), {

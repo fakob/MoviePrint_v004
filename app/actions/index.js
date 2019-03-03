@@ -313,19 +313,20 @@ export const setDefaultOutputPathFromMovie = (defaultOutputPathFromMovie) => {
   };
 };
 
-// scenesByFileId
+// sheetsByFileId
 
-export const clearScenes = (fileId) => {
+export const clearScenes = (fileId, sheetId) => {
   log.debug('action: clearScenes');
   return {
     type: 'CLEAR_SCENES',
     payload: {
       fileId,
+      sheetId,
     }
   };
 };
 
-export const addScene = (fileId, start, length, colorArray, sceneId = uuidV4()) => {
+export const addScene = (fileId, sheetId, start, length, colorArray, sceneId = uuidV4()) => {
   return (dispatch) => {
     log.debug('action: addScene');
     log.debug('dispatch: ADD_SCENE');
@@ -334,6 +335,7 @@ export const addScene = (fileId, start, length, colorArray, sceneId = uuidV4()) 
       payload: {
         sceneId,
         fileId,
+        sheetId,
         start,
         length,
         colorArray,
@@ -346,14 +348,14 @@ export const addScenes = (file, sceneList, clearOldScenes = false, frameSize, ne
   return (dispatch) => {
     log.debug('action: addScenes');
     if (clearOldScenes) {
-      dispatch(clearScenes(file.id));
+      dispatch(clearScenes(file.id, newSheetId));
       // dispatch(deleteSheets(file.id, DEFAULT_SHEET_SCENES));
     }
     sceneList.map((scene, index) => {
       const sceneId = uuidV4();
       const thumbId = uuidV4();
       dispatch(addThumb(file, newSheetId, scene.start + Math.floor(scene.length / 2), index, thumbId, frameSize, sceneId));
-      return dispatch(addScene(file.id, scene.start, scene.length, scene.colorArray, sceneId));
+      return dispatch(addScene(file.id, newSheetId, scene.start, scene.length, scene.colorArray, sceneId));
     })
   };
 };
@@ -369,8 +371,6 @@ export const toggleScene = (currentFileId, sheetId, sceneId) => {
     },
   };
 };
-
-// thumbs
 
 export const addThumb = (file, sheetId, frameNumber, index, thumbId = uuidV4(), frameSize = 0, sceneId = undefined) => {
   return (dispatch) => {
