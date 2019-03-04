@@ -25,6 +25,7 @@ import Scrub from '../components/Scrub';
 import ThumbEmpty from '../components/ThumbEmpty';
 import getScaleValueObject from '../utils/getScaleValueObject';
 import { getLowestFrame,
+  createSceneArray,
   getHighestFrame,
   getVisibleThumbs,
   getColumnCount,
@@ -33,6 +34,7 @@ import { getLowestFrame,
   getSheetId,
   getSheetIdArray,
   getSheetType,
+  getSheetView,
   getThumbsCount,
   getMoviePrintColor,
   getObjectProperty,
@@ -55,7 +57,10 @@ import {
   deleteSheets,
   deleteSceneSheets,
   duplicateSheet,
+  updateSceneId,
+  updateSceneArray,
   updateSheetType,
+  updateSheetView,
   hideMovielist,
   hideSettings,
   removeMovieListItem,
@@ -89,7 +94,7 @@ import {
   addMoviesToList,
   setCurrentSheetId,
   setSheetFit,
-  setSheetView,
+  setDefaultSheetView,
   setView,
   setVisibilityFilter,
   showMovielist,
@@ -282,7 +287,7 @@ class App extends Component {
     this.onShowHiddenThumbsClick = this.onShowHiddenThumbsClick.bind(this);
     this.onThumbInfoClick = this.onThumbInfoClick.bind(this);
     this.onSetViewClick = this.onSetViewClick.bind(this);
-    this.onChangeSheetTypeClick = this.onChangeSheetTypeClick.bind(this);
+    this.onChangeSheetViewClick = this.onChangeSheetViewClick.bind(this);
     this.onSetSheetClick = this.onSetSheetClick.bind(this);
     this.onDuplicateSheetClick = this.onDuplicateSheetClick.bind(this);
     this.onScanMovieListItemClick = this.onScanMovieListItemClick.bind(this);
@@ -430,6 +435,7 @@ class App extends Component {
         store.dispatch(updateSheetColumnCount(firstFile.id, newSheetId, newColumnCount)); // set columnCount on firstFile
         store.dispatch(updateSheetName(firstFile.id, newSheetId, getRandomSheetName())); // set name on firstFile
         store.dispatch(updateSheetType(firstFile.id, newSheetId, SHEET_TYPE.INTERVAL));
+        store.dispatch(updateSheetView(firstFile.id, newSheetId, SHEETVIEW.GRIDVIEW));
         store.dispatch(setCurrentSheetId(newSheetId));
       }
       if (this.state.filesToLoad.length > 0) {
@@ -720,6 +726,7 @@ class App extends Component {
           this.getThumbsForFile(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId);
           store.dispatch(updateSheetName(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, getRandomSheetName()));
           store.dispatch(updateSheetType(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, SHEET_TYPE.INTERVAL));
+          store.dispatch(updateSheetView(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, SHEETVIEW.GRIDVIEW));
           filesToUpdateStatus.push({
             fileId: sheetToGetThumbsFor.fileId,
             sheetId: sheetToGetThumbsFor.sheetId,
@@ -750,13 +757,7 @@ class App extends Component {
         const sheet = sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId];
 
         // define what sheetView to print depending on type
-        let sheetView = SHEETVIEW.GRIDVIEW;
-        const sheetType = sheet.type;
-        if (sheetType === SHEET_TYPE.SCENES) {
-          sheetView = SHEETVIEW.TIMELINEVIEW;
-        } else {
-          sheetView = SHEETVIEW.GRIDVIEW;
-        }
+        const sheetView = sheet.sheetView;
 
         // get file to print
         const tempFile = files.find(file2 => file2.id === sheetToPrint.fileId);
@@ -924,13 +925,13 @@ class App extends Component {
             this.onSaveMoviePrint();
             break;
           case 52: // press '4'
-            store.dispatch(setSheetView(SHEETVIEW.GRIDVIEW));
+            store.dispatch(setDefaultSheetView(SHEETVIEW.GRIDVIEW));
             break;
           case 53: // press '5'
             store.dispatch(setView(VIEW.PLAYERVIEW));
             break;
           case 54: // press '6'
-            store.dispatch(setSheetView(SHEETVIEW.TIMELINEVIEW));
+            store.dispatch(setDefaultSheetView(SHEETVIEW.TIMELINEVIEW));
             break;
           case 67: // press 'c' - Careful!!! might also be triggered when doing reset application Shift+Alt+Command+C
             // this.recaptureAllFrames();
@@ -1003,7 +1004,7 @@ class App extends Component {
     // file match needs to be in sync with addMoviesToList() and accept !!!
     if (Array.from(files).some(file => (file.type.match('video.*') ||
       file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
-      store.dispatch(setSheetView(SHEETVIEW.GRIDVIEW));
+      store.dispatch(setDefaultSheetView(SHEETVIEW.GRIDVIEW));
       store.dispatch(addMoviesToList(files, clearList)).then((response) => {
         this.setState({
           filesToLoad: response,
@@ -1184,7 +1185,7 @@ class App extends Component {
   switchToPrintView() {
     const { store } = this.context;
     if (this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW) {
-      store.dispatch(setSheetView(SHEETVIEW.GRIDVIEW));
+      store.dispatch(setDefaultSheetView(SHEETVIEW.GRIDVIEW));
     }
   }
 
@@ -1204,9 +1205,10 @@ class App extends Component {
     this.hideSettings();
     this.onHideDetectionChart();
     const { store } = this.context;
-    store.dispatch(setSheetView(SHEETVIEW.TIMELINEVIEW));
+    store.dispatch(setDefaultSheetView(SHEETVIEW.TIMELINEVIEW));
     store.dispatch(setCurrentSheetId(sheetId));
     store.dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.SCENES));
+    store.dispatch(updateSheetView(fileId, sheetId, SHEETVIEW.TIMELINEVIEW));
     // get meanArray if it is stored else return false
     const arrayOfFrameScanData = getFrameScanByFileId(fileId);
     // console.log(arrayOfFrameScanData);
@@ -1295,9 +1297,10 @@ class App extends Component {
       const tempFile = this.props.files.find((file) => file.id === fileId);
       const clearOldScenes = true;
       store.dispatch(updateSheetType(tempFile.id, sheetId, SHEET_TYPE.SCENES));
+      store.dispatch(updateSheetView(tempFile.id, sheetId, SHEETVIEW.TIMELINEVIEW));
       store.dispatch(updateSheetName(tempFile.id, sheetId, getRandomSheetName()));
       store.dispatch(setCurrentSheetId(sheetId));
-      store.dispatch(setSheetView(SHEETVIEW.TIMELINEVIEW));
+      store.dispatch(setDefaultSheetView(SHEETVIEW.TIMELINEVIEW));
       store.dispatch(addScenes(tempFile, sceneList, clearOldScenes, this.props.settings.defaultCachedFramesSize, sheetId));
     } else {
       this.setState({
@@ -1362,7 +1365,7 @@ class App extends Component {
         ));
     }
     store.dispatch(setCurrentSheetId(sheetName));
-    store.dispatch(setSheetView(SHEETVIEW.GRIDVIEW));
+    store.dispatch(setDefaultSheetView(SHEETVIEW.GRIDVIEW));
   }
 
   onAddThumbClick(file, existingThumb, insertWhere) {
@@ -1588,9 +1591,11 @@ class App extends Component {
       store.dispatch(updateSheetColumnCount(fileId, newSheetId, newColumnCount));
       store.dispatch(updateSheetName(fileId, newSheetId, getRandomSheetName()));
       store.dispatch(updateSheetType(fileId, newSheetId, SHEET_TYPE.INTERVAL));
+      store.dispatch(updateSheetView(fileId, newSheetId, SHEETVIEW.GRIDVIEW));
     }
+    const sheetView = getSheetView(sheetsByFileId, fileId, newSheetId, settings);
+    this.onSetSheetClick(fileId, newSheetId, sheetView);
 
-    this.onSetSheetClick(fileId, newSheetId, SHEET_TYPE.INTERVAL);
   }
 
   onErrorPosterFrame(file) {
@@ -1904,30 +1909,39 @@ class App extends Component {
     store.dispatch(setCurrentSheetId(newSheetId));
   };
 
-  onSetSheetClick = (fileId, sheetId, type) => {
+  onSetSheetClick = (fileId, sheetId, sheetView) => {
     const { store } = this.context;
     const { currentFileId } = this.props;
     if (fileId !== currentFileId) {
       store.dispatch(setCurrentFileId(fileId));
     }
     store.dispatch(setCurrentSheetId(sheetId));
-    if (type === SHEET_TYPE.SCENES) {
-      store.dispatch(setSheetView(SHEETVIEW.TIMELINEVIEW));
+    if (sheetView === SHEETVIEW.TIMELINEVIEW) {
       this.onReCaptureClick(false);
-    } else {
-      store.dispatch(setSheetView(SHEETVIEW.GRIDVIEW));
     }
+    store.dispatch(setDefaultSheetView(sheetView));
   };
 
-  onChangeSheetTypeClick = (fileId, sheetId, type) => {
+  onChangeSheetViewClick = (fileId, sheetId, sheetView) => {
     const { store } = this.context;
-    store.dispatch(updateSheetType(fileId, sheetId, type));
-    if (type === SHEET_TYPE.SCENES) {
-      store.dispatch(setSheetView(SHEETVIEW.TIMELINEVIEW));
-      this.onReCaptureClick(false);
-    } else {
-      store.dispatch(setSheetView(SHEETVIEW.GRIDVIEW));
+    const { sheetsByFileId, settings } = this.props;
+
+    // if sheet type interval then create 'artificial' scene Array
+    const sheetType = getSheetType(sheetsByFileId, fileId, sheetId, settings);
+    if (sheetType === SHEET_TYPE.INTERVAL) {
+      const sceneArray = createSceneArray(sheetsByFileId, fileId, sheetId);
+      store.dispatch(updateSceneArray(fileId, sheetId, sceneArray));
+      sceneArray.map(scene => {
+        store.dispatch(updateSceneId(fileId, sheetId, scene.thumbId, scene.sceneId));
+        return undefined;
+      })
     }
+    store.dispatch(updateSheetView(fileId, sheetId, sheetView));
+
+    if (sheetView === SHEETVIEW.TIMELINEVIEW) {
+      this.onReCaptureClick(false);
+    }
+    store.dispatch(setDefaultSheetView(sheetView));
   };
 
   onSetViewClick = (value) => {
@@ -2156,7 +2170,7 @@ class App extends Component {
                         onFileListElementClick={this.onFileListElementClick}
                         posterObjectUrlObjects={posterObjectUrlObjects}
                         sheetsByFileId={this.props.sheetsByFileId}
-                        onChangeSheetTypeClick={this.onChangeSheetTypeClick}
+                        onChangeSheetViewClick={this.onChangeSheetViewClick}
                         onSetSheetClick={this.onSetSheetClick}
                         onDuplicateSheetClick={this.onDuplicateSheetClick}
                         onScanMovieListItemClick={this.onScanMovieListItemClick}

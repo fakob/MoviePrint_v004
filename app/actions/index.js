@@ -79,8 +79,8 @@ export const setView = (defaultView) => {
   };
 };
 
-export const setSheetView = (defaultSheetView) => {
-  log.debug(`action: setView - ${defaultSheetView}`);
+export const setDefaultSheetView = (defaultSheetView) => {
+  log.debug(`action: setDefaultSheetView - ${defaultSheetView}`);
   return {
     type: 'SET_SHEETVIEW',
     defaultSheetView
@@ -368,14 +368,26 @@ export const addScenes = (file, sceneList, clearOldScenes = false, frameSize, ne
   };
 };
 
-export const toggleScene = (currentFileId, sheetId, sceneId) => {
+export const toggleScene = (fileId, sheetId, sceneId) => {
   log.debug(`action: toggleScene - ${sceneId}`);
   return {
     type: 'TOGGLE_SCENE',
     payload: {
-      fileId: currentFileId,
+      fileId,
       sheetId,
-      sceneId
+      sceneId,
+    },
+  };
+};
+
+export const updateSceneArray = (fileId, sheetId, sceneArray) => {
+  log.debug(`action: updateSceneArray - ${sheetId}`);
+  return {
+    type: 'UPDATE_SCENEARRAY',
+    payload: {
+      fileId,
+      sheetId,
+      sceneArray,
     },
   };
 };
@@ -450,6 +462,19 @@ export const updateOrder = (currentFileId, sheetId, array) => {
       sheetId,
       array
     },
+  };
+};
+
+export const updateSceneId = (fileId, sheetId, thumbId, sceneId) => {
+  log.debug('action: updateSceneId');
+  return {
+    type: 'UPDATE_SCENEID_OF_THUMB',
+    payload: {
+      fileId,
+      sheetId,
+      thumbId,
+      sceneId
+    }
   };
 };
 
@@ -735,6 +760,20 @@ export const updateSheetName = (fileId, sheetId, name) => {
         fileId,
         sheetId,
         name,
+      }
+    });
+  };
+};
+
+export const updateSheetView = (fileId, sheetId, sheetView) => {
+  return (dispatch) => {
+    log.debug(`action: updateSheetView - ${sheetView}`);
+    dispatch({
+      type: 'UPDATE_SHEET_VIEW',
+      payload: {
+        fileId,
+        sheetId,
+        sheetView,
       }
     });
   };

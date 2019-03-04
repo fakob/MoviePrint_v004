@@ -40,6 +40,13 @@ const thumb = (state = {}, action, index) => {
       return Object.assign({}, state, {
         hidden: !state.hidden
       });
+    case 'UPDATE_SCENEID_OF_THUMB':
+      if (state.thumbId !== action.payload.thumbId) {
+        return state;
+      }
+      return Object.assign({}, state, {
+        sceneId: action.payload.sceneId
+      });
     case 'UPDATE_FRAMENUMBER_OF_THUMB':
       if (state.thumbId !== action.payload.thumbId) {
         return state;
@@ -91,6 +98,22 @@ const sheetsByFileId = (state = {}, action) => {
         }
       };
     }
+    case 'UPDATE_SCENEARRAY':
+      return {
+        ...state,
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          [action.payload.sheetId]: {
+            // conditional adding of properties
+            // only add when fileId exists
+            ...(state[action.payload.fileId] === undefined ?
+              {} :
+              state[action.payload.fileId][action.payload.sheetId]
+            ),
+            sceneArray: action.payload.sceneArray,
+          }
+        }
+      };
     case 'TOGGLE_SCENE':
       return {
         ...state,
@@ -211,6 +234,19 @@ const sheetsByFileId = (state = {}, action) => {
           }
         }
       };
+    case 'UPDATE_SCENEID_OF_THUMB':
+      return {
+        ...state,
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          [action.payload.sheetId]: {
+            ...state[action.payload.fileId][action.payload.sheetId],
+            thumbsArray: state[action.payload.fileId][action.payload.sheetId].thumbsArray.map(t =>
+              thumb(t, action)
+            )
+          }
+        }
+      };
     case 'UPDATE_FRAMENUMBER_OF_THUMB':
       return {
         ...state,
@@ -297,6 +333,22 @@ const sheetsByFileId = (state = {}, action) => {
           }
         }
       };
+    case 'UPDATE_SHEET_VIEW':
+      return {
+        ...state,
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          [action.payload.sheetId]: {
+            // conditional adding of properties
+            // only add when fileId exists
+            ...(state[action.payload.fileId] === undefined ?
+              {} :
+              state[action.payload.fileId][action.payload.sheetId]
+            ),
+            sheetView: action.payload.sheetView,
+          }
+        }
+      };
     case 'UPDATE_SHEET_TYPE':
       return {
         ...state,
@@ -353,36 +405,6 @@ const sheetsByFileId = (state = {}, action) => {
           }
         }
       };
-    // case 'DELETE_SCENE_SHEETS':
-    //   // console.log(action.payload);
-    //   if (state[action.payload.fileId] === undefined) {
-    //     // console.log('fileId does not exist');
-    //     // fileId does not exist, so it does not have to be deleted
-    //     return state;
-    //   }
-    //   const arrayOfKeys = Object.keys(state[action.payload.fileId]);
-    //   // filter out interval and scenes sheet, as they do not be deleted
-    //   const arrayOfKeysToDelete = arrayOfKeys.filter(item => (!item.startsWith(SHEET_TYPE.INTERVAL) || item.startsWith(SHEET_TYPE.SCENES)));
-    //   // console.log(state);
-    //
-    //   const fileId = action.payload.fileId;
-    //   // separate the fileIds which do not change
-    //   const { [fileId]: fileIdObject, ...otherObjects } = state;
-    //   // console.log(fileIdObject);
-    //
-    //   let newValue = fileIdObject;
-    //   // loop through the arrayOfKeysToDelete and remove the property of every item in the array
-    //   arrayOfKeysToDelete.map(childKey => {
-    //     newValue = deleteProperty(newValue, childKey);
-    //     // console.log(newValue);
-    //   });
-    //
-    //   // Merge back together
-    //   const stateWithoutProperties = { ...otherObjects, [fileId]: newValue };
-    //   // console.log(stateWithoutProperties);
-    //   // console.log(arrayOfKeys);
-    //   // console.log(arrayOfKeysToDelete);
-    //   return stateWithoutProperties;
     default:
       return state;
   }

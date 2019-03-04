@@ -16,7 +16,6 @@ import {
  } from '../utils/utils';
 import saveMoviePrint from '../utils/saveMoviePrint';
 import {
-  SHEET_TYPE,
   SHEETVIEW,
   VIEW,
 } from '../utils/constants';
@@ -109,16 +108,9 @@ class WorkerApp extends Component {
   render() {
     const { sentData, savingMoviePrint, thumbObjectBase64s, visibleThumbs } = this.state;
 
-    let sheetView = SHEETVIEW.GRIDVIEW;
     if (savingMoviePrint) {
-      const sheetType = sentData.sheet.type;
-      if (sheetType === SHEET_TYPE.SCENES) {
-        sheetView = SHEETVIEW.TIMELINEVIEW;
-      } else {
-        sheetView = SHEETVIEW.GRIDVIEW;
-      }
+      const { sheetView } = sentData.sheet;
       console.log(sheetView);
-      console.log(sheetType);
     }
 
 

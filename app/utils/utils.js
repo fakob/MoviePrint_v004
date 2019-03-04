@@ -1,3 +1,4 @@
+import uuidV4 from 'uuid/v4';
 import pathR from 'path';
 import fsR from 'fs';
 import log from 'electron-log';
@@ -370,6 +371,16 @@ export const getSheetIdArray = (sheetsByFileId, fileId) => {
   return sheetIdArray;
 };
 
+export const getSheetView = (sheetsByFileId, fileId, sheetId, settings) => {
+  if (sheetsByFileId === undefined ||
+    sheetsByFileId[fileId] === undefined ||
+    sheetsByFileId[fileId][sheetId] === undefined ||
+    sheetsByFileId[fileId][sheetId].type === undefined) {
+    return settings.defaultSheetView;
+  }
+  return sheetsByFileId[fileId][sheetId].sheetView;
+};
+
 export const getSheetType = (sheetsByFileId, fileId, sheetId, settings) => {
   if (sheetsByFileId === undefined ||
     sheetsByFileId[fileId] === undefined ||
@@ -642,4 +653,45 @@ export const getPixelPerFrameRatio = (rowArray, thumbMargin, width, minSceneLeng
   // console.log(pixelPerFrameRatioArray);
   // console.log(minPixelPerFrameRatio);
   return minPixelPerFrameRatio;
+}
+
+export const createSceneArray = (sheetsByFileId, fileId, sheetId) => {
+  if (sheetsByFileId[fileId] !== undefined &&
+    sheetsByFileId[fileId][sheetId] !== undefined &&
+    sheetsByFileId[fileId][sheetId].thumbsArray !== undefined) {
+    const { thumbsArray } = sheetsByFileId[fileId][sheetId];
+    if (thumbsArray.length > 0) {
+      const visibleThumbsArray = getVisibleThumbs(thumbsArray, 'SHOW_VISIBLE');
+      visibleThumbsArray.sort((t1,t2) => t1.frameNumber - t2.frameNumber);
+      console.log(visibleThumbsArray);
+      const sceneArray = [];
+      let sceneStart = visibleThumbsArray[0].frameNumber; // first sceneStart value
+      let sceneLength = Math.floor((visibleThumbsArray[1].frameNumber - visibleThumbsArray[0].frameNumber) / 2); // first sceneLength value
+      visibleThumbsArray.map((thumb, index, array) => {
+        if (index !== 0) { // everything except the first thumb
+          sceneStart = sceneStart + sceneLength + 1;
+          if (index < array.length - 1) { // then until second to last
+            const nextThumb = array[index + 1];
+            sceneLength = (Math.floor((nextThumb.frameNumber - thumb.frameNumber) / 2) + thumb.frameNumber) - sceneStart;
+          } else { // last thumb
+            sceneLength = thumb.frameNumber - sceneStart;
+          }
+        }
+        sceneArray.push({
+          sceneId: uuidV4(),
+          fileId,
+          sheetId,
+          thumbId: thumb.thumbId,
+          start: sceneStart,
+          length: sceneLength,
+          colorArray: [40,40,40],
+        })
+        return undefined;
+      });
+      console.log(sceneArray);
+      return sceneArray;
+    }
+    return [];
+  }
+  return [];
 }

@@ -6,8 +6,7 @@ import { truncate, truncatePath, frameCountToTimeCode, formatBytes } from '../ut
 import styles from './FileList.css';
 import transparent from '../img/Thumb_TRANSPARENT.png';
 import {
-  SHEET_TYPE,
-  SHEET_TYPE_OPTIONS,
+  SHEETVIEW,
 } from '../utils/constants';
 
 
@@ -21,7 +20,7 @@ const FileListElement = ({
   height,
   name,
   objectUrl,
-  onChangeSheetTypeClick,
+  onChangeSheetViewClick,
   onDeleteSheetClick,
   onDuplicateSheetClick,
   onFileListElementClick,
@@ -35,11 +34,11 @@ const FileListElement = ({
 }) => {
   const sheetsArray = Object.getOwnPropertyNames(sheetsObject);
 
-  function getSheetIcon(type) {
-    switch (type) {
-      case SHEET_TYPE.INTERVAL:
+  function getSheetIcon(sheetView) {
+    switch (sheetView) {
+      case SHEETVIEW.GRIDVIEW:
         return 'grid layout';
-      case SHEET_TYPE.SCENES:
+      case SHEETVIEW.TIMELINEVIEW:
         return 'barcode';
       default:
         return 'exclamation';
@@ -51,14 +50,14 @@ const FileListElement = ({
     onRemoveMovieListItem(fileId);
   }
 
-  function onSheetClickWithStop(e, fileId, sheetId, type) {
+  function onSheetClickWithStop(e, fileId, sheetId, sheetView) {
     e.stopPropagation();
-    onSetSheetClick(fileId, sheetId, type);
+    onSetSheetClick(fileId, sheetId, sheetView);
   }
 
-  function onChangeSheetTypeClickWithStop(e, fileId, sheetId, type) {
+  function onChangeSheetViewClickWithStop(e, fileId, sheetId, sheetView) {
     e.stopPropagation();
-    onChangeSheetTypeClick(fileId, sheetId, type);
+    onChangeSheetViewClick(fileId, sheetId, sheetView);
   }
 
   function onDuplicateSheetClickWithStop(e, fileId, sheetId) {
@@ -160,7 +159,7 @@ const FileListElement = ({
             key={sheetId}
             index={index}
             data-tid={`sheetListItem_${fileId}`}
-            onClick={e => onSheetClickWithStop(e, fileId, sheetId, sheetsObject[sheetId].type)}
+            onClick={e => onSheetClickWithStop(e, fileId, sheetId, sheetsObject[sheetId].sheetView)}
             className={`${styles.SheetListItem} ${(currentSheetId === sheetId) ? styles.SheetHighlight : ''}`}
           >
             {/* {(currentSheetId === sheetId) &&
@@ -172,7 +171,7 @@ const FileListElement = ({
               Selected sheet
             </Label>} */}
             <span className={`${styles.SheetName}`}>
-                <Icon name={getSheetIcon(sheetsObject[sheetId].type)} inverted />
+                <Icon name={getSheetIcon(sheetsObject[sheetId].sheetView)} inverted />
                 &nbsp;{sheetsObject[sheetId].name}
             </span>
             {/* <Input
@@ -207,18 +206,18 @@ const FileListElement = ({
                     text="Rename"
                     onClick={e => onRenameSheetClickWithStop(e, fileId, sheetId)}
                   /> */}
-                <Dropdown.Item
-                  data-tid='changeTypeSheetItemOption'
+                {sheetsObject[sheetId].sheetView === SHEETVIEW.TIMELINEVIEW && <Dropdown.Item
+                  data-tid='changeViewSheetItemOption'
                   icon="grid layout"
-                  text="Switch type to interval"
-                  onClick={e => onChangeSheetTypeClickWithStop(e, fileId, sheetId, SHEET_TYPE.INTERVAL)}
-                />
-                <Dropdown.Item
-                  data-tid='changeTypeSheetItemOption'
+                  text="Switch to grid view"
+                  onClick={e => onChangeSheetViewClickWithStop(e, fileId, sheetId, SHEETVIEW.GRIDVIEW)}
+                />}
+                {sheetsObject[sheetId].sheetView === SHEETVIEW.GRIDVIEW && <Dropdown.Item
+                  data-tid='changeViewSheetItemOption'
                   icon="barcode"
-                  text="Switch type to scenes"
-                  onClick={e => onChangeSheetTypeClickWithStop(e, fileId, sheetId, SHEET_TYPE.SCENES)}
-                />
+                  text="Switch to timeline view"
+                  onClick={e => onChangeSheetViewClickWithStop(e, fileId, sheetId, SHEETVIEW.TIMELINEVIEW)}
+                />}
                 <Dropdown.Item
                   data-tid='duplicateSheetItemOption'
                   icon="copy"
