@@ -22,13 +22,15 @@ h3 {
   overflow: hidden;
   position: relative;
   border-radius: 8px;
+  margin-right: 0px !important;
+  margin-bottom: 0px !important;
 }
 
 .ThumbLabel {
   position: absolute;
   right: 4px;
   bottom: 4px;
-  opacity: 0.4;
+  opacity: 0.6;
 }
 
 li p {

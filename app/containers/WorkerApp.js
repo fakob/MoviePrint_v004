@@ -18,6 +18,7 @@ import saveMoviePrint from '../utils/saveMoviePrint';
 import {
   SHEET_TYPE,
   SHEETVIEW,
+  VIEW,
 } from '../utils/constants';
 import {
   getBase64Object,
@@ -40,12 +41,12 @@ class WorkerApp extends Component {
   componentDidMount() {
     log.debug('I am the worker window - responsible for saving a MoviePrint');
     ipcRenderer.on('action-saved-MoviePrint-done', (event) => {
-      this.setState({
-        savingMoviePrint: false,
-        sentData: {},
-        visibleThumbs: [],
-        thumbObjectBase64s: {},
-      });
+      // this.setState({
+      //   savingMoviePrint: false,
+      //   sentData: {},
+      //   visibleThumbs: [],
+      //   thumbObjectBase64s: {},
+      // });
     });
 
     ipcRenderer.on('action-save-MoviePrint', (event, sentData) => {
@@ -152,6 +153,7 @@ class WorkerApp extends Component {
                     thumbCount={sentData.file.thumbCount}
 
                     sheetView={sheetView}
+                    view={VIEW.STANDARDVIEW}
                     currentSheetId={sentData.currentSheetId || sentData.settings.currentSheetId}
                     scaleValueObject={sentData.scaleValueObject}
                     moviePrintWidth={sentData.moviePrintWidth}

@@ -67,6 +67,7 @@ export const CACHED_FRAMES_SIZE_OPTIONS = [
 export const VISIBILITY_FILTER = 'SHOW_VISIBLE';
 export const SHOW_MOVIELIST = false;
 export const SHOW_SETTINGS = false;
+export const DEFAULT_VIEW = VIEW.STANDARDVIEW
 export const DEFAULT_SHEETVIEW = SHEETVIEW.GRIDVIEW;
 export const DEFAULT_SHEET_TYPE = SHEET_TYPE.INTERVAL;
 export const SH = SHEET_FIT.BOTH;

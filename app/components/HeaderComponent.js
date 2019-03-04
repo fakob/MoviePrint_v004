@@ -72,24 +72,34 @@ const Header = ({
           content="Open one or more movies"
           keepInViewPort={false}
         />
+        {/* file &&
+          <Popup
+            trigger={
+              <Dropdown
+                data-tid='saveMoviePrintMoreOptionsDropdown'
+                item
+                floating
+                pointing="bottom right"
+                upward
+                compact
+                icon="ellipsis vertical"
+              >
+                <Dropdown.Menu>
+                  <Dropdown.Item
+                    data-tid='saveAllMoviePrintsOption'
+                    icon="download"
+                    text="Save All MoviePrints"
+                    onClick={onSaveAllMoviePrints}
+                  />
+                </Dropdown.Menu>
+              </Dropdown>
+            }
+            className={stylesPop.popup}
+            content="Set view"
+            keepInViewPort={false}
+          />
+        */}
         <Menu.Menu position="right">
-          {file &&
-            <Popup
-              trigger={
-                <Dropdown
-                  data-tid='setViewDropdown'
-                  placeholder="Switch view"
-                  item
-                  options={viewOptions}
-                  value={visibilitySettings.defaultView}
-                  onChange={(e, { value }) => onSetViewClick(value)}
-                />
-              }
-              className={stylesPop.popup}
-              content="Set view"
-              keepInViewPort={false}
-            />
-          }
           {file &&
             visibilitySettings.defaultSheetView === SHEETVIEW.GRIDVIEW &&
             // !visibilitySettings.showSettings &&
@@ -170,7 +180,7 @@ const Header = ({
               keepInViewPort={false}
             />
           }
-          {file &&
+          {/* file &&
             <Popup
               trigger={
                 <Menu.Item
@@ -187,8 +197,8 @@ const Header = ({
               content={(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'Show all' : 'Show only visible'}
               keepInViewPort={false}
             />
-          }
-          {file &&
+          */}
+          {/* file &&
             <Popup
               trigger={
                 <Dropdown
@@ -204,6 +214,31 @@ const Header = ({
               content="Show frames or timecode"
               keepInViewPort={false}
             />
+          */}
+          {file &&
+            <Popup
+              trigger={
+                <Menu.Item
+                  data-tid={(visibilitySettings.defaultView === VIEW.STANDARDVIEW) ? 'moreSettingsBtn' : 'hideSettingsBtn'}
+                  onClick={() => {
+                    if (visibilitySettings.defaultView === VIEW.STANDARDVIEW) {
+                      onSetViewClick(VIEW.PLAYERVIEW);
+                    } else {
+                      onSetViewClick(VIEW.STANDARDVIEW);
+                    }
+                    return undefined;
+                  }}
+                >
+                  <Icon
+                    name="youtube play"
+                  />
+                  {(visibilitySettings.defaultView === VIEW.STANDARDVIEW) ? 'Show player view' : 'Hide player view'}
+                </Menu.Item>
+              }
+              className={stylesPop.popup}
+              content={(visibilitySettings.defaultView === VIEW.STANDARDVIEW) ? 'Show player view' : 'Hide player view'}
+              keepInViewPort={false}
+            />
           }
           <Popup
             trigger={
@@ -214,11 +249,11 @@ const Header = ({
                 <Icon
                   name="edit"
                 />
-                {(visibilitySettings.showSettings === false) ? 'More settings' : 'Hide settings'}
+                {(visibilitySettings.showSettings === false) ? 'Show settings' : 'Hide settings'}
               </Menu.Item>
             }
             className={stylesPop.popup}
-            content={(visibilitySettings.showSettings === false) ? 'More settings' : 'Hide settings'}
+            content={(visibilitySettings.showSettings === false) ? 'Show settings' : 'Hide settings'}
             keepInViewPort={false}
           />
         </Menu.Menu>
