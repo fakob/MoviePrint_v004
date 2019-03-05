@@ -58,7 +58,7 @@ class ThumbGrid extends Component {
 
     this.resetHover = this.resetHover.bind(this);
     this.onContainerOut = this.onContainerOut.bind(this);
-    this.onExit = this.onExit.bind(this);
+    this.onExpand = this.onExpand.bind(this);
     this.onToggle = this.onToggle.bind(this);
     this.onSaveThumb = this.onSaveThumb.bind(this);
     this.onInPoint = this.onInPoint.bind(this);
@@ -129,10 +129,11 @@ class ThumbGrid extends Component {
     this.resetHover();
   }
 
-  onExit(e) {
-    // console.log('onExit');
+  onExpand(e) {
+    // console.log('onExpand');
     e.stopPropagation();
-    this.props.onExitClick();
+    const thumb = this.props.thumbs.find(thumb => thumb.thumbId === this.state.controllersVisible);
+    this.props.onExpandClick(this.props.file, thumb.thumbId, this.props.currentSheetId);
     this.resetHover();
   }
 
@@ -458,24 +459,24 @@ class ThumbGrid extends Component {
               height: `${(thumbWidth * this.props.scaleValueObject.aspectRatioInv)}px`,
             }}
           >
-              {!isGridView && <Popup
+              <Popup
                 trigger={
                   <button
-                    data-tid={`ExitThumbBtn_${this.state.controllersVisible}`}
+                    data-tid={`ExpandThumbBtn_${this.state.controllersVisible}`}
                     type='button'
                     className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayExit} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
-                    onClick={this.onExit}
+                    onClick={this.onExpand}
                     onMouseOver={this.over}
                     onMouseOut={this.out}
                     onFocus={this.over}
                     onBlur={this.out}
                   >
-                    EXIT
+                    EXPAND
                   </button>
                 }
                 className={stylesPop.popup}
-                content="Enter into scene"
-              />}
+                content="Expand scene"
+              />
               <Popup
                 trigger={
                   <button
@@ -679,6 +680,7 @@ ThumbGrid.propTypes = {
   onScrubClick: PropTypes.func.isRequired,
   onAddThumbClick: PropTypes.func.isRequired,
   onToggleClick: PropTypes.func.isRequired,
+  onExpandClick: PropTypes.func.isRequired,
   scaleValueObject: PropTypes.object.isRequired,
   selectedThumbId: PropTypes.string,
   settings: PropTypes.object.isRequired,

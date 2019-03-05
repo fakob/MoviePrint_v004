@@ -57,7 +57,7 @@ import {
   deleteSheets,
   deleteSceneSheets,
   duplicateSheet,
-  updateSceneId,
+  // updateSceneId,
   updateSceneArray,
   updateSheetType,
   updateSheetView,
@@ -241,7 +241,7 @@ class App extends Component {
     this.onScrubWindowClick = this.onScrubWindowClick.bind(this);
     this.onScrubClick = this.onScrubClick.bind(this);
     // this.onSelectClick = this.onSelectClick.bind(this);
-    this.onEnterClick = this.onEnterClick.bind(this);
+    this.onExpandClick = this.onExpandClick.bind(this);
     this.onAddThumbClick = this.onAddThumbClick.bind(this);
     this.switchToPrintView = this.switchToPrintView.bind(this);
     this.openMoviesDialog = this.openMoviesDialog.bind(this);
@@ -1345,27 +1345,43 @@ class App extends Component {
     });
   }
 
-  onEnterClick(file, sceneId) {
+  onExpandClick(file, sceneOrThumbId, parentSheetId) {
     const { store } = this.context;
-    // console.log(file);
-    // console.log(sceneId);
-    const sceneArray = this.props.scenes;
-    const sceneIndex = sceneArray.findIndex(item => item.sceneId === sceneId);
-    const sheetName = sceneId;
-    console.log(sheetName);
-    if (this.props.sheetsArray.findIndex(item => item === sheetName) === -1) {
+    const { scenes, sheetsArray, sheetsByFileId, settings } = this.props;
+    console.log(file);
+    console.log(sceneOrThumbId);
+    console.log(parentSheetId);
+
+    // create scenesArray if it does not exist
+    let sceneArray = scenes;
+    if (sceneArray === undefined || sceneArray.length === 0) {
+      sceneArray = createSceneArray(sheetsByFileId, file.id, parentSheetId);
+      store.dispatch(updateSceneArray(file.id, parentSheetId, sceneArray));
+    }
+    console.log(sceneArray);
+
+    // get sceneArray
+    const sceneIndex = sceneArray.findIndex(item => item.sceneId === sceneOrThumbId);
+    const sheetId = sceneOrThumbId;
+    console.log(sheetId);
+
+    // create new sheet if it does not already exist
+    if (sheetsArray.findIndex(item => item === sheetId) === -1) {
       // log.debug(`addIntervalSheet as no thumbs were found for: ${file.name}`);
       store.dispatch(addIntervalSheet(
-          file,
-          sheetName,
-          DEFAULT_THUMB_COUNT, // use constant value instead of defaultThumbCount
-          sceneArray[sceneIndex].start,
-          sceneArray[sceneIndex].start + sceneArray[sceneIndex].length - 1,
-          this.props.settings.defaultCachedFramesSize
-        ));
+        file,
+        sheetId,
+        DEFAULT_THUMB_COUNT, // use constant value instead of defaultThumbCount
+        sceneArray[sceneIndex].start,
+        sceneArray[sceneIndex].start + sceneArray[sceneIndex].length - 1,
+        settings.defaultCachedFramesSize
+      ));
+      store.dispatch(updateSheetName(file.id, sheetId, getRandomSheetName())); // set name on file
+      store.dispatch(updateSheetType(file.id, sheetId, SHEET_TYPE.INTERVAL));
     }
-    store.dispatch(setCurrentSheetId(sheetName));
+    store.dispatch(updateSheetView(file.id, sheetId, SHEETVIEW.GRIDVIEW));
     store.dispatch(setDefaultSheetView(SHEETVIEW.GRIDVIEW));
+    store.dispatch(setCurrentSheetId(sheetId));
   }
 
   onAddThumbClick(file, existingThumb, insertWhere) {
@@ -1931,10 +1947,10 @@ class App extends Component {
     if (sheetType === SHEET_TYPE.INTERVAL) {
       const sceneArray = createSceneArray(sheetsByFileId, fileId, sheetId);
       store.dispatch(updateSceneArray(fileId, sheetId, sceneArray));
-      sceneArray.map(scene => {
-        store.dispatch(updateSceneId(fileId, sheetId, scene.thumbId, scene.sceneId));
-        return undefined;
-      })
+      // sceneArray.map(scene => {
+      //   store.dispatch(updateSceneId(fileId, sheetId, scene.thumbId, scene.sceneId));
+      //   return undefined;
+      // })
     }
     store.dispatch(updateSheetView(fileId, sheetId, sheetView));
 
@@ -2323,6 +2339,7 @@ class App extends Component {
                               keyObject={this.state.keyObject}
                               onAddThumbClick={this.onAddThumbClick}
                               onScrubClick={this.onScrubClick}
+                              onExpandClick={this.onExpandClick}
                               onThumbDoubleClick={this.onViewToggle}
                               scaleValueObject={this.state.scaleValueObject}
                               moviePrintWidth={this.state.scaleValueObject.newMoviePrintWidth}
@@ -2341,13 +2358,16 @@ class App extends Component {
                           <Conditional if={this.props.visibilitySettings.defaultSheetView === SHEETVIEW.TIMELINEVIEW}>
                             <SortedVisibleSceneGrid
                               sheetView={this.props.visibilitySettings.defaultSheetView}
+                              view={this.props.visibilitySettings.defaultView}
                               file={this.props.file}
+                              currentSheetId={this.props.settings.currentSheetId}
                               frameCount={this.props.file ? this.props.file.frameCount : undefined}
                               inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                               keyObject={this.state.keyObject}
                               selectedSceneId={this.state.selectedSceneObject ? this.state.selectedSceneObject.sceneId : undefined}
                               selectSceneMethod={this.onSelectSceneMethod}
-                              onEnterClick={this.onEnterClick}
+                              onThumbDoubleClick={this.onViewToggle}
+                              onExpandClick={this.onExpandClick}
                               moviePrintWidth={this.state.scaleValueObject.newMoviePrintTimelineWidth}
                               moviePrintRowHeight={this.state.scaleValueObject.newTimelineRowHeight}
                               scaleValueObject={this.state.scaleValueObject}

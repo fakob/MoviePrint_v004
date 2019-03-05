@@ -219,7 +219,7 @@ const Header = ({
             <Popup
               trigger={
                 <Menu.Item
-                  data-tid={(visibilitySettings.defaultView === VIEW.STANDARDVIEW) ? 'moreSettingsBtn' : 'hideSettingsBtn'}
+                  data-tid={(visibilitySettings.defaultView === VIEW.STANDARDVIEW) ? 'showPlayerBtn' : 'hidePlayerBtn'}
                   onClick={() => {
                     if (visibilitySettings.defaultView === VIEW.STANDARDVIEW) {
                       onSetViewClick(VIEW.PLAYERVIEW);

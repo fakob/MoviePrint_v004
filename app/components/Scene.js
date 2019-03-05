@@ -61,7 +61,7 @@ const Scene = ({
   onAddAfter,
   onAddBefore,
   onBack,
-  onEnter,
+  onExpand,
   onForward,
   onHoverAddThumbAfter,
   onHoverAddThumbBefore,
@@ -178,9 +178,9 @@ const Scene = ({
   function onThumbDoubleClickWithStop(e) {
     e.stopPropagation();
     if (controllersAreVisible) {
-      if (sheetView === SHEETVIEW.TIMELINEVIEW) {
-        onSelect();
-      }
+      // if (sheetView === SHEETVIEW.TIMELINEVIEW) {
+      //   onSelect();
+      // }
       onThumbDoubleClick();
     }
   }
@@ -192,10 +192,10 @@ const Scene = ({
     }
   }
 
-  function onEnterWithStop(e) {
+  function onExpandWithStop(e) {
     e.stopPropagation();
     if (controllersAreVisible) {
-      onEnter();
+      onExpand();
     }
   }
 
@@ -230,7 +230,7 @@ const Scene = ({
         null
       }}
       // onKeyPress={onSelectWithStop}
-      // onDoubleClick={onThumbDoubleClickWithStop}
+      onDoubleClick={onThumbDoubleClickWithStop}
       id={`scene${indexForId}`}
       className={`${styles.gridItem} ${doLineBreak ? styles.lineBreak : ''}`}
       // width={`${thumbWidth}px`}
@@ -277,7 +277,7 @@ const Scene = ({
           <Popup
             trigger={
               <button
-                data-tid={`EnterThumbBtn_${sceneId}`}
+                data-tid={`ExpandThumbBtn_${sceneId}`}
                 type='button'
                 style={{
                   display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
@@ -289,19 +289,19 @@ const Scene = ({
                   marginLeft: '8px',
                 }}
                 className={`${styles.hoverButton} ${styles.textButton}`}
-                onClick={onEnterWithStop}
+                onClick={onExpandWithStop}
                 onMouseOver={over}
                 onMouseLeave={out}
                 onFocus={over}
                 onBlur={out}
               >
-                ENTER
+                EXPAND
               </button>
             }
             className={stylesPop.popup}
-            content="Enter into scene"
+            content="Expand scene"
           />
-          {/* <Popup
+          <Popup
             trigger={
               <button
                 data-tid={`${hidden ? 'show' : 'hide'}ThumbBtn_${sceneId}`}
@@ -326,7 +326,7 @@ const Scene = ({
             }
             className={stylesPop.popup}
             content="Hide thumb"
-          /> */}
+          />
           {!hidden &&
             <div>
               {/* <Popup

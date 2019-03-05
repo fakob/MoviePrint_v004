@@ -109,7 +109,7 @@ class SortedVisibleThumbGrid extends Component {
         onScrubClick={this.props.onScrubClick}
         onSelectClick={this.onSelectClick}
         onErrorThumb={this.onErrorThumb}
-        onExitClick={this.props.onExitClick}
+        onExpandClick={this.props.onExpandClick}
         onThumbDoubleClick={this.props.onThumbDoubleClick}
         onToggleClick={this.props.onToggleClick}
         ref={this.props.inputRef} // for the saveMoviePrint function
@@ -161,10 +161,6 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
-    onExitClick: () => {
-      // dispatch(setCurrentSheetId(DEFAULT_SHEET_SCENES));
-      dispatch(setView(SHEETVIEW.TIMELINEVIEW));
-    },
     onToggleClick: (fileId, thumbId) => {
       dispatch(toggleThumb(fileId, ownProps.currentSheetId, thumbId));
     },
@@ -241,6 +237,7 @@ SortedVisibleThumbGrid.propTypes = {
   onSaveThumbClick: PropTypes.func.isRequired,
   onScrubClick: PropTypes.func,
   onAddThumbClick: PropTypes.func,
+  onExpandClick: PropTypes.func,
   onThumbDoubleClick: PropTypes.func,
   onToggleClick: PropTypes.func.isRequired,
   scaleValueObject: PropTypes.object.isRequired,

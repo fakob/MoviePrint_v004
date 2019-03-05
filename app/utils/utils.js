@@ -678,10 +678,9 @@ export const createSceneArray = (sheetsByFileId, fileId, sheetId) => {
           }
         }
         sceneArray.push({
-          sceneId: uuidV4(),
+          sceneId: thumb.thumbId,
           fileId,
           sheetId,
-          thumbId: thumb.thumbId,
           start: sceneStart,
           length: sceneLength,
           colorArray: [40,40,40],

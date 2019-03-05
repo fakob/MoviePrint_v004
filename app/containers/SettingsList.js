@@ -601,138 +601,140 @@ class SettingsList extends Component {
               </Grid.Column>
             </Grid.Row>
           }
-          { isGridView &&
-            <Grid.Row>
-              <Grid.Column width={4}>
-                Options
-              </Grid.Column>
-              <Grid.Column width={12}>
-                <List>
-                  <List.Item>
-                    <Checkbox
-                      data-tid='showHeaderCheckbox'
-                      label={
-                        <label className={styles.label}>
-                          Show header
-                        </label>
-                      }
-                      checked={settings.defaultShowHeader}
-                      onChange={this.onChangeShowHeader}
-                    />
-                  </List.Item>
-                  <List.Item>
-                    <Checkbox
-                      data-tid='showFilePathCheckbox'
-                      className={styles.subCheckbox}
-                      label={
-                        <label className={styles.label}>
-                          Show file path
-                        </label>
-                      }
-                      disabled={!settings.defaultShowHeader}
-                      checked={settings.defaultShowPathInHeader}
-                      onChange={this.onChangeShowPathInHeader}
-                    />
-                  </List.Item>
-                  <List.Item>
-                    <Checkbox
-                      data-tid='showFileDetailsCheckbox'
-                      className={styles.subCheckbox}
-                      label={
-                        <label className={styles.label}>
-                          Show file details
-                        </label>
-                      }
-                      disabled={!settings.defaultShowHeader}
-                      checked={settings.defaultShowDetailsInHeader}
-                      onChange={this.onChangeShowDetailsInHeader}
-                    />
-                  </List.Item>
-                  <List.Item>
-                    <Checkbox
-                      data-tid='showTimelineCheckbox'
-                      className={styles.subCheckbox}
-                      label={
-                        <label className={styles.label}>
-                          Show timeline
-                        </label>
-                      }
-                      disabled={!settings.defaultShowHeader}
-                      checked={settings.defaultShowTimelineInHeader}
-                      onChange={this.onChangeShowTimelineInHeader}
-                    />
-                  </List.Item>
-                  <List.Item>
-                    <Checkbox
-                      data-tid='roundedCornersCheckbox'
-                      label={
-                        <label className={styles.label}>
-                          Rounded corners
-                        </label>
-                      }
-                      checked={settings.defaultRoundedCorners}
-                      onChange={this.onChangeRoundedCorners}
-                    />
-                  </List.Item>
-                  <List.Item>
-                    <Checkbox
-                      data-tid='showHiddenThumbsCheckbox'
-                      label={
-                        <label className={styles.label}>
-                          Show hidden thumbs
-                        </label>
-                      }
-                      checked={visibilitySettings.visibilityFilter === 'SHOW_ALL'}
-                      onChange={this.onChangeShowHiddenThumbs}
-                    />
-                  </List.Item>
-                  <Divider inverted />
-                  <List.Item>
-                    <Radio
-                      data-tid='showFramesRadioBtn'
-                      label={
-                        <label className={styles.label}>
-                          Show frames
-                        </label>
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Options
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <List>
+                { isGridView &&
+                  <Fragment>
+                    <List.Item>
+                      <Checkbox
+                        data-tid='showHeaderCheckbox'
+                        label={
+                          <label className={styles.label}>
+                            Show header
+                          </label>
                         }
-                      name="radioGroup"
-                      value="frames"
-                      checked={settings.defaultThumbInfo === 'frames'}
-                      onChange={this.onChangeThumbInfo}
-                    />
-                  </List.Item>
-                  <List.Item>
-                    <Radio
-                      data-tid='showTimecodeRadioBtn'
-                      label={
-                        <label className={styles.label}>
-                          Show timecode
-                        </label>
+                        checked={settings.defaultShowHeader}
+                        onChange={this.onChangeShowHeader}
+                      />
+                    </List.Item>
+                    <List.Item>
+                      <Checkbox
+                        data-tid='showFilePathCheckbox'
+                        className={styles.subCheckbox}
+                        label={
+                          <label className={styles.label}>
+                            Show file path
+                          </label>
                         }
-                      name="radioGroup"
-                      value="timecode"
-                      checked={settings.defaultThumbInfo === 'timecode'}
-                      onChange={this.onChangeThumbInfo}
-                    />
-                  </List.Item>
-                  <List.Item>
-                    <Radio
-                      data-tid='hideInfoRadioBtn'
-                      label={
-                        <label className={styles.label}>
-                          Hide info
-                        </label>
+                        disabled={!settings.defaultShowHeader}
+                        checked={settings.defaultShowPathInHeader}
+                        onChange={this.onChangeShowPathInHeader}
+                      />
+                    </List.Item>
+                    <List.Item>
+                      <Checkbox
+                        data-tid='showFileDetailsCheckbox'
+                        className={styles.subCheckbox}
+                        label={
+                          <label className={styles.label}>
+                            Show file details
+                          </label>
                         }
-                      name="radioGroup"
-                      value="hideInfo"
-                      checked={settings.defaultThumbInfo === 'hideInfo'}
-                      onChange={this.onChangeThumbInfo}
-                    />
-                  </List.Item>
-                </List>
-              </Grid.Column>
-            </Grid.Row>
-          }
+                        disabled={!settings.defaultShowHeader}
+                        checked={settings.defaultShowDetailsInHeader}
+                        onChange={this.onChangeShowDetailsInHeader}
+                      />
+                    </List.Item>
+                    <List.Item>
+                      <Checkbox
+                        data-tid='showTimelineCheckbox'
+                        className={styles.subCheckbox}
+                        label={
+                          <label className={styles.label}>
+                            Show timeline
+                          </label>
+                        }
+                        disabled={!settings.defaultShowHeader}
+                        checked={settings.defaultShowTimelineInHeader}
+                        onChange={this.onChangeShowTimelineInHeader}
+                      />
+                    </List.Item>
+                    <List.Item>
+                      <Checkbox
+                        data-tid='roundedCornersCheckbox'
+                        label={
+                          <label className={styles.label}>
+                            Rounded corners
+                          </label>
+                        }
+                        checked={settings.defaultRoundedCorners}
+                        onChange={this.onChangeRoundedCorners}
+                      />
+                    </List.Item>
+                  </Fragment>
+                }
+                <List.Item>
+                  <Checkbox
+                    data-tid='showHiddenThumbsCheckbox'
+                    label={
+                      <label className={styles.label}>
+                        Show hidden thumbs
+                      </label>
+                    }
+                    checked={visibilitySettings.visibilityFilter === 'SHOW_ALL'}
+                    onChange={this.onChangeShowHiddenThumbs}
+                  />
+                </List.Item>
+                <Divider inverted />
+                <List.Item>
+                  <Radio
+                    data-tid='showFramesRadioBtn'
+                    label={
+                      <label className={styles.label}>
+                        Show frames
+                      </label>
+                      }
+                    name="radioGroup"
+                    value="frames"
+                    checked={settings.defaultThumbInfo === 'frames'}
+                    onChange={this.onChangeThumbInfo}
+                  />
+                </List.Item>
+                <List.Item>
+                  <Radio
+                    data-tid='showTimecodeRadioBtn'
+                    label={
+                      <label className={styles.label}>
+                        Show timecode
+                      </label>
+                      }
+                    name="radioGroup"
+                    value="timecode"
+                    checked={settings.defaultThumbInfo === 'timecode'}
+                    onChange={this.onChangeThumbInfo}
+                  />
+                </List.Item>
+                <List.Item>
+                  <Radio
+                    data-tid='hideInfoRadioBtn'
+                    label={
+                      <label className={styles.label}>
+                        Hide info
+                      </label>
+                      }
+                    name="radioGroup"
+                    value="hideInfo"
+                    checked={settings.defaultThumbInfo === 'hideInfo'}
+                    onChange={this.onChangeThumbInfo}
+                  />
+                </List.Item>
+              </List>
+            </Grid.Column>
+          </Grid.Row>
           <Divider inverted />
           <Grid.Row>
             <Grid.Column width={4}>

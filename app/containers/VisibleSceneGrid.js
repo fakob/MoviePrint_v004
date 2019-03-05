@@ -54,6 +54,7 @@ class SortedVisibleSceneGrid extends Component {
     return (
       <SortableSceneGrid
         sheetView={this.props.sheetView}
+        currentSheetId={this.props.currentSheetId}
         file={this.props.file}
         frameCount={this.props.file ? this.props.file.frameCount : undefined}
         keyObject={this.props.keyObject}
@@ -63,10 +64,10 @@ class SortedVisibleSceneGrid extends Component {
         onInPointClick={this.props.onInPointClick}
         onOutPointClick={this.props.onOutPointClick}
         onSaveThumbClick={this.props.onSaveThumbClick}
-        onSceneThumbDoubleClick={this.props.onSceneThumbDoubleClick}
+        onThumbDoubleClick={this.props.onThumbDoubleClick}
         onScrubClick={this.props.onScrubClick}
         onSelectClick={this.onSelectClick}
-        onEnterClick={this.props.onEnterClick}
+        onExpandClick={this.props.onExpandClick}
         onToggleClick={this.props.onToggleClick}
         minSceneLength={this.props.settings.defaultTimelineViewMinDisplaySceneLengthInFrames}
         scaleValueObject={this.props.scaleValueObject}

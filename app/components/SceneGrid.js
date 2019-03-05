@@ -19,7 +19,7 @@ import {
   // roundNumber,
 } from './../utils/utils';
 import {
-  // MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
+  VIEW,
 } from './../utils/constants';
 
 const SortableScene = SortableElement(Scene);
@@ -66,6 +66,9 @@ class SceneGrid extends Component {
         data-tid='sceneGridDiv'
         className={styles.grid}
         id="SceneGrid"
+        style={{
+          marginLeft: this.props.view === VIEW.STANDARDVIEW ? undefined : '48px',
+        }}
       >
         <div
           data-tid='sceneGridBodyDiv'
@@ -87,7 +90,7 @@ class SceneGrid extends Component {
             return (
             <SortableScene
               hidden={scene.hidden}
-              controllersAreVisible={(this.props.showSettings || scene.sceneId === undefined) ? false : (scene.sceneId === this.state.controllersVisible)}
+              controllersAreVisible={(scene.sceneId === undefined) ? false : (scene.sceneId === this.state.controllersVisible)}
               selected={selected}
               doLineBreak={!this.props.settings.defaultTimelineViewFlow && doLineBreak}
               sheetView={this.props.sheetView}
@@ -107,14 +110,14 @@ class SceneGrid extends Component {
 
               hexColor={`#${((1 << 24) + (Math.round(scene.colorArray[0]) << 16) + (Math.round(scene.colorArray[1]) << 8) + Math.round(scene.colorArray[2])).toString(16).slice(1)}`}
               thumbImageObjectUrl={getObjectProperty(() => {
-                const thumb = this.props.thumbs.find((foundThumb) => foundThumb.sceneId === scene.sceneId);
+                const thumb = this.props.thumbs.find((foundThumb) => foundThumb.thumbId === scene.sceneId);
                 return this.props.objectUrlObjects[thumb.frameId].objectUrl
               })}
               base64={getObjectProperty(() => {
-                const thumb = this.props.thumbs.find((foundThumb) => foundThumb.sceneId === scene.sceneId);
+                const thumb = this.props.thumbs.find((foundThumb) => foundThumb.thumbId === scene.sceneId);
                 return this.props.objectUrlObjects[thumb.frameId].base64
               })}
-              onOver={this.props.showSettings ? null : () => {
+              onOver={() => {
                 // only setState if controllersVisible has changed
                 if (this.state.controllersVisible !== scene.sceneId) {
                   this.setState({
@@ -122,7 +125,7 @@ class SceneGrid extends Component {
                   });
                 }
               }}
-              onOut={this.props.showSettings ? null : () => {
+              onOut={() => {
                 this.setState({
                   thumbsToDim: [],
                   controllersVisible: undefined,
@@ -130,15 +133,16 @@ class SceneGrid extends Component {
                   addThumbAfterController: undefined,
                 });
               }}
-              onToggle={(this.props.showSettings || (scene.sceneId !== this.state.controllersVisible)) ?
+              onThumbDoubleClick={this.props.onThumbDoubleClick}
+              onToggle={(scene.sceneId !== this.state.controllersVisible) ?
                 null : () => this.props.onToggleClick(this.props.file.id, scene.sceneId)}
-              onSelect={(this.props.showSettings || (scene.sceneId !== this.state.controllersVisible)) ?
+              onSelect={(scene.sceneId !== this.state.controllersVisible) ?
                 null : () => {
                   this.props.onSelectClick(scene.sceneId);
                 }}
-              onEnter={(this.props.showSettings || (scene.sceneId !== this.state.controllersVisible)) ?
+              onExpand={(scene.sceneId !== this.state.controllersVisible) ?
                 null : () => {
-                  this.props.onEnterClick(this.props.file, scene.sceneId);
+                  this.props.onExpandClick(this.props.file, scene.sceneId, this.props.currentSheetId);
                 }}
             />)}
           )}

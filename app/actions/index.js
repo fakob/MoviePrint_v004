@@ -361,8 +361,8 @@ export const addScenes = (file, sceneList, clearOldScenes = false, frameSize, ne
     }
     sceneList.map((scene, index) => {
       const sceneId = uuidV4();
-      const thumbId = uuidV4();
-      dispatch(addThumb(file, newSheetId, scene.start + Math.floor(scene.length / 2), index, thumbId, frameSize, sceneId));
+      // const thumbId = uuidV4();
+      dispatch(addThumb(file, newSheetId, scene.start + Math.floor(scene.length / 2), index, sceneId, frameSize));
       return dispatch(addScene(file.id, newSheetId, scene.start, scene.length, scene.colorArray, sceneId));
     })
   };
@@ -392,7 +392,7 @@ export const updateSceneArray = (fileId, sheetId, sceneArray) => {
   };
 };
 
-export const addThumb = (file, sheetId, frameNumber, index, thumbId = uuidV4(), frameSize = 0, sceneId = undefined) => {
+export const addThumb = (file, sheetId, frameNumber, index, thumbId = uuidV4(), frameSize = 0) => {
   return (dispatch) => {
     log.debug('action: addThumb');
     const frameId = uuidV4();
@@ -415,7 +415,6 @@ export const addThumb = (file, sheetId, frameNumber, index, thumbId = uuidV4(), 
             fileId: file.id,
             index,
             hidden: false,
-            sceneId,
           }
         });
       }
@@ -431,7 +430,6 @@ export const addThumb = (file, sheetId, frameNumber, index, thumbId = uuidV4(), 
           fileId: file.id,
           index,
           hidden: false,
-          sceneId,
         }
       });
     })
@@ -465,18 +463,18 @@ export const updateOrder = (currentFileId, sheetId, array) => {
   };
 };
 
-export const updateSceneId = (fileId, sheetId, thumbId, sceneId) => {
-  log.debug('action: updateSceneId');
-  return {
-    type: 'UPDATE_SCENEID_OF_THUMB',
-    payload: {
-      fileId,
-      sheetId,
-      thumbId,
-      sceneId
-    }
-  };
-};
+// export const updateSceneId = (fileId, sheetId, thumbId, sceneId) => {
+//   log.debug('action: updateSceneId');
+//   return {
+//     type: 'UPDATE_SCENEID_OF_THUMB',
+//     payload: {
+//       fileId,
+//       sheetId,
+//       thumbId,
+//       sceneId
+//     }
+//   };
+// };
 
 export const updateFrameNumber = (fileId, sheetId, thumbId, frameNumber) => {
   log.debug('action: updateFrameNumber');

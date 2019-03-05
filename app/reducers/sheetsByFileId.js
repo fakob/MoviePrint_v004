@@ -40,13 +40,13 @@ const thumb = (state = {}, action, index) => {
       return Object.assign({}, state, {
         hidden: !state.hidden
       });
-    case 'UPDATE_SCENEID_OF_THUMB':
-      if (state.thumbId !== action.payload.thumbId) {
-        return state;
-      }
-      return Object.assign({}, state, {
-        sceneId: action.payload.sceneId
-      });
+    // case 'UPDATE_SCENEID_OF_THUMB':
+    //   if (state.thumbId !== action.payload.thumbId) {
+    //     return state;
+    //   }
+    //   return Object.assign({}, state, {
+    //     sceneId: action.payload.sceneId
+    //   });
     case 'UPDATE_FRAMENUMBER_OF_THUMB':
       if (state.thumbId !== action.payload.thumbId) {
         return state;
@@ -234,19 +234,19 @@ const sheetsByFileId = (state = {}, action) => {
           }
         }
       };
-    case 'UPDATE_SCENEID_OF_THUMB':
-      return {
-        ...state,
-        [action.payload.fileId]: {
-          ...state[action.payload.fileId],
-          [action.payload.sheetId]: {
-            ...state[action.payload.fileId][action.payload.sheetId],
-            thumbsArray: state[action.payload.fileId][action.payload.sheetId].thumbsArray.map(t =>
-              thumb(t, action)
-            )
-          }
-        }
-      };
+    // case 'UPDATE_SCENEID_OF_THUMB':
+    //   return {
+    //     ...state,
+    //     [action.payload.fileId]: {
+    //       ...state[action.payload.fileId],
+    //       [action.payload.sheetId]: {
+    //         ...state[action.payload.fileId][action.payload.sheetId],
+    //         thumbsArray: state[action.payload.fileId][action.payload.sheetId].thumbsArray.map(t =>
+    //           thumb(t, action)
+    //         )
+    //       }
+    //     }
+    //   };
     case 'UPDATE_FRAMENUMBER_OF_THUMB':
       return {
         ...state,
