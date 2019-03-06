@@ -54,6 +54,7 @@ class SortedVisibleSceneGrid extends Component {
     return (
       <SortableSceneGrid
         sheetView={this.props.sheetView}
+        view={this.props.view}
         currentSheetId={this.props.currentSheetId}
         file={this.props.file}
         frameCount={this.props.file ? this.props.file.frameCount : undefined}

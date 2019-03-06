@@ -108,8 +108,9 @@ class WorkerApp extends Component {
   render() {
     const { sentData, savingMoviePrint, thumbObjectBase64s, visibleThumbs } = this.state;
 
+    let sheetView;
     if (savingMoviePrint) {
-      const { sheetView } = sentData.sheet;
+      sheetView = sentData.sheet.sheetView;
       console.log(sheetView);
     }
 
