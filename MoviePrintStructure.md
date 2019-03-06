@@ -101,6 +101,9 @@
 * dispatch updateFileScanStatus
 * runSceneDetection again
 
+##### on onReplaceMovieListItemClick
+
+
 # Database concept
 * IndexedDB is used to store frames
   * objectUrls (from blob) are stored in react state of App.js

@@ -54,7 +54,7 @@ export const addFrameToIndexedDB = (frameId, fileId, frameNumber, isPosterFrame,
   });
 }
 
-export const updateFrameInIndexedDB = (frameId, outBase64, objectUrlQueue) => {
+export const updateFrameInIndexedDB = (frameId, outBase64, objectUrlQueue, fastTrack) => {
   if (outBase64 === '') {
     return undefined;
   }
@@ -82,10 +82,19 @@ export const updateFrameInIndexedDB = (frameId, outBase64, objectUrlQueue) => {
     console.log(frame);
     if (frame !== undefined) {
       const objectUrl = window.URL.createObjectURL(frame.data);
-      objectUrlQueue.add({
-        frameId,
-        objectUrl,
-      });
+      if (fastTrack) {
+        ipcRenderer.send(
+          'message-from-indexedDBWorkerWindow-to-mainWindow',
+          'update-objectUrl',
+          frameId,
+          objectUrl
+        );
+      } else {
+        objectUrlQueue.add({
+          frameId,
+          objectUrl,
+        });
+      }
       return objectUrl
     }
     return undefined;

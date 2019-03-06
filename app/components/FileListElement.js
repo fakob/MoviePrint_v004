@@ -25,6 +25,7 @@ const FileListElement = ({
   onDuplicateSheetClick,
   onFileListElementClick,
   onScanMovieListItemClick,
+  onReplaceMovieListItemClick,
   onRemoveMovieListItem,
   onSetSheetClick,
   path,
@@ -80,6 +81,11 @@ const FileListElement = ({
     onScanMovieListItemClick(fileId);
   }
 
+  function onReplaceMovieListItemClickWithStop(e, fileId) {
+    e.stopPropagation();
+    onReplaceMovieListItemClick(fileId);
+  }
+
   return (
     <li
       data-tid={`fileListItem_${fileId}`}
@@ -99,6 +105,12 @@ const FileListElement = ({
             icon="barcode"
             text="Scan movie"
             onClick={e => onScanMovieListItemClickWithStop(e, fileId)}
+          />
+          <Dropdown.Item
+            data-tid='replaceMovieListItemOption'
+            icon="exchange"
+            text="Replace movie"
+            onClick={e => onReplaceMovieListItemClickWithStop(e, fileId)}
           />
           <Dropdown.Item
             data-tid='removeMovieListItemOption'

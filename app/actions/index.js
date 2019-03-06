@@ -834,6 +834,22 @@ export const updateFileDetails = (fileId, frameCount, width, height, fps, fourCC
   };
 };
 
+export const replaceFileDetails = (fileId, path, name, size, lastModified) => {
+  return (dispatch) => {
+    log.debug('action: updateFileDetails');
+    dispatch({
+      type: 'REPLACE_MOVIE_LIST_ITEM',
+      payload: {
+        fileId,
+        path,
+        name,
+        size,
+        lastModified,
+      }
+    });
+  };
+};
+
 export const updateInOutPoint = (fileId, fadeInPoint, fadeOutPoint) => {
   return (dispatch) => {
     log.debug('action: updateInOutPoint');

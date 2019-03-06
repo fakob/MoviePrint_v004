@@ -29,6 +29,7 @@ import { getLowestFrame,
   getHighestFrame,
   getVisibleThumbs,
   getColumnCount,
+  getFileStatsObject,
   getSecondsPerRow,
   getRandomSheetName,
   getSheetId,
@@ -64,6 +65,7 @@ import {
   hideMovielist,
   hideSettings,
   removeMovieListItem,
+  replaceFileDetails,
   setCurrentFileId,
   setDefaultCachedFramesSize,
   setDefaultColumnCount,
@@ -128,8 +130,7 @@ import {
 import {
   deleteTableFrameScanList,
   deleteTableMovielist,
-  getAllFrames,
-  getAllFramesByFileId,
+  deleteFileIdFromFrameScanList,
   getFrameScanByFileId,
 } from '../utils/utilsForSqlite';
 
@@ -185,7 +186,7 @@ class App extends Component {
       savingMoviePrint: false,
       selectedThumbObject: undefined,
       selectedSceneObject: undefined,
-      // file match needs to be in sync with addMoviesToList() and onDrop() !!!
+      // file match needs to be in sync with addMoviesToList(), onReplaceMovieListItemClick() and onDrop() !!!
       accept: 'video/*,.divx,.mkv,.ogg,.VOB,',
       dropzoneActive: false,
       loadingFirstFile: false,
@@ -219,8 +220,9 @@ class App extends Component {
       fileScanRunning: false,
       sheetsToPrint: [],
       savingAllMoviePrints: false,
-      objectUrlsArray: [],
+      objectUrlObjects: {},
       framesToFetch: [],
+      fileIdToBeRecaptured: undefined,
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -291,6 +293,7 @@ class App extends Component {
     this.onSetSheetClick = this.onSetSheetClick.bind(this);
     this.onDuplicateSheetClick = this.onDuplicateSheetClick.bind(this);
     this.onScanMovieListItemClick = this.onScanMovieListItemClick.bind(this);
+    this.onReplaceMovieListItemClick = this.onReplaceMovieListItemClick.bind(this);
     this.onRemoveMovieListItem = this.onRemoveMovieListItem.bind(this);
     this.onDeleteSheetClick = this.onDeleteSheetClick.bind(this);
     this.onChangeOutputPathClick = this.onChangeOutputPathClick.bind(this);
@@ -398,17 +401,19 @@ class App extends Component {
       ipcRenderer.send('reload-workerWindow');
     });
 
-    ipcRenderer.on('receive-get-file-details', (event, fileId, filePath, posterFrameId, frameCount, width, height, fps, fourCC) => {
+    ipcRenderer.on('receive-get-file-details', (event, fileId, filePath, posterFrameId, frameCount, width, height, fps, fourCC, onlyReplace = false) => {
       store.dispatch(updateFileDetails(fileId, frameCount, width, height, fps, fourCC));
-      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-poster-frame', fileId, filePath, posterFrameId);
+      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-poster-frame', fileId, filePath, posterFrameId, onlyReplace);
     });
 
     // poster frames don't have thumbId
-    ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, frameNumber, useRatio) => {
+    ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, frameNumber, useRatio, onlyReplace = false) => {
       store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
-      // this.addToFramesToFetch(posterFrameId, true); // get posterframe to be fetched
+
       // get all posterframes
-      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-in-and-outpoint', fileId, filePath, useRatio, store.getState().undoGroup.present.settings.defaultDetectInOutPoint);
+      if (!onlyReplace) {
+        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-in-and-outpoint', fileId, filePath, useRatio, store.getState().undoGroup.present.settings.defaultDetectInOutPoint);
+      }
     });
 
     ipcRenderer.on('receive-get-in-and-outpoint', (event, fileId, fadeInPoint, fadeOutPoint) => {
@@ -466,26 +471,31 @@ class App extends Component {
     });
 
     ipcRenderer.on('update-objectUrl', (event, frameId, objectUrl) => {
-      const { objectUrlsArray } = this.state;
+      const { objectUrlObjects } = this.state;
+
+      // create copy so the state does not get mutated
+      const copyOfObject = Object.assign({}, objectUrlObjects);
+
+      // Update object's name property.
+      copyOfObject[frameId] = objectUrl;
+
       this.setState({
-        objectUrlsArray: [...objectUrlsArray, {
-          frameId,
-          objectUrl,
-        }] // add objectUrl to array
+        objectUrlObjects: copyOfObject,
       });
     });
 
-    ipcRenderer.on('send-arrayOfObjectUrls', (event, arrayOfObjectUrls, append) => {
-      const { objectUrlsArray } = this.state;
-      if (append) {
-        this.setState({
-          objectUrlsArray: [...objectUrlsArray, ...arrayOfObjectUrls] // add objectUrls to array
-        });
-      } else {
-        this.setState({
-          objectUrlsArray: arrayOfObjectUrls
-        });
-      }
+    ipcRenderer.on('send-arrayOfObjectUrls', (event, arrayOfObjectUrls) => {
+      const { objectUrlObjects } = this.state;
+
+      // create copy so the state does not get mutated
+      const copyOfObject = Object.assign({}, objectUrlObjects);
+      arrayOfObjectUrls.map(item => {
+        copyOfObject[item.frameId] = item.objectUrl;
+        return undefined;
+      });
+      this.setState({
+        objectUrlObjects: copyOfObject,
+      });
     });
 
     ipcRenderer.on('receive-get-thumbs', (event, fileId, sheetId, thumbId, frameId, frameNumber, lastThumb) => {
@@ -870,6 +880,22 @@ class App extends Component {
     if (prevState.showScrubWindow === false && this.state.showScrubWindow === true) {
       this.updateOpencvVideoCanvas(0);
     }
+
+    // replace all frames for this fileId -> fileIdToBeRecaptured
+    if (this.state.fileIdToBeRecaptured !== undefined &&
+      prevState.fileIdToBeRecaptured !== this.state.fileIdToBeRecaptured) {
+      ipcRenderer.send(
+        'message-from-mainWindow-to-opencvWorkerWindow',
+        'recapture-frames',
+        files,
+        sheetsByFileId,
+        settings.defaultCachedFramesSize,
+        this.state.fileIdToBeRecaptured
+      );
+      this.setState({
+        fileIdToBeRecaptured: undefined,
+      })
+    }
   }
 
   componentWillUnmount() {
@@ -956,9 +982,14 @@ class App extends Component {
   recaptureAllFrames() {
     const { files, settings, sheetsByFileId } = this.props;
 
+    // clear objectUrlObjects
+    this.setState({
+      objectUrlObjects: {},
+    });
+
     ipcRenderer.send(
       'message-from-mainWindow-to-opencvWorkerWindow',
-      'recapture-all-frames',
+      'recapture-frames',
       files,
       sheetsByFileId,
       settings.defaultCachedFramesSize
@@ -1001,7 +1032,7 @@ class App extends Component {
     const { store } = this.context;
     log.debug('Files where dropped');
     log.debug(files);
-    // file match needs to be in sync with addMoviesToList() and accept !!!
+    // file match needs to be in sync with addMoviesToList(), onReplaceMovieListItemClick() and accept !!!
     if (Array.from(files).some(file => (file.type.match('video.*') ||
       file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
       store.dispatch(setDefaultSheetView(SHEETVIEW.GRIDVIEW));
@@ -1011,7 +1042,7 @@ class App extends Component {
         });
         if (clearList) {
           this.setState({
-            objectUrlsArray: [], // clear objectUrlsArray
+            objectUrlObjects: {}, // clear objectUrlObjects
           });
         }
         log.debug(response);
@@ -1348,9 +1379,9 @@ class App extends Component {
   onExpandClick(file, sceneOrThumbId, parentSheetId) {
     const { store } = this.context;
     const { scenes, sheetsArray, sheetsByFileId, settings } = this.props;
-    console.log(file);
-    console.log(sceneOrThumbId);
-    console.log(parentSheetId);
+    // console.log(file);
+    // console.log(sceneOrThumbId);
+    // console.log(parentSheetId);
 
     // create scenesArray if it does not exist
     let sceneArray = scenes;
@@ -1358,12 +1389,12 @@ class App extends Component {
       sceneArray = createSceneArray(sheetsByFileId, file.id, parentSheetId);
       store.dispatch(updateSceneArray(file.id, parentSheetId, sceneArray));
     }
-    console.log(sceneArray);
+    // console.log(sceneArray);
 
     // get sceneArray
     const sceneIndex = sceneArray.findIndex(item => item.sceneId === sceneOrThumbId);
     const sheetId = sceneOrThumbId;
-    console.log(sheetId);
+    // console.log(sheetId);
 
     // create new sheet if it does not already exist
     if (sheetsArray.findIndex(item => item === sheetId) === -1) {
@@ -1909,6 +1940,45 @@ class App extends Component {
     this.runSceneDetection(fileId, file.path, file.useRatio, 20.0);
   };
 
+  onReplaceMovieListItemClick = (fileId) => {
+    const { store } = this.context;
+    const { files, settings, sheetsByFileId } = this.props;
+    const file = files.find((file1) => file1.id === fileId);
+    const originalFilePath = file.path;
+    const newPathArray = dialog.showOpenDialog({
+      title: 'Replace movie',
+      defaultPath: originalFilePath,
+      buttonLabel: 'Replace with',
+      properties: ['openFile']
+    });
+    const newFilePath = (newPathArray !== undefined ? newPathArray[0] : undefined);
+    if (newFilePath) {
+      log.debug(newFilePath);
+      // file match needs to be in sync with addMoviesToList(), onReplaceMovieListItemClick() and accept !!!
+      if (Array.from(files).some(file => (file.type.match('video.*') ||
+        file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
+        const fileName = path.basename(newFilePath);
+        const { lastModified, size}  = getFileStatsObject(newFilePath);
+        store.dispatch(replaceFileDetails(fileId, newFilePath, fileName, size, lastModified));
+
+        // change fileScanStatus
+        store.dispatch(updateFileScanStatus(fileId, false));
+        // remove entries from frameScanList sqlite3
+        deleteFileIdFromFrameScanList(fileId);
+
+        const onlyReplace = true;
+        const timeBefore = Date.now();
+        this.setState({
+          timeBefore
+        });
+        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', fileId, newFilePath, file.posterFrameId, onlyReplace);
+        this.setState({
+          fileIdToBeRecaptured: fileId,
+        })
+      }
+    }
+  };
+
   onDuplicateSheetClick = (fileId, sheet) => {
     const { store } = this.context;
     const newSheetId = uuidV4();
@@ -2040,7 +2110,7 @@ class App extends Component {
   render() {
     const { accept, dropzoneActive } = this.state;
     const { store } = this.context;
-    const { objectUrlsArray } = this.state;
+    const { objectUrlObjects } = this.state;
     const { currentFileId, currentSheetId, allThumbs, files, sheetsByFileId, settings, visibilitySettings } = this.props;
 
     const secondsPerRow = getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings);
@@ -2051,37 +2121,45 @@ class App extends Component {
       isGridView = false;
     }
 
-    // get objectUrls by reading all thumbs and get the corresponding objectUrls from the objectUrlsArray
-    const arrayOfObjectUrlsOfAllThumbs = [];
-    if (allThumbs !== undefined && objectUrlsArray.length !== 0) {
-      allThumbs.map(thumb => {
-        if (objectUrlsArray.find(item => thumb.frameId === item.frameId)) {
-          arrayOfObjectUrlsOfAllThumbs.push({
-            frameId: thumb.frameId,
-            objectUrl: objectUrlsArray.find(item => thumb.frameId === item.frameId).objectUrl,
-          });
-        }
-        return undefined;
-      });
-      // console.log(arrayOfObjectUrlsOfAllThumbs);
-    }
-    const objectUrlObjects = arrayToObject(arrayOfObjectUrlsOfAllThumbs, 'frameId');
+    // get objectUrls by reading all currently visible thumbs and get the corresponding objectUrls from the objectUrlObjects
+    let filteredObjectUrlObjects;
+    if (allThumbs !== undefined && objectUrlObjects.length !== 0) {
 
-    // get objectUrls by reading all files and get the corresponding objectUrls from the objectUrlsArray
-    const arrayOfObjectUrlsOfAllPosterFrames = [];
-    if (files !== undefined && objectUrlsArray.length !== 0) {
-      files.map(file => {
-        if (objectUrlsArray.find(item => file.posterFrameId === item.frameId)) {
-          arrayOfObjectUrlsOfAllPosterFrames.push({
-            frameId: file.posterFrameId,
-            objectUrl: objectUrlsArray.find(item => file.posterFrameId === item.frameId).objectUrl,
-          });
-        }
-        return undefined;
-      });
-      // console.log(arrayOfObjectUrlsOfAllPosterFrames);
+      // create array of all currently visible frameIds
+      const arrayOfFrameIds = allThumbs.map(thumb => thumb.frameId);
+
+      // filter objectUrlObjects with arrayOfFrameIds
+      filteredObjectUrlObjects = Object.keys(objectUrlObjects)
+        .filter(key => arrayOfFrameIds.includes(key))
+        .reduce((obj, key) => {
+          return {
+            ...obj,
+            [key]: objectUrlObjects[key]
+          };
+        }, {});
+
+      // console.log(filteredObjectUrlObjects);
     }
-    const posterObjectUrlObjects = arrayToObject(arrayOfObjectUrlsOfAllPosterFrames, 'frameId');
+
+    let filteredPosterFrameObjectUrlObjects;
+    if (files !== undefined && objectUrlObjects.length !== 0) {
+
+      // get objectUrls by reading all files and get the corresponding objectUrls from the objectUrlObjects
+      // create array of all currently visible frameIds
+      const arrayOfPosterFrameIds = files.map(file => file.posterFrameId);
+
+      // filter objectUrlObjects with arrayOfPosterFrameIds
+      filteredPosterFrameObjectUrlObjects = Object.keys(objectUrlObjects)
+        .filter(key => arrayOfPosterFrameIds.includes(key))
+        .reduce((obj, key) => {
+          return {
+            ...obj,
+            [key]: objectUrlObjects[key]
+          };
+        }, {});
+
+      // console.log(filteredPosterFrameObjectUrlObjects);
+    }
 
     // const chartHeight = this.state.containerHeight / 4;
     const chartHeight = 250;
@@ -2184,12 +2262,13 @@ class App extends Component {
                         settings={this.props.settings}
                         visibilitySettings={this.props.visibilitySettings}
                         onFileListElementClick={this.onFileListElementClick}
-                        posterObjectUrlObjects={posterObjectUrlObjects}
+                        posterobjectUrlObjects={filteredPosterFrameObjectUrlObjects}
                         sheetsByFileId={this.props.sheetsByFileId}
                         onChangeSheetViewClick={this.onChangeSheetViewClick}
                         onSetSheetClick={this.onSetSheetClick}
                         onDuplicateSheetClick={this.onDuplicateSheetClick}
                         onScanMovieListItemClick={this.onScanMovieListItemClick}
+                        onReplaceMovieListItemClick={this.onReplaceMovieListItemClick}
                         onRemoveMovieListItem={this.onRemoveMovieListItem}
                         onDeleteSheetClick={this.onDeleteSheetClick}
                         currentSheetId={this.props.currentSheetId}
@@ -2268,7 +2347,7 @@ class App extends Component {
                           aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
                           height={this.state.scaleValueObject.videoPlayerHeight}
                           width={this.state.scaleValueObject.videoPlayerWidth}
-                          objectUrlObjects={objectUrlObjects}
+                          objectUrlObjects={filteredObjectUrlObjects}
                           controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
                           selectedThumbId={this.state.selectedThumbObject ?
                             this.state.selectedThumbObject.thumbId : undefined}
@@ -2348,7 +2427,7 @@ class App extends Component {
                               settings={this.props.settings}
                               showSettings={this.props.visibilitySettings.showSettings}
                               thumbCount={this.state.thumbCountTemp}
-                              objectUrlObjects={objectUrlObjects}
+                              objectUrlObjects={filteredObjectUrlObjects}
                               thumbs={this.props.thumbs}
                               viewForPrinting={false}
                               frameSize={this.props.settings.defaultCachedFramesSize}
@@ -2374,7 +2453,7 @@ class App extends Component {
                               scenes={this.props.scenes}
                               settings={this.props.settings}
                               showSettings={this.props.visibilitySettings.showSettings}
-                              objectUrlObjects={objectUrlObjects}
+                              objectUrlObjects={filteredObjectUrlObjects}
                               thumbs={this.props.thumbs}
                               currentSheetId={this.props.settings.currentSheetId}
                             />
@@ -2543,7 +2622,7 @@ class App extends Component {
                     opencvVideoCanvasRef={this.opencvVideoCanvasRef}
                     file={this.props.file}
                     settings={this.props.settings}
-                    objectUrlObjects={objectUrlObjects}
+                    objectUrlObjects={filteredObjectUrlObjects}
                     keyObject={this.state.keyObject}
                     scrubThumb={this.state.scrubThumb}
                     scrubThumbLeft={this.state.scrubThumbLeft}

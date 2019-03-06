@@ -156,8 +156,8 @@ class Scrub extends Component {
               className={styles.scrubThumbLeft}
               style={{
                 backgroundImage: `url(${this.props.keyObject.altKey ?
-                  getObjectProperty(() => this.props.objectUrlObjects[this.props.scrubThumb.frameId].objectUrl) :
-                  getObjectProperty(() => this.props.objectUrlObjects[this.props.scrubThumbLeft.frameId].objectUrl) || transparent})`,
+                  this.props.objectUrlObjects[this.props.scrubThumb.frameId] :
+                  this.props.objectUrlObjects[this.props.scrubThumbLeft.frameId] || transparent})`,
                 height: this.props.scaleValueObject.scrubInOutMovieHeight,
                 width: this.props.scaleValueObject.scrubInOutMovieWidth,
                 margin: this.props.settings.defaultScrubWindowMargin,
@@ -167,7 +167,7 @@ class Scrub extends Component {
               <div
                 style={{
                   content: '',
-                  backgroundImage: `url(${getObjectProperty(() => this.props.objectUrlObjects[this.props.scrubThumb.frameId].objectUrl)})`,
+                  backgroundImage: `url(${this.props.objectUrlObjects[this.props.scrubThumb.frameId]})`,
                   backgroundSize: 'cover',
                   opacity: '0.4',
                   position: 'absolute',
@@ -198,8 +198,8 @@ class Scrub extends Component {
               className={styles.scrubThumbRight}
               style={{
                 backgroundImage: `url(${this.props.keyObject.shiftKey ?
-                  getObjectProperty(() => this.props.objectUrlObjects[this.props.scrubThumb.frameId].objectUrl) :
-                  getObjectProperty(() => this.props.objectUrlObjects[this.props.scrubThumbRight.frameId].objectUrl) || transparent})`,
+                  this.props.objectUrlObjects[this.props.scrubThumb.frameId] :
+                  this.props.objectUrlObjects[this.props.scrubThumbRight.frameId] || transparent})`,
                 height: this.props.scaleValueObject.scrubInOutMovieHeight,
                 width: this.props.scaleValueObject.scrubInOutMovieWidth,
                 margin: this.props.settings.defaultScrubWindowMargin,

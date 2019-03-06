@@ -16,6 +16,16 @@ const file = (state = {}, type, payload, index) => {
       return Object.assign({}, state, {
         useRatio: payload.useRatio
       });
+    case 'REPLACE_MOVIE_LIST_ITEM':
+      if (state.id !== payload.fileId) {
+        return state;
+      }
+      return Object.assign({}, state, {
+        path: payload.path,
+        name: payload.name,
+        size: payload.size,
+        lastModified: payload.lastModified,
+      });
     case 'UPDATE_MOVIE_LIST_ITEM':
       if (state.id !== payload.fileId) {
         return state;
@@ -59,6 +69,7 @@ const files = (state = [], { type, payload }) => {
       newArray.splice(indexOfItemToRemove, 1);
       return newArray;
     }
+    case 'REPLACE_MOVIE_LIST_ITEM':
     case 'UPDATE_MOVIE_LIST_ITEM_USERATIO':
     case 'UPDATE_MOVIE_LIST_ITEM':
     case 'UPDATE_IN_OUT_POINT':

@@ -93,6 +93,7 @@ class SortedVisibleThumbGrid extends Component {
   render() {
     return (
       <SortableThumbGrid
+        useBase64={this.props.useBase64}
         colorArray={this.props.colorArray}
         sheetView={this.props.sheetView}
         view={this.props.view}

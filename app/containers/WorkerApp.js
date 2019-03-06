@@ -40,12 +40,12 @@ class WorkerApp extends Component {
   componentDidMount() {
     log.debug('I am the worker window - responsible for saving a MoviePrint');
     ipcRenderer.on('action-saved-MoviePrint-done', (event) => {
-      // this.setState({
-      //   savingMoviePrint: false,
-      //   sentData: {},
-      //   visibleThumbs: [],
-      //   thumbObjectBase64s: {},
-      // });
+      this.setState({
+        savingMoviePrint: false,
+        sentData: {},
+        visibleThumbs: [],
+        thumbObjectBase64s: {},
+      });
     });
 
     ipcRenderer.on('action-save-MoviePrint', (event, sentData) => {
@@ -58,6 +58,8 @@ class WorkerApp extends Component {
       );
 
       const base64Object = getBase64Object(sentData.file.path, sentData.file.useRatio, visibleThumbs);
+
+      // console.log(base64Object);
 
       this.setState({
         savingMoviePrint: true,
@@ -151,10 +153,12 @@ class WorkerApp extends Component {
                     scaleValueObject={sentData.scaleValueObject}
                     moviePrintWidth={sentData.moviePrintWidth}
                     keyObject={{}}
+                    useBase64
                   />
                 </Conditional>
                 <Conditional if={sheetView === SHEETVIEW.TIMELINEVIEW}>
                   <SortedVisibleSceneGrid
+                    view={VIEW.STANDARDVIEW}
                     sheetView={sheetView}
                     file={sentData.file}
                     frameCount={sentData.file ? sentData.file.frameCount : undefined}
@@ -167,6 +171,7 @@ class WorkerApp extends Component {
                     showSettings={false}
                     objectUrlObjects={thumbObjectBase64s}
                     thumbs={visibleThumbs}
+                    useBase64
                   />
                 </Conditional>
               </Fragment>

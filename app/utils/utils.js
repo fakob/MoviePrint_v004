@@ -8,6 +8,15 @@ import sheetNames from '../img/listOfNames.json'
 const randomColor = require('randomcolor');
 const { ipcRenderer } = require('electron');
 
+export const getFileStatsObject = (filename) => {
+  const stats = fsR.statSync(filename);
+  const { mtime, size } = stats;
+  return {
+    size,
+    lastModified: Date.parse(mtime),
+  };
+}
+
 export const ensureDirectoryExistence = (filePath, isDirectory = true) => {
   let dirname;
   if (isDirectory) {
@@ -148,7 +157,7 @@ export const secondsToTimeCode = (seconds = 0, fps = 25) => {
   ].join(':');
 };
 
-export const formatBytes = (bytes, decimals) => {
+export const formatBytes = (bytes, decimals = 1) => {
   if (bytes === 0) return '0 Bytes';
   const k = 1024;
   const dm = decimals || 2;

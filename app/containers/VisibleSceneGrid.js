@@ -53,6 +53,7 @@ class SortedVisibleSceneGrid extends Component {
     // const state = store.getState();
     return (
       <SortableSceneGrid
+        useBase64={this.props.useBase64}
         sheetView={this.props.sheetView}
         view={this.props.view}
         currentSheetId={this.props.currentSheetId}

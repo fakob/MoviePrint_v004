@@ -51,9 +51,9 @@ export const recaptureThumbs = (
 }
 
 export const getBase64Object = (filePath, useRatio, arrayOfThumbs) => {
-  const arrayOfFrames = [];
   const opencvVideo = new opencv.VideoCapture(filePath);
 
+  const objectUrlObjects = {};
   arrayOfThumbs.map(thumb => {
     setPosition(opencvVideo, thumb.frameNumber, useRatio);
     const frame = opencvVideo.read();
@@ -61,14 +61,11 @@ export const getBase64Object = (filePath, useRatio, arrayOfThumbs) => {
     if (!frame.empty) {
       base64 = opencv.imencode('.jpg', frame).toString('base64'); // maybe change to .png?
     }
-    arrayOfFrames.push({
-      frameId: thumb.frameId,
-      base64,
-      });
+    objectUrlObjects[thumb.frameId] = base64;
     return undefined;
   });
 
-  return arrayToObject(arrayOfFrames, 'frameId');
+  return objectUrlObjects;
 }
 
 export const getDominantColor = (image, k=4) => {

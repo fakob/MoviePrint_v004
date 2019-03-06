@@ -19,7 +19,7 @@ class SortedFileList extends Component {
   }
 
   render() {
-    const { files, settings, posterObjectUrlObjects, visibilitySettings } = this.props;
+    const { files, settings, posterobjectUrlObjects, visibilitySettings } = this.props;
 
     return (
       <div
@@ -42,13 +42,12 @@ class SortedFileList extends Component {
               onChangeSheetViewClick={this.props.onChangeSheetViewClick}
               onDuplicateSheetClick={this.props.onDuplicateSheetClick}
               onScanMovieListItemClick={this.props.onScanMovieListItemClick}
+              onReplaceMovieListItemClick={this.props.onReplaceMovieListItemClick}
               onRemoveMovieListItem={this.props.onRemoveMovieListItem}
               onDeleteSheetClick={this.props.onDeleteSheetClick}
               currentFileId={settings.currentFileId}
               currentSheetId={this.props.currentSheetId}
-              objectUrl={
-                getObjectProperty(() => posterObjectUrlObjects[file.posterFrameId].objectUrl)
-              }
+              objectUrl={posterobjectUrlObjects[file.posterFrameId]}
               sheetsObject={
                 this.props.sheetsByFileId[file.id] === undefined ?
                 {} : this.props.sheetsByFileId[file.id]

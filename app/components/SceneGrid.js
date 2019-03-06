@@ -87,6 +87,8 @@ class SceneGrid extends Component {
               // rowCounter += 1;
             }
 
+            const thumb = this.props.thumbs.find((foundThumb) => foundThumb.thumbId === scene.sceneId);
+
             return (
             <SortableScene
               hidden={scene.hidden}
@@ -109,14 +111,20 @@ class SceneGrid extends Component {
               thumbHeight={Math.max(1, rowHeight)}
 
               hexColor={`#${((1 << 24) + (Math.round(scene.colorArray[0]) << 16) + (Math.round(scene.colorArray[1]) << 8) + Math.round(scene.colorArray[2])).toString(16).slice(1)}`}
-              thumbImageObjectUrl={getObjectProperty(() => {
-                const thumb = this.props.thumbs.find((foundThumb) => foundThumb.thumbId === scene.sceneId);
-                return this.props.objectUrlObjects[thumb.frameId].objectUrl
-              })}
-              base64={getObjectProperty(() => {
-                const thumb = this.props.thumbs.find((foundThumb) => foundThumb.thumbId === scene.sceneId);
-                return this.props.objectUrlObjects[thumb.frameId].base64
-              })}
+              thumbImageObjectUrl={ // used for data stored in IndexedDB
+                ((this.props.useBase64 === undefined &&
+                  this.props.objectUrlObjects !== undefined &&
+                  thumb !== undefined) ?
+                  this.props.objectUrlObjects[thumb.frameId] : undefined)
+              }
+              base64={ // used for live captured data when saving movieprint
+                ((this.props.useBase64 !== undefined &&
+                  this.props.objectUrlObjects !== undefined &&
+                  thumb !== undefined) ?
+                  this.props.objectUrlObjects[thumb.frameId] : undefined)
+              }
+
+
               onOver={() => {
                 // only setState if controllersVisible has changed
                 if (this.state.controllersVisible !== scene.sceneId) {

@@ -390,10 +390,10 @@ class ThumbGrid extends Component {
                 this.props.inputRefThumb : undefined} // for the thumb scrollIntoView function
               color={(this.props.colorArray !== undefined ? this.props.colorArray[thumb.index] : undefined)}
               thumbImageObjectUrl={ // used for data stored in IndexedDB
-                getObjectProperty(() => this.props.objectUrlObjects[thumb.frameId].objectUrl)
+                ((this.props.useBase64 === undefined && this.props.objectUrlObjects !== undefined) ? this.props.objectUrlObjects[thumb.frameId] : undefined)
               }
               base64={ // used for live captured data when saving movieprint
-                getObjectProperty(() => this.props.objectUrlObjects[thumb.frameId].base64)
+                ((this.props.useBase64 !== undefined && this.props.objectUrlObjects !== undefined) ? this.props.objectUrlObjects[thumb.frameId] : undefined)
               }
               transparentThumb={thumb.transparentThumb || undefined}
               aspectRatioInv={this.props.scaleValueObject.aspectRatioInv}

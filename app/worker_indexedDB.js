@@ -25,9 +25,6 @@ openDBConnection();
 const objectUrlQueue = new Queue();
 // const objectUrlQueue = Queue.bind(this);
 
-// is set to false in case of reload/getObjectUrlsFromFramelist to overwrite objectUrls in App.js state
-let append = true;
-
 // objectUrlQueue = objectUrlQueueUnbound.bind(this);
 console.log(objectUrlQueue);
 console.log(typeof objectUrlQueue);
@@ -41,15 +38,9 @@ setInterval(() => {
     ipcRenderer.send(
       'message-from-indexedDBWorkerWindow-to-mainWindow',
       'send-arrayOfObjectUrls',
-      arrayOfObjectUrls,
-      append
+      arrayOfObjectUrls
     );
     objectUrlQueue.clear();
-
-    // reset append again
-    if (!append) {
-      append = true;
-    }
   }
 }, 1000);
 
@@ -82,9 +73,14 @@ process.on('SIGTERM', err => {
   // fs.writeFileSync('shutdown.log', 'Received SIGTERM signal');
 });
 
-ipcRenderer.on('send-base64-frame', (event, frameId, fileId, frameNumber, isPosterFrame, outBase64) => {
+ipcRenderer.on('send-base64-frame', (event, frameId, fileId, frameNumber, isPosterFrame, outBase64, onlyReplace = false) => {
   log.debug('indexedDBWorkerWindow | on send-base64-frame');
-  addFrameToIndexedDB(frameId, fileId, frameNumber, isPosterFrame, outBase64, objectUrlQueue);
+  if (onlyReplace) {
+    const fastTrack = onlyReplace; // make this one use fastTrack so it gets updated right away
+    updateFrameInIndexedDB(frameId, outBase64, objectUrlQueue, fastTrack);
+  } else {
+    addFrameToIndexedDB(frameId, fileId, frameNumber, isPosterFrame, outBase64, objectUrlQueue);
+  }
 });
 
 ipcRenderer.on('update-base64-frame', (event, frameId, outBase64) => {
@@ -95,7 +91,6 @@ ipcRenderer.on('update-base64-frame', (event, frameId, outBase64) => {
 ipcRenderer.on('get-arrayOfObjectUrls', (event) => {
   log.debug('indexedDBWorkerWindow | on get-arrayOfObjectUrls');
   getObjectUrlsFromFramelist(objectUrlQueue);
-  append = false; // is set to false to overwrite objectUrls in App.js state
 });
 
 render(

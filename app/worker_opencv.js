@@ -61,12 +61,18 @@ process.on('SIGTERM', err => {
 //   log.debug(...args);
 // });
 
-ipcRenderer.on('recapture-all-frames', (event, files, sheetsByFileId, frameSize) => {
-  log.debug('opencvWorkerWindow | on recapture all frames');
+ipcRenderer.on('recapture-frames', (event, files, sheetsByFileId, frameSize, fileId = undefined) => {
+  log.debug('opencvWorkerWindow | on recapture frames');
   log.debug(`opencvWorkerWindow | frameSize: ${frameSize}`);
 
-  log.debug(files);
-  files.map(file => {
+  // if fileId, then only recapture those, else recapture all
+  let filteredArray = files;
+  if (fileId !== undefined) {
+    filteredArray = files.filter(file2 => file2.id === fileId);
+  }
+
+  log.debug(filteredArray);
+  filteredArray.map(file => {
     log.debug(`opencvWorkerWindow | ${file.path}`);
     log.debug(`opencvWorkerWindow | useRatio: ${file.useRatio}`);
     // iterate through all sheets
@@ -76,6 +82,11 @@ ipcRenderer.on('recapture-all-frames', (event, files, sheetsByFileId, frameSize)
         const currentSheetArray = sheets[sheetId].thumbsArray;
         const frameNumberArray = currentSheetArray.map(frame => frame.frameNumber);
         const frameIdArray = currentSheetArray.map(frame => frame.frameId);
+
+        // add posterFrame
+        frameIdArray.push(file.posterFrameId);
+        frameNumberArray.push(Math.floor(file.frameCount / 2));
+
         recaptureThumbs(
           frameSize,
           file.path,
@@ -99,7 +110,7 @@ ipcRenderer.on('recapture-all-frames', (event, files, sheetsByFileId, frameSize)
 
 ipcRenderer.on(
   'send-get-file-details',
-  (event, fileId, filePath, posterFrameId) => {
+  (event, fileId, filePath, posterFrameId, onlyReplace = false) => {
     log.debug('opencvWorkerWindow | on send-get-file-details')
     // log.debug(fileId);
     log.debug(`opencvWorkerWindow | ${filePath}`);
@@ -123,7 +134,8 @@ ipcRenderer.on(
         vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH),
         vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT),
         vid.get(VideoCaptureProperties.CAP_PROP_FPS),
-        fourccToString(vid.get(VideoCaptureProperties.CAP_PROP_FOURCC))
+        fourccToString(vid.get(VideoCaptureProperties.CAP_PROP_FOURCC)),
+        onlyReplace
       );
     } catch (e) {
       ipcRenderer.send(
@@ -145,7 +157,7 @@ ipcRenderer.on(
 
 ipcRenderer.on(
   'send-get-poster-frame',
-  (event, fileId, filePath, posterFrameId) => {
+  (event, fileId, filePath, posterFrameId, onlyReplace = false) => {
     log.debug('opencvWorkerWindow | on send-get-poster-frame');
     // log.debug(fileId);
     log.debug(`opencvWorkerWindow | ${filePath}`);
@@ -188,7 +200,8 @@ ipcRenderer.on(
               fileId,
               frameNumber,
               true,
-              outBase64
+              outBase64,
+              onlyReplace
             );
             ipcRenderer.send(
               'message-from-opencvWorkerWindow-to-mainWindow',
@@ -197,7 +210,8 @@ ipcRenderer.on(
               filePath,
               posterFrameId,
               frameNumber,
-              useRatio
+              useRatio,
+              onlyReplace
             );
           }
           // iterator += 1;
