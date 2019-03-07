@@ -52,7 +52,7 @@ const Header = ({
               </Menu.Item>
             }
             className={stylesPop.popup}
-            content={(visibilitySettings.showMovielist === false) ? 'Show Movie list' : 'Hide Movie list'}
+            content={(visibilitySettings.showMovielist === false) ? 'Show Movie and Sheets list' : 'Hide Movie list'}
             keepInViewPort={false}
           />
         }

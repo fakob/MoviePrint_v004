@@ -1233,7 +1233,7 @@ class App extends Component {
   }
 
   runSceneDetection(fileId, filePath, useRatio, threshold = this.props.settings.defaultSceneDetectionThreshold, sheetId = uuidV4()) {
-    this.hideSettings();
+    // this.hideSettings();
     this.onHideDetectionChart();
     const { store } = this.context;
     store.dispatch(setDefaultSheetView(SHEETVIEW.TIMELINEVIEW));
@@ -1382,6 +1382,9 @@ class App extends Component {
     // console.log(file);
     // console.log(sceneOrThumbId);
     // console.log(parentSheetId);
+
+    // open movie list so user sees that a new sheet got added
+    this.showMovielist();
 
     // create scenesArray if it does not exist
     let sceneArray = scenes;
@@ -1961,6 +1964,11 @@ class App extends Component {
         const { lastModified, size}  = getFileStatsObject(newFilePath);
         store.dispatch(replaceFileDetails(fileId, newFilePath, fileName, size, lastModified));
 
+        // change video for videoPlayer to the new one
+        this.setState({
+          opencvVideo: new opencv.VideoCapture(newFilePath),
+        });
+
         // change fileScanStatus
         store.dispatch(updateFileScanStatus(fileId, false));
         // remove entries from frameScanList sqlite3
@@ -2114,10 +2122,10 @@ class App extends Component {
     const { currentFileId, currentSheetId, allThumbs, files, sheetsByFileId, settings, visibilitySettings } = this.props;
 
     const secondsPerRow = getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings);
-    const sheetType = getSheetType(sheetsByFileId, currentFileId, currentSheetId, settings);
+    const sheetView = getSheetView(sheetsByFileId, currentFileId, currentSheetId, settings);
 
     let isGridView = true;
-    if (sheetType === SHEET_TYPE.SCENES) {
+    if (sheetView === SHEETVIEW.TIMELINEVIEW) {
       isGridView = false;
     }
 
