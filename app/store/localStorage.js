@@ -139,12 +139,16 @@ export const loadState = () => {
 export const saveState = (state) => {
   try {
     const serializedState = JSON.stringify(state);
-    const unixTimeStamp = Date();
+    const timeStamp = Date();
     updateReduxState({
       stateId: STATEID,
-      timeStamp: unixTimeStamp,
+      timeStamp,
       state: serializedState,
     });
+    const timeBeforeUnix = new Date(timeStamp);
+    const timeAfter = new Date;
+    const timeAfterUnix = timeAfter.getTime();
+    console.log(`saving state in sqlite3 took ${timeAfterUnix - timeBeforeUnix} milliseconds`)
     // localStorage.setItem('state', serializedState);
   } catch (err) {
     log.error('localStorage.js - error in saveState')

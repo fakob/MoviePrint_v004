@@ -20,6 +20,7 @@ const FileListElement = ({
   height,
   name,
   objectUrl,
+  onAddIntervalSheetClick,
   onChangeSheetViewClick,
   onDeleteSheetClick,
   onDuplicateSheetClick,
@@ -81,6 +82,11 @@ const FileListElement = ({
     onScanMovieListItemClick(fileId);
   }
 
+  function onAddIntervalSheetClickWithStop(e, fileId) {
+    e.stopPropagation();
+    onAddIntervalSheetClick(fileId);
+  }
+
   function onReplaceMovieListItemClickWithStop(e, fileId) {
     e.stopPropagation();
     onReplaceMovieListItemClick(fileId);
@@ -101,10 +107,16 @@ const FileListElement = ({
       >
         <Dropdown.Menu>
           <Dropdown.Item
-            data-tid='scanMovieListItemOption'
+            data-tid='addShotDetectionMovieListItemOption'
             icon="barcode"
-            text="Scan movie"
+            text="Add MoviePrint (shot detection based)"
             onClick={e => onScanMovieListItemClickWithStop(e, fileId)}
+          />
+          <Dropdown.Item
+            data-tid='addIntervalMovieListItemOption'
+            icon="grid layout"
+            text="Add MoviePrint (interval based)"
+            onClick={e => onAddIntervalSheetClickWithStop(e, fileId)}
           />
           <Dropdown.Item
             data-tid='replaceMovieListItemOption'

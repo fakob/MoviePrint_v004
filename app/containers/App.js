@@ -258,6 +258,8 @@ class App extends Component {
     this.recaptureAllFrames = this.recaptureAllFrames.bind(this);
 
     this.onFileListElementClick = this.onFileListElementClick.bind(this);
+    this.onAddIntervalSheet = this.onAddIntervalSheet.bind(this);
+    this.onAddIntervalSheetClick = this.onAddIntervalSheetClick.bind(this);
     this.onErrorPosterFrame = this.onErrorPosterFrame.bind(this);
     this.getThumbsForFile = this.getThumbsForFile.bind(this);
 
@@ -1623,6 +1625,34 @@ class App extends Component {
     });
   }
 
+  onAddIntervalSheet(sheetsByFileId, fileId, settings) {
+    const { store } = this.context;
+
+    const newSheetId = uuidV4();
+    // set columnCount as it is not defined yet
+    this.getThumbsForFile(fileId, newSheetId);
+    const newColumnCount = getColumnCount(sheetsByFileId, fileId, newSheetId, settings);
+    store.dispatch(updateSheetColumnCount(fileId, newSheetId, newColumnCount));
+    store.dispatch(updateSheetName(fileId, newSheetId, getSheetName(getSheetCount(sheetsByFileId, fileId))));
+    store.dispatch(updateSheetType(fileId, newSheetId, SHEET_TYPE.INTERVAL));
+    store.dispatch(updateSheetView(fileId, newSheetId, SHEETVIEW.GRIDVIEW));
+    return newSheetId;
+  }
+
+  onAddIntervalSheetClick(fileId) {
+    // log.debug(`FileListElement clicked: ${file.name}`);
+    const { store } = this.context;
+    const { sheetsByFileId, settings } = this.props;
+
+    store.dispatch(setCurrentFileId(fileId));
+
+    const newSheetId = this.onAddIntervalSheet(sheetsByFileId, fileId, settings);
+
+    const sheetView = getSheetView(sheetsByFileId, fileId, newSheetId, settings);
+    this.onSetSheetClick(fileId, newSheetId, sheetView);
+
+  }
+
   onFileListElementClick(fileId) {
     // log.debug(`FileListElement clicked: ${file.name}`);
     const { store } = this.context;
@@ -1634,15 +1664,7 @@ class App extends Component {
 
     // When clicking on a filelist element for the first time
     if (newSheetId === undefined) {
-      // there are no sheetIds, so create a new sheetId
-      newSheetId = uuidV4();
-      // set columnCount as it is not defined yet
-      this.getThumbsForFile(fileId, newSheetId);
-      const newColumnCount = getColumnCount(sheetsByFileId, fileId, newSheetId, settings);
-      store.dispatch(updateSheetColumnCount(fileId, newSheetId, newColumnCount));
-      store.dispatch(updateSheetName(fileId, newSheetId, getSheetName(getSheetCount(sheetsByFileId, fileId))));
-      store.dispatch(updateSheetType(fileId, newSheetId, SHEET_TYPE.INTERVAL));
-      store.dispatch(updateSheetView(fileId, newSheetId, SHEETVIEW.GRIDVIEW));
+      newSheetId = this.onAddIntervalSheet(sheetsByFileId, fileId, settings);
     }
     const sheetView = getSheetView(sheetsByFileId, fileId, newSheetId, settings);
     this.onSetSheetClick(fileId, newSheetId, sheetView);
@@ -2271,6 +2293,7 @@ class App extends Component {
                         settings={this.props.settings}
                         visibilitySettings={this.props.visibilitySettings}
                         onFileListElementClick={this.onFileListElementClick}
+                        onAddIntervalSheetClick={this.onAddIntervalSheetClick}
                         posterobjectUrlObjects={filteredPosterFrameObjectUrlObjects}
                         sheetsByFileId={this.props.sheetsByFileId}
                         onChangeSheetViewClick={this.onChangeSheetViewClick}

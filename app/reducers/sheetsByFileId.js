@@ -145,8 +145,8 @@ const sheetsByFileId = (state = {}, action) => {
       };
     case 'ADD_THUMB': {
       // load the current thumbs array, if it does not exist it stays empty
-      log.debug(action.payload);
-      log.debug(state);
+      // log.debug(action.payload);
+      // log.debug(state);
       let currentArray = [];
       if (state[action.payload.fileId] !== undefined &&
         state[action.payload.fileId][action.payload.sheetId] !== undefined &&
