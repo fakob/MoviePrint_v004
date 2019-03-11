@@ -31,7 +31,8 @@ import { getLowestFrame,
   getColumnCount,
   getFileStatsObject,
   getSecondsPerRow,
-  getRandomSheetName,
+  getSheetCount,
+  getSheetName,
   getSheetId,
   getSheetIdArray,
   getSheetType,
@@ -438,7 +439,7 @@ class App extends Component {
         ));
         const newColumnCount = getColumnCount(this.props.sheetsByFileId, firstFile.id, newSheetId, this.props.settings);
         store.dispatch(updateSheetColumnCount(firstFile.id, newSheetId, newColumnCount)); // set columnCount on firstFile
-        store.dispatch(updateSheetName(firstFile.id, newSheetId, getRandomSheetName())); // set name on firstFile
+        store.dispatch(updateSheetName(firstFile.id, newSheetId, getSheetName())); // set name on firstFile
         store.dispatch(updateSheetType(firstFile.id, newSheetId, SHEET_TYPE.INTERVAL));
         store.dispatch(updateSheetView(firstFile.id, newSheetId, SHEETVIEW.GRIDVIEW));
         store.dispatch(setCurrentSheetId(newSheetId));
@@ -734,7 +735,7 @@ class App extends Component {
         // files who could be added to the filelist, but then could not be read by opencv get removed again from the FileList
         if (tempFile !== undefined) {
           this.getThumbsForFile(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId);
-          store.dispatch(updateSheetName(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, getRandomSheetName()));
+          store.dispatch(updateSheetName(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, getSheetName(getSheetCount(sheetsByFileId, sheetToGetThumbsFor.fileId))));
           store.dispatch(updateSheetType(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, SHEET_TYPE.INTERVAL));
           store.dispatch(updateSheetView(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, SHEETVIEW.GRIDVIEW));
           filesToUpdateStatus.push({
@@ -1329,7 +1330,7 @@ class App extends Component {
       const clearOldScenes = true;
       store.dispatch(updateSheetType(tempFile.id, sheetId, SHEET_TYPE.SCENES));
       store.dispatch(updateSheetView(tempFile.id, sheetId, SHEETVIEW.TIMELINEVIEW));
-      store.dispatch(updateSheetName(tempFile.id, sheetId, getRandomSheetName()));
+      store.dispatch(updateSheetName(tempFile.id, sheetId, getSheetName(getSheetCount(this.props.sheetsByFileId, tempFile.id))));
       store.dispatch(setCurrentSheetId(sheetId));
       store.dispatch(setDefaultSheetView(SHEETVIEW.TIMELINEVIEW));
       store.dispatch(addScenes(tempFile, sceneList, clearOldScenes, this.props.settings.defaultCachedFramesSize, sheetId));
@@ -1410,7 +1411,7 @@ class App extends Component {
         sceneArray[sceneIndex].start + sceneArray[sceneIndex].length - 1,
         settings.defaultCachedFramesSize
       ));
-      store.dispatch(updateSheetName(file.id, sheetId, getRandomSheetName())); // set name on file
+      store.dispatch(updateSheetName(file.id, sheetId, getSheetName(getSheetCount(sheetsByFileId, file.id)))); // set name on file
       store.dispatch(updateSheetType(file.id, sheetId, SHEET_TYPE.INTERVAL));
     }
     store.dispatch(updateSheetView(file.id, sheetId, SHEETVIEW.GRIDVIEW));
@@ -1556,7 +1557,7 @@ class App extends Component {
       moviePrintWidth: defaultMoviePrintWidth,
       settings,
       sheet,
-      visibilityFilter: visibilityFilter,
+      visibilityFilter,
       scaleValueObject,
       scenes: defaultSheetView !== SHEETVIEW.TIMELINEVIEW ? undefined : scenes,
       secondsPerRow,
@@ -1639,7 +1640,7 @@ class App extends Component {
       this.getThumbsForFile(fileId, newSheetId);
       const newColumnCount = getColumnCount(sheetsByFileId, fileId, newSheetId, settings);
       store.dispatch(updateSheetColumnCount(fileId, newSheetId, newColumnCount));
-      store.dispatch(updateSheetName(fileId, newSheetId, getRandomSheetName()));
+      store.dispatch(updateSheetName(fileId, newSheetId, getSheetName(getSheetCount(sheetsByFileId, fileId))));
       store.dispatch(updateSheetType(fileId, newSheetId, SHEET_TYPE.INTERVAL));
       store.dispatch(updateSheetView(fileId, newSheetId, SHEETVIEW.GRIDVIEW));
     }
@@ -1991,7 +1992,7 @@ class App extends Component {
     const { store } = this.context;
     const newSheetId = uuidV4();
     store.dispatch(duplicateSheet(fileId, sheet, newSheetId));
-    store.dispatch(updateSheetName(fileId, newSheetId, getRandomSheetName())); // set name on firstFile
+    store.dispatch(updateSheetName(fileId, newSheetId, getSheetName(getSheetCount(this.props.sheetsByFileId, fileId)))); // set name on firstFile
     store.dispatch(setCurrentSheetId(newSheetId));
   };
 

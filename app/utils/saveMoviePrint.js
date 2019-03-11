@@ -11,7 +11,7 @@ const saveMoviePrint = (
   log.debug(file);
   const node = document.getElementById(elementId);
   const fileNameWithSheetName = `${file.name}-${sheetName}`;
-  const newFilePathObject = getFilePathObject(fileNameWithSheetName, '-MoviePrint', outputFormat, exportPath, overwrite);
+  const newFilePathObject = getFilePathObject(fileNameWithSheetName, '', outputFormat, exportPath, overwrite);
   const newFilePathAndName = pathR.join(
     newFilePathObject.dir,
     newFilePathObject.base

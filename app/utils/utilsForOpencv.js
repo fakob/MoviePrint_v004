@@ -64,7 +64,6 @@ export const getBase64Object = (filePath, useRatio, arrayOfThumbs) => {
     objectUrlObjects[thumb.frameId] = base64;
     return undefined;
   });
-
   return objectUrlObjects;
 }
 

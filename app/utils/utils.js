@@ -352,6 +352,12 @@ export const getRandomSheetName = () => {
   return randomNameObject.fullName;
 };
 
+export const getSheetName = (sheetCount = 0) => {
+  // return random name from sheetNames array
+  const sheetName = `MoviePrint-${sheetCount + 1}`;
+  return sheetName;
+};
+
 export const getSheetId = (sheetsByFileId, fileId) => {
   if (sheetsByFileId[fileId] === undefined) {
     // there is no file yet, so return undefined
@@ -364,6 +370,15 @@ export const getSheetId = (sheetsByFileId, fileId) => {
   }
   // return first sheetId in array
   return sheetIdArray[0];
+};
+
+export const getSheetCount = (sheetsByFileId, fileId) => {
+  if (sheetsByFileId[fileId] === undefined) {
+    // there is no file yet, so return undefined
+    return 0;
+  }
+  const sheetIdArray = Object.getOwnPropertyNames(sheetsByFileId[fileId]);
+  return sheetIdArray.length;
 };
 
 export const getSheetIdArray = (sheetsByFileId, fileId) => {

@@ -1,6 +1,5 @@
 import pathR from 'path';
 import log from 'electron-log';
-import imageDB from './db';
 import { ensureDirectoryExistence, getFilePathObject, pad } from './utils';
 import { getBase64Object } from './utilsForOpencv';
 
@@ -31,8 +30,7 @@ const saveThumb = (filePath, fileUseRatio, fileName, frameNumber, frameId, saveT
       }
     ]
   );
-
-  const { base64 } = base64Object[frameId];
+  const base64 = base64Object[frameId];
   const buf = Buffer.from(base64, 'base64');
 
   ipcRenderer.send('send-save-file', frameId, newFilePathAndName, buf);
