@@ -141,3 +141,5 @@ export const SCENE_DETECTION_MIN_SCENE_LENGTH = 15; // for scene detection
 export const DEFAULT_FRAME_SCALE = 1; // scale of frames to be stored in the database if 1 then original size is stored
 
 export const FRAMESDB_PATH = path.join(app.getPath('userData'), 'moviePrint_frames.db');
+
+export const STATEID = '1';

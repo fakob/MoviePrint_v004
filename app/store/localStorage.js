@@ -1,5 +1,6 @@
 import log from 'electron-log';
 import {
+  STATEID,
   VISIBILITY_FILTER,
   SHOW_MOVIELIST,
   SHOW_SETTINGS,
@@ -47,8 +48,15 @@ import {
   DEFAULT_TIMELINEVIEW_FLOW,
   DEFAULT_CACHED_FRAMES_SIZE,
 } from '../utils/constants';
+import {
+  createTableReduxState,
+  updateReduxState,
+  getReduxState,
+} from '../utils/utilsForSqlite';
 
 const { app } = require('electron').remote;
+
+createTableReduxState(); // create table if not exist
 
 // needs to have the same file structure as in combineReducers
 const initialStateJSON = {
@@ -110,24 +118,37 @@ const initialStateJSON = {
 
 export const loadState = () => {
   try {
-    const serializedState = localStorage.getItem('state');
-    if (serializedState === null) {
+    const row = getReduxState(STATEID);
+    if (row === undefined || row.state === undefined || row.state === null) {
       // return undefined;
       return initialStateJSON;
     }
+    log.debug(`load state from ${row.timeStamp}`)
+    const serializedState = row.state;
+    // console.log(row);
+    // console.log(row.timeStamp);
+    // console.log(row.stateId);
+    // console.log(serializedState);
     return JSON.parse(serializedState);
   } catch (err) {
     log.error('localStorage.js - error in loadState')
-    return undefined;
+    log.error(err);
   }
 };
 
 export const saveState = (state) => {
   try {
     const serializedState = JSON.stringify(state);
-    localStorage.setItem('state', serializedState);
+    const unixTimeStamp = Date();
+    updateReduxState({
+      stateId: STATEID,
+      timeStamp: unixTimeStamp,
+      state: serializedState,
+    });
+    // localStorage.setItem('state', serializedState);
   } catch (err) {
     log.error('localStorage.js - error in saveState')
+    log.error(err);
     // Ignore write errors
   }
 };

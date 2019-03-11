@@ -7,6 +7,30 @@ import {
 const moviePrintDB = new Database(FRAMESDB_PATH, { verbose: log.debug });
 moviePrintDB.pragma('journal_mode = WAL');
 
+// create redux store table
+export const createTableReduxState = () => {
+  const stmt = moviePrintDB.prepare('CREATE TABLE IF NOT EXISTS reduxstate(stateId TEXT PRIMARY KEY, timeStamp TEXT, state TEXT)');
+  stmt.run();
+}
+
+// delete redux state table
+export const deleteTableReduxState = () => {
+  const stmt = moviePrintDB.prepare('DROP TABLE IF EXISTS reduxstate');
+  stmt.run();
+}
+
+// update redux state
+export const updateReduxState = moviePrintDB.transaction((item) => {
+  const insert = moviePrintDB.prepare('REPLACE INTO reduxstate (stateId, timeStamp, state) VALUES (@stateId, @timeStamp, @state)');
+  insert.run(item)
+});
+
+// get redux state
+export const getReduxState = (stateId) => {
+  const stmt = moviePrintDB.prepare(`SELECT stateId, timeStamp, state FROM reduxstate WHERE stateId = ?`);
+  return stmt.get(stateId);
+}
+
 // movies table actions
 // create movies table
 export const createTableMovielist = () => {

@@ -129,7 +129,7 @@ import {
 } from '../utils/utilsForIndexedDB';
 import {
   deleteTableFrameScanList,
-  deleteTableMovielist,
+  deleteTableReduxState,
   deleteFileIdFromFrameScanList,
   getFrameScanByFileId,
 } from '../utils/utilsForSqlite';
@@ -365,9 +365,9 @@ class App extends Component {
     const { store } = this.context;
 
     ipcRenderer.on('delete-all-tables', (event) => {
-      deleteTableMovielist();
       deleteTableFramelist();
       deleteTableFrameScanList();
+      deleteTableReduxState();
     });
 
     ipcRenderer.on('progress', (event, fileId, progressBarPercentage) => {

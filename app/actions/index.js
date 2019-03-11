@@ -17,7 +17,6 @@ import {
 
 const { ipcRenderer } = require('electron');
 
-// createTableMovielist(); // create table if not exist
 createTableFrameScanList(); // create table if not exist
 
 // visibilitySettings
