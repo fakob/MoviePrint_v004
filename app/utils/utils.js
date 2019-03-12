@@ -32,25 +32,6 @@ export const ensureDirectoryExistence = (filePath, isDirectory = true) => {
   fsR.mkdirSync(dirname);
 };
 
-export const clearCache = (win) => {
-  log.debug('clearCache');
-  win.webContents.session.getCacheSize((cacheSizeBefore) => {
-    log.debug(`cacheSize before: ${cacheSizeBefore}`);
-    // clear HTTP cache
-    win.webContents.session.clearCache(() => {
-      // then clear data of web storages
-      win.webContents.session.clearStorageData(() => {
-        // then print cacheSize
-        win.webContents.session.getCacheSize((cacheSizeAfter) => {
-          log.debug(`cacheSize after: ${cacheSizeAfter}`);
-          // and reload to use initialStateJSON
-          win.webContents.reload();
-        });
-      });
-    });
-  });
-};
-
 // prevent typeerrors when accessing nested props of a none-existing object
 // usage getObjectProperty(() => objectA.propertyB)
 export const getObjectProperty = (fn) => {

@@ -314,6 +314,15 @@ class App extends Component {
     this.onHideDetectionChart = this.onHideDetectionChart.bind(this);
 
     // this.addToFramesToFetch = this.addToFramesToFetch.bind(this);
+
+    // moving ipcRenderer into constructor so it gets executed even when
+    // the component can not mount and the ErrorBoundary kicks in
+    ipcRenderer.on('delete-all-tables', (event) => {
+      log.debug('delete-all-tables');
+      deleteTableFrameScanList();
+      deleteTableReduxState();
+      // ipcRenderer.send('delete-all-tables-done');
+    });
   }
 
   componentWillMount() {
@@ -366,12 +375,6 @@ class App extends Component {
 
   componentDidMount() {
     const { store } = this.context;
-
-    ipcRenderer.on('delete-all-tables', (event) => {
-      deleteTableFramelist();
-      deleteTableFrameScanList();
-      deleteTableReduxState();
-    });
 
     ipcRenderer.on('progress', (event, fileId, progressBarPercentage) => {
       this.setState({
@@ -2211,557 +2214,555 @@ class App extends Component {
     }
 
     return (
-      <ErrorBoundary>
-        <Dropzone
-          ref={this.dropzoneRef}
-          // ref={(el) => { this.dropzoneRef = el; }}
-          disableClick
-          // disablePreview
-          style={{ position: 'relative' }}
-          accept={this.state.accept}
-          onDrop={this.onDrop.bind(this)}
-          onDragEnter={this.onDragEnter.bind(this)}
-          onDragLeave={this.onDragLeave.bind(this)}
-          className={styles.dropzoneshow}
-          acceptClassName={styles.dropzoneshowAccept}
-          rejectClassName={styles.dropzoneshowReject}
-        >
-          {({ isDragAccept, isDragReject }) => {
-            return (
-              <div>
-                <div className={`${styles.Site}`}>
-                  <HeaderComponent
-                    visibilitySettings={this.props.visibilitySettings}
-                    settings={this.props.settings}
-                    file={this.props.file}
-                    toggleMovielist={this.toggleMovielist}
-                    toggleSettings={this.toggleSettings}
-                    toggleZoom={this.toggleZoom}
-                    onToggleShowHiddenThumbsClick={this.onToggleShowHiddenThumbsClick}
-                    onThumbInfoClick={this.onThumbInfoClick}
-                    onSetViewClick={this.onSetViewClick}
-                    onSetSheetFitClick={this.onSetSheetFitClick}
-                    openMoviesDialog={this.openMoviesDialog}
-                    zoom={this.state.zoom}
-                    scaleValueObject={this.state.scaleValueObject}
-                    isGridView
-                  />
-                  <TransitionablePortal
-                    // onClose={this.setState({ progressMessage: undefined })}
-                    // open={true}
-                    open={this.state.progressBarPercentage < 100}
-                    // open
-                    transition={{
-                      animation: 'fade up',
-                      duration: 600,
-                    }}
-                    closeOnDocumentClick={false}
-                    closeOnEscape={false}
-                    closeOnPortalMouseLeave={false}
-                    closeOnRootNodeClick={false}
-                    closeOnTriggerBlur={false}
-                    closeOnTriggerClick={false}
-                    closeOnTriggerMouseLeave={false}
-                  >
-                    <Progress
-                      percent={this.state.progressBarPercentage}
-                      attached="bottom"
-                      size="tiny"
-                      indicating
-                      // progress
-                      style={{
-                        position: 'absolute',
-                        bottom: MENU_FOOTER_HEIGHT,
-                        width: '100%',
-                        zIndex: 1000,
-                        margin: 0
-                      }}
-                    />
-                  </TransitionablePortal>
-                  <div
-                    className={`${styles.SiteContent}`}
-                    ref={(el) => { this.siteContent = el; }}
+      <Dropzone
+        ref={this.dropzoneRef}
+        // ref={(el) => { this.dropzoneRef = el; }}
+        disableClick
+        // disablePreview
+        style={{ position: 'relative' }}
+        accept={this.state.accept}
+        onDrop={this.onDrop.bind(this)}
+        onDragEnter={this.onDragEnter.bind(this)}
+        onDragLeave={this.onDragLeave.bind(this)}
+        className={styles.dropzoneshow}
+        acceptClassName={styles.dropzoneshowAccept}
+        rejectClassName={styles.dropzoneshowReject}
+      >
+        {({ isDragAccept, isDragReject }) => {
+          return (
+            <div>
+              <div className={`${styles.Site}`}>
+                <HeaderComponent
+                  visibilitySettings={this.props.visibilitySettings}
+                  settings={this.props.settings}
+                  file={this.props.file}
+                  toggleMovielist={this.toggleMovielist}
+                  toggleSettings={this.toggleSettings}
+                  toggleZoom={this.toggleZoom}
+                  onToggleShowHiddenThumbsClick={this.onToggleShowHiddenThumbsClick}
+                  onThumbInfoClick={this.onThumbInfoClick}
+                  onSetViewClick={this.onSetViewClick}
+                  onSetSheetFitClick={this.onSetSheetFitClick}
+                  openMoviesDialog={this.openMoviesDialog}
+                  zoom={this.state.zoom}
+                  scaleValueObject={this.state.scaleValueObject}
+                  isGridView
+                />
+                <TransitionablePortal
+                  // onClose={this.setState({ progressMessage: undefined })}
+                  // open={true}
+                  open={this.state.progressBarPercentage < 100}
+                  // open
+                  transition={{
+                    animation: 'fade up',
+                    duration: 600,
+                  }}
+                  closeOnDocumentClick={false}
+                  closeOnEscape={false}
+                  closeOnPortalMouseLeave={false}
+                  closeOnRootNodeClick={false}
+                  closeOnTriggerBlur={false}
+                  closeOnTriggerClick={false}
+                  closeOnTriggerMouseLeave={false}
+                >
+                  <Progress
+                    percent={this.state.progressBarPercentage}
+                    attached="bottom"
+                    size="tiny"
+                    indicating
+                    // progress
                     style={{
-                      height: `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)`,
+                      position: 'absolute',
+                      bottom: MENU_FOOTER_HEIGHT,
+                      width: '100%',
+                      zIndex: 1000,
+                      margin: 0
                     }}
-                  >
-                    <div
-                      className={`${styles.ItemSideBar} ${styles.ItemMovielist} ${this.props.visibilitySettings.showMovielist ? styles.ItemMovielistAnim : ''}`}
-                    >
-                      <FileList
-                        files={this.props.files}
-                        settings={this.props.settings}
-                        visibilitySettings={this.props.visibilitySettings}
-                        onFileListElementClick={this.onFileListElementClick}
-                        onAddIntervalSheetClick={this.onAddIntervalSheetClick}
-                        posterobjectUrlObjects={filteredPosterFrameObjectUrlObjects}
-                        sheetsByFileId={this.props.sheetsByFileId}
-                        onChangeSheetViewClick={this.onChangeSheetViewClick}
-                        onSetSheetClick={this.onSetSheetClick}
-                        onDuplicateSheetClick={this.onDuplicateSheetClick}
-                        onScanMovieListItemClick={this.onScanMovieListItemClick}
-                        onReplaceMovieListItemClick={this.onReplaceMovieListItemClick}
-                        onRemoveMovieListItem={this.onRemoveMovieListItem}
-                        onDeleteSheetClick={this.onDeleteSheetClick}
-                        currentSheetId={this.props.currentSheetId}
-                      />
-                    </div>
-                    <div
-                      className={`${styles.ItemSideBar} ${styles.ItemSettings} ${this.props.visibilitySettings.showSettings ? styles.ItemSettingsAnim : ''}`}
-                    >
-                      <SettingsList
-                        settings={this.props.settings}
-                        visibilitySettings={this.props.visibilitySettings}
-                        file={this.props.file}
-                        columnCountTemp={this.state.columnCountTemp}
-                        thumbCountTemp={this.state.thumbCountTemp}
-                        thumbCount={this.state.thumbCount}
-                        rowCountTemp={Math.ceil(this.state.thumbCountTemp /
-                          this.state.columnCountTemp)}
-                        columnCount={this.state.columnCount}
-                        rowCount={Math.ceil(this.state.thumbCount / this.state.columnCount)}
-                        reCapture={this.state.reCapture}
-                        onChangeColumn={this.onChangeColumn}
-                        onChangeColumnAndApply={this.onChangeColumnAndApply}
-                        onChangeRow={this.onChangeRow}
-                        onShowPaperPreviewClick={this.onShowPaperPreviewClick}
-                        onOutputPathFromMovieClick={this.onOutputPathFromMovieClick}
-                        onPaperAspectRatioClick={this.onPaperAspectRatioClick}
-                        onDetectInOutPointClick={this.onDetectInOutPointClick}
-                        onReCaptureClick={this.onReCaptureClick}
-                        onApplyNewGridClick={this.onApplyNewGridClick}
-                        onCancelClick={this.onCancelClick}
-                        onChangeMargin={this.onChangeMargin}
-                        onChangeMinDisplaySceneLength={this.onChangeMinDisplaySceneLength}
-                        sceneArray={this.props.scenes}
-                        secondsPerRowTemp={secondsPerRow}
-                        // secondsPerRowTemp={this.state.secondsPerRowTemp}
-                        onChangeSceneDetectionThreshold={this.onChangeSceneDetectionThreshold}
-                        onChangeTimelineViewSecondsPerRow={this.onChangeTimelineViewSecondsPerRow}
-                        onChangeTimelineViewWidthScale={this.onChangeTimelineViewWidthScale}
-                        onTimelineViewFlowClick={this.onTimelineViewFlowClick}
-                        onShowHeaderClick={this.onShowHeaderClick}
-                        onShowPathInHeaderClick={this.onShowPathInHeaderClick}
-                        onShowDetailsInHeaderClick={this.onShowDetailsInHeaderClick}
-                        onShowTimelineInHeaderClick={this.onShowTimelineInHeaderClick}
-                        onRoundedCornersClick={this.onRoundedCornersClick}
-                        onShowHiddenThumbsClick={this.onShowHiddenThumbsClick}
-                        onThumbInfoClick={this.onThumbInfoClick}
-                        onChangeOutputPathClick={this.onChangeOutputPathClick}
-                        onOutputFormatClick={this.onOutputFormatClick}
-                        onCachedFramesSizeClick={this.onCachedFramesSizeClick}
-                        onOverwriteClick={this.onOverwriteClick}
-                        onIncludeIndividualClick={this.onIncludeIndividualClick}
-                        onThumbnailScaleClick={this.onThumbnailScaleClick}
-                        onMoviePrintWidthClick={this.onMoviePrintWidthClick}
-                        scaleValueObject={this.state.scaleValueObject}
-                        runSceneDetection={this.runSceneDetection}
-                        fileScanRunning={this.state.fileScanRunning}
-                        showChart={this.state.showChart}
-                        onToggleDetectionChart={this.onToggleDetectionChart}
-                        recaptureAllFrames={this.recaptureAllFrames}
-                        isGridView={isGridView}
-                      />
-                    </div>
-                    <div
-                      className={`${styles.ItemVideoPlayer} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''}`}
-                      style={{
-                        top: `${MENU_HEADER_HEIGHT + this.props.settings.defaultBorderMargin}px`,
-                        transform: this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW ? 'translate(-50%, 0px)' : `translate(-50%, ${(this.state.scaleValueObject.videoPlayerHeight + this.props.settings.defaultVideoPlayerControllerHeight) * -1}px)`,
-                        overflow: this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW ? 'visible' : 'hidden'
-                      }}
-                    >
-                      { this.props.file ? (
-                        <VideoPlayer
-                          // visible={this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW}
-                          ref={(el) => { this.videoPlayer = el; }}
-                          file={this.props.file}
-                          aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
-                          height={this.state.scaleValueObject.videoPlayerHeight}
-                          width={this.state.scaleValueObject.videoPlayerWidth}
-                          objectUrlObjects={filteredObjectUrlObjects}
-                          controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
-                          selectedThumbId={this.state.selectedThumbObject ?
-                            this.state.selectedThumbObject.thumbId : undefined}
-                          frameNumber={this.state.selectedThumbObject ?
-                            this.state.selectedThumbObject.frameNumber : 0}
-                          onThumbDoubleClick={this.onViewToggle}
-                          selectThumbMethod={this.onSelectThumbMethod}
-                          keyObject={this.state.keyObject}
-                          opencvVideo={this.state.opencvVideo}
-                          frameSize={this.props.settings.defaultCachedFramesSize}
-                        />
-                      ) :
-                      (
-                        <div
-                          style={{
-                            opacity: '0.3',
-                          }}
-                        >
-                          <ThumbEmpty
-                            color={(this.state.colorArray !== undefined ?
-                              this.state.colorArray[0] : undefined)}
-                            thumbImageObjectUrl={undefined}
-                            aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
-                            thumbWidth={this.state.scaleValueObject.videoPlayerWidth}
-                            borderRadius={this.state.scaleValueObject.newBorderRadius}
-                            margin={this.state.scaleValueObject.newThumbMargin}
-                          />
-                        </div>
-                      )
-                      }
-                    </div>
-                    <div
-                      ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
-                      className={`${styles.ItemMain} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainRightAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainEdit : ''} ${this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW ? styles.ItemMainTopAnim : ''}`}
-                      style={{
-                        width: ( // use window with if any of these are true
-                          this.props.visibilitySettings.showSettings ||
-                          (this.props.visibilitySettings.defaultView !== VIEW.PLAYERVIEW &&
-                            this.props.visibilitySettings.defaultSheetFit !== SHEET_FIT.HEIGHT &&
-                            !this.state.zoom
-                          ) ||
-                          this.state.scaleValueObject.newMoviePrintWidth < this.state.containerWidth // if smaller, width has to be undefined otherwise the center align does not work
-                        )
-                          ? undefined : this.state.scaleValueObject.newMoviePrintWidth,
-                        marginTop: this.props.visibilitySettings.defaultView !== VIEW.PLAYERVIEW ? undefined :
-                          `${this.state.scaleValueObject.videoPlayerHeight +
-                            (this.props.settings.defaultBorderMargin * 2)}px`,
-                        minHeight: this.props.visibilitySettings.defaultView !== VIEW.PLAYERVIEW ? `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)` : undefined,
-                        // backgroundImage: `url(${paperBorderPortrait})`,
-                        backgroundImage: ((this.props.visibilitySettings.showSettings && this.props.settings.defaultShowPaperPreview) ||
-                          (this.props.file && this.props.visibilitySettings.defaultView !== VIEW.PLAYERVIEW && this.props.settings.defaultShowPaperPreview)) ?
-                          `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${(this.props.settings.defaultPaperAspectRatioInv < this.state.scaleValueObject.moviePrintAspectRatioInv) ? (this.state.scaleValueObject.newMoviePrintHeight / this.props.settings.defaultPaperAspectRatioInv) : this.state.scaleValueObject.newMoviePrintWidth}' height='${(this.props.settings.defaultPaperAspectRatioInv < this.state.scaleValueObject.moviePrintAspectRatioInv) ? this.state.scaleValueObject.newMoviePrintHeight : (this.state.scaleValueObject.newMoviePrintWidth * this.props.settings.defaultPaperAspectRatioInv)}' style='background-color: rgba(245,245,245,${this.props.visibilitySettings.showSettings ? 1 : 0.02});'></svg>")` : undefined,
-                        backgroundRepeat: 'no-repeat',
-                        backgroundPosition: `calc(50% - ${DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN / 2}px) 50%`,
-                      }}
-                    >
-                      { (this.props.file || this.props.visibilitySettings.showSettings || this.state.loadingFirstFile) ? (
-                        // (this.props.visibilitySettings.defaultSheetView === 'gridView') ? (
-                        <Fragment>
-                          <Conditional if={this.props.visibilitySettings.defaultSheetView !== SHEETVIEW.TIMELINEVIEW}>
-                            <SortedVisibleThumbGrid
-                              colorArray={this.state.colorArray}
-                              sheetView={this.props.visibilitySettings.defaultSheetView}
-                              view={this.props.visibilitySettings.defaultView}
-                              currentSheetId={this.props.settings.currentSheetId}
-                              file={this.props.file}
-                              inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
-                              keyObject={this.state.keyObject}
-                              onAddThumbClick={this.onAddThumbClick}
-                              onScrubClick={this.onScrubClick}
-                              onExpandClick={this.onExpandClick}
-                              onThumbDoubleClick={this.onViewToggle}
-                              scaleValueObject={this.state.scaleValueObject}
-                              moviePrintWidth={this.state.scaleValueObject.newMoviePrintWidth}
-                              selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
-                              selectThumbMethod={this.onSelectThumbMethod}
-                              settings={this.props.settings}
-                              showSettings={this.props.visibilitySettings.showSettings}
-                              thumbCount={this.state.thumbCountTemp}
-                              objectUrlObjects={filteredObjectUrlObjects}
-                              thumbs={this.props.thumbs}
-                              viewForPrinting={false}
-                              frameSize={this.props.settings.defaultCachedFramesSize}
-                              isGridView={isGridView}
-                            />
-                          </Conditional>
-                          <Conditional if={this.props.visibilitySettings.defaultSheetView === SHEETVIEW.TIMELINEVIEW}>
-                            <SortedVisibleSceneGrid
-                              sheetView={this.props.visibilitySettings.defaultSheetView}
-                              view={this.props.visibilitySettings.defaultView}
-                              file={this.props.file}
-                              currentSheetId={this.props.settings.currentSheetId}
-                              frameCount={this.props.file ? this.props.file.frameCount : undefined}
-                              inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
-                              keyObject={this.state.keyObject}
-                              selectedSceneId={this.state.selectedSceneObject ? this.state.selectedSceneObject.sceneId : undefined}
-                              selectSceneMethod={this.onSelectSceneMethod}
-                              onThumbDoubleClick={this.onViewToggle}
-                              onExpandClick={this.onExpandClick}
-                              moviePrintWidth={this.state.scaleValueObject.newMoviePrintTimelineWidth}
-                              moviePrintRowHeight={this.state.scaleValueObject.newTimelineRowHeight}
-                              scaleValueObject={this.state.scaleValueObject}
-                              scenes={this.props.scenes}
-                              settings={this.props.settings}
-                              showSettings={this.props.visibilitySettings.showSettings}
-                              objectUrlObjects={filteredObjectUrlObjects}
-                              thumbs={this.props.thumbs}
-                              currentSheetId={this.props.settings.currentSheetId}
-                            />
-                          </Conditional>
-                          {false && <div
-                            style={{
-                              // background: 'green',
-                              pointerEvents: 'none',
-                              border: '5px solid green',
-                              width: this.state.scaleValueObject.newMoviePrintTimelineWidth,
-                              height: this.state.scaleValueObject.newMoviePrintTimelineHeight,
-                              position: 'absolute',
-                              left: this.props.visibilitySettings.showSettings ? '' : '50%',
-                              top: '50%',
-                              marginLeft: this.props.visibilitySettings.showSettings ? '' : this.state.scaleValueObject.newMoviePrintTimelineWidth/-2,
-                              marginTop: this.state.scaleValueObject.newMoviePrintTimelineHeight/-2,
-                            }}
-                          />}
-                        </Fragment>
-                      ) :
-                      (
-                        <div
-                          className={styles.ItemMainStartupContainer}
-                        >
-                          <img
-                            data-tid='startupImg'
-                            src={startupImg}
-                            style={{
-                              width: `calc(100vw - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)`,
-                              height: `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)`,
-                              maxWidth: 1000,
-                              maxHeight: 500,
-                              margin: 'auto'
-                            }}
-                            alt=""
-                          />
-                        </div>
-                      )
-                      }
-                    </div>
-                  </div>
-                  <TransitionablePortal
-                    // onClose={this.setState({ progressMessage: undefined })}
-                    open={this.state.showMessage}
-                    // open
-                    // transition={{
-                    //   animation: 'fade up',
-                    //   duration: 600,
-                    // }}
-                    closeOnDocumentClick={false}
-                    closeOnEscape={false}
-                    closeOnPortalMouseLeave={false}
-                    closeOnRootNodeClick={false}
-                    closeOnTriggerBlur={false}
-                    closeOnTriggerClick={false}
-                    closeOnTriggerMouseLeave={false}
-                  >
-                    <Segment
-                      className={stylesPop.toast}
-                      size='large'
-                    >
-                      {this.state.progressMessage}
-                    </Segment>
-                  </TransitionablePortal>
-                  <Modal
-                    open={this.state.showFeedbackForm}
-                    onClose={() => this.setState({ intendToCloseFeedbackForm: true})}
-                    closeIcon
-                    // closeOnEscape={false}
-                    // closeOnRootNodeClick={false}
-                    // basic
-                    size='fullscreen'
-                    style={{
-                      marginTop: 0,
-                      height: '80vh',
-                    }}
-                    onMount={() => {
-                      setTimeout(() => {
-                        this.webviewRef.current.addEventListener('ipc-message', event => {
-                          // log.debug(event);
-                          log.debug(event.channel);
-                          if (event.channel === 'wpcf7mailsent') {
-                            const rememberEmail = event.args[0].findIndex((argument) => argument.name === 'checkbox-remember-email[]') >= 0;
-                            if (rememberEmail) {
-                              const emailAddressFromForm = event.args[0].find((argument) => argument.name === 'your-email').value;
-                              store.dispatch(setEmailAddress(emailAddressFromForm));
-                            }
-                            this.onCloseFeedbackForm();
-                          }
-                        })
-                        // log.debug(this.webviewRef.current.getWebContents());
-                        // this.webviewRef.current.addEventListener('dom-ready', () => {
-                        //   this.webviewRef.current.openDevTools();
-                        // })
-                        // this.webviewRef.current.addEventListener('did-stop-loading', (event) => {
-                        //   log.debug(event);
-                        // });
-                        // this.webviewRef.current.addEventListener('did-start-loading', (event) => {
-                        //   log.debug(event);
-                        // });
-                      }, 300); // wait a tiny bit until webview is mounted
-                    }}
-                  >
-                    <Modal.Content
-                      // scrolling
-                      style={{
-                        // overflow: 'auto',
-                        // height: '80vh',
-                      }}
-                    >
-                      <webview
-                        autosize='true'
-                        // nodeintegration='true'
-                        // disablewebsecurity='true'
-                        // minheight='80vh'
-                        style={{
-                          height: '80vh',
-                        }}
-                        preload='./webViewPreload.js'
-                        ref={this.webviewRef}
-                        src={`http://movieprint.fakob.com/feedback-for-movieprint-app?app-version=${process.platform}-${os.release()}-${app.getName()}-${app.getVersion()}&your-email=${this.props.settings.emailAddress}`}
-                      />
-                      <Modal
-                        open={this.state.intendToCloseFeedbackForm}
-                        basic
-                        size='mini'
-                        style={{
-                          position: 'absolute',
-                          left: '50%',
-                          top: '50%',
-                          transform: 'translate(-50%, -50%)',
-                          margin: 'auto !important'
-                        }}
-                      >
-                        <Modal.Content>
-                          <p>
-                            Close the feedback form?
-                          </p>
-                        </Modal.Content>
-                        <Modal.Actions>
-                          <Button basic color='red' inverted onClick={() => this.setState({ intendToCloseFeedbackForm: false})}>
-                            <Icon name='remove' /> Cancel
-                          </Button>
-                          <Button color='green' inverted onClick={() => this.setState({ showFeedbackForm: false, intendToCloseFeedbackForm: false})}>
-                            <Icon name='checkmark' /> Close
-                          </Button>
-                        </Modal.Actions>
-                      </Modal>
-                    </Modal.Content>
-                  </Modal>
-                  <Footer
-                    visibilitySettings={this.props.visibilitySettings}
-                    file={this.props.file}
-                    onOpenFeedbackForm={this.onOpenFeedbackForm}
-                    showFeedbackForm={this.state.showFeedbackForm}
-                    onSaveMoviePrint={this.onSaveMoviePrint}
-                    onSaveAllMoviePrints={this.onSaveAllMoviePrints}
-                    savingMoviePrint={this.state.savingMoviePrint}
-                    savingAllMoviePrints={this.state.savingAllMoviePrints}
-                    defaultSheetView={this.props.visibilitySettings.defaultSheetView}
-                    defaultView={this.props.visibilitySettings.defaultView}
                   />
-                </div>
-                { this.state.showScrubWindow &&
-                  <Scrub
-                    opencvVideoCanvasRef={this.opencvVideoCanvasRef}
-                    file={this.props.file}
-                    settings={this.props.settings}
-                    objectUrlObjects={filteredObjectUrlObjects}
-                    keyObject={this.state.keyObject}
-                    scrubThumb={this.state.scrubThumb}
-                    scrubThumbLeft={this.state.scrubThumbLeft}
-                    scrubThumbRight={this.state.scrubThumbRight}
-                    scaleValueObject={this.state.scaleValueObject}
-                    containerWidth={this.state.containerWidth}
-                    containerHeight={this.state.containerHeight}
-                    onScrubWindowMouseOver={this.onScrubWindowMouseOver}
-                    onScrubWindowClick={this.onScrubWindowClick}
-                  />
-                }
-                { this.state.showChart &&
-                  <div
-                    className={styles.chart}
-                    style={{
-                      height: `${chartHeight}px`,
-                    }}
-                  >
-                    <Line
-                      data={this.state.chartData}
-                      // width={this.state.scaleValueObject.newMoviePrintWidth}
-                      // width={this.state.containerWidth}
-                      height={chartHeight}
-                      options={{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        barPercentage: 1.0,
-                        categoryPercentage: 1.0,
-                        elements: {
-                          line: {
-                            tension: 0, // disables bezier curves
-                          }
-                        },
-                        animation: {
-                          duration: 0, // general animation time
-                        },
-                        hover: {
-                          animationDuration: 0, // duration of animations when hovering an item
-                        },
-                        responsiveAnimationDuration: 0, // animation duration after a resize
-                      }}
-                    />
-                  </div>
-                }
-                <Modal
-                  open={this.state.savingAllMoviePrints}
-                  basic
-                  size='tiny'
+                </TransitionablePortal>
+                <div
+                  className={`${styles.SiteContent}`}
+                  ref={(el) => { this.siteContent = el; }}
                   style={{
-                    position: 'absolute',
-                    left: '50%',
-                    top: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    margin: 'auto !important'
+                    height: `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)`,
                   }}
                 >
-                  <Container
-                    textAlign='center'
-                  >
-                    <Header as='h2' inverted>
-                      {`Saving ${this.state.sheetsToPrint.filter(item => item.status === 'done').length + 1} of ${this.state.sheetsToPrint.filter(item => item.status !== 'undefined').length} MoviePrints`}
-                    </Header>
-                    {!fileToPrint && <Loader
-                      active
-                      size='mini'
-                      inline
-                    />}
-                    {fileToPrint || ' '}
-                    <Progress
-                      percent={
-                        ((this.state.sheetsToPrint.filter(item => item.status === 'done').length + 1.0) /
-                        this.state.sheetsToPrint.filter(item => item.status !== 'undefined').length) * 100
-                      }
-                      size='tiny'
-                      indicating
-                      inverted
-                    />
-                    <Divider hidden />
-                    <Button
-                      color='red'
-                      onClick={() => this.setState({ savingAllMoviePrints: false})}
-                    >
-                      <Icon name='remove' /> Cancel
-                    </Button>
-                  </Container>
-                </Modal>
-                { dropzoneActive &&
                   <div
-                    className={`${styles.dropzoneshow} ${isDragAccept ? styles.dropzoneshowAccept : ''} ${isDragReject ? styles.dropzoneshowReject : ''}`}
+                    className={`${styles.ItemSideBar} ${styles.ItemMovielist} ${this.props.visibilitySettings.showMovielist ? styles.ItemMovielistAnim : ''}`}
                   >
-                    <div
-                      className={styles.dropzoneshowContent}
-                    >
-                      {`${isDragAccept ? (this.state.keyObject.altKey ? 'CLEAR LIST AND ADD MOVIES' : 'ADD MOVIES TO LIST') : ''} ${isDragReject ? 'NOT ALLOWED' : ''}`}
+                    <FileList
+                      files={this.props.files}
+                      settings={this.props.settings}
+                      visibilitySettings={this.props.visibilitySettings}
+                      onFileListElementClick={this.onFileListElementClick}
+                      onAddIntervalSheetClick={this.onAddIntervalSheetClick}
+                      posterobjectUrlObjects={filteredPosterFrameObjectUrlObjects}
+                      sheetsByFileId={this.props.sheetsByFileId}
+                      onChangeSheetViewClick={this.onChangeSheetViewClick}
+                      onSetSheetClick={this.onSetSheetClick}
+                      onDuplicateSheetClick={this.onDuplicateSheetClick}
+                      onScanMovieListItemClick={this.onScanMovieListItemClick}
+                      onReplaceMovieListItemClick={this.onReplaceMovieListItemClick}
+                      onRemoveMovieListItem={this.onRemoveMovieListItem}
+                      onDeleteSheetClick={this.onDeleteSheetClick}
+                      currentSheetId={this.props.currentSheetId}
+                    />
+                  </div>
+                  <div
+                    className={`${styles.ItemSideBar} ${styles.ItemSettings} ${this.props.visibilitySettings.showSettings ? styles.ItemSettingsAnim : ''}`}
+                  >
+                    <SettingsList
+                      settings={this.props.settings}
+                      visibilitySettings={this.props.visibilitySettings}
+                      file={this.props.file}
+                      columnCountTemp={this.state.columnCountTemp}
+                      thumbCountTemp={this.state.thumbCountTemp}
+                      thumbCount={this.state.thumbCount}
+                      rowCountTemp={Math.ceil(this.state.thumbCountTemp /
+                        this.state.columnCountTemp)}
+                      columnCount={this.state.columnCount}
+                      rowCount={Math.ceil(this.state.thumbCount / this.state.columnCount)}
+                      reCapture={this.state.reCapture}
+                      onChangeColumn={this.onChangeColumn}
+                      onChangeColumnAndApply={this.onChangeColumnAndApply}
+                      onChangeRow={this.onChangeRow}
+                      onShowPaperPreviewClick={this.onShowPaperPreviewClick}
+                      onOutputPathFromMovieClick={this.onOutputPathFromMovieClick}
+                      onPaperAspectRatioClick={this.onPaperAspectRatioClick}
+                      onDetectInOutPointClick={this.onDetectInOutPointClick}
+                      onReCaptureClick={this.onReCaptureClick}
+                      onApplyNewGridClick={this.onApplyNewGridClick}
+                      onCancelClick={this.onCancelClick}
+                      onChangeMargin={this.onChangeMargin}
+                      onChangeMinDisplaySceneLength={this.onChangeMinDisplaySceneLength}
+                      sceneArray={this.props.scenes}
+                      secondsPerRowTemp={secondsPerRow}
+                      // secondsPerRowTemp={this.state.secondsPerRowTemp}
+                      onChangeSceneDetectionThreshold={this.onChangeSceneDetectionThreshold}
+                      onChangeTimelineViewSecondsPerRow={this.onChangeTimelineViewSecondsPerRow}
+                      onChangeTimelineViewWidthScale={this.onChangeTimelineViewWidthScale}
+                      onTimelineViewFlowClick={this.onTimelineViewFlowClick}
+                      onShowHeaderClick={this.onShowHeaderClick}
+                      onShowPathInHeaderClick={this.onShowPathInHeaderClick}
+                      onShowDetailsInHeaderClick={this.onShowDetailsInHeaderClick}
+                      onShowTimelineInHeaderClick={this.onShowTimelineInHeaderClick}
+                      onRoundedCornersClick={this.onRoundedCornersClick}
+                      onShowHiddenThumbsClick={this.onShowHiddenThumbsClick}
+                      onThumbInfoClick={this.onThumbInfoClick}
+                      onChangeOutputPathClick={this.onChangeOutputPathClick}
+                      onOutputFormatClick={this.onOutputFormatClick}
+                      onCachedFramesSizeClick={this.onCachedFramesSizeClick}
+                      onOverwriteClick={this.onOverwriteClick}
+                      onIncludeIndividualClick={this.onIncludeIndividualClick}
+                      onThumbnailScaleClick={this.onThumbnailScaleClick}
+                      onMoviePrintWidthClick={this.onMoviePrintWidthClick}
+                      scaleValueObject={this.state.scaleValueObject}
+                      runSceneDetection={this.runSceneDetection}
+                      fileScanRunning={this.state.fileScanRunning}
+                      showChart={this.state.showChart}
+                      onToggleDetectionChart={this.onToggleDetectionChart}
+                      recaptureAllFrames={this.recaptureAllFrames}
+                      isGridView={isGridView}
+                    />
+                  </div>
+                  <div
+                    className={`${styles.ItemVideoPlayer} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''}`}
+                    style={{
+                      top: `${MENU_HEADER_HEIGHT + this.props.settings.defaultBorderMargin}px`,
+                      transform: this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW ? 'translate(-50%, 0px)' : `translate(-50%, ${(this.state.scaleValueObject.videoPlayerHeight + this.props.settings.defaultVideoPlayerControllerHeight) * -1}px)`,
+                      overflow: this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW ? 'visible' : 'hidden'
+                    }}
+                  >
+                    { this.props.file ? (
+                      <VideoPlayer
+                        // visible={this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW}
+                        ref={(el) => { this.videoPlayer = el; }}
+                        file={this.props.file}
+                        aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
+                        height={this.state.scaleValueObject.videoPlayerHeight}
+                        width={this.state.scaleValueObject.videoPlayerWidth}
+                        objectUrlObjects={filteredObjectUrlObjects}
+                        controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
+                        selectedThumbId={this.state.selectedThumbObject ?
+                          this.state.selectedThumbObject.thumbId : undefined}
+                        frameNumber={this.state.selectedThumbObject ?
+                          this.state.selectedThumbObject.frameNumber : 0}
+                        onThumbDoubleClick={this.onViewToggle}
+                        selectThumbMethod={this.onSelectThumbMethod}
+                        keyObject={this.state.keyObject}
+                        opencvVideo={this.state.opencvVideo}
+                        frameSize={this.props.settings.defaultCachedFramesSize}
+                      />
+                    ) :
+                    (
                       <div
-                        className={styles.dropZoneSubline}
+                        style={{
+                          opacity: '0.3',
+                        }}
                       >
-                        {`${isDragAccept ? (this.state.keyObject.altKey ? '' : 'PRESS ALT TO CLEAR LIST AND ADD MOVIES') : ''}`}
+                        <ThumbEmpty
+                          color={(this.state.colorArray !== undefined ?
+                            this.state.colorArray[0] : undefined)}
+                          thumbImageObjectUrl={undefined}
+                          aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
+                          thumbWidth={this.state.scaleValueObject.videoPlayerWidth}
+                          borderRadius={this.state.scaleValueObject.newBorderRadius}
+                          margin={this.state.scaleValueObject.newThumbMargin}
+                        />
                       </div>
+                    )
+                    }
+                  </div>
+                  <div
+                    ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
+                    className={`${styles.ItemMain} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainRightAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainEdit : ''} ${this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW ? styles.ItemMainTopAnim : ''}`}
+                    style={{
+                      width: ( // use window with if any of these are true
+                        this.props.visibilitySettings.showSettings ||
+                        (this.props.visibilitySettings.defaultView !== VIEW.PLAYERVIEW &&
+                          this.props.visibilitySettings.defaultSheetFit !== SHEET_FIT.HEIGHT &&
+                          !this.state.zoom
+                        ) ||
+                        this.state.scaleValueObject.newMoviePrintWidth < this.state.containerWidth // if smaller, width has to be undefined otherwise the center align does not work
+                      )
+                        ? undefined : this.state.scaleValueObject.newMoviePrintWidth,
+                      marginTop: this.props.visibilitySettings.defaultView !== VIEW.PLAYERVIEW ? undefined :
+                        `${this.state.scaleValueObject.videoPlayerHeight +
+                          (this.props.settings.defaultBorderMargin * 2)}px`,
+                      minHeight: this.props.visibilitySettings.defaultView !== VIEW.PLAYERVIEW ? `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)` : undefined,
+                      // backgroundImage: `url(${paperBorderPortrait})`,
+                      backgroundImage: ((this.props.visibilitySettings.showSettings && this.props.settings.defaultShowPaperPreview) ||
+                        (this.props.file && this.props.visibilitySettings.defaultView !== VIEW.PLAYERVIEW && this.props.settings.defaultShowPaperPreview)) ?
+                        `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${(this.props.settings.defaultPaperAspectRatioInv < this.state.scaleValueObject.moviePrintAspectRatioInv) ? (this.state.scaleValueObject.newMoviePrintHeight / this.props.settings.defaultPaperAspectRatioInv) : this.state.scaleValueObject.newMoviePrintWidth}' height='${(this.props.settings.defaultPaperAspectRatioInv < this.state.scaleValueObject.moviePrintAspectRatioInv) ? this.state.scaleValueObject.newMoviePrintHeight : (this.state.scaleValueObject.newMoviePrintWidth * this.props.settings.defaultPaperAspectRatioInv)}' style='background-color: rgba(245,245,245,${this.props.visibilitySettings.showSettings ? 1 : 0.02});'></svg>")` : undefined,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: `calc(50% - ${DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN / 2}px) 50%`,
+                    }}
+                  >
+                    { (this.props.file || this.props.visibilitySettings.showSettings || this.state.loadingFirstFile) ? (
+                      // (this.props.visibilitySettings.defaultSheetView === 'gridView') ? (
+                      <Fragment>
+                        <Conditional if={this.props.visibilitySettings.defaultSheetView !== SHEETVIEW.TIMELINEVIEW}>
+                          <SortedVisibleThumbGrid
+                            colorArray={this.state.colorArray}
+                            sheetView={this.props.visibilitySettings.defaultSheetView}
+                            view={this.props.visibilitySettings.defaultView}
+                            currentSheetId={this.props.settings.currentSheetId}
+                            file={this.props.file}
+                            inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
+                            keyObject={this.state.keyObject}
+                            onAddThumbClick={this.onAddThumbClick}
+                            onScrubClick={this.onScrubClick}
+                            onExpandClick={this.onExpandClick}
+                            onThumbDoubleClick={this.onViewToggle}
+                            scaleValueObject={this.state.scaleValueObject}
+                            moviePrintWidth={this.state.scaleValueObject.newMoviePrintWidth}
+                            selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
+                            selectThumbMethod={this.onSelectThumbMethod}
+                            settings={this.props.settings}
+                            showSettings={this.props.visibilitySettings.showSettings}
+                            thumbCount={this.state.thumbCountTemp}
+                            objectUrlObjects={filteredObjectUrlObjects}
+                            thumbs={this.props.thumbs}
+                            viewForPrinting={false}
+                            frameSize={this.props.settings.defaultCachedFramesSize}
+                            isGridView={isGridView}
+                          />
+                        </Conditional>
+                        <Conditional if={this.props.visibilitySettings.defaultSheetView === SHEETVIEW.TIMELINEVIEW}>
+                          <SortedVisibleSceneGrid
+                            sheetView={this.props.visibilitySettings.defaultSheetView}
+                            view={this.props.visibilitySettings.defaultView}
+                            file={this.props.file}
+                            currentSheetId={this.props.settings.currentSheetId}
+                            frameCount={this.props.file ? this.props.file.frameCount : undefined}
+                            inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
+                            keyObject={this.state.keyObject}
+                            selectedSceneId={this.state.selectedSceneObject ? this.state.selectedSceneObject.sceneId : undefined}
+                            selectSceneMethod={this.onSelectSceneMethod}
+                            onThumbDoubleClick={this.onViewToggle}
+                            onExpandClick={this.onExpandClick}
+                            moviePrintWidth={this.state.scaleValueObject.newMoviePrintTimelineWidth}
+                            moviePrintRowHeight={this.state.scaleValueObject.newTimelineRowHeight}
+                            scaleValueObject={this.state.scaleValueObject}
+                            scenes={this.props.scenes}
+                            settings={this.props.settings}
+                            showSettings={this.props.visibilitySettings.showSettings}
+                            objectUrlObjects={filteredObjectUrlObjects}
+                            thumbs={this.props.thumbs}
+                            currentSheetId={this.props.settings.currentSheetId}
+                          />
+                        </Conditional>
+                        {false && <div
+                          style={{
+                            // background: 'green',
+                            pointerEvents: 'none',
+                            border: '5px solid green',
+                            width: this.state.scaleValueObject.newMoviePrintTimelineWidth,
+                            height: this.state.scaleValueObject.newMoviePrintTimelineHeight,
+                            position: 'absolute',
+                            left: this.props.visibilitySettings.showSettings ? '' : '50%',
+                            top: '50%',
+                            marginLeft: this.props.visibilitySettings.showSettings ? '' : this.state.scaleValueObject.newMoviePrintTimelineWidth/-2,
+                            marginTop: this.state.scaleValueObject.newMoviePrintTimelineHeight/-2,
+                          }}
+                        />}
+                      </Fragment>
+                    ) :
+                    (
+                      <div
+                        className={styles.ItemMainStartupContainer}
+                      >
+                        <img
+                          data-tid='startupImg'
+                          src={startupImg}
+                          style={{
+                            width: `calc(100vw - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)`,
+                            height: `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)`,
+                            maxWidth: 1000,
+                            maxHeight: 500,
+                            margin: 'auto'
+                          }}
+                          alt=""
+                        />
+                      </div>
+                    )
+                    }
+                  </div>
+                </div>
+                <TransitionablePortal
+                  // onClose={this.setState({ progressMessage: undefined })}
+                  open={this.state.showMessage}
+                  // open
+                  // transition={{
+                  //   animation: 'fade up',
+                  //   duration: 600,
+                  // }}
+                  closeOnDocumentClick={false}
+                  closeOnEscape={false}
+                  closeOnPortalMouseLeave={false}
+                  closeOnRootNodeClick={false}
+                  closeOnTriggerBlur={false}
+                  closeOnTriggerClick={false}
+                  closeOnTriggerMouseLeave={false}
+                >
+                  <Segment
+                    className={stylesPop.toast}
+                    size='large'
+                  >
+                    {this.state.progressMessage}
+                  </Segment>
+                </TransitionablePortal>
+                <Modal
+                  open={this.state.showFeedbackForm}
+                  onClose={() => this.setState({ intendToCloseFeedbackForm: true})}
+                  closeIcon
+                  // closeOnEscape={false}
+                  // closeOnRootNodeClick={false}
+                  // basic
+                  size='fullscreen'
+                  style={{
+                    marginTop: 0,
+                    height: '80vh',
+                  }}
+                  onMount={() => {
+                    setTimeout(() => {
+                      this.webviewRef.current.addEventListener('ipc-message', event => {
+                        // log.debug(event);
+                        log.debug(event.channel);
+                        if (event.channel === 'wpcf7mailsent') {
+                          const rememberEmail = event.args[0].findIndex((argument) => argument.name === 'checkbox-remember-email[]') >= 0;
+                          if (rememberEmail) {
+                            const emailAddressFromForm = event.args[0].find((argument) => argument.name === 'your-email').value;
+                            store.dispatch(setEmailAddress(emailAddressFromForm));
+                          }
+                          this.onCloseFeedbackForm();
+                        }
+                      })
+                      // log.debug(this.webviewRef.current.getWebContents());
+                      // this.webviewRef.current.addEventListener('dom-ready', () => {
+                      //   this.webviewRef.current.openDevTools();
+                      // })
+                      // this.webviewRef.current.addEventListener('did-stop-loading', (event) => {
+                      //   log.debug(event);
+                      // });
+                      // this.webviewRef.current.addEventListener('did-start-loading', (event) => {
+                      //   log.debug(event);
+                      // });
+                    }, 300); // wait a tiny bit until webview is mounted
+                  }}
+                >
+                  <Modal.Content
+                    // scrolling
+                    style={{
+                      // overflow: 'auto',
+                      // height: '80vh',
+                    }}
+                  >
+                    <webview
+                      autosize='true'
+                      // nodeintegration='true'
+                      // disablewebsecurity='true'
+                      // minheight='80vh'
+                      style={{
+                        height: '80vh',
+                      }}
+                      preload='./webViewPreload.js'
+                      ref={this.webviewRef}
+                      src={`http://movieprint.fakob.com/feedback-for-movieprint-app?app-version=${process.platform}-${os.release()}-${app.getName()}-${app.getVersion()}&your-email=${this.props.settings.emailAddress}`}
+                    />
+                    <Modal
+                      open={this.state.intendToCloseFeedbackForm}
+                      basic
+                      size='mini'
+                      style={{
+                        position: 'absolute',
+                        left: '50%',
+                        top: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        margin: 'auto !important'
+                      }}
+                    >
+                      <Modal.Content>
+                        <p>
+                          Close the feedback form?
+                        </p>
+                      </Modal.Content>
+                      <Modal.Actions>
+                        <Button basic color='red' inverted onClick={() => this.setState({ intendToCloseFeedbackForm: false})}>
+                          <Icon name='remove' /> Cancel
+                        </Button>
+                        <Button color='green' inverted onClick={() => this.setState({ showFeedbackForm: false, intendToCloseFeedbackForm: false})}>
+                          <Icon name='checkmark' /> Close
+                        </Button>
+                      </Modal.Actions>
+                    </Modal>
+                  </Modal.Content>
+                </Modal>
+                <Footer
+                  visibilitySettings={this.props.visibilitySettings}
+                  file={this.props.file}
+                  onOpenFeedbackForm={this.onOpenFeedbackForm}
+                  showFeedbackForm={this.state.showFeedbackForm}
+                  onSaveMoviePrint={this.onSaveMoviePrint}
+                  onSaveAllMoviePrints={this.onSaveAllMoviePrints}
+                  savingMoviePrint={this.state.savingMoviePrint}
+                  savingAllMoviePrints={this.state.savingAllMoviePrints}
+                  defaultSheetView={this.props.visibilitySettings.defaultSheetView}
+                  defaultView={this.props.visibilitySettings.defaultView}
+                />
+              </div>
+              { this.state.showScrubWindow &&
+                <Scrub
+                  opencvVideoCanvasRef={this.opencvVideoCanvasRef}
+                  file={this.props.file}
+                  settings={this.props.settings}
+                  objectUrlObjects={filteredObjectUrlObjects}
+                  keyObject={this.state.keyObject}
+                  scrubThumb={this.state.scrubThumb}
+                  scrubThumbLeft={this.state.scrubThumbLeft}
+                  scrubThumbRight={this.state.scrubThumbRight}
+                  scaleValueObject={this.state.scaleValueObject}
+                  containerWidth={this.state.containerWidth}
+                  containerHeight={this.state.containerHeight}
+                  onScrubWindowMouseOver={this.onScrubWindowMouseOver}
+                  onScrubWindowClick={this.onScrubWindowClick}
+                />
+              }
+              { this.state.showChart &&
+                <div
+                  className={styles.chart}
+                  style={{
+                    height: `${chartHeight}px`,
+                  }}
+                >
+                  <Line
+                    data={this.state.chartData}
+                    // width={this.state.scaleValueObject.newMoviePrintWidth}
+                    // width={this.state.containerWidth}
+                    height={chartHeight}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      barPercentage: 1.0,
+                      categoryPercentage: 1.0,
+                      elements: {
+                        line: {
+                          tension: 0, // disables bezier curves
+                        }
+                      },
+                      animation: {
+                        duration: 0, // general animation time
+                      },
+                      hover: {
+                        animationDuration: 0, // duration of animations when hovering an item
+                      },
+                      responsiveAnimationDuration: 0, // animation duration after a resize
+                    }}
+                  />
+                </div>
+              }
+              <Modal
+                open={this.state.savingAllMoviePrints}
+                basic
+                size='tiny'
+                style={{
+                  position: 'absolute',
+                  left: '50%',
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  margin: 'auto !important'
+                }}
+              >
+                <Container
+                  textAlign='center'
+                >
+                  <Header as='h2' inverted>
+                    {`Saving ${this.state.sheetsToPrint.filter(item => item.status === 'done').length + 1} of ${this.state.sheetsToPrint.filter(item => item.status !== 'undefined').length} MoviePrints`}
+                  </Header>
+                  {!fileToPrint && <Loader
+                    active
+                    size='mini'
+                    inline
+                  />}
+                  {fileToPrint || ' '}
+                  <Progress
+                    percent={
+                      ((this.state.sheetsToPrint.filter(item => item.status === 'done').length + 1.0) /
+                      this.state.sheetsToPrint.filter(item => item.status !== 'undefined').length) * 100
+                    }
+                    size='tiny'
+                    indicating
+                    inverted
+                  />
+                  <Divider hidden />
+                  <Button
+                    color='red'
+                    onClick={() => this.setState({ savingAllMoviePrints: false})}
+                  >
+                    <Icon name='remove' /> Cancel
+                  </Button>
+                </Container>
+              </Modal>
+              { dropzoneActive &&
+                <div
+                  className={`${styles.dropzoneshow} ${isDragAccept ? styles.dropzoneshowAccept : ''} ${isDragReject ? styles.dropzoneshowReject : ''}`}
+                >
+                  <div
+                    className={styles.dropzoneshowContent}
+                  >
+                    {`${isDragAccept ? (this.state.keyObject.altKey ? 'CLEAR LIST AND ADD MOVIES' : 'ADD MOVIES TO LIST') : ''} ${isDragReject ? 'NOT ALLOWED' : ''}`}
+                    <div
+                      className={styles.dropZoneSubline}
+                    >
+                      {`${isDragAccept ? (this.state.keyObject.altKey ? '' : 'PRESS ALT TO CLEAR LIST AND ADD MOVIES') : ''}`}
                     </div>
                   </div>
-                }
-              </div>
-            );
-          }}
-        </Dropzone>
-      </ErrorBoundary>
+                </div>
+              }
+            </div>
+          );
+        }}
+      </Dropzone>
     );
   }
 }

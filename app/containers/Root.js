@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
 import App from './App';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 type Props = {
   store: Store,
@@ -13,7 +14,9 @@ export default class Root extends Component<Props> {
     const { store, history } = this.props;
     return (
       <Provider store={store}>
-        <App history={history} />
+        <ErrorBoundary>
+          <App history={history} />
+        </ErrorBoundary>
       </Provider>
     );
   }

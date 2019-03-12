@@ -2,17 +2,16 @@ import React, { Component } from 'react';
 import { Button, Divider } from 'semantic-ui-react';
 import log from 'electron-log';
 import styles from './ErrorBoundary.css';
-import { clearCache } from '../utils/utils';
 
-const { getCurrentWindow } = require('electron').remote;
+const { ipcRenderer } = require('electron');
 
 class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
     this.state = { hasError: false };
 
-    this.onRefreshClick = this.onRefreshClick.bind(this);
-    this.onRestartClick = this.onRestartClick.bind(this);
+    this.onReloadClick = this.onReloadClick.bind(this);
+    this.onResetClick = this.onResetClick.bind(this);
   }
 
   componentDidCatch(error, info) {
@@ -20,18 +19,17 @@ class ErrorBoundary extends Component {
     this.setState({ hasError: true });
     // You can also log the error to an error reporting service
     log.error(error);
-    log.info(info);
+    log.warn(info);
   }
 
-  onRefreshClick() {
-    log.info('refreshclick');
-    getCurrentWindow().reload();
-    // location.reload(false);
+  onReloadClick() {
+    log.info('reloadclick');
+    ipcRenderer.send('reload-application');
   }
 
-  onRestartClick() {
-    log.info('restartclick');
-    clearCache(getCurrentWindow());
+  onResetClick() {
+    log.info('resetclick');
+    ipcRenderer.send('reset-application');
   }
 
   render() {
@@ -50,14 +48,14 @@ class ErrorBoundary extends Component {
               }}
             >
               <Button
-                content="Restart"
-                onClick={this.onRestartClick}
+                content="Reset"
+                onClick={this.onResetClick}
               />
               <Button.Or />
               <Button
                 positive
-                content="Refresh"
-                onClick={this.onRefreshClick}
+                content="Reload"
+                onClick={this.onReloadClick}
               />
             </Button.Group>
           </div>

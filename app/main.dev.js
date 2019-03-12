@@ -14,7 +14,10 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import fs from 'fs';
 import log from 'electron-log';
-import { clearCache } from './utils/utils';
+import {
+  resetApplication,
+  reloadApplication,
+} from './utils/utilsForMain';
 
 import MenuBuilder from './menu';
 
@@ -267,6 +270,16 @@ app.on('ready', async () => {
     indexedDBWorkerWindow
   );
   menuBuilder.buildMenu();
+});
+
+ipcMain.on('reset-application', (event) => {
+  log.info('resetApplication');
+  resetApplication(mainWindow, workerWindow, opencvWorkerWindow, indexedDBWorkerWindow)
+});
+
+ipcMain.on('reload-application', (event) => {
+  log.info('reloadApplication');
+  reloadApplication(mainWindow, workerWindow, opencvWorkerWindow, indexedDBWorkerWindow)
 });
 
 ipcMain.on('reload-workerWindow', (event) => {
