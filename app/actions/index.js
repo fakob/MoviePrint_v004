@@ -356,14 +356,44 @@ export const addScenes = (file, sceneList, clearOldScenes = false, frameSize, ne
     log.debug('action: addScenes');
     if (clearOldScenes) {
       dispatch(clearScenes(file.id, newSheetId));
-      // dispatch(deleteSheets(file.id, DEFAULT_SHEET_SCENES));
     }
-    sceneList.map((scene, index) => {
-      const sceneId = uuidV4();
-      // const thumbId = uuidV4();
-      dispatch(addThumb(file, newSheetId, scene.start + Math.floor(scene.length / 2), index, sceneId, frameSize));
-      return dispatch(addScene(file.id, newSheetId, scene.start, scene.length, scene.colorArray, sceneId));
-    })
+
+    // add scenes
+    const sceneArray = sceneList.map(scene => {
+      scene.sceneId = uuidV4();
+      scene.fileId = file.id;
+      scene.sheetId = newSheetId;
+      return scene;
+    });
+    log.debug('dispatch: ADD_SCENES');
+    dispatch({
+      type: 'ADD_SCENES',
+      payload: {
+        sceneArray,
+        fileId: file.id,
+        sheetId: newSheetId,
+      }
+    });
+
+    // add thumbs
+    const frameNumberArray = sceneList.map(scene => scene.start + Math.floor(scene.length / 2));
+    dispatch(addThumbs(file, newSheetId, frameNumberArray, frameSize)).then(() => {
+      // console.log(resolve);
+      // add sceneId to thumbs after addThumbs returned
+      const sceneIdArray = sceneArray.map(scene => scene.sceneId);
+      // console.log(sceneIdArray);
+      return dispatch({
+        type: 'ADD_SCENEIDS_TO_THUMBS',
+        payload: {
+          sceneIdArray,
+          frameNumberArray,
+          fileId: file.id,
+          sheetId: newSheetId,
+        }
+      });
+    }).catch((err) => {
+      log.error(err);
+    });
   };
 };
 

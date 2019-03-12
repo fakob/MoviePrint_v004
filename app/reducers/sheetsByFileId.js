@@ -25,6 +25,11 @@ const thumb = (state = {}, action, index) => {
         index,
         hidden: false,
       };
+    case 'ADD_SCENEIDS_TO_THUMBS':
+      // sceneIds are added as thumbId property
+      return Object.assign({}, state, {
+        thumbId: action.payload.sceneIdArray[index],
+      });
     case 'CHANGE_THUMB':
       if (state.thumbId !== action.payload.thumbId) {
         return state;
@@ -94,6 +99,27 @@ const sheetsByFileId = (state = {}, action) => {
               state[action.payload.fileId][action.payload.sheetId]
             ),
             sceneArray: combinedArray
+          }
+        }
+      };
+    }
+    case 'ADD_SCENES': {
+      // load the current scenes array, if it does not exist it stays empty
+      log.debug(action.payload);
+      log.debug(state);
+
+      // assumption is that adding scenes always overwrites the current scenes
+      return {
+        ...state,
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          [action.payload.sheetId]: {
+            // conditional adding of properties
+            ...(state[action.payload.fileId] === undefined ?
+              {} :
+              state[action.payload.fileId][action.payload.sheetId]
+            ),
+            sceneArray: action.payload.sceneArray,
           }
         }
       };
@@ -208,6 +234,19 @@ const sheetsByFileId = (state = {}, action) => {
         }
       };
     }
+    case 'ADD_SCENEIDS_TO_THUMBS':
+      return {
+        ...state,
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          [action.payload.sheetId]: {
+            ...state[action.payload.fileId][action.payload.sheetId],
+            thumbsArray: state[action.payload.fileId][action.payload.sheetId].thumbsArray.map((t, index) =>
+              thumb(t, action, index)
+            )
+          }
+        }
+      };
     case 'CHANGE_THUMB':
       return {
         ...state,
