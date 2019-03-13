@@ -185,6 +185,7 @@ const FileListElement = ({
             data-tid={`sheetListItem_${fileId}`}
             onClick={e => onSheetClickWithStop(e, fileId, sheetId, sheetsObject[sheetId].sheetView)}
             className={`${styles.SheetListItem} ${(currentSheetId === sheetId) ? styles.SheetHighlight : ''}`}
+            title={`${sheetsObject[sheetId].type} based`}
           >
             {/* {(currentSheetId === sheetId) &&
               <Label
