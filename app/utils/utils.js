@@ -353,13 +353,14 @@ export const getSheetId = (sheetsByFileId, fileId) => {
   return sheetIdArray[0];
 };
 
-export const getSheetCount = (sheetsByFileId, fileId) => {
-  if (sheetsByFileId[fileId] === undefined) {
+export const getSheetCount = (files, fileId) => {
+  const file = files.find(file2 => file2.id === fileId);
+  console.log(file);
+  if (file === undefined) {
     // there is no file yet, so return undefined
     return 0;
   }
-  const sheetIdArray = Object.getOwnPropertyNames(sheetsByFileId[fileId]);
-  return sheetIdArray.length;
+  return file.sheetCounter;
 };
 
 export const getSheetIdArray = (sheetsByFileId, fileId) => {

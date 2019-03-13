@@ -833,6 +833,19 @@ export const updateFileScanStatus = (fileId, fileScanStatus) => {
   };
 };
 
+export const updateSheetCounter = (fileId, incrementValue = 1) => {
+  return (dispatch) => {
+    log.debug('action: updateSheetCounter');
+    dispatch({
+      type: 'UPDATE_SHEETCOUNTER',
+      payload: {
+        fileId,
+        incrementValue,
+      }
+    });
+  };
+};
+
 export const updateFileDetailUseRatio = (fileId, useRatio) => {
   return (dispatch) => {
     log.debug('action: updateFileDetailUseRatio');

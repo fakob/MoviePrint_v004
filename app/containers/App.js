@@ -105,6 +105,7 @@ import {
   updateSheetSecondsPerRow,
   updateSheetColumnCount,
   updateSheetName,
+  updateSheetCounter,
   updateFileDetails,
   updateFileDetailUseRatio,
   updateFrameNumber,
@@ -445,6 +446,7 @@ class App extends Component {
         const newColumnCount = getColumnCount(this.props.sheetsByFileId, firstFile.id, newSheetId, this.props.settings);
         store.dispatch(updateSheetColumnCount(firstFile.id, newSheetId, newColumnCount)); // set columnCount on firstFile
         store.dispatch(updateSheetName(firstFile.id, newSheetId, getSheetName())); // set name on firstFile
+        store.dispatch(updateSheetCounter(firstFile.id));
         store.dispatch(updateSheetType(firstFile.id, newSheetId, SHEET_TYPE.INTERVAL));
         store.dispatch(updateSheetView(firstFile.id, newSheetId, SHEETVIEW.GRIDVIEW));
         store.dispatch(setCurrentSheetId(newSheetId));
@@ -520,8 +522,9 @@ class App extends Component {
           }, 3000);
         });
       }
-      if (this.props.sheetsByFileId[fileId][sheetId].thumbsArray.find((thumb) =>
-        thumb.thumbId === thumbId).frameNumber !== frameNumber) {
+      const thumb = this.props.sheetsByFileId[fileId][sheetId].thumbsArray.find(item =>
+        item.thumbId === thumbId);
+      if (thumb !== undefined && thumb.frameNumber !== frameNumber) {
         store.dispatch(updateFrameNumber(fileId, sheetId, thumbId, frameNumber));
       }
       // check if this is the lastThumb of the sheetsToPrint when savingAllMoviePrints
@@ -740,7 +743,8 @@ class App extends Component {
         // files who could be added to the filelist, but then could not be read by opencv get removed again from the FileList
         if (tempFile !== undefined) {
           this.getThumbsForFile(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId);
-          store.dispatch(updateSheetName(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, getSheetName(getSheetCount(sheetsByFileId, sheetToGetThumbsFor.fileId))));
+          store.dispatch(updateSheetName(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, getSheetName(getSheetCount(files, sheetToGetThumbsFor.fileId))));
+          store.dispatch(updateSheetCounter(sheetToGetThumbsFor.fileId));
           store.dispatch(updateSheetType(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, SHEET_TYPE.INTERVAL));
           store.dispatch(updateSheetView(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, SHEETVIEW.GRIDVIEW));
           filesToUpdateStatus.push({
@@ -1263,6 +1267,7 @@ class App extends Component {
 
   calculateSceneList(fileId, meanArray, meanColorArray, threshold = this.props.settings.defaultSceneDetectionThreshold, sheetId) {
     const { store } = this.context;
+    const { files, settings } = this.props;
     let lastSceneCut = null;
 
     const differenceArray = [];
@@ -1331,14 +1336,15 @@ class App extends Component {
 
     // check if scenes detected
     if (sceneList.length !== 0) {
-      const tempFile = this.props.files.find((file) => file.id === fileId);
+      const tempFile = files.find((file) => file.id === fileId);
       const clearOldScenes = true;
       store.dispatch(updateSheetType(tempFile.id, sheetId, SHEET_TYPE.SCENES));
       store.dispatch(updateSheetView(tempFile.id, sheetId, SHEETVIEW.TIMELINEVIEW));
-      store.dispatch(updateSheetName(tempFile.id, sheetId, getSheetName(getSheetCount(this.props.sheetsByFileId, tempFile.id))));
+      store.dispatch(updateSheetName(tempFile.id, sheetId, getSheetName(getSheetCount(files, tempFile.id))));
+      store.dispatch(updateSheetCounter(tempFile.id));
       store.dispatch(setCurrentSheetId(sheetId));
       store.dispatch(setDefaultSheetView(SHEETVIEW.TIMELINEVIEW));
-      store.dispatch(addScenes(tempFile, sceneList, clearOldScenes, this.props.settings.defaultCachedFramesSize, sheetId));
+      store.dispatch(addScenes(tempFile, sceneList, clearOldScenes, settings.defaultCachedFramesSize, sheetId));
     } else {
       this.setState({
         progressMessage: 'No scenes detected',
@@ -1384,7 +1390,7 @@ class App extends Component {
 
   onExpandClick(file, sceneOrThumbId, parentSheetId) {
     const { store } = this.context;
-    const { scenes, sheetsArray, sheetsByFileId, settings } = this.props;
+    const { files, scenes, sheetsArray, sheetsByFileId, settings } = this.props;
     // console.log(file);
     // console.log(sceneOrThumbId);
     // console.log(parentSheetId);
@@ -1416,7 +1422,8 @@ class App extends Component {
         sceneArray[sceneIndex].start + sceneArray[sceneIndex].length - 1,
         settings.defaultCachedFramesSize
       ));
-      store.dispatch(updateSheetName(file.id, sheetId, getSheetName(getSheetCount(sheetsByFileId, file.id)))); // set name on file
+      store.dispatch(updateSheetName(file.id, sheetId, getSheetName(getSheetCount(files, file.id)))); // set name on file
+      store.dispatch(updateSheetCounter(file.id));
       store.dispatch(updateSheetType(file.id, sheetId, SHEET_TYPE.INTERVAL));
     }
     store.dispatch(updateSheetView(file.id, sheetId, SHEETVIEW.GRIDVIEW));
@@ -1630,13 +1637,15 @@ class App extends Component {
 
   onAddIntervalSheet(sheetsByFileId, fileId, settings) {
     const { store } = this.context;
+    const { files } = this.props;
 
     const newSheetId = uuidV4();
     // set columnCount as it is not defined yet
     this.getThumbsForFile(fileId, newSheetId);
     const newColumnCount = getColumnCount(sheetsByFileId, fileId, newSheetId, settings);
     store.dispatch(updateSheetColumnCount(fileId, newSheetId, newColumnCount));
-    store.dispatch(updateSheetName(fileId, newSheetId, getSheetName(getSheetCount(sheetsByFileId, fileId))));
+    store.dispatch(updateSheetName(fileId, newSheetId, getSheetName(getSheetCount(files, fileId))));
+    store.dispatch(updateSheetCounter(fileId));
     store.dispatch(updateSheetType(fileId, newSheetId, SHEET_TYPE.INTERVAL));
     store.dispatch(updateSheetView(fileId, newSheetId, SHEETVIEW.GRIDVIEW));
     return newSheetId;
@@ -2015,9 +2024,11 @@ class App extends Component {
 
   onDuplicateSheetClick = (fileId, sheet) => {
     const { store } = this.context;
+    const { files } = this.props;
     const newSheetId = uuidV4();
     store.dispatch(duplicateSheet(fileId, sheet, newSheetId));
-    store.dispatch(updateSheetName(fileId, newSheetId, getSheetName(getSheetCount(this.props.sheetsByFileId, fileId)))); // set name on firstFile
+    store.dispatch(updateSheetName(fileId, newSheetId, getSheetName(getSheetCount(files, fileId)))); // set name on firstFile
+    store.dispatch(updateSheetCounter(fileId));
     store.dispatch(setCurrentSheetId(newSheetId));
   };
 
