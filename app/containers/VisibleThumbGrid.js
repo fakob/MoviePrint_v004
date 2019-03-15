@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import path from 'path';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { arrayMove } from 'react-sortable-hoc';
@@ -186,7 +187,9 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       ));
     },
     onSaveThumbClick: (filePath, fileUseRatio, fileName, frameNumber, frameId) => {
-      saveThumb(filePath, fileUseRatio, fileName, frameNumber, frameId);
+      const filePathDirectory = path.dirname(filePath);
+      const outputPath = ownProps.settings.defaultOutputPathFromMovie ? filePathDirectory : ownProps.settings.defaultOutputPath;
+      saveThumb(filePath, fileUseRatio, fileName, frameNumber, frameId, outputPath, true);
     },
     onBackClick: (file, thumbId, frameNumber) => {
       const [stepValue0, stepValue1, stepValue2] = CHANGE_THUMB_STEP;
