@@ -224,3 +224,8 @@ li p {
   /* show overflow only on hover. !important to override display value from overflow */
   display:block !important;
 }
+
+.Missing {
+  border-left: 1px solid rgba(255, 0, 0, 1.0) !important;
+  background-color: rgba(255, 0, 0, 0.1);
+}

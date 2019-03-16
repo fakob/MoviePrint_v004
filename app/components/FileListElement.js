@@ -17,6 +17,7 @@ const FileListElement = ({
   fps,
   frameCount,
   fileScanStatus,
+  lastModified,
   height,
   name,
   objectUrl,
@@ -102,7 +103,7 @@ const FileListElement = ({
     <li
       data-tid={`fileListItem_${fileId}`}
       onClick={e => onFileListElementClickWithStop(e, fileId)}
-      className={`${styles.FileListItem} ${(currentFileId === fileId) ? styles.Highlight : ''}`}
+      className={`${styles.FileListItem} ${(currentFileId === fileId) ? styles.Highlight : ''} ${(lastModified === undefined) ? styles.Missing : ''}`}
     >
       <Dropdown
         data-tid='movieListItemOptionsDropdown'
@@ -112,18 +113,22 @@ const FileListElement = ({
         className={`${styles.overflow} ${styles.overflowHidden}`}
       >
         <Dropdown.Menu>
-          <Dropdown.Item
-            data-tid='addShotDetectionMovieListItemOption'
-            icon="barcode"
-            text="Add MoviePrint (shot detection based)"
-            onClick={e => onScanMovieListItemClickWithStop(e, fileId)}
-          />
-          <Dropdown.Item
-            data-tid='addIntervalMovieListItemOption'
-            icon="grid layout"
-            text="Add MoviePrint (interval based)"
-            onClick={e => onAddIntervalSheetClickWithStop(e, fileId)}
-          />
+          {lastModified !== undefined &&
+              <Dropdown.Item
+              data-tid='addShotDetectionMovieListItemOption'
+              icon="barcode"
+              text="Add MoviePrint (shot detection based)"
+              onClick={e => onScanMovieListItemClickWithStop(e, fileId)}
+            />
+          }
+          {lastModified !== undefined &&
+            <Dropdown.Item
+              data-tid='addIntervalMovieListItemOption'
+              icon="grid layout"
+              text="Add MoviePrint (interval based)"
+              onClick={e => onAddIntervalSheetClickWithStop(e, fileId)}
+            />
+          }
           <Dropdown.Item
             data-tid='replaceMovieListItemOption'
             icon="exchange"
@@ -167,9 +172,9 @@ const FileListElement = ({
       <div
         className={`${styles.Path}`}
         title={path.slice(0, path.lastIndexOf('/'))}
-        >
-          {truncatePath(path.slice(0, path.lastIndexOf('/')), 40)}
-        </div>
+      >
+        {lastModified !== undefined ? truncatePath(path.slice(0, path.lastIndexOf('/')), 40) : 'Wrong file path!'}
+      </div>
       <div className={`${styles.Detail}`}>
         <div className={`${styles.DetailLeft}`}>
           {frameCountToTimeCode(frameCount, fps)}
@@ -223,52 +228,54 @@ const FileListElement = ({
               }}
               className={`${styles.SheetNameInput}`}
             /> */}
-            <Dropdown
-              data-tid='sheetItemOptionsDropdown'
-              item
-              direction="left"
-              icon="ellipsis vertical"
-              className={`${styles.overflow} ${styles.overflowHidden}`}
-            >
-              <Dropdown.Menu>
-                  {/* <Dropdown.Item
-                    data-tid='renameSheetItemOption'
-                    icon="edit"
-                    text="Rename"
-                    onClick={e => onRenameSheetClickWithStop(e, fileId, sheetId)}
-                  /> */}
-                {sheetsObject[sheetId].sheetView === SHEETVIEW.TIMELINEVIEW && <Dropdown.Item
-                  data-tid='changeViewSheetToGridViewItemOption'
-                  icon="grid layout"
-                  text="Switch to grid view"
-                  onClick={e => onChangeSheetViewClickWithStop(e, fileId, sheetId, SHEETVIEW.GRIDVIEW)}
-                />}
-                {sheetsObject[sheetId].sheetView === SHEETVIEW.GRIDVIEW && <Dropdown.Item
-                  data-tid='changeViewSheetToTimelineViewItemOption'
-                  icon="barcode"
-                  text="Switch to timeline view"
-                  onClick={e => onChangeSheetViewClickWithStop(e, fileId, sheetId, SHEETVIEW.TIMELINEVIEW)}
-                />}
-                <Dropdown.Item
-                  data-tid='duplicateSheetItemOption'
-                  icon="copy"
-                  text="Duplicate"
-                  onClick={e => onDuplicateSheetClickWithStop(e, fileId, sheetId)}
-                />
-                <Dropdown.Item
-                  data-tid='exportSheetItemOption'
-                  icon="download"
-                  text="Export"
-                  onClick={e => onExportSheetClickWithStop(e, fileId, sheetId)}
-                />
-                <Dropdown.Item
-                  data-tid='deleteSheetItemOption'
-                  icon="delete"
-                  text="Delete"
-                  onClick={e => onDeleteSheetClickWithStop(e, fileId, sheetId)}
-                />
-              </Dropdown.Menu>
-            </Dropdown>
+            {lastModified !== undefined &&
+              <Dropdown
+                data-tid='sheetItemOptionsDropdown'
+                item
+                direction="left"
+                icon="ellipsis vertical"
+                className={`${styles.overflow} ${styles.overflowHidden}`}
+              >
+                <Dropdown.Menu>
+                    {/* <Dropdown.Item
+                      data-tid='renameSheetItemOption'
+                      icon="edit"
+                      text="Rename"
+                      onClick={e => onRenameSheetClickWithStop(e, fileId, sheetId)}
+                    /> */}
+                  {sheetsObject[sheetId].sheetView === SHEETVIEW.TIMELINEVIEW && <Dropdown.Item
+                    data-tid='changeViewSheetToGridViewItemOption'
+                    icon="grid layout"
+                    text="Switch to grid view"
+                    onClick={e => onChangeSheetViewClickWithStop(e, fileId, sheetId, SHEETVIEW.GRIDVIEW)}
+                  />}
+                  {sheetsObject[sheetId].sheetView === SHEETVIEW.GRIDVIEW && <Dropdown.Item
+                    data-tid='changeViewSheetToTimelineViewItemOption'
+                    icon="barcode"
+                    text="Switch to timeline view"
+                    onClick={e => onChangeSheetViewClickWithStop(e, fileId, sheetId, SHEETVIEW.TIMELINEVIEW)}
+                  />}
+                  <Dropdown.Item
+                    data-tid='duplicateSheetItemOption'
+                    icon="copy"
+                    text="Duplicate"
+                    onClick={e => onDuplicateSheetClickWithStop(e, fileId, sheetId)}
+                  />
+                  <Dropdown.Item
+                    data-tid='exportSheetItemOption'
+                    icon="download"
+                    text="Export"
+                    onClick={e => onExportSheetClickWithStop(e, fileId, sheetId)}
+                  />
+                  <Dropdown.Item
+                    data-tid='deleteSheetItemOption'
+                    icon="delete"
+                    text="Delete"
+                    onClick={e => onDeleteSheetClickWithStop(e, fileId, sheetId)}
+                  />
+                </Dropdown.Menu>
+              </Dropdown>
+            }
           </li>
         ))}
       </ul>
