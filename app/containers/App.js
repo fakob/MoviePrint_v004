@@ -1396,6 +1396,8 @@ class App extends Component {
   }
 
   onScrubClick(file, scrubThumb) {
+    const { store } = this.context;
+
     // get thumb left and right of scrubThumb
     const indexOfThumb = this.props.thumbs.findIndex((thumb) => thumb.thumbId === scrubThumb.thumbId);
     const leftThumb = this.props.thumbs[Math.max(0, indexOfThumb - 1)];
@@ -1415,6 +1417,8 @@ class App extends Component {
       scrubThumbLeft,
       scrubThumbRight,
     });
+    store.dispatch(hideMovielist());
+    store.dispatch(hideSettings());
   }
 
   onExpandClick(file, sceneOrThumbId, parentSheetId) {
@@ -2103,6 +2107,7 @@ class App extends Component {
     const newFilePathAndName = dialog.showSaveDialog({
       defaultPath: filePathAndName,
       buttonLabel: 'Export',
+      showsTagField: false,
     });
     if (newFilePathAndName !== undefined) {
       log.debug(exportObject);
