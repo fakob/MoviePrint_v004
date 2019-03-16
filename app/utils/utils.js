@@ -333,7 +333,7 @@ export const getRandomSheetName = () => {
   return randomNameObject.fullName;
 };
 
-export const getSheetName = (sheetCount = 0) => {
+export const getNewSheetName = (sheetCount = 0) => {
   // return random name from sheetNames array
   const sheetName = `MoviePrint-${sheetCount + 1}`;
   return sheetName;
@@ -353,6 +353,24 @@ export const getSheetId = (sheetsByFileId, fileId) => {
   return sheetIdArray[0];
 };
 
+export const getFramenumbersOfSheet = (sheetsByFileId, fileId, sheetId, visibilitySettings) => {
+  if (sheetsByFileId[fileId] === undefined ||
+    fileId === undefined ||
+    sheetId === undefined ||
+    sheetsByFileId[fileId][sheetId] === undefined ||
+    sheetsByFileId[fileId][sheetId].thumbsArray === undefined) {
+    return undefined;
+  }
+  const { thumbsArray } = sheetsByFileId[fileId][sheetId];
+  if (visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') {
+    const frameNumberArray = thumbsArray
+      .filter(thumb => thumb.hidden === false)
+      .map(thumb => thumb.frameNumber);
+    return frameNumberArray;
+  }
+  return thumbsArray.map(thumb => thumb.frameNumber);
+};
+
 export const getSheetCount = (files, fileId) => {
   const file = files.find(file2 => file2.id === fileId);
   console.log(file);
@@ -361,6 +379,16 @@ export const getSheetCount = (files, fileId) => {
     return 0;
   }
   return file.sheetCounter;
+};
+
+export const getFilePath = (files, fileId) => {
+  const file = files.find(file2 => file2.id === fileId);
+  // console.log(file);
+  if (file === undefined) {
+    // there is no file yet, so return undefined
+    return 0;
+  }
+  return file.path;
 };
 
 export const getSheetIdArray = (sheetsByFileId, fileId) => {
@@ -375,6 +403,16 @@ export const getSheetIdArray = (sheetsByFileId, fileId) => {
   }
   // return first sheetId in array
   return sheetIdArray;
+};
+
+export const getSheetName = (sheetsByFileId, fileId, sheetId) => {
+  if (sheetsByFileId === undefined ||
+    sheetsByFileId[fileId] === undefined ||
+    sheetsByFileId[fileId][sheetId] === undefined ||
+    sheetsByFileId[fileId][sheetId].name === undefined) {
+    return 'MoviePrint';
+  }
+  return sheetsByFileId[fileId][sheetId].name;
 };
 
 export const getSheetView = (sheetsByFileId, fileId, sheetId, settings) => {

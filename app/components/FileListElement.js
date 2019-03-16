@@ -24,6 +24,7 @@ const FileListElement = ({
   onChangeSheetViewClick,
   onDeleteSheetClick,
   onDuplicateSheetClick,
+  onExportSheetClick,
   onFileListElementClick,
   onScanMovieListItemClick,
   onReplaceMovieListItemClick,
@@ -65,6 +66,11 @@ const FileListElement = ({
   function onDuplicateSheetClickWithStop(e, fileId, sheetId) {
     e.stopPropagation();
     onDuplicateSheetClick(fileId, sheetId);
+  }
+
+  function onExportSheetClickWithStop(e, fileId, sheetId) {
+    e.stopPropagation();
+    onExportSheetClick(fileId, sheetId);
   }
 
   function onDeleteSheetClickWithStop(e, fileId, sheetId) {
@@ -232,13 +238,13 @@ const FileListElement = ({
                     onClick={e => onRenameSheetClickWithStop(e, fileId, sheetId)}
                   /> */}
                 {sheetsObject[sheetId].sheetView === SHEETVIEW.TIMELINEVIEW && <Dropdown.Item
-                  data-tid='changeViewSheetItemOption'
+                  data-tid='changeViewSheetToGridViewItemOption'
                   icon="grid layout"
                   text="Switch to grid view"
                   onClick={e => onChangeSheetViewClickWithStop(e, fileId, sheetId, SHEETVIEW.GRIDVIEW)}
                 />}
                 {sheetsObject[sheetId].sheetView === SHEETVIEW.GRIDVIEW && <Dropdown.Item
-                  data-tid='changeViewSheetItemOption'
+                  data-tid='changeViewSheetToTimelineViewItemOption'
                   icon="barcode"
                   text="Switch to timeline view"
                   onClick={e => onChangeSheetViewClickWithStop(e, fileId, sheetId, SHEETVIEW.TIMELINEVIEW)}
@@ -248,6 +254,12 @@ const FileListElement = ({
                   icon="copy"
                   text="Duplicate"
                   onClick={e => onDuplicateSheetClickWithStop(e, fileId, sheetId)}
+                />
+                <Dropdown.Item
+                  data-tid='exportSheetItemOption'
+                  icon="download"
+                  text="Export"
+                  onClick={e => onExportSheetClickWithStop(e, fileId, sheetId)}
                 />
                 <Dropdown.Item
                   data-tid='deleteSheetItemOption'

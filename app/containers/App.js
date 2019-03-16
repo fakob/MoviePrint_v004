@@ -32,7 +32,7 @@ import { getLowestFrame,
   getFileStatsObject,
   getSecondsPerRow,
   getSheetCount,
-  getSheetName,
+  getNewSheetName,
   getSheetId,
   getSheetIdArray,
   getSheetType,
@@ -44,7 +44,9 @@ import { getLowestFrame,
   getScrubFrameNumber,
   isEquivalent,
   limitFrameNumberWithinMovieRange,
-  arrayToObject,
+  getFramenumbersOfSheet,
+  getFilePath,
+  getSheetName,
 } from '../utils/utils';
 // import saveMoviePrint from '../utils/saveMoviePrint';
 import styles from './App.css';
@@ -296,6 +298,7 @@ class App extends Component {
     this.onChangeSheetViewClick = this.onChangeSheetViewClick.bind(this);
     this.onSetSheetClick = this.onSetSheetClick.bind(this);
     this.onDuplicateSheetClick = this.onDuplicateSheetClick.bind(this);
+    this.onExportSheetClick = this.onExportSheetClick.bind(this);
     this.onScanMovieListItemClick = this.onScanMovieListItemClick.bind(this);
     this.onReplaceMovieListItemClick = this.onReplaceMovieListItemClick.bind(this);
     this.onRemoveMovieListItem = this.onRemoveMovieListItem.bind(this);
@@ -445,7 +448,7 @@ class App extends Component {
         ));
         const newColumnCount = getColumnCount(this.props.sheetsByFileId, firstFile.id, newSheetId, this.props.settings);
         store.dispatch(updateSheetColumnCount(firstFile.id, newSheetId, newColumnCount)); // set columnCount on firstFile
-        store.dispatch(updateSheetName(firstFile.id, newSheetId, getSheetName())); // set name on firstFile
+        store.dispatch(updateSheetName(firstFile.id, newSheetId, getNewSheetName())); // set name on firstFile
         store.dispatch(updateSheetCounter(firstFile.id));
         store.dispatch(updateSheetType(firstFile.id, newSheetId, SHEET_TYPE.INTERVAL));
         store.dispatch(updateSheetView(firstFile.id, newSheetId, SHEETVIEW.GRIDVIEW));
@@ -743,7 +746,7 @@ class App extends Component {
         // files who could be added to the filelist, but then could not be read by opencv get removed again from the FileList
         if (tempFile !== undefined) {
           this.getThumbsForFile(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId);
-          store.dispatch(updateSheetName(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, getSheetName(getSheetCount(files, sheetToGetThumbsFor.fileId))));
+          store.dispatch(updateSheetName(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, getNewSheetName(getSheetCount(files, sheetToGetThumbsFor.fileId))));
           store.dispatch(updateSheetCounter(sheetToGetThumbsFor.fileId));
           store.dispatch(updateSheetType(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, SHEET_TYPE.INTERVAL));
           store.dispatch(updateSheetView(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, SHEETVIEW.GRIDVIEW));
@@ -1340,7 +1343,7 @@ class App extends Component {
       const clearOldScenes = true;
       store.dispatch(updateSheetType(tempFile.id, sheetId, SHEET_TYPE.SCENES));
       store.dispatch(updateSheetView(tempFile.id, sheetId, SHEETVIEW.TIMELINEVIEW));
-      store.dispatch(updateSheetName(tempFile.id, sheetId, getSheetName(getSheetCount(files, tempFile.id))));
+      store.dispatch(updateSheetName(tempFile.id, sheetId, getNewSheetName(getSheetCount(files, tempFile.id))));
       store.dispatch(updateSheetCounter(tempFile.id));
       store.dispatch(setCurrentSheetId(sheetId));
       store.dispatch(setDefaultSheetView(SHEETVIEW.TIMELINEVIEW));
@@ -1422,7 +1425,7 @@ class App extends Component {
         sceneArray[sceneIndex].start + sceneArray[sceneIndex].length - 1,
         settings.defaultCachedFramesSize
       ));
-      store.dispatch(updateSheetName(file.id, sheetId, getSheetName(getSheetCount(files, file.id)))); // set name on file
+      store.dispatch(updateSheetName(file.id, sheetId, getNewSheetName(getSheetCount(files, file.id)))); // set name on file
       store.dispatch(updateSheetCounter(file.id));
       store.dispatch(updateSheetType(file.id, sheetId, SHEET_TYPE.INTERVAL));
     }
@@ -1644,7 +1647,7 @@ class App extends Component {
     this.getThumbsForFile(fileId, newSheetId);
     const newColumnCount = getColumnCount(sheetsByFileId, fileId, newSheetId, settings);
     store.dispatch(updateSheetColumnCount(fileId, newSheetId, newColumnCount));
-    store.dispatch(updateSheetName(fileId, newSheetId, getSheetName(getSheetCount(files, fileId))));
+    store.dispatch(updateSheetName(fileId, newSheetId, getNewSheetName(getSheetCount(files, fileId))));
     store.dispatch(updateSheetCounter(fileId));
     store.dispatch(updateSheetType(fileId, newSheetId, SHEET_TYPE.INTERVAL));
     store.dispatch(updateSheetView(fileId, newSheetId, SHEETVIEW.GRIDVIEW));
@@ -2022,14 +2025,34 @@ class App extends Component {
     }
   };
 
-  onDuplicateSheetClick = (fileId, sheet) => {
+  onDuplicateSheetClick = (fileId, sheetId) => {
     const { store } = this.context;
     const { files } = this.props;
     const newSheetId = uuidV4();
-    store.dispatch(duplicateSheet(fileId, sheet, newSheetId));
-    store.dispatch(updateSheetName(fileId, newSheetId, getSheetName(getSheetCount(files, fileId)))); // set name on firstFile
+    store.dispatch(duplicateSheet(fileId, sheetId, newSheetId));
+    store.dispatch(updateSheetName(fileId, newSheetId, getNewSheetName(getSheetCount(files, fileId)))); // set name on firstFile
     store.dispatch(updateSheetCounter(fileId));
     store.dispatch(setCurrentSheetId(newSheetId));
+  };
+
+  onExportSheetClick = (fileId, sheetId) => {
+    const { files, settings, sheetsByFileId, visibilitySettings } = this.props;
+    console.log('onExportSheetClick');
+    const frameNumberArray = getFramenumbersOfSheet(sheetsByFileId, fileId, sheetId, visibilitySettings);
+    const sheetName = getSheetName(sheetsByFileId, fileId, sheetId);
+    const filePath = getFilePath(files, fileId);
+    const exportObject = JSON.stringify({
+      filePath,
+      frameNumberArray,
+    });
+    const filePathDirectory = path.dirname(filePath);
+    const outputPath = settings.defaultOutputPathFromMovie ? filePathDirectory : settings.defaultOutputPath;
+    console.log(exportObject);
+    const newFilePathAndName = path.join(
+      outputPath,
+      `${sheetName}.json`
+    );
+    ipcRenderer.send('send-save-json-to-file', sheetId, newFilePathAndName, exportObject);
   };
 
   onDeleteSheetClick = (fileId, sheet) => {
@@ -2312,6 +2335,7 @@ class App extends Component {
                       onChangeSheetViewClick={this.onChangeSheetViewClick}
                       onSetSheetClick={this.onSetSheetClick}
                       onDuplicateSheetClick={this.onDuplicateSheetClick}
+                      onExportSheetClick={this.onExportSheetClick}
                       onScanMovieListItemClick={this.onScanMovieListItemClick}
                       onReplaceMovieListItemClick={this.onReplaceMovieListItemClick}
                       onRemoveMovieListItem={this.onRemoveMovieListItem}

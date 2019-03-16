@@ -299,6 +299,19 @@ ipcMain.on('request-save-MoviePrint', (event, arg) => {
 });
 
 ipcMain.on(
+  'send-save-json-to-file',
+  (event, id, filePath, json) => {
+    fs.writeFile(filePath, json, err => {
+      if (err) {
+        mainWindow.webContents.send('received-saved-file-error', err.message);
+      } else {
+        mainWindow.webContents.send('received-saved-file', id, filePath);
+      }
+    });
+  }
+);
+
+ipcMain.on(
   'send-save-file',
   (event, id, filePath, buffer, saveMoviePrint = false) => {
     fs.writeFile(filePath, buffer, err => {
