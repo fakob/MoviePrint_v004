@@ -922,7 +922,7 @@ class App extends Component {
       })
     }
 
-    // capture all frames for this fileId -> fileIdToBeRecaptured
+    // capture all frames for this fileId -> fileIdToBeCaptured
     if (this.state.fileIdToBeCaptured !== undefined &&
       prevState.fileIdToBeCaptured !== this.state.fileIdToBeCaptured) {
       ipcRenderer.send(
@@ -1064,7 +1064,9 @@ class App extends Component {
     });
   }
 
-  onDrop(files) {
+  onDrop(droppedFiles) {
+    const { files } = this.props;
+
     // when user presses alt key on drop then clear list and add movies
     const clearList = this.state.keyObject.altKey;
     this.setState({
@@ -1073,12 +1075,12 @@ class App extends Component {
     });
     const { store } = this.context;
     log.debug('Files where dropped');
-    log.debug(files);
+    log.debug(droppedFiles);
     // file match needs to be in sync with addMoviesToList() and accept !!!
-    if (Array.from(files).some(file => (file.type.match('video.*') ||
+    if (Array.from(droppedFiles).some(file => (file.type.match('video.*') ||
       file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
       store.dispatch(setDefaultSheetView(SHEETVIEW.GRIDVIEW));
-      store.dispatch(addMoviesToList(files, clearList)).then((response) => {
+      store.dispatch(addMoviesToList(droppedFiles, clearList)).then((response) => {
         this.setState({
           filesToLoad: response,
         });
@@ -1089,7 +1091,7 @@ class App extends Component {
         }
         log.debug(response);
         // showMovielist if more than one movie
-        if (response.length > 1 || (!clearList && this.props.files !== undefined && this.props.files.length > 0)) {
+        if (response.length > 1 || (!clearList && files !== undefined && files.length > 0)) {
           store.dispatch(showMovielist());
         }
         return response;
@@ -1994,6 +1996,10 @@ class App extends Component {
 
   onRemoveMovieListItem = (fileId) => {
     const { store } = this.context;
+    const { files } = this.props;
+    if (files.length === 1) {
+      store.dispatch(hideMovielist());
+    }
     store.dispatch(removeMovieListItem(fileId));
     // store.dispatch(setCurrentSheetId(newSheetId));
   };
@@ -2089,12 +2095,18 @@ class App extends Component {
     }, null, '\t'); // for pretty print with tab
     const filePathDirectory = path.dirname(filePath);
     const outputPath = settings.defaultOutputPathFromMovie ? filePathDirectory : settings.defaultOutputPath;
-    log.debug(exportObject);
-    const newFilePathAndName = path.join(
+    const filePathAndName = path.join(
       outputPath,
       `${fileName}-${sheetName}.json`
     );
-    ipcRenderer.send('send-save-json-to-file', sheetId, newFilePathAndName, exportObject);
+    const newFilePathAndName = dialog.showSaveDialog({
+      defaultPath: filePathAndName,
+      buttonLabel: 'Export',
+    });
+    if (newFilePathAndName !== undefined) {
+      log.debug(exportObject);
+      ipcRenderer.send('send-save-json-to-file', sheetId, newFilePathAndName, exportObject);
+    }
   };
 
   onImportMoviePrint = () => {
@@ -2293,6 +2305,8 @@ class App extends Component {
     const { objectUrlObjects } = this.state;
     const { currentFileId, currentSheetId, allThumbs, files, sheetsByFileId, settings, visibilitySettings } = this.props;
 
+    const fileCount = files.length;
+
     const secondsPerRow = getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings);
     const sheetView = getSheetView(sheetsByFileId, currentFileId, currentSheetId, settings);
 
@@ -2382,6 +2396,7 @@ class App extends Component {
                   visibilitySettings={this.props.visibilitySettings}
                   settings={this.props.settings}
                   file={this.props.file}
+                  fileCount={fileCount}
                   toggleMovielist={this.toggleMovielist}
                   toggleSettings={this.toggleSettings}
                   toggleZoom={this.toggleZoom}

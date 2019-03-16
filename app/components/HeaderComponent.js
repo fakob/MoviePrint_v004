@@ -12,7 +12,7 @@ const Header = ({
   file, visibilitySettings, toggleMovielist, toggleSettings,
   onToggleShowHiddenThumbsClick, settings, onThumbInfoClick,
   openMoviesDialog, toggleZoom, zoom, onSetViewClick,
-  onSetSheetFitClick, scaleValueObject, onImportMoviePrint
+  onSetSheetFitClick, scaleValueObject, onImportMoviePrint, fileCount
 }) => {
 
   const thumbInfoOptions = [
@@ -38,7 +38,7 @@ const Header = ({
         inverted
         // widths={3}
       >
-        {file &&
+        {fileCount > 0 &&
           <Popup
             trigger={
               <Menu.Item
