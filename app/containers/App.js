@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone';
+import fs from 'fs';
 import { TransitionablePortal, Segment, Progress, Modal, Button, Icon, Container, Loader, Header, Divider } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
 import {Line, defaults} from 'react-chartjs-2';
@@ -46,6 +47,7 @@ import { getLowestFrame,
   limitFrameNumberWithinMovieRange,
   getFramenumbersOfSheet,
   getFilePath,
+  getFileName,
   getSheetName,
 } from '../utils/utils';
 // import saveMoviePrint from '../utils/saveMoviePrint';
@@ -59,9 +61,9 @@ import {
   changeThumb,
   clearScenes,
   deleteSheets,
-  deleteSceneSheets,
+  addThumbs,
+  addNewThumbsWithOrder,
   duplicateSheet,
-  // updateSceneId,
   updateSceneArray,
   updateSheetType,
   updateSheetView,
@@ -227,6 +229,7 @@ class App extends Component {
       objectUrlObjects: {},
       framesToFetch: [],
       fileIdToBeRecaptured: undefined,
+      fileIdToBeCaptured: undefined,
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -295,6 +298,7 @@ class App extends Component {
     this.onShowHiddenThumbsClick = this.onShowHiddenThumbsClick.bind(this);
     this.onThumbInfoClick = this.onThumbInfoClick.bind(this);
     this.onSetViewClick = this.onSetViewClick.bind(this);
+    this.onImportMoviePrint = this.onImportMoviePrint.bind(this);
     this.onChangeSheetViewClick = this.onChangeSheetViewClick.bind(this);
     this.onSetSheetClick = this.onSetSheetClick.bind(this);
     this.onDuplicateSheetClick = this.onDuplicateSheetClick.bind(this);
@@ -371,9 +375,13 @@ class App extends Component {
       )
     });
     if (getObjectProperty(() => file.id)) {
-      this.setState({
-        opencvVideo: new opencv.VideoCapture(file.path),
-      });
+      try {
+        this.setState({
+          opencvVideo: new opencv.VideoCapture(file.path),
+        });
+      } catch (e) {
+        log.error(e);
+      }
     }
   }
 
@@ -411,17 +419,17 @@ class App extends Component {
       ipcRenderer.send('reload-workerWindow');
     });
 
-    ipcRenderer.on('receive-get-file-details', (event, fileId, filePath, posterFrameId, frameCount, width, height, fps, fourCC, onlyReplace = false) => {
+    ipcRenderer.on('receive-get-file-details', (event, fileId, filePath, posterFrameId, frameCount, width, height, fps, fourCC, onlyReplace = false, onlyImport = false) => {
       store.dispatch(updateFileDetails(fileId, frameCount, width, height, fps, fourCC));
-      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-poster-frame', fileId, filePath, posterFrameId, onlyReplace);
+      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-poster-frame', fileId, filePath, posterFrameId, onlyReplace, onlyImport);
     });
 
     // poster frames don't have thumbId
-    ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, frameNumber, useRatio, onlyReplace = false) => {
+    ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, frameNumber, useRatio, onlyReplace = false, onlyImport = false) => {
       store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
 
       // get all posterframes
-      if (!onlyReplace) {
+      if (!onlyReplace || !onlyImport) {
         ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-in-and-outpoint', fileId, filePath, useRatio, store.getState().undoGroup.present.settings.defaultDetectInOutPoint);
       }
     });
@@ -649,9 +657,13 @@ class App extends Component {
 
     if (nextProps.file !== undefined &&
       (getObjectProperty(() => file.id) !== nextProps.file.id)) {
-      this.setState({
-        opencvVideo: new opencv.VideoCapture(nextProps.file.path),
-      });
+      try {
+        this.setState({
+          opencvVideo: new opencv.VideoCapture(nextProps.file.path),
+        });
+      } catch (e) {
+        log.error(e);
+      }
     }
 
     if (file !== undefined &&
@@ -909,6 +921,23 @@ class App extends Component {
         fileIdToBeRecaptured: undefined,
       })
     }
+
+    // capture all frames for this fileId -> fileIdToBeRecaptured
+    if (this.state.fileIdToBeCaptured !== undefined &&
+      prevState.fileIdToBeCaptured !== this.state.fileIdToBeCaptured) {
+      ipcRenderer.send(
+        'message-from-mainWindow-to-opencvWorkerWindow',
+        'recapture-frames',
+        files,
+        sheetsByFileId,
+        settings.defaultCachedFramesSize,
+        this.state.fileIdToBeCaptured,
+        false, // onlyReplace
+      );
+      this.setState({
+        fileIdToBeCaptured: undefined,
+      })
+    }
   }
 
   componentWillUnmount() {
@@ -1045,7 +1074,7 @@ class App extends Component {
     const { store } = this.context;
     log.debug('Files where dropped');
     log.debug(files);
-    // file match needs to be in sync with addMoviesToList(), onReplaceMovieListItemClick() and accept !!!
+    // file match needs to be in sync with addMoviesToList() and accept !!!
     if (Array.from(files).some(file => (file.type.match('video.*') ||
       file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
       store.dispatch(setDefaultSheetView(SHEETVIEW.GRIDVIEW));
@@ -1070,12 +1099,6 @@ class App extends Component {
     }
     return false;
   }
-
-  // addToFramesToFetch(frameId, isPosterFrame = false) {
-  //   this.setState(prevState => ({
-  //     framesToFetch: [...prevState.framesToFetch, { frameId, isPosterFrame }]
-  //   }));
-  // }
 
   applyMimeTypes(event) {
     this.setState({
@@ -1985,41 +2008,57 @@ class App extends Component {
     const { store } = this.context;
     const { files, settings, sheetsByFileId } = this.props;
     const file = files.find((file1) => file1.id === fileId);
-    const originalFilePath = file.path;
+    const { path: originalFilePath, lastModified: lastModifiedOfPrevious} = file;
     const newPathArray = dialog.showOpenDialog({
       title: 'Replace movie',
       defaultPath: originalFilePath,
       buttonLabel: 'Replace with',
+      filters: [
+        { name: "All Files", extensions: ["*"] },
+      ],
       properties: ['openFile']
     });
     const newFilePath = (newPathArray !== undefined ? newPathArray[0] : undefined);
     if (newFilePath) {
       log.debug(newFilePath);
-      // file match needs to be in sync with addMoviesToList(), onReplaceMovieListItemClick() and accept !!!
-      if (Array.from(files).some(file => (file.type.match('video.*') ||
-        file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
-        const fileName = path.basename(newFilePath);
-        const { lastModified, size}  = getFileStatsObject(newFilePath);
-        store.dispatch(replaceFileDetails(fileId, newFilePath, fileName, size, lastModified));
+      const fileName = path.basename(newFilePath);
+      const { lastModified, size}  = getFileStatsObject(newFilePath);
+      store.dispatch(replaceFileDetails(fileId, newFilePath, fileName, size, lastModified));
 
-        // change video for videoPlayer to the new one
+      // change video for videoPlayer to the new one
+      try {
         this.setState({
           opencvVideo: new opencv.VideoCapture(newFilePath),
         });
+      } catch (e) {
+        log.error(e);
+      }
 
-        // change fileScanStatus
-        store.dispatch(updateFileScanStatus(fileId, false));
-        // remove entries from frameScanList sqlite3
-        deleteFileIdFromFrameScanList(fileId);
+      // change fileScanStatus
+      store.dispatch(updateFileScanStatus(fileId, false));
+      // remove entries from frameScanList sqlite3
+      deleteFileIdFromFrameScanList(fileId);
 
-        const onlyReplace = true;
-        const timeBefore = Date.now();
-        this.setState({
-          timeBefore
-        });
-        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', fileId, newFilePath, file.posterFrameId, onlyReplace);
+      // use lastModified as indicator if the movie which will be replaced existed
+      // if lastModified is undefined, then do not onlyReplace
+      let onlyReplace = true;
+      if (lastModifiedOfPrevious === undefined) {
+        console.log('lastModifiedOfPrevious is undefined');
+        onlyReplace = false;
+      }
+
+      const timeBefore = Date.now();
+      this.setState({
+        timeBefore
+      });
+      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', fileId, newFilePath, file.posterFrameId, onlyReplace);
+      if (onlyReplace) {
         this.setState({
           fileIdToBeRecaptured: fileId,
+        })
+      } else {
+        this.setState({
+          fileIdToBeCaptured: fileId,
         })
       }
     }
@@ -2037,22 +2076,95 @@ class App extends Component {
 
   onExportSheetClick = (fileId, sheetId) => {
     const { files, settings, sheetsByFileId, visibilitySettings } = this.props;
-    console.log('onExportSheetClick');
+    log.debug('onExportSheetClick');
     const frameNumberArray = getFramenumbersOfSheet(sheetsByFileId, fileId, sheetId, visibilitySettings);
     const sheetName = getSheetName(sheetsByFileId, fileId, sheetId);
+    const fileName = getFileName(files, fileId);
     const filePath = getFilePath(files, fileId);
+    const columnCount = getColumnCount(sheetsByFileId, fileId, sheetId, settings);
     const exportObject = JSON.stringify({
       filePath,
+      columnCount,
       frameNumberArray,
-    });
+    }, null, '\t'); // for pretty print with tab
     const filePathDirectory = path.dirname(filePath);
     const outputPath = settings.defaultOutputPathFromMovie ? filePathDirectory : settings.defaultOutputPath;
-    console.log(exportObject);
+    log.debug(exportObject);
     const newFilePathAndName = path.join(
       outputPath,
-      `${sheetName}.json`
+      `${fileName}-${sheetName}.json`
     );
     ipcRenderer.send('send-save-json-to-file', sheetId, newFilePathAndName, exportObject);
+  };
+
+  onImportMoviePrint = () => {
+    const { store } = this.context;
+    const { files, settings, sheetsByFileId, visibilitySettings } = this.props;
+    log.debug('onImportMoviePrint');
+    const newPathArray = dialog.showOpenDialog({
+      filters: [
+        { name: 'JSON', extensions: ['json'] }
+      ],
+      properties: ['openFile']
+    });
+    const newPath = (newPathArray !== undefined ? newPathArray[0] : undefined);
+    if (newPath) {
+      log.debug(newPath);
+      fs.readFile(newPath, (err, data) => {
+        if (err) {
+          return log.error(err);
+        }
+        const jsonData = JSON.parse(data);
+        console.log(jsonData.frameNumberArray);
+        const { filePath: newFilePath, frameNumberArray, columnCount} = jsonData;
+        // const { originalFilePath: newFilePath, frameNumberArray, columnCount} = jsonData;
+        // let filePath = originalFilePath
+        // if (!fs.existsSync(originalFilePath)) {
+        //   const replacedPathArray = dialog.showOpenDialog({
+        //     title: 'Replace movie',
+        //     defaultPath: originalFilePath,
+        //     buttonLabel: 'Replace with',
+        //     properties: ['openFile']
+        //   });
+        //   const newPath = (replacedPathArray !== undefined ? replacedPathArray[0] : undefined);
+        //   filePath =
+        // }
+        const fileName = path.basename(newFilePath);
+        const { lastModified, size}  = getFileStatsObject(newFilePath) || {};
+
+        const fileId = uuidV4();
+        const posterFrameId = uuidV4();
+        const sheetId = uuidV4();
+        const fileToAdd = {
+          id: fileId,
+          lastModified,
+          name: fileName,
+          path: newFilePath,
+          size,
+          // type: files[key].type,
+          posterFrameId,
+        };
+        store.dispatch({
+          type: 'ADD_MOVIE_LIST_ITEMS',
+          payload: [fileToAdd],
+        });
+        store.dispatch(addNewThumbsWithOrder(fileToAdd, sheetId, frameNumberArray, settings.defaultCachedFramesSize));
+        store.dispatch(updateSheetName(fileId, sheetId, getNewSheetName(getSheetCount(files, fileId)))); // set name on file
+        store.dispatch(updateSheetCounter(fileId));
+        store.dispatch(updateSheetColumnCount(fileId, sheetId, columnCount));
+        store.dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.INTERVAL));
+        store.dispatch(updateSheetView(fileId, sheetId, SHEETVIEW.GRIDVIEW));
+        store.dispatch(setDefaultSheetView(SHEETVIEW.GRIDVIEW));
+        store.dispatch(setCurrentSheetId(sheetId));
+        store.dispatch(setCurrentFileId(fileId));
+        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', fileId, newFilePath, posterFrameId, false, true);
+
+        // this.setState({
+        //   fileIdToBeRecaptured: id,
+        // });
+      });
+      // store.dispatch(setDefaultOutputPath(newPath));
+    }
   };
 
   onDeleteSheetClick = (fileId, sheet) => {
@@ -2275,6 +2387,7 @@ class App extends Component {
                   toggleZoom={this.toggleZoom}
                   onToggleShowHiddenThumbsClick={this.onToggleShowHiddenThumbsClick}
                   onThumbInfoClick={this.onThumbInfoClick}
+                  onImportMoviePrint={this.onImportMoviePrint}
                   onSetViewClick={this.onSetViewClick}
                   onSetSheetFitClick={this.onSetSheetFitClick}
                   openMoviesDialog={this.openMoviesDialog}

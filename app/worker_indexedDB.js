@@ -73,13 +73,13 @@ process.on('SIGTERM', err => {
   // fs.writeFileSync('shutdown.log', 'Received SIGTERM signal');
 });
 
-ipcRenderer.on('send-base64-frame', (event, frameId, fileId, frameNumber, isPosterFrame, outBase64, onlyReplace = false) => {
+ipcRenderer.on('send-base64-frame', (event, frameId, fileId, frameNumber, outBase64, onlyReplace = false) => {
   log.debug('indexedDBWorkerWindow | on send-base64-frame');
   if (onlyReplace) {
     const fastTrack = onlyReplace; // make this one use fastTrack so it gets updated right away
     updateFrameInIndexedDB(frameId, outBase64, objectUrlQueue, fastTrack);
   } else {
-    addFrameToIndexedDB(frameId, fileId, frameNumber, isPosterFrame, outBase64, objectUrlQueue);
+    addFrameToIndexedDB(frameId, fileId, frameNumber, outBase64, objectUrlQueue);
   }
 });
 

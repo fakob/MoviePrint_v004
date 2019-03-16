@@ -15,56 +15,73 @@ const { ipcRenderer } = require('electron');
 
 export const recaptureThumbs = (
   frameSize,
+  fileId,
   filePath,
   useRatio,
   frameIdArray,
   frameNumberArray,
+  onlyReplace,
 ) => {
-  const vid = new opencv.VideoCapture(filePath);
+  try {
+    const vid = new opencv.VideoCapture(filePath);
 
-  for (let i = 0; i < frameNumberArray.length; i += 1) {
-    setPosition(vid, frameNumberArray[i], useRatio);
-    const mat = vid.read();
-    const frameId = frameIdArray[i];
-    if (mat.empty) {
-      log.info('opencvWorkerWindow | frame is empty');
-      ipcRenderer.send(
-        'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
-        'update-base64-frame',
-        frameId,
-        ''
-      );
-    } else {
-      let matRescaled;
-      if (frameSize !== 0) { // 0 stands for keep original size
-        matRescaled = mat.resizeToMax(frameSize);
+    for (let i = 0; i < frameNumberArray.length; i += 1) {
+      const frameNumber = frameNumberArray[i];
+      setPosition(vid, frameNumber, useRatio);
+      const mat = vid.read();
+      const frameId = frameIdArray[i];
+      if (mat.empty) {
+        log.info('opencvWorkerWindow | frame is empty');
+        ipcRenderer.send(
+          'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
+          'send-base64-frame',
+          frameId,
+          fileId,
+          frameNumber,
+          '',
+          onlyReplace,
+        );
+      } else {
+        let matRescaled;
+        if (frameSize !== 0) { // 0 stands for keep original size
+          matRescaled = mat.resizeToMax(frameSize);
+        }
+        const outBase64 = opencv.imencode('.jpg', matRescaled || mat).toString('base64'); // maybe change to .png?
+        ipcRenderer.send(
+          'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
+          'send-base64-frame',
+          frameId,
+          fileId,
+          frameNumber,
+          outBase64,
+          onlyReplace,
+        );
       }
-      const outBase64 = opencv.imencode('.jpg', matRescaled || mat).toString('base64'); // maybe change to .png?
-      ipcRenderer.send(
-        'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
-        'update-base64-frame',
-        frameId,
-        outBase64
-      );
     }
+  } catch (e) {
+    log.error(e);
   }
 }
 
 export const getBase64Object = (filePath, useRatio, arrayOfThumbs) => {
-  const opencvVideo = new opencv.VideoCapture(filePath);
+  try {
+    const opencvVideo = new opencv.VideoCapture(filePath);
 
-  const objectUrlObjects = {};
-  arrayOfThumbs.map(thumb => {
-    setPosition(opencvVideo, thumb.frameNumber, useRatio);
-    const frame = opencvVideo.read();
-    let base64 = '';
-    if (!frame.empty) {
-      base64 = opencv.imencode('.jpg', frame).toString('base64'); // maybe change to .png?
-    }
-    objectUrlObjects[thumb.frameId] = base64;
-    return undefined;
-  });
-  return objectUrlObjects;
+    const objectUrlObjects = {};
+    arrayOfThumbs.map(thumb => {
+      setPosition(opencvVideo, thumb.frameNumber, useRatio);
+      const frame = opencvVideo.read();
+      let base64 = '';
+      if (!frame.empty) {
+        base64 = opencv.imencode('.jpg', frame).toString('base64'); // maybe change to .png?
+      }
+      objectUrlObjects[thumb.frameId] = base64;
+      return undefined;
+    });
+    return objectUrlObjects;
+  } catch (e) {
+    log.error(e);
+  }
 }
 
 export const getDominantColor = (image, k=4) => {

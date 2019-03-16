@@ -9,6 +9,9 @@ const randomColor = require('randomcolor');
 const { ipcRenderer } = require('electron');
 
 export const getFileStatsObject = (filename) => {
+  if (!fsR.existsSync(filename)) {
+    return undefined;
+  }
   const stats = fsR.statSync(filename);
   const { mtime, size } = stats;
   return {
@@ -379,6 +382,16 @@ export const getSheetCount = (files, fileId) => {
     return 0;
   }
   return file.sheetCounter;
+};
+
+export const getFileName = (files, fileId) => {
+  const file = files.find(file2 => file2.id === fileId);
+  // console.log(file);
+  if (file === undefined) {
+    // there is no file yet, so return undefined
+    return 0;
+  }
+  return file.name;
 };
 
 export const getFilePath = (files, fileId) => {

@@ -10,7 +10,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 const imageDB = new Dexie('ImageDatabase');
 imageDB.version(1).stores({
-  frameList: '&frameId, fileId, frameNumber, isPosterFrame, [fileId+frameNumber]',
+  frameList: '&frameId, fileId, frameNumber, [fileId+frameNumber]',
   // fileScanList: '&fileId',
 });
 
@@ -18,7 +18,6 @@ const FileObject = imageDB.frameList.defineClass({
   frameId: String,
   fileId: String,
   frameNumber: Number,
-  isPosterFrame: Number,
   data: Blob
 });
 

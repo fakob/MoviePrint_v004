@@ -305,7 +305,14 @@ ipcMain.on(
       if (err) {
         mainWindow.webContents.send('received-saved-file-error', err.message);
       } else {
-        mainWindow.webContents.send('received-saved-file', id, filePath);
+        // mainWindow.webContents.send('received-saved-file', id, filePath);
+        log.debug(`MoviePrint JSON exported successfully: ${filePath}`);
+        mainWindow.webContents.send(
+          'progressMessage',
+          'info',
+          `MoviePrint JSON exported successfully: ${filePath}`,
+          3000
+        );
       }
     });
   }

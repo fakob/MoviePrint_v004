@@ -620,55 +620,84 @@ export const addThumbs = (file, sheetId, frameNumberArray, frameSize = 0) => {
       // remove the already existing frameNumbers
       // log.debug(frameNumberArray);
       // log.debug(alreadyExistingFrameNumbersArray);
-      const filteredArray = frameNumberArray.filter(
+      const notExistingFrameNumberArray = frameNumberArray.filter(
         value => alreadyExistingFrameNumbersArray.indexOf(value) < 0
       );
-      // log.debug(filteredArray);
+      // log.debug(notExistingFrameNumberArray);
 
+      let notExistingFrameIdArray = [];
+      let notExistingThumbIdArray = [];
       // if all thumbs already exist skip capturing
-      if (filteredArray.length !== 0) {
-        log.debug(`${filteredArray.length} frame(s) are not yet in database - need(s) to be captured`);
+      if (notExistingFrameNumberArray.length !== 0) {
+        log.debug(`${notExistingFrameNumberArray.length} frame(s) are not yet in database - need(s) to be captured`);
         // add new thumbs
-        const frameIdArray = filteredArray.map(() => uuidV4());
-        const thumbIdArray = filteredArray.map(() => uuidV4());
-        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheetId, thumbIdArray, frameIdArray, filteredArray, file.useRatio, frameSize);
-        log.debug('dispatch: ADD_THUMBS');
-        dispatch({
-          type: 'ADD_THUMBS',
-          payload: {
-            sheetId,
-            thumbIdArray,
-            frameIdArray,
-            frameNumberArray: filteredArray,
-            fileId: file.id,
-            width: file.width,
-            height: file.height,
-          }
-        });
+        notExistingFrameIdArray = notExistingFrameNumberArray.map(() => uuidV4());
+        notExistingThumbIdArray = notExistingFrameNumberArray.map(() => uuidV4());
+        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheetId, notExistingThumbIdArray, notExistingFrameIdArray, notExistingFrameNumberArray, file.useRatio, frameSize);
       }
 
+      let alreadyExistingThumbIdsArray = [];
       // add thumbs with existing frames in imageDB
       // if no thumbs with existing frames exist, skip this step
       if (alreadyExistingFrameIdsArray.length !== 0) {
-        const thumbIdArray2 = alreadyExistingFrameIdsArray.map(() => uuidV4());
+        alreadyExistingThumbIdsArray = alreadyExistingFrameIdsArray.map(() => uuidV4());
         log.debug(`${alreadyExistingFrameIdsArray.length} frame(s) are already in database`);
-        log.debug('dispatch: ADD_THUMBS');
-        dispatch({
-          type: 'ADD_THUMBS',
-          payload: {
-            sheetId,
-            thumbIdArray: thumbIdArray2,
-            frameIdArray: alreadyExistingFrameIdsArray,
-            frameNumberArray: alreadyExistingFrameNumbersArray,
-            fileId: file.id,
-            width: file.width,
-            height: file.height,
-          }
-        });
       }
+
+      const concatenatedFrameIdArray = notExistingFrameIdArray.concat(alreadyExistingFrameIdsArray);
+      const concatenatedThumbIdArray = notExistingThumbIdArray.concat(alreadyExistingThumbIdsArray);
+      const concatenatedFrameNumberArray = notExistingFrameNumberArray.concat(alreadyExistingFrameNumbersArray);
+
+      log.debug('dispatch: ADD_THUMBS');
+      dispatch({
+        type: 'ADD_THUMBS',
+        payload: {
+          sheetId,
+          thumbIdArray: concatenatedThumbIdArray,
+          frameIdArray: concatenatedFrameIdArray,
+          frameNumberArray: concatenatedFrameNumberArray,
+          fileId: file.id,
+          width: file.width,
+          height: file.height,
+        }
+      });
+
       return Promise.resolve(frames);
     }).catch((err) => {
       log.error(err);
+    });
+  };
+};
+
+// adding new thumbs keeping the order, but not checking if frames already exist in indexedDB
+export const addNewThumbsWithOrder = (file, sheetId, frameNumberArray, frameSize = 0) => {
+  return (dispatch) => {
+    log.debug('action: addNewThumbsWithOrder');
+
+    // remove duplicates in case there are already some in imageDB
+    const uniqueFrameNumberArray = frameNumberArray.filter((item, index, array) => array.indexOf(item) === index);
+
+    const thumbIdArray = frameNumberArray.map(() => uuidV4());
+    const uniqueFrameNumberAndFrameIdArray = uniqueFrameNumberArray.map(frameNumber => ({frameNumber, frameId: uuidV4()}));
+    const frameIdArray = frameNumberArray.map(frameNumber =>
+      uniqueFrameNumberAndFrameIdArray.find(item => item.frameNumber === frameNumber).frameId
+    );
+
+    ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheetId, thumbIdArray, frameIdArray, frameNumberArray, file.useRatio, frameSize);
+
+    log.debug('dispatch: ADD_THUMBS');
+    dispatch({
+      type: 'ADD_THUMBS',
+      payload: {
+        sheetId,
+        thumbIdArray,
+        frameIdArray,
+        frameNumberArray,
+        fileId: file.id,
+        width: file.width,
+        height: file.height,
+        noReorder: true,
+      }
     });
   };
 };

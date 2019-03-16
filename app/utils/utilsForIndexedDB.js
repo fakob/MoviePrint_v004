@@ -22,7 +22,7 @@ export const deleteTableFramelist = () =>
     log.error(`Failed to delete all objects in frameList: ${  err.stack || err}`);
   })
 
-export const addFrameToIndexedDB = (frameId, fileId, frameNumber, isPosterFrame, outBase64, objectUrlQueue) => {
+export const addFrameToIndexedDB = (frameId, fileId, frameNumber, outBase64, objectUrlQueue) => {
   const url = `data:image/jpg;base64,${outBase64}`;
   fetch(url)
   .then(res => res.blob())
@@ -32,7 +32,6 @@ export const addFrameToIndexedDB = (frameId, fileId, frameNumber, isPosterFrame,
         frameId,
         fileId,
         frameNumber,
-        isPosterFrame: isPosterFrame ? 1 : 0, // 0 and 1 is used as dexie/indexDB can not use boolean values
         data: blob
       });
       const key = await imageDB.frameList.get(frameId);

@@ -12,7 +12,7 @@ const Header = ({
   file, visibilitySettings, toggleMovielist, toggleSettings,
   onToggleShowHiddenThumbsClick, settings, onThumbInfoClick,
   openMoviesDialog, toggleZoom, zoom, onSetViewClick,
-  onSetSheetFitClick, scaleValueObject,
+  onSetSheetFitClick, scaleValueObject, onImportMoviePrint
 }) => {
 
   const thumbInfoOptions = [
@@ -72,33 +72,28 @@ const Header = ({
           content="Open one or more movies"
           keepInViewPort={false}
         />
-        {/* file &&
-          <Popup
-            trigger={
-              <Dropdown
-                data-tid='saveMoviePrintMoreOptionsDropdown'
-                item
-                floating
-                pointing="bottom right"
-                upward
-                compact
-                icon="ellipsis vertical"
-              >
-                <Dropdown.Menu>
-                  <Dropdown.Item
-                    data-tid='saveAllMoviePrintsOption'
-                    icon="download"
-                    text="Save All MoviePrints"
-                    onClick={onSaveAllMoviePrints}
-                  />
-                </Dropdown.Menu>
-              </Dropdown>
-            }
-            className={stylesPop.popup}
-            content="Set view"
-            keepInViewPort={false}
-          />
-        */}
+        <Popup
+          trigger={
+            <Dropdown
+              data-tid='moviesOverflowDropdown'
+              item
+              direction="left"
+              icon="ellipsis vertical"
+            >
+              <Dropdown.Menu>
+                <Dropdown.Item
+                  data-tid='importMoviesOverflowOption'
+                  icon="folder open"
+                  text="Import MoviePrint"
+                  onClick={onImportMoviePrint}
+                />
+              </Dropdown.Menu>
+            </Dropdown>
+          }
+          className={stylesPop.popup}
+          content="Import MoviePrint from json file"
+          keepInViewPort={false}
+        />
         <Menu.Menu position="right">
           {file &&
             visibilitySettings.defaultSheetView === SHEETVIEW.GRIDVIEW &&

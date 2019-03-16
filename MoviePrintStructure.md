@@ -115,7 +115,6 @@
 * frameId
 * fileId
 * frameNumber
-* isPosterFrame
 * data (blob)
 
 # sqlite3 structure

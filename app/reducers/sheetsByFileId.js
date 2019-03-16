@@ -212,13 +212,16 @@ const sheetsByFileId = (state = {}, action) => {
         thumb(undefined, action, index));
 
       // combine current and new thumbs array
-      let combinedArray = currentArray.concat(newArray);
+      const combinedArray = currentArray.concat(newArray);
 
-      // sort and reindex combinedArray
-      combinedArray.sort((a, b) => a.frameNumber - b.frameNumber);
-      const reIndexedArray = combinedArray.map((item, index) => {
-        return {...item, index: index}
-      });
+      let reIndexedArray = combinedArray;
+      if (action.payload.noReorder === undefined) {
+        // sort and reindex combinedArray
+        combinedArray.sort((a, b) => a.frameNumber - b.frameNumber);
+        reIndexedArray = combinedArray.map((item, index) => {
+          return {...item, index: index}
+        });
+      }
       return {
         ...state,
         [action.payload.fileId]: {
