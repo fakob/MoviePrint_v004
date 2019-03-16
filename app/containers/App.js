@@ -59,9 +59,9 @@ import {
   addScenes,
   addThumb,
   changeThumb,
+  clearMovieList,
   clearScenes,
   deleteSheets,
-  addThumbs,
   addNewThumbsWithOrder,
   duplicateSheet,
   updateSceneArray,
@@ -299,6 +299,7 @@ class App extends Component {
     this.onThumbInfoClick = this.onThumbInfoClick.bind(this);
     this.onSetViewClick = this.onSetViewClick.bind(this);
     this.onImportMoviePrint = this.onImportMoviePrint.bind(this);
+    this.onClearMovieList = this.onClearMovieList.bind(this);
     this.onChangeSheetViewClick = this.onChangeSheetViewClick.bind(this);
     this.onSetSheetClick = this.onSetSheetClick.bind(this);
     this.onDuplicateSheetClick = this.onDuplicateSheetClick.bind(this);
@@ -2111,7 +2112,7 @@ class App extends Component {
 
   onImportMoviePrint = () => {
     const { store } = this.context;
-    const { files, settings, sheetsByFileId, visibilitySettings } = this.props;
+    const { files, settings } = this.props;
     log.debug('onImportMoviePrint');
     const newPathArray = dialog.showOpenDialog({
       filters: [
@@ -2129,18 +2130,6 @@ class App extends Component {
         const jsonData = JSON.parse(data);
         console.log(jsonData.frameNumberArray);
         const { filePath: newFilePath, frameNumberArray, columnCount} = jsonData;
-        // const { originalFilePath: newFilePath, frameNumberArray, columnCount} = jsonData;
-        // let filePath = originalFilePath
-        // if (!fs.existsSync(originalFilePath)) {
-        //   const replacedPathArray = dialog.showOpenDialog({
-        //     title: 'Replace movie',
-        //     defaultPath: originalFilePath,
-        //     buttonLabel: 'Replace with',
-        //     properties: ['openFile']
-        //   });
-        //   const newPath = (replacedPathArray !== undefined ? replacedPathArray[0] : undefined);
-        //   filePath =
-        // }
         const fileName = path.basename(newFilePath);
         const { lastModified, size}  = getFileStatsObject(newFilePath) || {};
 
@@ -2170,13 +2159,14 @@ class App extends Component {
         store.dispatch(setCurrentSheetId(sheetId));
         store.dispatch(setCurrentFileId(fileId));
         ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', fileId, newFilePath, posterFrameId, false, true);
-
-        // this.setState({
-        //   fileIdToBeRecaptured: id,
-        // });
       });
-      // store.dispatch(setDefaultOutputPath(newPath));
     }
+  };
+
+  onClearMovieList = () => {
+    const { store } = this.context;
+    store.dispatch(clearMovieList());
+    store.dispatch(hideMovielist());
   };
 
   onDeleteSheetClick = (fileId, sheet) => {
@@ -2403,6 +2393,7 @@ class App extends Component {
                   onToggleShowHiddenThumbsClick={this.onToggleShowHiddenThumbsClick}
                   onThumbInfoClick={this.onThumbInfoClick}
                   onImportMoviePrint={this.onImportMoviePrint}
+                  onClearMovieList={this.onClearMovieList}
                   onSetViewClick={this.onSetViewClick}
                   onSetSheetFitClick={this.onSetSheetFitClick}
                   openMoviesDialog={this.openMoviesDialog}

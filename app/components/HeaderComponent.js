@@ -12,7 +12,7 @@ const Header = ({
   file, visibilitySettings, toggleMovielist, toggleSettings,
   onToggleShowHiddenThumbsClick, settings, onThumbInfoClick,
   openMoviesDialog, toggleZoom, zoom, onSetViewClick,
-  onSetSheetFitClick, scaleValueObject, onImportMoviePrint, fileCount
+  onSetSheetFitClick, scaleValueObject, onImportMoviePrint, fileCount, onClearMovieList
 }) => {
 
   const thumbInfoOptions = [
@@ -87,6 +87,12 @@ const Header = ({
                   text="Import MoviePrint"
                   onClick={onImportMoviePrint}
                 />
+                {fileCount > 0 && <Dropdown.Item
+                  data-tid='clearMovieListOverflowOption'
+                  icon="delete"
+                  text="Clear Movie list"
+                  onClick={onClearMovieList}
+                />}
               </Dropdown.Menu>
             </Dropdown>
           }

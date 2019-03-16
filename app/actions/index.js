@@ -964,20 +964,7 @@ export const addMoviesToList = (files, clearList) => {
       return newFiles.slice();
     });
     if (clearList) {
-      dispatch({
-        type: 'CLEAR_CURRENT_FILEID',
-      });
-      log.debug('dispatch: CLEAR_CURRENT_FILEID');
-      dispatch({
-        type: 'CLEAR_MOVIE_LIST',
-      });
-      log.debug('dispatch: CLEAR_MOVIE_LIST');
-
-      clearTableFrameScanList();
-      log.debug('clear fileId from frameScanList in sqlite3');
-
-      deleteTableFramelist();
-      log.debug('clear frameList in indexedDB');
+      clearMovieList();
     }
 
     dispatch({
@@ -988,3 +975,22 @@ export const addMoviesToList = (files, clearList) => {
     return Promise.resolve(newFiles);
   };
 };
+
+export const clearMovieList = () => {
+  return (dispatch) => {
+    dispatch({
+      type: 'CLEAR_CURRENT_FILEID',
+    });
+    log.debug('dispatch: CLEAR_CURRENT_FILEID');
+    dispatch({
+      type: 'CLEAR_MOVIE_LIST',
+    });
+    log.debug('dispatch: CLEAR_MOVIE_LIST');
+
+    clearTableFrameScanList();
+    log.debug('clear fileId from frameScanList in sqlite3');
+
+    deleteTableFramelist();
+    log.debug('clear frameList in indexedDB');
+  }
+}
