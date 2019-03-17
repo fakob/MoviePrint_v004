@@ -6,7 +6,7 @@ import saveThumb from './saveThumb';
 
 const saveMoviePrint = (
   elementId, exportPath, file, sheetId, sheetName, scale, outputFormat, overwrite,
-  saveIndividualThumbs = false, thumbs
+  saveIndividualThumbs = false, thumbs, dataToEmbed
 ) => {
   log.debug(file);
   const node = document.getElementById(elementId);
@@ -28,7 +28,7 @@ const saveMoviePrint = (
     scale,
   }).then((canvas) => {
     canvas.toBlob((blob) => {
-      saveBlob(blob, sheetId, newFilePathAndName);
+      saveBlob(blob, sheetId, newFilePathAndName, dataToEmbed);
     }, getMimeType(outputFormat), qualityArgument);
   });
 

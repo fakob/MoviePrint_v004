@@ -84,8 +84,8 @@ const Header = ({
                 <Dropdown.Item
                   data-tid='importMoviesOverflowOption'
                   icon="folder open"
-                  text="Import MoviePrint"
-                  onClick={onImportMoviePrint}
+                  text="Import MoviePrint (png/json)"
+                  onClick={() => onImportMoviePrint()}
                 />
                 {fileCount > 0 && <Dropdown.Item
                   data-tid='clearMovieListOverflowOption'

@@ -112,6 +112,8 @@ class SettingsList extends Component {
     this.onChangeCachedFramesSize = this.onChangeCachedFramesSize.bind(this);
     this.onChangeOverwrite = this.onChangeOverwrite.bind(this);
     this.onChangeIncludeIndividual = this.onChangeIncludeIndividual.bind(this);
+    this.onChangeEmbedFrameNumbers = this.onChangeEmbedFrameNumbers.bind(this);
+    this.onChangeEmbedFilePath = this.onChangeEmbedFilePath.bind(this);
     this.onChangeThumbnailScale = this.onChangeThumbnailScale.bind(this);
     this.onChangeMoviePrintWidth = this.onChangeMoviePrintWidth.bind(this);
   }
@@ -186,6 +188,14 @@ class SettingsList extends Component {
 
   onChangeIncludeIndividual = (e, { checked }) => {
     this.props.onIncludeIndividualClick(checked);
+  }
+
+  onChangeEmbedFrameNumbers = (e, { checked }) => {
+    this.props.onEmbedFrameNumbersClick(checked);
+  }
+
+  onChangeEmbedFilePath = (e, { checked }) => {
+    this.props.onEmbedFilePathClick(checked);
   }
 
   onChangeThumbnailScale = (e, { value }) => {
@@ -837,6 +847,30 @@ class SettingsList extends Component {
                     }
                     checked={settings.defaultSaveOptionIncludeIndividual}
                     onChange={this.onChangeIncludeIndividual}
+                  />
+                </List.Item>
+                <List.Item>
+                  <Checkbox
+                    data-tid='embedFrameNumbersCheckbox'
+                    label={
+                      <label className={styles.label}>
+                        Embed frameNumbers (only PNG)
+                      </label>
+                    }
+                    checked={settings.defaultEmbedFrameNumbers}
+                    onChange={this.onChangeEmbedFrameNumbers}
+                  />
+                </List.Item>
+                <List.Item>
+                  <Checkbox
+                    data-tid='embedFilePathCheckbox'
+                    label={
+                      <label className={styles.label}>
+                        Embed filePath (only PNG)
+                      </label>
+                    }
+                    checked={settings.defaultEmbedFilePath}
+                    onChange={this.onChangeEmbedFilePath}
                   />
                 </List.Item>
               </List>

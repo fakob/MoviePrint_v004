@@ -47,6 +47,8 @@ import {
   DEFAULT_TIMELINEVIEW_WIDTH_SCALE,
   DEFAULT_TIMELINEVIEW_FLOW,
   DEFAULT_CACHED_FRAMES_SIZE,
+  DEFAULT_EMBED_FRAMENUMBERS,
+  DEFAULT_EMBED_FILEPATH,
 } from '../utils/constants';
 import {
   createTableReduxState,
@@ -109,6 +111,8 @@ const initialStateJSON = {
       defaultTimelineViewWidthScale: DEFAULT_TIMELINEVIEW_WIDTH_SCALE,
       defaultTimelineViewFlow: DEFAULT_TIMELINEVIEW_FLOW,
       defaultCachedFramesSize: DEFAULT_CACHED_FRAMES_SIZE,
+      defaultEmbedFrameNumbers: DEFAULT_EMBED_FRAMENUMBERS,
+      defaultEmbedFilePath: DEFAULT_EMBED_FILEPATH,
       emailAddress: '',
     },
     sheetsByFileId: {},

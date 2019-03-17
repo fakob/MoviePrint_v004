@@ -13,6 +13,7 @@ import ErrorBoundary from '../components/ErrorBoundary';
 import {
   getMoviePrintColor,
   getVisibleThumbs,
+  getFramenumbers,
  } from '../utils/utils';
 import saveMoviePrint from '../utils/saveMoviePrint';
 import {
@@ -81,6 +82,17 @@ class WorkerApp extends Component {
       console.log(filePath);
       // const filePath = file.path.substring(0, file.path.lastIndexOf("/"));
       const outputPath = sentData.settings.defaultOutputPathFromMovie ? filePath : sentData.settings.defaultOutputPath
+
+      const movieFilePath = sentData.settings.defaultEmbedFilePath ? sentData.file.path : undefined;
+      const columnCount = sentData.settings.defaultEmbedFrameNumbers ? sentData.sheet.columnCount : undefined;
+      const frameNumberArray = sentData.settings.defaultEmbedFrameNumbers ? getFramenumbers(sentData.sheet, sentData.visibilityFilter) : undefined;
+
+      const dataToEmbed = {
+        filePath: movieFilePath,
+        columnCount,
+        frameNumberArray,
+      };
+
       log.debug(`outputPath: ${filePath}`);
       saveMoviePrint(
         sentData.elementId,
@@ -92,7 +104,8 @@ class WorkerApp extends Component {
         sentData.settings.defaultOutputFormat,
         sentData.settings.defaultSaveOptionOverwrite,
         sentData.settings.defaultSaveOptionIncludeIndividual,
-        visibleThumbs
+        visibleThumbs,
+        dataToEmbed,
       );
     }
   }

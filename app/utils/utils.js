@@ -1,12 +1,16 @@
 import uuidV4 from 'uuid/v4';
 import pathR from 'path';
 import fsR from 'fs';
+import extract from 'png-chunks-extract';
+import encode from 'png-chunks-encode';
+import text from 'png-chunk-text';
 import log from 'electron-log';
 import VideoCaptureProperties from './videoCaptureProperties';
 import sheetNames from '../img/listOfNames.json'
 
 const randomColor = require('randomcolor');
 const { ipcRenderer } = require('electron');
+const appVersion = require('electron').remote.app.getVersion();
 
 export const getFileStatsObject = (filename) => {
   if (!fsR.existsSync(filename)) {
@@ -151,12 +155,35 @@ export const formatBytes = (bytes, decimals = 1) => {
   return `${parseFloat((bytes / (k ** i)).toFixed(dm))} ${sizes[i]}`;
 };
 
-export const saveBlob = (blob, sheetId, fileName) => {
+export const saveBlob = (blob, sheetId, fileName, dataToEmbed) => {
   const reader = new FileReader();
   reader.onload = () => {
     if (reader.readyState === 2) {
       const buffer = Buffer.from(reader.result);
-      ipcRenderer.send('send-save-file', sheetId, fileName, buffer, true);
+      let chunkBuffer = buffer;
+
+      // if there is data to embed, create chunks and add them in the end
+      if (dataToEmbed !== undefined) {
+        const { filePath, columnCount, frameNumberArray} = dataToEmbed;
+
+        // Create chunks
+        const version = text.encode('version', appVersion);
+        const filePathChunk = text.encode('filePath', filePath);
+        const columnCountChunk = text.encode('columnCount', columnCount);
+        const frameNumberArrayChunk = text.encode('frameNumberArray', JSON.stringify(frameNumberArray));
+
+        const chunks = extract(buffer)
+
+        // Add new chunks before the IEND chunk
+        chunks.splice(-1, 0, version);
+        chunks.splice(-1, 0, filePathChunk);
+        chunks.splice(-1, 0, columnCountChunk);
+        chunks.splice(-1, 0, frameNumberArrayChunk);
+
+        chunkBuffer = Buffer.from(encode(chunks));
+      }
+
+      ipcRenderer.send('send-save-file', sheetId, fileName, chunkBuffer, true);
       log.debug(`Saving ${JSON.stringify({ fileName, size: blob.size })}`);
     }
   };
@@ -354,6 +381,20 @@ export const getSheetId = (sheetsByFileId, fileId) => {
   }
   // return first sheetId in array
   return sheetIdArray[0];
+};
+
+export const getFramenumbers = (sheet, visibilityFilter) => {
+  if (sheet.thumbsArray === undefined) {
+    return undefined;
+  }
+  const { thumbsArray } = sheet;
+  if (visibilityFilter === 'SHOW_VISIBLE') {
+    const frameNumberArray = thumbsArray
+      .filter(thumb => thumb.hidden === false)
+      .map(thumb => thumb.frameNumber);
+    return frameNumberArray;
+  }
+  return thumbsArray.map(thumb => thumb.frameNumber);
 };
 
 export const getFramenumbersOfSheet = (sheetsByFileId, fileId, sheetId, visibilitySettings) => {

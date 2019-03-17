@@ -240,6 +240,22 @@ export const setDefaultSaveOptionIncludeIndividual = (defaultSaveOptionIncludeIn
   };
 };
 
+export const setDefaultEmbedFrameNumbers = (defaultEmbedFrameNumbers) => {
+  log.debug(`action: setDefaultEmbedFrameNumbers - ${defaultEmbedFrameNumbers}`);
+  return {
+    type: 'SET_DEFAULT_EMBED_FRAMENUMBERS',
+    defaultEmbedFrameNumbers
+  };
+};
+
+export const setDefaultEmbedFilePath = (defaultEmbedFilePath) => {
+  log.debug(`action: setDefaultEmbedFilePath - ${defaultEmbedFilePath}`);
+  return {
+    type: 'SET_DEFAULT_EMBED_FILEPATH',
+    defaultEmbedFilePath
+  };
+};
+
 export const setDefaultShowPaperPreview = (defaultShowPaperPreview) => {
   log.debug(`action: setDefaultShowPaperPreview - ${defaultShowPaperPreview}`);
   return {

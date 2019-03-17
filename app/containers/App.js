@@ -11,6 +11,8 @@ import throttle from 'lodash/throttle';
 import log from 'electron-log';
 import os from 'os';
 import Database from 'better-sqlite3';
+import extract from 'png-chunks-extract';
+import text from 'png-chunk-text';
 
 import '../app.global.css';
 import FileList from '../containers/FileList';
@@ -50,7 +52,6 @@ import { getLowestFrame,
   getFileName,
   getSheetName,
 } from '../utils/utils';
-// import saveMoviePrint from '../utils/saveMoviePrint';
 import styles from './App.css';
 import stylesPop from './../components/Popup.css';
 import {
@@ -84,6 +85,8 @@ import {
   setDefaultRoundedCorners,
   setDefaultSaveOptionIncludeIndividual,
   setDefaultSaveOptionOverwrite,
+  setDefaultEmbedFrameNumbers,
+  setDefaultEmbedFilePath,
   setDefaultSceneDetectionThreshold,
   setDefaultShowDetailsInHeader,
   setDefaultShowHeader,
@@ -262,6 +265,7 @@ class App extends Component {
     this.updatecontainerWidthAndHeight = this.updatecontainerWidthAndHeight.bind(this);
     this.updateScaleValue = this.updateScaleValue.bind(this);
     this.recaptureAllFrames = this.recaptureAllFrames.bind(this);
+    this.showMessage = this.showMessage.bind(this);
 
     this.onFileListElementClick = this.onFileListElementClick.bind(this);
     this.onAddIntervalSheet = this.onAddIntervalSheet.bind(this);
@@ -313,6 +317,8 @@ class App extends Component {
     this.onCachedFramesSizeClick = this.onCachedFramesSizeClick.bind(this);
     this.onOverwriteClick = this.onOverwriteClick.bind(this);
     this.onIncludeIndividualClick = this.onIncludeIndividualClick.bind(this);
+    this.onEmbedFrameNumbersClick = this.onEmbedFrameNumbersClick.bind(this);
+    this.onEmbedFilePathClick = this.onEmbedFilePathClick.bind(this);
     this.onThumbnailScaleClick = this.onThumbnailScaleClick.bind(this);
     this.onMoviePrintWidthClick = this.onMoviePrintWidthClick.bind(this);
     this.updateOpencvVideoCanvas = this.updateOpencvVideoCanvas.bind(this);
@@ -396,18 +402,7 @@ class App extends Component {
     });
 
     ipcRenderer.on('progressMessage', (event, status, message, time) => {
-      this.setState({
-        progressMessage: message,
-        showMessage: true
-      }, () => {
-        if (time) {
-          setTimeout(() => {
-            this.setState({
-              showMessage: false
-            });
-          }, time);
-        }
-      });
+      this.showMessage(message, time);
     });
 
     ipcRenderer.on('error-savingMoviePrint', () => {
@@ -626,16 +621,7 @@ class App extends Component {
     });
 
     ipcRenderer.on('received-saved-file-error', (event, message) => {
-      this.setState({
-        progressMessage: message,
-        showMessage: true
-      }, () => {
-        setTimeout(() => {
-          this.setState({
-            showMessage: false
-          });
-        }, 3000);
-      });
+      this.showMessage(message, 3000);
       setTimeout(
         this.setState({ savingMoviePrint: false }),
         1000
@@ -1022,6 +1008,21 @@ class App extends Component {
     }
   }
 
+  showMessage(message, time) {
+    this.setState({
+      progressMessage: message,
+      showMessage: true
+    }, () => {
+      if (time) {
+        setTimeout(() => {
+          this.setState({
+            showMessage: false
+          });
+        }, time);
+      }
+    });
+  }
+
   recaptureAllFrames() {
     const { files, settings, sheetsByFileId } = this.props;
 
@@ -1375,16 +1376,7 @@ class App extends Component {
       store.dispatch(setDefaultSheetView(SHEETVIEW.TIMELINEVIEW));
       store.dispatch(addScenes(tempFile, sceneList, clearOldScenes, settings.defaultCachedFramesSize, sheetId));
     } else {
-      this.setState({
-        progressMessage: 'No scenes detected',
-        showMessage: true,
-      }, () => {
-        setTimeout(() => {
-          this.setState({
-            showMessage: false
-          });
-        }, 3000);
-      });
+      this.showMessage('No scenes detected', 3000);
     }
   }
 
@@ -2115,55 +2107,99 @@ class App extends Component {
     }
   };
 
-  onImportMoviePrint = () => {
+  onImportMoviePrint = (filePath = undefined) => {
     const { store } = this.context;
     const { files, settings } = this.props;
     log.debug('onImportMoviePrint');
-    const newPathArray = dialog.showOpenDialog({
-      filters: [
-        { name: 'JSON', extensions: ['json'] }
-      ],
-      properties: ['openFile']
-    });
-    const newPath = (newPathArray !== undefined ? newPathArray[0] : undefined);
+
+    let newPath = filePath;
+
+    // skip dialog if filePath already available
+    if (filePath === undefined) {
+      const newPathArray = dialog.showOpenDialog({
+        filters: [
+          { name: 'PNG or JSON', extensions: ['png', 'json'] },
+        ],
+        properties: ['openFile']
+      });
+      newPath = (newPathArray !== undefined ? newPathArray[0] : undefined);
+    }
+
     if (newPath) {
       log.debug(newPath);
       fs.readFile(newPath, (err, data) => {
         if (err) {
           return log.error(err);
         }
-        const jsonData = JSON.parse(data);
-        console.log(jsonData.frameNumberArray);
-        const { filePath: newFilePath, frameNumberArray, columnCount} = jsonData;
-        const fileName = path.basename(newFilePath);
-        const { lastModified, size}  = getFileStatsObject(newFilePath) || {};
+        const fileExtension = path.extname(newPath).toLowerCase();
 
-        const fileId = uuidV4();
-        const posterFrameId = uuidV4();
-        const sheetId = uuidV4();
-        const fileToAdd = {
-          id: fileId,
-          lastModified,
-          name: fileName,
-          path: newFilePath,
-          size,
-          // type: files[key].type,
-          posterFrameId,
-        };
-        store.dispatch({
-          type: 'ADD_MOVIE_LIST_ITEMS',
-          payload: [fileToAdd],
-        });
-        store.dispatch(addNewThumbsWithOrder(fileToAdd, sheetId, frameNumberArray, settings.defaultCachedFramesSize));
-        store.dispatch(updateSheetName(fileId, sheetId, getNewSheetName(getSheetCount(files, fileId)))); // set name on file
-        store.dispatch(updateSheetCounter(fileId));
-        store.dispatch(updateSheetColumnCount(fileId, sheetId, columnCount));
-        store.dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.INTERVAL));
-        store.dispatch(updateSheetView(fileId, sheetId, SHEETVIEW.GRIDVIEW));
-        store.dispatch(setDefaultSheetView(SHEETVIEW.GRIDVIEW));
-        store.dispatch(setCurrentSheetId(sheetId));
-        store.dispatch(setCurrentFileId(fileId));
-        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', fileId, newFilePath, posterFrameId, false, true);
+        let newFilePath;
+        let columnCount;
+        let frameNumberArray;
+        let dataAvailable = false;
+
+        if (fileExtension === '.png') {
+          const chunks = extract(data);
+          const textChunks = chunks.filter(chunk => chunk.name === 'tEXt')
+            .map(chunk => text.decode(chunk.data));
+          log.debug(`The png file ${newPath} has the following data embedded:`);
+          log.debug(textChunks);
+
+          if (textChunks.length !== 0) {
+            newFilePath = textChunks.find(chunk => chunk.keyword === 'filePath').text;
+            columnCount = textChunks.find(chunk => chunk.keyword === 'columnCount').text;
+            const frameNumberArrayString = textChunks.find(chunk => chunk.keyword === 'frameNumberArray').text;
+            frameNumberArray = (frameNumberArrayString !== 'undefined') ? JSON.parse(frameNumberArrayString) : undefined;
+            if (frameNumberArray !== undefined && frameNumberArray.length > 0) {
+              dataAvailable = true;
+            }
+          }
+
+        } else {
+          const jsonData = JSON.parse(data);
+          log.debug(`The json file ${newPath} has the following data:`);
+          log.debug(jsonData);
+
+          newFilePath = jsonData.filePath;
+          columnCount = jsonData.columnCount;
+          frameNumberArray = jsonData.frameNumberArray;
+          dataAvailable = true;
+        }
+
+        if (dataAvailable) {
+          this.showMessage('Data is found and being loaded...', 3000);
+          const fileName = path.basename(newFilePath);
+          const { lastModified, size}  = getFileStatsObject(newFilePath) || {};
+
+          const fileId = uuidV4();
+          const posterFrameId = uuidV4();
+          const sheetId = uuidV4();
+          const fileToAdd = {
+            id: fileId,
+            lastModified,
+            name: fileName,
+            path: newFilePath,
+            size,
+            // type: files[key].type,
+            posterFrameId,
+          };
+          store.dispatch({
+            type: 'ADD_MOVIE_LIST_ITEMS',
+            payload: [fileToAdd],
+          });
+          store.dispatch(addNewThumbsWithOrder(fileToAdd, sheetId, frameNumberArray, settings.defaultCachedFramesSize));
+          store.dispatch(updateSheetName(fileId, sheetId, getNewSheetName(getSheetCount(files, fileId)))); // set name on file
+          store.dispatch(updateSheetCounter(fileId));
+          store.dispatch(updateSheetColumnCount(fileId, sheetId, columnCount));
+          store.dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.INTERVAL));
+          store.dispatch(updateSheetView(fileId, sheetId, SHEETVIEW.GRIDVIEW));
+          store.dispatch(setDefaultSheetView(SHEETVIEW.GRIDVIEW));
+          store.dispatch(setCurrentSheetId(sheetId));
+          store.dispatch(setCurrentFileId(fileId));
+          ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', fileId, newFilePath, posterFrameId, false, true);
+        } else {
+          this.showMessage('There is no fitting data found found or embedded', 3000);
+        }
       });
     }
   };
@@ -2172,6 +2208,7 @@ class App extends Component {
     const { store } = this.context;
     store.dispatch(clearMovieList());
     store.dispatch(hideMovielist());
+    store.dispatch(hideSettings());
   };
 
   onDeleteSheetClick = (fileId, sheet) => {
@@ -2258,6 +2295,16 @@ class App extends Component {
   onIncludeIndividualClick = (value) => {
     const { store } = this.context;
     store.dispatch(setDefaultSaveOptionIncludeIndividual(value));
+  };
+
+  onEmbedFrameNumbersClick = (value) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultEmbedFrameNumbers(value));
+  };
+
+  onEmbedFilePathClick = (value) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultEmbedFilePath(value));
   };
 
   onThumbnailScaleClick = (value) => {
@@ -2513,6 +2560,8 @@ class App extends Component {
                       onCachedFramesSizeClick={this.onCachedFramesSizeClick}
                       onOverwriteClick={this.onOverwriteClick}
                       onIncludeIndividualClick={this.onIncludeIndividualClick}
+                      onEmbedFrameNumbersClick={this.onEmbedFrameNumbersClick}
+                      onEmbedFilePathClick={this.onEmbedFilePathClick}
                       onThumbnailScaleClick={this.onThumbnailScaleClick}
                       onMoviePrintWidthClick={this.onMoviePrintWidthClick}
                       scaleValueObject={this.state.scaleValueObject}
