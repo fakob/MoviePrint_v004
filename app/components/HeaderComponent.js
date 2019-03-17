@@ -77,7 +77,6 @@ const Header = ({
             <Dropdown
               data-tid='moviesOverflowDropdown'
               item
-              direction="left"
               icon="ellipsis vertical"
             >
               <Dropdown.Menu>

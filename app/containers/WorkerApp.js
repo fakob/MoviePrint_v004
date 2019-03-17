@@ -84,7 +84,7 @@ class WorkerApp extends Component {
       const outputPath = sentData.settings.defaultOutputPathFromMovie ? filePath : sentData.settings.defaultOutputPath
 
       const movieFilePath = sentData.settings.defaultEmbedFilePath ? sentData.file.path : undefined;
-      const columnCount = sentData.settings.defaultEmbedFrameNumbers ? sentData.sheet.columnCount : undefined;
+      const columnCount = sentData.settings.defaultEmbedFrameNumbers ? (sentData.sheet.columnCount || sentData.settings.defaultColumnCount) : undefined;
       const frameNumberArray = sentData.settings.defaultEmbedFrameNumbers ? getFramenumbers(sentData.sheet, sentData.visibilityFilter) : undefined;
 
       const dataToEmbed = {

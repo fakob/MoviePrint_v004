@@ -2163,7 +2163,12 @@ class App extends Component {
           newFilePath = jsonData.filePath;
           columnCount = jsonData.columnCount;
           frameNumberArray = jsonData.frameNumberArray;
-          dataAvailable = true;
+          if (newFilePath !== undefined &&
+            columnCount !== undefined &&
+            frameNumberArray !== undefined &&
+            frameNumberArray.length > 0) {
+            dataAvailable = true;
+          }
         }
 
         if (dataAvailable) {
