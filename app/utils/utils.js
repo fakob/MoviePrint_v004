@@ -10,7 +10,7 @@ import sheetNames from '../img/listOfNames.json'
 
 const randomColor = require('randomcolor');
 const { ipcRenderer } = require('electron');
-const appVersion = require('electron').remote.app.getVersion();
+const { app } = require('electron').remote;
 
 export const getFileStatsObject = (filename) => {
   if (!fsR.existsSync(filename)) {
@@ -155,7 +155,7 @@ export const formatBytes = (bytes, decimals = 1) => {
   return `${parseFloat((bytes / (k ** i)).toFixed(dm))} ${sizes[i]}`;
 };
 
-export const saveBlob = (blob, sheetId, fileName, dataToEmbed) => {
+export const saveBlob = (blob, sheetId, fileName, dataToEmbed = undefined) => {
   const reader = new FileReader();
   reader.onload = () => {
     if (reader.readyState === 2) {
@@ -167,7 +167,7 @@ export const saveBlob = (blob, sheetId, fileName, dataToEmbed) => {
         const { filePath, columnCount, frameNumberArray} = dataToEmbed;
 
         // Create chunks
-        const version = text.encode('version', appVersion);
+        const version = text.encode('version', app.getVersion());
         const filePathChunk = text.encode('filePath', filePath);
         const columnCountChunk = text.encode('columnCount', columnCount);
         const frameNumberArrayChunk = text.encode('frameNumberArray', JSON.stringify(frameNumberArray));

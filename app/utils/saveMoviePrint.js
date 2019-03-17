@@ -22,13 +22,16 @@ const saveMoviePrint = (
   // log.debug(newFilePathAndName);
   // log.debug(node);
 
+  // only embed data for PNGs
+  const passOnDataToEmbed = outputFormat === 'png' ? dataToEmbed : undefined;
+
   html2canvas(node, {
     backgroundColor: null,
     allowTaint: true,
     scale,
   }).then((canvas) => {
     canvas.toBlob((blob) => {
-      saveBlob(blob, sheetId, newFilePathAndName, dataToEmbed);
+      saveBlob(blob, sheetId, newFilePathAndName, passOnDataToEmbed);
     }, getMimeType(outputFormat), qualityArgument);
   });
 
