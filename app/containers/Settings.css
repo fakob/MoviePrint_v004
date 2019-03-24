@@ -12,3 +12,12 @@
 .subCheckbox {
   margin-left: 30px;
 }
+
+.input {
+  height: 34px;
+  width: 80px;
+}
+
+.edit {
+  padding-left: 4px;
+}

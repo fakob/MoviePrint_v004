@@ -4,10 +4,13 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Slider, { Handle, createSliderWithTooltip } from 'rc-slider';
 import Tooltip from 'rc-tooltip';
-import { Button, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List, Message, Popup } from 'semantic-ui-react';
+import { Button, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List, Message, Popup, Input } from 'semantic-ui-react';
 import styles from './Settings.css';
 import stylesPop from '../components/Popup.css';
-import { frameCountToMinutes } from '../utils/utils';
+import {
+  frameCountToMinutes,
+  limitRange,
+  } from '../utils/utils';
 import {
   MENU_HEADER_HEIGHT,
   MENU_FOOTER_HEIGHT,
@@ -92,8 +95,11 @@ class SettingsList extends Component {
     super(props);
     this.state = {
       changeSceneCount: false,
+      showSliders: true,
     };
 
+    // this.onToggleSliders = this.onToggleSliders.bind(this);
+    this.onShowSliders = this.onShowSliders.bind(this);
     this.onChangeSceneCount = this.onChangeSceneCount.bind(this);
     this.onChangePaperAspectRatio = this.onChangePaperAspectRatio.bind(this);
     this.onChangeShowPaperPreview = this.onChangeShowPaperPreview.bind(this);
@@ -116,6 +122,42 @@ class SettingsList extends Component {
     this.onChangeEmbedFilePath = this.onChangeEmbedFilePath.bind(this);
     this.onChangeThumbnailScale = this.onChangeThumbnailScale.bind(this);
     this.onChangeMoviePrintWidth = this.onChangeMoviePrintWidth.bind(this);
+    this.onChangeColumnCountViaInput = this.onChangeColumnCountViaInput.bind(this);
+    this.onChangeColumnCountViaInputAndApply = this.onChangeColumnCountViaInputAndApply.bind(this);
+    this.onChangeRowViaInput = this.onChangeRowViaInput.bind(this);
+    this.onChangeTimelineViewSecondsPerRowViaInput = this.onChangeTimelineViewSecondsPerRowViaInput.bind(this);
+  }
+
+  // onToggleSliders = () => {
+  //   this.setState(state => ({
+  //     showSliders: !state.showSliders
+  //   }));
+  // }
+
+  onShowSliders = (e, { checked }) => {
+    this.setState({
+      showSliders: !checked
+    });
+  }
+
+  onChangeColumnCountViaInput = (e) => {
+    const value = limitRange(Math.floor(e.target.value), 1, 100);
+    this.props.onChangeColumn(value);
+  }
+
+  onChangeColumnCountViaInputAndApply = (e) => {
+    const value = limitRange(Math.floor(e.target.value), 1, 100);
+    this.props.onChangeColumnAndApply(value);
+  }
+
+  onChangeRowViaInput = (e) => {
+    const value = limitRange(Math.floor(e.target.value), 1, 100);
+    this.props.onChangeRow(value);
+  }
+
+  onChangeTimelineViewSecondsPerRowViaInput = (e) => {
+    const value = limitRange(Math.floor(e.target.value), 1, 20000); // 1 second to 5 hours
+    this.props.onChangeTimelineViewSecondsPerRow(value);
   }
 
   onChangeSceneCount = (e, { checked }) => {
@@ -233,6 +275,7 @@ class SettingsList extends Component {
       thumbCountTemp,
       visibilitySettings,
     } = this.props;
+    const { showSliders } = this.state;
     const fileFps = file !== undefined ? file.fps : 25;
     const minutes = file !== undefined ? frameCountToMinutes(file.frameCount, fileFps) : undefined;
     const minutesRounded = Math.round(minutes);
@@ -300,21 +343,33 @@ class SettingsList extends Component {
                 Columns
               </Grid.Column>
               <Grid.Column width={12}>
-                <SliderWithTooltip
-                  data-tid='columnCountSlider'
-                  className={styles.slider}
-                  min={1}
-                  max={20}
-                  defaultValue={columnCountTemp}
-                  value={columnCountTemp}
-                  marks={{
-                    1: '1',
-                    20: '20',
-                  }}
-                  handle={handle}
-                  onChange={(reCapture && isGridView) ? onChangeColumn :
-                    onChangeColumnAndApply}
-                />
+                { showSliders &&
+                  <SliderWithTooltip
+                    data-tid='columnCountSlider'
+                    className={styles.slider}
+                    min={1}
+                    max={20}
+                    defaultValue={columnCountTemp}
+                    value={columnCountTemp}
+                    marks={{
+                      1: '1',
+                      20: '20',
+                    }}
+                    handle={handle}
+                    onChange={(reCapture && isGridView) ? onChangeColumn :
+                      onChangeColumnAndApply}
+                  />
+                }
+                { !showSliders &&
+                  <Input
+                    type='number'
+                    data-tid='columnCountInput'
+                    className={styles.input}
+                    defaultValue={columnCountTemp}
+                    onChange={(reCapture && isGridView) ? this.onChangeColumnCountViaInput :
+                      this.onChangeColumnCountViaInputAndApply}
+                  />
+                }
               </Grid.Column>
             </Grid.Row>
           }
@@ -325,6 +380,7 @@ class SettingsList extends Component {
                 Rows
               </Grid.Column>
               <Grid.Column width={12}>
+              { showSliders &&
                 <SliderWithTooltip
                   data-tid='rowCountSlider'
                   disabled={!reCapture}
@@ -341,6 +397,16 @@ class SettingsList extends Component {
                   handle={handle}
                   onChange={onChangeRow}
                 />
+              }
+              { !showSliders &&
+                <Input
+                  type='number'
+                  data-tid='rowCountInput'
+                  className={styles.input}
+                  defaultValue={rowCountTemp}
+                  onChange={this.onChangeRowViaInput}
+                />
+              }
               </Grid.Column>
             </Grid.Row>
           }
@@ -351,24 +417,37 @@ class SettingsList extends Component {
                   Minutes per row
                 </Grid.Column>
                 <Grid.Column width={12}>
-                  <SliderWithTooltip
-                    data-tid='minutesPerRowSlider'
-                    className={styles.slider}
-                    min={10}
-                    max={1800}
-                    defaultValue={secondsPerRowTemp}
-                    value={secondsPerRowTemp}
-                    marks={{
-                      10: '0.1',
-                      60: '1',
-                      300: '5',
-                      600: '10',
-                      1200: '20',
-                      1800: '30',
-                    }}
-                    handle={handle}
-                    onChange={this.props.onChangeTimelineViewSecondsPerRow}
-                  />
+                  { showSliders &&
+                    <SliderWithTooltip
+                      data-tid='minutesPerRowSlider'
+                      className={styles.slider}
+                      min={10}
+                      max={1800}
+                      defaultValue={secondsPerRowTemp}
+                      value={secondsPerRowTemp}
+                      marks={{
+                        10: '0.1',
+                        60: '1',
+                        300: '5',
+                        600: '10',
+                        1200: '20',
+                        1800: '30',
+                      }}
+                      handle={handle}
+                      onChange={this.props.onChangeTimelineViewSecondsPerRow}
+                    />
+                  }
+                  { !showSliders &&
+                    <Input
+                      type='number'
+                      data-tid='minutesPerRowInput'
+                      className={styles.input}
+                      label={{ basic: true, content: 'sec' }}
+                      labelPosition='right'
+                      defaultValue={secondsPerRowTemp}
+                      onChange={this.onChangeTimelineViewSecondsPerRowViaInput}
+                    />
+                  }
                 </Grid.Column>
               </Grid.Row>
               {/* <Grid.Row>
@@ -917,6 +996,23 @@ class SettingsList extends Component {
                 }
                 checked={settings.defaultDetectInOutPoint}
                 onChange={this.onChangeDetectInOutPoint}
+              />
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Expert
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <Checkbox
+                data-tid='showSlidersCheckbox'
+                label={
+                  <label className={styles.label}>
+                    Show input field instead of slider
+                  </label>
+                }
+                checked={!this.state.showSliders}
+                onChange={this.onShowSliders}
               />
             </Grid.Column>
           </Grid.Row>
