@@ -287,7 +287,8 @@
     "scroll-into-view": "^1.9.3",
     "semantic-ui-css": "^2.3.3",
     "semantic-ui-react": "^0.83.0",
-    "shelljs": "^0.8.2"
+    "shelljs": "^0.8.2",
+    "spectron-fake-dialog": "^0.0.1"
   },
   "optionalDependencies": {
     "7zip-bin-mac": "^1.0.1",

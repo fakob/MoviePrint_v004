@@ -6,11 +6,11 @@
     <script>
       (function() {
         if (!process.env.HOT) {
-          const link = document.createElement('link');
-          link.rel = 'stylesheet';
-          link.href = './dist/worker_opencv.css';
+          // const link = document.createElement('link');
+          // link.rel = 'stylesheet';
+          // link.href = './dist/worker_opencv.css';
           // HACK: Writing the script path should be done with webpack
-          document.getElementsByTagName('head')[0].appendChild(link);
+          // document.getElementsByTagName('head')[0].appendChild(link);
         }
       }());
     </script>

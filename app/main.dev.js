@@ -15,6 +15,7 @@ import path from 'path';
 import fs from 'fs';
 import log from 'electron-log';
 import {
+  clearCache,
   resetApplication,
   reloadApplication,
 } from './utils/utilsForMain';
