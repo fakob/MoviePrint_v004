@@ -5,6 +5,7 @@ import fs from 'fs';
 import {
   resetApplication,
   reloadApplication,
+  softResetApplication,
 } from './utils/utilsForMain';
 
 export default class MenuBuilder {
@@ -105,6 +106,9 @@ export default class MenuBuilder {
       submenu: [
         { label: 'Reset application', accelerator: 'Shift+Alt+Command+C', click: () => {
           resetApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.indexedDBWorkerWindow)
+          } },
+        { label: 'Soft reset application', accelerator: 'Shift+Alt+Command+V', click: () => {
+          softResetApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.indexedDBWorkerWindow)
           } },
         { label: 'Reload application', accelerator: 'Command+R', click: () => {
           reloadApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.indexedDBWorkerWindow)
@@ -236,6 +240,9 @@ export default class MenuBuilder {
       submenu: [
         { label: 'Reset application', accelerator: 'Shift+Alt+Ctrl+C', click: () => {
           resetApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.indexedDBWorkerWindow)
+          } },
+        { label: 'Soft reset application', accelerator: 'Shift+Alt+Ctrl+V', click: () => {
+          softResetApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.indexedDBWorkerWindow)
           } },
         { label: '&Reload application', accelerator: 'Ctrl+R', click: () => {
           reloadApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.indexedDBWorkerWindow)

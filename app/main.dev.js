@@ -18,6 +18,7 @@ import {
   clearCache,
   resetApplication,
   reloadApplication,
+  softResetApplication,
 } from './utils/utilsForMain';
 
 import MenuBuilder from './menu';
@@ -122,10 +123,16 @@ app.on('ready', async () => {
     if (process.argv.findIndex(value => value === '--reset') > -1) {
       setTimeout(
         () => {
-          clearCache(mainWindow);
+          log.info('resetApplication via --reset');
+          resetApplication(mainWindow, workerWindow, opencvWorkerWindow, indexedDBWorkerWindow);
         },
         1000
       );
+    }
+
+    // clear cache if started with --softreset arg
+    if (process.argv.findIndex(value => value === '--softreset') > -1) {
+      softResetApplication(mainWindow, workerWindow, opencvWorkerWindow, indexedDBWorkerWindow);
     }
   });
 
@@ -276,6 +283,11 @@ app.on('ready', async () => {
 ipcMain.on('reset-application', (event) => {
   log.info('resetApplication');
   resetApplication(mainWindow, workerWindow, opencvWorkerWindow, indexedDBWorkerWindow)
+});
+
+ipcMain.on('soft-reset-application', (event) => {
+  log.info('softResetApplication');
+  softResetApplication(mainWindow, workerWindow, opencvWorkerWindow, indexedDBWorkerWindow)
 });
 
 ipcMain.on('reload-application', (event) => {

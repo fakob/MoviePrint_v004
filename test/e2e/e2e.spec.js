@@ -12,33 +12,33 @@ describe('main window', function spec() {
   beforeAll(async () => {
     this.app = new Application({
       path: electronPath,
-      args: [path.join(__dirname, '..', '..', 'app'), '--reset']
+      args: [path.join(__dirname, '..', '..', 'app'), '--softreset']
     });
     fakeDialog.apply(this.app);
-
+    console.log(await this.app.getSettings());
     return this.app.start();
   });
 
-  // afterAll(() => {
-  //   if (this.app && this.app.isRunning()) {
-  //     return this.app.stop();
-  //   }
-  // });
+  afterAll(() => {
+    if (this.app && this.app.isRunning()) {
+      return this.app.stop();
+    }
+  });
 
   // prepare to store window title and handle for later use
   const windowObject = {};
 
-  const findCounter = () => this.app.client.element('[data-tid="counter"]');
-
-  const findButtons = async () => {
-    const { value } = await this.app.client.elements('[data-tclass="btn"]');
-    return value.map(btn => btn.ELEMENT);
-  };
+  // const findCounter = () => this.app.client.element('[data-tid="counter"]');
+  //
+  // const findButtons = async () => {
+  //   const { value } = await this.app.client.elements('[data-tclass="btn"]');
+  //   return value.map(btn => btn.ELEMENT);
+  // };
 
   it('should open the 5 windows', async () => {
     const { client } = this.app;
-    await client.waitUntilWindowLoaded();
-    client.waitForExist('[data-tid="startupImg"]', 3000);
+    // await client.waitUntilWindowLoaded();
+    // await client.waitForExist('[data-tid="startupImg"]', 10000);
     // const windowCount = await client.getWindowCount();
     const windowHandles = await client.windowHandles();
     const windowNames = [];
@@ -70,13 +70,8 @@ describe('main window', function spec() {
     await client.window(windowObject['MoviePrint']);
 
     const logs = await client.getRenderProcessLogs();
-    // Print renderer process logs
-    // console.log(logs);
+    // Print renderer process logs for MoviePrint renderer
     logs.forEach(log => {
-      // console.log(log.message);
-      // console.log(log.source);
-      // console.log(log.level);
-      // exclude standard failed to load resource
       if (log.level === 'SEVERE' &&
       log.message !== 'data:image/jpeg;base64, undefined - Failed to load resource: net::ERR_INVALID_URL') {
         expect(log.level).not.toEqual('SEVERE');
@@ -99,7 +94,7 @@ describe('main window', function spec() {
       expect(await client.isExisting('[data-tid="thumbGridDiv"]')).toBe(true);
   });
 
-  //
+
   // it('should display updated count after increment button click', async () => {
   //   const { client } = this.app;
   //

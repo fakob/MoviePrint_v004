@@ -29,12 +29,12 @@ export const resetApplication = (mainWindow, workerWindow, opencvWorkerWindow, i
     opencvWorkerWindow.webContents.reload();
     indexedDBWorkerWindow.webContents.reload(); // needs reload to open indexedDB connection
   }, 1000);
-  // ipcMain.on('delete-all-tables-done', () => {
-  //   clearCache(mainWindow);
-  //   workerWindow.webContents.reload();
-  //   opencvWorkerWindow.webContents.reload();
-  //   indexedDBWorkerWindow.webContents.reload(); // needs reload to open indexedDB connection
-  // });
+}
+
+// soft reset only deletes the indexedDB table, and does not clear cache nor all storage data
+// and also does not reload the windows
+export const softResetApplication = (mainWindow, workerWindow, opencvWorkerWindow, indexedDBWorkerWindow) => {
+  mainWindow.webContents.send('delete-all-tables');
 }
 
 export const reloadApplication = (mainWindow, workerWindow, opencvWorkerWindow, indexedDBWorkerWindow) => {

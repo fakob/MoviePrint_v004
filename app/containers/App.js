@@ -336,7 +336,7 @@ class App extends Component {
       log.debug('delete-all-tables');
       deleteTableFrameScanList();
       deleteTableReduxState();
-      // ipcRenderer.send('delete-all-tables-done');
+      deleteTableFramelist();
     });
   }
 
