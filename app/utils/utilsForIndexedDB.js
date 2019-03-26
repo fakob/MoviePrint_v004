@@ -26,18 +26,28 @@ export const addFrameToIndexedDB = (frameId, fileId, frameNumber, outBase64, obj
   const url = `data:image/jpg;base64,${outBase64}`;
   fetch(url)
   .then(res => res.blob())
-  .then(blob =>
-    imageDB.transaction('rw', imageDB.frameList, async ()=>{
-      await imageDB.frameList.put({
-        frameId,
-        fileId,
-        frameNumber,
-        data: blob
+  .then(blob => {
+    try {
+      return imageDB.transaction('rw', imageDB.frameList, async ()=>{
+        await imageDB.frameList.put({
+          frameId,
+          fileId,
+          frameNumber,
+          data: blob
+        });
+        const key = await imageDB.frameList.get(frameId);
+        console.log(key);
+        return key;
+      })
+      .catch(e => {
+        log.error('error inside addFrameToIndexedDB - transaction');
+        log.error(e.stack || e);
       });
-      const key = await imageDB.frameList.get(frameId);
-      console.log(key);
-      return key;
-    })
+    } catch (e) {
+      log.error(e.stack || e);
+      return undefined;
+    }
+  }
   )
   .then(frame => {
     console.log(frame);
@@ -74,6 +84,7 @@ export const updateFrameInIndexedDB = (frameId, outBase64, objectUrlQueue, fastT
       return key;
     })
     .catch(e => {
+      log.error('error inside updateFrameInIndexedDB - transaction');
       log.error(e.stack || e);
     });
   })
@@ -105,23 +116,43 @@ export const updateFrameInIndexedDB = (frameId, outBase64, objectUrlQueue, fastT
 
 export const getObjectUrlsFromFramelist = (objectUrlQueue) => {
   console.log('inside getObjectUrlsFromFramelist');
-  imageDB.transaction('r', imageDB.frameList, async ()=>{
-    const array = await imageDB.frameList.toArray();
-    if (array.length === 0) {
-      return [];
-    }
-    const arrayOfObjectUrls = [];
-    array.map((frame) => {
-      const objectUrl = window.URL.createObjectURL(frame.data);
-      if (objectUrl !== undefined) {
-        arrayOfObjectUrls.push({
-          frameId: frame.frameId,
-          objectUrl: window.URL.createObjectURL(frame.data),
-        })
+  try {
+    log.warn(imageDB.isOpen());
+    imageDB.transaction('r', imageDB.frameList, async ()=>{
+      try {
+        console.log(imageDB.isOpen())
+        const array = await imageDB.frameList.toArray()
+        .catch((e) => {
+          log.error('error inside promise catch');
+          log.error(e.stack || e);
+        });
+        if (array.length === 0) {
+          return [];
+        }
+        const arrayOfObjectUrls = [];
+        array.map((frame) => {
+          const objectUrl = window.URL.createObjectURL(frame.data);
+          if (objectUrl !== undefined) {
+            arrayOfObjectUrls.push({
+              frameId: frame.frameId,
+              objectUrl: window.URL.createObjectURL(frame.data),
+            })
+          }
+          return undefined;
+        });
+        objectUrlQueue.addArray(arrayOfObjectUrls);
+        return undefined;
+      } catch (e) {
+        log.error('error inside the inner try catch');
+        log.error(e.stack || e);
       }
-      return undefined;
-    });
-    objectUrlQueue.addArray(arrayOfObjectUrls);
-    return undefined;
-  })
+    })
+    .catch((e) => {
+      log.error('error inside promise catch');
+      log.error(e.stack || e);
+    })
+  } catch (e) {
+    log.error('error inside try catch');
+    log.error(e.stack || e);
+  }
 }
