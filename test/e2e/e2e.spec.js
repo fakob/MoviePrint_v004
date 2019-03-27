@@ -1,3 +1,5 @@
+/* eslint no-restricted-syntax: ["error", "WithStatement", "BinaryExpression[operator='in']"] */
+
 import { Application } from 'spectron';
 import electronPath from 'electron';
 import fakeDialog from 'spectron-fake-dialog';
@@ -13,6 +15,7 @@ describe('main window', function spec() {
     this.app = new Application({
       path: electronPath,
       args: [path.join(__dirname, '..', '..', 'app'), '--softreset']
+      // args: [path.join(__dirname, '..', '..', 'app'), '--softreset', '--debug']
     });
     fakeDialog.apply(this.app);
     console.log(await this.app.getSettings());
@@ -45,10 +48,8 @@ describe('main window', function spec() {
     for (const windowHandleValue of windowHandles.value) {
       await client.window(windowHandleValue);
       const title = await client.getTitle();
-
       windowNames.push(title)
       console.log(title);
-
       // store window title and handle for later use
       windowObject[title] = windowHandleValue
     }
@@ -65,22 +66,24 @@ describe('main window', function spec() {
     ]);
   });
 
-  it("should haven't any logs in console of main window", async () => {
+  it("shouldn't have any logs in console of all windows", async () => {
     const { client } = this.app;
-    await client.window(windowObject['MoviePrint']);
-
-    const logs = await client.getRenderProcessLogs();
-    // Print renderer process logs for MoviePrint renderer
-    logs.forEach(log => {
-      if (log.level === 'SEVERE' &&
-      log.message !== 'data:image/jpeg;base64, undefined - Failed to load resource: net::ERR_INVALID_URL') {
-        expect(log.level).not.toEqual('SEVERE');
-      }
-    });
+    Object.values(windowObject).map(async windowHandleValue => {
+      await client.window(windowHandleValue);
+      const logs = await client.getRenderProcessLogs();
+      // Print renderer process logs for MoviePrint renderer
+      logs.forEach(log => {
+        if (log.level === 'SEVERE' &&
+        log.message !== 'data:image/jpeg;base64, undefined - Failed to load resource: net::ERR_INVALID_URL') {
+          expect(log.level).not.toEqual('SEVERE');
+        }
+      });
+    })
   });
 
   it('should load a movie', async () => {
     const { client } = this.app;
+    await client.window(windowObject['MoviePrint']); // focus main window
     const dragndropInput = '[type="file"]'; // selecting the input div via type
     const pathOfMovie = '/Users/jakobschindegger/Desktop/test.mp4';
     await client.chooseFile(dragndropInput, pathOfMovie);
