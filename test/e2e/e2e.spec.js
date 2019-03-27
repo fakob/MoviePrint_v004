@@ -48,10 +48,15 @@ describe('main window', function spec() {
     for (const windowHandleValue of windowHandles.value) {
       await client.window(windowHandleValue);
       const title = await client.getTitle();
-      windowNames.push(title)
+
       console.log(title);
-      // store window title and handle for later use
-      windowObject[title] = windowHandleValue
+      // only add to array if it has a title
+      // this will exclude debug windows
+      if (title !== '') {
+        windowNames.push(title)
+        // store window title and handle for later use
+        windowObject[title] = windowHandleValue
+      }
     }
     console.log(windowNames.sort());
     // console.log(windowHandles);
@@ -81,31 +86,34 @@ describe('main window', function spec() {
     })
   });
 
-  it('should load a movie', async () => {
+  it('should load a movie and get all 16 thumbs', async () => {
     const { client } = this.app;
     await client.window(windowObject['MoviePrint']); // focus main window
     const dragndropInput = '[type="file"]'; // selecting the input div via type
     const pathOfMovie = '/Users/jakobschindegger/Desktop/test.mp4';
     await client.chooseFile(dragndropInput, pathOfMovie);
-    console.log(await client.isExisting(dragndropInput));
     const val = await client.getValue(dragndropInput)
     console.log(val);
     client.waitForExist('[data-tid="thumbGridDiv"]', 3000);
-
-    // await delay(1500);
-    console.log(pathOfMovie);
-      expect(await client.isExisting('[data-tid="thumbGridDiv"]')).toBe(true);
+    expect(await client.isExisting('[data-tid="thumbGridDiv"]')).toBe(true);
+    expect(await client.isExisting('#thumb15')).toBe(true);
   });
 
+  it('should increase thumb count to 20', async () => {
+    const { client } = this.app;
+    console.log(client);
+    await client.element('[data-tid="moreSettingsBtn"]').click();
+    await client.element('[data-tid="showSlidersCheckbox"]').scroll();
+    await client.element('[data-tid="showSlidersCheckbox"]').click();
+    await client.element('[data-tid="columnCountInput"]').scroll();
+    const findColumnCountInput = () => client.element('[data-tid="columnCountInput"]');
+    await findColumnCountInput().setValue(5);
+    await client.element('[data-tid="applyNewGridBtn"]').click();
+    await client.element('[data-tid="showSlidersCheckbox"]').click();
+    client.waitForExist('#thumb19', 3000);
+    expect(await client.isExisting('#thumb19')).toBe(true);
+  });
 
-  // it('should display updated count after increment button click', async () => {
-  //   const { client } = this.app;
-  //
-  //   const buttons = await findButtons();
-  //   await client.elementIdClick(buttons[0]); // +
-  //   expect(await findCounter().getText()).toBe('1');
-  // });
-  //
   // it('should display updated count after descrement button click', async () => {
   //   const { client } = this.app;
   //
@@ -149,7 +157,13 @@ describe('main window', function spec() {
   // });
 
 
-
+  // const findThumbGridDiv = () => this.app.client.element('[data-tid="thumbGridDiv"]');
+  // const thumbs = $$(".//*[contains(@class,'ThumbGrid__gridItem')]")
+  // const findThumbs = () => this.app.client.elements('.//*[contains(@class,"ThumbGrid__gridItem")]');
+  // const thumbs = await findThumbs();
+  // console.log(thumbs);
+  // console.log(thumbs.value.length);
+  // await delay(1500);
 
     // it('should open a dialog', async () => {
     //   const { client } = this.app;
