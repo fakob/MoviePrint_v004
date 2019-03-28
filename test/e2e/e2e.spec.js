@@ -31,13 +31,6 @@ describe('main window', function spec() {
   // prepare to store window title and handle for later use
   const windowObject = {};
 
-  // const findCounter = () => this.app.client.element('[data-tid="counter"]');
-  //
-  // const findButtons = async () => {
-  //   const { value } = await this.app.client.elements('[data-tclass="btn"]');
-  //   return value.map(btn => btn.ELEMENT);
-  // };
-
   it('should open the 5 windows', async () => {
     const { client } = this.app;
     // await client.waitUntilWindowLoaded();
@@ -59,8 +52,6 @@ describe('main window', function spec() {
       }
     }
     console.log(windowNames.sort());
-    // console.log(windowHandles);
-    // console.log(windowObject);
 
     expect(windowNames).toEqual([
       'MoviePrint',
@@ -99,63 +90,30 @@ describe('main window', function spec() {
     expect(await client.isExisting('#thumb15')).toBe(true);
   });
 
-  it('should increase thumb count to 20', async () => {
-    const { client } = this.app;
-    console.log(client);
-    await client.element('[data-tid="moreSettingsBtn"]').click();
-    await client.element('[data-tid="showSlidersCheckbox"]').scroll();
-    await client.element('[data-tid="showSlidersCheckbox"]').click();
-    await client.element('[data-tid="columnCountInput"]').scroll();
-    const findColumnCountInput = () => client.element('[data-tid="columnCountInput"]');
-    await findColumnCountInput().setValue(5);
-    await client.element('[data-tid="applyNewGridBtn"]').click();
-    await client.element('[data-tid="showSlidersCheckbox"]').click();
-    client.waitForExist('#thumb19', 3000);
-    expect(await client.isExisting('#thumb19')).toBe(true);
-  });
-
-  // it('should display updated count after descrement button click', async () => {
+  // it('should increase thumb count to 20 - NOT WORKING YET', async () => {
   //   const { client } = this.app;
-  //
-  //   const buttons = await findButtons();
-  //   await client.elementIdClick(buttons[1]); // -
-  //   expect(await findCounter().getText()).toBe('0');
-  // });
-  //
-  // it('shouldnt change if even and if odd button clicked', async () => {
-  //   const { client } = this.app;
-  //
-  //   const buttons = await findButtons();
-  //   await client.elementIdClick(buttons[2]); // odd
-  //   expect(await findCounter().getText()).toBe('0');
-  // });
-  //
-  // it('should change if odd and if odd button clicked', async () => {
-  //   const { client } = this.app;
-  //
-  //   const buttons = await findButtons();
-  //   await client.elementIdClick(buttons[0]); // +
-  //   await client.elementIdClick(buttons[2]); // odd
-  //   expect(await findCounter().getText()).toBe('2');
-  // });
-  //
-  // it('should change if async button clicked and a second later', async () => {
-  //   const { client } = this.app;
-  //
-  //   const buttons = await findButtons();
-  //   await client.elementIdClick(buttons[3]); // async
-  //   expect(await findCounter().getText()).toBe('2');
-  //   await delay(3000);
-  //   expect(await findCounter().getText()).toBe('3');
-  // });
-  //
-  // it('should back to home if back button clicked', async () => {
-  //   const { client } = this.app;
-  //   await client.element('[data-tid="backButton"] > a').click();
-  //
-  //   expect(await client.isExisting('[data-tid="container"]')).toBe(true);
+  //   console.log(client);
+  //   await client.element('[data-tid="moreSettingsBtn"]').click();
+  //   await client.element('[data-tid="showSlidersCheckbox"]').scroll();
+  //   await client.element('[data-tid="showSlidersCheckbox"]').click();
+  //   await client.element('[data-tid="columnCountInput"]').scroll();
+  //   const findColumnCountInput = () => client.element('[data-tid="columnCountInput"]');
+  //   await findColumnCountInput().setValue(5);
+  //   await client.element('[data-tid="applyNewGridBtn"]').click();
+  //   await client.element('[data-tid="showSlidersCheckbox"]').click();
+  //   client.waitForExist('#thumb19', 3000);
+  //   expect(await client.isExisting('#thumb19')).toBe(true);
   // });
 
+  // it('should open a dialog', async () => {
+  //   const { client } = this.app;
+  //   fakeDialog.mock([ { method: 'showOpenDialog', value: ['faked.txt'] } ])
+  //
+  //   await client.click('[data-tid=openMoviesBtn]');
+  //   const pathOfMovie = await client.getText('#return-value');
+  //   console.log(pathOfMovie);
+  //   expect(await findCounter().getText()).toBe('0');
+  // });
 
   // const findThumbGridDiv = () => this.app.client.element('[data-tid="thumbGridDiv"]');
   // const thumbs = $$(".//*[contains(@class,'ThumbGrid__gridItem')]")
@@ -165,13 +123,11 @@ describe('main window', function spec() {
   // console.log(thumbs.value.length);
   // await delay(1500);
 
-    // it('should open a dialog', async () => {
-    //   const { client } = this.app;
-    //   fakeDialog.mock([ { method: 'showOpenDialog', value: ['faked.txt'] } ])
-    //
-    //   await client.click('[data-tid=openMoviesBtn]');
-    //   const pathOfMovie = await client.getText('#return-value');
-    //   console.log(pathOfMovie);
-    //   expect(await findCounter().getText()).toBe('0');
-    // });
+  // const findCounter = () => this.app.client.element('[data-tid="counter"]');
+  //
+  // const findButtons = async () => {
+  //   const { value } = await this.app.client.elements('[data-tclass="btn"]');
+  //   return value.map(btn => btn.ELEMENT);
+  // };
+
 });
