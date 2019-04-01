@@ -14,6 +14,8 @@ const saveThumb = (filePath, fileUseRatio, fileName, frameNumber, frameId, saveT
     ensureDirectoryExistence(newFolderName);
   }
 
+  const frameSize = 0 // save frame in original size
+
   const newFilePathObject = getFilePathObject(fileName, `-frame${pad(frameNumber, 6)}`, 'jpg', newFolderName, overwrite);
   const newFilePathAndName = pathR.join(
     newFilePathObject.dir,
@@ -28,7 +30,8 @@ const saveThumb = (filePath, fileUseRatio, fileName, frameNumber, frameId, saveT
       frameId,
       frameNumber,
       }
-    ]
+    ],
+    frameSize
   );
   const base64 = base64Object[frameId];
   const buf = Buffer.from(base64, 'base64');

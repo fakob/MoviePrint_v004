@@ -58,7 +58,17 @@ class WorkerApp extends Component {
         sentData.visibilityFilter
       );
 
-      const base64Object = getBase64Object(sentData.file.path, sentData.file.useRatio, visibleThumbs);
+      // calculate which frameSize is needed to be captured
+      // moviePrintAspectRatioInv
+      // need to check portrait thumbs as resizeToMax is used which is not width specific
+      const { newThumbWidth, moviePrintAspectRatioInv } = sentData.scaleValueObject;
+      const newThumbHeight = newThumbWidth * moviePrintAspectRatioInv;
+      const frameSize = Math.floor(Math.max(newThumbHeight, newThumbWidth) * 2) // get twice the needed resolution for better antialiasing
+      console.log(newThumbWidth);
+      console.log(newThumbHeight);
+      console.log(frameSize);
+
+      const base64Object = getBase64Object(sentData.file.path, sentData.file.useRatio, visibleThumbs, frameSize);
 
       // console.log(base64Object);
 

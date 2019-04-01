@@ -58,6 +58,8 @@ export const OUTPUT_FORMAT_OPTIONS = [
 
 export const CACHED_FRAMES_SIZE_OPTIONS = [
   { value: 0, text: 'Original size', 'data-tid': 'originalSizeOption' }, // 0 stands for original size
+  { value: 80, text: '80px', 'data-tid': '80option' },
+  { value: 160, text: '160px', 'data-tid': '160option' },
   { value: 320, text: '320px', 'data-tid': '320option' },
   { value: 640, text: '640px', 'data-tid': '640option' },
   { value: 720, text: '720px', 'data-tid': '720option' },

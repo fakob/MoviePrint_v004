@@ -141,23 +141,31 @@ class SettingsList extends Component {
   }
 
   onChangeColumnCountViaInput = (e) => {
-    const value = limitRange(Math.floor(e.target.value), 1, 100);
-    this.props.onChangeColumn(value);
+    if (e.key === 'Enter') {
+      const value = limitRange(Math.floor(e.target.value), 1, 100);
+      this.props.onChangeColumn(value);
+    }
   }
 
   onChangeColumnCountViaInputAndApply = (e) => {
-    const value = limitRange(Math.floor(e.target.value), 1, 100);
-    this.props.onChangeColumnAndApply(value);
+    if (e.key === 'Enter') {
+      const value = limitRange(Math.floor(e.target.value), 1, 100);
+      this.props.onChangeColumnAndApply(value);
+    }
   }
 
   onChangeRowViaInput = (e) => {
-    const value = limitRange(Math.floor(e.target.value), 1, 100);
-    this.props.onChangeRow(value);
+    if (e.key === 'Enter') {
+      const value = limitRange(Math.floor(e.target.value), 1, 100);
+      this.props.onChangeRow(value);
+    }
   }
 
   onChangeTimelineViewSecondsPerRowViaInput = (e) => {
-    const value = limitRange(Math.floor(e.target.value), 1, 20000); // 1 second to 5 hours
-    this.props.onChangeTimelineViewSecondsPerRow(value);
+    if (e.key === 'Enter') {
+      const value = limitRange(Math.floor(e.target.value), 1, 20000); // 1 second to 5 hours
+      this.props.onChangeTimelineViewSecondsPerRow(value);
+    }
   }
 
   onChangeSceneCount = (e, { checked }) => {
@@ -366,7 +374,7 @@ class SettingsList extends Component {
                     data-tid='columnCountInput'
                     className={styles.input}
                     defaultValue={columnCountTemp}
-                    onChange={(reCapture && isGridView) ? this.onChangeColumnCountViaInput :
+                    onKeyDown={(reCapture && isGridView) ? this.onChangeColumnCountViaInput :
                       this.onChangeColumnCountViaInputAndApply}
                   />
                 }
@@ -404,7 +412,7 @@ class SettingsList extends Component {
                   data-tid='rowCountInput'
                   className={styles.input}
                   defaultValue={rowCountTemp}
-                  onChange={this.onChangeRowViaInput}
+                  onKeyDown={this.onChangeRowViaInput}
                 />
               }
               </Grid.Column>
@@ -445,7 +453,7 @@ class SettingsList extends Component {
                       label={{ basic: true, content: 'sec' }}
                       labelPosition='right'
                       defaultValue={secondsPerRowTemp}
-                      onChange={this.onChangeTimelineViewSecondsPerRowViaInput}
+                      onKeyDown={this.onChangeTimelineViewSecondsPerRowViaInput}
                     />
                   }
                 </Grid.Column>

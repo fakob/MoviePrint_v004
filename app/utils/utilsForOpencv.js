@@ -63,17 +63,21 @@ export const recaptureThumbs = (
   }
 }
 
-export const getBase64Object = (filePath, useRatio, arrayOfThumbs) => {
+export const getBase64Object = (filePath, useRatio, arrayOfThumbs, frameSize = 0) => {
   try {
     const opencvVideo = new opencv.VideoCapture(filePath);
 
     const objectUrlObjects = {};
     arrayOfThumbs.map(thumb => {
       setPosition(opencvVideo, thumb.frameNumber, useRatio);
-      const frame = opencvVideo.read();
+      const mat = opencvVideo.read();
       let base64 = '';
-      if (!frame.empty) {
-        base64 = opencv.imencode('.jpg', frame).toString('base64'); // maybe change to .png?
+      if (!mat.empty) {
+        let matRescaled;
+        if (frameSize !== 0) { // 0 stands for keep original size
+          matRescaled = mat.resizeToMax(frameSize);
+        }
+        base64 = opencv.imencode('.jpg', matRescaled || mat).toString('base64'); // maybe change to .png?
       }
       objectUrlObjects[thumb.frameId] = base64;
       return undefined;
