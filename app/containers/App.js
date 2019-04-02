@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone';
 import fs from 'fs';
-import { TransitionablePortal, Segment, Progress, Modal, Button, Icon, Container, Loader, Header, Divider } from 'semantic-ui-react';
+import { TransitionablePortal, Segment, Progress, Modal, Button, Icon, Container, Loader, Header, Divider, Form, Input } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
 import {Line, defaults} from 'react-chartjs-2';
 import path from 'path';
@@ -68,6 +68,7 @@ import {
   updateSceneArray,
   updateSheetType,
   updateSheetView,
+  updateCropping,
   hideMovielist,
   hideSettings,
   removeMovieListItem,
@@ -229,6 +230,8 @@ class App extends Component {
       fileScanRunning: false,
       sheetsToPrint: [],
       savingAllMoviePrints: false,
+      showTransformModal: false,
+      transformObject: {},
       objectUrlObjects: {},
       framesToFetch: [],
       fileIdToBeRecaptured: undefined,
@@ -310,6 +313,8 @@ class App extends Component {
     this.onExportSheetClick = this.onExportSheetClick.bind(this);
     this.onScanMovieListItemClick = this.onScanMovieListItemClick.bind(this);
     this.onReplaceMovieListItemClick = this.onReplaceMovieListItemClick.bind(this);
+    this.onEditTransformListItemClick = this.onEditTransformListItemClick.bind(this);
+    this.onChangeTransform = this.onChangeTransform.bind(this);
     this.onRemoveMovieListItem = this.onRemoveMovieListItem.bind(this);
     this.onDeleteSheetClick = this.onDeleteSheetClick.bind(this);
     this.onChangeOutputPathClick = this.onChangeOutputPathClick.bind(this);
@@ -2001,6 +2006,29 @@ class App extends Component {
     // store.dispatch(setCurrentSheetId(newSheetId));
   };
 
+  onEditTransformListItemClick = (fileId) => {
+    const { store } = this.context;
+    const { files } = this.props;
+    const file = files.find(file2 => file2.id === fileId);
+    const { transformObject = {cropTop: 0, cropBottom: 0, cropLeft: 0, cropRight: 0} } = file; // initialise if undefined
+    console.log(transformObject);
+    this.setState({
+      showTransformModal: true,
+      transformObject: Object.assign({fileId}, transformObject) // adding fileId
+    })
+  };
+
+  onChangeTransform = (e) => {
+    const { store } = this.context;
+    const { transformObject } = this.state;
+    const { cropTop, cropBottom, cropLeft, cropRight } = e.target;
+    store.dispatch(updateCropping(transformObject.fileId, cropTop.value, cropBottom.value, cropLeft.value, cropRight.value));
+    this.setState({
+      showTransformModal: false,
+      fileIdToBeRecaptured: transformObject.fileId,
+    });
+  };
+
   onScanMovieListItemClick = (fileId) => {
     const { files } = this.props;
     const file = files.find(file2 => file2.id === fileId);
@@ -2514,6 +2542,7 @@ class App extends Component {
                       onExportSheetClick={this.onExportSheetClick}
                       onScanMovieListItemClick={this.onScanMovieListItemClick}
                       onReplaceMovieListItemClick={this.onReplaceMovieListItemClick}
+                      onEditTransformListItemClick={this.onEditTransformListItemClick}
                       onRemoveMovieListItem={this.onRemoveMovieListItem}
                       onDeleteSheetClick={this.onDeleteSheetClick}
                       currentSheetId={this.props.currentSheetId}
@@ -2914,6 +2943,28 @@ class App extends Component {
                   />
                 </div>
               }
+              <Modal
+                open={this.state.showTransformModal}
+                onClose={() => this.setState({ showTransformModal: false})}
+                size='small'
+                closeIcon
+              >
+                <Modal.Header>Set transform</Modal.Header>
+                <Modal.Content image>
+                  <Modal.Description>
+                    <Form onSubmit={this.onChangeTransform}>
+                      <Form.Group>
+                        <Header as='h3'>Cropping in pixel</Header>
+                        <Form.Input name='cropTop' label='From top' placeholder='top' width={3} defaultValue={this.state.transformObject.cropTop} />
+                        <Form.Input name='cropBottom' label='From bottom' placeholder='bottom' width={3} defaultValue={this.state.transformObject.cropBottom} />
+                        <Form.Input name='cropLeft' label='From left' placeholder='left' width={3} defaultValue={this.state.transformObject.cropLeft} />
+                        <Form.Input name='cropRight' label='From right' placeholder='right' width={3} defaultValue={this.state.transformObject.cropRight} />
+                      </Form.Group>
+                    <Form.Button content='Update cropping' />
+                    </Form>
+                  </Modal.Description>
+                </Modal.Content>
+              </Modal>
               <Modal
                 open={this.state.savingAllMoviePrints}
                 basic

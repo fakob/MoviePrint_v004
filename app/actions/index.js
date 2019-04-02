@@ -448,7 +448,7 @@ export const addThumb = (file, sheetId, frameNumber, index, thumbId = uuidV4(), 
       log.debug(frames.length);
       if (frames.length === 0) {
         log.debug(`frame number: ${frameNumber} not yet in database - need(s) to be captured`);
-        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheetId, [thumbId], [frameId], [newFrameNumberWithinBoundaries], file.useRatio, frameSize);
+        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheetId, [thumbId], [frameId], [newFrameNumberWithinBoundaries], file.useRatio, frameSize, file.transformObject);
         log.debug('dispatch: ADD_THUMB');
         return dispatch({
           type: 'ADD_THUMB',
@@ -649,7 +649,7 @@ export const addThumbs = (file, sheetId, frameNumberArray, frameSize = 0) => {
         // add new thumbs
         notExistingFrameIdArray = notExistingFrameNumberArray.map(() => uuidV4());
         notExistingThumbIdArray = notExistingFrameNumberArray.map(() => uuidV4());
-        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheetId, notExistingThumbIdArray, notExistingFrameIdArray, notExistingFrameNumberArray, file.useRatio, frameSize);
+        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheetId, notExistingThumbIdArray, notExistingFrameIdArray, notExistingFrameNumberArray, file.useRatio, frameSize, file.transformObject);
       }
 
       let alreadyExistingThumbIdsArray = [];
@@ -699,7 +699,7 @@ export const addNewThumbsWithOrder = (file, sheetId, frameNumberArray, frameSize
       uniqueFrameNumberAndFrameIdArray.find(item => item.frameNumber === frameNumber).frameId
     );
 
-    ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheetId, thumbIdArray, frameIdArray, frameNumberArray, file.useRatio, frameSize);
+    ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheetId, thumbIdArray, frameIdArray, frameNumberArray, file.useRatio, frameSize, file.transformObject);
 
     log.debug('dispatch: ADD_THUMBS');
     dispatch({
@@ -727,7 +727,7 @@ export const changeThumb = (sheetId, file, thumbId, newFrameNumber, frameSize = 
     imageDB.frameList.where('[fileId+frameNumber]').equals([file.id, newFrameNumberWithinBoundaries]).toArray().then((frames) => {
       if (frames.length === 0) {
         log.debug(`frame number: ${newFrameNumber} not yet in database - need(s) to be captured`);
-        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheetId, [thumbId], [newFrameId], [newFrameNumberWithinBoundaries], file.useRatio, frameSize);
+        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheetId, [thumbId], [newFrameId], [newFrameNumberWithinBoundaries], file.useRatio, frameSize, file.transformObject);
         log.debug('dispatch: CHANGE_THUMB');
         return dispatch({
           type: 'CHANGE_THUMB',
@@ -932,6 +932,24 @@ export const replaceFileDetails = (fileId, path, name, size, lastModified) => {
         name,
         size,
         lastModified,
+      }
+    });
+  };
+};
+
+export const updateCropping = (fileId, cropTop, cropBottom, cropLeft, cropRight) => {
+  return (dispatch) => {
+    log.debug('action: updateCropping');
+    dispatch({
+      type: 'UPDATE_CROPPING',
+      payload: {
+        fileId,
+        transformObject: {
+          cropTop,
+          cropBottom,
+          cropLeft,
+          cropRight
+        }
       }
     });
   };

@@ -62,13 +62,14 @@ class WorkerApp extends Component {
       // moviePrintAspectRatioInv
       // need to check portrait thumbs as resizeToMax is used which is not width specific
       const { newThumbWidth, moviePrintAspectRatioInv } = sentData.scaleValueObject;
+      const { file } = sentData;
       const newThumbHeight = newThumbWidth * moviePrintAspectRatioInv;
       const frameSize = Math.floor(Math.max(newThumbHeight, newThumbWidth) * 2) // get twice the needed resolution for better antialiasing
       console.log(newThumbWidth);
       console.log(newThumbHeight);
       console.log(frameSize);
 
-      const base64Object = getBase64Object(sentData.file.path, sentData.file.useRatio, visibleThumbs, frameSize);
+      const base64Object = getBase64Object(sentData.file.path, sentData.file.useRatio, visibleThumbs, frameSize, file.transformObject);
 
       // console.log(base64Object);
 

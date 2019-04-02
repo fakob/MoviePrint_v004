@@ -21,9 +21,27 @@ export const recaptureThumbs = (
   frameIdArray,
   frameNumberArray,
   onlyReplace,
+  transformObject,
 ) => {
   try {
     const vid = new opencv.VideoCapture(filePath);
+
+    // transform
+    const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
+    const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
+    let cropTop = 0;
+    let cropBottom = 0;
+    let cropLeft = 0;
+    let cropRight = 0;
+    if (transformObject !== undefined && transformObject !== null) {
+      console.log(transformObject)
+      cropTop = transformObject.cropTop;
+      cropBottom = transformObject.cropBottom;
+      cropLeft = transformObject.cropLeft;
+      cropRight = transformObject.cropRight;
+    }
+    const cropWidth = width - cropLeft - cropRight;
+    const cropHeight = height - cropTop - cropBottom;
 
     for (let i = 0; i < frameNumberArray.length; i += 1) {
       const frameNumber = frameNumberArray[i];
@@ -42,10 +60,20 @@ export const recaptureThumbs = (
           onlyReplace,
         );
       } else {
+
+        // optional cropping
+        let matCropped;
+        if (transformObject !== undefined && transformObject !== null) {
+          matCropped = mat.getRegion(new opencv.Rect(cropLeft, cropTop, cropWidth, cropHeight));
+          // matCropped = mat.copy().copyMakeBorder(transformObject.cropTop, transformObject.cropBottom, transformObject.cropLeft, transformObject.cropRight);
+        }
+
+        // optional rescale
         let matRescaled;
         if (frameSize !== 0) { // 0 stands for keep original size
-          matRescaled = mat.resizeToMax(frameSize);
+          matRescaled = matCropped === undefined ? mat.resizeToMax(frameSize) :  matCropped.resizeToMax(frameSize);
         }
+
         const outBase64 = opencv.imencode('.jpg', matRescaled || mat).toString('base64'); // maybe change to .png?
         ipcRenderer.send(
           'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
@@ -63,20 +91,48 @@ export const recaptureThumbs = (
   }
 }
 
-export const getBase64Object = (filePath, useRatio, arrayOfThumbs, frameSize = 0) => {
+export const getBase64Object = (filePath, useRatio, arrayOfThumbs, frameSize = 0, transformObject = undefined) => {
   try {
-    const opencvVideo = new opencv.VideoCapture(filePath);
+    const vid = new opencv.VideoCapture(filePath);
+
+    // transform
+    const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
+    const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
+    let cropTop = 0;
+    let cropBottom = 0;
+    let cropLeft = 0;
+    let cropRight = 0;
+    if (transformObject !== undefined && transformObject !== null) {
+      console.log(transformObject)
+      cropTop = transformObject.cropTop;
+      cropBottom = transformObject.cropBottom;
+      cropLeft = transformObject.cropLeft;
+      cropRight = transformObject.cropRight;
+    }
+    const cropWidth = width - cropLeft - cropRight;
+    const cropHeight = height - cropTop - cropBottom;
+
 
     const objectUrlObjects = {};
     arrayOfThumbs.map(thumb => {
-      setPosition(opencvVideo, thumb.frameNumber, useRatio);
-      const mat = opencvVideo.read();
+      setPosition(vid, thumb.frameNumber, useRatio);
+      const mat = vid.read();
       let base64 = '';
       if (!mat.empty) {
+
+        // optional cropping
+        let matCropped;
+        if (transformObject !== undefined && transformObject !== null) {
+          matCropped = mat.getRegion(new opencv.Rect(cropLeft, cropTop, cropWidth, cropHeight));
+          // matCropped = mat.copy().copyMakeBorder(transformObject.cropTop, transformObject.cropBottom, transformObject.cropLeft, transformObject.cropRight);
+        }
+
+        // optional rescale
         let matRescaled;
         if (frameSize !== 0) { // 0 stands for keep original size
-          matRescaled = mat.resizeToMax(frameSize);
+          matRescaled = matCropped === undefined ? mat.resizeToMax(frameSize) :  matCropped.resizeToMax(frameSize);
         }
+
         base64 = opencv.imencode('.jpg', matRescaled || mat).toString('base64'); // maybe change to .png?
       }
       objectUrlObjects[thumb.frameId] = base64;

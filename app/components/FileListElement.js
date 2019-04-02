@@ -29,6 +29,7 @@ const FileListElement = ({
   onFileListElementClick,
   onScanMovieListItemClick,
   onReplaceMovieListItemClick,
+  onEditTransformListItemClick,
   onRemoveMovieListItem,
   onSetSheetClick,
   path,
@@ -94,6 +95,11 @@ const FileListElement = ({
     onAddIntervalSheetClick(fileId);
   }
 
+  function onEditTransformListItemClickWithStop(e, fileId) {
+    e.stopPropagation();
+    onEditTransformListItemClick(fileId);
+  }
+
   function onReplaceMovieListItemClickWithStop(e, fileId) {
     e.stopPropagation();
     onReplaceMovieListItemClick(fileId);
@@ -129,6 +135,12 @@ const FileListElement = ({
               onClick={e => onAddIntervalSheetClickWithStop(e, fileId)}
             />
           }
+          <Dropdown.Item
+            data-tid='changeCroppingListItemOption'
+            icon="crop"
+            text="Edit cropping"
+            onClick={e => onEditTransformListItemClickWithStop(e, fileId)}
+          />
           <Dropdown.Item
             data-tid='replaceMovieListItemOption'
             icon="exchange"
