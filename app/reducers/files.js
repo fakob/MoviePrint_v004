@@ -37,14 +37,29 @@ const file = (state = {}, type, payload, index) => {
       if (state.id !== payload.fileId) {
         return state;
       }
+      let width = payload.width;
+      let height = payload.height;
+      // if transformObject exists then calculate width and height from it
+      if (state.originalWidth !== undefined && payload.transformObject !== undefined) {
+        const { transformObject } = payload;
+        width = state.originalWidth - transformObject.cropLeft - transformObject.cropRight;
+        height = state.originalHeight - transformObject.cropTop - transformObject.cropBottom;
+      }
       return Object.assign({}, state, {
         frameCount: payload.frameCount,
         originalWidth: payload.width,
-        width: payload.width,
+        width,
         originalHeight: payload.height,
-        height: payload.height,
+        height,
         fps: payload.fps,
         fourCC: payload.fourCC
+      });
+    case 'SET_CROPPING':
+      if (state.id !== payload.fileId) {
+        return state;
+      }
+      return Object.assign({}, state, {
+        transformObject: payload.transformObject,
       });
     case 'UPDATE_CROPPING':
       if (state.id !== payload.fileId) {
@@ -93,6 +108,7 @@ const files = (state = [], { type, payload }) => {
     case 'REPLACE_MOVIE_LIST_ITEM':
     case 'UPDATE_MOVIE_LIST_ITEM_USERATIO':
     case 'UPDATE_MOVIE_LIST_ITEM':
+    case 'SET_CROPPING':
     case 'UPDATE_CROPPING':
     case 'UPDATE_IN_OUT_POINT':
     case 'UPDATE_FILESCAN_STATUS':

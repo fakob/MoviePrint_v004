@@ -49,6 +49,7 @@ import { getLowestFrame,
   limitFrameNumberWithinMovieRange,
   getFramenumbersOfSheet,
   getFilePath,
+  getFileTransformObject,
   getFileName,
   getSheetName,
 } from '../utils/utils';
@@ -74,6 +75,7 @@ import {
   removeMovieListItem,
   replaceFileDetails,
   setCurrentFileId,
+  setCropping,
   setDefaultCachedFramesSize,
   setDefaultColumnCount,
   setDefaultDetectInOutPoint,
@@ -2011,7 +2013,6 @@ class App extends Component {
     const { files } = this.props;
     const file = files.find(file2 => file2.id === fileId);
     const { transformObject = {cropTop: 0, cropBottom: 0, cropLeft: 0, cropRight: 0} } = file; // initialise if undefined
-    console.log(transformObject);
     this.setState({
       showTransformModal: true,
       transformObject: Object.assign({fileId}, transformObject) // adding fileId
@@ -2022,7 +2023,16 @@ class App extends Component {
     const { store } = this.context;
     const { transformObject } = this.state;
     const { cropTop, cropBottom, cropLeft, cropRight } = e.target;
-    store.dispatch(updateCropping(transformObject.fileId, cropTop.value, cropBottom.value, cropLeft.value, cropRight.value));
+    console.log(typeof cropTop.value);
+    store.dispatch(
+      updateCropping(
+        transformObject.fileId,
+        parseInt(cropTop.value, 10),
+        parseInt(cropBottom.value, 10),
+        parseInt(cropLeft.value, 10),
+        parseInt(cropRight.value, 10)
+        )
+      );
     this.setState({
       showTransformModal: false,
       fileIdToBeRecaptured: transformObject.fileId,
@@ -2112,9 +2122,11 @@ class App extends Component {
     const sheetName = getSheetName(sheetsByFileId, fileId, sheetId);
     const fileName = getFileName(files, fileId);
     const filePath = getFilePath(files, fileId);
+    const transformObject = getFileTransformObject(files, fileId);
     const columnCount = getColumnCount(sheetsByFileId, fileId, sheetId, settings);
     const exportObject = JSON.stringify({
       filePath,
+      transformObject,
       columnCount,
       frameNumberArray,
     }, null, '\t'); // for pretty print with tab
@@ -2162,6 +2174,7 @@ class App extends Component {
         const fileExtension = path.extname(newPath).toLowerCase();
 
         let newFilePath;
+        let transformObject;
         let columnCount;
         let frameNumberArray;
         let dataAvailable = false;
@@ -2175,6 +2188,8 @@ class App extends Component {
 
           if (textChunks.length !== 0) {
             newFilePath = textChunks.find(chunk => chunk.keyword === 'filePath').text;
+            const transformObjectString = textChunks.find(chunk => chunk.keyword === 'transformObject').text;
+            transformObject = (transformObjectString !== 'undefined') ? JSON.parse(transformObjectString) : undefined;
             columnCount = textChunks.find(chunk => chunk.keyword === 'columnCount').text;
             const frameNumberArrayString = textChunks.find(chunk => chunk.keyword === 'frameNumberArray').text;
             frameNumberArray = (frameNumberArrayString !== 'undefined') ? JSON.parse(frameNumberArrayString) : undefined;
@@ -2189,6 +2204,7 @@ class App extends Component {
           log.debug(jsonData);
 
           newFilePath = jsonData.filePath;
+          transformObject = jsonData.transformObject;
           columnCount = jsonData.columnCount;
           frameNumberArray = jsonData.frameNumberArray;
           if (newFilePath !== undefined &&
@@ -2220,6 +2236,9 @@ class App extends Component {
             type: 'ADD_MOVIE_LIST_ITEMS',
             payload: [fileToAdd],
           });
+          if (transformObject !== undefined) {
+            store.dispatch(setCropping(fileId, transformObject.cropTop, transformObject.cropBottom, transformObject.cropLeft, transformObject.cropRight));
+          }
           store.dispatch(addNewThumbsWithOrder(fileToAdd, sheetId, frameNumberArray, settings.defaultCachedFramesSize));
           store.dispatch(updateSheetName(fileId, sheetId, getNewSheetName(getSheetCount(files, fileId)))); // set name on file
           store.dispatch(updateSheetCounter(fileId));
@@ -2955,10 +2974,10 @@ class App extends Component {
                     <Form onSubmit={this.onChangeTransform}>
                       <Form.Group>
                         <Header as='h3'>Cropping in pixel</Header>
-                        <Form.Input name='cropTop' label='From top' placeholder='top' width={3} defaultValue={this.state.transformObject.cropTop} />
-                        <Form.Input name='cropBottom' label='From bottom' placeholder='bottom' width={3} defaultValue={this.state.transformObject.cropBottom} />
-                        <Form.Input name='cropLeft' label='From left' placeholder='left' width={3} defaultValue={this.state.transformObject.cropLeft} />
-                        <Form.Input name='cropRight' label='From right' placeholder='right' width={3} defaultValue={this.state.transformObject.cropRight} />
+                        <Form.Input name='cropTop' label='From top' placeholder='top' type='number' min='0' width={3} defaultValue={this.state.transformObject.cropTop} />
+                        <Form.Input name='cropBottom' label='From bottom' placeholder='bottom' type='number' min='0' width={3} defaultValue={this.state.transformObject.cropBottom} />
+                        <Form.Input name='cropLeft' label='From left' placeholder='left' type='number' min='0' width={3} defaultValue={this.state.transformObject.cropLeft} />
+                        <Form.Input name='cropRight' label='From right' placeholder='right' type='number' min='0' width={3} defaultValue={this.state.transformObject.cropRight} />
                       </Form.Group>
                     <Form.Button content='Update cropping' />
                     </Form>

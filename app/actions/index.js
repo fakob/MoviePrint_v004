@@ -937,6 +937,24 @@ export const replaceFileDetails = (fileId, path, name, size, lastModified) => {
   };
 };
 
+export const setCropping = (fileId, cropTop, cropBottom, cropLeft, cropRight) => {
+  return (dispatch) => {
+    log.debug('action: setCropping');
+    dispatch({
+      type: 'SET_CROPPING',
+      payload: {
+        fileId,
+        transformObject: {
+          cropTop,
+          cropBottom,
+          cropLeft,
+          cropRight
+        }
+      }
+    });
+  };
+};
+
 export const updateCropping = (fileId, cropTop, cropBottom, cropLeft, cropRight) => {
   return (dispatch) => {
     log.debug('action: updateCropping');

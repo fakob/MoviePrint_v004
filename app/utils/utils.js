@@ -164,11 +164,11 @@ export const saveBlob = (blob, sheetId, fileName, dataToEmbed = undefined) => {
 
       // if there is data to embed, create chunks and add them in the end
       if (dataToEmbed !== undefined) {
-        const { filePath, columnCount, frameNumberArray} = dataToEmbed;
-
+        const { filePath, transformObject, columnCount, frameNumberArray} = dataToEmbed;
         // Create chunks
         const version = text.encode('version', app.getVersion());
         const filePathChunk = text.encode('filePath', filePath);
+        const transformObjectChunk = text.encode('transformObject', JSON.stringify(transformObject));
         const columnCountChunk = text.encode('columnCount', columnCount);
         const frameNumberArrayChunk = text.encode('frameNumberArray', JSON.stringify(frameNumberArray));
 
@@ -177,6 +177,7 @@ export const saveBlob = (blob, sheetId, fileName, dataToEmbed = undefined) => {
         // Add new chunks before the IEND chunk
         chunks.splice(-1, 0, version);
         chunks.splice(-1, 0, filePathChunk);
+        chunks.splice(-1, 0, transformObjectChunk);
         chunks.splice(-1, 0, columnCountChunk);
         chunks.splice(-1, 0, frameNumberArrayChunk);
 
@@ -443,6 +444,16 @@ export const getFilePath = (files, fileId) => {
     return 0;
   }
   return file.path;
+};
+
+export const getFileTransformObject = (files, fileId) => {
+  const file = files.find(file2 => file2.id === fileId);
+  // console.log(file);
+  if (file === undefined) {
+    // there is no file yet, so return undefined
+    return 0;
+  }
+  return file.transformObject;
 };
 
 export const getSheetIdArray = (sheetsByFileId, fileId) => {
