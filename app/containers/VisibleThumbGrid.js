@@ -186,10 +186,10 @@ const mapDispatchToProps = (dispatch, ownProps) => {
         ownProps.frameSize,
       ));
     },
-    onSaveThumbClick: (filePath, fileUseRatio, fileName, frameNumber, frameId) => {
+    onSaveThumbClick: (filePath, fileUseRatio, fileName, frameNumber, frameId, transformObject) => {
       const filePathDirectory = path.dirname(filePath);
       const outputPath = ownProps.settings.defaultOutputPathFromMovie ? filePathDirectory : ownProps.settings.defaultOutputPath;
-      saveThumb(filePath, fileUseRatio, fileName, frameNumber, frameId, outputPath, true);
+      saveThumb(filePath, fileUseRatio, fileName, frameNumber, frameId, outputPath, true, transformObject);
     },
     onBackClick: (file, thumbId, frameNumber) => {
       const [stepValue0, stepValue1, stepValue2] = CHANGE_THUMB_STEP;

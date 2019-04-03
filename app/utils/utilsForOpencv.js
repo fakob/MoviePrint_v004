@@ -74,7 +74,7 @@ export const recaptureThumbs = (
           matRescaled = matCropped === undefined ? mat.resizeToMax(frameSize) :  matCropped.resizeToMax(frameSize);
         }
 
-        const outBase64 = opencv.imencode('.jpg', matRescaled || mat).toString('base64'); // maybe change to .png?
+        const outBase64 = opencv.imencode('.jpg', matRescaled || matCropped || mat).toString('base64'); // maybe change to .png?
         ipcRenderer.send(
           'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
           'send-base64-frame',
@@ -133,7 +133,7 @@ export const getBase64Object = (filePath, useRatio, arrayOfThumbs, frameSize = 0
           matRescaled = matCropped === undefined ? mat.resizeToMax(frameSize) :  matCropped.resizeToMax(frameSize);
         }
 
-        base64 = opencv.imencode('.jpg', matRescaled || mat).toString('base64'); // maybe change to .png?
+        base64 = opencv.imencode('.jpg', matRescaled || matCropped || mat).toString('base64'); // maybe change to .png?
       }
       objectUrlObjects[thumb.frameId] = base64;
       return undefined;
