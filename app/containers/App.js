@@ -25,6 +25,7 @@ import HeaderComponent from '../components/HeaderComponent';
 import Footer from '../components/Footer';
 import VideoPlayer from '../components/VideoPlayer';
 import Scrub from '../components/Scrub';
+import ScrubCut from '../components/ScrubCut';
 import ThumbEmpty from '../components/ThumbEmpty';
 import getScaleValueObject from '../utils/getScaleValueObject';
 import { getLowestFrame,
@@ -219,6 +220,7 @@ class App extends Component {
       timeBefore: undefined,
       opencvVideo: undefined,
       showScrubWindow: false,
+      showScrubCutWindow: false,
       scrubThumb: undefined,
       showChart: false,
       chartData: {
@@ -900,6 +902,10 @@ class App extends Component {
       this.updateOpencvVideoCanvas(0);
     }
 
+    // if (prevState.showScrubCutWindow === false && this.state.showScrubCutWindow === true) {
+    //   this.updateOpencvVideoCanvas(0);
+    // }
+
     // replace all frames for this fileId -> fileIdToBeRecaptured
     if (this.state.fileIdToBeRecaptured !== undefined &&
       prevState.fileIdToBeRecaptured !== this.state.fileIdToBeRecaptured) {
@@ -1410,8 +1416,11 @@ class App extends Component {
     const scrubThumbLeft = arrayToCompare.slice().reduce((prev, current) => prev.frameNumber < current.frameNumber ? prev : current);
     const scrubThumbRight = arrayToCompare.reduce((prev, current) => prev.frameNumber > current.frameNumber ? prev : current);
 
+    const switchToScrubCut = this.state.keyObject.ctrlKey;
+
     this.setState({
-      showScrubWindow: true,
+      showScrubWindow: !switchToScrubCut && true,
+      showScrubCutWindow: switchToScrubCut && true,
       scrubThumb,
       scrubThumbLeft,
       scrubThumbRight,
@@ -1511,6 +1520,7 @@ class App extends Component {
     } else {
       this.setState({
         showScrubWindow: false,
+        showScrubCutWindow: false,
       });
     }
   }
@@ -1556,6 +1566,7 @@ class App extends Component {
     }
     this.setState({
       showScrubWindow: false,
+      showScrubCutWindow: false,
     });
   }
 
@@ -2926,6 +2937,24 @@ class App extends Component {
                   containerWidth={this.state.containerWidth}
                   containerHeight={this.state.containerHeight}
                   onScrubWindowMouseOver={this.onScrubWindowMouseOver}
+                  onScrubWindowClick={this.onScrubWindowClick}
+                />
+              }
+              { this.state.showScrubCutWindow &&
+                <ScrubCut
+                  opencvVideo={this.state.opencvVideo}
+                  // opencvVideoCanvasRef={this.opencvVideoCanvasRef}
+                  file={this.props.file}
+                  settings={this.props.settings}
+                  objectUrlObjects={filteredObjectUrlObjects}
+                  keyObject={this.state.keyObject}
+                  scrubThumb={this.state.scrubThumb}
+                  scrubThumbLeft={this.state.scrubThumbLeft}
+                  scrubThumbRight={this.state.scrubThumbRight}
+                  scaleValueObject={this.state.scaleValueObject}
+                  containerWidth={this.state.containerWidth}
+                  containerHeight={this.state.containerHeight}
+                  // onScrubWindowMouseOver={this.onScrubWindowMouseOver}
                   onScrubWindowClick={this.onScrubWindowClick}
                 />
               }

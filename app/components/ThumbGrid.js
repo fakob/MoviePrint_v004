@@ -564,7 +564,7 @@ class ThumbGrid extends Component {
                         onFocus={this.over}
                         onBlur={this.out}
                       >
-                        {'<'}|{'>'}
+                        {this.props.keyObject.ctrlKey ? '<|||>' : '<|>'}
                       </button>
                     }
                     className={stylesPop.popup}
