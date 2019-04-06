@@ -975,7 +975,7 @@ class App extends Component {
           case 83: // press 's'
             const { file, currentFileId } = this.props;
             if (currentFileId) {
-              this.runSceneDetection(file.id, file.path, file.useRatio, 20.0)
+              this.runSceneDetection(file.id, file.path, file.useRatio, 20.0, undefined, file.transformObject)
             }
             break;
           case 70: // press 'f'
@@ -1279,8 +1279,9 @@ class App extends Component {
     });
   }
 
-  runSceneDetection(fileId, filePath, useRatio, threshold = this.props.settings.defaultSceneDetectionThreshold, sheetId = uuidV4()) {
+  runSceneDetection(fileId, filePath, useRatio, threshold = this.props.settings.defaultSceneDetectionThreshold, sheetId = uuidV4(), transformObject = undefined) {
     // this.hideSettings();
+    console.log(transformObject);
     this.onHideDetectionChart();
     const { store } = this.context;
     store.dispatch(setDefaultSheetView(SHEETVIEW.TIMELINEVIEW));
@@ -1292,7 +1293,7 @@ class App extends Component {
     // console.log(arrayOfFrameScanData);
     // if meanArray not stored, runFileScan
     if (arrayOfFrameScanData.length === 0) {
-      this.runFileScan(fileId, filePath, useRatio, threshold, sheetId);
+      this.runFileScan(fileId, filePath, useRatio, threshold, sheetId, transformObject);
     } else {
       const meanValueArray = arrayOfFrameScanData.map(frame => frame.meanValue)
       const meanColorArray = arrayOfFrameScanData.map(frame => JSON.parse(frame.meanColor))
@@ -1387,10 +1388,10 @@ class App extends Component {
     }
   }
 
-  runFileScan(fileId, filePath, useRatio, threshold, sheetId) {
+  runFileScan(fileId, filePath, useRatio, threshold, sheetId, transformObject) {
     if (this.state.fileScanRunning === false) {
       this.setState({ fileScanRunning: true });
-      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-scan', fileId, filePath, useRatio, threshold, sheetId);
+      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-scan', fileId, filePath, useRatio, threshold, sheetId, transformObject);
     }
   }
 
@@ -2042,7 +2043,7 @@ class App extends Component {
   onScanMovieListItemClick = (fileId) => {
     const { files } = this.props;
     const file = files.find(file2 => file2.id === fileId);
-    this.runSceneDetection(fileId, file.path, file.useRatio, 20.0);
+    this.runSceneDetection(fileId, file.path, file.useRatio, 20.0, undefined, file.transformObject);
   };
 
   onReplaceMovieListItemClick = (fileId) => {

@@ -481,7 +481,15 @@ ipcRenderer.on(
 
 ipcRenderer.on(
   'send-get-file-scan',
-  (event, fileId, filePath, useRatio, threshold = 20.0, sheetId) => {
+  (
+    event,
+    fileId,
+    filePath,
+    useRatio,
+    threshold = 20.0,
+    sheetId,
+    transformObject
+  ) => {
     log.debug('opencvWorkerWindow | on send-get-file-scan');
     // log.debug(fileId);
     log.debug(`opencvWorkerWindow | ${filePath}`);
@@ -499,6 +507,23 @@ ipcRenderer.on(
       const frameMetrics = [];
       let lastFrameMean = new opencv.Vec(null, null, null, null);;
       let lastSceneCut = null;
+
+      // transform
+      const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
+      const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
+      let cropTop = 0;
+      let cropBottom = 0;
+      let cropLeft = 0;
+      let cropRight = 0;
+      if (transformObject !== undefined && transformObject !== null) {
+        console.log(transformObject)
+        cropTop = transformObject.cropTop;
+        cropBottom = transformObject.cropBottom;
+        cropLeft = transformObject.cropLeft;
+        cropRight = transformObject.cropRight;
+      }
+      const cropWidth = width - cropLeft - cropRight;
+      const cropHeight = height - cropTop - cropBottom;
 
       vid.readAsync(err1 => {
         const read = () => {
@@ -521,13 +546,16 @@ ipcRenderer.on(
             }
             let frameMean = 0;
             if (mat.empty === false) {
-              frameMean = mat
-                .resizeToMax(240)
-                .cvtColor(opencv.COLOR_BGR2HSV)
-                .mean();
-              // const frameResized = mat.resizeToMax(240);
-              // const frameHSV = frameResized.cvtColor(opencv.COLOR_BGR2HSV)
-              // frameMean = frameHSV.mean();
+
+              // optional cropping
+              let matCropped;
+              if (transformObject !== undefined && transformObject !== null) {
+                matCropped = mat.getRegion(new opencv.Rect(cropLeft, cropTop, cropWidth, cropHeight));
+              }
+
+              frameMean = matCropped === undefined ?
+                mat.resizeToMax(240).cvtColor(opencv.COLOR_BGR2HSV).mean() :
+                matCropped.resizeToMax(240).cvtColor(opencv.COLOR_BGR2HSV).mean();
 
               const deltaFrameMean = frameMean.absdiff(lastFrameMean);
               const frameHsvAverage = (deltaFrameMean.w + deltaFrameMean.x + deltaFrameMean.y) / 3.0; // w = H, x = S, y = V = brightness
@@ -804,7 +832,6 @@ ipcRenderer.on(
             );
 
             if (mat.empty === false) {
-
 
               // opencv.imshow('mat', mat);
               // optional cropping
