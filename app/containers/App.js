@@ -1697,13 +1697,13 @@ class App extends Component {
   onAddIntervalSheetClick(fileId) {
     // log.debug(`FileListElement clicked: ${file.name}`);
     const { store } = this.context;
-    const { sheetsByFileId, settings } = this.props;
+    const { sheetsByFileId, settings, visibilitySettings } = this.props;
 
     store.dispatch(setCurrentFileId(fileId));
 
     const newSheetId = this.onAddIntervalSheet(sheetsByFileId, fileId, settings);
 
-    const sheetView = getSheetView(sheetsByFileId, fileId, newSheetId, settings);
+    const sheetView = getSheetView(sheetsByFileId, fileId, newSheetId, visibilitySettings);
     this.onSetSheetClick(fileId, newSheetId, sheetView);
 
   }
@@ -1711,7 +1711,7 @@ class App extends Component {
   onFileListElementClick(fileId) {
     // log.debug(`FileListElement clicked: ${file.name}`);
     const { store } = this.context;
-    const { sheetsByFileId, settings } = this.props;
+    const { sheetsByFileId, settings, visibilitySettings } = this.props;
 
     store.dispatch(setCurrentFileId(fileId));
 
@@ -1721,7 +1721,9 @@ class App extends Component {
     if (newSheetId === undefined) {
       newSheetId = this.onAddIntervalSheet(sheetsByFileId, fileId, settings);
     }
-    const sheetView = getSheetView(sheetsByFileId, fileId, newSheetId, settings);
+    const sheetView = getSheetView(sheetsByFileId, fileId, newSheetId, visibilitySettings);
+    console.log(sheetView);
+
     this.onSetSheetClick(fileId, newSheetId, sheetView);
 
   }
@@ -2413,7 +2415,7 @@ class App extends Component {
     const fileCount = files.length;
 
     const secondsPerRow = getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings);
-    const sheetView = getSheetView(sheetsByFileId, currentFileId, currentSheetId, settings);
+    const sheetView = getSheetView(sheetsByFileId, currentFileId, currentSheetId, visibilitySettings);
 
     let isGridView = true;
     if (sheetView === SHEETVIEW.TIMELINEVIEW) {

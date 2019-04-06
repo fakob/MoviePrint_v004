@@ -480,12 +480,12 @@ export const getSheetName = (sheetsByFileId, fileId, sheetId) => {
   return sheetsByFileId[fileId][sheetId].name;
 };
 
-export const getSheetView = (sheetsByFileId, fileId, sheetId, settings) => {
+export const getSheetView = (sheetsByFileId, fileId, sheetId, visibilitySettings) => {
   if (sheetsByFileId === undefined ||
     sheetsByFileId[fileId] === undefined ||
     sheetsByFileId[fileId][sheetId] === undefined ||
-    sheetsByFileId[fileId][sheetId].type === undefined) {
-    return settings.defaultSheetView;
+    sheetsByFileId[fileId][sheetId].sheetView === undefined) {
+    return visibilitySettings.defaultSheetView;
   }
   return sheetsByFileId[fileId][sheetId].sheetView;
 };
