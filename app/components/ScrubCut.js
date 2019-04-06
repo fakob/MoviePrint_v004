@@ -5,15 +5,17 @@ import PropTypes from 'prop-types';
 import styles from './Scrub.css';
 import VideoCaptureProperties from '../utils/videoCaptureProperties';
 import {
-  renderImage,
+  limitRange,
   setPosition,
   getScrubFrameNumber,
   mapRange,
-  getSliceWidthArray,
+  getSliceWidthArrayForScrub,
+  getThumbInfoValue,
 } from '../utils/utils';
 import transparent from '../img/Thumb_TRANSPARENT.png';
 import {
   MENU_FOOTER_HEIGHT,
+  SCRUBCUT_SLICE_ARRAY_SIZE,
 } from '../utils/constants';
 
 const opencv = require('opencv4nodejs');
@@ -46,6 +48,51 @@ class ScrubCut extends Component {
   }
 
   componentWillMount() {
+    const timeLineCutIn = mapRange(
+      this.props.scrubThumbLeft.frameNumber,
+      0,
+      this.props.file.frameCount,
+      0,
+      this.props.scaleValueObject.scrubInnerContainerWidth
+    );
+    const timeLineScrubThumb = mapRange(
+      this.props.scrubThumb.frameNumber,
+      0,
+      this.props.file.frameCount,
+      0,
+      this.props.scaleValueObject.scrubInnerContainerWidth
+    );
+    const timeLineCutOut = mapRange(
+      this.props.scrubThumbRight.frameNumber,
+      0,
+      this.props.file.frameCount,
+      0,
+      this.props.scaleValueObject.scrubInnerContainerWidth
+    );
+    const leftOfScrubMovie = (this.props.scaleValueObject.scrubInnerContainerWidth - this.props.scaleValueObject.scrubMovieWidth) / 2;
+    const rightOfScrubMovie = leftOfScrubMovie + this.props.scaleValueObject.scrubMovieWidth;
+    const scrubThumbLineValue = mapRange(
+      this.props.scrubThumb.frameNumber,
+      this.props.scrubThumbLeft.frameNumber,
+      this.props.scrubThumbRight.frameNumber,
+      leftOfScrubMovie,
+      rightOfScrubMovie
+    );
+
+    // show timecode if hideInfo
+    const scrubInfo = this.props.settings.defaultThumbInfo === 'hideInfo' ?
+      'timecode' : this.props.settings.defaultThumbInfo;
+
+    this.setState({
+      scrubFrameNumber: this.props.scrubThumb.frameNumber,
+      timeLineCutIn,
+      timeLineScrubThumb,
+      timeLineCutOut,
+      scrubThumbLineValue,
+      leftOfScrubMovie,
+      rightOfScrubMovie,
+      scrubInfo,
+    });
   }
 
   componentDidMount() {
@@ -80,7 +127,15 @@ class ScrubCut extends Component {
       scrubLineOnTimelineValue,
     })
     e.stopPropagation();
-    this.updateOpencvVideoCanvas(scrubFrameNumber);
+
+    // offset scrubFrameNumber due to main frame is in middle of sliceArraySize
+    const halfArraySize = Math.floor(SCRUBCUT_SLICE_ARRAY_SIZE / 2);
+    const offsetScrubFrameNumber = limitRange(
+      scrubFrameNumber - parseInt(halfArraySize, 10),
+      0,
+      this.props.file.frameCount - 1
+    );
+    this.updateOpencvVideoCanvas(offsetScrubFrameNumber);
   }
 
   onScrubClickWithStop(e) {
@@ -91,36 +146,54 @@ class ScrubCut extends Component {
   updateOpencvVideoCanvas(currentFrame) {
     const vid = this.props.opencvVideo;
     setPosition(vid, currentFrame, this.props.file.useRatio);
-    this.opencvScrubCutCanvasRef.height = this.props.containerHeight;
+    const scrubMovieWidth = this.props.scaleValueObject.scrubMovieWidth;
+    const scrubMovieHeight = this.props.scaleValueObject.scrubMovieHeight;
+    this.opencvScrubCutCanvasRef.height = scrubMovieHeight;
     this.opencvScrubCutCanvasRef.width = this.props.containerWidth;
     const ctx = this.opencvScrubCutCanvasRef.getContext('2d');
     const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
     const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
-    const sliceArraySize = 24;
-    const sliceWidthArray = getSliceWidthArray(vid, sliceArraySize);
+    const sliceWidthArray = getSliceWidthArrayForScrub(vid, SCRUBCUT_SLICE_ARRAY_SIZE);
     const sliceGap = 2;
     const widthSum = sliceWidthArray.reduce((a, b) => a + b, 0);
-    const rescaleFactor = (this.props.containerWidth - sliceGap * (sliceArraySize - 1)) / widthSum;
+    const rescaleFactorMain = scrubMovieWidth / width;
+      // this.props.scaleValueObject.aspectRatioInv < 1 ?
+      // scrubMovieWidth / width :
+      // scrubMovieHeight / height;
+    const rescaleFactor = (this.props.containerWidth - scrubMovieWidth - sliceGap * (SCRUBCUT_SLICE_ARRAY_SIZE - 1)) / (widthSum - width);
     let canvasXPos = 0;
+    const canvasYPosMain = 0;
+    const canvasYPos = (scrubMovieHeight - height * rescaleFactor) / 2;
 
-    for (let i = 0; i < sliceArraySize; i += 1) {
+    const halfArraySize = Math.floor(SCRUBCUT_SLICE_ARRAY_SIZE / 2);
+
+    for (let i = 0; i < SCRUBCUT_SLICE_ARRAY_SIZE; i += 1) {
       const frame = vid.read();
       if (!frame.empty) {
         const sliceWidth = sliceWidthArray[i];
         const sliceXPos = Math.max(Math.floor(width / 2) - Math.floor(sliceWidth / 2), 0);
 
         const matCropped = frame.getRegion(new opencv.Rect(sliceXPos, 0, sliceWidth, height));
-        const matResized = matCropped.rescale(rescaleFactor);
+        const matResized = (i === halfArraySize) ?
+          matCropped.rescale(rescaleFactorMain) :
+          matCropped.rescale(rescaleFactor);
 
-        const matRGBA = matResized.channels === 1 ? matResized.cvtColor(opencv.COLOR_GRAY2RGBA) : matResized.cvtColor(opencv.COLOR_BGR2RGBA);
+        const matRGBA = matResized.channels === 1 ?
+          matResized.cvtColor(opencv.COLOR_GRAY2RGBA) :
+          matResized.cvtColor(opencv.COLOR_BGR2RGBA);
 
         const imgData = new ImageData(
           new Uint8ClampedArray(matRGBA.getData()),
           matResized.cols,
           matResized.rows
         );
-        ctx.putImageData(imgData, canvasXPos, 0);
-        canvasXPos += (sliceWidthArray[i] * rescaleFactor) + sliceGap;
+        ctx.putImageData(imgData, canvasXPos, (i === halfArraySize) ?
+          canvasYPosMain :
+          canvasYPos
+        );
+        canvasXPos += (i === halfArraySize) ?
+          (sliceWidthArray[i] * rescaleFactorMain) + sliceGap :
+          (sliceWidthArray[i] * rescaleFactor) + sliceGap;
       }
     }
   }
@@ -134,6 +207,13 @@ class ScrubCut extends Component {
         onMouseUp={this.onScrubClickWithStop}
         // onClick={this.onScrubClickWithStop}
       >
+        <div
+          className={styles.scrubInfo}
+        >
+          {this.props.keyObject.shiftKey && 'ADD BEFORE'}
+          {this.props.keyObject.altKey && 'ADD AFTER'}
+          {!this.props.keyObject.shiftKey && !this.props.keyObject.altKey && 'CHANGE TO'}
+        </div>
         <div
           className={styles.scrubContainer}
           style={{
@@ -152,14 +232,107 @@ class ScrubCut extends Component {
               style={{
                 height: this.props.scaleValueObject.scrubMovieHeight,
                 width: this.props.scaleValueObject.scrubMovieWidth,
-                // height: '1080px',
-                // width: '1920px',
               }}
             >
               <canvas ref={(el) => { this.opencvScrubCutCanvasRef = el; }} />
             </span>
           </div>
+          <span
+            id="currentTimeDisplay"
+            className={styles.frameNumberOrTimeCode}
+            style={{
+              left: `${this.state.scrubLineValue}px`,
+            }}
+          >
+            {getThumbInfoValue(
+              this.state.scrubInfo,
+              this.state.scrubFrameNumber,
+              this.props.file.fps
+            )}
+          </span>
+          <div
+            className={styles.scrubLine}
+            style={{
+              left: `${this.state.scrubLineValue}px`,
+            }}
+          />
+          <span
+            className={styles.scrubThumbframeNumberOrTimeCode}
+            style={{
+              left: `${this.state.leftOfScrubMovie}px`,
+            }}
+          >
+            {getThumbInfoValue(
+              this.state.scrubInfo,
+              this.props.keyObject.altKey ? this.props.scrubThumb.frameNumber : this.props.scrubThumbLeft.frameNumber,
+              this.props.file.fps
+            )}
+          </span>
+          {!this.props.keyObject.shiftKey && !this.props.keyObject.altKey &&
+            <span
+              className={styles.scrubThumbframeNumberOrTimeCode}
+              style={{
+                left: `${this.state.scrubThumbLineValue}px`,
+              }}
+            >
+              {getThumbInfoValue(
+                this.state.scrubInfo,
+                this.props.scrubThumb.frameNumber,
+                this.props.file.fps
+              )}
+            </span>
+          }
+          <span
+            className={styles.scrubThumbframeNumberOrTimeCode}
+            style={{
+              left: `${this.state.rightOfScrubMovie}px`,
+            }}
+          >
+            {getThumbInfoValue(
+              this.state.scrubInfo,
+              this.props.keyObject.shiftKey ? this.props.scrubThumb.frameNumber : this.props.scrubThumbRight.frameNumber,
+              this.props.file.fps
+            )}
+          </span>
+          <div
+            className={styles.scrubThumbLine}
+            style={{
+              left: `${this.state.scrubThumbLineValue}px`,
+            }}
+          />
+          <div
+            id="timeLine"
+            className={`${styles.timelineWrapper}`}
+          >
+            <div
+              className={`${styles.timelinePlayhead}`}
+              style={{
+                left: `${this.state.scrubLineOnTimelineValue}px`,
+              }}
+            />
+            <div
+              className={`${styles.timelineScrubThumb}`}
+              style={{
+                left: `${this.state.timeLineScrubThumb}px`,
+              }}
+            />
+            <div
+              className={`${styles.timelineCut}`}
+              style={{
+                left: this.state.timeLineCutIn,
+                width: this.state.timeLineCutOut - this.state.timeLineCutIn,
+              }}
+            />
+          </div>
         </div>
+        {/* <div
+          className={`${styles.scrubDescription} ${styles.textButton}`}
+          style={{
+            height: `${MENU_HEADER_HEIGHT}px`,
+          }}
+        >
+          {this.props.keyObject.altKey ? 'Add after' : (this.props.keyObject.shiftKey ? 'Add before' : 'Change')}
+        </div> */}
         <div
           className={styles.scrubCancelBar}
           onMouseOver={this.onScrubClickWithStop}
@@ -200,7 +373,6 @@ ScrubCut.propTypes = {
   scrubThumb: PropTypes.object.isRequired,
   scrubThumbLeft: PropTypes.object.isRequired,
   scrubThumbRight: PropTypes.object.isRequired,
-  opencvVideoCanvasRef: PropTypes.object.isRequired,
 };
 
 export default ScrubCut;

@@ -804,13 +804,28 @@ export const createSceneArray = (sheetsByFileId, fileId, sheetId) => {
   return [];
 }
 
-export const getSliceWidthArray = (vid, sliceArraySize = 20, sliceWidthInMiddleMin = 200, sliceWidthOutsideMin = 20) => {
+export const getSliceWidthArrayForScrub = (vid, sliceArraySize = 19, sliceWidthOutsideMin = 20) => {
+  const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
+  // const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
+  const sliceWidthInMiddle = width;
+  const sliceWidthArray = [];
+  const halfArraySize = Math.ceil(sliceArraySize / 2);
+  for (let i = 0; i < sliceArraySize; i += 1) {
+    const factor = i < halfArraySize ? halfArraySize - (i + 1) : (i + 1) - halfArraySize
+    const sliceWidth = Math.floor(sliceWidthInMiddle / (2 ** factor));
+    sliceWidthArray.push(Math.max(sliceWidth, sliceWidthOutsideMin));
+  }
+  return sliceWidthArray;
+};
+
+export const getSliceWidthArray = (vid, sliceArraySize = 20, sliceWidthOutsideMin = 20, sliceWidthInMiddleMin = 200) => {
   const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
   const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
   const sliceWidthInMiddle = Math.max(Math.min(height, width), sliceWidthInMiddleMin);
   const sliceWidthArray = [];
+  const halfArraySize = Math.ceil(sliceArraySize / 2);
   for (let i = 0; i < sliceArraySize; i += 1) {
-    const factor = i < (sliceArraySize / 2) ? sliceArraySize / 2 - (i + 1) : i - (sliceArraySize / 2)
+    const factor = i < halfArraySize ? halfArraySize - (i + 1) : i - halfArraySize
     const sliceWidth = Math.floor(sliceWidthInMiddle / (2 ** factor));
     sliceWidthArray.push(Math.max(sliceWidth, sliceWidthOutsideMin));
   }

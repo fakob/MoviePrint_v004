@@ -147,3 +147,5 @@ export const DEFAULT_FRAME_SCALE = 1; // scale of frames to be stored in the dat
 export const FRAMESDB_PATH = path.join(app.getPath('userData'), 'moviePrint_frames.db');
 
 export const STATEID = '1';
+
+export const SCRUBCUT_SLICE_ARRAY_SIZE = 19;
