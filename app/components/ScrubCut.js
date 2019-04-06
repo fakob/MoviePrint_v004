@@ -3,12 +3,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styles from './Scrub.css';
+import VideoCaptureProperties from '../utils/videoCaptureProperties';
 import {
   renderImage,
   setPosition,
   getScrubFrameNumber,
   mapRange,
-  getThumbInfoValue,
+  getSliceWidthArray,
 } from '../utils/utils';
 import transparent from '../img/Thumb_TRANSPARENT.png';
 import {
@@ -88,15 +89,28 @@ class ScrubCut extends Component {
   }
 
   updateOpencvVideoCanvas(currentFrame) {
-    setPosition(this.props.opencvVideo, currentFrame, this.props.file.useRatio);
+    const vid = this.props.opencvVideo;
+    setPosition(vid, currentFrame, this.props.file.useRatio);
     this.opencvScrubCutCanvasRef.height = this.props.containerHeight;
     this.opencvScrubCutCanvasRef.width = this.props.containerWidth;
     const ctx = this.opencvScrubCutCanvasRef.getContext('2d');
-    for (let i = 0; i < 20; i += 1) {
-      const frame = this.props.opencvVideo.read();
+    const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
+    const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
+    const sliceArraySize = 24;
+    const sliceWidthArray = getSliceWidthArray(vid, sliceArraySize);
+    const sliceGap = 2;
+    const widthSum = sliceWidthArray.reduce((a, b) => a + b, 0);
+    const rescaleFactor = (this.props.containerWidth - sliceGap * (sliceArraySize - 1)) / widthSum;
+    let canvasXPos = 0;
+
+    for (let i = 0; i < sliceArraySize; i += 1) {
+      const frame = vid.read();
       if (!frame.empty) {
-        const matCropped = frame.getRegion(new opencv.Rect(860, 0, 200, 1080));
-        const matResized = matCropped.rescale(0.4);
+        const sliceWidth = sliceWidthArray[i];
+        const sliceXPos = Math.max(Math.floor(width / 2) - Math.floor(sliceWidth / 2), 0);
+
+        const matCropped = frame.getRegion(new opencv.Rect(sliceXPos, 0, sliceWidth, height));
+        const matResized = matCropped.rescale(rescaleFactor);
 
         const matRGBA = matResized.channels === 1 ? matResized.cvtColor(opencv.COLOR_GRAY2RGBA) : matResized.cvtColor(opencv.COLOR_BGR2RGBA);
 
@@ -105,7 +119,8 @@ class ScrubCut extends Component {
           matResized.cols,
           matResized.rows
         );
-        ctx.putImageData(imgData, i * 100, 0);
+        ctx.putImageData(imgData, canvasXPos, 0);
+        canvasXPos += (sliceWidthArray[i] * rescaleFactor) + sliceGap;
       }
     }
   }

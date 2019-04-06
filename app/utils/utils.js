@@ -803,3 +803,16 @@ export const createSceneArray = (sheetsByFileId, fileId, sheetId) => {
   }
   return [];
 }
+
+export const getSliceWidthArray = (vid, sliceArraySize = 20, sliceWidthInMiddleMin = 200, sliceWidthOutsideMin = 20) => {
+  const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
+  const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
+  const sliceWidthInMiddle = Math.max(Math.min(height, width), sliceWidthInMiddleMin);
+  const sliceWidthArray = [];
+  for (let i = 0; i < sliceArraySize; i += 1) {
+    const factor = i < (sliceArraySize / 2) ? sliceArraySize / 2 - (i + 1) : i - (sliceArraySize / 2)
+    const sliceWidth = Math.floor(sliceWidthInMiddle / (2 ** factor));
+    sliceWidthArray.push(Math.max(sliceWidth, sliceWidthOutsideMin));
+  }
+  return sliceWidthArray;
+};
