@@ -9,33 +9,22 @@ import '../../internals/scripts/CheckBuiltsExist';
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
 
 const delay = time => new Promise(resolve => setTimeout(resolve, time));
+// prepare to store window title and handle for later use
+const windowObject = {};
+let client;
 
 describe('main window', function spec() {
   beforeAll(async () => {
     this.app = new Application({
       path: electronPath,
-      args: [path.join(__dirname, '..', '..', 'app'), '--softreset']
-      // args: [path.join(__dirname, '..', '..', 'app'), '--softreset', '--debug']
+      // args: [path.join(__dirname, '..', '..', 'app'), '--softreset']
+      args: [path.join(__dirname, '..', '..', 'app'), '--softreset', '--debug']
     });
     fakeDialog.apply(this.app);
     console.log(await this.app.getSettings());
-    return this.app.start();
-  });
+    await this.app.start();
 
-  afterAll(() => {
-    if (this.app && this.app.isRunning()) {
-      return this.app.stop();
-    }
-  });
-
-  // prepare to store window title and handle for later use
-  const windowObject = {};
-
-  it('should open the 5 windows', async () => {
-    const { client } = this.app;
-    // await client.waitUntilWindowLoaded();
-    // await client.waitForExist('[data-tid="startupImg"]', 10000);
-    // const windowCount = await client.getWindowCount();
+    client = this.app.client;
     const windowHandles = await client.windowHandles();
     const windowNames = [];
     for (const windowHandleValue of windowHandles.value) {
@@ -52,18 +41,33 @@ describe('main window', function spec() {
       }
     }
     console.log(windowNames.sort());
+  });
 
-    expect(windowNames).toEqual([
+  afterAll(() => {
+    if (this.app && this.app.isRunning()) {
+      //return this.app.stop();
+    }
+  });
+
+  it('should open the 5 windows', async () => {
+    // await client.waitUntilWindowLoaded();
+    // await client.waitForExist('[data-tid="startupImg"]', 10000);
+    // const windowCount = await client.getWindowCount();
+
+    let windowsNames =  [
       'MoviePrint',
       'MoviePrint credits',
       'MoviePrint_indexedDBWorker',
       'MoviePrint_opencvWorker',
       'MoviePrint_worker'
-    ]);
-  });
+    ];
+
+    windowsNames.forEach(name => {
+      expect(Object.keys(windowObject)).toContain(name);
+    });
+  })
 
   it("shouldn't have any logs in console of all windows", async () => {
-    const { client } = this.app;
     Object.values(windowObject).map(async windowHandleValue => {
       await client.window(windowHandleValue);
       const logs = await client.getRenderProcessLogs();
@@ -77,33 +81,33 @@ describe('main window', function spec() {
     })
   });
 
-  it('should load a movie and get all 16 thumbs', async () => {
-    const { client } = this.app;
-    await client.window(windowObject['MoviePrint']); // focus main window
-    const dragndropInput = '[type="file"]'; // selecting the input div via type
-    const pathOfMovie = '/Users/jakobschindegger/Desktop/test.mp4';
-    await client.chooseFile(dragndropInput, pathOfMovie);
-    const val = await client.getValue(dragndropInput)
-    console.log(val);
-    client.waitForExist('[data-tid="thumbGridDiv"]', 3000);
-    expect(await client.isExisting('[data-tid="thumbGridDiv"]')).toBe(true);
-    expect(await client.isExisting('#thumb15')).toBe(true);
-  });
+  describe('drag movie', () => {
+    it.only('should load a movie and get all 16 thumbs', async () => {
+      await client.window(windowObject['MoviePrint']); // focus main window
+      const dragndropInput = '[type="file"]'; // selecting the input div via type
+      const pathOfMovie = 'C:\\Users\\luis.arevalo\\Downloads\\test.mp4';
+      await client.chooseFile(dragndropInput, pathOfMovie);
+      const val = await client.getValue(dragndropInput)
+      console.log(val);
+      client.waitForExist('[data-tid="thumbGridDiv"]', 3000);
+      expect(await client.isExisting('[data-tid="thumbGridDiv"]')).toBe(true);
+      expect(await client.isExisting('#thumb15')).toBe(true);
+    });
 
-  // it('should increase thumb count to 20 - NOT WORKING YET', async () => {
-  //   const { client } = this.app;
-  //   console.log(client);
-  //   await client.element('[data-tid="moreSettingsBtn"]').click();
-  //   await client.element('[data-tid="showSlidersCheckbox"]').scroll();
-  //   await client.element('[data-tid="showSlidersCheckbox"]').click();
-  //   await client.element('[data-tid="columnCountInput"]').scroll();
-  //   const findColumnCountInput = () => client.element('[data-tid="columnCountInput"]');
-  //   await findColumnCountInput().setValue(5);
-  //   await client.element('[data-tid="applyNewGridBtn"]').click();
-  //   await client.element('[data-tid="showSlidersCheckbox"]').click();
-  //   client.waitForExist('#thumb19', 3000);
-  //   expect(await client.isExisting('#thumb19')).toBe(true);
-  // });
+    it.only('should increase thumb count to 20 - NOT WORKING YET', async () => {
+      console.log(client);
+      await client.element('[data-tid="moreSettingsBtn"]').click();
+      await client.element('[data-tid="updateFrameCacheBtn"]').scroll();
+      await client.element('//*[@data-tid="showSlidersCheckbox"]/input').click();
+      await client.element('[data-tid="columnCountInput"]').scroll();
+      const findColumnCountInput = () => client.element('[data-tid="columnCountInput"]');
+      await findColumnCountInput().setValue(5);
+      await client.element('[data-tid="applyNewGridBtn"]').click();
+      await client.element('[data-tid="showSlidersCheckbox"]').click();
+      client.waitForExist('#thumb19', 3000);
+      expect(await client.isExisting('#thumb19')).toBe(true);
+    });
+  });
 
   // it('should open a dialog', async () => {
   //   const { client } = this.app;

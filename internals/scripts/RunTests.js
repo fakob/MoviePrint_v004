@@ -8,7 +8,7 @@ const pattern =
 
 const result = spawn.sync(
   path.normalize('./node_modules/.bin/jest'),
-  [pattern, ...process.argv.slice(2)],
+  [pattern, ...process.argv.slice(2), '-i'],
   { stdio: 'inherit' }
 );
 
