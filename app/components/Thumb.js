@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { SortableHandle } from 'react-sortable-hoc';
 import { Popup } from 'semantic-ui-react';
 import {
-  SHEETVIEW, VIEW
+  SHEET_VIEW, VIEW
 } from '../utils/constants';
 import styles from './ThumbGrid.css';
 import stylesPop from './Popup.css';
@@ -158,7 +158,7 @@ const Thumb = ({
             display: controllersAreVisible ? 'block' : 'none'
           }}
         >
-          {sheetView === SHEETVIEW.GRIDVIEW &&
+          {sheetView === SHEET_VIEW.GRIDVIEW &&
             <DragHandle
               width={thumbWidth - 1} // shrink it to prevent rounding issues
               height={(thumbWidth * aspectRatioInv) - 1}

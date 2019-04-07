@@ -136,10 +136,6 @@
 ##### settings (in undoGroup)
 * many different settings
 
-##### scenesByFileId (in undoGroup)
-* fileId
-  * sceneArray
-
 ##### sheetsByFileId (in undoGroup)
 * fileId
 	* sheetId
@@ -155,6 +151,13 @@
 	    * index
 	    * hidden
 		* sceneArray
+			* sceneId (=== thumbId)
+			* start
+			* length
+			* sheetId
+			* fileId
+			* colorArray
+			* hidden
 
 ##### files Array (in undoGroup)
   * id

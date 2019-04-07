@@ -818,7 +818,7 @@ export const getSliceWidthArrayForScrub = (vid, sliceArraySize = 19, sliceWidthO
   return sliceWidthArray;
 };
 
-export const getSliceWidthArray = (vid, sliceArraySize = 20, sliceWidthOutsideMin = 20, sliceWidthInMiddleMin = 200) => {
+export const getSliceWidthArrayForCut = (vid, sliceArraySize = 20, sliceWidthOutsideMin = 20, sliceWidthInMiddleMin = 200) => {
   const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
   const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
   const sliceWidthInMiddle = Math.max(Math.min(height, width), sliceWidthInMiddleMin);

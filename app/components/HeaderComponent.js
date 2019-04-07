@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Menu, Dropdown, Icon, Popup } from 'semantic-ui-react';
 import {
-  MENU_HEADER_HEIGHT, SHEETVIEW, VIEW, SHEET_FIT
+  MENU_HEADER_HEIGHT, SHEET_VIEW, VIEW, SHEET_FIT
 } from '../utils/constants';
 import { truncate } from '../utils/utils';
 import styles from './Menu.css';
@@ -101,7 +101,7 @@ const Header = ({
         />
         <Menu.Menu position="right">
           {file &&
-            visibilitySettings.defaultSheetView === SHEETVIEW.GRIDVIEW &&
+            visibilitySettings.defaultSheetView === SHEET_VIEW.GRIDVIEW &&
             // !visibilitySettings.showSettings &&
             visibilitySettings.defaultSheetFit !== SHEET_FIT.HEIGHT &&
             scaleValueObject.moviePrintAspectRatioInv < scaleValueObject.containerAspectRatioInv &&
@@ -123,7 +123,7 @@ const Header = ({
             />
           }
           {file &&
-            visibilitySettings.defaultSheetView === SHEETVIEW.GRIDVIEW &&
+            visibilitySettings.defaultSheetView === SHEET_VIEW.GRIDVIEW &&
             // !visibilitySettings.showSettings &&
             visibilitySettings.defaultSheetFit !== SHEET_FIT.WIDTH &&
             scaleValueObject.moviePrintAspectRatioInv > scaleValueObject.containerAspectRatioInv &&
@@ -144,7 +144,7 @@ const Header = ({
               keepInViewPort={false}
             />
           }
-          {file && visibilitySettings.defaultSheetView === SHEETVIEW.GRIDVIEW && visibilitySettings.defaultSheetFit !== SHEET_FIT.BOTH &&
+          {file && visibilitySettings.defaultSheetView === SHEET_VIEW.GRIDVIEW && visibilitySettings.defaultSheetFit !== SHEET_FIT.BOTH &&
             <Popup
               trigger={
                 <Menu.Item
@@ -162,7 +162,7 @@ const Header = ({
               keepInViewPort={false}
             />
           }
-          {file && visibilitySettings.defaultSheetView === SHEETVIEW.GRIDVIEW &&
+          {file && visibilitySettings.defaultSheetView === SHEET_VIEW.GRIDVIEW &&
             <Popup
               trigger={
                 <Menu.Item

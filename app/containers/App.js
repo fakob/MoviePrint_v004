@@ -24,6 +24,7 @@ import ErrorBoundary from '../components/ErrorBoundary';
 import HeaderComponent from '../components/HeaderComponent';
 import Footer from '../components/Footer';
 import VideoPlayer from '../components/VideoPlayer';
+import CutPlayer from '../components/CutPlayer';
 import Scrub from '../components/Scrub';
 import ScrubCut from '../components/ScrubCut';
 import ThumbEmpty from '../components/ThumbEmpty';
@@ -130,7 +131,7 @@ import {
   SCENE_DETECTION_MIN_SCENE_LENGTH,
   DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN,
   VIEW,
-  SHEETVIEW,
+  SHEET_VIEW,
   SHEET_FIT,
   SHEET_TYPE,
   DEFAULT_THUMB_COUNT,
@@ -197,7 +198,7 @@ class App extends Component {
       colorArray: undefined,
       scaleValueObject: undefined,
       savingMoviePrint: false,
-      selectedThumbObject: undefined,
+      selectedThumbsArray: [],
       selectedSceneObject: undefined,
       // file match needs to be in sync with addMoviesToList(), onReplaceMovieListItemClick() and onDrop() !!!
       accept: 'video/*,.divx,.mkv,.ogg,.VOB,',
@@ -259,9 +260,9 @@ class App extends Component {
     this.onScrubWindowMouseOver = this.onScrubWindowMouseOver.bind(this);
     this.onScrubWindowClick = this.onScrubWindowClick.bind(this);
     this.onScrubClick = this.onScrubClick.bind(this);
-    // this.onSelectClick = this.onSelectClick.bind(this);
     this.onExpandClick = this.onExpandClick.bind(this);
     this.onAddThumbClick = this.onAddThumbClick.bind(this);
+    this.onScrubThumbClick = this.onScrubThumbClick.bind(this);
     this.switchToPrintView = this.switchToPrintView.bind(this);
     this.openMoviesDialog = this.openMoviesDialog.bind(this);
     this.onOpenFeedbackForm = this.onOpenFeedbackForm.bind(this);
@@ -464,7 +465,7 @@ class App extends Component {
         store.dispatch(updateSheetName(firstFile.id, newSheetId, getNewSheetName())); // set name on firstFile
         store.dispatch(updateSheetCounter(firstFile.id));
         store.dispatch(updateSheetType(firstFile.id, newSheetId, SHEET_TYPE.INTERVAL));
-        store.dispatch(updateSheetView(firstFile.id, newSheetId, SHEETVIEW.GRIDVIEW));
+        store.dispatch(updateSheetView(firstFile.id, newSheetId, SHEET_VIEW.GRIDVIEW));
         store.dispatch(setCurrentSheetId(newSheetId));
       }
       if (this.state.filesToLoad.length > 0) {
@@ -757,7 +758,7 @@ class App extends Component {
           store.dispatch(updateSheetName(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, getNewSheetName(getSheetCount(files, sheetToGetThumbsFor.fileId))));
           store.dispatch(updateSheetCounter(sheetToGetThumbsFor.fileId));
           store.dispatch(updateSheetType(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, SHEET_TYPE.INTERVAL));
-          store.dispatch(updateSheetView(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, SHEETVIEW.GRIDVIEW));
+          store.dispatch(updateSheetView(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, SHEET_VIEW.GRIDVIEW));
           filesToUpdateStatus.push({
             fileId: sheetToGetThumbsFor.fileId,
             sheetId: sheetToGetThumbsFor.sheetId,
@@ -795,7 +796,7 @@ class App extends Component {
 
         // get scenes to print
         let tempScenes;
-        if (sheetView === SHEETVIEW.TIMELINEVIEW &&
+        if (sheetView === SHEET_VIEW.TIMELINEVIEW &&
           sheetsByFileId[sheetToPrint.fileId] !== undefined &&
           sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId] !== undefined) {
           tempScenes = getVisibleThumbs(
@@ -813,7 +814,7 @@ class App extends Component {
           getColumnCount(sheetsByFileId, sheetToPrint.fileId, sheetToPrint.sheetId, settings),
           file.thumbCount,
           defaultMoviePrintWidth,
-          sheetView === SHEETVIEW.TIMELINEVIEW ? defaultMoviePrintWidth * defaultPaperAspectRatioInv : undefined,
+          sheetView === SHEET_VIEW.TIMELINEVIEW ? defaultMoviePrintWidth * defaultPaperAspectRatioInv : undefined,
           1,
           undefined,
           true,
@@ -822,7 +823,7 @@ class App extends Component {
         );
         console.log(scaleValueObject);
         const dataToSend = {
-          elementId: sheetView !== SHEETVIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
+          elementId: sheetView !== SHEET_VIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
           file: tempFile,
           sheetId: sheetToPrint.sheetId,
           moviePrintWidth: defaultMoviePrintWidth,
@@ -993,13 +994,13 @@ class App extends Component {
             this.onSaveMoviePrint();
             break;
           case 52: // press '4'
-            store.dispatch(setDefaultSheetView(SHEETVIEW.GRIDVIEW));
+            store.dispatch(setDefaultSheetView(SHEET_VIEW.GRIDVIEW));
             break;
           case 53: // press '5'
             store.dispatch(setView(VIEW.PLAYERVIEW));
             break;
           case 54: // press '6'
-            store.dispatch(setDefaultSheetView(SHEETVIEW.TIMELINEVIEW));
+            store.dispatch(setDefaultSheetView(SHEET_VIEW.TIMELINEVIEW));
             break;
           case 67: // press 'c' - Careful!!! might also be triggered when doing reset application Shift+Alt+Command+C
             // this.recaptureAllFrames();
@@ -1094,7 +1095,7 @@ class App extends Component {
     // file match needs to be in sync with addMoviesToList() and accept !!!
     if (Array.from(droppedFiles).some(file => (file.type.match('video.*') ||
       file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
-      store.dispatch(setDefaultSheetView(SHEETVIEW.GRIDVIEW));
+      store.dispatch(setDefaultSheetView(SHEET_VIEW.GRIDVIEW));
       store.dispatch(addMoviesToList(droppedFiles, clearList)).then((response) => {
         this.setState({
           filesToLoad: response,
@@ -1176,10 +1177,10 @@ class App extends Component {
 
   onSelectThumbMethod(thumbId, frameNumber) {
     this.setState({
-      selectedThumbObject: {
+      selectedThumbsArray: [{
         thumbId,
         frameNumber
-      }
+      }]
     });
   }
 
@@ -1269,7 +1270,7 @@ class App extends Component {
   switchToPrintView() {
     const { store } = this.context;
     if (this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW) {
-      store.dispatch(setDefaultSheetView(SHEETVIEW.GRIDVIEW));
+      store.dispatch(setDefaultSheetView(SHEET_VIEW.GRIDVIEW));
     }
   }
 
@@ -1289,10 +1290,10 @@ class App extends Component {
     // this.hideSettings();
     this.onHideDetectionChart();
     const { store } = this.context;
-    store.dispatch(setDefaultSheetView(SHEETVIEW.TIMELINEVIEW));
+    store.dispatch(setDefaultSheetView(SHEET_VIEW.TIMELINEVIEW));
     store.dispatch(setCurrentSheetId(sheetId));
     store.dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.SCENES));
-    store.dispatch(updateSheetView(fileId, sheetId, SHEETVIEW.TIMELINEVIEW));
+    store.dispatch(updateSheetView(fileId, sheetId, SHEET_VIEW.TIMELINEVIEW));
     // get meanArray if it is stored else return false
     const arrayOfFrameScanData = getFrameScanByFileId(fileId);
     // console.log(arrayOfFrameScanData);
@@ -1382,11 +1383,11 @@ class App extends Component {
       const tempFile = files.find((file) => file.id === fileId);
       const clearOldScenes = true;
       store.dispatch(updateSheetType(tempFile.id, sheetId, SHEET_TYPE.SCENES));
-      store.dispatch(updateSheetView(tempFile.id, sheetId, SHEETVIEW.TIMELINEVIEW));
+      store.dispatch(updateSheetView(tempFile.id, sheetId, SHEET_VIEW.TIMELINEVIEW));
       store.dispatch(updateSheetName(tempFile.id, sheetId, getNewSheetName(getSheetCount(files, tempFile.id))));
       store.dispatch(updateSheetCounter(tempFile.id));
       store.dispatch(setCurrentSheetId(sheetId));
-      store.dispatch(setDefaultSheetView(SHEETVIEW.TIMELINEVIEW));
+      store.dispatch(setDefaultSheetView(SHEET_VIEW.TIMELINEVIEW));
       store.dispatch(addScenes(tempFile, sceneList, clearOldScenes, settings.defaultCachedFramesSize, sheetId));
     } else {
       this.showMessage('No scenes detected', 3000);
@@ -1467,8 +1468,8 @@ class App extends Component {
       store.dispatch(updateSheetCounter(file.id));
       store.dispatch(updateSheetType(file.id, sheetId, SHEET_TYPE.INTERVAL));
     }
-    store.dispatch(updateSheetView(file.id, sheetId, SHEETVIEW.GRIDVIEW));
-    store.dispatch(setDefaultSheetView(SHEETVIEW.GRIDVIEW));
+    store.dispatch(updateSheetView(file.id, sheetId, SHEET_VIEW.GRIDVIEW));
+    store.dispatch(setDefaultSheetView(SHEET_VIEW.GRIDVIEW));
     store.dispatch(setCurrentSheetId(sheetId));
   }
 
@@ -1503,6 +1504,57 @@ class App extends Component {
         this.props.settings.defaultCachedFramesSize,
       ));
     }
+  }
+
+  onScrubThumbClick(file, existingThumb, otherSceneIs) {
+    const { store } = this.context;
+    const { allScenes, scenes } = this.props;
+    store.dispatch(setView(VIEW.PLAYERVIEW));
+
+
+    // get all scenes
+    let otherScene;
+    let cutFrameNumber;
+    const selectedThumbsArray = []
+    const clickedScene = scenes.find(scene => scene.sceneId === existingThumb.thumbId);
+    const indexOfAllScenes = allScenes.findIndex(scene => scene.sceneId === existingThumb.thumbId);
+    const indexOfVisibleScenes = scenes.findIndex(scene => scene.sceneId === existingThumb.thumbId);
+
+    // get scene before or after
+    if (otherSceneIs === 'after') {
+      otherScene = scenes[Math.min(scenes.length - 1, indexOfVisibleScenes + 1)];
+      cutFrameNumber = clickedScene.start + clickedScene.length;
+      selectedThumbsArray.push({
+        thumbId: clickedScene.sceneId,
+        frameNumber: cutFrameNumber
+      },
+      {
+        thumbId: otherScene.sceneId,
+        frameNumber: cutFrameNumber
+      });
+    } else if (otherSceneIs === 'before') { // if shiftKey
+      otherScene = scenes[Math.max(0, indexOfVisibleScenes - 1)];
+      cutFrameNumber = otherScene.start + otherScene.length;
+      selectedThumbsArray.push({
+        thumbId: otherScene.sceneId,
+        frameNumber: cutFrameNumber
+      },
+      {
+        thumbId: clickedScene.sceneId,
+        frameNumber: cutFrameNumber
+      });
+    }
+
+    this.setState({selectedThumbsArray});
+
+    // console.log(existingThumb);
+    console.log(otherSceneIs);
+    // console.log(scenes);
+    console.log(clickedScene);
+    // console.log(indexOfAllScenes);
+    // console.log(indexOfVisibleScenes);
+    console.log(cutFrameNumber);
+    console.log(otherScene);
   }
 
   onScrubWindowMouseOver(e) {
@@ -1596,17 +1648,17 @@ class App extends Component {
       getColumnCount(sheetsByFileId, file.id, currentSheetId, settings),
       file.thumbCount,
       defaultMoviePrintWidth,
-      defaultSheetView === SHEETVIEW.TIMELINEVIEW ? defaultMoviePrintWidth * defaultPaperAspectRatioInv : undefined,
+      defaultSheetView === SHEET_VIEW.TIMELINEVIEW ? defaultMoviePrintWidth * defaultPaperAspectRatioInv : undefined,
       1,
       undefined,
       true,
-      defaultSheetView !== SHEETVIEW.TIMELINEVIEW ? undefined : scenes,
+      defaultSheetView !== SHEET_VIEW.TIMELINEVIEW ? undefined : scenes,
       secondsPerRow,
     );
 
     const dataToSend = {
       // scale: 1,
-      elementId: defaultSheetView !== SHEETVIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
+      elementId: defaultSheetView !== SHEET_VIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
       file,
       sheetId: currentSheetId,
       moviePrintWidth: defaultMoviePrintWidth,
@@ -1614,7 +1666,7 @@ class App extends Component {
       sheet,
       visibilityFilter,
       scaleValueObject,
-      scenes: defaultSheetView !== SHEETVIEW.TIMELINEVIEW ? undefined : scenes,
+      scenes: defaultSheetView !== SHEET_VIEW.TIMELINEVIEW ? undefined : scenes,
       secondsPerRow,
     };
     // log.debug(dataToSend);
@@ -1690,7 +1742,7 @@ class App extends Component {
     store.dispatch(updateSheetName(fileId, newSheetId, getNewSheetName(getSheetCount(files, fileId))));
     store.dispatch(updateSheetCounter(fileId));
     store.dispatch(updateSheetType(fileId, newSheetId, SHEET_TYPE.INTERVAL));
-    store.dispatch(updateSheetView(fileId, newSheetId, SHEETVIEW.GRIDVIEW));
+    store.dispatch(updateSheetView(fileId, newSheetId, SHEET_VIEW.GRIDVIEW));
     return newSheetId;
   }
 
@@ -2257,8 +2309,8 @@ class App extends Component {
           store.dispatch(updateSheetCounter(fileId));
           store.dispatch(updateSheetColumnCount(fileId, sheetId, columnCount));
           store.dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.INTERVAL));
-          store.dispatch(updateSheetView(fileId, sheetId, SHEETVIEW.GRIDVIEW));
-          store.dispatch(setDefaultSheetView(SHEETVIEW.GRIDVIEW));
+          store.dispatch(updateSheetView(fileId, sheetId, SHEET_VIEW.GRIDVIEW));
+          store.dispatch(setDefaultSheetView(SHEET_VIEW.GRIDVIEW));
           store.dispatch(setCurrentSheetId(sheetId));
           store.dispatch(setCurrentFileId(fileId));
           ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', fileId, newFilePath, posterFrameId, false, true);
@@ -2291,7 +2343,7 @@ class App extends Component {
       store.dispatch(setCurrentFileId(fileId));
     }
     store.dispatch(setCurrentSheetId(sheetId));
-    if (sheetView === SHEETVIEW.TIMELINEVIEW) {
+    if (sheetView === SHEET_VIEW.TIMELINEVIEW) {
       this.onReCaptureClick(false);
     }
     store.dispatch(setDefaultSheetView(sheetView));
@@ -2313,7 +2365,7 @@ class App extends Component {
     }
     store.dispatch(updateSheetView(fileId, sheetId, sheetView));
 
-    if (sheetView === SHEETVIEW.TIMELINEVIEW) {
+    if (sheetView === SHEET_VIEW.TIMELINEVIEW) {
       this.onReCaptureClick(false);
     }
     store.dispatch(setDefaultSheetView(sheetView));
@@ -2416,9 +2468,11 @@ class App extends Component {
 
     const secondsPerRow = getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings);
     const sheetView = getSheetView(sheetsByFileId, currentFileId, currentSheetId, visibilitySettings);
+    const sheetType = getSheetType(sheetsByFileId, currentFileId, currentSheetId, settings);
+
 
     let isGridView = true;
-    if (sheetView === SHEETVIEW.TIMELINEVIEW) {
+    if (sheetView === SHEET_VIEW.TIMELINEVIEW) {
       isGridView = false;
     }
 
@@ -2479,6 +2533,8 @@ class App extends Component {
         ).name
       );
     }
+
+    console.log(this.state.selectedThumbsArray);
 
     return (
       <Dropzone
@@ -2640,33 +2696,59 @@ class App extends Component {
                     />
                   </div>
                   <div
-                    className={`${styles.ItemVideoPlayer} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''}`}
+                    className={`${sheetType === SHEET_TYPE.SCENES ? styles.ItemCutPlayer : styles.ItemVideoPlayer} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''}`}
                     style={{
                       top: `${MENU_HEADER_HEIGHT + this.props.settings.defaultBorderMargin}px`,
-                      transform: this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW ? 'translate(-50%, 0px)' : `translate(-50%, ${(this.state.scaleValueObject.videoPlayerHeight + this.props.settings.defaultVideoPlayerControllerHeight) * -1}px)`,
+                      transform: this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW ? `translate(${sheetType === SHEET_TYPE.SCENES ? '0px' : '-50%'}, 0px)` : `translate(-50%, ${(this.state.scaleValueObject.videoPlayerHeight + this.props.settings.defaultVideoPlayerControllerHeight) * -1}px)`,
                       overflow: this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW ? 'visible' : 'hidden'
                     }}
                   >
                     { this.props.file ? (
-                      <VideoPlayer
-                        // visible={this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW}
-                        ref={(el) => { this.videoPlayer = el; }}
-                        file={this.props.file}
-                        aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
-                        height={this.state.scaleValueObject.videoPlayerHeight}
-                        width={this.state.scaleValueObject.videoPlayerWidth}
-                        objectUrlObjects={filteredObjectUrlObjects}
-                        controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
-                        selectedThumbId={this.state.selectedThumbObject ?
-                          this.state.selectedThumbObject.thumbId : undefined}
-                        frameNumber={this.state.selectedThumbObject ?
-                          this.state.selectedThumbObject.frameNumber : 0}
-                        onThumbDoubleClick={this.onViewToggle}
-                        selectThumbMethod={this.onSelectThumbMethod}
-                        keyObject={this.state.keyObject}
-                        opencvVideo={this.state.opencvVideo}
-                        frameSize={this.props.settings.defaultCachedFramesSize}
-                      />
+                      <Fragment>
+                        <Conditional if={sheetType === SHEET_TYPE.INTERVAL}>
+                          <VideoPlayer
+                            // visible={this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW}
+                            ref={(el) => { this.videoPlayer = el; }}
+                            file={this.props.file}
+                            aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
+                            height={this.state.scaleValueObject.videoPlayerHeight}
+                            width={this.state.scaleValueObject.videoPlayerWidth}
+                            objectUrlObjects={filteredObjectUrlObjects}
+                            controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
+                            selectedThumbId={this.state.selectedThumbsArray.length !== 0 ?
+                              this.state.selectedThumbsArray[0].thumbId : undefined}
+                            frameNumber={this.state.selectedThumbsArray.length !== 0 ?
+                              this.state.selectedThumbsArray[0].frameNumber : 0}
+                            onThumbDoubleClick={this.onViewToggle}
+                            selectThumbMethod={this.onSelectThumbMethod}
+                            keyObject={this.state.keyObject}
+                            opencvVideo={this.state.opencvVideo}
+                            frameSize={this.props.settings.defaultCachedFramesSize}
+                          />
+                        </Conditional>
+                        <Conditional if={sheetType === SHEET_TYPE.SCENES}>
+                          <CutPlayer
+                            // visible={this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW}
+                            ref={(el) => { this.videoPlayer = el; }}
+                            file={this.props.file}
+                            containerWidth={this.state.containerWidth}
+                            scaleValueObject={this.state.scaleValueObject}
+                            aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
+                            height={this.state.scaleValueObject.videoPlayerHeight}
+                            width={this.state.scaleValueObject.videoPlayerWidth}
+                            objectUrlObjects={filteredObjectUrlObjects}
+                            controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
+                            selectedThumbsArray={this.state.selectedThumbsArray}
+                            frameNumber={this.state.selectedThumbsArray.length !== 0 ?
+                              this.state.selectedThumbsArray[0].frameNumber : 0}
+                            onThumbDoubleClick={this.onViewToggle}
+                            selectThumbMethod={this.onSelectThumbMethod}
+                            keyObject={this.state.keyObject}
+                            opencvVideo={this.state.opencvVideo}
+                            frameSize={this.props.settings.defaultCachedFramesSize}
+                          />
+                        </Conditional>
+                      </Fragment>
                     ) :
                     (
                       <div
@@ -2715,22 +2797,25 @@ class App extends Component {
                     { (this.props.file || this.props.visibilitySettings.showSettings || this.state.loadingFirstFile) ? (
                       // (this.props.visibilitySettings.defaultSheetView === 'gridView') ? (
                       <Fragment>
-                        <Conditional if={this.props.visibilitySettings.defaultSheetView !== SHEETVIEW.TIMELINEVIEW}>
+                        <Conditional if={this.props.visibilitySettings.defaultSheetView !== SHEET_VIEW.TIMELINEVIEW}>
                           <SortedVisibleThumbGrid
                             colorArray={this.state.colorArray}
                             sheetView={this.props.visibilitySettings.defaultSheetView}
+                            sheetType={sheetType}
                             view={this.props.visibilitySettings.defaultView}
                             currentSheetId={this.props.settings.currentSheetId}
                             file={this.props.file}
                             inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                             keyObject={this.state.keyObject}
                             onAddThumbClick={this.onAddThumbClick}
+                            onScrubThumbClick={this.onScrubThumbClick}
                             onScrubClick={this.onScrubClick}
                             onExpandClick={this.onExpandClick}
                             onThumbDoubleClick={this.onViewToggle}
                             scaleValueObject={this.state.scaleValueObject}
                             moviePrintWidth={this.state.scaleValueObject.newMoviePrintWidth}
-                            selectedThumbId={this.state.selectedThumbObject ? this.state.selectedThumbObject.thumbId : undefined}
+                            selectedThumbIdArray={this.state.selectedThumbsArray}
+                            // selectedThumbId={this.state.selectedThumbsArray ? this.state.selectedThumbsArray[0].thumbId : undefined}
                             selectThumbMethod={this.onSelectThumbMethod}
                             settings={this.props.settings}
                             showSettings={this.props.visibilitySettings.showSettings}
@@ -2742,7 +2827,7 @@ class App extends Component {
                             isGridView={isGridView}
                           />
                         </Conditional>
-                        <Conditional if={this.props.visibilitySettings.defaultSheetView === SHEETVIEW.TIMELINEVIEW}>
+                        <Conditional if={this.props.visibilitySettings.defaultSheetView === SHEET_VIEW.TIMELINEVIEW}>
                           <SortedVisibleSceneGrid
                             sheetView={this.props.visibilitySettings.defaultSheetView}
                             view={this.props.visibilitySettings.defaultView}
@@ -3106,6 +3191,7 @@ const mapStateToProps = state => {
     files,
     file: files
       .find((file) => file.id === currentFileId),
+    allScenes,
     scenes: getVisibleThumbs(
       allScenes,
       visibilitySettings.visibilityFilter
@@ -3144,6 +3230,7 @@ App.propTypes = {
   settings: PropTypes.object.isRequired,
   thumbs: PropTypes.array,
   sheetsByFileId: PropTypes.object,
+  allScenes: PropTypes.array,
   scenes: PropTypes.array,
   visibilitySettings: PropTypes.object.isRequired,
 };

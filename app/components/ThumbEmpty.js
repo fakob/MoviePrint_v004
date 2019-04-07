@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { SortableHandle } from 'react-sortable-hoc';
 import styles from './ThumbGrid.css';
 import {
-  SHEETVIEW
+  SHEET_VIEW
 } from '../utils/constants';
 import transparent from './../img/Thumb_TRANSPARENT.png';
 
@@ -18,15 +18,15 @@ const ThumbEmpty = ({
   return (
     <div
       onDoubleClick={onThumbDoubleClick}
-      className={`${styles.gridItem} ${(selected && defaultSheetView !== SHEETVIEW.GRIDVIEW) ? styles.gridItemSelected : ''}`}
+      className={`${styles.gridItem} ${(selected && defaultSheetView !== SHEET_VIEW.GRIDVIEW) ? styles.gridItemSelected : ''}`}
       width={`${thumbWidth}px`}
       height={`${(thumbWidth * aspectRatioInv)}px`}
       style={{
         opacity: hidden ? '0.2' : '1',
         width: thumbWidth,
         margin: `${margin}px`,
-        outlineWidth: `${(selected && defaultSheetView !== SHEETVIEW.GRIDVIEW) ? margin : 0}px`,
-        borderRadius: `${(selected && defaultSheetView !== SHEETVIEW.GRIDVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
+        outlineWidth: `${(selected && defaultSheetView !== SHEET_VIEW.GRIDVIEW) ? margin : 0}px`,
+        borderRadius: `${(selected && defaultSheetView !== SHEET_VIEW.GRIDVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: thumbImageObjectUrl !== undefined ? undefined : color,
       }}
     >
@@ -41,7 +41,7 @@ const ThumbEmpty = ({
         height={`${(thumbWidth * aspectRatioInv)}px`}
         style={{
           filter: `${controlersAreVisible ? 'brightness(80%)' : ''}`,
-          borderRadius: `${(selected && defaultSheetView !== SHEETVIEW.GRIDVIEW) ? 0 : borderRadius}px`,
+          borderRadius: `${(selected && defaultSheetView !== SHEET_VIEW.GRIDVIEW) ? 0 : borderRadius}px`,
         }}
       />
     </div>

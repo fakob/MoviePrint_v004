@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Menu, Popup, Icon, Dropdown } from 'semantic-ui-react';
 import {
   MENU_FOOTER_HEIGHT,
-  SHEETVIEW,
+  SHEET_VIEW,
   VIEW,
 } from '../utils/constants';
 import styles from './Menu.css';
@@ -46,7 +46,7 @@ const Footer = ({
             keepInViewPort={false}
           />
           {file &&
-            (defaultSheetView === SHEETVIEW.GRIDVIEW || defaultSheetView === SHEETVIEW.TIMELINEVIEW) &&
+            (defaultSheetView === SHEET_VIEW.GRIDVIEW || defaultSheetView === SHEET_VIEW.TIMELINEVIEW) &&
             defaultView === VIEW.STANDARDVIEW &&
             <Popup
               trigger={

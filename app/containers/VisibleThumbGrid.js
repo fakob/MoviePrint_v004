@@ -12,7 +12,7 @@ import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
 import { getLowestFrame, getHighestFrame } from '../utils/utils';
 import saveThumb from '../utils/saveThumb';
-import { CHANGE_THUMB_STEP, SHEETVIEW, DEFAULT_SHEET_SCENES } from '../utils/constants';
+import { CHANGE_THUMB_STEP, SHEET_VIEW, DEFAULT_SHEET_SCENES } from '../utils/constants';
 
 class SortedVisibleThumbGrid extends Component {
   constructor(props) {
@@ -33,7 +33,9 @@ class SortedVisibleThumbGrid extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.selectedThumbId !== this.props.selectedThumbId) {
+    if (prevProps.selectedThumbIdArray.length !== 0 &&
+      this.props.selectedThumbIdArray.length !== 0 &&
+      (prevProps.selectedThumbIdArray[0].thumbId !== this.props.selectedThumbIdArray[0].thumbId)) {
       this.scrollThumbIntoView();
     }
     // delay when switching to gridView so it waits for the sheetView to be ready
@@ -97,12 +99,14 @@ class SortedVisibleThumbGrid extends Component {
         useBase64={this.props.useBase64}
         colorArray={this.props.colorArray}
         sheetView={this.props.sheetView}
+        sheetType={this.props.sheetType}
         view={this.props.view}
         currentSheetId={this.props.currentSheetId}
         file={this.props.file}
         inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
         keyObject={this.props.keyObject}
         onAddThumbClick={this.props.onAddThumbClick}
+        onScrubThumbClick={this.props.onScrubThumbClick}
         onBackClick={this.props.onBackClick}
         onForwardClick={this.props.onForwardClick}
         onInPointClick={this.props.onInPointClick}
@@ -117,7 +121,7 @@ class SortedVisibleThumbGrid extends Component {
         ref={this.props.inputRef} // for the saveMoviePrint function
         scaleValueObject={this.props.scaleValueObject}
         moviePrintWidth={this.props.moviePrintWidth}
-        selectedThumbId={this.props.selectedThumbId}
+        selectedThumbIdArray={this.props.selectedThumbIdArray}
         settings={this.props.settings}
         showSettings={this.props.showSettings}
         thumbCount={this.props.thumbCount}
@@ -222,7 +226,8 @@ SortedVisibleThumbGrid.contextTypes = {
 
 SortedVisibleThumbGrid.defaultProps = {
   thumbs: [],
-  file: {}
+  file: {},
+  selectedThumbIdArray: [],
 };
 
 SortedVisibleThumbGrid.propTypes = {
@@ -241,11 +246,12 @@ SortedVisibleThumbGrid.propTypes = {
   onSaveThumbClick: PropTypes.func.isRequired,
   onScrubClick: PropTypes.func,
   onAddThumbClick: PropTypes.func,
+  onScrubThumbClick: PropTypes.func,
   onExpandClick: PropTypes.func,
   onThumbDoubleClick: PropTypes.func,
   onToggleClick: PropTypes.func.isRequired,
   scaleValueObject: PropTypes.object.isRequired,
-  selectedThumbId: PropTypes.string,
+  selectedThumbIdArray: PropTypes.array,
   selectThumbMethod: PropTypes.func,
   settings: PropTypes.object.isRequired,
   sheetView: PropTypes.string.isRequired,

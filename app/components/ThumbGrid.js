@@ -26,7 +26,8 @@ import {
   MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
   MINIMUM_WIDTH_TO_SHRINK_HOVER,
   MINIMUM_WIDTH_TO_SHOW_HOVER,
-  SHEETVIEW,
+  SHEET_TYPE,
+  SHEET_VIEW,
   VIEW,
 } from './../utils/constants';
 
@@ -69,6 +70,8 @@ class ThumbGrid extends Component {
     this.onScrub = this.onScrub.bind(this);
     this.onAddBefore = this.onAddBefore.bind(this);
     this.onAddAfter = this.onAddAfter.bind(this);
+    this.onScrubBefore = this.onScrubBefore.bind(this);
+    this.onScrubAfter = this.onScrubAfter.bind(this);
     this.onBack = this.onBack.bind(this);
     this.onForward = this.onForward.bind(this);
     this.onHoverAddThumbBefore = this.onHoverAddThumbBefore.bind(this);
@@ -235,6 +238,22 @@ class ThumbGrid extends Component {
     this.resetHover();
   }
 
+  onScrubBefore(e) {
+    // console.log('onScrubBefore');
+    e.stopPropagation();
+    const thumb = this.props.thumbs.find(thumb => thumb.thumbId === this.state.controllersVisible);
+    this.props.onScrubThumbClick(this.props.file, thumb, 'before');
+    this.resetHover();
+  }
+
+  onScrubAfter(e) {
+    // console.log('onScrubAfter');
+    e.stopPropagation();
+    const thumb = this.props.thumbs.find(thumb => thumb.thumbId === this.state.controllersVisible);
+    this.props.onScrubThumbClick(this.props.file, thumb, 'after');
+    this.resetHover();
+  }
+
   onHoverAddThumbBefore(e) {
     // console.log('onHoverAddThumbBefore');
     e.target.style.opacity = 1;
@@ -354,7 +373,7 @@ class ThumbGrid extends Component {
         onMouseLeave={this.onContainerOut}
         // ref={this.setThumbGridDivRef}
       >
-        {this.props.settings.defaultShowHeader && this.props.sheetView === SHEETVIEW.GRIDVIEW &&
+        {this.props.settings.defaultShowHeader && this.props.sheetView === SHEET_VIEW.GRIDVIEW &&
           <ThumbGridHeader
             viewForPrinting={this.props.viewForPrinting}
             fileName={this.props.file.name || ''}
@@ -386,7 +405,7 @@ class ThumbGrid extends Component {
               index={thumb.index}
               indexForId={thumb.index}
               dim={(this.state.thumbsToDim.find((thumbToDim) => thumbToDim.thumbId === thumb.thumbId))}
-              inputRefThumb={(this.props.selectedThumbId === thumb.thumbId) ?
+              inputRefThumb={(this.props.selectedThumbIdArray.length !== 0 && this.props.selectedThumbIdArray[0].thumbId === thumb.thumbId) ?
                 this.props.inputRefThumb : undefined} // for the thumb scrollIntoView function
               color={(this.props.colorArray !== undefined ? this.props.colorArray[thumb.index] : undefined)}
               thumbImageObjectUrl={ // used for data stored in IndexedDB
@@ -404,7 +423,10 @@ class ThumbGrid extends Component {
               thumbInfoRatio={this.props.settings.defaultThumbInfoRatio}
               hidden={thumb.hidden}
               controllersAreVisible={(thumb.thumbId === undefined) ? false : (thumb.thumbId === this.state.controllersVisible)}
-              selected={this.props.selectedThumbId ? (this.props.selectedThumbId === thumb.thumbId) : false}
+              selected={this.props.selectedThumbIdArray.length !== 0 ?
+                this.props.selectedThumbIdArray.some(item => item.thumbId === thumb.thumbId) :
+                false
+              }
               onOver={(event) => {
                 // console.log('onOver from Thumb');
                 // only setState if controllersVisible has changed
@@ -539,13 +561,13 @@ class ThumbGrid extends Component {
                         data-tid={`addNewThumbBeforeBtn_${this.state.controllersVisible}`}
                         type='button'
                         className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayAddBefore} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
-                        onClick={this.onAddBefore}
+                        onClick={this.props.sheetType === SHEET_TYPE.SCENES ? this.onScrubBefore : this.onAddBefore}
                         onMouseOver={this.onHoverAddThumbBefore}
                         onMouseOut={this.onLeaveAddThumb}
                         onFocus={this.over}
                         onBlur={this.out}
                       >
-                        +
+                        {this.props.sheetType === SHEET_TYPE.SCENES ? '||' : '+'}
                       </button>
                     }
                     className={stylesPop.popup}
@@ -576,13 +598,13 @@ class ThumbGrid extends Component {
                         data-tid={`addNewThumbAfterBtn_${this.state.controllersVisible}`}
                         type='button'
                         className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayAddAfter} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
-                        onClick={this.onAddAfter}
+                        onClick={this.props.sheetType === SHEET_TYPE.SCENES ? this.onScrubAfter : this.onAddAfter}
                         onMouseOver={this.onHoverAddThumbAfter}
                         onMouseOut={this.onLeaveAddThumb}
                         onFocus={this.over}
                         onBlur={this.out}
                       >
-                        +
+                        {this.props.sheetType === SHEET_TYPE.SCENES ? '||' : '+'}
                       </button>
                     }
                     className={stylesPop.popup}
@@ -608,7 +630,7 @@ class ThumbGrid extends Component {
                   />
                 </div>
               }
-              {this.props.sheetView !== SHEETVIEW.GRIDVIEW && (showBeforeController || showAfterController) &&
+              {this.props.sheetView !== SHEET_VIEW.GRIDVIEW && (showBeforeController || showAfterController) &&
                 <div
                   data-tid={`insertThumb${(!showAfterController && showBeforeController) ? 'Before' : 'After'}Div_${this.state.controllersVisible}`}
                   style={{
@@ -652,7 +674,7 @@ class ThumbGrid extends Component {
 }
 
 ThumbGrid.defaultProps = {
-  selectedThumbId: undefined,
+  selectedThumbIdArray: [],
   thumbs: [],
   thumbsToDim: [],
   file: {}
@@ -679,10 +701,11 @@ ThumbGrid.propTypes = {
   onThumbDoubleClick: PropTypes.func,
   onScrubClick: PropTypes.func.isRequired,
   onAddThumbClick: PropTypes.func.isRequired,
+  onScrubThumbClick: PropTypes.func.isRequired,
   onToggleClick: PropTypes.func.isRequired,
   onExpandClick: PropTypes.func.isRequired,
   scaleValueObject: PropTypes.object.isRequired,
-  selectedThumbId: PropTypes.string,
+  selectedThumbIdArray: PropTypes.array,
   settings: PropTypes.object.isRequired,
   sheetView: PropTypes.string.isRequired,
   showSettings: PropTypes.bool.isRequired,

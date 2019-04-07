@@ -7,7 +7,7 @@ import { Popup } from 'semantic-ui-react';
 import {
   MINIMUM_WIDTH_TO_SHRINK_HOVER,
   MINIMUM_WIDTH_TO_SHOW_HOVER,
-  SHEETVIEW,
+  SHEET_VIEW,
 } from '../utils/constants';
 import styles from './SceneGrid.css';
 import stylesPop from './Popup.css';
@@ -178,7 +178,7 @@ const Scene = ({
   function onThumbDoubleClickWithStop(e) {
     e.stopPropagation();
     if (controllersAreVisible) {
-      // if (sheetView === SHEETVIEW.TIMELINEVIEW) {
+      // if (sheetView === SHEET_VIEW.TIMELINEVIEW) {
       //   onSelect();
       // }
       onThumbDoubleClick();
@@ -242,8 +242,8 @@ const Scene = ({
         height:`${thumbHeight}px`,
         // width: width,
         margin: `${margin}px`,
-        outlineWidth: `${sheetView === SHEETVIEW.TIMELINEVIEW ? margin : Math.max(1, margin)}px`,
-        borderRadius: `${(selected && sheetView !== SHEETVIEW.TIMELINEVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
+        outlineWidth: `${sheetView === SHEET_VIEW.TIMELINEVIEW ? margin : Math.max(1, margin)}px`,
+        borderRadius: `${(selected && sheetView !== SHEET_VIEW.TIMELINEVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: hexColor,
         backgroundImage: thumbImageObjectUrl === undefined ? `url(data:image/jpeg;base64,${base64})` : `url(${thumbImageObjectUrl}`,
         backgroundSize: `auto ${thumbHeight + 20}px`,
@@ -267,7 +267,7 @@ const Scene = ({
             display: controllersAreVisible ? 'block' : 'none'
           }}
         >
-          {/* {sheetView === SHEETVIEW.TIMELINEVIEW &&
+          {/* {sheetView === SHEET_VIEW.TIMELINEVIEW &&
             <DragHandle
               width={thumbWidth - 1} // shrink it to prevent rounding issues
               height={(thumbWidth * aspectRatioInv) - 1}

@@ -139,6 +139,60 @@
     /* cursor: col-resize; */
 }
 
+.hundredFramesBack {
+    position: absolute;
+    bottom: 0;
+    left: 30%;
+    transform-origin: center bottom;
+    transform: translate(-50%, 0%);
+    opacity: 0.5;
+}
+
+.tenFramesBack {
+    position: absolute;
+    bottom: 0;
+    left: 35%;
+    transform-origin: center bottom;
+    transform: translate(-50%, 0%);
+    opacity: 0.5;
+}
+
+.oneFrameBack {
+    position: absolute;
+    bottom: 0;
+    left: 40%;
+    transform-origin: center bottom;
+    transform: translate(-50%, 0%);
+    opacity: 0.5;
+}
+
+.hundredFramesForward {
+    position: absolute;
+    bottom: 0;
+    right: 30%;
+    transform-origin: center bottom;
+    transform: translate(-50%, 0%);
+    opacity: 0.5;
+}
+
+.tenFramesForward {
+    position: absolute;
+    bottom: 0;
+    right: 35%;
+    transform-origin: center bottom;
+    transform: translate(-50%, 0%);
+    opacity: 0.5;
+}
+
+.oneFrameForward {
+    position: absolute;
+    bottom: 0;
+    right: 40%;
+    transform-origin: center bottom;
+    transform: translate(-50%, 0%);
+    opacity: 0.5;
+}
+
 .textButton {
   font-family: 'Franchise', 'Roboto Condensed';
   color: #ffffff;
