@@ -139,6 +139,24 @@
     /* cursor: col-resize; */
 }
 
+.previousScene {
+    position: absolute;
+    bottom: 0;
+    left: 15%;
+    transform-origin: center bottom;
+    transform: translate(-50%, 0%);
+    opacity: 0.5;
+}
+
+.nextScene {
+    position: absolute;
+    bottom: 0;
+    right: 10%;
+    transform-origin: center bottom;
+    transform: translate(-50%, 0%);
+    opacity: 0.5;
+}
+
 .hundredFramesBack {
     position: absolute;
     bottom: 0;

@@ -402,6 +402,24 @@ class CutPlayer extends Component {
             <Popup
               trigger={
                 <button
+                  type='button'
+                  className={`${styles.hoverButton} ${styles.textButton} ${styles.previousScene}`}
+                  onClick={() => this.props.onNextSceneClick('back', this.state.currentFrame)}
+                  onMouseOver={over}
+                  onMouseLeave={out}
+                  onFocus={over}
+                  onBlur={out}
+                >
+                  previous scene
+                </button>
+              }
+              className={stylesPop.popup}
+              content={<span>Jump to previous scene cut</span>}
+            />
+            <Popup
+              trigger={
+                <button
+                  type='button'
                   className={`${styles.hoverButton} ${styles.textButton} ${styles.hundredFramesBack}`}
                   onClick={() => this.onBackForwardClick(-100)}
                   onMouseOver={over}
@@ -418,6 +436,7 @@ class CutPlayer extends Component {
             <Popup
               trigger={
                 <button
+                  type='button'
                   className={`${styles.hoverButton} ${styles.textButton} ${styles.tenFramesBack}`}
                   onClick={() => this.onBackForwardClick(-10)}
                   onMouseOver={over}
@@ -434,6 +453,7 @@ class CutPlayer extends Component {
             <Popup
               trigger={
                 <button
+                  type='button'
                   className={`${styles.hoverButton} ${styles.textButton} ${styles.oneFrameBack}`}
                   onClick={() => this.onBackForwardClick(-1)}
                   onMouseOver={over}
@@ -447,7 +467,7 @@ class CutPlayer extends Component {
               className={stylesPop.popup}
               content={<span>Move 1 frame back</span>}
             />
-            <Popup
+            {/* <Popup
               trigger={
                 <button
                   className={`${styles.hoverButton} ${styles.textButton}`}
@@ -471,10 +491,11 @@ class CutPlayer extends Component {
               }
               className={stylesPop.popup}
               content={this.props.keyObject.altKey ? (<span>Add a new thumb <mark>after</mark> selection</span>) : (this.props.keyObject.shiftKey ? (<span>Add a new thumb <mark>before</mark> selection</span>) : (<span>Change the thumb to use this frame | with <mark>SHIFT</mark> add a thumb before selection | with <mark>ALT</mark> add a thumb after selection</span>))}
-            />
+            />*/}
             <Popup
               trigger={
                 <button
+                  type='button'
                   className={`${styles.hoverButton} ${styles.textButton} ${styles.oneFrameForward}`}
                   onClick={() => this.onBackForwardClick(1)}
                   onMouseOver={over}
@@ -491,6 +512,7 @@ class CutPlayer extends Component {
             <Popup
               trigger={
                 <button
+                  type='button'
                   className={`${styles.hoverButton} ${styles.textButton} ${styles.tenFramesForward}`}
                   onClick={() => this.onBackForwardClick(10)}
                   onMouseOver={over}
@@ -507,6 +529,7 @@ class CutPlayer extends Component {
             <Popup
               trigger={
                 <button
+                  type='button'
                   className={`${styles.hoverButton} ${styles.textButton} ${styles.hundredFramesForward}`}
                   onClick={() => this.onBackForwardClick(100)}
                   onMouseOver={over}
@@ -519,6 +542,23 @@ class CutPlayer extends Component {
               }
               className={stylesPop.popup}
               content={<span>Move 100 frames forward</span>}
+            />
+            <Popup
+              trigger={
+                <button
+                  type='button'
+                  className={`${styles.hoverButton} ${styles.textButton} ${styles.nextScene}`}
+                  onClick={() => this.props.onNextSceneClick('forward', this.state.currentFrame)}
+                  onMouseOver={over}
+                  onMouseLeave={out}
+                  onFocus={over}
+                  onBlur={out}
+                >
+                  next scene
+                </button>
+              }
+              className={stylesPop.popup}
+              content={<span>Jump to next scene cut</span>}
             />
           </div>
         </div>
@@ -586,6 +626,7 @@ CutPlayer.propTypes = {
   height: PropTypes.number,
   keyObject: PropTypes.object.isRequired,
   onThumbDoubleClick: PropTypes.func.isRequired,
+  onNextSceneClick: PropTypes.func.isRequired,
   selectedThumbsArray: PropTypes.array,
   selectThumbMethod: PropTypes.func.isRequired,
   width: PropTypes.number,

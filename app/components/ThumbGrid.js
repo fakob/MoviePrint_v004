@@ -242,7 +242,7 @@ class ThumbGrid extends Component {
     // console.log('onScrubBefore');
     e.stopPropagation();
     const thumb = this.props.thumbs.find(thumb => thumb.thumbId === this.state.controllersVisible);
-    this.props.onScrubThumbClick(this.props.file, thumb, 'before');
+    this.props.onScrubThumbClick(this.props.file, thumb.thumbId, 'before');
     this.resetHover();
   }
 
@@ -250,7 +250,7 @@ class ThumbGrid extends Component {
     // console.log('onScrubAfter');
     e.stopPropagation();
     const thumb = this.props.thumbs.find(thumb => thumb.thumbId === this.state.controllersVisible);
-    this.props.onScrubThumbClick(this.props.file, thumb, 'after');
+    this.props.onScrubThumbClick(this.props.file, thumb.thumbId, 'after');
     this.resetHover();
   }
 
