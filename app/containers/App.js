@@ -54,6 +54,7 @@ import { getLowestFrame,
   getFileTransformObject,
   getFileName,
   getSheetName,
+  getSceneFromFrameNumber,
 } from '../utils/utils';
 import styles from './App.css';
 import stylesPop from './../components/Popup.css';
@@ -123,6 +124,7 @@ import {
   updateFrameNumber,
   updateInOutPoint,
   updateFileScanStatus,
+  cutScene,
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -264,6 +266,7 @@ class App extends Component {
     this.onAddThumbClick = this.onAddThumbClick.bind(this);
     this.onScrubThumbClick = this.onScrubThumbClick.bind(this);
     this.onNextSceneClick = this.onNextSceneClick.bind(this);
+    this.onCutSceneClick = this.onCutSceneClick.bind(this);
     this.switchToPrintView = this.switchToPrintView.bind(this);
     this.openMoviesDialog = this.openMoviesDialog.bind(this);
     this.onOpenFeedbackForm = this.onOpenFeedbackForm.bind(this);
@@ -1566,7 +1569,7 @@ class App extends Component {
     let otherSceneIs;
     let jumpToScene;
     if (direction === 'back') {
-      for (let i = 1; i < scenes.length; i += 1) {
+      for (let i = 0; i < scenes.length; i += 1) {
         if (scenes[i].start >= currentFrame) {
           jumpToScene = scenes[Math.max(i - 1, 0)];
           otherSceneIs = 'before';
@@ -1574,7 +1577,7 @@ class App extends Component {
         }
       }
     } else if (direction === 'forward') {
-      for (let i = 1; i < scenes.length; i += 1) {
+      for (let i = 0; i < scenes.length; i += 1) {
         if (scenes[i].start > currentFrame) {
           jumpToScene = scenes[i];
           otherSceneIs = 'after';
@@ -1585,6 +1588,19 @@ class App extends Component {
     // console.log(jumpToScene);
     this.onScrubThumbClick(file, jumpToScene.sceneId, otherSceneIs);
   }
+
+  onCutSceneClick(frameToCut) {
+    const { store } = this.context;
+    const { allScenes, currentSheetId, file, thumbs } = this.props;
+
+    const scene = getSceneFromFrameNumber(allScenes, frameToCut);
+
+    store.dispatch(cutScene(thumbs, allScenes, file, currentSheetId, scene, frameToCut));
+
+    // console.log(direction);
+    // console.log(currentFrame);
+  }
+
 
   onScrubWindowMouseOver(e) {
     if (e.clientY < (MENU_HEADER_HEIGHT + this.state.containerHeight)) {
@@ -2773,6 +2789,7 @@ class App extends Component {
                             onThumbDoubleClick={this.onViewToggle}
                             selectThumbMethod={this.onSelectThumbMethod}
                             onNextSceneClick={this.onNextSceneClick}
+                            onCutSceneClick={this.onCutSceneClick}
                             keyObject={this.state.keyObject}
                             opencvVideo={this.state.opencvVideo}
                             frameSize={this.props.settings.defaultCachedFramesSize}

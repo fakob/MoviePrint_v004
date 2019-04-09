@@ -831,3 +831,20 @@ export const getSliceWidthArrayForCut = (vid, sliceArraySize = 20, sliceWidthOut
   }
   return sliceWidthArray;
 };
+
+export const getSceneFromFrameNumber = (scenes, frameNumber) => {
+  // needs scenes to be ordered
+  // let scene;
+  // const scene = scenes.reduce((prev, curr) => Math.abs(curr.start - frameNumber) < Math.abs(prev.start - frameNumber) ? curr : prev);
+  const scene = scenes.find(scene1 => (scene1.start <= frameNumber && (scene1.start + scene1.length) > frameNumber));
+  // for (let i = 0; i < scenes.length; i += 1) {
+  //   if (scenes[i].start >= frameNumber) {
+  //     scene = scenes[i];
+  //     break;
+  //   }
+  // }
+  console.log(frameNumber);
+  console.log(scenes);
+  console.log(scene);
+  return scene;
+}

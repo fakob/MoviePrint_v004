@@ -437,6 +437,64 @@ export const updateSceneArray = (fileId, sheetId, sceneArray) => {
   };
 };
 
+export const insertScene = (fileId, sheetId, index, start, length, colorArray, newSceneId) => {
+  log.debug(`action: insertScene - ${newSceneId}`);
+  return {
+    type: 'INSERT_SCENE',
+    payload: {
+      fileId,
+      sheetId,
+      index,
+      start,
+      length,
+      colorArray,
+      sceneId: newSceneId,
+    },
+  };
+};
+
+export const updateSceneLength = (fileId, sheetId, sceneId, length) => {
+  log.debug(`action: updateSceneLength - ${sceneId}`);
+  return {
+    type: 'UPDATE_SCENE_LENGTH',
+    payload: {
+      fileId,
+      sheetId,
+      sceneId,
+      length,
+    },
+  };
+};
+
+export const cutScene = (thumbs, allScenes, file, sheetId, scene, frameToCut) => {
+  log.debug(`action: cutScene - ${scene.sceneId} - ${frameToCut}`);
+  return (dispatch) => {
+
+    // split one scene in 2
+    const firstSceneSceneLength = frameToCut - scene.start;
+    const firstSceneNewFrameNumber = scene.start + Math.floor(firstSceneSceneLength / 2)
+    const firstSceneIndex = allScenes.findIndex(scene2 => scene2.sceneId === scene.sceneId);
+    const nextSceneId = uuidV4();
+    const nextSceneSceneStart = frameToCut;
+    const nextSceneSceneLength = (scene.start + scene.length) - nextSceneSceneStart;
+    const nextSceneNewFrameNumber = nextSceneSceneStart + Math.floor(nextSceneSceneLength / 2)
+    dispatch(insertScene(file.id, sheetId, firstSceneIndex + 1, nextSceneSceneStart, nextSceneSceneLength, scene.colorArray, nextSceneId));
+    dispatch(updateSceneLength(file.id, sheetId, scene.sceneId, firstSceneSceneLength));
+    dispatch(changeThumb(sheetId, file, scene.sceneId, firstSceneNewFrameNumber));
+    const firstThumbIndex = thumbs.findIndex(thumb => thumb.thumbId === scene.sceneId);
+    dispatch(addThumb(file, sheetId, nextSceneNewFrameNumber, firstThumbIndex + 1, nextSceneId));
+
+    // return {
+    //   type: 'UPDATE_SCENEARRAY',
+    //   payload: {
+    //     fileId,
+    //     sheetId,
+    //     sceneArray,
+    //   },
+    // };
+  }
+};
+
 export const addThumb = (file, sheetId, frameNumber, index, thumbId = uuidV4(), frameSize = 0) => {
   return (dispatch) => {
     log.debug('action: addThumb');

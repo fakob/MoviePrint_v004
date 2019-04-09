@@ -61,7 +61,6 @@ class CutPlayer extends Component {
     this.onTimelineDragStop = this.onTimelineDragStop.bind(this);
     this.onTimelineMouseOver = this.onTimelineMouseOver.bind(this);
     this.onTimelineExit = this.onTimelineExit.bind(this);
-    this.onApplyClick = this.onApplyClick.bind(this);
   }
 
   componentWillMount() {
@@ -271,43 +270,6 @@ class CutPlayer extends Component {
     }
   }
 
-  onApplyClick = () => {
-    // // only do changes if there is a thumb selected
-    // if (this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbsArray) !== undefined) {
-    //   const { store } = this.context;
-    //   let newFrameNumber;
-    //   newFrameNumber = this.state.currentFrame;
-    //   if (this.props.keyObject.altKey || this.props.keyObject.shiftKey) {
-    //     const newThumbId = uuidV4();
-    //     if (this.props.keyObject.altKey) {
-    //       store.dispatch(addThumb(
-    //         this.props.file,
-    //         this.props.settings.currentSheetId,
-    //         newFrameNumber,
-    //         this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbsArray).index + 1,
-    //         newThumbId,
-    //         this.props.frameSize,
-    //       ));
-    //     } else { // if shiftKey
-    //       store.dispatch(addThumb(
-    //         this.props.file,
-    //         this.props.settings.currentSheetId,
-    //         newFrameNumber,
-    //         this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbsArray).index,
-    //         newThumbId,
-    //         this.props.frameSize,
-    //       ));
-    //     }
-    //     // delay selection so it waits for add thumb to be ready
-    //     setTimeout(() => {
-    //       this.props.selectThumbMethod(newThumbId, newFrameNumber);
-    //     }, 500);
-    //   } else { // if normal set new thumb
-    //     store.dispatch(changeThumb(this.props.settings.currentSheetId, this.props.file, this.props.selectedThumbsArray, newFrameNumber, this.props.frameSize));
-    //   }
-    // }
-  }
-
   render() {
     const { playHeadPosition } = this.state;
     const { containerWidth, scaleValueObject } = this.props;
@@ -370,7 +332,8 @@ class CutPlayer extends Component {
             id="currentTimeDisplay"
             className={styles.frameNumberOrTimeCode}
           >
-            {frameCountToTimeCode(this.state.currentFrame, this.props.file.fps)}
+            {/*frameCountToTimeCode(this.state.currentFrame, this.props.file.fps)*/}
+            {this.state.currentFrame}
           </div>
         </div>
         <div className={`${styles.controlsWrapper}`}>
@@ -467,11 +430,12 @@ class CutPlayer extends Component {
               className={stylesPop.popup}
               content={<span>Move 1 frame back</span>}
             />
-            {/* <Popup
+            <Popup
               trigger={
                 <button
+                  type='button'
                   className={`${styles.hoverButton} ${styles.textButton}`}
-                  onClick={this.onApplyClick}
+                  onClick={() => this.props.onCutSceneClick(this.state.currentFrame + Math.floor(CUTPLAYER_SLICE_ARRAY_SIZE / 2))}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}
@@ -491,7 +455,7 @@ class CutPlayer extends Component {
               }
               className={stylesPop.popup}
               content={this.props.keyObject.altKey ? (<span>Add a new thumb <mark>after</mark> selection</span>) : (this.props.keyObject.shiftKey ? (<span>Add a new thumb <mark>before</mark> selection</span>) : (<span>Change the thumb to use this frame | with <mark>SHIFT</mark> add a thumb before selection | with <mark>ALT</mark> add a thumb after selection</span>))}
-            />*/}
+            />
             <Popup
               trigger={
                 <button
