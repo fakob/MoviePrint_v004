@@ -34,7 +34,6 @@ class CutPlayer extends Component {
     super(props);
 
     this.state = {
-      currentTime: 0, // in seconds
       currentFrame: 0, // in frames
       videoHeight: 360,
       playHeadPosition: 0, // in pixel
@@ -271,8 +270,8 @@ class CutPlayer extends Component {
   }
 
   render() {
-    const { playHeadPosition } = this.state;
-    const { containerWidth, scaleValueObject } = this.props;
+    const { currentFrame, playHeadPosition } = this.state;
+    const { arrayOfCuts, containerWidth, file, scaleValueObject, thumbs } = this.props;
     const { videoHeight } = this.state;
 
     function over(event) {
@@ -283,16 +282,20 @@ class CutPlayer extends Component {
       event.target.style.opacity = 0.5;
     }
 
-    const inPoint = getLowestFrame(this.props.thumbs);
-    const outPoint = getHighestFrame(this.props.thumbs);
+    const inPoint = getLowestFrame(thumbs);
+    const outPoint = getHighestFrame(thumbs);
     const inPointPositionOnTimeline =
-      ((containerWidth * 1.0) / this.props.file.frameCount) * inPoint;
+      ((containerWidth * 1.0) / file.frameCount) * inPoint;
     const outPointPositionOnTimeline =
-      ((containerWidth * 1.0) / this.props.file.frameCount) * outPoint;
+      ((containerWidth * 1.0) / file.frameCount) * outPoint;
     const cutWidthOnTimeLine = Math.max(
       outPointPositionOnTimeline - inPointPositionOnTimeline,
       MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE
     );
+
+    const frameOffset = Math.floor(CUTPLAYER_SLICE_ARRAY_SIZE / 2);
+    const thisFrameIsACut = arrayOfCuts.some(item => item === currentFrame + frameOffset);
+    console.log(thisFrameIsACut);
 
     return (
       <div>
@@ -435,7 +438,9 @@ class CutPlayer extends Component {
                 <button
                   type='button'
                   className={`${styles.hoverButton} ${styles.textButton}`}
-                  onClick={() => this.props.onCutSceneClick(this.state.currentFrame + Math.floor(CUTPLAYER_SLICE_ARRAY_SIZE / 2))}
+                  onClick={thisFrameIsACut ?
+                    () => this.props.onMergeSceneClick(currentFrame + frameOffset) :
+                    () => this.props.onCutSceneClick(currentFrame + frameOffset)}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}
@@ -450,7 +455,7 @@ class CutPlayer extends Component {
                     color: MOVIEPRINT_COLORS[0]
                   }}
                 >
-                  {this.props.keyObject.altKey ? 'ADD AFTER' : (this.props.keyObject.shiftKey ? 'ADD BEFORE' : 'CHANGE')}
+                  {thisFrameIsACut ? 'MERGE' : 'CUT'}
                 </button>
               }
               className={stylesPop.popup}
@@ -591,6 +596,8 @@ CutPlayer.propTypes = {
   keyObject: PropTypes.object.isRequired,
   onThumbDoubleClick: PropTypes.func.isRequired,
   onNextSceneClick: PropTypes.func.isRequired,
+  onMergeSceneClick: PropTypes.func.isRequired,
+  onCutSceneClick: PropTypes.func.isRequired,
   selectedThumbsArray: PropTypes.array,
   selectThumbMethod: PropTypes.func.isRequired,
   width: PropTypes.number,

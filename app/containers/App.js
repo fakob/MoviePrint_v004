@@ -55,6 +55,7 @@ import { getLowestFrame,
   getFileName,
   getSheetName,
   getSceneFromFrameNumber,
+  getAdjacentSceneIndicesFromCut,
 } from '../utils/utils';
 import styles from './App.css';
 import stylesPop from './../components/Popup.css';
@@ -125,6 +126,7 @@ import {
   updateInOutPoint,
   updateFileScanStatus,
   cutScene,
+  mergeScenes,
 } from '../actions';
 import {
   MENU_HEADER_HEIGHT,
@@ -267,6 +269,7 @@ class App extends Component {
     this.onScrubThumbClick = this.onScrubThumbClick.bind(this);
     this.onNextSceneClick = this.onNextSceneClick.bind(this);
     this.onCutSceneClick = this.onCutSceneClick.bind(this);
+    this.onMergeSceneClick = this.onMergeSceneClick.bind(this);
     this.switchToPrintView = this.switchToPrintView.bind(this);
     this.openMoviesDialog = this.openMoviesDialog.bind(this);
     this.onOpenFeedbackForm = this.onOpenFeedbackForm.bind(this);
@@ -1595,10 +1598,25 @@ class App extends Component {
 
     const scene = getSceneFromFrameNumber(allScenes, frameToCut);
 
-    store.dispatch(cutScene(thumbs, allScenes, file, currentSheetId, scene, frameToCut));
+    // only cut if there isn't already a cut
+    if (frameToCut !== scene.start) {
+      store.dispatch(cutScene(thumbs, allScenes, file, currentSheetId, scene, frameToCut));
+    } else {
+      const message = 'There is already a cut';
+      log.debug(message);
+      this.showMessage(message, 3000);
+    }
+  }
 
-    // console.log(direction);
-    // console.log(currentFrame);
+  onMergeSceneClick(frameToCut) {
+    const { store } = this.context;
+    const { allScenes, currentSheetId, file, thumbs } = this.props;
+
+    const adjacentSceneIndicesArray = getAdjacentSceneIndicesFromCut(allScenes, frameToCut);
+    console.log(adjacentSceneIndicesArray);
+    if (adjacentSceneIndicesArray.length === 2) {
+      store.dispatch(mergeScenes(thumbs, allScenes, file, currentSheetId, adjacentSceneIndicesArray));
+    }
   }
 
 
@@ -2783,6 +2801,7 @@ class App extends Component {
                             width={this.state.scaleValueObject.videoPlayerWidth}
                             objectUrlObjects={filteredObjectUrlObjects}
                             controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
+                            arrayOfCuts={this.props.arrayOfCuts}
                             selectedThumbsArray={this.state.selectedThumbsArray}
                             frameNumber={this.state.selectedThumbsArray.length !== 0 ?
                               this.state.selectedThumbsArray[0].frameNumber : 0}
@@ -2790,6 +2809,7 @@ class App extends Component {
                             selectThumbMethod={this.onSelectThumbMethod}
                             onNextSceneClick={this.onNextSceneClick}
                             onCutSceneClick={this.onCutSceneClick}
+                            onMergeSceneClick={this.onMergeSceneClick}
                             keyObject={this.state.keyObject}
                             opencvVideo={this.state.opencvVideo}
                             frameSize={this.props.settings.defaultCachedFramesSize}
@@ -3225,6 +3245,7 @@ const mapStateToProps = state => {
   const allScenes = (sheetsByFileId[currentFileId] === undefined ||
     sheetsByFileId[currentFileId][settings.currentSheetId] === undefined)
     ? undefined : sheetsByFileId[currentFileId][settings.currentSheetId].sceneArray;
+  const arrayOfCuts = allScenes === undefined ? [] : allScenes.map(scene => scene.start);
   return {
     sheetsArray,
     sheetsByFileId,
@@ -3243,6 +3264,7 @@ const mapStateToProps = state => {
       allScenes,
       visibilitySettings.visibilityFilter
     ),
+    arrayOfCuts,
     settings,
     visibilitySettings,
     defaultThumbCount: settings.defaultThumbCount,

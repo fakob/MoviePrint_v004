@@ -833,18 +833,23 @@ export const getSliceWidthArrayForCut = (vid, sliceArraySize = 20, sliceWidthOut
 };
 
 export const getSceneFromFrameNumber = (scenes, frameNumber) => {
-  // needs scenes to be ordered
-  // let scene;
-  // const scene = scenes.reduce((prev, curr) => Math.abs(curr.start - frameNumber) < Math.abs(prev.start - frameNumber) ? curr : prev);
   const scene = scenes.find(scene1 => (scene1.start <= frameNumber && (scene1.start + scene1.length) > frameNumber));
-  // for (let i = 0; i < scenes.length; i += 1) {
-  //   if (scenes[i].start >= frameNumber) {
-  //     scene = scenes[i];
-  //     break;
-  //   }
-  // }
+  return scene;
+}
+
+export const getAdjacentSceneIndicesFromCut = (scenes, frameNumber) => {
+  // return an array of 2 adjacent scenes if the frameNumber is the cut in between
+  // else return undefined
+  const sceneIndex = scenes.findIndex(scene1 => (scene1.start === frameNumber));
   console.log(frameNumber);
   console.log(scenes);
-  console.log(scene);
-  return scene;
+  if (sceneIndex <= 0) {
+    return undefined;
+  }
+  const adjacentSceneIndicesArray = [
+    sceneIndex - 1,
+    sceneIndex
+  ];
+  console.log(adjacentSceneIndicesArray);
+  return adjacentSceneIndicesArray;
 }

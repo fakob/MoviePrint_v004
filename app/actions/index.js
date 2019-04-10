@@ -453,6 +453,18 @@ export const insertScene = (fileId, sheetId, index, start, length, colorArray, n
   };
 };
 
+export const deleteScene = (fileId, sheetId, index) => {
+  log.debug(`action: deleteScene - ${index}`);
+  return {
+    type: 'DELETE_SCENE',
+    payload: {
+      fileId,
+      sheetId,
+      index,
+    },
+  };
+};
+
 export const updateSceneLength = (fileId, sheetId, sceneId, length) => {
   log.debug(`action: updateSceneLength - ${sceneId}`);
   return {
@@ -483,15 +495,29 @@ export const cutScene = (thumbs, allScenes, file, sheetId, scene, frameToCut) =>
     dispatch(changeThumb(sheetId, file, scene.sceneId, firstSceneNewFrameNumber));
     const firstThumbIndex = thumbs.findIndex(thumb => thumb.thumbId === scene.sceneId);
     dispatch(addThumb(file, sheetId, nextSceneNewFrameNumber, firstThumbIndex + 1, nextSceneId));
+  }
+};
 
-    // return {
-    //   type: 'UPDATE_SCENEARRAY',
-    //   payload: {
-    //     fileId,
-    //     sheetId,
-    //     sceneArray,
-    //   },
-    // };
+export const mergeScenes = (thumbs, allScenes, file, sheetId, adjacentSceneIndicesArray) => {
+  log.debug(`action: mergeScenes - ${adjacentSceneIndicesArray[0]} - ${adjacentSceneIndicesArray[1]}`);
+  return (dispatch) => {
+
+    // merge 2 scenes into 1
+    const firstScene = allScenes[adjacentSceneIndicesArray[0]];
+    const firstSceneId = firstScene.sceneId;
+    const secondScene = allScenes[adjacentSceneIndicesArray[1]];
+    const secondSceneId = secondScene.sceneId;
+    const newSceneSceneLength = firstScene.length + secondScene.length;
+    const newSceneNewFrameNumber = firstScene.start + Math.floor(newSceneSceneLength / 2)
+    // delete second scene
+    dispatch(deleteScene(file.id, sheetId, adjacentSceneIndicesArray[1]))
+		// change length of first scene
+    dispatch(updateSceneLength(file.id, sheetId, firstSceneId, newSceneSceneLength));
+  	// delete second thumb
+    const secondThumbIndex = thumbs.findIndex(thumb => thumb.thumbId === secondSceneId);
+    dispatch(deleteThumb(file.id, sheetId, secondThumbIndex))
+  	// change first thumb
+    dispatch(changeThumb(sheetId, file, firstSceneId, newSceneNewFrameNumber));
   }
 };
 
@@ -539,6 +565,19 @@ export const addThumb = (file, sheetId, frameNumber, index, thumbId = uuidV4(), 
     .catch(error => {
       log.error(`There has been a problem with your fetch operation: ${error.message}`);
     });
+  };
+};
+
+
+export const deleteThumb = (fileId, sheetId, index) => {
+  log.debug(`action: deleteThumb - ${index}`);
+  return {
+    type: 'DELETE_THUMB',
+    payload: {
+      fileId,
+      sheetId,
+      index,
+    },
   };
 };
 
