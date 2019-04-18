@@ -33,9 +33,9 @@ class SortedVisibleThumbGrid extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.selectedThumbIdArray.length !== 0 &&
-      this.props.selectedThumbIdArray.length !== 0 &&
-      (prevProps.selectedThumbIdArray[0].thumbId !== this.props.selectedThumbIdArray[0].thumbId)) {
+    if (prevProps.selectedThumbsArray.length !== 0 &&
+      this.props.selectedThumbsArray.length !== 0 &&
+      (prevProps.selectedThumbsArray[0].thumbId !== this.props.selectedThumbsArray[0].thumbId)) {
       this.scrollThumbIntoView();
     }
     // delay when switching to gridView so it waits for the sheetView to be ready
@@ -106,7 +106,7 @@ class SortedVisibleThumbGrid extends Component {
         inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
         keyObject={this.props.keyObject}
         onAddThumbClick={this.props.onAddThumbClick}
-        onScrubThumbClick={this.props.onScrubThumbClick}
+        onCutThumbClick={this.props.onCutThumbClick}
         onBackClick={this.props.onBackClick}
         onForwardClick={this.props.onForwardClick}
         onInPointClick={this.props.onInPointClick}
@@ -121,7 +121,7 @@ class SortedVisibleThumbGrid extends Component {
         ref={this.props.inputRef} // for the saveMoviePrint function
         scaleValueObject={this.props.scaleValueObject}
         moviePrintWidth={this.props.moviePrintWidth}
-        selectedThumbIdArray={this.props.selectedThumbIdArray}
+        selectedThumbsArray={this.props.selectedThumbsArray}
         settings={this.props.settings}
         showSettings={this.props.showSettings}
         thumbCount={this.props.thumbCount}
@@ -227,7 +227,7 @@ SortedVisibleThumbGrid.contextTypes = {
 SortedVisibleThumbGrid.defaultProps = {
   thumbs: [],
   file: {},
-  selectedThumbIdArray: [],
+  selectedThumbsArray: [],
 };
 
 SortedVisibleThumbGrid.propTypes = {
@@ -246,12 +246,12 @@ SortedVisibleThumbGrid.propTypes = {
   onSaveThumbClick: PropTypes.func.isRequired,
   onScrubClick: PropTypes.func,
   onAddThumbClick: PropTypes.func,
-  onScrubThumbClick: PropTypes.func,
+  onCutThumbClick: PropTypes.func,
   onExpandClick: PropTypes.func,
   onThumbDoubleClick: PropTypes.func,
   onToggleClick: PropTypes.func.isRequired,
   scaleValueObject: PropTypes.object.isRequired,
-  selectedThumbIdArray: PropTypes.array,
+  selectedThumbsArray: PropTypes.array,
   selectThumbMethod: PropTypes.func,
   settings: PropTypes.object.isRequired,
   sheetView: PropTypes.string.isRequired,

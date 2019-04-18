@@ -9,7 +9,7 @@ import {
   // getNextThumbs,
   // getPreviousThumbs,
   // mapRange,
-  getObjectProperty,
+  getWidthOfSingleRow,
   // getWidthOfLongestRow,
   // formatBytes,
   // frameCountToTimeCode,
@@ -17,10 +17,11 @@ import {
   // getHighestFrame,
   // getAllFrameNumbers,
   // roundNumber,
-} from './../utils/utils';
+} from '../utils/utils';
 import {
+  CUTPLAYER_SCENE_MARGIN,
   VIEW,
-} from './../utils/constants';
+} from '../utils/constants';
 
 const SortableScene = SortableElement(Scene);
 
@@ -49,17 +50,24 @@ class SceneGrid extends Component {
   }
 
   render() {
-    const minSceneLength = this.props.minSceneLength;
-    const sceneArray = this.props.scenes;
-    const thumbMarginTimeline = Math.floor(this.props.scaleValueObject.thumbMarginTimeline);
-    // let rowCounter = 1;
+    const { minSceneLength, scaleValueObject, scenes, selectedThumbsArray, settings, view } = this.props;
 
-    const rowHeight = this.props.scaleValueObject.newMoviePrintTimelineRowHeight;
-    const realWidth = (rowHeight / this.props.scaleValueObject.aspectRatioInv);
-    const newPixelPerFrameRatio = this.props.scaleValueObject.newMoviePrintTimelinePixelPerFrameRatio;
-    const scenesInRows = this.props.scaleValueObject.scenesInRows;
+    const isPlayerView = view !== VIEW.STANDARDVIEW;
+    const breakOnWidth = isPlayerView || settings.defaultTimelineViewFlow;
+
+    const thumbMarginTimeline = isPlayerView ? CUTPLAYER_SCENE_MARGIN : Math.floor(scaleValueObject.thumbMarginTimeline);
+
+    const rowHeight = scaleValueObject.newMoviePrintTimelineRowHeight;
+    const rowHeightForPlayer = ((scaleValueObject.videoPlayerHeight / 2) - (settings.defaultBorderMargin * 3));
+
+    const realWidth = (rowHeight / scaleValueObject.aspectRatioInv);
+    const newPixelPerFrameRatio = scaleValueObject.newMoviePrintTimelinePixelPerFrameRatio;
+    const scenesInRows = scaleValueObject.scenesInRows;
     const indexRowArray = scenesInRows.map(item => item.index);
     // console.log(indexRowArray);
+
+    // for CutPlayer
+    const widthOfSingleRow = getWidthOfSingleRow(scenesInRows, thumbMarginTimeline, newPixelPerFrameRatio, minSceneLength);
 
     return (
       <div
@@ -67,18 +75,18 @@ class SceneGrid extends Component {
         className={styles.grid}
         id="SceneGrid"
         style={{
-          marginLeft: this.props.view === VIEW.STANDARDVIEW ? undefined : '48px',
+          // marginLeft: isPlayerView ? '48px' : undefined,
         }}
       >
         <div
           data-tid='sceneGridBodyDiv'
           style={{
-            // width: newMaxWidth + realWidth, // enough width so when user selects thumb and it becomes wider, the row does not break into the next line
+            width: isPlayerView ? widthOfSingleRow : undefined, // if CutPlayer then single row
           }}
         >
-          {sceneArray.map((scene, index) => {
+          {scenes.map((scene, index) => {
             // minutes per row idea
-            const selected = this.props.selectedSceneId ? (this.props.selectedSceneId === scene.sceneId) : false;
+            const selected = selectedThumbsArray.length > 0 ? selectedThumbsArray.some(item => item.thumbId === scene.sceneId) : false;
             const width = selected ? realWidth :
               Math.max(newPixelPerFrameRatio * scene.length, newPixelPerFrameRatio * minSceneLength);
             let doLineBreak = false;
@@ -94,8 +102,9 @@ class SceneGrid extends Component {
               hidden={scene.hidden}
               controllersAreVisible={(scene.sceneId === undefined) ? false : (scene.sceneId === this.state.controllersVisible)}
               selected={selected}
-              doLineBreak={!this.props.settings.defaultTimelineViewFlow && doLineBreak}
+              doLineBreak={!breakOnWidth && doLineBreak}
               sheetView={this.props.sheetView}
+              view={view}
               keyObject={this.props.keyObject}
               indexForId={index}
               index={index}
@@ -108,7 +117,7 @@ class SceneGrid extends Component {
 
               // use minimum value to make sure that scene does not disappear
               thumbWidth={Math.max(1, width)}
-              thumbHeight={Math.max(1, rowHeight)}
+              thumbHeight={isPlayerView ? rowHeightForPlayer : Math.max(1, rowHeight)}
 
               hexColor={`#${((1 << 24) + (Math.round(scene.colorArray[0]) << 16) + (Math.round(scene.colorArray[1]) << 8) + Math.round(scene.colorArray[2])).toString(16).slice(1)}`}
               thumbImageObjectUrl={ // used for data stored in IndexedDB
@@ -147,6 +156,14 @@ class SceneGrid extends Component {
               onSelect={(scene.sceneId !== this.state.controllersVisible) ?
                 null : () => {
                   this.props.onSelectClick(scene.sceneId);
+                }}
+              onCutBefore={(scene.sceneId !== this.state.controllersVisible) ?
+                null : () => {
+                  this.props.onCutThumbClick(this.props.file, scene.sceneId, 'before');
+                }}
+              onCutAfter={(scene.sceneId !== this.state.controllersVisible) ?
+                null : () => {
+                  this.props.onCutThumbClick(this.props.file, scene.sceneId, 'after');
                 }}
               onExpand={(scene.sceneId !== this.state.controllersVisible) ?
                 null : () => {

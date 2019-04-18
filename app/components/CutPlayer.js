@@ -63,7 +63,10 @@ class CutPlayer extends Component {
   }
 
   componentWillMount() {
-    const videoHeight = parseInt(this.props.height - this.props.controllerHeight, 10);
+    const { height, controllerHeight } = this.props;
+    console.log(height)
+    console.log(controllerHeight)
+    const videoHeight = parseInt(height - controllerHeight, 10);
     this.setState({
       videoHeight,
     });
@@ -76,6 +79,19 @@ class CutPlayer extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    const { height, file } = this.props;
+    if (
+      nextProps.height !== height
+    ) {
+      const videoHeight = parseInt(nextProps.height - nextProps.controllerHeight, 10);
+      this.setState({
+        videoHeight,
+      });
+    }
+    if (nextProps.file.path !== file.path) {
+      console.log('new file')
+      this.updateOpencvVideoCanvas(this.getCurrentFrameNumber());
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -148,19 +164,22 @@ class CutPlayer extends Component {
   }
 
   updateOpencvVideoCanvas(currentFrame) {
+    const { containerWidth, file, opencvVideo } = this.props;
     console.log(currentFrame);
     const { videoHeight } = this.state
-    const vid = this.props.opencvVideo;
-    setPosition(vid, currentFrame, this.props.file.useRatio);
+    const vid = opencvVideo;
+    setPosition(vid, currentFrame, file.useRatio);
     this.opencvCutPlayerCanvasRef.height = videoHeight;
-    this.opencvCutPlayerCanvasRef.width = this.props.containerWidth;
+    this.opencvCutPlayerCanvasRef.width = containerWidth;
     const ctx = this.opencvCutPlayerCanvasRef.getContext('2d');
+    const length = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT);
+    console.log(length);
     const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
     const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
     const sliceWidthArray = getSliceWidthArrayForCut(vid, CUTPLAYER_SLICE_ARRAY_SIZE);
     const sliceGap = 2;
     const widthSum = sliceWidthArray.reduce((a, b) => a + b, 0);
-    const rescaleFactor = (this.props.containerWidth - sliceGap * (CUTPLAYER_SLICE_ARRAY_SIZE - 1)) / widthSum;
+    const rescaleFactor = (containerWidth - sliceGap * (CUTPLAYER_SLICE_ARRAY_SIZE - 1)) / widthSum;
     let canvasXPos = 0;
 
     for (let i = 0; i < CUTPLAYER_SLICE_ARRAY_SIZE; i += 1) {
@@ -188,7 +207,8 @@ class CutPlayer extends Component {
   }
 
   updatePositionWithStep(step) {
-    const currentFramePlusStep = this.getCurrentFrameNumber() + step;
+    const { file } = this.props;
+    const currentFramePlusStep = limitRange(this.getCurrentFrameNumber() + step, 0, file.frameCount - 1);
     this.updatePositionFromFrame(currentFramePlusStep);
     this.updateOpencvVideoCanvas(currentFramePlusStep);
   }

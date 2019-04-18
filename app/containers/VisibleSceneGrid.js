@@ -45,7 +45,7 @@ class SortedVisibleSceneGrid extends Component {
 
   onSelectClick = (sceneId) => {
     console.log(sceneId);
-    this.props.selectSceneMethod(sceneId);
+    this.props.selectThumbMethod(sceneId);
   }
 
   render() {
@@ -61,6 +61,7 @@ class SortedVisibleSceneGrid extends Component {
         frameCount={this.props.file ? this.props.file.frameCount : undefined}
         keyObject={this.props.keyObject}
         onAddThumbClick={this.props.onAddThumbClick}
+        onCutThumbClick={this.props.onCutThumbClick}
         onBackClick={this.props.onBackClick}
         onForwardClick={this.props.onForwardClick}
         onInPointClick={this.props.onInPointClick}
@@ -74,7 +75,7 @@ class SortedVisibleSceneGrid extends Component {
         minSceneLength={this.props.settings.defaultTimelineViewMinDisplaySceneLengthInFrames}
         scaleValueObject={this.props.scaleValueObject}
         scenes={this.props.scenes}
-        selectedSceneId={this.props.selectedSceneId}
+        selectedThumbsArray={this.props.selectedThumbsArray}
         settings={this.props.settings}
         showSettings={this.props.showSettings}
         thumbCount={this.props.thumbCount}

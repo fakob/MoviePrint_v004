@@ -702,8 +702,8 @@ export const getScenesInRows = (sceneArray, secondsPerRow) => {
   return rowArray;
 }
 
-export const getWidthOfLongestRow = (rowArray, thumbMargin, pixelPerFrameRatio, minSceneLengthInFrames) => {
-  // calculate width through getting longest row
+export const getWidthOfSingleRow = (rowArray, thumbMargin, pixelPerFrameRatio, minSceneLengthInFrames) => {
+  // get width if it was a single row
   // console.log(rowArray);
   // console.log(thumbMargin);
   // console.log(pixelPerFrameRatio);
@@ -722,14 +722,44 @@ export const getWidthOfLongestRow = (rowArray, thumbMargin, pixelPerFrameRatio, 
       // console.log(widthOfScene);
       return undefined;
     });
-    rowLengthArray.push(Math.ceil(rowWidth));
+    const rowWidthPlusOneMargin = rowWidth + thumbMargin * 2 * pixelPerFrameRatio;
+    rowLengthArray.push(Math.ceil(rowWidthPlusOneMargin));
     return undefined;
   })
-  const maxWidth = Math.max(...rowLengthArray);
-  // console.log(rowLengthArray);
+  const sumWidths = rowLengthArray.reduce((a, b) => a + b, 0);
+  // console.log(sumWidths);
   // console.log(maxWidth);
-  return maxWidth
+  return sumWidths;
 }
+
+// export const getWidthOfLongestRow = (rowArray, thumbMargin, pixelPerFrameRatio, minSceneLengthInFrames) => {
+//   // calculate width through getting longest row
+//   // console.log(rowArray);
+//   // console.log(thumbMargin);
+//   // console.log(pixelPerFrameRatio);
+//   if (rowArray.length === 0) {
+//     return undefined;
+//   }
+//   const rowLengthArray = [];
+//   rowArray.map((row) => {
+//     // console.log(row.sceneLengthsInRow);
+//     // calculate width
+//     let rowWidth = 0;
+//     row.sceneLengthsInRow.map((sceneLength) => {
+//       // const widthOfScene = Math.max(sceneLength, minSceneLengthInFrames) * pixelPerFrameRatio + thumbMargin * 2;
+//       const widthOfScene = Math.max(sceneLength, minSceneLengthInFrames) * pixelPerFrameRatio + thumbMargin * 2 * pixelPerFrameRatio;
+//       rowWidth += widthOfScene;
+//       // console.log(widthOfScene);
+//       return undefined;
+//     });
+//     rowLengthArray.push(Math.ceil(rowWidth));
+//     return undefined;
+//   })
+//   const maxWidth = Math.max(...rowLengthArray);
+//   // console.log(rowLengthArray);
+//   // console.log(maxWidth);
+//   return maxWidth
+// }
 
 export const getPixelPerFrameRatio = (rowArray, thumbMargin, width, minSceneLengthInFrames) => {
   // calculate width through getting longest row

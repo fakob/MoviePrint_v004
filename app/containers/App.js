@@ -203,7 +203,7 @@ class App extends Component {
       scaleValueObject: undefined,
       savingMoviePrint: false,
       selectedThumbsArray: [],
-      selectedSceneObject: undefined,
+      selectedSceneIdArray: [],
       // file match needs to be in sync with addMoviesToList(), onReplaceMovieListItemClick() and onDrop() !!!
       accept: 'video/*,.divx,.mkv,.ogg,.VOB,',
       dropzoneActive: false,
@@ -251,7 +251,6 @@ class App extends Component {
     this.handleKeyUp = this.handleKeyUp.bind(this);
 
     this.onSelectThumbMethod = this.onSelectThumbMethod.bind(this);
-    this.onSelectSceneMethod = this.onSelectSceneMethod.bind(this);
 
     this.showMovielist = this.showMovielist.bind(this);
     this.hideMovielist = this.hideMovielist.bind(this);
@@ -266,11 +265,10 @@ class App extends Component {
     this.onScrubClick = this.onScrubClick.bind(this);
     this.onExpandClick = this.onExpandClick.bind(this);
     this.onAddThumbClick = this.onAddThumbClick.bind(this);
-    this.onScrubThumbClick = this.onScrubThumbClick.bind(this);
+    this.onCutThumbClick = this.onCutThumbClick.bind(this);
     this.onNextSceneClick = this.onNextSceneClick.bind(this);
     this.onCutSceneClick = this.onCutSceneClick.bind(this);
     this.onMergeSceneClick = this.onMergeSceneClick.bind(this);
-    this.switchToPrintView = this.switchToPrintView.bind(this);
     this.openMoviesDialog = this.openMoviesDialog.bind(this);
     this.onOpenFeedbackForm = this.onOpenFeedbackForm.bind(this);
     this.onCloseFeedbackForm = this.onCloseFeedbackForm.bind(this);
@@ -659,17 +657,6 @@ class App extends Component {
 
     const secondsPerRow = getSecondsPerRow(nextProps.sheetsByFileId, nextProps.currentFileId, nextProps.currentSheetId, nextProps.settings);
 
-    if (nextProps.file !== undefined &&
-      (getObjectProperty(() => file.id) !== nextProps.file.id)) {
-      try {
-        this.setState({
-          opencvVideo: new opencv.VideoCapture(nextProps.file.path),
-        });
-      } catch (e) {
-        log.error(e);
-      }
-    }
-
     if (file !== undefined &&
       nextProps.file !== undefined &&
       file.id !== undefined) {
@@ -733,6 +720,17 @@ class App extends Component {
     const { files, file, settings, sheetsByFileId, visibilitySettings } = this.props;
     const { defaultMoviePrintWidth, defaultPaperAspectRatioInv } = settings;
     const { visibilityFilter } = visibilitySettings;
+
+    if (file !== undefined &&
+      (getObjectProperty(() => prevProps.file.id) !== file.id)) {
+      try {
+        this.setState({
+          opencvVideo: new opencv.VideoCapture(file.path),
+        });
+      } catch (e) {
+        log.error(e);
+      }
+    }
 
     if ((filesToLoad.length !== 0) &&
     (prevState.filesToLoad.length !== filesToLoad.length)) {
@@ -1182,7 +1180,7 @@ class App extends Component {
     }
   }
 
-  onSelectThumbMethod(thumbId, frameNumber) {
+  onSelectThumbMethod(thumbId, frameNumber = undefined) {
     this.setState({
       selectedThumbsArray: [{
         thumbId,
@@ -1191,24 +1189,9 @@ class App extends Component {
     });
   }
 
-  onSelectSceneMethod(sceneId) {
-    if (this.state.selectedSceneObject && this.state.selectedSceneObject.sceneId === sceneId) {
-      this.setState({
-        selectedSceneObject: undefined
-      });
-    } else {
-      this.setState({
-        selectedSceneObject: {
-          sceneId,
-        }
-      });
-    }
-  }
-
   showMovielist() {
     const { store } = this.context;
     store.dispatch(showMovielist());
-    this.switchToPrintView();
   }
 
   hideMovielist() {
@@ -1247,7 +1230,6 @@ class App extends Component {
       ),
       secondsPerRow,
     );
-    this.switchToPrintView();
     this.disableZoom();
   }
 
@@ -1271,13 +1253,6 @@ class App extends Component {
       store.dispatch(setVisibilityFilter('SHOW_ALL'));
     } else {
       store.dispatch(setVisibilityFilter('SHOW_VISIBLE'));
-    }
-  }
-
-  switchToPrintView() {
-    const { store } = this.context;
-    if (this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW) {
-      store.dispatch(setDefaultSheetView(SHEET_VIEW.GRIDVIEW));
     }
   }
 
@@ -1513,7 +1488,7 @@ class App extends Component {
     }
   }
 
-  onScrubThumbClick(file, thumbId, otherSceneIs) {
+  onCutThumbClick(file, thumbId, otherSceneIs) {
     const { store } = this.context;
     const { allScenes, scenes } = this.props;
     store.dispatch(setView(VIEW.PLAYERVIEW));
@@ -1528,31 +1503,40 @@ class App extends Component {
 
     // get scene before or after
     if (otherSceneIs === 'after') {
-      otherScene = scenes[Math.min(scenes.length - 1, indexOfVisibleScenes + 1)];
-      cutFrameNumber = clickedScene.start + clickedScene.length;
-      selectedThumbsArray.push({
-        thumbId: clickedScene.sceneId,
-        frameNumber: cutFrameNumber
-      },
-      {
-        thumbId: otherScene.sceneId,
-        frameNumber: cutFrameNumber
-      });
+      // only set if before last scene
+      if (indexOfVisibleScenes < scenes.length - 1) {
+        otherScene = scenes[indexOfVisibleScenes + 1];
+        cutFrameNumber = clickedScene.start + clickedScene.length;
+        selectedThumbsArray.push({
+          thumbId: clickedScene.sceneId,
+          frameNumber: cutFrameNumber
+        },
+        {
+          thumbId: otherScene.sceneId,
+          frameNumber: cutFrameNumber
+        });
+      }
     } else if (otherSceneIs === 'before') { // if shiftKey
-      otherScene = scenes[Math.max(0, indexOfVisibleScenes - 1)];
-      console.log(otherScene);
-      cutFrameNumber = otherScene.start + otherScene.length;
-      selectedThumbsArray.push({
-        thumbId: otherScene.sceneId,
-        frameNumber: cutFrameNumber
-      },
-      {
-        thumbId: clickedScene.sceneId,
-        frameNumber: cutFrameNumber
-      });
+      // only set if after first scene
+      if (indexOfVisibleScenes > 0) {
+        otherScene = scenes[indexOfVisibleScenes - 1];
+        console.log(otherScene);
+        cutFrameNumber = otherScene.start + otherScene.length;
+        selectedThumbsArray.push({
+          thumbId: otherScene.sceneId,
+          frameNumber: cutFrameNumber
+        },
+        {
+          thumbId: clickedScene.sceneId,
+          frameNumber: cutFrameNumber
+        });
+      }
     }
 
-    this.setState({selectedThumbsArray});
+    // only set if not empty
+    if (selectedThumbsArray.length !== 0) {
+      this.setState({selectedThumbsArray});
+    }
 
     // console.log(existingThumb);
     console.log(otherSceneIs);
@@ -1567,12 +1551,12 @@ class App extends Component {
   onNextSceneClick(direction, currentFrame) {
     const { file, scenes } = this.props;
 
-    // console.log(direction);
-    // console.log(currentFrame);
+    console.log(direction);
+    console.log(currentFrame);
     let otherSceneIs;
     let jumpToScene;
     if (direction === 'back') {
-      for (let i = 0; i < scenes.length; i += 1) {
+      for (let i = 1; i < scenes.length; i += 1) { // only loop through one less as the last scene does not have a pair
         if (scenes[i].start >= currentFrame) {
           jumpToScene = scenes[Math.max(i - 1, 0)];
           otherSceneIs = 'before';
@@ -1580,7 +1564,7 @@ class App extends Component {
         }
       }
     } else if (direction === 'forward') {
-      for (let i = 0; i < scenes.length; i += 1) {
+      for (let i = 1; i < (scenes.length - 1); i += 1) { // only loop through one less as the last scene does not have a pair
         if (scenes[i].start > currentFrame) {
           jumpToScene = scenes[i];
           otherSceneIs = 'after';
@@ -1588,8 +1572,9 @@ class App extends Component {
         }
       }
     }
-    // console.log(jumpToScene);
-    this.onScrubThumbClick(file, jumpToScene.sceneId, otherSceneIs);
+    if (jumpToScene !== undefined) { // only jumpToScene if one is found
+      this.onCutThumbClick(file, jumpToScene.sceneId, otherSceneIs);
+    }
   }
 
   onCutSceneClick(frameToCut) {
@@ -2522,10 +2507,9 @@ class App extends Component {
   }
 
   render() {
-    const { accept, dropzoneActive } = this.state;
+    const { accept, dropzoneActive, objectUrlObjects, scaleValueObject } = this.state;
     const { store } = this.context;
-    const { objectUrlObjects } = this.state;
-    const { currentFileId, currentSheetId, allThumbs, files, sheetsByFileId, settings, visibilitySettings } = this.props;
+    const { currentFileId, currentSheetId, allThumbs, file, files, scenes, sheetsByFileId, settings, visibilitySettings } = this.props;
 
     const fileCount = files.length;
 
@@ -2619,9 +2603,9 @@ class App extends Component {
             <div>
               <div className={`${styles.Site}`}>
                 <HeaderComponent
-                  visibilitySettings={this.props.visibilitySettings}
-                  settings={this.props.settings}
-                  file={this.props.file}
+                  visibilitySettings={visibilitySettings}
+                  settings={settings}
+                  file={file}
                   fileCount={fileCount}
                   toggleMovielist={this.toggleMovielist}
                   toggleSettings={this.toggleSettings}
@@ -2634,7 +2618,7 @@ class App extends Component {
                   onSetSheetFitClick={this.onSetSheetFitClick}
                   openMoviesDialog={this.openMoviesDialog}
                   zoom={this.state.zoom}
-                  scaleValueObject={this.state.scaleValueObject}
+                  scaleValueObject={scaleValueObject}
                   isGridView
                 />
                 <TransitionablePortal
@@ -2677,16 +2661,16 @@ class App extends Component {
                   }}
                 >
                   <div
-                    className={`${styles.ItemSideBar} ${styles.ItemMovielist} ${this.props.visibilitySettings.showMovielist ? styles.ItemMovielistAnim : ''}`}
+                    className={`${styles.ItemSideBar} ${styles.ItemMovielist} ${visibilitySettings.showMovielist ? styles.ItemMovielistAnim : ''}`}
                   >
                     <FileList
-                      files={this.props.files}
-                      settings={this.props.settings}
-                      visibilitySettings={this.props.visibilitySettings}
+                      files={files}
+                      settings={settings}
+                      visibilitySettings={visibilitySettings}
                       onFileListElementClick={this.onFileListElementClick}
                       onAddIntervalSheetClick={this.onAddIntervalSheetClick}
                       posterobjectUrlObjects={filteredPosterFrameObjectUrlObjects}
-                      sheetsByFileId={this.props.sheetsByFileId}
+                      sheetsByFileId={sheetsByFileId}
                       onChangeSheetViewClick={this.onChangeSheetViewClick}
                       onSetSheetClick={this.onSetSheetClick}
                       onDuplicateSheetClick={this.onDuplicateSheetClick}
@@ -2696,16 +2680,16 @@ class App extends Component {
                       onEditTransformListItemClick={this.onEditTransformListItemClick}
                       onRemoveMovieListItem={this.onRemoveMovieListItem}
                       onDeleteSheetClick={this.onDeleteSheetClick}
-                      currentSheetId={this.props.currentSheetId}
+                      currentSheetId={currentSheetId}
                     />
                   </div>
                   <div
-                    className={`${styles.ItemSideBar} ${styles.ItemSettings} ${this.props.visibilitySettings.showSettings ? styles.ItemSettingsAnim : ''}`}
+                    className={`${styles.ItemSideBar} ${styles.ItemSettings} ${visibilitySettings.showSettings ? styles.ItemSettingsAnim : ''}`}
                   >
                     <SettingsList
-                      settings={this.props.settings}
-                      visibilitySettings={this.props.visibilitySettings}
-                      file={this.props.file}
+                      settings={settings}
+                      visibilitySettings={visibilitySettings}
+                      file={file}
                       columnCountTemp={this.state.columnCountTemp}
                       thumbCountTemp={this.state.thumbCountTemp}
                       thumbCount={this.state.thumbCount}
@@ -2726,7 +2710,7 @@ class App extends Component {
                       onCancelClick={this.onCancelClick}
                       onChangeMargin={this.onChangeMargin}
                       onChangeMinDisplaySceneLength={this.onChangeMinDisplaySceneLength}
-                      sceneArray={this.props.scenes}
+                      sceneArray={scenes}
                       secondsPerRowTemp={secondsPerRow}
                       // secondsPerRowTemp={this.state.secondsPerRowTemp}
                       onChangeSceneDetectionThreshold={this.onChangeSceneDetectionThreshold}
@@ -2749,7 +2733,7 @@ class App extends Component {
                       onEmbedFilePathClick={this.onEmbedFilePathClick}
                       onThumbnailScaleClick={this.onThumbnailScaleClick}
                       onMoviePrintWidthClick={this.onMoviePrintWidthClick}
-                      scaleValueObject={this.state.scaleValueObject}
+                      scaleValueObject={scaleValueObject}
                       runSceneDetection={this.runSceneDetection}
                       fileScanRunning={this.state.fileScanRunning}
                       showChart={this.state.showChart}
@@ -2759,25 +2743,25 @@ class App extends Component {
                     />
                   </div>
                   <div
-                    className={`${sheetType === SHEET_TYPE.SCENES ? styles.ItemCutPlayer : styles.ItemVideoPlayer} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''}`}
+                    className={`${sheetType === SHEET_TYPE.SCENES ? styles.ItemCutPlayer : styles.ItemVideoPlayer} ${visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''}`}
                     style={{
-                      top: `${MENU_HEADER_HEIGHT + this.props.settings.defaultBorderMargin}px`,
-                      transform: this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW ? `translate(${sheetType === SHEET_TYPE.SCENES ? '0px' : '-50%'}, 0px)` : `translate(-50%, ${(this.state.scaleValueObject.videoPlayerHeight + this.props.settings.defaultVideoPlayerControllerHeight) * -1}px)`,
-                      overflow: this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW ? 'visible' : 'hidden'
+                      top: `${MENU_HEADER_HEIGHT + settings.defaultBorderMargin}px`,
+                      transform: visibilitySettings.defaultView === VIEW.PLAYERVIEW ? `translate(${sheetType === SHEET_TYPE.SCENES ? '0px' : '-50%'}, 0px)` : `translate(-50%, ${(scaleValueObject.videoPlayerHeight + settings.defaultVideoPlayerControllerHeight) * -1}px)`,
+                      overflow: visibilitySettings.defaultView === VIEW.PLAYERVIEW ? 'visible' : 'hidden'
                     }}
                   >
-                    { this.props.file ? (
+                    { file ? (
                       <Fragment>
                         <Conditional if={sheetType === SHEET_TYPE.INTERVAL}>
                           <VideoPlayer
-                            // visible={this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW}
+                            // visible={visibilitySettings.defaultView === VIEW.PLAYERVIEW}
                             ref={(el) => { this.videoPlayer = el; }}
-                            file={this.props.file}
-                            aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
-                            height={this.state.scaleValueObject.videoPlayerHeight}
-                            width={this.state.scaleValueObject.videoPlayerWidth}
+                            file={file}
+                            aspectRatioInv={scaleValueObject.aspectRatioInv}
+                            height={scaleValueObject.videoPlayerHeight}
+                            width={scaleValueObject.videoPlayerWidth}
                             objectUrlObjects={filteredObjectUrlObjects}
-                            controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
+                            controllerHeight={settings.defaultVideoPlayerControllerHeight}
                             selectedThumbId={this.state.selectedThumbsArray.length !== 0 ?
                               this.state.selectedThumbsArray[0].thumbId : undefined}
                             frameNumber={this.state.selectedThumbsArray.length !== 0 ?
@@ -2786,21 +2770,21 @@ class App extends Component {
                             selectThumbMethod={this.onSelectThumbMethod}
                             keyObject={this.state.keyObject}
                             opencvVideo={this.state.opencvVideo}
-                            frameSize={this.props.settings.defaultCachedFramesSize}
+                            frameSize={settings.defaultCachedFramesSize}
                           />
                         </Conditional>
                         <Conditional if={sheetType === SHEET_TYPE.SCENES}>
                           <CutPlayer
-                            // visible={this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW}
+                            // visible={visibilitySettings.defaultView === VIEW.PLAYERVIEW}
                             ref={(el) => { this.videoPlayer = el; }}
-                            file={this.props.file}
+                            file={file}
                             containerWidth={this.state.containerWidth}
-                            scaleValueObject={this.state.scaleValueObject}
-                            aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
-                            height={this.state.scaleValueObject.videoPlayerHeight}
-                            width={this.state.scaleValueObject.videoPlayerWidth}
+                            scaleValueObject={scaleValueObject}
+                            aspectRatioInv={scaleValueObject.aspectRatioInv}
+                            height={scaleValueObject.videoPlayerHeight}
+                            width={scaleValueObject.videoPlayerWidth}
                             objectUrlObjects={filteredObjectUrlObjects}
-                            controllerHeight={this.props.settings.defaultVideoPlayerControllerHeight}
+                            controllerHeight={settings.defaultVideoPlayerControllerHeight}
                             arrayOfCuts={this.props.arrayOfCuts}
                             selectedThumbsArray={this.state.selectedThumbsArray}
                             frameNumber={this.state.selectedThumbsArray.length !== 0 ?
@@ -2812,7 +2796,7 @@ class App extends Component {
                             onMergeSceneClick={this.onMergeSceneClick}
                             keyObject={this.state.keyObject}
                             opencvVideo={this.state.opencvVideo}
-                            frameSize={this.props.settings.defaultCachedFramesSize}
+                            frameSize={settings.defaultCachedFramesSize}
                           />
                         </Conditional>
                       </Fragment>
@@ -2827,10 +2811,10 @@ class App extends Component {
                           color={(this.state.colorArray !== undefined ?
                             this.state.colorArray[0] : undefined)}
                           thumbImageObjectUrl={undefined}
-                          aspectRatioInv={this.state.scaleValueObject.aspectRatioInv}
-                          thumbWidth={this.state.scaleValueObject.videoPlayerWidth}
-                          borderRadius={this.state.scaleValueObject.newBorderRadius}
-                          margin={this.state.scaleValueObject.newThumbMargin}
+                          aspectRatioInv={scaleValueObject.aspectRatioInv}
+                          thumbWidth={scaleValueObject.videoPlayerWidth}
+                          borderRadius={scaleValueObject.newBorderRadius}
+                          margin={scaleValueObject.newThumbMargin}
                         />
                       </div>
                     )
@@ -2838,84 +2822,86 @@ class App extends Component {
                   </div>
                   <div
                     ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
-                    className={`${styles.ItemMain} ${this.props.visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainRightAnim : ''} ${this.props.visibilitySettings.showSettings ? styles.ItemMainEdit : ''} ${this.props.visibilitySettings.defaultView === VIEW.PLAYERVIEW ? styles.ItemMainTopAnim : ''}`}
+                    className={`${styles.ItemMain} ${visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''} ${visibilitySettings.showSettings ? styles.ItemMainRightAnim : ''} ${visibilitySettings.showSettings ? styles.ItemMainEdit : ''} ${visibilitySettings.defaultView === VIEW.PLAYERVIEW ? styles.ItemMainTopAnim : ''}`}
                     style={{
-                      width: ( // use window with if any of these are true
-                        this.props.visibilitySettings.showSettings ||
-                        (this.props.visibilitySettings.defaultView !== VIEW.PLAYERVIEW &&
-                          this.props.visibilitySettings.defaultSheetFit !== SHEET_FIT.HEIGHT &&
+                      width: ( // use window width if any of these are true
+                        // visibilitySettings.showSettings ||
+                        visibilitySettings.defaultSheetView === SHEET_VIEW.TIMELINEVIEW ||
+                        (visibilitySettings.defaultView !== VIEW.PLAYERVIEW &&
+                          visibilitySettings.defaultSheetFit !== SHEET_FIT.HEIGHT &&
                           !this.state.zoom
                         ) ||
-                        this.state.scaleValueObject.newMoviePrintWidth < this.state.containerWidth // if smaller, width has to be undefined otherwise the center align does not work
+                        scaleValueObject.newMoviePrintWidth < this.state.containerWidth // if smaller, width has to be undefined otherwise the center align does not work
                       )
-                        ? undefined : this.state.scaleValueObject.newMoviePrintWidth,
-                      marginTop: this.props.visibilitySettings.defaultView !== VIEW.PLAYERVIEW ? undefined :
-                        `${this.state.scaleValueObject.videoPlayerHeight +
-                          (this.props.settings.defaultBorderMargin * 2)}px`,
-                      minHeight: this.props.visibilitySettings.defaultView !== VIEW.PLAYERVIEW ? `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)` : undefined,
+                        ? undefined : scaleValueObject.newMoviePrintWidth,
+                      marginTop: visibilitySettings.defaultView !== VIEW.PLAYERVIEW ? undefined :
+                        `${scaleValueObject.videoPlayerHeight +
+                          (settings.defaultBorderMargin * 2)}px`,
+                      minHeight: visibilitySettings.defaultView !== VIEW.PLAYERVIEW ? `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)` : undefined,
                       // backgroundImage: `url(${paperBorderPortrait})`,
-                      backgroundImage: ((this.props.visibilitySettings.showSettings && this.props.settings.defaultShowPaperPreview) ||
-                        (this.props.file && this.props.visibilitySettings.defaultView !== VIEW.PLAYERVIEW && this.props.settings.defaultShowPaperPreview)) ?
-                        `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${(this.props.settings.defaultPaperAspectRatioInv < this.state.scaleValueObject.moviePrintAspectRatioInv) ? (this.state.scaleValueObject.newMoviePrintHeight / this.props.settings.defaultPaperAspectRatioInv) : this.state.scaleValueObject.newMoviePrintWidth}' height='${(this.props.settings.defaultPaperAspectRatioInv < this.state.scaleValueObject.moviePrintAspectRatioInv) ? this.state.scaleValueObject.newMoviePrintHeight : (this.state.scaleValueObject.newMoviePrintWidth * this.props.settings.defaultPaperAspectRatioInv)}' style='background-color: rgba(245,245,245,${this.props.visibilitySettings.showSettings ? 1 : 0.02});'></svg>")` : undefined,
+                      backgroundImage: ((visibilitySettings.showSettings && settings.defaultShowPaperPreview) ||
+                        (file && visibilitySettings.defaultView !== VIEW.PLAYERVIEW && settings.defaultShowPaperPreview)) ?
+                        `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${(settings.defaultPaperAspectRatioInv < scaleValueObject.moviePrintAspectRatioInv) ? (scaleValueObject.newMoviePrintHeight / settings.defaultPaperAspectRatioInv) : scaleValueObject.newMoviePrintWidth}' height='${(settings.defaultPaperAspectRatioInv < scaleValueObject.moviePrintAspectRatioInv) ? scaleValueObject.newMoviePrintHeight : (scaleValueObject.newMoviePrintWidth * settings.defaultPaperAspectRatioInv)}' style='background-color: rgba(245,245,245,${visibilitySettings.showSettings ? 1 : 0.02});'></svg>")` : undefined,
                       backgroundRepeat: 'no-repeat',
                       backgroundPosition: `calc(50% - ${DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN / 2}px) 50%`,
                     }}
                   >
-                    { (this.props.file || this.props.visibilitySettings.showSettings || this.state.loadingFirstFile) ? (
-                      // (this.props.visibilitySettings.defaultSheetView === 'gridView') ? (
+                    { (file || visibilitySettings.showSettings || this.state.loadingFirstFile) ? (
+                      // (visibilitySettings.defaultSheetView === 'gridView') ? (
                       <Fragment>
-                        <Conditional if={this.props.visibilitySettings.defaultSheetView !== SHEET_VIEW.TIMELINEVIEW}>
+                        <Conditional if={visibilitySettings.defaultSheetView !== SHEET_VIEW.TIMELINEVIEW}>
                           <SortedVisibleThumbGrid
                             colorArray={this.state.colorArray}
-                            sheetView={this.props.visibilitySettings.defaultSheetView}
+                            sheetView={visibilitySettings.defaultSheetView}
                             sheetType={sheetType}
-                            view={this.props.visibilitySettings.defaultView}
-                            currentSheetId={this.props.settings.currentSheetId}
-                            file={this.props.file}
+                            view={visibilitySettings.defaultView}
+                            currentSheetId={settings.currentSheetId}
+                            file={file}
                             inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                             keyObject={this.state.keyObject}
                             onAddThumbClick={this.onAddThumbClick}
-                            onScrubThumbClick={this.onScrubThumbClick}
+                            onCutThumbClick={this.onCutThumbClick}
                             onScrubClick={this.onScrubClick}
                             onExpandClick={this.onExpandClick}
                             onThumbDoubleClick={this.onViewToggle}
-                            scaleValueObject={this.state.scaleValueObject}
-                            moviePrintWidth={this.state.scaleValueObject.newMoviePrintWidth}
-                            selectedThumbIdArray={this.state.selectedThumbsArray}
+                            scaleValueObject={scaleValueObject}
+                            moviePrintWidth={scaleValueObject.newMoviePrintWidth}
+                            selectedThumbsArray={this.state.selectedThumbsArray}
                             // selectedThumbId={this.state.selectedThumbsArray ? this.state.selectedThumbsArray[0].thumbId : undefined}
                             selectThumbMethod={this.onSelectThumbMethod}
-                            settings={this.props.settings}
-                            showSettings={this.props.visibilitySettings.showSettings}
+                            settings={settings}
+                            showSettings={visibilitySettings.showSettings}
                             thumbCount={this.state.thumbCountTemp}
                             objectUrlObjects={filteredObjectUrlObjects}
                             thumbs={this.props.thumbs}
                             viewForPrinting={false}
-                            frameSize={this.props.settings.defaultCachedFramesSize}
+                            frameSize={settings.defaultCachedFramesSize}
                             isGridView={isGridView}
                           />
                         </Conditional>
-                        <Conditional if={this.props.visibilitySettings.defaultSheetView === SHEET_VIEW.TIMELINEVIEW}>
+                        <Conditional if={visibilitySettings.defaultSheetView === SHEET_VIEW.TIMELINEVIEW}>
                           <SortedVisibleSceneGrid
-                            sheetView={this.props.visibilitySettings.defaultSheetView}
-                            view={this.props.visibilitySettings.defaultView}
-                            file={this.props.file}
-                            currentSheetId={this.props.settings.currentSheetId}
-                            frameCount={this.props.file ? this.props.file.frameCount : undefined}
+                            sheetView={visibilitySettings.defaultSheetView}
+                            view={visibilitySettings.defaultView}
+                            file={file}
+                            currentSheetId={settings.currentSheetId}
+                            frameCount={file ? file.frameCount : undefined}
                             inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                             keyObject={this.state.keyObject}
-                            selectedSceneId={this.state.selectedSceneObject ? this.state.selectedSceneObject.sceneId : undefined}
-                            selectSceneMethod={this.onSelectSceneMethod}
+                            selectedThumbsArray={this.state.selectedThumbsArray}
+                            selectThumbMethod={this.onSelectThumbMethod}
                             onThumbDoubleClick={this.onViewToggle}
+                            onCutThumbClick={this.onCutThumbClick}
                             onExpandClick={this.onExpandClick}
-                            moviePrintWidth={this.state.scaleValueObject.newMoviePrintTimelineWidth}
-                            moviePrintRowHeight={this.state.scaleValueObject.newTimelineRowHeight}
-                            scaleValueObject={this.state.scaleValueObject}
-                            scenes={this.props.scenes}
-                            settings={this.props.settings}
-                            showSettings={this.props.visibilitySettings.showSettings}
+                            moviePrintWidth={scaleValueObject.newMoviePrintTimelineWidth}
+                            moviePrintRowHeight={scaleValueObject.newTimelineRowHeight}
+                            scaleValueObject={scaleValueObject}
+                            scenes={scenes}
+                            settings={settings}
+                            showSettings={visibilitySettings.showSettings}
                             objectUrlObjects={filteredObjectUrlObjects}
                             thumbs={this.props.thumbs}
-                            currentSheetId={this.props.settings.currentSheetId}
+                            currentSheetId={settings.currentSheetId}
                           />
                         </Conditional>
                         {false && <div
@@ -2923,13 +2909,13 @@ class App extends Component {
                             // background: 'green',
                             pointerEvents: 'none',
                             border: '5px solid green',
-                            width: this.state.scaleValueObject.newMoviePrintTimelineWidth,
-                            height: this.state.scaleValueObject.newMoviePrintTimelineHeight,
+                            width: scaleValueObject.newMoviePrintTimelineWidth,
+                            height: scaleValueObject.newMoviePrintTimelineHeight,
                             position: 'absolute',
-                            left: this.props.visibilitySettings.showSettings ? '' : '50%',
+                            left: visibilitySettings.showSettings ? '' : '50%',
                             top: '50%',
-                            marginLeft: this.props.visibilitySettings.showSettings ? '' : this.state.scaleValueObject.newMoviePrintTimelineWidth/-2,
-                            marginTop: this.state.scaleValueObject.newMoviePrintTimelineHeight/-2,
+                            marginLeft: visibilitySettings.showSettings ? '' : scaleValueObject.newMoviePrintTimelineWidth/-2,
+                            marginTop: scaleValueObject.newMoviePrintTimelineHeight/-2,
                           }}
                         />}
                       </Fragment>
@@ -3034,7 +3020,7 @@ class App extends Component {
                       }}
                       preload='./webViewPreload.js'
                       ref={this.webviewRef}
-                      src={`http://movieprint.fakob.com/feedback-for-movieprint-app?app-version=${process.platform}-${os.release()}-${app.getName()}-${app.getVersion()}&your-email=${this.props.settings.emailAddress}`}
+                      src={`http://movieprint.fakob.com/feedback-for-movieprint-app?app-version=${process.platform}-${os.release()}-${app.getName()}-${app.getVersion()}&your-email=${settings.emailAddress}`}
                     />
                     <Modal
                       open={this.state.intendToCloseFeedbackForm}
@@ -3065,29 +3051,29 @@ class App extends Component {
                   </Modal.Content>
                 </Modal>
                 <Footer
-                  visibilitySettings={this.props.visibilitySettings}
-                  file={this.props.file}
+                  visibilitySettings={visibilitySettings}
+                  file={file}
                   onOpenFeedbackForm={this.onOpenFeedbackForm}
                   showFeedbackForm={this.state.showFeedbackForm}
                   onSaveMoviePrint={this.onSaveMoviePrint}
                   onSaveAllMoviePrints={this.onSaveAllMoviePrints}
                   savingMoviePrint={this.state.savingMoviePrint}
                   savingAllMoviePrints={this.state.savingAllMoviePrints}
-                  defaultSheetView={this.props.visibilitySettings.defaultSheetView}
-                  defaultView={this.props.visibilitySettings.defaultView}
+                  defaultSheetView={visibilitySettings.defaultSheetView}
+                  defaultView={visibilitySettings.defaultView}
                 />
               </div>
               { this.state.showScrubWindow &&
                 <Scrub
                   opencvVideoCanvasRef={this.opencvVideoCanvasRef}
-                  file={this.props.file}
-                  settings={this.props.settings}
+                  file={file}
+                  settings={settings}
                   objectUrlObjects={filteredObjectUrlObjects}
                   keyObject={this.state.keyObject}
                   scrubThumb={this.state.scrubThumb}
                   scrubThumbLeft={this.state.scrubThumbLeft}
                   scrubThumbRight={this.state.scrubThumbRight}
-                  scaleValueObject={this.state.scaleValueObject}
+                  scaleValueObject={scaleValueObject}
                   containerWidth={this.state.containerWidth}
                   containerHeight={this.state.containerHeight}
                   onScrubWindowMouseOver={this.onScrubWindowMouseOver}
@@ -3098,14 +3084,14 @@ class App extends Component {
                 <ScrubCut
                   opencvVideo={this.state.opencvVideo}
                   // opencvVideoCanvasRef={this.opencvVideoCanvasRef}
-                  file={this.props.file}
-                  settings={this.props.settings}
+                  file={file}
+                  settings={settings}
                   objectUrlObjects={filteredObjectUrlObjects}
                   keyObject={this.state.keyObject}
                   scrubThumb={this.state.scrubThumb}
                   scrubThumbLeft={this.state.scrubThumbLeft}
                   scrubThumbRight={this.state.scrubThumbRight}
-                  scaleValueObject={this.state.scaleValueObject}
+                  scaleValueObject={scaleValueObject}
                   containerWidth={this.state.containerWidth}
                   containerHeight={this.state.containerHeight}
                   // onScrubWindowMouseOver={this.onScrubWindowMouseOver}
@@ -3121,7 +3107,7 @@ class App extends Component {
                 >
                   <Line
                     data={this.state.chartData}
-                    // width={this.state.scaleValueObject.newMoviePrintWidth}
+                    // width={scaleValueObject.newMoviePrintWidth}
                     // width={this.state.containerWidth}
                     height={chartHeight}
                     options={{

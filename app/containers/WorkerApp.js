@@ -191,6 +191,7 @@ class WorkerApp extends Component {
                     inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                     keyObject={{}}
                     selectedSceneId={undefined}
+                    selectedSceneIdArray={undefined}
                     scaleValueObject={sentData.scaleValueObject}
                     scenes={sentData.scenes}
                     settings={sentData.settings}

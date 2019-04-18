@@ -458,7 +458,7 @@ class SettingsList extends Component {
                   }
                 </Grid.Column>
               </Grid.Row>
-              {/* <Grid.Row>
+              {<Grid.Row>
                 <Grid.Column width={4}>
                   Flow
                 </Grid.Column>
@@ -474,7 +474,7 @@ class SettingsList extends Component {
                     onChange={this.onChangeTimelineViewFlow}
                   />
                 </Grid.Column>
-              </Grid.Row> */}
+              </Grid.Row>}
               <Grid.Row>
                 <Grid.Column width={4}>
                   Count
