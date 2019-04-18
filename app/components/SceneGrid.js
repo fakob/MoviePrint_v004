@@ -169,6 +169,8 @@ class SceneGrid extends Component {
                 null : () => {
                   this.props.onExpandClick(this.props.file, scene.sceneId, this.props.currentSheetId);
                 }}
+              inputRefThumb={(this.props.selectedThumbsArray.length !== 0 && this.props.selectedThumbsArray[0].thumbId === scene.sceneId) ?
+                this.props.inputRefThumb : undefined} // for the thumb scrollIntoView function
             />)}
           )}
         </div>
