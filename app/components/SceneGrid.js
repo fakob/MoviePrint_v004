@@ -167,7 +167,7 @@ class SceneGrid extends Component {
                 null : (!isPlayerView && selected) ? () => {
                   this.props.onDeselectClick();
                 } : () => {
-                  this.props.onSelectClick(scene.sceneId);
+                  this.props.onSelectClick(scene.sceneId, scene.start + scene.length);
                 }}
               onCutBefore={(scene.sceneId !== this.state.controllersVisible) ?
                 null : () => {

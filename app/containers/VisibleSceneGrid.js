@@ -62,8 +62,8 @@ class SortedVisibleSceneGrid extends Component {
       newOrderedThumbs));
   };
 
-  onSelectClick = (sceneId) => {
-    this.props.onSelectThumbMethod(sceneId);
+  onSelectClick = (sceneId, frameNumber) => {
+    this.props.onSelectThumbMethod(sceneId, frameNumber);
   }
 
   onDeselectClick = () => {

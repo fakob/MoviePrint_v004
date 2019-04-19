@@ -2752,7 +2752,7 @@ class App extends Component {
                               this.state.selectedThumbsArray[0].thumbId : undefined}
                             frameNumber={this.state.jumpToFrameNumber}
                             onThumbDoubleClick={this.onViewToggle}
-                            selectThumbMethod={this.onSelectThumbMethod}
+                            onSelectThumbMethod={this.onSelectThumbMethod}
                             keyObject={this.state.keyObject}
                             opencvVideo={this.state.opencvVideo}
                             frameSize={settings.defaultCachedFramesSize}
@@ -2772,10 +2772,9 @@ class App extends Component {
                             controllerHeight={settings.defaultVideoPlayerControllerHeight}
                             arrayOfCuts={this.props.arrayOfCuts}
                             scenes={this.props.scenes}
-                            selectedThumbsArray={this.state.selectedThumbsArray}
                             jumpToFrameNumber={this.state.jumpToFrameNumber}
                             onThumbDoubleClick={this.onViewToggle}
-                            selectThumbMethod={this.onSelectThumbMethod}
+                            onSelectThumbMethod={this.onSelectThumbMethod}
                             onNextSceneClick={this.onNextSceneClick}
                             onCutSceneClick={this.onCutSceneClick}
                             onMergeSceneClick={this.onMergeSceneClick}
@@ -2852,7 +2851,7 @@ class App extends Component {
                             scaleValueObject={scaleValueObject}
                             moviePrintWidth={scaleValueObject.newMoviePrintWidth}
                             selectedThumbsArray={this.state.selectedThumbsArray}
-                            selectThumbMethod={this.onSelectThumbMethod}
+                            onSelectThumbMethod={this.onSelectThumbMethod}
                             settings={settings}
                             showSettings={visibilitySettings.showSettings}
                             thumbCount={this.state.thumbCountTemp}

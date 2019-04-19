@@ -55,8 +55,6 @@ class CutPlayer extends Component {
     this.onDurationChange = this.onDurationChange.bind(this);
     this.updateTimeFromFrameNumber = this.updateTimeFromFrameNumber.bind(this);
     this.updatePositionFromFrame = this.updatePositionFromFrame.bind(this);
-    this.onShowPlaybar = this.onShowPlaybar.bind(this);
-    this.onHidePlaybar = this.onHidePlaybar.bind(this);
 
     this.onTimelineClick = this.onTimelineClick.bind(this);
     this.onTimelineDrag = this.onTimelineDrag.bind(this);
@@ -76,14 +74,7 @@ class CutPlayer extends Component {
   }
 
   componentDidMount() {
-    const { jumpToFrameNumber, selectedThumbsArray, scenes } = this.props;
-    // if (selectedThumbsArray.length !== 0) {
-    //   const foundScene = scenes.find(scene => scene.sceneId === selectedThumbsArray[0].thumbId);
-    //   if (foundScene !== undefined) {
-    //     const frameNumber = foundScene.start + foundScene.length;
-    //     this.updateTimeFromFrameNumber(frameNumber);
-    //   }
-    // }
+    const { jumpToFrameNumber, scenes } = this.props;
     if (jumpToFrameNumber !== undefined) {
       this.updateTimeFromFrameNumber(jumpToFrameNumber);
     }
@@ -106,38 +97,23 @@ class CutPlayer extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { jumpToFrameNumber, selectedThumbsArray, scenes } = this.props;
+    const { file, jumpToFrameNumber, scenes } = this.props;
+    const { currentFrame } = this.state;
     console.log(jumpToFrameNumber);
-    console.log(selectedThumbsArray);
     if (jumpToFrameNumber !== undefined) {
       if (prevProps.jumpToFrameNumber !== jumpToFrameNumber) {
         this.updateTimeFromFrameNumber(jumpToFrameNumber);
       }
-    } else if (selectedThumbsArray.length !== 0) { // if no jumpToFrameNumber then search for scene
-      if (prevProps.selectedThumbsArray.length !== selectedThumbsArray.length ||
-        prevProps.selectedThumbsArray[0].thumbId !== selectedThumbsArray[0].thumbId) {
-        const foundScene = scenes.find(scene => scene.sceneId === selectedThumbsArray[0].thumbId);
-        if (foundScene !== undefined) {
-          const frameNumber = foundScene.start + foundScene.length;
-          this.updateTimeFromFrameNumber(frameNumber);
-        }
-      }
     }
-  }
-
-  onShowPlaybar() {
-    if (!this.state.showPlaybar) {
-      this.setState({
-        showPlaybar: true
-      });
-    }
-  }
-
-  onHidePlaybar() {
-    if (this.state.showPlaybar) {
-      this.setState({
-        showPlaybar: false
-      });
+    if (prevProps.scenes.length !== scenes.length) {
+      const { frameCount } = file;
+      const halfArraySize = Math.floor(CUTPLAYER_SLICE_ARRAY_SIZE / 2);
+      const offsetFrameNumber = limitRange(
+        currentFrame + parseInt(halfArraySize, 10),
+        0,
+        frameCount - 1
+      );
+      this.updateTimeFromFrameNumber(offsetFrameNumber);
     }
   }
 
@@ -160,7 +136,7 @@ class CutPlayer extends Component {
   }
 
   updateOpencvVideoCanvas(currentFrame) {
-    const { containerWidth, file, opencvVideo } = this.props;
+    const { arrayOfCuts, containerWidth, file, opencvVideo } = this.props;
     console.log(currentFrame);
     const { videoHeight } = this.state
     const vid = opencvVideo;
@@ -174,9 +150,12 @@ class CutPlayer extends Component {
     const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
     const sliceWidthArray = getSliceWidthArrayForCut(vid, CUTPLAYER_SLICE_ARRAY_SIZE);
     const sliceGap = 2;
+    const cutGap = 8;
     const widthSum = sliceWidthArray.reduce((a, b) => a + b, 0);
     const rescaleFactor = (containerWidth - sliceGap * (CUTPLAYER_SLICE_ARRAY_SIZE - 1)) / widthSum;
     let canvasXPos = 0;
+
+    const frameOffset = Math.floor(CUTPLAYER_SLICE_ARRAY_SIZE / 2);
 
     for (let i = 0; i < CUTPLAYER_SLICE_ARRAY_SIZE; i += 1) {
       const frame = vid.read();
@@ -197,7 +176,10 @@ class CutPlayer extends Component {
           matResized.rows
         );
         ctx.putImageData(imgData, canvasXPos, 0);
-        canvasXPos += (sliceWidthArray[i] * rescaleFactor) + sliceGap;
+
+        const thisFrameIsACut = arrayOfCuts.some(item => item === currentFrame + i + 1);
+
+        canvasXPos += (sliceWidthArray[i] * rescaleFactor) + (thisFrameIsACut ? cutGap : sliceGap);
       }
     }
   }
@@ -210,7 +192,7 @@ class CutPlayer extends Component {
   }
 
   updatePositionFromFrame(currentFrame) {
-    const { containerWidth, file, scenes, selectThumbMethod } = this.props;
+    const { containerWidth, file, scenes, onSelectThumbMethod } = this.props;
     const { currentScene } = this.state;
 
     if (currentFrame !== undefined) {
@@ -219,7 +201,7 @@ class CutPlayer extends Component {
         this.setState({
           currentScene: newScene,
         });
-        selectThumbMethod(newScene.sceneId); // call to update selection when scrubbing
+        onSelectThumbMethod(newScene.sceneId); // call to update selection when scrubbing
       }
       const xPos = mapRange(
         currentFrame,
@@ -260,7 +242,7 @@ class CutPlayer extends Component {
   }
 
   updateTimeFromPosition(xPos) {
-    const { containerWidth, file, scenes, selectThumbMethod } = this.props;
+    const { containerWidth, file, scenes, onSelectThumbMethod } = this.props;
     const { currentScene } = this.state;
 
     if (xPos !== undefined) {
@@ -272,7 +254,7 @@ class CutPlayer extends Component {
         this.setState({
           currentScene: newScene,
         });
-        selectThumbMethod(newScene.sceneId); // call to update selection when scrubbing
+        onSelectThumbMethod(newScene.sceneId); // call to update selection when scrubbing
       }
       this.setState({
         currentFrame,
@@ -614,7 +596,6 @@ CutPlayer.defaultProps = {
     path: '',
   },
   height: 360,
-  selectedThumbsArray: [],
   width: 640,
   thumbs: undefined,
   frameNumber: 0,
@@ -640,8 +621,7 @@ CutPlayer.propTypes = {
   onNextSceneClick: PropTypes.func.isRequired,
   onMergeSceneClick: PropTypes.func.isRequired,
   onCutSceneClick: PropTypes.func.isRequired,
-  selectedThumbsArray: PropTypes.array,
-  selectThumbMethod: PropTypes.func.isRequired,
+  onSelectThumbMethod: PropTypes.func.isRequired,
   width: PropTypes.number,
   // settings: PropTypes.object.isRequired,
   thumbs: PropTypes.array,

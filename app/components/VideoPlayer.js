@@ -371,7 +371,7 @@ class VideoPlayer extends Component {
         }
         // delay selection so it waits for add thumb to be ready
         setTimeout(() => {
-          this.props.selectThumbMethod(newThumbId, newFrameNumber);
+          this.props.onSelectThumbMethod(newThumbId, newFrameNumber);
         }, 500);
       } else { // if normal set new thumb
         store.dispatch(changeThumb(this.props.settings.currentSheetId, this.props.file, this.props.selectedThumbId, newFrameNumber, this.props.frameSize));
@@ -689,7 +689,7 @@ VideoPlayer.propTypes = {
   keyObject: PropTypes.object.isRequired,
   onThumbDoubleClick: PropTypes.func.isRequired,
   selectedThumbId: PropTypes.string,
-  selectThumbMethod: PropTypes.func.isRequired,
+  onSelectThumbMethod: PropTypes.func.isRequired,
   width: PropTypes.number,
   // settings: PropTypes.object.isRequired,
   thumbs: PropTypes.array,
