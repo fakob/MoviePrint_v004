@@ -190,6 +190,7 @@ const Scene = ({
   }
 
   function onSelectWithStop(e) {
+    console.log('onSelectWithStop');
     e.stopPropagation();
     if (controllersAreVisible) {
       onSelect();
@@ -220,13 +221,13 @@ const Scene = ({
   }
 
   function onCutAfterWithStop(e) {
-    // console.log('onCutAfter');
+    console.log('onCutAfter');
     e.stopPropagation();
     onCutAfter();
   }
 
   function onCutBeforeWithStop(e) {
-    // console.log('onCutBefore');
+    console.log('onCutBefore');
     e.stopPropagation();
     onCutBefore();
   }
@@ -397,7 +398,7 @@ const Scene = ({
                   </button>
                 }
                 className={stylesPop.popup}
-                content={<span>Add new thumb after</span>}
+                content={<span>Jump to cut at the beginning of this scene</span>}
               />
               {/* <Popup
                 trigger={
@@ -426,7 +427,7 @@ const Scene = ({
                 className={stylesPop.popup}
                 content={<span>Click and drag left and right to change the frame (<mark>SHIFT</mark> add new thumb before, <mark>ALT</mark> add new thumb after, <mark>CTRL</mark> display original as overlay)</span>}
               /> */}
-              <Popup
+              {!selected && <Popup // only show when not selected
                 trigger={
                   <button
                     data-tid={`cutAfterBtn_${sceneId}`}
@@ -451,8 +452,8 @@ const Scene = ({
                   </button>
                 }
                 className={stylesPop.popup}
-                content={<span>Add new thumb after</span>}
-              />
+                content={<span>Jump to cut at the end of this scene</span>}
+              />}
               {/* <Popup
                 trigger={
                   <button

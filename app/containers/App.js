@@ -1505,14 +1505,9 @@ class App extends Component {
     if (otherSceneIs === 'after') {
       // only set if before last scene
       if (indexOfVisibleScenes < scenes.length - 1) {
-        otherScene = scenes[indexOfVisibleScenes + 1];
         cutFrameNumber = clickedScene.start + clickedScene.length;
         selectedThumbsArray.push({
           thumbId: clickedScene.sceneId,
-          frameNumber: cutFrameNumber
-        },
-        {
-          thumbId: otherScene.sceneId,
           frameNumber: cutFrameNumber
         });
       }
@@ -1520,14 +1515,9 @@ class App extends Component {
       // only set if after first scene
       if (indexOfVisibleScenes > 0) {
         otherScene = scenes[indexOfVisibleScenes - 1];
-        console.log(otherScene);
         cutFrameNumber = otherScene.start + otherScene.length;
         selectedThumbsArray.push({
           thumbId: otherScene.sceneId,
-          frameNumber: cutFrameNumber
-        },
-        {
-          thumbId: clickedScene.sceneId,
           frameNumber: cutFrameNumber
         });
       }
@@ -2786,9 +2776,8 @@ class App extends Component {
                             objectUrlObjects={filteredObjectUrlObjects}
                             controllerHeight={settings.defaultVideoPlayerControllerHeight}
                             arrayOfCuts={this.props.arrayOfCuts}
+                            scenes={this.props.scenes}
                             selectedThumbsArray={this.state.selectedThumbsArray}
-                            frameNumber={this.state.selectedThumbsArray.length !== 0 ?
-                              this.state.selectedThumbsArray[0].frameNumber : 0}
                             onThumbDoubleClick={this.onViewToggle}
                             selectThumbMethod={this.onSelectThumbMethod}
                             onNextSceneClick={this.onNextSceneClick}

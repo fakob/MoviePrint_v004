@@ -73,8 +73,11 @@ class CutPlayer extends Component {
   }
 
   componentDidMount() {
-    if (this.props.selectedThumbsArray.length !== 0) {
-      this.updateTimeFromFrameNumber(this.props.selectedThumbsArray[0].frameNumber);
+    const { selectedThumbsArray, scenes } = this.props;
+    if (selectedThumbsArray.length !== 0) {
+      const foundScene = scenes.find(scene => scene.sceneId === selectedThumbsArray[0].thumbId);
+      const frameNumber = foundScene.start + foundScene.length;
+      this.updateTimeFromFrameNumber(frameNumber);
     }
   }
 
@@ -95,10 +98,13 @@ class CutPlayer extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.selectedThumbsArray.length !== 0) {
-      if (prevProps.selectedThumbsArray.length !== this.props.selectedThumbsArray.length ||
-        prevProps.selectedThumbsArray[0].frameNumber !== this.props.selectedThumbsArray[0].frameNumber) {
-        this.updateTimeFromFrameNumber(this.props.selectedThumbsArray[0].frameNumber);
+    const { selectedThumbsArray, scenes } = this.props;
+    if (selectedThumbsArray.length !== 0) {
+      if (prevProps.selectedThumbsArray.length !== selectedThumbsArray.length ||
+        prevProps.selectedThumbsArray[0].thumbId !== selectedThumbsArray[0].thumbId) {
+        const foundScene = scenes.find(scene => scene.sceneId === selectedThumbsArray[0].thumbId);
+        const frameNumber = foundScene.start + foundScene.length;
+        this.updateTimeFromFrameNumber(frameNumber);
       }
     }
   }

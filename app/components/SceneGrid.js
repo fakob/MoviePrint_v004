@@ -113,7 +113,7 @@ class SceneGrid extends Component {
               margin={thumbMarginTimeline}
 
               // only allow expanding of scenes which are not already large enough and deselecting
-              allowSceneToBeSelected={selected || width < (realWidth * 0.95)}
+              allowSceneToBeSelected={isPlayerView || selected || width < (realWidth * 0.95)}
 
               // use minimum value to make sure that scene does not disappear
               thumbWidth={Math.max(1, width)}
