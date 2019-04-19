@@ -1542,8 +1542,8 @@ class App extends Component {
     let jumpToScene;
     if (direction === 'back') {
       for (let i = 1; i < scenes.length; i += 1) {
-        if (scenes[i].start >= currentFrame) {
-          jumpToScene = scenes[Math.max(i - 1, 0)];
+        if ((scenes[i].start + scenes[i].length) >= currentFrame) {
+          jumpToScene = scenes[i];
           otherSceneIs = 'before';
           break;
         }

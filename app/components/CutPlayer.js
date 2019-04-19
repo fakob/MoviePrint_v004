@@ -61,6 +61,7 @@ class CutPlayer extends Component {
     this.onTimelineDragStop = this.onTimelineDragStop.bind(this);
     this.onTimelineMouseOver = this.onTimelineMouseOver.bind(this);
     this.onTimelineExit = this.onTimelineExit.bind(this);
+    this.onNextSceneClickWithStop = this.onNextSceneClickWithStop.bind(this);
   }
 
   componentWillMount() {
@@ -106,14 +107,7 @@ class CutPlayer extends Component {
       }
     }
     if (prevProps.scenes.length !== scenes.length) {
-      const { frameCount } = file;
-      const halfArraySize = Math.floor(CUTPLAYER_SLICE_ARRAY_SIZE / 2);
-      const offsetFrameNumber = limitRange(
-        currentFrame + parseInt(halfArraySize, 10),
-        0,
-        frameCount - 1
-      );
-      this.updateTimeFromFrameNumber(offsetFrameNumber);
+      this.updateTimeFromFrameNumber(currentFrame);
     }
   }
 
@@ -138,14 +132,18 @@ class CutPlayer extends Component {
   updateOpencvVideoCanvas(currentFrame) {
     const { arrayOfCuts, containerWidth, file, opencvVideo } = this.props;
     console.log(currentFrame);
+    const { frameCount } = file;
+    // offset currentFrame due to main frame is in middle of sliceArraySize
+    const halfArraySize = Math.floor(CUTPLAYER_SLICE_ARRAY_SIZE / 2);
+    const offsetFrameNumber = currentFrame - parseInt(halfArraySize, 10);
+
     const { videoHeight } = this.state
     const vid = opencvVideo;
-    setPosition(vid, currentFrame, file.useRatio);
+    setPosition(vid, offsetFrameNumber, file.useRatio);
     this.opencvCutPlayerCanvasRef.height = videoHeight;
     this.opencvCutPlayerCanvasRef.width = containerWidth;
     const ctx = this.opencvCutPlayerCanvasRef.getContext('2d');
     const length = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT);
-    console.log(length);
     const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
     const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
     const sliceWidthArray = getSliceWidthArrayForCut(vid, CUTPLAYER_SLICE_ARRAY_SIZE);
@@ -155,14 +153,13 @@ class CutPlayer extends Component {
     const rescaleFactor = (containerWidth - sliceGap * (CUTPLAYER_SLICE_ARRAY_SIZE - 1)) / widthSum;
     let canvasXPos = 0;
 
-    const frameOffset = Math.floor(CUTPLAYER_SLICE_ARRAY_SIZE / 2);
-
     for (let i = 0; i < CUTPLAYER_SLICE_ARRAY_SIZE; i += 1) {
       const frame = vid.read();
-      if (!frame.empty) {
-        const sliceWidth = sliceWidthArray[i];
-        const sliceXPos = Math.max(Math.floor(width / 2) - Math.floor(sliceWidth / 2), 0);
+      const sliceWidth = sliceWidthArray[i];
+      const sliceXPos = Math.max(Math.floor(width / 2) - Math.floor(sliceWidth / 2), 0);
+      const thisFrameIsACut = arrayOfCuts.some(item => item === offsetFrameNumber + i + 1);
 
+      if ((offsetFrameNumber + i) >= 0 && !frame.empty) {
         const matCropped = frame.getRegion(new opencv.Rect(sliceXPos, 0, sliceWidth, height));
         const matResized = matCropped.rescale(rescaleFactor);
 
@@ -176,11 +173,10 @@ class CutPlayer extends Component {
           matResized.rows
         );
         ctx.putImageData(imgData, canvasXPos, 0);
-
-        const thisFrameIsACut = arrayOfCuts.some(item => item === currentFrame + i + 1);
-
-        canvasXPos += (sliceWidthArray[i] * rescaleFactor) + (thisFrameIsACut ? cutGap : sliceGap);
+      } else {
+        console.log('frame empty')
       }
+      canvasXPos += (sliceWidthArray[i] * rescaleFactor) + (thisFrameIsACut ? cutGap : sliceGap);
     }
   }
 
@@ -217,28 +213,16 @@ class CutPlayer extends Component {
 
   updateTimeFromFrameNumber(currentFrame) {
     const { containerWidth, file, scenes } = this.props;
-
+    const { frameCount } = file;
     let xPos = 0;
-    let offsetFrameNumber = 0;
-    if (currentFrame !== undefined) {
-      const { frameCount } = file;
-      // offset currentFrame due to main frame is in middle of sliceArraySize
-      const halfArraySize = Math.floor(CUTPLAYER_SLICE_ARRAY_SIZE / 2);
-      offsetFrameNumber = limitRange(
-        currentFrame - parseInt(halfArraySize, 10),
-        0,
-        frameCount - 1
-      );
-
-      xPos = mapRange(offsetFrameNumber, 0, frameCount - 1, 0, containerWidth, false);
-    }
-    const currentScene = getSceneFromFrameNumber(scenes, offsetFrameNumber);
+    xPos = mapRange(currentFrame, 0, frameCount - 1, 0, containerWidth, false);
+    const currentScene = getSceneFromFrameNumber(scenes, currentFrame);
     this.setState({
       playHeadPosition: xPos,
-      currentFrame: offsetFrameNumber,
+      currentFrame,
       currentScene,
     });
-    this.updateOpencvVideoCanvas(offsetFrameNumber);
+    this.updateOpencvVideoCanvas(currentFrame);
   }
 
   updateTimeFromPosition(xPos) {
@@ -291,6 +275,11 @@ class CutPlayer extends Component {
     }
   }
 
+  onNextSceneClickWithStop(direction, frameNumber) {
+
+    this.props.onNextSceneClick(direction, frameNumber)
+  }
+
   render() {
     const { currentFrame, currentScene, playHeadPosition } = this.state;
     const { arrayOfCuts, containerWidth, file, scaleValueObject, thumbs } = this.props;
@@ -315,8 +304,7 @@ class CutPlayer extends Component {
       MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE
     );
 
-    const frameOffset = Math.floor(CUTPLAYER_SLICE_ARRAY_SIZE / 2);
-    const thisFrameIsACut = arrayOfCuts.some(item => item === currentFrame + frameOffset);
+    const thisFrameIsACut = arrayOfCuts.some(item => item === currentFrame);
     // console.log(thisFrameIsACut);
 
     return (
@@ -392,7 +380,7 @@ class CutPlayer extends Component {
                 <button
                   type='button'
                   className={`${styles.hoverButton} ${styles.textButton} ${styles.previousScene}`}
-                  onClick={() => this.props.onNextSceneClick('back', this.state.currentFrame)}
+                  onClick={() => this.onNextSceneClickWithStop('back', this.state.currentFrame)}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}
@@ -461,8 +449,8 @@ class CutPlayer extends Component {
                   type='button'
                   className={`${styles.hoverButton} ${styles.textButton}`}
                   onClick={thisFrameIsACut ?
-                    () => this.props.onMergeSceneClick(currentFrame + frameOffset) :
-                    () => this.props.onCutSceneClick(currentFrame + frameOffset)}
+                    () => this.props.onMergeSceneClick(currentFrame) :
+                    () => this.props.onCutSceneClick(currentFrame)}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}
@@ -539,7 +527,7 @@ class CutPlayer extends Component {
                 <button
                   type='button'
                   className={`${styles.hoverButton} ${styles.textButton} ${styles.nextScene}`}
-                  onClick={() => this.props.onNextSceneClick('forward', this.state.currentFrame)}
+                  onClick={() => this.onNextSceneClickWithStop('forward', this.state.currentFrame)}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}
