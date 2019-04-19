@@ -14,14 +14,15 @@ import {
   CUTPLAYER_SLICE_ARRAY_SIZE,
 } from '../utils/constants';
 import {
-  limitRange,
+  frameCountToTimeCode,
   getHighestFrame,
   getLowestFrame,
-  getVisibleThumbs,
-  mapRange,
-  frameCountToTimeCode,
-  setPosition,
+  getSceneFromFrameNumber,
   getSliceWidthArrayForCut,
+  getVisibleThumbs,
+  limitRange,
+  mapRange,
+  setPosition,
 } from '../utils/utils';
 import styles from './VideoPlayer.css';
 import stylesPop from './Popup.css';
@@ -35,6 +36,10 @@ class CutPlayer extends Component {
 
     this.state = {
       currentFrame: 0, // in frames
+      currentScene: {
+        start: 0,
+        length: 0
+      }, // in frames
       videoHeight: 360,
       playHeadPosition: 0, // in pixel
       mouseStartDragInsideTimeline: false,
@@ -76,8 +81,10 @@ class CutPlayer extends Component {
     const { selectedThumbsArray, scenes } = this.props;
     if (selectedThumbsArray.length !== 0) {
       const foundScene = scenes.find(scene => scene.sceneId === selectedThumbsArray[0].thumbId);
-      const frameNumber = foundScene.start + foundScene.length;
-      this.updateTimeFromFrameNumber(frameNumber);
+      if (foundScene !== undefined) {
+        const frameNumber = foundScene.start + foundScene.length;
+        this.updateTimeFromFrameNumber(frameNumber);
+      }
     }
   }
 
@@ -103,8 +110,10 @@ class CutPlayer extends Component {
       if (prevProps.selectedThumbsArray.length !== selectedThumbsArray.length ||
         prevProps.selectedThumbsArray[0].thumbId !== selectedThumbsArray[0].thumbId) {
         const foundScene = scenes.find(scene => scene.sceneId === selectedThumbsArray[0].thumbId);
-        const frameNumber = foundScene.start + foundScene.length;
-        this.updateTimeFromFrameNumber(frameNumber);
+        if (foundScene !== undefined) {
+          const frameNumber = foundScene.start + foundScene.length;
+          this.updateTimeFromFrameNumber(frameNumber);
+        }
       }
     }
   }
@@ -220,10 +229,14 @@ class CutPlayer extends Component {
   }
 
   updatePositionFromFrame(currentFrame) {
-    const { containerWidth, file } = this.props;
+    const { containerWidth, file, scenes } = this.props;
 
     if (currentFrame) {
-      this.setState({ currentFrame });
+      const currentScene = getSceneFromFrameNumber(scenes, currentFrame);
+      this.setState({
+        currentFrame,
+        currentScene,
+      });
       const xPos = mapRange(
         currentFrame,
         0, (file.frameCount - 1),
@@ -234,7 +247,7 @@ class CutPlayer extends Component {
   }
 
   updateTimeFromFrameNumber(currentFrame) {
-    const { containerWidth, file } = this.props;
+    const { containerWidth, file, scenes } = this.props;
 
     let xPos = 0;
     let offsetFrameNumber = 0;
@@ -250,19 +263,27 @@ class CutPlayer extends Component {
 
       xPos = mapRange(offsetFrameNumber, 0, frameCount - 1, 0, containerWidth, false);
     }
-    this.setState({ playHeadPosition: xPos });
-    this.setState({ currentFrame: offsetFrameNumber });
+    const currentScene = getSceneFromFrameNumber(scenes, offsetFrameNumber);
+    this.setState({
+      playHeadPosition: xPos,
+      currentFrame: offsetFrameNumber,
+      currentScene,
+    });
     this.updateOpencvVideoCanvas(offsetFrameNumber);
   }
 
   updateTimeFromPosition(xPos) {
-    const { containerWidth, file } = this.props;
+    const { containerWidth, file, scenes } = this.props;
 
     if (xPos) {
       this.setState({ playHeadPosition: xPos });
       const { frameCount } = file;
       const currentFrame = mapRange(xPos, 0, containerWidth, 0, frameCount - 1);
-      this.setState({ currentFrame });
+      const currentScene = getSceneFromFrameNumber(scenes, currentFrame);
+      this.setState({
+        currentFrame,
+        currentScene,
+      });
       this.updateOpencvVideoCanvas(currentFrame);
     }
   }
@@ -296,7 +317,7 @@ class CutPlayer extends Component {
   }
 
   render() {
-    const { currentFrame, playHeadPosition } = this.state;
+    const { currentFrame, currentScene, playHeadPosition } = this.state;
     const { arrayOfCuts, containerWidth, file, scaleValueObject, thumbs } = this.props;
     const { videoHeight } = this.state;
 
@@ -308,8 +329,8 @@ class CutPlayer extends Component {
       event.target.style.opacity = 0.5;
     }
 
-    const inPoint = getLowestFrame(thumbs);
-    const outPoint = getHighestFrame(thumbs);
+    const inPoint = currentScene !== undefined ? currentScene.start : 0;
+    const outPoint = currentScene !== undefined ? currentScene.start + currentScene.length : 0;
     const inPointPositionOnTimeline =
       ((containerWidth * 1.0) / file.frameCount) * inPoint;
     const outPointPositionOnTimeline =

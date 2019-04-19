@@ -1498,7 +1498,7 @@ class App extends Component {
     let cutFrameNumber;
     const selectedThumbsArray = []
     const clickedScene = scenes.find(scene => scene.sceneId === thumbId);
-    const indexOfAllScenes = allScenes.findIndex(scene => scene.sceneId === thumbId);
+    // const indexOfAllScenes = allScenes.findIndex(scene => scene.sceneId === thumbId);
     const indexOfVisibleScenes = scenes.findIndex(scene => scene.sceneId === thumbId);
 
     // get scene before or after
@@ -1522,20 +1522,7 @@ class App extends Component {
         });
       }
     }
-
-    // only set if not empty
-    if (selectedThumbsArray.length !== 0) {
-      this.setState({selectedThumbsArray});
-    }
-
-    // console.log(existingThumb);
-    console.log(otherSceneIs);
-    // console.log(scenes);
-    console.log(clickedScene);
-    // console.log(indexOfAllScenes);
-    // console.log(indexOfVisibleScenes);
-    console.log(cutFrameNumber);
-    console.log(otherScene);
+    this.setState({selectedThumbsArray});
   }
 
   onNextSceneClick(direction, currentFrame) {
