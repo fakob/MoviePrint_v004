@@ -85,6 +85,9 @@ class CutPlayer extends Component {
         const frameNumber = foundScene.start + foundScene.length;
         this.updateTimeFromFrameNumber(frameNumber);
       }
+    const { frameNumber } = this.props;
+    if (frameNumber !== undefined) {
+      this.updateTimeFromFrameNumber(frameNumber);
     }
   }
 
@@ -114,7 +117,15 @@ class CutPlayer extends Component {
           const frameNumber = foundScene.start + foundScene.length;
           this.updateTimeFromFrameNumber(frameNumber);
         }
+    const { frameNumber } = this.props;
+    const { currentScene } = this.state;
+    if (prevProps.frameNumber !== frameNumber) {
+      if (frameNumber !== undefined) {
+        this.updateTimeFromFrameNumber(frameNumber);
       }
+    }
+    if (prevState.currentScene !== currentScene) {
+
     }
   }
 
