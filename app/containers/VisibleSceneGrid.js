@@ -22,6 +22,7 @@ class SortedVisibleSceneGrid extends Component {
 
     this.scrollThumbIntoView = this.scrollThumbIntoView.bind(this);
     this.onSelectClick = this.onSelectClick.bind(this);
+    this.onDeselectClick = this.onDeselectClick.bind(this);
   }
 
   // componentDidMount() {
@@ -62,8 +63,12 @@ class SortedVisibleSceneGrid extends Component {
   };
 
   onSelectClick = (sceneId) => {
-    console.log(sceneId);
-    this.props.selectThumbMethod(sceneId);
+    this.props.onSelectThumbMethod(sceneId);
+  }
+
+  onDeselectClick = () => {
+    console.log('deselect')
+    this.props.onDeselectThumbMethod();
   }
 
   scrollThumbIntoView = () => {
@@ -100,6 +105,7 @@ class SortedVisibleSceneGrid extends Component {
         onThumbDoubleClick={this.props.onThumbDoubleClick}
         onScrubClick={this.props.onScrubClick}
         onSelectClick={this.onSelectClick}
+        onDeselectClick={this.onDeselectClick}
         onExpandClick={this.props.onExpandClick}
         onToggleClick={this.props.onToggleClick}
         minSceneLength={this.props.settings.defaultTimelineViewMinDisplaySceneLengthInFrames}

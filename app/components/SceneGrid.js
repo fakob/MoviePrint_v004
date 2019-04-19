@@ -75,7 +75,8 @@ class SceneGrid extends Component {
         newPixelPerFrameRatio,
         minSceneLength)
       + realWidthForPlayer
-      + thumbMarginTimeline;
+      + thumbMarginTimeline
+      + 100; // random buffer amount so it does not break
 
     return (
       <div
@@ -163,7 +164,9 @@ class SceneGrid extends Component {
               onToggle={(scene.sceneId !== this.state.controllersVisible) ?
                 null : () => this.props.onToggleClick(this.props.file.id, scene.sceneId)}
               onSelect={(scene.sceneId !== this.state.controllersVisible) ?
-                null : () => {
+                null : (!isPlayerView && selected) ? () => {
+                  this.props.onDeselectClick();
+                } : () => {
                   this.props.onSelectClick(scene.sceneId);
                 }}
               onCutBefore={(scene.sceneId !== this.state.controllersVisible) ?

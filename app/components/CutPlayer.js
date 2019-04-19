@@ -210,10 +210,17 @@ class CutPlayer extends Component {
   }
 
   updatePositionFromFrame(currentFrame) {
-    const { containerWidth, file, scenes } = this.props;
+    const { containerWidth, file, scenes, selectThumbMethod } = this.props;
+    const { currentScene } = this.state;
 
     if (currentFrame !== undefined) {
-      const currentScene = getSceneFromFrameNumber(scenes, currentFrame);
+      const newScene = getSceneFromFrameNumber(scenes, currentFrame);
+      if (currentScene.sceneId !== newScene.sceneId) {
+        this.setState({
+          currentScene: newScene,
+        });
+        selectThumbMethod(newScene.sceneId); // call to update selection when scrubbing
+      }
       const xPos = mapRange(
         currentFrame,
         0, (file.frameCount - 1),
@@ -221,7 +228,6 @@ class CutPlayer extends Component {
       );
       this.setState({
         currentFrame,
-        currentScene,
         playHeadPosition: xPos,
       });
     }
@@ -254,16 +260,22 @@ class CutPlayer extends Component {
   }
 
   updateTimeFromPosition(xPos) {
-    const { containerWidth, file, scenes } = this.props;
+    const { containerWidth, file, scenes, selectThumbMethod } = this.props;
+    const { currentScene } = this.state;
 
-    if (xPos) {
+    if (xPos !== undefined) {
       this.setState({ playHeadPosition: xPos });
       const { frameCount } = file;
       const currentFrame = mapRange(xPos, 0, containerWidth, 0, frameCount - 1);
-      const currentScene = getSceneFromFrameNumber(scenes, currentFrame);
+      const newScene = getSceneFromFrameNumber(scenes, currentFrame);
+      if (currentScene.sceneId !== newScene.sceneId) {
+        this.setState({
+          currentScene: newScene,
+        });
+        selectThumbMethod(newScene.sceneId); // call to update selection when scrubbing
+      }
       this.setState({
         currentFrame,
-        currentScene,
       });
       this.updateOpencvVideoCanvas(currentFrame);
     }
@@ -323,7 +335,7 @@ class CutPlayer extends Component {
 
     const frameOffset = Math.floor(CUTPLAYER_SLICE_ARRAY_SIZE / 2);
     const thisFrameIsACut = arrayOfCuts.some(item => item === currentFrame + frameOffset);
-    console.log(thisFrameIsACut);
+    // console.log(thisFrameIsACut);
 
     return (
       <div>

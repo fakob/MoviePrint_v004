@@ -251,6 +251,7 @@ class App extends Component {
     this.handleKeyUp = this.handleKeyUp.bind(this);
 
     this.onSelectThumbMethod = this.onSelectThumbMethod.bind(this);
+    this.onDeselectThumbMethod = this.onDeselectThumbMethod.bind(this);
 
     this.showMovielist = this.showMovielist.bind(this);
     this.hideMovielist = this.hideMovielist.bind(this);
@@ -1180,6 +1181,12 @@ class App extends Component {
     }
   }
 
+  onDeselectThumbMethod() {
+    this.setState({
+      selectedThumbsArray: []
+    });
+  }
+
   onSelectThumbMethod(thumbId, frameNumber = undefined) {
     this.setState({
       selectedThumbsArray: [{
@@ -1504,7 +1511,7 @@ class App extends Component {
     // get scene before or after
     if (otherSceneIs === 'after') {
       // only set if before last scene
-      if (indexOfVisibleScenes < scenes.length - 1) {
+      if (indexOfVisibleScenes < scenes.length) {
         cutFrameNumber = clickedScene.start + clickedScene.length;
         selectedThumbsArray.push({
           thumbId: clickedScene.sceneId,
@@ -1534,7 +1541,7 @@ class App extends Component {
     let otherSceneIs;
     let jumpToScene;
     if (direction === 'back') {
-      for (let i = 1; i < scenes.length; i += 1) { // only loop through one less as the last scene does not have a pair
+      for (let i = 1; i < scenes.length; i += 1) {
         if (scenes[i].start >= currentFrame) {
           jumpToScene = scenes[Math.max(i - 1, 0)];
           otherSceneIs = 'before';
@@ -1542,7 +1549,7 @@ class App extends Component {
         }
       }
     } else if (direction === 'forward') {
-      for (let i = 1; i < (scenes.length - 1); i += 1) { // only loop through one less as the last scene does not have a pair
+      for (let i = 1; i < scenes.length; i += 1) {
         if (scenes[i].start > currentFrame) {
           jumpToScene = scenes[i];
           otherSceneIs = 'after';
@@ -2866,7 +2873,8 @@ class App extends Component {
                             inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                             keyObject={this.state.keyObject}
                             selectedThumbsArray={this.state.selectedThumbsArray}
-                            selectThumbMethod={this.onSelectThumbMethod}
+                            onSelectThumbMethod={this.onSelectThumbMethod}
+                            onDeselectThumbMethod={this.onDeselectThumbMethod}
                             onThumbDoubleClick={this.onViewToggle}
                             onCutThumbClick={this.onCutThumbClick}
                             onExpandClick={this.onExpandClick}
