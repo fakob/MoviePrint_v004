@@ -233,16 +233,16 @@ class CutPlayer extends Component {
 
     if (currentFrame) {
       const currentScene = getSceneFromFrameNumber(scenes, currentFrame);
-      this.setState({
-        currentFrame,
-        currentScene,
-      });
       const xPos = mapRange(
         currentFrame,
         0, (file.frameCount - 1),
         0, containerWidth, false
       );
-      this.setState({ playHeadPosition: xPos });
+      this.setState({
+        currentFrame,
+        currentScene,
+        playHeadPosition: xPos,
+      });
     }
   }
 
@@ -493,7 +493,7 @@ class CutPlayer extends Component {
                   onFocus={over}
                   onBlur={out}
                   style={{
-                    display: this.props.selectedThumbsArray ? 'block' : 'none',
+                    display: 'block',
                     transformOrigin: 'center bottom',
                     transform: 'translateX(-50%)',
                     position: 'absolute',
@@ -624,6 +624,7 @@ CutPlayer.defaultProps = {
   selectedThumbsArray: [],
   width: 640,
   thumbs: undefined,
+  frameNumber: 0,
 };
 
 CutPlayer.propTypes = {
@@ -640,6 +641,7 @@ CutPlayer.propTypes = {
     useRatio: PropTypes.bool,
   }),
   height: PropTypes.number,
+  frameNumber: PropTypes.number,
   keyObject: PropTypes.object.isRequired,
   onThumbDoubleClick: PropTypes.func.isRequired,
   onNextSceneClick: PropTypes.func.isRequired,

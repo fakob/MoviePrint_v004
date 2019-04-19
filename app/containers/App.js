@@ -203,7 +203,7 @@ class App extends Component {
       scaleValueObject: undefined,
       savingMoviePrint: false,
       selectedThumbsArray: [],
-      selectedSceneIdArray: [],
+      jumpToFrameNumber: undefined,
       // file match needs to be in sync with addMoviesToList(), onReplaceMovieListItemClick() and onDrop() !!!
       accept: 'video/*,.divx,.mkv,.ogg,.VOB,',
       dropzoneActive: false,
@@ -1185,7 +1185,8 @@ class App extends Component {
       selectedThumbsArray: [{
         thumbId,
         frameNumber
-      }]
+      }],
+      jumpToFrameNumber: frameNumber,
     });
   }
 
@@ -1522,7 +1523,10 @@ class App extends Component {
         });
       }
     }
-    this.setState({selectedThumbsArray});
+    this.setState({
+      selectedThumbsArray,
+      jumpToFrameNumber: cutFrameNumber,
+    });
   }
 
   onNextSceneClick(direction, currentFrame) {
@@ -2559,6 +2563,7 @@ class App extends Component {
     }
 
     console.log(this.state.selectedThumbsArray);
+    console.log(this.state.jumpToFrameNumber);
 
     return (
       <Dropzone
@@ -2765,6 +2770,7 @@ class App extends Component {
                             arrayOfCuts={this.props.arrayOfCuts}
                             scenes={this.props.scenes}
                             selectedThumbsArray={this.state.selectedThumbsArray}
+                            frameNumber={this.state.jumpToFrameNumber}
                             onThumbDoubleClick={this.onViewToggle}
                             selectThumbMethod={this.onSelectThumbMethod}
                             onNextSceneClick={this.onNextSceneClick}
@@ -2843,7 +2849,6 @@ class App extends Component {
                             scaleValueObject={scaleValueObject}
                             moviePrintWidth={scaleValueObject.newMoviePrintWidth}
                             selectedThumbsArray={this.state.selectedThumbsArray}
-                            // selectedThumbId={this.state.selectedThumbsArray ? this.state.selectedThumbsArray[0].thumbId : undefined}
                             selectThumbMethod={this.onSelectThumbMethod}
                             settings={settings}
                             showSettings={visibilitySettings.showSettings}
