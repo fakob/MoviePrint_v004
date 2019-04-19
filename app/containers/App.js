@@ -1184,7 +1184,6 @@ class App extends Component {
     this.setState({
       selectedThumbsArray: [{
         thumbId,
-        frameNumber
       }],
       jumpToFrameNumber: frameNumber,
     });
@@ -1509,7 +1508,6 @@ class App extends Component {
         cutFrameNumber = clickedScene.start + clickedScene.length;
         selectedThumbsArray.push({
           thumbId: clickedScene.sceneId,
-          frameNumber: cutFrameNumber
         });
       }
     } else if (otherSceneIs === 'before') { // if shiftKey
@@ -1519,7 +1517,6 @@ class App extends Component {
         cutFrameNumber = otherScene.start + otherScene.length;
         selectedThumbsArray.push({
           thumbId: otherScene.sceneId,
-          frameNumber: cutFrameNumber
         });
       }
     }
@@ -2746,8 +2743,7 @@ class App extends Component {
                             controllerHeight={settings.defaultVideoPlayerControllerHeight}
                             selectedThumbId={this.state.selectedThumbsArray.length !== 0 ?
                               this.state.selectedThumbsArray[0].thumbId : undefined}
-                            frameNumber={this.state.selectedThumbsArray.length !== 0 ?
-                              this.state.selectedThumbsArray[0].frameNumber : 0}
+                            frameNumber={this.state.jumpToFrameNumber}
                             onThumbDoubleClick={this.onViewToggle}
                             selectThumbMethod={this.onSelectThumbMethod}
                             keyObject={this.state.keyObject}
@@ -2770,7 +2766,7 @@ class App extends Component {
                             arrayOfCuts={this.props.arrayOfCuts}
                             scenes={this.props.scenes}
                             selectedThumbsArray={this.state.selectedThumbsArray}
-                            frameNumber={this.state.jumpToFrameNumber}
+                            jumpToFrameNumber={this.state.jumpToFrameNumber}
                             onThumbDoubleClick={this.onViewToggle}
                             selectThumbMethod={this.onSelectThumbMethod}
                             onNextSceneClick={this.onNextSceneClick}

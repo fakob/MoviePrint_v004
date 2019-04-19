@@ -49,8 +49,6 @@ class CutPlayer extends Component {
     // this.onSaveThumbClick = this.onSaveThumbClick.bind(this);
 
     this.getCurrentFrameNumber = this.getCurrentFrameNumber.bind(this);
-    this.onInPointClick = this.onInPointClick.bind(this);
-    this.onOutPointClick = this.onOutPointClick.bind(this);
     this.onBackForwardClick = this.onBackForwardClick.bind(this);
     this.updateOpencvVideoCanvas = this.updateOpencvVideoCanvas.bind(this);
     this.updatePositionWithStep = this.updatePositionWithStep.bind(this);
@@ -78,16 +76,16 @@ class CutPlayer extends Component {
   }
 
   componentDidMount() {
-    const { selectedThumbsArray, scenes } = this.props;
-    if (selectedThumbsArray.length !== 0) {
-      const foundScene = scenes.find(scene => scene.sceneId === selectedThumbsArray[0].thumbId);
-      if (foundScene !== undefined) {
-        const frameNumber = foundScene.start + foundScene.length;
-        this.updateTimeFromFrameNumber(frameNumber);
-      }
-    const { frameNumber } = this.props;
-    if (frameNumber !== undefined) {
-      this.updateTimeFromFrameNumber(frameNumber);
+    const { jumpToFrameNumber, selectedThumbsArray, scenes } = this.props;
+    // if (selectedThumbsArray.length !== 0) {
+    //   const foundScene = scenes.find(scene => scene.sceneId === selectedThumbsArray[0].thumbId);
+    //   if (foundScene !== undefined) {
+    //     const frameNumber = foundScene.start + foundScene.length;
+    //     this.updateTimeFromFrameNumber(frameNumber);
+    //   }
+    // }
+    if (jumpToFrameNumber !== undefined) {
+      this.updateTimeFromFrameNumber(jumpToFrameNumber);
     }
   }
 
@@ -108,8 +106,14 @@ class CutPlayer extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { selectedThumbsArray, scenes } = this.props;
-    if (selectedThumbsArray.length !== 0) {
+    const { jumpToFrameNumber, selectedThumbsArray, scenes } = this.props;
+    console.log(jumpToFrameNumber);
+    console.log(selectedThumbsArray);
+    if (jumpToFrameNumber !== undefined) {
+      if (prevProps.jumpToFrameNumber !== jumpToFrameNumber) {
+        this.updateTimeFromFrameNumber(jumpToFrameNumber);
+      }
+    } else if (selectedThumbsArray.length !== 0) { // if no jumpToFrameNumber then search for scene
       if (prevProps.selectedThumbsArray.length !== selectedThumbsArray.length ||
         prevProps.selectedThumbsArray[0].thumbId !== selectedThumbsArray[0].thumbId) {
         const foundScene = scenes.find(scene => scene.sceneId === selectedThumbsArray[0].thumbId);
@@ -117,15 +121,7 @@ class CutPlayer extends Component {
           const frameNumber = foundScene.start + foundScene.length;
           this.updateTimeFromFrameNumber(frameNumber);
         }
-    const { frameNumber } = this.props;
-    const { currentScene } = this.state;
-    if (prevProps.frameNumber !== frameNumber) {
-      if (frameNumber !== undefined) {
-        this.updateTimeFromFrameNumber(frameNumber);
       }
-    }
-    if (prevState.currentScene !== currentScene) {
-
     }
   }
 
@@ -149,32 +145,6 @@ class CutPlayer extends Component {
     let newFrameNumber;
     newFrameNumber = this.state.currentFrame;
     return newFrameNumber
-  }
-
-  onInPointClick() {
-    const { store } = this.context;
-    const newFrameNumber = this.getCurrentFrameNumber();
-    store.dispatch(addIntervalSheet(
-      this.props.file,
-      this.props.settings.currentSheetId,
-      this.props.thumbs.length,
-      newFrameNumber,
-      getHighestFrame(this.props.thumbs),
-      this.props.frameSize,
-    ));
-  }
-
-  onOutPointClick() {
-    const { store } = this.context;
-    const newFrameNumber = this.getCurrentFrameNumber();
-    store.dispatch(addIntervalSheet(
-      this.props.file,
-      this.props.settings.currentSheetId,
-      this.props.thumbs.length,
-      getLowestFrame(this.props.thumbs),
-      newFrameNumber,
-      this.props.frameSize,
-    ));
   }
 
   onBackForwardClick(step) {
@@ -242,7 +212,7 @@ class CutPlayer extends Component {
   updatePositionFromFrame(currentFrame) {
     const { containerWidth, file, scenes } = this.props;
 
-    if (currentFrame) {
+    if (currentFrame !== undefined) {
       const currentScene = getSceneFromFrameNumber(scenes, currentFrame);
       const xPos = mapRange(
         currentFrame,
@@ -262,7 +232,7 @@ class CutPlayer extends Component {
 
     let xPos = 0;
     let offsetFrameNumber = 0;
-    if (currentFrame) {
+    if (currentFrame !== undefined) {
       const { frameCount } = file;
       // offset currentFrame due to main frame is in middle of sliceArraySize
       const halfArraySize = Math.floor(CUTPLAYER_SLICE_ARRAY_SIZE / 2);
