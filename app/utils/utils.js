@@ -842,8 +842,11 @@ export const getSliceWidthArrayForCut = (canvasWidth, sliceArraySize = 20, slice
 };
 
 export const getSceneFromFrameNumber = (scenes, frameNumber) => {
+  if (scenes === undefined) {
+    return undefined;
+  }
   const scene = scenes.find(scene1 => (scene1.start <= frameNumber && (scene1.start + scene1.length) > frameNumber));
-  if (scene !== undefined) {
+  if (scene !== undefined || scenes.length < 1) {
     return scene;
   }
   const maxFrameNumberScene = scenes.reduce((prev, current) => ((prev.start + prev.length) > (current.start + current.length)) ? prev : current);

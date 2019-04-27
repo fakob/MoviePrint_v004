@@ -544,11 +544,17 @@ class App extends Component {
           }, 3000);
         });
       }
-      const thumb = this.props.sheetsByFileId[fileId][sheetId].thumbsArray.find(item =>
-        item.thumbId === thumbId);
-      if (thumb !== undefined && thumb.frameNumber !== frameNumber) {
-        store.dispatch(updateFrameNumber(fileId, sheetId, thumbId, frameNumber));
+
+      if (this.props.sheetsByFileId[fileId] !== undefined ||
+        this.props.sheetsByFileId[fileId][sheetId] !== undefined ||
+        this.props.sheetsByFileId[fileId][sheetId].thumbsArray !== undefined) {
+        const thumb = this.props.sheetsByFileId[fileId][sheetId].thumbsArray.find(item =>
+          item.thumbId === thumbId);
+          if (thumb !== undefined && thumb.frameNumber !== frameNumber) {
+            store.dispatch(updateFrameNumber(fileId, sheetId, thumbId, frameNumber));
+          }
       }
+
       // check if this is the lastThumb of the sheetsToPrint when savingAllMoviePrints
       // if so change its status from gettingThumbs to readyForPrinting
       if (lastThumb && this.state.savingAllMoviePrints
@@ -2730,7 +2736,7 @@ class App extends Component {
                             frameSize={settings.defaultCachedFramesSize}
                           />
                         </Conditional>
-                        <Conditional if={sheetType === SHEET_TYPE.SCENES}>
+                        <Conditional if={sheetType === SHEET_TYPE.SCENES && allScenes !== undefined}>
                           <CutPlayer
                             // visible={visibilitySettings.defaultView === VIEW.PLAYERVIEW}
                             ref={(el) => { this.videoPlayer = el; }}
