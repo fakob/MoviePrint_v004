@@ -12,6 +12,7 @@ import {
   MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
   MOVIEPRINT_COLORS,
   CUTPLAYER_SLICE_ARRAY_SIZE,
+  CHANGE_THUMB_STEP,
 } from '../utils/constants';
 import {
   frameCountToTimeCode,
@@ -48,6 +49,8 @@ class CutPlayer extends Component {
 
     // this.onSaveThumbClick = this.onSaveThumbClick.bind(this);
 
+    this.handleKeyPress = this.handleKeyPress.bind(this);
+
     this.getCurrentFrameNumber = this.getCurrentFrameNumber.bind(this);
     this.onBackForwardClick = this.onBackForwardClick.bind(this);
     this.updateOpencvVideoCanvas = this.updateOpencvVideoCanvas.bind(this);
@@ -77,23 +80,8 @@ class CutPlayer extends Component {
     if (jumpToFrameNumber !== undefined) {
       this.updateTimeFromFrameNumber(jumpToFrameNumber);
     }
+    document.addEventListener('keydown', this.handleKeyPress);
   }
-
-  // componentWillReceiveProps(nextProps) {
-  //   const { height, file } = this.props;
-  //   if (
-  //     nextProps.height !== height
-  //   ) {
-  //     const videoHeight = parseInt(nextProps.height - nextProps.controllerHeight, 10);
-  //     this.setState({
-  //       videoHeight,
-  //     });
-  //   }
-  //   if (nextProps.file.path !== file.path) {
-  //     console.log('new file')
-  //     this.updateOpencvVideoCanvas(this.getCurrentFrameNumber());
-  //   }
-  // }
 
   componentDidUpdate(prevProps, prevState) {
     const { aspectRatioInv, controllerHeight, file, height, jumpToFrameNumber, opencvVideo, scenes, width} = this.props;
@@ -125,6 +113,64 @@ class CutPlayer extends Component {
       this.updateTimeFromFrameNumber(currentFrame);
     }
   }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyPress);
+  }
+
+  handleKeyPress(event) {
+    // you may also add a filter here to skip keys, that do not have an effect for your app
+    // this.props.keyPressAction(event.keyCode);
+
+    const { arrayOfCuts, onMergeSceneClick, onCutSceneClick } = this.props;
+    const { currentFrame } = this.state;
+    const thisFrameIsACut = arrayOfCuts.some(item => item === currentFrame);
+
+    // only listen to key events when feedback form is not shown
+    if (event.target.tagName !== 'INPUT') {
+      let stepValue = 1;
+      const [stepValue0, stepValue1, stepValue2] = CHANGE_THUMB_STEP;
+      if (event) {
+        switch (event.which) {
+          case 13: // press enter
+          if (thisFrameIsACut) {
+            onMergeSceneClick(currentFrame);
+          } else {
+            onCutSceneClick(currentFrame);
+          }
+          break;
+          case 37: // press arrow left
+            stepValue = stepValue1 * -1;
+            if (event.shiftKey) {
+              stepValue = stepValue0 * -1;
+            }
+            if (event.altKey) {
+              stepValue = stepValue2 * -1;
+            }
+            this.updatePositionWithStep(stepValue);
+            if (event.shiftKey && event.altKey) {
+              this.onNextSceneClickWithStop('back', currentFrame);
+            }
+            break;
+          case 39: // press arrow right
+            stepValue = stepValue1 * 1;
+            if (event.shiftKey) {
+              stepValue = stepValue0 * 1;
+            }
+            if (event.altKey) {
+              stepValue = stepValue2 * 1;
+            }
+            this.updatePositionWithStep(stepValue);
+            if (event.shiftKey && event.altKey) {
+              this.onNextSceneClickWithStop('forward', currentFrame);
+            }
+            break;
+          default:
+        }
+      }
+    }
+  }
+
 
   getCurrentFrameNumber() {
     let newFrameNumber;
@@ -206,7 +252,7 @@ class CutPlayer extends Component {
 
     if (currentFrame !== undefined) {
       const newScene = getSceneFromFrameNumber(scenes, currentFrame);
-      if (currentScene.sceneId !== newScene.sceneId) {
+      if (currentScene === undefined || currentScene.sceneId !== newScene.sceneId) {
         this.setState({
           currentScene: newScene,
         });
@@ -338,7 +384,6 @@ class CutPlayer extends Component {
     );
 
     const thisFrameIsACut = arrayOfCuts.some(item => item === currentFrame);
-    // console.log(thisFrameIsACut);
 
     return (
       <div>
@@ -352,15 +397,7 @@ class CutPlayer extends Component {
           <Popup
             trigger={
               <button
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  right: 0,
-                  marginTop: '8px',
-                  marginRight: '8px',
-                  zIndex: 1,
-                }}
-                className={`${styles.hoverButton} ${styles.textButton}`}
+                className={`${styles.hoverButton} ${styles.textButton} ${styles.backButton}`}
                 onClick={this.props.onThumbDoubleClick}
                 onMouseOver={over}
                 onMouseLeave={out}
@@ -423,7 +460,7 @@ class CutPlayer extends Component {
                 </button>
               }
               className={stylesPop.popup}
-              content={<span>Jump to previous scene cut</span>}
+              content={<span>Jump to previous scene cut <mark>SHIFT + ALT + Arrow left</mark></span>}
             />
             <Popup
               trigger={
@@ -440,7 +477,7 @@ class CutPlayer extends Component {
                 </button>
               }
               className={stylesPop.popup}
-              content={<span>Move 100 frames back</span>}
+              content={<span>Move 100 frames back <mark>ALT + Arrow left</mark></span>}
             />
             <Popup
               trigger={
@@ -457,7 +494,7 @@ class CutPlayer extends Component {
                 </button>
               }
               className={stylesPop.popup}
-              content={<span>Move 10 frames back</span>}
+              content={<span>Move 10 frames back <mark>Arrow left</mark></span>}
             />
             <Popup
               trigger={
@@ -474,7 +511,7 @@ class CutPlayer extends Component {
                 </button>
               }
               className={stylesPop.popup}
-              content={<span>Move 1 frame back</span>}
+              content={<span>Move 1 frame back <mark>SHIFT + Arrow left</mark></span>}
             />
             {currentFrame !== 0 && <Popup
               trigger={
@@ -502,7 +539,7 @@ class CutPlayer extends Component {
                 </button>
               }
               className={stylesPop.popup}
-              content={this.props.keyObject.altKey ? (<span>Add a new thumb <mark>after</mark> selection</span>) : (this.props.keyObject.shiftKey ? (<span>Add a new thumb <mark>before</mark> selection</span>) : (<span>Change the thumb to use this frame | with <mark>SHIFT</mark> add a thumb before selection | with <mark>ALT</mark> add a thumb after selection</span>))}
+              content={thisFrameIsACut ? (<span>Merge scenes</span>) : (<span>Cut scene</span>)}
             />}
             <Popup
               trigger={
@@ -519,7 +556,7 @@ class CutPlayer extends Component {
                 </button>
               }
               className={stylesPop.popup}
-              content={<span>Move 1 frame forward</span>}
+              content={<span>Move 1 frame forward <mark>SHIFT + Arrow right</mark></span>}
             />
             <Popup
               trigger={
@@ -536,7 +573,7 @@ class CutPlayer extends Component {
                 </button>
               }
               className={stylesPop.popup}
-              content={<span>Move 10 frames forward</span>}
+              content={<span>Move 10 frames forward<mark>Arrow right</mark></span>}
             />
             <Popup
               trigger={
@@ -553,7 +590,7 @@ class CutPlayer extends Component {
                 </button>
               }
               className={stylesPop.popup}
-              content={<span>Move 100 frames forward</span>}
+              content={<span>Move 100 frames forward <mark>ALT + Arrow right</mark></span>}
             />
             <Popup
               trigger={
@@ -570,7 +607,7 @@ class CutPlayer extends Component {
                 </button>
               }
               className={stylesPop.popup}
-              content={<span>Jump to next scene cut</span>}
+              content={<span>Jump to next scene cut <mark>SHIFT + ALT + Arrow right</mark></span>}
             />
           </div>
         </div>
@@ -637,7 +674,6 @@ CutPlayer.propTypes = {
   }),
   height: PropTypes.number,
   frameNumber: PropTypes.number,
-  keyObject: PropTypes.object.isRequired,
   onThumbDoubleClick: PropTypes.func.isRequired,
   onCutThumbClick: PropTypes.func.isRequired,
   onMergeSceneClick: PropTypes.func.isRequired,

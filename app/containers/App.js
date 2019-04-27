@@ -1556,6 +1556,9 @@ class App extends Component {
     if (adjacentSceneIndicesArray.length === 2) {
       store.dispatch(mergeScenes(thumbs, allScenes, file, currentSheetId, adjacentSceneIndicesArray));
     }
+    const firstSceneId = allScenes[adjacentSceneIndicesArray[0]].sceneId;
+    console.log(firstSceneId);
+    this.onSelectThumbMethod(firstSceneId); // select first scene
   }
 
 
@@ -2747,7 +2750,6 @@ class App extends Component {
                             onCutThumbClick={this.onCutThumbClick}
                             onCutSceneClick={this.onCutSceneClick}
                             onMergeSceneClick={this.onMergeSceneClick}
-                            keyObject={this.state.keyObject}
                             opencvVideo={this.state.opencvVideo}
                             frameSize={settings.defaultCachedFramesSize}
                           />

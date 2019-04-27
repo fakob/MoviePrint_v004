@@ -215,6 +215,15 @@
     opacity: 0.5;
 }
 
+.backButton {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-top: 8px;
+    margin-right: 8px;
+    z-Index: 1;
+}
+
 .textButton {
   font-family: 'Franchise', 'Roboto Condensed';
   color: #ffffff;
