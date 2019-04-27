@@ -373,7 +373,7 @@ const Scene = ({
                 className={stylesPop.popup}
                 content={<span>Set this thumb as new <mark>IN-point</mark></span>}
               /> */}
-              <Popup
+              {view === VIEW.STANDARDVIEW && <Popup // only show in standard view
                 trigger={
                   <button
                     data-tid={`cutBeforeBtn_${sceneId}`}
@@ -399,7 +399,7 @@ const Scene = ({
                 }
                 className={stylesPop.popup}
                 content={<span>Jump to cut at the beginning of this scene</span>}
-              />
+              />}
               {/* <Popup
                 trigger={
                   <button
@@ -427,7 +427,7 @@ const Scene = ({
                 className={stylesPop.popup}
                 content={<span>Click and drag left and right to change the frame (<mark>SHIFT</mark> add new thumb before, <mark>ALT</mark> add new thumb after, <mark>CTRL</mark> display original as overlay)</span>}
               /> */}
-              {!selected && <Popup // only show when not selected
+              <Popup
                 trigger={
                   <button
                     data-tid={`cutAfterBtn_${sceneId}`}
@@ -453,7 +453,7 @@ const Scene = ({
                 }
                 className={stylesPop.popup}
                 content={<span>Jump to cut at the end of this scene</span>}
-              />}
+              />
               {/* <Popup
                 trigger={
                   <button

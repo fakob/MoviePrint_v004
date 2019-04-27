@@ -703,6 +703,9 @@ export const getScenesInRows = (sceneArray, secondsPerRow) => {
 }
 
 export const getWidthOfSingleRow = (scenes, thumbMargin, pixelPerFrameRatio, minSceneLength) => {
+  if (scenes === undefined) {
+    return undefined;
+  }
   const sceneLengthArray = scenes.map(scene => Math.max(scene.length, minSceneLength));
   const sumSceneLengths = sceneLengthArray.reduce((a, b) => a + b, 0);
   const widthOfSingleRow = sumSceneLengths * pixelPerFrameRatio + scenes.length * thumbMargin * 2;
@@ -840,7 +843,16 @@ export const getSliceWidthArrayForCut = (canvasWidth, sliceArraySize = 20, slice
 
 export const getSceneFromFrameNumber = (scenes, frameNumber) => {
   const scene = scenes.find(scene1 => (scene1.start <= frameNumber && (scene1.start + scene1.length) > frameNumber));
-  return scene;
+  if (scene !== undefined) {
+    return scene;
+  }
+  const maxFrameNumberScene = scenes.reduce((prev, current) => ((prev.start + prev.length) > (current.start + current.length)) ? prev : current);
+  const minFrameNumberScene = scenes.reduce((prev, current) => (prev.start < current.start) ? prev : current);
+  const maxFrameNumber = maxFrameNumberScene.start + maxFrameNumberScene.length - 1;
+  const minFrameNumber = minFrameNumberScene.start;
+  const newFrameNumberToSearch = Math.min(maxFrameNumber, Math.max(minFrameNumber, frameNumber));
+  const closestScene = scenes.find(scene1 => (scene1.start <= newFrameNumberToSearch && (scene1.start + scene1.length) > newFrameNumberToSearch));
+  return closestScene;
 }
 
 export const getAdjacentSceneIndicesFromCut = (scenes, frameNumber) => {

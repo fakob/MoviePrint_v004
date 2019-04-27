@@ -289,8 +289,28 @@ class CutPlayer extends Component {
   }
 
   onNextSceneClickWithStop(direction, frameNumber) {
+    const { currentScene } = this.state;
+    const { file, onSelectThumbMethod, scenes } = this.props;
 
-    this.props.onNextSceneClick(direction, frameNumber)
+    let newFrameNumberToJumpTo;
+    let newSceneToSelect;
+    // if going back and frameNumber is within the scene not at the cut
+    // then just update position else jumpToScene
+    if (direction === 'back' && frameNumber !== currentScene.start) {
+      newFrameNumberToJumpTo = currentScene.start;
+    } else {
+      if (direction === 'back') {
+        newSceneToSelect = getSceneFromFrameNumber(scenes, currentScene.start - 1);
+        newFrameNumberToJumpTo = newSceneToSelect.start;
+      } else if (direction === 'forward') {
+        newFrameNumberToJumpTo = currentScene.start + currentScene.length;
+        newSceneToSelect = getSceneFromFrameNumber(scenes, newFrameNumberToJumpTo);
+      }
+      onSelectThumbMethod(newSceneToSelect.sceneId); // call to update selection
+    }
+    newFrameNumberToJumpTo = limitRange(newFrameNumberToJumpTo, 0, file.frameCount - 1);
+    this.updatePositionFromFrame(newFrameNumberToJumpTo);
+    this.updateOpencvVideoCanvas(newFrameNumberToJumpTo);
   }
 
   render() {
@@ -356,7 +376,7 @@ class CutPlayer extends Component {
             <canvas ref={(el) => { this.opencvCutPlayerCanvasRef = el; }} />
           <div
             id="currentTimeDisplay"
-            className={styles.frameNumberOrTimeCode}
+            className={`${styles.frameNumberOrTimeCode} ${styles.moveToMiddle}`}
           >
             {/*frameCountToTimeCode(this.state.currentFrame, this.props.file.fps)*/}
             {this.state.currentFrame}
@@ -456,7 +476,7 @@ class CutPlayer extends Component {
               className={stylesPop.popup}
               content={<span>Move 1 frame back</span>}
             />
-            <Popup
+            {currentFrame !== 0 && <Popup
               trigger={
                 <button
                   type='button'
@@ -483,7 +503,7 @@ class CutPlayer extends Component {
               }
               className={stylesPop.popup}
               content={this.props.keyObject.altKey ? (<span>Add a new thumb <mark>after</mark> selection</span>) : (this.props.keyObject.shiftKey ? (<span>Add a new thumb <mark>before</mark> selection</span>) : (<span>Change the thumb to use this frame | with <mark>SHIFT</mark> add a thumb before selection | with <mark>ALT</mark> add a thumb after selection</span>))}
-            />
+            />}
             <Popup
               trigger={
                 <button
@@ -619,7 +639,7 @@ CutPlayer.propTypes = {
   frameNumber: PropTypes.number,
   keyObject: PropTypes.object.isRequired,
   onThumbDoubleClick: PropTypes.func.isRequired,
-  onNextSceneClick: PropTypes.func.isRequired,
+  onCutThumbClick: PropTypes.func.isRequired,
   onMergeSceneClick: PropTypes.func.isRequired,
   onCutSceneClick: PropTypes.func.isRequired,
   onSelectThumbMethod: PropTypes.func.isRequired,

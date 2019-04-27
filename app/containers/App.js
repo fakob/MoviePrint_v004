@@ -267,7 +267,6 @@ class App extends Component {
     this.onExpandClick = this.onExpandClick.bind(this);
     this.onAddThumbClick = this.onAddThumbClick.bind(this);
     this.onCutThumbClick = this.onCutThumbClick.bind(this);
-    this.onNextSceneClick = this.onNextSceneClick.bind(this);
     this.onCutSceneClick = this.onCutSceneClick.bind(this);
     this.onMergeSceneClick = this.onMergeSceneClick.bind(this);
     this.openMoviesDialog = this.openMoviesDialog.bind(this);
@@ -1497,33 +1496,32 @@ class App extends Component {
 
   onCutThumbClick(file, thumbId, otherSceneIs) {
     const { store } = this.context;
-    const { allScenes, scenes } = this.props;
+    const { allScenes } = this.props;
     store.dispatch(setView(VIEW.PLAYERVIEW));
 
     // get all scenes
     let otherScene;
     let cutFrameNumber;
     const selectedThumbsArray = []
-    const clickedScene = scenes.find(scene => scene.sceneId === thumbId);
-    // const indexOfAllScenes = allScenes.findIndex(scene => scene.sceneId === thumbId);
-    const indexOfVisibleScenes = scenes.findIndex(scene => scene.sceneId === thumbId);
+    const clickedScene = allScenes.find(scene => scene.sceneId === thumbId);
+    const indexOfVisibleScenes = allScenes.findIndex(scene => scene.sceneId === thumbId);
 
     // get scene before or after
     if (otherSceneIs === 'after') {
       // only set if before last scene
-      if (indexOfVisibleScenes < scenes.length) {
-        cutFrameNumber = clickedScene.start + clickedScene.length;
-        selectedThumbsArray.push({
-          thumbId: clickedScene.sceneId,
-        });
-      }
-    } else if (otherSceneIs === 'before') { // if shiftKey
-      // only set if after first scene
-      if (indexOfVisibleScenes > 0) {
-        otherScene = scenes[indexOfVisibleScenes - 1];
-        cutFrameNumber = otherScene.start + otherScene.length;
+      if (indexOfVisibleScenes < (allScenes.length - 1)) {
+        otherScene = allScenes[indexOfVisibleScenes + 1];
+        cutFrameNumber = otherScene.start;
         selectedThumbsArray.push({
           thumbId: otherScene.sceneId,
+        });
+      }
+    } else if (otherSceneIs === 'before') {
+      // only set if after first scene
+      if (indexOfVisibleScenes > 0) {
+        cutFrameNumber = clickedScene.start;
+        selectedThumbsArray.push({
+          thumbId: clickedScene.sceneId,
         });
       }
     }
@@ -1531,35 +1529,6 @@ class App extends Component {
       selectedThumbsArray,
       jumpToFrameNumber: cutFrameNumber,
     });
-  }
-
-  onNextSceneClick(direction, currentFrame) {
-    const { file, scenes } = this.props;
-
-    console.log(direction);
-    console.log(currentFrame);
-    let otherSceneIs;
-    let jumpToScene;
-    if (direction === 'back') {
-      for (let i = 1; i < scenes.length; i += 1) {
-        if ((scenes[i].start + scenes[i].length) >= currentFrame) {
-          jumpToScene = scenes[i];
-          otherSceneIs = 'before';
-          break;
-        }
-      }
-    } else if (direction === 'forward') {
-      for (let i = 1; i < scenes.length; i += 1) {
-        if (scenes[i].start > currentFrame) {
-          jumpToScene = scenes[i];
-          otherSceneIs = 'after';
-          break;
-        }
-      }
-    }
-    if (jumpToScene !== undefined) { // only jumpToScene if one is found
-      this.onCutThumbClick(file, jumpToScene.sceneId, otherSceneIs);
-    }
   }
 
   onCutSceneClick(frameToCut) {
@@ -2775,7 +2744,7 @@ class App extends Component {
                             jumpToFrameNumber={this.state.jumpToFrameNumber}
                             onThumbDoubleClick={this.onViewToggle}
                             onSelectThumbMethod={this.onSelectThumbMethod}
-                            onNextSceneClick={this.onNextSceneClick}
+                            onCutThumbClick={this.onCutThumbClick}
                             onCutSceneClick={this.onCutSceneClick}
                             onMergeSceneClick={this.onMergeSceneClick}
                             keyObject={this.state.keyObject}

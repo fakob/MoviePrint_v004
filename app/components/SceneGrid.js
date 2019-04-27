@@ -151,7 +151,7 @@ class SceneGrid extends Component {
                 null : (!isPlayerView && selected) ? () => {
                   this.props.onDeselectClick();
                 } : () => {
-                  this.props.onSelectClick(scene.sceneId, scene.start + scene.length);
+                  this.props.onSelectClick(scene.sceneId, scene.start);
                 }}
               onCutBefore={(scene.sceneId !== this.state.controllersVisible) ?
                 null : () => {
@@ -176,9 +176,11 @@ class SceneGrid extends Component {
 }
 
 SceneGrid.defaultProps = {
+  scenes: [],
 };
 
 SceneGrid.propTypes = {
+  scenes: PropTypes.array,
 };
 
 const SortableSceneGrid = SortableContainer(SceneGrid);

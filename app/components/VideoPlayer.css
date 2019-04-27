@@ -28,6 +28,10 @@
   /*opacity: 0.5;*/
 }
 
+.moveToMiddle {
+  left: 50%;
+}
+
 .controlsWrapper button, .rightMenu button, .leftMenu button {
   /* background: black; */
   border-radius: .3em;
