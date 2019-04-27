@@ -6,19 +6,10 @@ import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import Scene from './Scene';
 import styles from './SceneGrid.css';
 import {
-  // getNextThumbs,
-  // getPreviousThumbs,
-  // mapRange,
   getWidthOfSingleRow,
-  // getWidthOfLongestRow,
-  // formatBytes,
-  // frameCountToTimeCode,
-  // getLowestFrame,
-  // getHighestFrame,
-  // getAllFrameNumbers,
-  // roundNumber,
 } from '../utils/utils';
 import {
+  CUTPLAYER_FIXED_PIXEL_PER_FRAME_RATIO,
   CUTPLAYER_SCENE_MARGIN,
   VIEW,
 } from '../utils/constants';
@@ -30,10 +21,7 @@ class SceneGrid extends Component {
     super(props);
 
     this.state = {
-      thumbsToDim: [],
       controllersVisible: undefined,
-      addThumbBeforeController: undefined,
-      addThumbAfterController: undefined,
     };
   }
 
@@ -43,14 +31,12 @@ class SceneGrid extends Component {
   componentDidMount() {
   }
 
-  componentWillReceiveProps(nextProps) {
-  }
-
   componentDidUpdate(prevProps) {
   }
 
   render() {
-    const { minSceneLength, scaleValueObject, scenes, selectedThumbsArray, settings, view } = this.props;
+    const { file, minSceneLength, scaleValueObject, scenes, selectedThumbsArray, settings, view } = this.props;
+    const { scenesInRows } = scaleValueObject;
 
     const isPlayerView = view !== VIEW.STANDARDVIEW;
     const breakOnWidth = isPlayerView || settings.defaultTimelineViewFlow;
@@ -62,21 +48,18 @@ class SceneGrid extends Component {
 
     const realWidth = (rowHeight / scaleValueObject.aspectRatioInv);
     const realWidthForPlayer = (rowHeightForPlayer / scaleValueObject.aspectRatioInv);
-    const newPixelPerFrameRatio = scaleValueObject.newMoviePrintTimelinePixelPerFrameRatio;
-    const scenesInRows = scaleValueObject.scenesInRows;
+    const newPixelPerFrameRatio = isPlayerView ? CUTPLAYER_FIXED_PIXEL_PER_FRAME_RATIO : scaleValueObject.newMoviePrintTimelinePixelPerFrameRatio; // set fixed pixel per frame ratio for player
     const indexRowArray = scenesInRows.map(item => item.index);
-    // console.log(indexRowArray);
 
     // for CutPlayer
     const widthOfSingleRow =
       getWidthOfSingleRow(
-        scenesInRows,
+        scenes,
         thumbMarginTimeline,
         newPixelPerFrameRatio,
         minSceneLength)
       + realWidthForPlayer
-      + thumbMarginTimeline
-      + 100; // random buffer amount so it does not break
+      + thumbMarginTimeline;
 
     return (
       <div
@@ -97,8 +80,9 @@ class SceneGrid extends Component {
             // minutes per row idea
             const selected = selectedThumbsArray.length > 0 ? selectedThumbsArray.some(item => item.thumbId === scene.sceneId) : false;
             const rWidth = isPlayerView ? realWidthForPlayer : realWidth;
-            const width = selected ? rWidth :
-              Math.max(newPixelPerFrameRatio * scene.length, newPixelPerFrameRatio * minSceneLength);
+            const width = selected ? Math.floor(rWidth) :
+              Math.floor(Math.max(newPixelPerFrameRatio * scene.length, newPixelPerFrameRatio * minSceneLength));
+            // console.log(width);
             let doLineBreak = false;
             if (indexRowArray.findIndex(item => item === index - 1) > -1) {
               doLineBreak = true;

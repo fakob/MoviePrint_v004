@@ -4,7 +4,6 @@ import {
   PAPER_ADJUSTMENT_SCALE, DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN, VIEW, SHEET_FIT, MARGIN_ADJUSTMENT_SCALE
 } from './constants';
 import {
-  getWidthOfSingleRow,
   getScenesInRows,
   getPixelPerFrameRatio,
 } from './utils';

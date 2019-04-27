@@ -151,3 +151,4 @@ export const STATEID = '1';
 export const SCRUBCUT_SLICE_ARRAY_SIZE = 19;
 export const CUTPLAYER_SLICE_ARRAY_SIZE = 20;
 export const CUTPLAYER_SCENE_MARGIN = 4;
+export const CUTPLAYER_FIXED_PIXEL_PER_FRAME_RATIO = 0.3;
