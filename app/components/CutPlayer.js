@@ -147,9 +147,10 @@ class CutPlayer extends Component {
             if (event.altKey) {
               stepValue = stepValue2 * -1;
             }
-            this.updatePositionWithStep(stepValue);
             if (event.shiftKey && event.altKey) {
               this.onNextSceneClickWithStop('back', currentFrame);
+            } else {
+              this.updatePositionWithStep(stepValue);
             }
             break;
           case 39: // press arrow right
@@ -160,9 +161,10 @@ class CutPlayer extends Component {
             if (event.altKey) {
               stepValue = stepValue2 * 1;
             }
-            this.updatePositionWithStep(stepValue);
             if (event.shiftKey && event.altKey) {
               this.onNextSceneClickWithStop('forward', currentFrame);
+            } else {
+              this.updatePositionWithStep(stepValue);
             }
             break;
           default:
