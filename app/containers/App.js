@@ -2494,7 +2494,7 @@ class App extends Component {
   render() {
     const { accept, dropzoneActive, objectUrlObjects, scaleValueObject } = this.state;
     const { store } = this.context;
-    const { currentFileId, currentSheetId, allThumbs, file, files, scenes, sheetsByFileId, settings, visibilitySettings } = this.props;
+    const { allScenes, allThumbs, currentFileId, currentSheetId, file, files, scenes, sheetsByFileId, settings, visibilitySettings } = this.props;
 
     const fileCount = files.length;
 
@@ -2771,7 +2771,7 @@ class App extends Component {
                             objectUrlObjects={filteredObjectUrlObjects}
                             controllerHeight={settings.defaultVideoPlayerControllerHeight}
                             arrayOfCuts={this.props.arrayOfCuts}
-                            scenes={this.props.scenes}
+                            scenes={allScenes}
                             jumpToFrameNumber={this.state.jumpToFrameNumber}
                             onThumbDoubleClick={this.onViewToggle}
                             onSelectThumbMethod={this.onSelectThumbMethod}
@@ -2880,7 +2880,7 @@ class App extends Component {
                             moviePrintWidth={scaleValueObject.newMoviePrintTimelineWidth}
                             moviePrintRowHeight={scaleValueObject.newTimelineRowHeight}
                             scaleValueObject={scaleValueObject}
-                            scenes={scenes}
+                            scenes={visibilitySettings.defaultView === VIEW.PLAYERVIEW ? allScenes : scenes}
                             settings={settings}
                             showSettings={visibilitySettings.showSettings}
                             objectUrlObjects={filteredObjectUrlObjects}
