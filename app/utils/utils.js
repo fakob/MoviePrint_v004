@@ -848,16 +848,15 @@ export const getSliceWidthArrayForScrub = (vid, sliceArraySize = 19, sliceWidthO
   return sliceWidthArray;
 };
 
-export const getSliceWidthArrayForCut = (vid, sliceArraySize = 20, sliceWidthOutsideMin = 20, sliceWidthInMiddleMin = 200) => {
-  const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
-  const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
-  const sliceWidthInMiddle = Math.max(Math.min(height, width), sliceWidthInMiddleMin);
-  const sliceWidthArray = [];
+export const getSliceWidthArrayForCut = (canvasWidth, sliceArraySize = 20, sliceGap = 1, cutGap = 8) => {
   const halfArraySize = Math.ceil(sliceArraySize / 2);
+  const newCanvasWidth = canvasWidth - cutGap - sliceGap * sliceArraySize;
+  const sliceWidthInMiddle = Math.floor(newCanvasWidth / 4);
+  const sliceWidthArray = [];
   for (let i = 0; i < sliceArraySize; i += 1) {
-    const factor = i < halfArraySize ? halfArraySize - (i + 1) : i - halfArraySize
+    const factor = i < halfArraySize ? halfArraySize - (i + 1) : i - halfArraySize;
     const sliceWidth = Math.floor(sliceWidthInMiddle / (2 ** factor));
-    sliceWidthArray.push(Math.max(sliceWidth, sliceWidthOutsideMin));
+    sliceWidthArray.push(Math.max(sliceWidth, 1)); // keep minimum of 4px
   }
   return sliceWidthArray;
 };

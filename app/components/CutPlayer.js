@@ -66,8 +66,6 @@ class CutPlayer extends Component {
 
   componentWillMount() {
     const { height, controllerHeight } = this.props;
-    console.log(height)
-    console.log(controllerHeight)
     const videoHeight = parseInt(height - controllerHeight, 10);
     this.setState({
       videoHeight,
@@ -81,32 +79,49 @@ class CutPlayer extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { height, file } = this.props;
+  // componentWillReceiveProps(nextProps) {
+  //   const { height, file } = this.props;
+  //   if (
+  //     nextProps.height !== height
+  //   ) {
+  //     const videoHeight = parseInt(nextProps.height - nextProps.controllerHeight, 10);
+  //     this.setState({
+  //       videoHeight,
+  //     });
+  //   }
+  //   if (nextProps.file.path !== file.path) {
+  //     console.log('new file')
+  //     this.updateOpencvVideoCanvas(this.getCurrentFrameNumber());
+  //   }
+  // }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { aspectRatioInv, controllerHeight, file, height, jumpToFrameNumber, opencvVideo, scenes, width} = this.props;
+    const { currentFrame, videoHeight } = this.state;
+
+    // update videoHeight if window size changed
     if (
-      nextProps.height !== height
+      prevProps.aspectRatioInv !== aspectRatioInv ||
+      prevProps.height !== height ||
+      prevProps.width !== width
     ) {
-      const videoHeight = parseInt(nextProps.height - nextProps.controllerHeight, 10);
+      const videoHeight = parseInt(height - controllerHeight, 10);
       this.setState({
         videoHeight,
       });
     }
-    if (nextProps.file.path !== file.path) {
-      console.log('new file')
-      this.updateOpencvVideoCanvas(this.getCurrentFrameNumber());
-    }
-  }
 
-  componentDidUpdate(prevProps) {
-    const { file, jumpToFrameNumber, scenes } = this.props;
-    const { currentFrame } = this.state;
-    console.log(jumpToFrameNumber);
     if (jumpToFrameNumber !== undefined) {
       if (prevProps.jumpToFrameNumber !== jumpToFrameNumber) {
         this.updateTimeFromFrameNumber(jumpToFrameNumber);
       }
     }
-    if (prevProps.scenes.length !== scenes.length) {
+
+    if (
+      prevProps.scenes.length !== scenes.length ||
+      prevProps.opencvVideo.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) !== opencvVideo.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) ||
+      prevState.videoHeight !== videoHeight
+    ) {
       this.updateTimeFromFrameNumber(currentFrame);
     }
   }
@@ -131,7 +146,6 @@ class CutPlayer extends Component {
 
   updateOpencvVideoCanvas(currentFrame) {
     const { arrayOfCuts, containerWidth, file, opencvVideo } = this.props;
-    console.log(currentFrame);
     const { frameCount } = file;
     // offset currentFrame due to main frame is in middle of sliceArraySize
     const halfArraySize = Math.floor(CUTPLAYER_SLICE_ARRAY_SIZE / 2);
@@ -140,43 +154,42 @@ class CutPlayer extends Component {
     const { videoHeight } = this.state
     const vid = opencvVideo;
     setPosition(vid, offsetFrameNumber, file.useRatio);
-    this.opencvCutPlayerCanvasRef.height = videoHeight;
-    this.opencvCutPlayerCanvasRef.width = containerWidth;
     const ctx = this.opencvCutPlayerCanvasRef.getContext('2d');
     const length = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT);
     const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
     const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
-    const sliceWidthArray = getSliceWidthArrayForCut(vid, CUTPLAYER_SLICE_ARRAY_SIZE);
-    const sliceGap = 2;
+    const rescaleFactor = videoHeight / height;
+    const sliceWidthArray = getSliceWidthArrayForCut(containerWidth, CUTPLAYER_SLICE_ARRAY_SIZE);
+    const sliceGap = 1;
     const cutGap = 8;
-    const widthSum = sliceWidthArray.reduce((a, b) => a + b, 0);
-    const rescaleFactor = (containerWidth - sliceGap * (CUTPLAYER_SLICE_ARRAY_SIZE - 1)) / widthSum;
+    this.opencvCutPlayerCanvasRef.height = videoHeight;
+    this.opencvCutPlayerCanvasRef.width = containerWidth;
     let canvasXPos = 0;
 
     for (let i = 0; i < CUTPLAYER_SLICE_ARRAY_SIZE; i += 1) {
       const frame = vid.read();
       const sliceWidth = sliceWidthArray[i];
-      const sliceXPos = Math.max(Math.floor(width / 2) - Math.floor(sliceWidth / 2), 0);
+      const sliceXPos = Math.max(Math.floor((width * rescaleFactor) / 2) - Math.floor(sliceWidth / 2), 0);
       const thisFrameIsACut = arrayOfCuts.some(item => item === offsetFrameNumber + i + 1);
 
       if ((offsetFrameNumber + i) >= 0 && !frame.empty) {
-        const matCropped = frame.getRegion(new opencv.Rect(sliceXPos, 0, sliceWidth, height));
-        const matResized = matCropped.rescale(rescaleFactor);
+        const matResized = frame.rescale(rescaleFactor);
+        const matCropped = matResized.getRegion(new opencv.Rect(sliceXPos, 0, sliceWidth, videoHeight));
 
         const matRGBA = matResized.channels === 1 ?
-          matResized.cvtColor(opencv.COLOR_GRAY2RGBA) :
-          matResized.cvtColor(opencv.COLOR_BGR2RGBA);
+          matCropped.cvtColor(opencv.COLOR_GRAY2RGBA) :
+          matCropped.cvtColor(opencv.COLOR_BGR2RGBA);
 
         const imgData = new ImageData(
           new Uint8ClampedArray(matRGBA.getData()),
-          matResized.cols,
-          matResized.rows
+          matCropped.cols,
+          matCropped.rows
         );
         ctx.putImageData(imgData, canvasXPos, 0);
       } else {
         console.log('frame empty')
       }
-      canvasXPos += (sliceWidthArray[i] * rescaleFactor) + (thisFrameIsACut ? cutGap : sliceGap);
+      canvasXPos += sliceWidthArray[i] + (thisFrameIsACut ? cutGap : sliceGap);
     }
   }
 
@@ -312,7 +325,7 @@ class CutPlayer extends Component {
         <div
           className={`${styles.player}`}
           style={{
-            height: videoHeight,
+            // height: videoHeight,
             width: containerWidth,
           }}
         >
