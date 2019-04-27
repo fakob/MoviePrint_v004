@@ -85,7 +85,7 @@ class CutPlayer extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { aspectRatioInv, controllerHeight, file, height, jumpToFrameNumber, opencvVideo, scenes, width} = this.props;
-    const { currentFrame, videoHeight } = this.state;
+    const { currentFrame, currentScene, videoHeight } = this.state;
 
     // update videoHeight if window size changed
     if (
@@ -125,7 +125,6 @@ class CutPlayer extends Component {
     const { arrayOfCuts, onMergeSceneClick, onCutSceneClick } = this.props;
     const { currentFrame } = this.state;
     const thisFrameIsACut = arrayOfCuts.some(item => item === currentFrame);
-
     // only listen to key events when feedback form is not shown
     if (event.target.tagName !== 'INPUT') {
       let stepValue = 1;
@@ -133,12 +132,12 @@ class CutPlayer extends Component {
       if (event) {
         switch (event.which) {
           case 13: // press enter
-          if (thisFrameIsACut) {
-            onMergeSceneClick(currentFrame);
-          } else {
-            onCutSceneClick(currentFrame);
-          }
-          break;
+            if (thisFrameIsACut) {
+              onMergeSceneClick(currentFrame);
+            } else {
+              onCutSceneClick(currentFrame);
+            }
+            break;
           case 37: // press arrow left
             stepValue = stepValue1 * -1;
             if (event.shiftKey) {
@@ -278,10 +277,14 @@ class CutPlayer extends Component {
     let xPos = 0;
     xPos = mapRange(currentFrame, 0, frameCount - 1, 0, containerWidth, false);
     const currentScene = getSceneFromFrameNumber(scenes, currentFrame);
+    if (currentScene !== undefined) {
+      this.setState({
+        currentScene,
+      });
+    }
     this.setState({
       playHeadPosition: xPos,
       currentFrame,
-      currentScene,
     });
     this.updateOpencvVideoCanvas(currentFrame);
   }

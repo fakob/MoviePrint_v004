@@ -490,8 +490,8 @@ export const cutScene = (thumbs, allScenes, file, sheetId, scene, frameToCut) =>
     const nextSceneSceneStart = frameToCut;
     const nextSceneSceneLength = (scene.start + scene.length) - nextSceneSceneStart;
     const nextSceneNewFrameNumber = nextSceneSceneStart + Math.floor(nextSceneSceneLength / 2)
-    dispatch(insertScene(file.id, sheetId, firstSceneIndex + 1, nextSceneSceneStart, nextSceneSceneLength, scene.colorArray, nextSceneId));
     dispatch(updateSceneLength(file.id, sheetId, scene.sceneId, firstSceneSceneLength));
+    dispatch(insertScene(file.id, sheetId, firstSceneIndex + 1, nextSceneSceneStart, nextSceneSceneLength, scene.colorArray, nextSceneId));
     dispatch(changeThumb(sheetId, file, scene.sceneId, firstSceneNewFrameNumber));
     const firstThumbIndex = thumbs.findIndex(thumb => thumb.thumbId === scene.sceneId);
     dispatch(addThumb(file, sheetId, nextSceneNewFrameNumber, firstThumbIndex + 1, nextSceneId));
@@ -509,10 +509,10 @@ export const mergeScenes = (thumbs, allScenes, file, sheetId, adjacentSceneIndic
     const secondSceneId = secondScene.sceneId;
     const newSceneSceneLength = firstScene.length + secondScene.length;
     const newSceneNewFrameNumber = firstScene.start + Math.floor(newSceneSceneLength / 2)
+    // change length of first scene
+    dispatch(updateSceneLength(file.id, sheetId, firstSceneId, newSceneSceneLength));
     // delete second scene
     dispatch(deleteScene(file.id, sheetId, adjacentSceneIndicesArray[1]))
-		// change length of first scene
-    dispatch(updateSceneLength(file.id, sheetId, firstSceneId, newSceneSceneLength));
   	// delete second thumb
     const secondThumbIndex = thumbs.findIndex(thumb => thumb.thumbId === secondSceneId);
     dispatch(deleteThumb(file.id, sheetId, secondThumbIndex))
