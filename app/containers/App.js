@@ -318,6 +318,7 @@ class App extends Component {
     this.onImportMoviePrint = this.onImportMoviePrint.bind(this);
     this.onClearMovieList = this.onClearMovieList.bind(this);
     this.onChangeSheetViewClick = this.onChangeSheetViewClick.bind(this);
+    this.toggleSheetView = this.toggleSheetView.bind(this);
     this.onSetSheetClick = this.onSetSheetClick.bind(this);
     this.onDuplicateSheetClick = this.onDuplicateSheetClick.bind(this);
     this.onExportSheetClick = this.onExportSheetClick.bind(this);
@@ -977,46 +978,60 @@ class App extends Component {
     // only listen to key events when feedback form is not shown
     if (!this.state.showFeedbackForm && event.target.tagName !== 'INPUT') {
       const { store } = this.context;
+      const { currentFileId, currentSheetId, file, visibilitySettings } = this.props;
 
       if (event) {
         switch (event.which) {
           case 49: // press 1
             this.toggleMovielist();
             break;
+          case 50: // press 2
+            if (visibilitySettings.defaultView === VIEW.STANDARDVIEW) {
+              this.onSetViewClick(VIEW.PLAYERVIEW);
+            } else {
+              this.onSetViewClick(VIEW.STANDARDVIEW);
+            }
+            break;
           case 51: // press 3
-            if (store.getState().visibilitySettings.showSettings) {
+            if (visibilitySettings.showSettings) {
               this.onCancelClick();
             } else {
               this.showSettings();
             }
             break;
-          case 83: // press 's'
-            const { file, currentFileId } = this.props;
-            if (currentFileId) {
-              this.runSceneDetection(file.id, file.path, file.useRatio, 20.0)
-            }
-            break;
-          case 70: // press 'f'
-            if (this.props.currentFileId) {
-              this.onToggleDetectionChart();
-            }
-            break;
-          case 80: // press 'p'
-            this.onSaveMoviePrint();
-            break;
           case 52: // press '4'
-            store.dispatch(setDefaultSheetView(SHEET_VIEW.GRIDVIEW));
             break;
           case 53: // press '5'
-            store.dispatch(setView(VIEW.PLAYERVIEW));
             break;
           case 54: // press '6'
-            store.dispatch(setDefaultSheetView(SHEET_VIEW.TIMELINEVIEW));
+            break;
+          case 65: // press 'a'
+            this.openMoviesDialog();
             break;
           case 67: // press 'c' - Careful!!! might also be triggered when doing reset application Shift+Alt+Command+C
             // this.recaptureAllFrames();
             break;
           case 68: // press 'd'
+            break;
+          case 70: // press 'f'
+            if (currentFileId) {
+              this.onToggleDetectionChart();
+            }
+            break;
+          case 71: // press 'g'
+            this.toggleSheetView(currentFileId, currentSheetId);
+            break;
+          case 77: // press 'm'
+            this.onSaveMoviePrint();
+            break;
+          case 80: // press 'p'
+            break;
+          case 81: // press 'q'
+            break;
+          case 83: // press 's'
+            if (currentFileId) {
+              this.runSceneDetection(file.id, file.path, file.useRatio, 20.0)
+            }
             break;
           default:
         }
@@ -2380,6 +2395,16 @@ class App extends Component {
       this.onReCaptureClick(false);
     }
     store.dispatch(setDefaultSheetView(sheetView));
+  };
+
+  toggleSheetView = (fileId, sheetId) => {
+    const { sheetsByFileId, visibilitySettings } = this.props;
+    const sheetView = getSheetView(sheetsByFileId, fileId, sheetId, visibilitySettings);
+    if (sheetView === SHEET_VIEW.GRIDVIEW) {
+      this.onChangeSheetViewClick(fileId, sheetId, SHEET_VIEW.TIMELINEVIEW);
+    } else {
+      this.onChangeSheetViewClick(fileId, sheetId, SHEET_VIEW.GRIDVIEW);
+    }
   };
 
   onSetViewClick = (value) => {

@@ -52,7 +52,7 @@ const Header = ({
               </Menu.Item>
             }
             className={stylesPop.popup}
-            content={(visibilitySettings.showMovielist === false) ? 'Show Movie and Sheets list' : 'Hide Movie list'}
+            content={(visibilitySettings.showMovielist === false) ? <span>Show Movie and Sheets list <mark>1</mark></span> : <span>Hide Movie list <mark>1</mark></span>}
             keepInViewPort={false}
           />
         }
@@ -69,7 +69,7 @@ const Header = ({
             </Menu.Item>
           }
           className={stylesPop.popup}
-          content="Open one or more movies"
+          content={<span>Add one or more movies <mark>A</mark></span>}
           keepInViewPort={false}
         />
         <Popup
@@ -236,7 +236,7 @@ const Header = ({
                 </Menu.Item>
               }
               className={stylesPop.popup}
-              content={(visibilitySettings.defaultView === VIEW.STANDARDVIEW) ? 'Show player view' : 'Hide player view'}
+              content={(visibilitySettings.defaultView === VIEW.STANDARDVIEW) ? <span>Show player view <mark>2</mark></span> : <span>Hide player view <mark>2</mark></span>}
               keepInViewPort={false}
             />
           }
@@ -253,7 +253,7 @@ const Header = ({
               </Menu.Item>
             }
             className={stylesPop.popup}
-            content={(visibilitySettings.showSettings === false) ? 'Show settings' : 'Hide settings'}
+            content={(visibilitySettings.showSettings === false) ? <span>Show settings <mark>3</mark></span> : <span>Hide settings <mark>3</mark></span>}
             keepInViewPort={false}
           />
         </Menu.Menu>

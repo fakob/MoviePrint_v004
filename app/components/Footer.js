@@ -72,7 +72,7 @@ const Footer = ({
                 </Menu.Item>
               }
               className={stylesPop.popup}
-              content="Save MoviePrint"
+              content={<span>Save MoviePrint <mark>M</mark></span>}
               keepInViewPort={false}
             />
           }
