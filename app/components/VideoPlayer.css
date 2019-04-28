@@ -224,6 +224,15 @@
     z-Index: 1;
 }
 
+.cutMergeButton {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform-origin: center bottom;
+    transform: translateX(-50%);
+    display: block;
+}
+
 .textButton {
   font-family: 'Franchise', 'Roboto Condensed';
   color: #ffffff;

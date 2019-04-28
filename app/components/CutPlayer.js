@@ -13,6 +13,7 @@ import {
   MOVIEPRINT_COLORS,
   CUTPLAYER_SLICE_ARRAY_SIZE,
   CHANGE_THUMB_STEP,
+  SHEET_VIEW,
 } from '../utils/constants';
 import {
   frameCountToTimeCode,
@@ -65,6 +66,7 @@ class CutPlayer extends Component {
     this.onTimelineMouseOver = this.onTimelineMouseOver.bind(this);
     this.onTimelineExit = this.onTimelineExit.bind(this);
     this.onNextSceneClickWithStop = this.onNextSceneClickWithStop.bind(this);
+    this.onChangeThumbClick = this.onChangeThumbClick.bind(this);
   }
 
   componentWillMount() {
@@ -122,7 +124,7 @@ class CutPlayer extends Component {
     // you may also add a filter here to skip keys, that do not have an effect for your app
     // this.props.keyPressAction(event.keyCode);
 
-    const { arrayOfCuts, onMergeSceneClick, onCutSceneClick } = this.props;
+    const { arrayOfCuts, onCutSceneClick, onMergeSceneClick, sheetView } = this.props;
     const { currentFrame } = this.state;
     const thisFrameIsACut = arrayOfCuts.some(item => item === currentFrame);
     // only listen to key events when feedback form is not shown
@@ -132,10 +134,15 @@ class CutPlayer extends Component {
       if (event) {
         switch (event.which) {
           case 13: // press enter
-            if (thisFrameIsACut) {
-              onMergeSceneClick(currentFrame);
-            } else {
-              onCutSceneClick(currentFrame);
+            if (sheetView === SHEET_VIEW.TIMELINEVIEW) {
+              if (thisFrameIsACut) {
+                onMergeSceneClick(currentFrame);
+              } else {
+                onCutSceneClick(currentFrame);
+              }
+            }
+            if (sheetView === SHEET_VIEW.GRIDVIEW) {
+              this.onChangeThumbClick();
             }
             break;
           case 37: // press arrow left
@@ -192,12 +199,17 @@ class CutPlayer extends Component {
   }
 
   updateOpencvVideoCanvas(currentFrame) {
-    const { arrayOfCuts, containerWidth, file, opencvVideo } = this.props;
+    const { arrayOfCuts, containerWidth, file, opencvVideo, sheetView } = this.props;
     const { frameCount } = file;
     // offset currentFrame due to main frame is in middle of sliceArraySize
-    const halfArraySize = Math.floor(CUTPLAYER_SLICE_ARRAY_SIZE / 2);
-    const offsetFrameNumber = currentFrame - parseInt(halfArraySize, 10);
-
+    let offsetCorrection = 0;
+    let sliceArraySize = CUTPLAYER_SLICE_ARRAY_SIZE;
+    if (sheetView === SHEET_VIEW.GRIDVIEW) {
+      sliceArraySize -= 1;
+      offsetCorrection = 1;
+    }
+    const sliceArraySizeHalf = Math.floor(sliceArraySize / 2);
+    const offsetFrameNumber = currentFrame - parseInt(sliceArraySizeHalf, 10) + offsetCorrection;
     const { videoHeight } = this.state
     const vid = opencvVideo;
     setPosition(vid, offsetFrameNumber, file.useRatio);
@@ -206,14 +218,14 @@ class CutPlayer extends Component {
     const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
     const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
     const rescaleFactor = videoHeight / height;
-    const sliceWidthArray = getSliceWidthArrayForCut(containerWidth, CUTPLAYER_SLICE_ARRAY_SIZE);
+    const sliceWidthArray = getSliceWidthArrayForCut(containerWidth, sliceArraySize);
     const sliceGap = 1;
     const cutGap = 8;
     this.opencvCutPlayerCanvasRef.height = videoHeight;
     this.opencvCutPlayerCanvasRef.width = containerWidth;
     let canvasXPos = 0;
 
-    for (let i = 0; i < CUTPLAYER_SLICE_ARRAY_SIZE; i += 1) {
+    for (let i = 0; i < sliceArraySize; i += 1) {
       const frame = vid.read();
       const sliceWidth = sliceWidthArray[i];
       const sliceXPos = Math.max(Math.floor((width * rescaleFactor) / 2) - Math.floor(sliceWidth / 2), 0);
@@ -364,9 +376,18 @@ class CutPlayer extends Component {
     this.updateOpencvVideoCanvas(newFrameNumberToJumpTo);
   }
 
+  onChangeThumbClick() {
+    const { currentFrame, currentScene } = this.state;
+    const { currentSheetId, file, onChangeThumb, scenes } = this.props;
+
+    if (currentScene !== undefined && currentFrame !== undefined) {
+      onChangeThumb(file, currentSheetId, currentScene.sceneId, currentFrame);
+    }
+  }
+
   render() {
     const { currentFrame, currentScene, playHeadPosition } = this.state;
-    const { arrayOfCuts, containerWidth, file, scaleValueObject, thumbs } = this.props;
+    const { arrayOfCuts, containerWidth, file, scaleValueObject, sheetType, sheetView, thumbs } = this.props;
     const { videoHeight } = this.state;
 
     function over(event) {
@@ -518,11 +539,11 @@ class CutPlayer extends Component {
               className={stylesPop.popup}
               content={<span>Move 1 frame back <mark>SHIFT + Arrow left</mark></span>}
             />
-            {currentFrame !== 0 && <Popup
+            {sheetView === SHEET_VIEW.TIMELINEVIEW && currentFrame !== 0 && <Popup
               trigger={
                 <button
                   type='button'
-                  className={`${styles.hoverButton} ${styles.textButton}`}
+                  className={`${styles.hoverButton} ${styles.textButton} ${styles.cutMergeButton}`}
                   onClick={thisFrameIsACut ?
                     () => this.props.onMergeSceneClick(currentFrame) :
                     () => this.props.onCutSceneClick(currentFrame)}
@@ -531,12 +552,6 @@ class CutPlayer extends Component {
                   onFocus={over}
                   onBlur={out}
                   style={{
-                    display: 'block',
-                    transformOrigin: 'center bottom',
-                    transform: 'translateX(-50%)',
-                    position: 'absolute',
-                    bottom: 0,
-                    left: '50%',
                     color: MOVIEPRINT_COLORS[0]
                   }}
                 >
@@ -544,7 +559,27 @@ class CutPlayer extends Component {
                 </button>
               }
               className={stylesPop.popup}
-              content={thisFrameIsACut ? (<span>Merge scenes</span>) : (<span>Cut scene</span>)}
+              content={thisFrameIsACut ? (<span>Merge scenes <mark>ENTER</mark></span>) : (<span>Cut scene <mark>ENTER</mark></span>)}
+            />}
+            {sheetView === SHEET_VIEW.GRIDVIEW && currentFrame !== 0 && <Popup
+              trigger={
+                <button
+                  type='button'
+                  className={`${styles.hoverButton} ${styles.textButton} ${styles.cutMergeButton}`}
+                  onClick={this.onChangeThumbClick}
+                  onMouseOver={over}
+                  onMouseLeave={out}
+                  onFocus={over}
+                  onBlur={out}
+                  style={{
+                    color: MOVIEPRINT_COLORS[0]
+                  }}
+                >
+                  CHANGE
+                </button>
+              }
+              className={stylesPop.popup}
+              content={<span>Change the thumb to use this frame <mark>ENTER</mark></span>}
             />}
             <Popup
               trigger={
@@ -680,6 +715,7 @@ CutPlayer.propTypes = {
   height: PropTypes.number,
   frameNumber: PropTypes.number,
   onThumbDoubleClick: PropTypes.func.isRequired,
+  onChangeThumb: PropTypes.func.isRequired,
   onCutThumbClick: PropTypes.func.isRequired,
   onMergeSceneClick: PropTypes.func.isRequired,
   onCutSceneClick: PropTypes.func.isRequired,

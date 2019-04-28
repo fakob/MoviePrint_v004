@@ -283,7 +283,8 @@ class ThumbGrid extends Component {
   }
 
   render() {
-    const { file, keyObject, scaleValueObject, settings, thumbs, view } = this.props;
+    const { file, isGridView, keyObject, scaleValueObject, settings, sheetType, sheetView, thumbs, view } = this.props;
+    const { controllersVisible } = this.state;
 
     const isPlayerView = view !== VIEW.STANDARDVIEW;
 
@@ -347,8 +348,7 @@ class ThumbGrid extends Component {
     }
     const thumbWidth = scaleValueObject.newThumbWidth;
 
-    const { isGridView } = this.props;
-    const hoverThumbIndex = thumbArray.findIndex(thumb => thumb.thumbId === this.state.controllersVisible);
+    const hoverThumbIndex = thumbArray.findIndex(thumb => thumb.thumbId === controllersVisible);
     const isHidden = hoverThumbIndex !== -1 ? thumbArray[hoverThumbIndex].hidden : undefined;
     // console.log(this.thumbGridDivRef !== null ? this.thumbGridDivRef.getBoundingClientRect() : 'not set yet')
     // this.setState({
@@ -363,8 +363,8 @@ class ThumbGrid extends Component {
     // console.log(this.state.hoverPos);
     // console.log(parentPos);
 
-    const showBeforeController = (this.state.controllersVisible === this.state.addThumbBeforeController) || this.props.keyObject.shiftKey;
-    const showAfterController = (this.state.controllersVisible === this.state.addThumbAfterController) || this.props.keyObject.altKey;
+    const showBeforeController = (controllersVisible === this.state.addThumbBeforeController) || keyObject.shiftKey;
+    const showAfterController = (controllersVisible === this.state.addThumbAfterController) || keyObject.altKey;
 
     return (
       <div
@@ -404,7 +404,7 @@ class ThumbGrid extends Component {
             <SortableThumb
               sheetView={this.props.sheetView}
               view={this.props.view}
-              keyObject={this.props.keyObject}
+              keyObject={keyObject}
               key={thumb.thumbId || uuidV4()}
               thumbId={thumb.thumbId}
               index={thumb.index}
@@ -427,7 +427,7 @@ class ThumbGrid extends Component {
               thumbInfoValue={getThumbInfoValue(settings.defaultThumbInfo, thumb.frameNumber, fps)}
               thumbInfoRatio={settings.defaultThumbInfoRatio}
               hidden={thumb.hidden}
-              controllersAreVisible={(thumb.thumbId === undefined) ? false : (thumb.thumbId === this.state.controllersVisible)}
+              controllersAreVisible={(thumb.thumbId === undefined) ? false : (thumb.thumbId === controllersVisible)}
               selected={this.props.selectedThumbsArray.length !== 0 ?
                 this.props.selectedThumbsArray.some(item => item.thumbId === thumb.thumbId) :
                 false
@@ -438,7 +438,7 @@ class ThumbGrid extends Component {
                 // console.log(event.target.getBoundingClientRect());
                 const hoverPos = event.target.getBoundingClientRect();
                 // event.stopPropagation();
-                if (this.state.controllersVisible !== thumb.thumbId) {
+                if (controllersVisible !== thumb.thumbId) {
                   this.setState({
                     controllersVisible: thumb.thumbId,
                     hoverPos,
@@ -452,12 +452,12 @@ class ThumbGrid extends Component {
                 // console.log(event.target.getBoundingClientRect());
                 // const hoverPos = event.target.getBoundingClientRect();
                 // event.stopPropagation();
-                // if (this.state.controllersVisible !== thumb.thumbId) {
+                // if (controllersVisible !== thumb.thumbId) {
                 //   this.resetHover();
                 // }
               }}
               onThumbDoubleClick={this.props.onThumbDoubleClick}
-              onSelect={(thumb.thumbId !== this.state.controllersVisible) ?
+              onSelect={(thumb.thumbId !== controllersVisible) ?
                 null : () => {
                   this.props.onSelectClick(thumb.thumbId, thumb.frameNumber);
                 }}
@@ -489,7 +489,7 @@ class ThumbGrid extends Component {
               <Popup
                 trigger={
                   <button
-                    data-tid={`ExpandThumbBtn_${this.state.controllersVisible}`}
+                    data-tid={`ExpandThumbBtn_${controllersVisible}`}
                     type='button'
                     className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayExit} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
                     onClick={this.onExpand}
@@ -507,7 +507,7 @@ class ThumbGrid extends Component {
               <Popup
                 trigger={
                   <button
-                    data-tid={`${isHidden ? 'show' : 'hide'}ThumbBtn_${this.state.controllersVisible}`}
+                    data-tid={`${isHidden ? 'show' : 'hide'}ThumbBtn_${controllersVisible}`}
                     type='button'
                     className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayHide} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
                     onClick={this.onToggle}
@@ -525,7 +525,7 @@ class ThumbGrid extends Component {
               <Popup
                 trigger={
                   <button
-                    data-tid={`saveThumbBtn_${this.state.controllersVisible}`}
+                    data-tid={`saveThumbBtn_${controllersVisible}`}
                     type='button'
                     className={`${styles.hoverButton} ${styles.textButton} ${styles.overlaySave} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
                     onClick={this.onSaveThumb}
@@ -545,7 +545,7 @@ class ThumbGrid extends Component {
                   <Popup
                     trigger={
                       <button
-                        data-tid={`setInPointBtn_${this.state.controllersVisible}`}
+                        data-tid={`setInPointBtn_${controllersVisible}`}
                         type='button'
                         className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayIn} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
                         onClick={this.onInPoint}
@@ -563,16 +563,16 @@ class ThumbGrid extends Component {
                   <Popup
                     trigger={
                       <button
-                        data-tid={`addNewThumbBeforeBtn_${this.state.controllersVisible}`}
+                        data-tid={`addNewThumbBeforeBtn_${controllersVisible}`}
                         type='button'
                         className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayAddBefore} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
-                        onClick={this.props.sheetType === SHEET_TYPE.SCENES ? this.onCutBefore : this.onAddBefore}
+                        onClick={sheetType === SHEET_TYPE.SCENES ? this.onCutBefore : this.onAddBefore}
                         onMouseOver={this.onHoverAddThumbBefore}
                         onMouseOut={this.onLeaveAddThumb}
                         onFocus={this.over}
                         onBlur={this.out}
                       >
-                        {this.props.sheetType === SHEET_TYPE.SCENES ? '||' : '+'}
+                        {sheetType === SHEET_TYPE.SCENES ? '||' : '+'}
                       </button>
                     }
                     className={stylesPop.popup}
@@ -581,7 +581,7 @@ class ThumbGrid extends Component {
                   <Popup
                     trigger={
                       <button
-                        data-tid={`scrubBtn_${this.state.controllersVisible}`}
+                        data-tid={`scrubBtn_${controllersVisible}`}
                         type='button'
                         className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayScrub} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
                         // onClick={onScrubWithStop}
@@ -591,7 +591,7 @@ class ThumbGrid extends Component {
                         onFocus={this.over}
                         onBlur={this.out}
                       >
-                        {this.props.keyObject.ctrlKey ? '<|||>' : '<|>'}
+                        {keyObject.ctrlKey ? '<|||>' : '<|>'}
                       </button>
                     }
                     className={stylesPop.popup}
@@ -600,16 +600,16 @@ class ThumbGrid extends Component {
                   <Popup
                     trigger={
                       <button
-                        data-tid={`addNewThumbAfterBtn_${this.state.controllersVisible}`}
+                        data-tid={`addNewThumbAfterBtn_${controllersVisible}`}
                         type='button'
                         className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayAddAfter} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
-                        onClick={this.props.sheetType === SHEET_TYPE.SCENES ? this.onCutAfter : this.onAddAfter}
+                        onClick={sheetType === SHEET_TYPE.SCENES ? this.onCutAfter : this.onAddAfter}
                         onMouseOver={this.onHoverAddThumbAfter}
                         onMouseOut={this.onLeaveAddThumb}
                         onFocus={this.over}
                         onBlur={this.out}
                       >
-                        {this.props.sheetType === SHEET_TYPE.SCENES ? '||' : '+'}
+                        {sheetType === SHEET_TYPE.SCENES ? '||' : '+'}
                       </button>
                     }
                     className={stylesPop.popup}
@@ -618,7 +618,7 @@ class ThumbGrid extends Component {
                   <Popup
                     trigger={
                       <button
-                        data-tid={`setOutPointBtn_${this.state.controllersVisible}`}
+                        data-tid={`setOutPointBtn_${controllersVisible}`}
                         type='button'
                         className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayOut} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
                         onClick={this.onOutPoint}
@@ -635,26 +635,9 @@ class ThumbGrid extends Component {
                   />
                 </div>
               }
-              {this.props.sheetView !== SHEET_VIEW.GRIDVIEW && (showBeforeController || showAfterController) &&
+              {sheetType !== SHEET_TYPE.SCENES  && (showBeforeController || showAfterController) && (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) &&
                 <div
-                  data-tid={`insertThumb${(!showAfterController && showBeforeController) ? 'Before' : 'After'}Div_${this.state.controllersVisible}`}
-                  style={{
-                    content: '',
-                    backgroundColor: '#FF5006',
-                    position: 'absolute',
-                    width: `${Math.max(1, scaleValueObject.newThumbMargin * 0.5)}px`,
-                    height: `${(thumbWidth * scaleValueObject.aspectRatioInv) + (Math.max(1, scaleValueObject.newThumbMargin * 2))}px`,
-                    top: (Math.max(1, scaleValueObject.newThumbMargin * -1.0)),
-                    left: `${(!showAfterController && showBeforeController) ? 0 : undefined}`,
-                    right: `${showAfterController ? 0 : undefined}`,
-                    display: 'block',
-                    transform: `translateX(${Math.max(1, scaleValueObject.newThumbMargin) * (showAfterController ? 1.25 : -1.25)}px)`,
-                  }}
-                />
-              }
-              {(showBeforeController || showAfterController) && (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) &&
-                <div
-                  data-tid={`insertThumb${(!showAfterController && showBeforeController) ? 'Before' : 'After'}Div_${this.state.controllersVisible}`}
+                  data-tid={`insertThumb${(!showAfterController && showBeforeController) ? 'Before' : 'After'}Div_${controllersVisible}`}
                   style={{
                     zIndex: 100,
                     content: '',

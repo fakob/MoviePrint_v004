@@ -73,7 +73,7 @@ class SortedVisibleThumbGrid extends Component {
   };
 
   onSelectClick = (thumbId, frameNumber) => {
-    this.props.selectThumbMethod(thumbId, frameNumber);
+    this.props.onSelectThumbMethod(thumbId, frameNumber);
   }
 
   onErrorThumb = (file, sheetId, thumbId, frameId) => {
@@ -94,42 +94,76 @@ class SortedVisibleThumbGrid extends Component {
   };
 
   render() {
+    const { isSorting } = this.state;
+    const {
+      colorArray,
+      currentSheetId,
+      file,
+      inputRef,
+      isGridView,
+      keyObject,
+      moviePrintWidth,
+      objectUrlObjects,
+      onAddThumbClick,
+      onBackClick,
+      onCutThumbClick,
+      onExpandClick,
+      onForwardClick,
+      onInPointClick,
+      onOutPointClick,
+      onSaveThumbClick,
+      onScrubClick,
+      onThumbDoubleClick,
+      onToggleClick,
+      useBase64,
+      scaleValueObject,
+      selectedThumbsArray,
+      settings,
+      sheetType,
+      sheetView,
+      showSettings,
+      thumbCount,
+      thumbs,
+      view,
+      viewForPrinting
+    } = this.props;
+
     return (
       <SortableThumbGrid
-        useBase64={this.props.useBase64}
-        colorArray={this.props.colorArray}
-        sheetView={this.props.sheetView}
-        sheetType={this.props.sheetType}
-        view={this.props.view}
-        currentSheetId={this.props.currentSheetId}
-        file={this.props.file}
+        useBase64={useBase64}
+        colorArray={colorArray}
+        sheetView={sheetView}
+        sheetType={sheetType}
+        view={view}
+        currentSheetId={currentSheetId}
+        file={file}
         inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
-        keyObject={this.props.keyObject}
-        onAddThumbClick={this.props.onAddThumbClick}
-        onCutThumbClick={this.props.onCutThumbClick}
-        onBackClick={this.props.onBackClick}
-        onForwardClick={this.props.onForwardClick}
-        onInPointClick={this.props.onInPointClick}
-        onOutPointClick={this.props.onOutPointClick}
-        onSaveThumbClick={this.props.onSaveThumbClick}
-        onScrubClick={this.props.onScrubClick}
+        keyObject={keyObject}
+        onAddThumbClick={onAddThumbClick}
+        onCutThumbClick={onCutThumbClick}
+        onBackClick={onBackClick}
+        onForwardClick={onForwardClick}
+        onInPointClick={onInPointClick}
+        onOutPointClick={onOutPointClick}
+        onSaveThumbClick={onSaveThumbClick}
+        onScrubClick={onScrubClick}
         onSelectClick={this.onSelectClick}
         onErrorThumb={this.onErrorThumb}
-        onExpandClick={this.props.onExpandClick}
-        onThumbDoubleClick={this.props.onThumbDoubleClick}
-        onToggleClick={this.props.onToggleClick}
-        ref={this.props.inputRef} // for the saveMoviePrint function
-        scaleValueObject={this.props.scaleValueObject}
-        moviePrintWidth={this.props.moviePrintWidth}
-        selectedThumbsArray={this.props.selectedThumbsArray}
-        settings={this.props.settings}
-        showSettings={this.props.showSettings}
-        thumbCount={this.props.thumbCount}
-        objectUrlObjects={this.props.objectUrlObjects}
-        thumbs={this.props.thumbs}
-        viewForPrinting={this.props.viewForPrinting}
-        isGridView={this.props.isGridView}
-        isSorting={this.state.isSorting}
+        onExpandClick={onExpandClick}
+        onThumbDoubleClick={onThumbDoubleClick}
+        onToggleClick={onToggleClick}
+        ref={inputRef} // for the saveMoviePrint function
+        scaleValueObject={scaleValueObject}
+        moviePrintWidth={moviePrintWidth}
+        selectedThumbsArray={selectedThumbsArray}
+        settings={settings}
+        showSettings={showSettings}
+        thumbCount={thumbCount}
+        objectUrlObjects={objectUrlObjects}
+        thumbs={thumbs}
+        viewForPrinting={viewForPrinting}
+        isGridView={isGridView}
+        isSorting={isSorting}
 
         useDragHandle
         axis="xy"
@@ -252,8 +286,9 @@ SortedVisibleThumbGrid.propTypes = {
   onToggleClick: PropTypes.func.isRequired,
   scaleValueObject: PropTypes.object.isRequired,
   selectedThumbsArray: PropTypes.array,
-  selectThumbMethod: PropTypes.func,
+  onSelectThumbMethod: PropTypes.func,
   settings: PropTypes.object.isRequired,
+  sheetType: PropTypes.string.isRequired,
   sheetView: PropTypes.string.isRequired,
   // currentSheetId: PropTypes.string.isRequired,
   showSettings: PropTypes.bool.isRequired,

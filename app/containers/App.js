@@ -261,6 +261,7 @@ class App extends Component {
     this.hideSettings = this.hideSettings.bind(this);
     this.onShowThumbs = this.onShowThumbs.bind(this);
     this.onViewToggle = this.onViewToggle.bind(this);
+    this.onChangeThumb = this.onChangeThumb.bind(this);
     this.onScrubWindowMouseOver = this.onScrubWindowMouseOver.bind(this);
     this.onScrubWindowClick = this.onScrubWindowClick.bind(this);
     this.onScrubClick = this.onScrubClick.bind(this);
@@ -1639,7 +1640,7 @@ class App extends Component {
           ));
         }
       } else { // if normal set new thumb
-        store.dispatch(changeThumb(this.props.settings.currentSheetId, this.props.file, this.state.scrubThumb.thumbId, scrubFrameNumber, this.props.settings.defaultCachedFramesSize));
+        this.onChangeThumb(this.props.file, this.props.settings.currentSheetId, this.state.scrubThumb.thumbId, scrubFrameNumber, this.props.settings.defaultCachedFramesSize)
       }
     }
     this.setState({
@@ -1647,6 +1648,12 @@ class App extends Component {
       showScrubCutWindow: false,
     });
   }
+
+  onChangeThumb(file, sheetId, thumbId, frameNumber, defaultCachedFramesSize) {
+    const { store } = this.context;
+    store.dispatch(changeThumb(sheetId, file, thumbId, frameNumber, defaultCachedFramesSize));
+  }
+
 
   onViewToggle() {
     const { store } = this.context;
@@ -2569,9 +2576,6 @@ class App extends Component {
       );
     }
 
-    console.log(this.state.selectedThumbsArray);
-    console.log(this.state.jumpToFrameNumber);
-
     return (
       <Dropzone
         ref={this.dropzoneRef}
@@ -2763,9 +2767,11 @@ class App extends Component {
                         </Conditional>
                         <Conditional if={sheetType === SHEET_TYPE.SCENES && allScenes !== undefined}>
                           <CutPlayer
-                            // visible={visibilitySettings.defaultView === VIEW.PLAYERVIEW}
                             ref={(el) => { this.videoPlayer = el; }}
                             file={file}
+                            currentSheetId={settings.currentSheetId}
+                            sheetView={sheetView}
+                            sheetType={sheetType}
                             containerWidth={this.state.containerWidth}
                             scaleValueObject={scaleValueObject}
                             aspectRatioInv={scaleValueObject.aspectRatioInv}
@@ -2777,6 +2783,7 @@ class App extends Component {
                             scenes={allScenes}
                             jumpToFrameNumber={this.state.jumpToFrameNumber}
                             onThumbDoubleClick={this.onViewToggle}
+                            onChangeThumb={this.onChangeThumb}
                             onSelectThumbMethod={this.onSelectThumbMethod}
                             onCutThumbClick={this.onCutThumbClick}
                             onCutSceneClick={this.onCutSceneClick}
