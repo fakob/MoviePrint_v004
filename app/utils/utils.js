@@ -591,6 +591,28 @@ export const getScrubFrameNumber = (
   return scrubFrameNumber;
 }
 
+export const getSceneScrubFrameNumber = (
+  mouseX,
+  scaleValueObject,
+  scrubThumb,
+  scrubScene,
+) => {
+  let scrubFrameNumber;
+
+  const leftOfScrubMovie = (scaleValueObject.scrubInnerContainerWidth - scaleValueObject.scrubMovieWidth) / 2;
+  const rightOfScrubMovie = leftOfScrubMovie + scaleValueObject.scrubMovieWidth;
+  const tempLeftFrameNumber = scrubScene.start
+  const tempRightFrameNumber = scrubScene.start + scrubScene.length - 1;
+  if (mouseX < leftOfScrubMovie) {
+    scrubFrameNumber = tempLeftFrameNumber;
+  } else if (mouseX > rightOfScrubMovie) {
+    scrubFrameNumber = tempRightFrameNumber;
+  } else {
+    scrubFrameNumber = mapRange(mouseX, leftOfScrubMovie, rightOfScrubMovie, tempLeftFrameNumber, tempRightFrameNumber);
+  }
+  return scrubFrameNumber;
+}
+
 export const deleteProperty = ({[key]: _, ...newObj}, key) => newObj;
 
 export const isEquivalent = (a, b) => {

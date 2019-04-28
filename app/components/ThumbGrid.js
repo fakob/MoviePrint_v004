@@ -403,6 +403,7 @@ class ThumbGrid extends Component {
           {thumbArray.map(thumb => (
             <SortableThumb
               sheetView={this.props.sheetView}
+              sheetType={this.props.sheetType}
               view={this.props.view}
               keyObject={keyObject}
               key={thumb.thumbId || uuidV4()}

@@ -47,6 +47,7 @@ import { getLowestFrame,
   getObjectProperty,
   setPosition,
   getScrubFrameNumber,
+  getSceneScrubFrameNumber,
   isEquivalent,
   limitFrameNumberWithinMovieRange,
   getFramenumbersOfSheet,
@@ -227,6 +228,7 @@ class App extends Component {
       showScrubWindow: false,
       showScrubCutWindow: false,
       scrubThumb: undefined,
+      scrubScene: undefined,
       showChart: false,
       chartData: {
         labels: ["Inpoint", "Outpoint"],
@@ -1413,11 +1415,18 @@ class App extends Component {
 
   onScrubClick(file, scrubThumb) {
     const { store } = this.context;
+    const { allScenes, thumbs } = this.props;
+    const { keyObject } = this.state;
+
+    let scrubScene;
+    if (allScenes !== undefined) {
+      scrubScene = allScenes.find(scene => scene.sceneId === scrubThumb.thumbId);
+    }
 
     // get thumb left and right of scrubThumb
-    const indexOfThumb = this.props.thumbs.findIndex((thumb) => thumb.thumbId === scrubThumb.thumbId);
-    const leftThumb = this.props.thumbs[Math.max(0, indexOfThumb - 1)];
-    const rightThumb = this.props.thumbs[Math.min(this.props.thumbs.length - 1, indexOfThumb + 1)];
+    const indexOfThumb = thumbs.findIndex((thumb) => thumb.thumbId === scrubThumb.thumbId);
+    const leftThumb = thumbs[Math.max(0, indexOfThumb - 1)];
+    const rightThumb = thumbs[Math.min(thumbs.length - 1, indexOfThumb + 1)];
 
     // the three thumbs might not be in ascending order, left has to be lower, right has to be higher
     // create an array to compare the three thumbs
@@ -1427,12 +1436,13 @@ class App extends Component {
     const scrubThumbLeft = arrayToCompare.slice().reduce((prev, current) => prev.frameNumber < current.frameNumber ? prev : current);
     const scrubThumbRight = arrayToCompare.reduce((prev, current) => prev.frameNumber > current.frameNumber ? prev : current);
 
-    const switchToScrubCut = this.state.keyObject.ctrlKey;
+    const switchToScrubCut = keyObject.ctrlKey;
 
     this.setState({
       showScrubWindow: !switchToScrubCut && true,
       showScrubCutWindow: switchToScrubCut && true,
       scrubThumb,
+      scrubScene,
       scrubThumbLeft,
       scrubThumbRight,
     });
@@ -1584,17 +1594,31 @@ class App extends Component {
   }
 
 
-  onScrubWindowMouseOver(e) {
+  onScrubWindowMouseOver(e, sheetType) {
     if (e.clientY < (MENU_HEADER_HEIGHT + this.state.containerHeight)) {
-      const scrubFrameNumber = getScrubFrameNumber(
-        e.clientX,
-        this.state.keyObject,
-        this.state.scaleValueObject,
-        this.props.file.frameCount,
-        this.state.scrubThumb,
-        this.state.scrubThumbLeft,
-        this.state.scrubThumbRight,
-      );
+      // const { sheetsByFileId, settings } = this.props;
+      // // if sheet type interval then create 'artificial' scene Array
+      // const sheetType = getSheetType(sheetsByFileId, fileId, sheetId, settings);
+
+      let scrubFrameNumber;
+      if (sheetType === SHEET_TYPE.INTERVAL) {
+        scrubFrameNumber = getScrubFrameNumber(
+          e.clientX,
+          this.state.keyObject,
+          this.state.scaleValueObject,
+          this.props.file.frameCount,
+          this.state.scrubThumb,
+          this.state.scrubThumbLeft,
+          this.state.scrubThumbRight,
+        );
+      } else {
+        scrubFrameNumber = getSceneScrubFrameNumber(
+          e.clientX,
+          this.state.scaleValueObject,
+          this.state.scrubThumb,
+          this.state.scrubScene,
+        );
+      }
       this.updateOpencvVideoCanvas(scrubFrameNumber);
     } else {
       this.setState({
@@ -1604,44 +1628,55 @@ class App extends Component {
     }
   }
 
-  onScrubWindowClick(e) {
+  onScrubWindowClick(e, sheetType) {
     const { store } = this.context;
     if (e.clientY < (MENU_HEADER_HEIGHT + this.state.containerHeight)) {
 
-      const scrubFrameNumber = getScrubFrameNumber(
-        e.clientX,
-        this.state.keyObject,
-        this.state.scaleValueObject,
-        this.props.file.frameCount,
-        this.state.scrubThumb,
-        this.state.scrubThumbLeft,
-        this.state.scrubThumbRight,
-      );
-
-      if (this.state.keyObject.altKey || this.state.keyObject.shiftKey) {
-        const newThumbId = uuidV4();
-        if (this.state.keyObject.altKey) {
-          store.dispatch(addThumb(
-            this.props.file,
-            this.props.settings.currentSheetId,
-            scrubFrameNumber,
-            this.props.thumbs.find((thumb) => thumb.thumbId === this.state.scrubThumb.thumbId).index + 1,
-            newThumbId,
-            this.props.settings.defaultCachedFramesSize,
-          ));
-        } else { // if shiftKey
-          store.dispatch(addThumb(
-            this.props.file,
-            this.props.settings.currentSheetId,
-            scrubFrameNumber,
-            this.props.thumbs.find((thumb) => thumb.thumbId === this.state.scrubThumb.thumbId).index,
-            newThumbId,
-            this.props.settings.defaultCachedFramesSize,
-          ));
-        }
-      } else { // if normal set new thumb
+      let scrubFrameNumber;
+      if (sheetType === SHEET_TYPE.INTERVAL) {
+        scrubFrameNumber = getScrubFrameNumber(
+          e.clientX,
+          this.state.keyObject,
+          this.state.scaleValueObject,
+          this.props.file.frameCount,
+          this.state.scrubThumb,
+          this.state.scrubThumbLeft,
+          this.state.scrubThumbRight,
+        );
         this.onChangeThumb(this.props.file, this.props.settings.currentSheetId, this.state.scrubThumb.thumbId, scrubFrameNumber, this.props.settings.defaultCachedFramesSize)
+      } else {
+        scrubFrameNumber = getSceneScrubFrameNumber(
+          e.clientX,
+          this.state.scaleValueObject,
+          this.state.scrubThumb,
+          this.state.scrubScene,
+        );
+        if (this.state.keyObject.altKey || this.state.keyObject.shiftKey) {
+          const newThumbId = uuidV4();
+          if (this.state.keyObject.altKey) {
+            store.dispatch(addThumb(
+              this.props.file,
+              this.props.settings.currentSheetId,
+              scrubFrameNumber,
+              this.props.thumbs.find((thumb) => thumb.thumbId === this.state.scrubThumb.thumbId).index + 1,
+              newThumbId,
+              this.props.settings.defaultCachedFramesSize,
+            ));
+          } else { // if shiftKey
+            store.dispatch(addThumb(
+              this.props.file,
+              this.props.settings.currentSheetId,
+              scrubFrameNumber,
+              this.props.thumbs.find((thumb) => thumb.thumbId === this.state.scrubThumb.thumbId).index,
+              newThumbId,
+              this.props.settings.defaultCachedFramesSize,
+            ));
+          }
+        } else { // if normal set new thumb
+          this.onChangeThumb(this.props.file, this.props.settings.currentSheetId, this.state.scrubThumb.thumbId, scrubFrameNumber, this.props.settings.defaultCachedFramesSize)
+        }
       }
+
     }
     this.setState({
       showScrubWindow: false,
@@ -3061,6 +3096,7 @@ class App extends Component {
                   opencvVideoCanvasRef={this.opencvVideoCanvasRef}
                   file={file}
                   settings={settings}
+                  sheetType={sheetType}
                   objectUrlObjects={filteredObjectUrlObjects}
                   keyObject={this.state.keyObject}
                   scrubThumb={this.state.scrubThumb}

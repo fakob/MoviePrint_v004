@@ -5,7 +5,8 @@ import PropTypes from 'prop-types';
 import { SortableHandle } from 'react-sortable-hoc';
 import { Popup } from 'semantic-ui-react';
 import {
-  SHEET_VIEW, VIEW
+  SHEET_TYPE,
+  VIEW,
 } from '../utils/constants';
 import styles from './ThumbGrid.css';
 import stylesPop from './Popup.css';
@@ -58,7 +59,7 @@ const Thumb = ({
   onThumbDoubleClick,
   selected,
   view,
-  sheetView,
+  sheetType,
   transparentThumb,
   thumbImageObjectUrl,
   base64,
@@ -158,7 +159,7 @@ const Thumb = ({
             display: controllersAreVisible ? 'block' : 'none'
           }}
         >
-          {sheetView === SHEET_VIEW.GRIDVIEW &&
+          {sheetType === SHEET_TYPE.INTERVAL &&
             <DragHandle
               width={thumbWidth - 1} // shrink it to prevent rounding issues
               height={(thumbWidth * aspectRatioInv) - 1}
@@ -231,7 +232,7 @@ Thumb.propTypes = {
   onThumbDoubleClick: PropTypes.func,
   onToggle: PropTypes.func,
   selected: PropTypes.bool,
-  sheetView: PropTypes.string.isRequired,
+  sheetType: PropTypes.string.isRequired,
   index: PropTypes.number,
   indexForId: PropTypes.number,
   thumbImageObjectUrl: PropTypes.string,
