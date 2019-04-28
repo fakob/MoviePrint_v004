@@ -542,7 +542,7 @@ class ThumbGrid extends Component {
               />
               {!isHidden &&
                 <div>
-                  <Popup
+                  {sheetType === SHEET_TYPE.INTERVAL && <Popup
                     trigger={
                       <button
                         data-tid={`setInPointBtn_${controllersVisible}`}
@@ -559,7 +559,7 @@ class ThumbGrid extends Component {
                     }
                     className={stylesPop.popup}
                     content={<span>Set this thumb as new <mark>IN-point</mark></span>}
-                  />
+                  />}
                   <Popup
                     trigger={
                       <button
@@ -615,7 +615,7 @@ class ThumbGrid extends Component {
                     className={stylesPop.popup}
                     content={<span>Add new thumb after</span>}
                   />
-                  <Popup
+                  {sheetType === SHEET_TYPE.INTERVAL && <Popup
                     trigger={
                       <button
                         data-tid={`setOutPointBtn_${controllersVisible}`}
@@ -632,7 +632,7 @@ class ThumbGrid extends Component {
                     }
                     className={stylesPop.popup}
                     content={<span>Set this thumb as new <mark>OUT-point</mark></span>}
-                  />
+                  />}
                 </div>
               }
               {sheetType !== SHEET_TYPE.SCENES  && (showBeforeController || showAfterController) && (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) &&
