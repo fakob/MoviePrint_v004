@@ -14,6 +14,7 @@ import {
   CUTPLAYER_SLICE_ARRAY_SIZE,
   CHANGE_THUMB_STEP,
   SHEET_VIEW,
+  SHEET_TYPE,
 } from '../utils/constants';
 import {
   frameCountToTimeCode,
@@ -78,6 +79,7 @@ class CutPlayer extends Component {
     this.onTimelineExit = this.onTimelineExit.bind(this);
     this.onNextSceneClickWithStop = this.onNextSceneClickWithStop.bind(this);
     this.onChangeThumbClick = this.onChangeThumbClick.bind(this);
+    this.onChangeOrAddClick = this.onChangeOrAddClick.bind(this);
   }
 
   componentWillMount() {
@@ -283,7 +285,6 @@ class CutPlayer extends Component {
   updatePositionFromTime(currentTime) {
     const { containerWidth, file, onSelectThumbMethod, scenes } = this.props;
     const { currentScene, duration } = this.state;
-    console.log(currentTime)
     if (currentTime) {
       // rounds the number with 3 decimals
       const roundedCurrentTime = Math.round((currentTime * 1000) + Number.EPSILON) / 1000;
@@ -299,7 +300,9 @@ class CutPlayer extends Component {
         playHeadPosition: xPos,
       });
       const newScene = getSceneFromFrameNumber(scenes, currentFrame);
-      if (currentScene.sceneId !== newScene.sceneId) {
+      if (currentScene !== undefined &&
+        newScene !== undefined &&
+        currentScene.sceneId !== newScene.sceneId) {
         this.setState({
           currentScene: newScene,
         });
@@ -317,7 +320,9 @@ class CutPlayer extends Component {
 
     if (currentFrame !== undefined) {
       const newScene = getSceneFromFrameNumber(scenes, currentFrame);
-      if (currentScene === undefined || currentScene.sceneId !== newScene.sceneId) {
+      if (newScene !== undefined &&
+        (currentScene === undefined ||
+        currentScene.sceneId !== newScene.sceneId)) {
         this.setState({
           currentScene: newScene,
         });
@@ -370,7 +375,9 @@ class CutPlayer extends Component {
       const { frameCount } = file;
       const currentFrame = mapRange(xPos, 0, containerWidth, 0, frameCount - 1);
       const newScene = getSceneFromFrameNumber(scenes, currentFrame);
-      if (currentScene.sceneId !== newScene.sceneId) {
+      if (currentScene !== undefined &&
+        newScene !== undefined &&
+        currentScene.sceneId !== newScene.sceneId) {
         this.setState({
           currentScene: newScene,
         });
@@ -436,7 +443,9 @@ class CutPlayer extends Component {
         newFrameNumberToJumpTo = currentScene.start + currentScene.length;
         newSceneToSelect = getSceneFromFrameNumber(scenes, newFrameNumberToJumpTo);
       }
-      onSelectThumbMethod(newSceneToSelect.sceneId); // call to update selection
+      if (newSceneToSelect !== undefined) {
+        onSelectThumbMethod(newSceneToSelect.sceneId); // call to update selection
+      }
     }
     newFrameNumberToJumpTo = limitRange(newFrameNumberToJumpTo, 0, file.frameCount - 1);
     this.updatePositionFromFrame(newFrameNumberToJumpTo);
@@ -449,6 +458,43 @@ class CutPlayer extends Component {
 
     if (currentScene !== undefined && currentFrame !== undefined) {
       onChangeThumb(file, currentSheetId, currentScene.sceneId, currentFrame);
+    }
+  }
+
+  onChangeOrAddClick = () => {
+    const { currentFrame } = this.state;
+    const { currentSheetId, file, frameSize, keyObject, onAddThumb, onChangeThumb, onSelectThumbMethod, selectedThumb, thumbs } = this.props;
+
+    // only do changes if there is a thumb selected
+    if (thumbs.find((thumb) => thumb.thumbId === selectedThumb.thumbId) !== undefined) {
+      if (keyObject.altKey || keyObject.shiftKey) {
+        const newThumbId = uuidV4();
+        if (keyObject.altKey) {
+          onAddThumb(
+            file,
+            currentSheetId,
+            newThumbId,
+            currentFrame,
+            thumbs.find((thumb) => thumb.thumbId === selectedThumb.thumbId).index + 1,
+            frameSize,
+          );
+        } else { // if shiftKey
+          onAddThumb(
+            file,
+            currentSheetId,
+            newThumbId,
+            currentFrame,
+            thumbs.find((thumb) => thumb.thumbId === selectedThumb.thumbId).index,
+            frameSize,
+          );
+        }
+        // delay selection so it waits for add thumb to be ready
+        setTimeout(() => {
+          onSelectThumbMethod(newThumbId, currentFrame);
+        }, 500);
+      } else { // if normal set new thumb
+        onChangeThumb(file, currentSheetId, selectedThumb.thumbId, currentFrame, frameSize);
+      }
     }
   }
 
@@ -477,7 +523,7 @@ class CutPlayer extends Component {
 
   render() {
     const { currentFrame, currentScene, playHeadPosition } = this.state;
-    const { arrayOfCuts, containerWidth, file, scaleValueObject, sheetType, sheetView, thumbs } = this.props;
+    const { arrayOfCuts, containerWidth, file, keyObject, scaleValueObject, sheetType, sheetView, thumbs } = this.props;
     const { showHTML5Player, showPlaybar, videoHeight, videoWidth } = this.state;
 
     function over(event) {
@@ -513,6 +559,7 @@ class CutPlayer extends Component {
           <Popup
             trigger={
               <button
+                type='button'
                 className={`${styles.hoverButton} ${styles.textButton} ${styles.html5Button}`}
                 onClick={this.toggleHTML5Player}
                 onMouseOver={over}
@@ -520,27 +567,11 @@ class CutPlayer extends Component {
                 onFocus={over}
                 onBlur={out}
               >
-                HTML5 Player
+                html5 player
               </button>
             }
             className={stylesPop.popup}
             content={ showHTML5Player ? 'Hide HTML5 Player' : 'Show HTML5 Player'}
-          />
-          <Popup
-            trigger={
-              <button
-                className={`${styles.hoverButton} ${styles.textButton} ${styles.backButton}`}
-                onClick={this.props.onThumbDoubleClick}
-                onMouseOver={over}
-                onMouseLeave={out}
-                onFocus={over}
-                onBlur={out}
-              >
-                BACK
-              </button>
-            }
-            className={stylesPop.popup}
-            content="Back to MoviePrint view"
           />
           {showHTML5Player && <video
             ref={(el) => { this.video = el; }}
@@ -659,7 +690,7 @@ class CutPlayer extends Component {
               className={stylesPop.popup}
               content={<span>Move 1 frame back <mark>SHIFT + Arrow left</mark></span>}
             />
-            {sheetView === SHEET_VIEW.TIMELINEVIEW && currentFrame !== 0 && <Popup
+            {sheetType === SHEET_TYPE.SCENES && sheetView === SHEET_VIEW.TIMELINEVIEW && currentFrame !== 0 && <Popup
               trigger={
                 <button
                   type='button'
@@ -681,7 +712,7 @@ class CutPlayer extends Component {
               className={stylesPop.popup}
               content={thisFrameIsACut ? (<span>Merge scenes <mark>ENTER</mark></span>) : (<span>Cut scene <mark>ENTER</mark></span>)}
             />}
-            {sheetView === SHEET_VIEW.GRIDVIEW && currentFrame !== 0 && <Popup
+            {sheetType === SHEET_TYPE.SCENES && sheetView === SHEET_VIEW.GRIDVIEW && currentFrame !== 0 && <Popup
               trigger={
                 <button
                   type='button'
@@ -700,6 +731,26 @@ class CutPlayer extends Component {
               }
               className={stylesPop.popup}
               content={<span>Change the thumb to use this frame <mark>ENTER</mark></span>}
+            />}
+            {sheetType === SHEET_TYPE.INTERVAL && <Popup
+              trigger={
+                <button
+                  type='button'
+                  className={`${styles.hoverButton} ${styles.textButton} ${styles.cutMergeButton}`}
+                  onClick={this.onChangeOrAddClick}
+                  onMouseOver={over}
+                  onMouseLeave={out}
+                  onFocus={over}
+                  onBlur={out}
+                  style={{
+                    color: MOVIEPRINT_COLORS[0]
+                  }}
+                >
+                  {keyObject.altKey ? 'ADD AFTER' : (keyObject.shiftKey ? 'ADD BEFORE' : 'CHANGE')}
+                </button>
+              }
+              className={stylesPop.popup}
+              content={keyObject.altKey ? (<span>Add a new thumb <mark>after</mark> selection</span>) : (keyObject.shiftKey ? (<span>Add a new thumb <mark>before</mark> selection</span>) : (<span>Change the thumb to use this frame | with <mark>SHIFT</mark> add a thumb before selection | with <mark>ALT</mark> add a thumb after selection</span>))}
             />}
             <Popup
               trigger={
@@ -776,26 +827,7 @@ class CutPlayer extends Component {
   }
 }
 
-const mapStateToProps = state => {
-  const { visibilitySettings } = state;
-  const { settings, sheetsByFileId } = state.undoGroup.present;
-  const { currentFileId } = settings;
-
-  const allThumbs = (sheetsByFileId[currentFileId] === undefined ||
-    sheetsByFileId[currentFileId][settings.currentSheetId] === undefined)
-    ? undefined : sheetsByFileId[currentFileId][settings.currentSheetId].thumbsArray;
-  return {
-    thumbs: getVisibleThumbs(
-      allThumbs,
-      visibilitySettings.visibilityFilter
-    ),
-    settings,
-    visibilitySettings
-  };
-};
-
 CutPlayer.contextTypes = {
-  store: PropTypes.object,
   thumbId: PropTypes.number,
   positionRatio: PropTypes.number,
   setNewFrame: PropTypes.func,
@@ -817,6 +849,8 @@ CutPlayer.defaultProps = {
   width: 640,
   thumbs: undefined,
   frameNumber: 0,
+  scenes: [],
+  // selectedThumbId: undefined,
 };
 
 CutPlayer.propTypes = {
@@ -834,6 +868,7 @@ CutPlayer.propTypes = {
   }),
   height: PropTypes.number,
   frameNumber: PropTypes.number,
+  // selectedThumbId: PropTypes.string,
   onThumbDoubleClick: PropTypes.func.isRequired,
   onChangeThumb: PropTypes.func.isRequired,
   onJumpToCutThumbClick: PropTypes.func.isRequired,
@@ -842,10 +877,8 @@ CutPlayer.propTypes = {
   onSelectThumbMethod: PropTypes.func.isRequired,
   containerWidth: PropTypes.number.isRequired,
   width: PropTypes.number,
-  // settings: PropTypes.object.isRequired,
+  scenes: PropTypes.array,
   thumbs: PropTypes.array,
-  // sheetsByFileId: PropTypes.object,
-  // visibilitySettings: PropTypes.object.isRequired,
 };
 
-export default connect(mapStateToProps)(CutPlayer);
+export default CutPlayer;

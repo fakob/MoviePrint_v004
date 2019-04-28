@@ -262,6 +262,7 @@ class App extends Component {
     this.onShowThumbs = this.onShowThumbs.bind(this);
     this.onViewToggle = this.onViewToggle.bind(this);
     this.onChangeThumb = this.onChangeThumb.bind(this);
+    this.onAddThumb = this.onAddThumb.bind(this);
     this.onScrubWindowMouseOver = this.onScrubWindowMouseOver.bind(this);
     this.onScrubWindowClick = this.onScrubWindowClick.bind(this);
     this.onScrubClick = this.onScrubClick.bind(this);
@@ -1678,6 +1679,17 @@ class App extends Component {
     store.dispatch(changeThumb(sheetId, file, thumbId, frameNumber, defaultCachedFramesSize));
   }
 
+  onAddThumb(file, sheetId, newThumbId, frameNumber, index, defaultCachedFramesSize) {
+    const { store } = this.context;
+    store.dispatch(addThumb(
+      file,
+      sheetId,
+      frameNumber,
+      index,
+      newThumbId,
+      defaultCachedFramesSize
+    ));
+  }
 
   onViewToggle() {
     const { store } = this.context;
@@ -2768,55 +2780,36 @@ class App extends Component {
                     }}
                   >
                     { file ? (
-                      <Fragment>
-                        <Conditional if={sheetType === SHEET_TYPE.INTERVAL}>
-                          <VideoPlayer
-                            // visible={visibilitySettings.defaultView === VIEW.PLAYERVIEW}
-                            ref={(el) => { this.videoPlayer = el; }}
-                            file={file}
-                            aspectRatioInv={scaleValueObject.aspectRatioInv}
-                            height={scaleValueObject.videoPlayerHeight}
-                            width={scaleValueObject.videoPlayerWidth}
-                            objectUrlObjects={filteredObjectUrlObjects}
-                            controllerHeight={settings.defaultVideoPlayerControllerHeight}
-                            selectedThumbId={this.state.selectedThumbsArray.length !== 0 ?
-                              this.state.selectedThumbsArray[0].thumbId : undefined}
-                            frameNumber={this.state.jumpToFrameNumber}
-                            onThumbDoubleClick={this.onViewToggle}
-                            onSelectThumbMethod={this.onSelectThumbMethod}
-                            keyObject={this.state.keyObject}
-                            opencvVideo={this.state.opencvVideo}
-                            frameSize={settings.defaultCachedFramesSize}
-                          />
-                        </Conditional>
-                        <Conditional if={sheetType === SHEET_TYPE.SCENES && allScenes !== undefined}>
-                          <CutPlayer
-                            ref={(el) => { this.videoPlayer = el; }}
-                            file={file}
-                            currentSheetId={settings.currentSheetId}
-                            sheetView={sheetView}
-                            sheetType={sheetType}
-                            containerWidth={this.state.containerWidth}
-                            scaleValueObject={scaleValueObject}
-                            aspectRatioInv={scaleValueObject.aspectRatioInv}
-                            height={scaleValueObject.videoPlayerHeight}
-                            width={scaleValueObject.videoPlayerWidth}
-                            objectUrlObjects={filteredObjectUrlObjects}
-                            controllerHeight={settings.defaultVideoPlayerControllerHeight}
-                            arrayOfCuts={this.props.arrayOfCuts}
-                            scenes={allScenes}
-                            jumpToFrameNumber={this.state.jumpToFrameNumber}
-                            onThumbDoubleClick={this.onViewToggle}
-                            onChangeThumb={this.onChangeThumb}
-                            onSelectThumbMethod={this.onSelectThumbMethod}
-                            onJumpToCutThumbClick={this.onJumpToCutThumbClick}
-                            onCutSceneClick={this.onCutSceneClick}
-                            onMergeSceneClick={this.onMergeSceneClick}
-                            opencvVideo={this.state.opencvVideo}
-                            frameSize={settings.defaultCachedFramesSize}
-                          />
-                        </Conditional>
-                      </Fragment>
+                      <CutPlayer
+                        ref={(el) => { this.videoPlayer = el; }}
+                        file={file}
+                        currentSheetId={settings.currentSheetId}
+                        sheetView={sheetView}
+                        sheetType={sheetType}
+                        keyObject={this.state.keyObject}
+                        containerWidth={this.state.containerWidth}
+                        scaleValueObject={scaleValueObject}
+                        aspectRatioInv={scaleValueObject.aspectRatioInv}
+                        height={scaleValueObject.videoPlayerHeight}
+                        width={scaleValueObject.videoPlayerWidth}
+                        objectUrlObjects={filteredObjectUrlObjects}
+                        controllerHeight={settings.defaultVideoPlayerControllerHeight}
+                        arrayOfCuts={this.props.arrayOfCuts}
+                        scenes={allScenes}
+                        thumbs={allThumbs}
+                        selectedThumb={this.state.selectedThumbsArray.length !== 0 ?
+                          this.state.selectedThumbsArray[0] : undefined}
+                        jumpToFrameNumber={this.state.jumpToFrameNumber}
+                        onThumbDoubleClick={this.onViewToggle}
+                        onChangeThumb={this.onChangeThumb}
+                        onAddThumb={this.onAddThumb}
+                        onSelectThumbMethod={this.onSelectThumbMethod}
+                        onJumpToCutThumbClick={this.onJumpToCutThumbClick}
+                        onCutSceneClick={this.onCutSceneClick}
+                        onMergeSceneClick={this.onMergeSceneClick}
+                        opencvVideo={this.state.opencvVideo}
+                        frameSize={settings.defaultCachedFramesSize}
+                      />
                     ) :
                     (
                       <div
