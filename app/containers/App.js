@@ -26,7 +26,6 @@ import Footer from '../components/Footer';
 import VideoPlayer from '../components/VideoPlayer';
 import CutPlayer from '../components/CutPlayer';
 import Scrub from '../components/Scrub';
-import ScrubCut from '../components/ScrubCut';
 import ThumbEmpty from '../components/ThumbEmpty';
 import getScaleValueObject from '../utils/getScaleValueObject';
 import { getLowestFrame,
@@ -226,7 +225,6 @@ class App extends Component {
       timeBefore: undefined,
       opencvVideo: undefined,
       showScrubWindow: false,
-      showScrubCutWindow: false,
       scrubThumb: undefined,
       scrubScene: undefined,
       showChart: false,
@@ -269,7 +267,7 @@ class App extends Component {
     this.onScrubClick = this.onScrubClick.bind(this);
     this.onExpandClick = this.onExpandClick.bind(this);
     this.onAddThumbClick = this.onAddThumbClick.bind(this);
-    this.onCutThumbClick = this.onCutThumbClick.bind(this);
+    this.onJumpToCutThumbClick = this.onJumpToCutThumbClick.bind(this);
     this.onCutSceneClick = this.onCutSceneClick.bind(this);
     this.onMergeSceneClick = this.onMergeSceneClick.bind(this);
     this.openMoviesDialog = this.openMoviesDialog.bind(this);
@@ -918,10 +916,6 @@ class App extends Component {
       this.updateOpencvVideoCanvas(0);
     }
 
-    // if (prevState.showScrubCutWindow === false && this.state.showScrubCutWindow === true) {
-    //   this.updateOpencvVideoCanvas(0);
-    // }
-
     // replace all frames for this fileId -> fileIdToBeRecaptured
     if (this.state.fileIdToBeRecaptured !== undefined &&
       prevState.fileIdToBeRecaptured !== this.state.fileIdToBeRecaptured) {
@@ -1436,11 +1430,8 @@ class App extends Component {
     const scrubThumbLeft = arrayToCompare.slice().reduce((prev, current) => prev.frameNumber < current.frameNumber ? prev : current);
     const scrubThumbRight = arrayToCompare.reduce((prev, current) => prev.frameNumber > current.frameNumber ? prev : current);
 
-    const switchToScrubCut = keyObject.ctrlKey;
-
     this.setState({
-      showScrubWindow: !switchToScrubCut && true,
-      showScrubCutWindow: switchToScrubCut && true,
+      showScrubWindow: true,
       scrubThumb,
       scrubScene,
       scrubThumbLeft,
@@ -1526,9 +1517,10 @@ class App extends Component {
     }
   }
 
-  onCutThumbClick(file, thumbId, otherSceneIs) {
+  onJumpToCutThumbClick(file, thumbId, otherSceneIs) {
     const { store } = this.context;
-    const { allScenes } = this.props;
+    const { allScenes, currentSheetId, sheetsByFileId, visibilitySettings } = this.props;
+
     store.dispatch(setView(VIEW.PLAYERVIEW));
 
     // get all scenes
@@ -1623,7 +1615,6 @@ class App extends Component {
     } else {
       this.setState({
         showScrubWindow: false,
-        showScrubCutWindow: false,
       });
     }
   }
@@ -1676,11 +1667,9 @@ class App extends Component {
           this.onChangeThumb(this.props.file, this.props.settings.currentSheetId, this.state.scrubThumb.thumbId, scrubFrameNumber, this.props.settings.defaultCachedFramesSize)
         }
       }
-
     }
     this.setState({
       showScrubWindow: false,
-      showScrubCutWindow: false,
     });
   }
 
@@ -2820,7 +2809,7 @@ class App extends Component {
                             onThumbDoubleClick={this.onViewToggle}
                             onChangeThumb={this.onChangeThumb}
                             onSelectThumbMethod={this.onSelectThumbMethod}
-                            onCutThumbClick={this.onCutThumbClick}
+                            onJumpToCutThumbClick={this.onJumpToCutThumbClick}
                             onCutSceneClick={this.onCutSceneClick}
                             onMergeSceneClick={this.onMergeSceneClick}
                             opencvVideo={this.state.opencvVideo}
@@ -2888,7 +2877,7 @@ class App extends Component {
                             inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                             keyObject={this.state.keyObject}
                             onAddThumbClick={this.onAddThumbClick}
-                            onCutThumbClick={this.onCutThumbClick}
+                            onJumpToCutThumbClick={this.onJumpToCutThumbClick}
                             onScrubClick={this.onScrubClick}
                             onExpandClick={this.onExpandClick}
                             onThumbDoubleClick={this.onViewToggle}
@@ -2919,7 +2908,7 @@ class App extends Component {
                             onSelectThumbMethod={this.onSelectThumbMethod}
                             onDeselectThumbMethod={this.onDeselectThumbMethod}
                             onThumbDoubleClick={this.onViewToggle}
-                            onCutThumbClick={this.onCutThumbClick}
+                            onJumpToCutThumbClick={this.onJumpToCutThumbClick}
                             onExpandClick={this.onExpandClick}
                             moviePrintWidth={scaleValueObject.newMoviePrintTimelineWidth}
                             moviePrintRowHeight={scaleValueObject.newTimelineRowHeight}
@@ -3106,24 +3095,6 @@ class App extends Component {
                   containerWidth={this.state.containerWidth}
                   containerHeight={this.state.containerHeight}
                   onScrubWindowMouseOver={this.onScrubWindowMouseOver}
-                  onScrubWindowClick={this.onScrubWindowClick}
-                />
-              }
-              { this.state.showScrubCutWindow &&
-                <ScrubCut
-                  opencvVideo={this.state.opencvVideo}
-                  // opencvVideoCanvasRef={this.opencvVideoCanvasRef}
-                  file={file}
-                  settings={settings}
-                  objectUrlObjects={filteredObjectUrlObjects}
-                  keyObject={this.state.keyObject}
-                  scrubThumb={this.state.scrubThumb}
-                  scrubThumbLeft={this.state.scrubThumbLeft}
-                  scrubThumbRight={this.state.scrubThumbRight}
-                  scaleValueObject={scaleValueObject}
-                  containerWidth={this.state.containerWidth}
-                  containerHeight={this.state.containerHeight}
-                  // onScrubWindowMouseOver={this.onScrubWindowMouseOver}
                   onScrubWindowClick={this.onScrubWindowClick}
                 />
               }

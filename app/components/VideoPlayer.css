@@ -13,6 +13,17 @@
   object-fit: contain;
 }
 
+.videoOverlay {
+  position: absolute;
+  transform-origin: center bottom;
+  transform: translate(-50%, 0%);
+  top: 0;
+  left: 50%;
+  width: 640px;
+  object-fit: contain;
+  background-color: rgba(0,0,0,0.8); /* Black w/ opacity */
+}
+
 .frameNumberOrTimeCode {
   position: absolute;
   top: 0;
@@ -213,6 +224,15 @@
     transform-origin: center bottom;
     transform: translate(-50%, 0%);
     opacity: 0.5;
+}
+
+.html5Button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-top: 8px;
+    margin-left: 8px;
+    z-Index: 1;
 }
 
 .backButton {

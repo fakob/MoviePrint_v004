@@ -70,8 +70,8 @@ class ThumbGrid extends Component {
     this.onScrub = this.onScrub.bind(this);
     this.onAddBefore = this.onAddBefore.bind(this);
     this.onAddAfter = this.onAddAfter.bind(this);
-    this.onCutBefore = this.onCutBefore.bind(this);
-    this.onCutAfter = this.onCutAfter.bind(this);
+    this.onJumpToCutBefore = this.onJumpToCutBefore.bind(this);
+    this.onJumpToCutAfter = this.onJumpToCutAfter.bind(this);
     this.onBack = this.onBack.bind(this);
     this.onForward = this.onForward.bind(this);
     this.onHoverAddThumbBefore = this.onHoverAddThumbBefore.bind(this);
@@ -238,19 +238,19 @@ class ThumbGrid extends Component {
     this.resetHover();
   }
 
-  onCutBefore(e) {
-    // console.log('onCutBefore');
+  onJumpToCutBefore(e) {
+    // console.log('onJumpToCutBefore');
     e.stopPropagation();
     const thumb = this.props.thumbs.find(thumb => thumb.thumbId === this.state.controllersVisible);
-    this.props.onCutThumbClick(this.props.file, thumb.thumbId, 'before');
+    this.props.onJumpToCutThumbClick(this.props.file, thumb.thumbId, 'before');
     this.resetHover();
   }
 
-  onCutAfter(e) {
-    // console.log('onCutAfter');
+  onJumpToCutAfter(e) {
+    // console.log('onJumpToCutAfter');
     e.stopPropagation();
     const thumb = this.props.thumbs.find(thumb => thumb.thumbId === this.state.controllersVisible);
-    this.props.onCutThumbClick(this.props.file, thumb.thumbId, 'after');
+    this.props.onJumpToCutThumbClick(this.props.file, thumb.thumbId, 'after');
     this.resetHover();
   }
 
@@ -561,13 +561,13 @@ class ThumbGrid extends Component {
                     className={stylesPop.popup}
                     content={<span>Set this thumb as new <mark>IN-point</mark></span>}
                   />}
-                  <Popup
+                  {!isPlayerView && <Popup
                     trigger={
                       <button
                         data-tid={`addNewThumbBeforeBtn_${controllersVisible}`}
                         type='button'
                         className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayAddBefore} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
-                        onClick={sheetType === SHEET_TYPE.SCENES ? this.onCutBefore : this.onAddBefore}
+                        onClick={sheetType === SHEET_TYPE.SCENES ? this.onJumpToCutBefore : this.onAddBefore}
                         onMouseOver={this.onHoverAddThumbBefore}
                         onMouseOut={this.onLeaveAddThumb}
                         onFocus={this.over}
@@ -577,34 +577,33 @@ class ThumbGrid extends Component {
                       </button>
                     }
                     className={stylesPop.popup}
-                    content={<span>Add new thumb before</span>}
-                  />
+                    content={sheetType === SHEET_TYPE.SCENES ? (<span>Jump to cut</span>) : (<span>Add new thumb before</span>)}
+                  />}
                   <Popup
                     trigger={
                       <button
                         data-tid={`scrubBtn_${controllersVisible}`}
                         type='button'
                         className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayScrub} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
-                        // onClick={onScrubWithStop}
                         onMouseDown={this.onScrub}
                         onMouseOver={this.over}
                         onMouseOut={this.out}
                         onFocus={this.over}
                         onBlur={this.out}
                       >
-                        {keyObject.ctrlKey ? '<|||>' : '<|>'}
+                        {'<|>'}
                       </button>
                     }
                     className={stylesPop.popup}
                     content={<span>Click and drag left and right to change the frame (<mark>SHIFT</mark> add new thumb before, <mark>ALT</mark> add new thumb after, <mark>CTRL</mark> display original as overlay)</span>}
                   />
-                  <Popup
+                  {!isPlayerView && <Popup
                     trigger={
                       <button
                         data-tid={`addNewThumbAfterBtn_${controllersVisible}`}
                         type='button'
                         className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayAddAfter} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
-                        onClick={sheetType === SHEET_TYPE.SCENES ? this.onCutAfter : this.onAddAfter}
+                        onClick={sheetType === SHEET_TYPE.SCENES ? this.onJumpToCutAfter : this.onAddAfter}
                         onMouseOver={this.onHoverAddThumbAfter}
                         onMouseOut={this.onLeaveAddThumb}
                         onFocus={this.over}
@@ -614,8 +613,8 @@ class ThumbGrid extends Component {
                       </button>
                     }
                     className={stylesPop.popup}
-                    content={<span>Add new thumb after</span>}
-                  />
+                    content={sheetType === SHEET_TYPE.SCENES ? (<span>Jump to cut</span>) : (<span>Add new thumb after</span>)}
+                  />}
                   {sheetType === SHEET_TYPE.INTERVAL && <Popup
                     trigger={
                       <button
@@ -690,7 +689,7 @@ ThumbGrid.propTypes = {
   onThumbDoubleClick: PropTypes.func,
   onScrubClick: PropTypes.func.isRequired,
   onAddThumbClick: PropTypes.func.isRequired,
-  onCutThumbClick: PropTypes.func.isRequired,
+  onJumpToCutThumbClick: PropTypes.func.isRequired,
   onToggleClick: PropTypes.func.isRequired,
   onExpandClick: PropTypes.func.isRequired,
   scaleValueObject: PropTypes.object.isRequired,

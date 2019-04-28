@@ -155,11 +155,11 @@ class SceneGrid extends Component {
                 }}
               onCutBefore={(scene.sceneId !== this.state.controllersVisible) ?
                 null : () => {
-                  this.props.onCutThumbClick(this.props.file, scene.sceneId, 'before');
+                  this.props.onJumpToCutThumbClick(this.props.file, scene.sceneId, 'before');
                 }}
               onCutAfter={(scene.sceneId !== this.state.controllersVisible) ?
                 null : () => {
-                  this.props.onCutThumbClick(this.props.file, scene.sceneId, 'after');
+                  this.props.onJumpToCutThumbClick(this.props.file, scene.sceneId, 'after');
                 }}
               onExpand={(scene.sceneId !== this.state.controllersVisible) ?
                 null : () => {

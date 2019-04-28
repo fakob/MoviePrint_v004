@@ -96,7 +96,7 @@ class SortedVisibleSceneGrid extends Component {
         frameCount={this.props.file ? this.props.file.frameCount : undefined}
         keyObject={this.props.keyObject}
         onAddThumbClick={this.props.onAddThumbClick}
-        onCutThumbClick={this.props.onCutThumbClick}
+        onJumpToCutThumbClick={this.props.onJumpToCutThumbClick}
         onBackClick={this.props.onBackClick}
         onForwardClick={this.props.onForwardClick}
         onInPointClick={this.props.onInPointClick}

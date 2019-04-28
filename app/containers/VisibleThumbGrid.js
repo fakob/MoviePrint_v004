@@ -106,7 +106,7 @@ class SortedVisibleThumbGrid extends Component {
       objectUrlObjects,
       onAddThumbClick,
       onBackClick,
-      onCutThumbClick,
+      onJumpToCutThumbClick,
       onExpandClick,
       onForwardClick,
       onInPointClick,
@@ -140,7 +140,7 @@ class SortedVisibleThumbGrid extends Component {
         inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
         keyObject={keyObject}
         onAddThumbClick={onAddThumbClick}
-        onCutThumbClick={onCutThumbClick}
+        onJumpToCutThumbClick={onJumpToCutThumbClick}
         onBackClick={onBackClick}
         onForwardClick={onForwardClick}
         onInPointClick={onInPointClick}
@@ -280,7 +280,7 @@ SortedVisibleThumbGrid.propTypes = {
   onSaveThumbClick: PropTypes.func.isRequired,
   onScrubClick: PropTypes.func,
   onAddThumbClick: PropTypes.func,
-  onCutThumbClick: PropTypes.func,
+  onJumpToCutThumbClick: PropTypes.func,
   onExpandClick: PropTypes.func,
   onThumbDoubleClick: PropTypes.func,
   onToggleClick: PropTypes.func.isRequired,
