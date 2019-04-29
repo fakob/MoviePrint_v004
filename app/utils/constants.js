@@ -13,7 +13,7 @@ export const SHEET_FIT = {
 
 export const SHEET_TYPE = {
   INTERVAL: 'interval',
-  SCENES: 'scenes',
+  SCENES: 'shot',
 };
 
 export const SHEET_TYPE_OPTIONS = [
@@ -21,7 +21,7 @@ export const SHEET_TYPE_OPTIONS = [
   { value: SHEET_TYPE.SCENES, text: 'Scenes' , 'data-tid': 'sheetTypeOptionsScenes'},
 ];
 
-export const SHEETVIEW = {
+export const SHEET_VIEW = {
   GRIDVIEW: 'gridView',
   TIMELINEVIEW: 'timelineView',
 };
@@ -70,7 +70,7 @@ export const VISIBILITY_FILTER = 'SHOW_VISIBLE';
 export const SHOW_MOVIELIST = false;
 export const SHOW_SETTINGS = false;
 export const DEFAULT_VIEW = VIEW.STANDARDVIEW
-export const DEFAULT_SHEETVIEW = SHEETVIEW.GRIDVIEW;
+export const DEFAULT_SHEETVIEW = SHEET_VIEW.GRIDVIEW;
 export const DEFAULT_SHEET_TYPE = SHEET_TYPE.INTERVAL;
 export const SH = SHEET_FIT.BOTH;
 
@@ -147,3 +147,8 @@ export const DEFAULT_FRAME_SCALE = 1; // scale of frames to be stored in the dat
 export const FRAMESDB_PATH = path.join(app.getPath('userData'), 'moviePrint_frames.db');
 
 export const STATEID = '1';
+
+export const SCRUBCUT_SLICE_ARRAY_SIZE = 19;
+export const VIDEOPLAYER_SLICE_ARRAY_SIZE = 20;
+export const VIDEOPLAYER_SCENE_MARGIN = 4;
+export const VIDEOPLAYER_FIXED_PIXEL_PER_FRAME_RATIO = 0.3;

@@ -3,24 +3,20 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import { Icon, Popup } from 'semantic-ui-react';
 import Scene from './Scene';
 import styles from './SceneGrid.css';
+import stylesApp from '../containers/App.css';
+import stylesPop from './Popup.css';
 import {
-  // getNextThumbs,
-  // getPreviousThumbs,
-  // mapRange,
-  getObjectProperty,
-  // getWidthOfLongestRow,
-  // formatBytes,
-  // frameCountToTimeCode,
-  // getLowestFrame,
-  // getHighestFrame,
-  // getAllFrameNumbers,
-  // roundNumber,
-} from './../utils/utils';
+  getWidthOfSingleRow,
+} from '../utils/utils';
 import {
+  VIDEOPLAYER_FIXED_PIXEL_PER_FRAME_RATIO,
+  VIDEOPLAYER_SCENE_MARGIN,
   VIEW,
-} from './../utils/constants';
+  SHEET_TYPE,
+} from '../utils/constants';
 
 const SortableScene = SortableElement(Scene);
 
@@ -29,10 +25,7 @@ class SceneGrid extends Component {
     super(props);
 
     this.state = {
-      thumbsToDim: [],
       controllersVisible: undefined,
-      addThumbBeforeController: undefined,
-      addThumbAfterController: undefined,
     };
   }
 
@@ -42,24 +35,35 @@ class SceneGrid extends Component {
   componentDidMount() {
   }
 
-  componentWillReceiveProps(nextProps) {
-  }
-
   componentDidUpdate(prevProps) {
   }
 
   render() {
-    const minSceneLength = this.props.minSceneLength;
-    const sceneArray = this.props.scenes;
-    const thumbMarginTimeline = Math.floor(this.props.scaleValueObject.thumbMarginTimeline);
-    // let rowCounter = 1;
+    const { file, minSceneLength, scaleValueObject, scenes, selectedThumbsArray, settings, sheetType, view } = this.props;
+    const { scenesInRows } = scaleValueObject;
 
-    const rowHeight = this.props.scaleValueObject.newMoviePrintTimelineRowHeight;
-    const realWidth = (rowHeight / this.props.scaleValueObject.aspectRatioInv);
-    const newPixelPerFrameRatio = this.props.scaleValueObject.newMoviePrintTimelinePixelPerFrameRatio;
-    const scenesInRows = this.props.scaleValueObject.scenesInRows;
+    const isPlayerView = view !== VIEW.STANDARDVIEW;
+    const breakOnWidth = isPlayerView || settings.defaultTimelineViewFlow;
+
+    const thumbMarginTimeline = isPlayerView ? VIDEOPLAYER_SCENE_MARGIN : Math.floor(scaleValueObject.thumbMarginTimeline);
+
+    const rowHeight = scaleValueObject.newMoviePrintTimelineRowHeight;
+    const rowHeightForPlayer = ((scaleValueObject.videoPlayerHeight / 2) - (settings.defaultBorderMargin * 3));
+
+    const realWidth = (rowHeight / scaleValueObject.aspectRatioInv);
+    const realWidthForPlayer = (rowHeightForPlayer / scaleValueObject.aspectRatioInv);
+    const newPixelPerFrameRatio = isPlayerView ? VIDEOPLAYER_FIXED_PIXEL_PER_FRAME_RATIO : scaleValueObject.newMoviePrintTimelinePixelPerFrameRatio; // set fixed pixel per frame ratio for player
     const indexRowArray = scenesInRows.map(item => item.index);
-    // console.log(indexRowArray);
+
+    // for VideoPlayer
+    const widthOfSingleRow =
+      getWidthOfSingleRow(
+        scenes,
+        thumbMarginTimeline,
+        newPixelPerFrameRatio,
+        minSceneLength)
+      + realWidthForPlayer
+      + thumbMarginTimeline;
 
     return (
       <div
@@ -67,20 +71,43 @@ class SceneGrid extends Component {
         className={styles.grid}
         id="SceneGrid"
         style={{
-          marginLeft: this.props.view === VIEW.STANDARDVIEW ? undefined : '48px',
+          paddingLeft: isPlayerView ? '48px' : undefined,
         }}
       >
+        {isPlayerView &&
+          sheetType === SHEET_TYPE.SCENES &&
+          <Popup
+          trigger={
+            <button
+              type='button'
+              className={`${styles.hoverButton} ${styles.textButton} ${styles.sheetTypeSwitchButton} ${this.props.showMovielist ? stylesApp.ItemMainLeftAnim : ''}`}
+              onClick={() => this.props.onToggleSheetView(file.id,this.props.currentSheetId)}
+              onMouseOver={this.over}
+              onMouseLeave={this.out}
+              onFocus={this.over}
+              onBlur={this.out}
+            >
+              <Icon
+                name="grid layout"
+              />
+            </button>
+          }
+          className={stylesPop.popup}
+          content={<span>Switch to grid view <mark>G</mark></span>}
+        />}
         <div
           data-tid='sceneGridBodyDiv'
           style={{
-            // width: newMaxWidth + realWidth, // enough width so when user selects thumb and it becomes wider, the row does not break into the next line
+            width: isPlayerView ? widthOfSingleRow : undefined, // if VideoPlayer then single row
           }}
         >
-          {sceneArray.map((scene, index) => {
+          {scenes.map((scene, index) => {
             // minutes per row idea
-            const selected = this.props.selectedSceneId ? (this.props.selectedSceneId === scene.sceneId) : false;
-            const width = selected ? realWidth :
-              Math.max(newPixelPerFrameRatio * scene.length, newPixelPerFrameRatio * minSceneLength);
+            const selected = selectedThumbsArray.length > 0 ? selectedThumbsArray.some(item => item.thumbId === scene.sceneId) : false;
+            const rWidth = isPlayerView ? realWidthForPlayer : realWidth;
+            const width = selected ? Math.floor(rWidth) :
+              Math.floor(Math.max(newPixelPerFrameRatio * scene.length, newPixelPerFrameRatio * minSceneLength));
+            // console.log(width);
             let doLineBreak = false;
             if (indexRowArray.findIndex(item => item === index - 1) > -1) {
               doLineBreak = true;
@@ -94,8 +121,9 @@ class SceneGrid extends Component {
               hidden={scene.hidden}
               controllersAreVisible={(scene.sceneId === undefined) ? false : (scene.sceneId === this.state.controllersVisible)}
               selected={selected}
-              doLineBreak={!this.props.settings.defaultTimelineViewFlow && doLineBreak}
+              doLineBreak={!breakOnWidth && doLineBreak}
               sheetView={this.props.sheetView}
+              view={view}
               keyObject={this.props.keyObject}
               indexForId={index}
               index={index}
@@ -104,11 +132,11 @@ class SceneGrid extends Component {
               margin={thumbMarginTimeline}
 
               // only allow expanding of scenes which are not already large enough and deselecting
-              allowSceneToBeSelected={selected || width < (realWidth * 0.95)}
+              allowSceneToBeSelected={isPlayerView || selected || width < (realWidth * 0.95)}
 
               // use minimum value to make sure that scene does not disappear
               thumbWidth={Math.max(1, width)}
-              thumbHeight={Math.max(1, rowHeight)}
+              thumbHeight={isPlayerView ? rowHeightForPlayer : Math.max(1, rowHeight)}
 
               hexColor={`#${((1 << 24) + (Math.round(scene.colorArray[0]) << 16) + (Math.round(scene.colorArray[1]) << 8) + Math.round(scene.colorArray[2])).toString(16).slice(1)}`}
               thumbImageObjectUrl={ // used for data stored in IndexedDB
@@ -145,13 +173,25 @@ class SceneGrid extends Component {
               onToggle={(scene.sceneId !== this.state.controllersVisible) ?
                 null : () => this.props.onToggleClick(this.props.file.id, scene.sceneId)}
               onSelect={(scene.sceneId !== this.state.controllersVisible) ?
+                null : (!isPlayerView && selected) ? () => {
+                  this.props.onDeselectClick();
+                } : () => {
+                  this.props.onSelectClick(scene.sceneId, scene.start);
+                }}
+              onCutBefore={(scene.sceneId !== this.state.controllersVisible) ?
                 null : () => {
-                  this.props.onSelectClick(scene.sceneId);
+                  this.props.onJumpToCutThumbClick(this.props.file, scene.sceneId, 'before');
+                }}
+              onCutAfter={(scene.sceneId !== this.state.controllersVisible) ?
+                null : () => {
+                  this.props.onJumpToCutThumbClick(this.props.file, scene.sceneId, 'after');
                 }}
               onExpand={(scene.sceneId !== this.state.controllersVisible) ?
                 null : () => {
                   this.props.onExpandClick(this.props.file, scene.sceneId, this.props.currentSheetId);
                 }}
+              inputRefThumb={(this.props.selectedThumbsArray.length !== 0 && this.props.selectedThumbsArray[0].thumbId === scene.sceneId) ?
+                this.props.inputRefThumb : undefined} // for the thumb scrollIntoView function
             />)}
           )}
         </div>
@@ -161,9 +201,11 @@ class SceneGrid extends Component {
 }
 
 SceneGrid.defaultProps = {
+  scenes: [],
 };
 
 SceneGrid.propTypes = {
+  scenes: PropTypes.array,
 };
 
 const SortableSceneGrid = SortableContainer(SceneGrid);

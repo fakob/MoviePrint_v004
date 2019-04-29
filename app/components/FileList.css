@@ -125,8 +125,8 @@ li p {
 }
 
 .SheetLabel {
-  position: absolute;
-  top: 6px;
+  margin-left: 8px !important;
+  background-color: rgba(232, 232, 232, 0.5) !important;
 }
 
 .SheetList {

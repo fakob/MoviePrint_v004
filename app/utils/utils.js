@@ -480,12 +480,12 @@ export const getSheetName = (sheetsByFileId, fileId, sheetId) => {
   return sheetsByFileId[fileId][sheetId].name;
 };
 
-export const getSheetView = (sheetsByFileId, fileId, sheetId, settings) => {
+export const getSheetView = (sheetsByFileId, fileId, sheetId, visibilitySettings) => {
   if (sheetsByFileId === undefined ||
     sheetsByFileId[fileId] === undefined ||
     sheetsByFileId[fileId][sheetId] === undefined ||
-    sheetsByFileId[fileId][sheetId].type === undefined) {
-    return settings.defaultSheetView;
+    sheetsByFileId[fileId][sheetId].sheetView === undefined) {
+    return visibilitySettings.defaultSheetView;
   }
   return sheetsByFileId[fileId][sheetId].sheetView;
 };
@@ -585,6 +585,28 @@ export const getScrubFrameNumber = (
     scrubFrameNumber = mapRange(mouseX, 0, leftOfScrubMovie, 0, tempLeftFrameNumber);
   } else if (mouseX > rightOfScrubMovie) {
     scrubFrameNumber = mapRange(mouseX, rightOfScrubMovie, scaleValueObject.containerWidth, tempRightFrameNumber, frameCount - 1);
+  } else {
+    scrubFrameNumber = mapRange(mouseX, leftOfScrubMovie, rightOfScrubMovie, tempLeftFrameNumber, tempRightFrameNumber);
+  }
+  return scrubFrameNumber;
+}
+
+export const getSceneScrubFrameNumber = (
+  mouseX,
+  scaleValueObject,
+  scrubThumb,
+  scrubScene,
+) => {
+  let scrubFrameNumber;
+
+  const leftOfScrubMovie = (scaleValueObject.scrubInnerContainerWidth - scaleValueObject.scrubMovieWidth) / 2;
+  const rightOfScrubMovie = leftOfScrubMovie + scaleValueObject.scrubMovieWidth;
+  const tempLeftFrameNumber = scrubScene.start
+  const tempRightFrameNumber = scrubScene.start + scrubScene.length - 1;
+  if (mouseX < leftOfScrubMovie) {
+    scrubFrameNumber = tempLeftFrameNumber;
+  } else if (mouseX > rightOfScrubMovie) {
+    scrubFrameNumber = tempRightFrameNumber;
   } else {
     scrubFrameNumber = mapRange(mouseX, leftOfScrubMovie, rightOfScrubMovie, tempLeftFrameNumber, tempRightFrameNumber);
   }
@@ -702,34 +724,44 @@ export const getScenesInRows = (sceneArray, secondsPerRow) => {
   return rowArray;
 }
 
-export const getWidthOfLongestRow = (rowArray, thumbMargin, pixelPerFrameRatio, minSceneLengthInFrames) => {
-  // calculate width through getting longest row
-  // console.log(rowArray);
-  // console.log(thumbMargin);
-  // console.log(pixelPerFrameRatio);
-  if (rowArray.length === 0) {
+export const getWidthOfSingleRow = (scenes, thumbMargin, pixelPerFrameRatio, minSceneLength) => {
+  if (scenes === undefined) {
     return undefined;
   }
-  const rowLengthArray = [];
-  rowArray.map((row) => {
-    // console.log(row.sceneLengthsInRow);
-    // calculate width
-    let rowWidth = 0;
-    row.sceneLengthsInRow.map((sceneLength) => {
-      // const widthOfScene = Math.max(sceneLength, minSceneLengthInFrames) * pixelPerFrameRatio + thumbMargin * 2;
-      const widthOfScene = Math.max(sceneLength, minSceneLengthInFrames) * pixelPerFrameRatio + thumbMargin * 2 * pixelPerFrameRatio;
-      rowWidth += widthOfScene;
-      // console.log(widthOfScene);
-      return undefined;
-    });
-    rowLengthArray.push(Math.ceil(rowWidth));
-    return undefined;
-  })
-  const maxWidth = Math.max(...rowLengthArray);
-  // console.log(rowLengthArray);
-  // console.log(maxWidth);
-  return maxWidth
+  const sceneLengthArray = scenes.map(scene => Math.max(scene.length, minSceneLength));
+  const sumSceneLengths = sceneLengthArray.reduce((a, b) => a + b, 0);
+  const widthOfSingleRow = sumSceneLengths * pixelPerFrameRatio + scenes.length * thumbMargin * 2;
+  return widthOfSingleRow;
 }
+
+// export const getWidthOfLongestRow = (rowArray, thumbMargin, pixelPerFrameRatio, minSceneLengthInFrames) => {
+//   // calculate width through getting longest row
+//   // console.log(rowArray);
+//   // console.log(thumbMargin);
+//   // console.log(pixelPerFrameRatio);
+//   if (rowArray.length === 0) {
+//     return undefined;
+//   }
+//   const rowLengthArray = [];
+//   rowArray.map((row) => {
+//     // console.log(row.sceneLengthsInRow);
+//     // calculate width
+//     let rowWidth = 0;
+//     row.sceneLengthsInRow.map((sceneLength) => {
+//       // const widthOfScene = Math.max(sceneLength, minSceneLengthInFrames) * pixelPerFrameRatio + thumbMargin * 2;
+//       const widthOfScene = Math.max(sceneLength, minSceneLengthInFrames) * pixelPerFrameRatio + thumbMargin * 2 * pixelPerFrameRatio;
+//       rowWidth += widthOfScene;
+//       // console.log(widthOfScene);
+//       return undefined;
+//     });
+//     rowLengthArray.push(Math.ceil(rowWidth));
+//     return undefined;
+//   })
+//   const maxWidth = Math.max(...rowLengthArray);
+//   // console.log(rowLengthArray);
+//   // console.log(maxWidth);
+//   return maxWidth
+// }
 
 export const getPixelPerFrameRatio = (rowArray, thumbMargin, width, minSceneLengthInFrames) => {
   // calculate width through getting longest row
@@ -802,4 +834,71 @@ export const createSceneArray = (sheetsByFileId, fileId, sheetId) => {
     return [];
   }
   return [];
+}
+
+export const getSliceWidthArrayForScrub = (vid, sliceArraySize = 19, sliceWidthOutsideMin = 20) => {
+  const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
+  // const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
+  const sliceWidthInMiddle = width;
+  const sliceWidthArray = [];
+  const halfArraySize = Math.ceil(sliceArraySize / 2);
+  for (let i = 0; i < sliceArraySize; i += 1) {
+    const factor = i < halfArraySize ? halfArraySize - (i + 1) : (i + 1) - halfArraySize
+    const sliceWidth = Math.floor(sliceWidthInMiddle / (2 ** factor));
+    sliceWidthArray.push(Math.max(sliceWidth, sliceWidthOutsideMin));
+  }
+  return sliceWidthArray;
+};
+
+export const getSliceWidthArrayForCut = (canvasWidth, sliceArraySize = 20, sliceGap = 1, cutGap = 8) => {
+  const isAsymmetrical = sliceArraySize % 2 === 1;
+  const halfArraySize = Math.floor(sliceArraySize / 2);
+  const newCanvasWidth = canvasWidth - cutGap - sliceGap * sliceArraySize;
+  const sliceWidthInMiddle = Math.floor(newCanvasWidth / (isAsymmetrical ? 3 : 4));
+  const sliceWidthArray = [];
+  let factor;
+  for (let i = 0; i < sliceArraySize; i += 1) {
+    if (isAsymmetrical) {
+      factor = i < halfArraySize ? halfArraySize - (i + 1) : (i + 1) - halfArraySize;
+    } else {
+      factor = i < halfArraySize ? halfArraySize - (i + 1) : i - halfArraySize;
+    }
+    const sliceWidth = Math.floor(sliceWidthInMiddle / (2 ** factor));
+    sliceWidthArray.push(Math.max(sliceWidth, 1)); // keep minimum of 1px
+  }
+  return sliceWidthArray;
+};
+
+export const getSceneFromFrameNumber = (scenes, frameNumber) => {
+  if (scenes === undefined) {
+    return undefined;
+  }
+  const scene = scenes.find(scene1 => (scene1.start <= frameNumber && (scene1.start + scene1.length) > frameNumber));
+  if (scene !== undefined || scenes.length < 1) {
+    return scene;
+  }
+  const maxFrameNumberScene = scenes.reduce((prev, current) => ((prev.start + prev.length) > (current.start + current.length)) ? prev : current);
+  const minFrameNumberScene = scenes.reduce((prev, current) => (prev.start < current.start) ? prev : current);
+  const maxFrameNumber = maxFrameNumberScene.start + maxFrameNumberScene.length - 1;
+  const minFrameNumber = minFrameNumberScene.start;
+  const newFrameNumberToSearch = Math.min(maxFrameNumber, Math.max(minFrameNumber, frameNumber));
+  const closestScene = scenes.find(scene1 => (scene1.start <= newFrameNumberToSearch && (scene1.start + scene1.length) > newFrameNumberToSearch));
+  return closestScene;
+}
+
+export const getAdjacentSceneIndicesFromCut = (scenes, frameNumber) => {
+  // return an array of 2 adjacent scenes if the frameNumber is the cut in between
+  // else return undefined
+  const sceneIndex = scenes.findIndex(scene1 => (scene1.start === frameNumber));
+  console.log(frameNumber);
+  console.log(scenes);
+  if (sceneIndex <= 0) {
+    return undefined;
+  }
+  const adjacentSceneIndicesArray = [
+    sceneIndex - 1,
+    sceneIndex
+  ];
+  console.log(adjacentSceneIndicesArray);
+  return adjacentSceneIndicesArray;
 }

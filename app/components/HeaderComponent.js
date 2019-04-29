@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Menu, Dropdown, Icon, Popup } from 'semantic-ui-react';
 import {
-  MENU_HEADER_HEIGHT, SHEETVIEW, VIEW, SHEET_FIT
+  MENU_HEADER_HEIGHT, SHEET_VIEW, VIEW, SHEET_FIT
 } from '../utils/constants';
 import { truncate } from '../utils/utils';
 import styles from './Menu.css';
@@ -52,7 +52,7 @@ const Header = ({
               </Menu.Item>
             }
             className={stylesPop.popup}
-            content={(visibilitySettings.showMovielist === false) ? 'Show Movie and Sheets list' : 'Hide Movie list'}
+            content={(visibilitySettings.showMovielist === false) ? <span>Show Movie and Sheets list <mark>1</mark></span> : <span>Hide Movie list <mark>1</mark></span>}
             keepInViewPort={false}
           />
         }
@@ -69,7 +69,7 @@ const Header = ({
             </Menu.Item>
           }
           className={stylesPop.popup}
-          content="Open one or more movies"
+          content={<span>Add one or more movies <mark>A</mark></span>}
           keepInViewPort={false}
         />
         <Popup
@@ -101,8 +101,8 @@ const Header = ({
         />
         <Menu.Menu position="right">
           {file &&
-            visibilitySettings.defaultSheetView === SHEETVIEW.GRIDVIEW &&
-            // !visibilitySettings.showSettings &&
+            visibilitySettings.defaultSheetView === SHEET_VIEW.GRIDVIEW &&
+            visibilitySettings.defaultView === VIEW.STANDARDVIEW &&
             visibilitySettings.defaultSheetFit !== SHEET_FIT.HEIGHT &&
             scaleValueObject.moviePrintAspectRatioInv < scaleValueObject.containerAspectRatioInv &&
             <Popup
@@ -123,8 +123,8 @@ const Header = ({
             />
           }
           {file &&
-            visibilitySettings.defaultSheetView === SHEETVIEW.GRIDVIEW &&
-            // !visibilitySettings.showSettings &&
+            visibilitySettings.defaultSheetView === SHEET_VIEW.GRIDVIEW &&
+            visibilitySettings.defaultView === VIEW.STANDARDVIEW &&
             visibilitySettings.defaultSheetFit !== SHEET_FIT.WIDTH &&
             scaleValueObject.moviePrintAspectRatioInv > scaleValueObject.containerAspectRatioInv &&
             <Popup
@@ -144,7 +144,9 @@ const Header = ({
               keepInViewPort={false}
             />
           }
-          {file && visibilitySettings.defaultSheetView === SHEETVIEW.GRIDVIEW && visibilitySettings.defaultSheetFit !== SHEET_FIT.BOTH &&
+          {file && visibilitySettings.defaultSheetView === SHEET_VIEW.GRIDVIEW &&
+            visibilitySettings.defaultView === VIEW.STANDARDVIEW &&
+            visibilitySettings.defaultSheetFit !== SHEET_FIT.BOTH &&
             <Popup
               trigger={
                 <Menu.Item
@@ -162,7 +164,8 @@ const Header = ({
               keepInViewPort={false}
             />
           }
-          {file && visibilitySettings.defaultSheetView === SHEETVIEW.GRIDVIEW &&
+          {file && visibilitySettings.defaultSheetView === SHEET_VIEW.GRIDVIEW &&
+            visibilitySettings.defaultView === VIEW.STANDARDVIEW &&
             <Popup
               trigger={
                 <Menu.Item
@@ -236,7 +239,7 @@ const Header = ({
                 </Menu.Item>
               }
               className={stylesPop.popup}
-              content={(visibilitySettings.defaultView === VIEW.STANDARDVIEW) ? 'Show player view' : 'Hide player view'}
+              content={(visibilitySettings.defaultView === VIEW.STANDARDVIEW) ? <span>Show player view <mark>2</mark></span> : <span>Hide player view <mark>2</mark></span>}
               keepInViewPort={false}
             />
           }
@@ -253,7 +256,7 @@ const Header = ({
               </Menu.Item>
             }
             className={stylesPop.popup}
-            content={(visibilitySettings.showSettings === false) ? 'Show settings' : 'Hide settings'}
+            content={(visibilitySettings.showSettings === false) ? <span>Show settings <mark>3</mark></span> : <span>Hide settings <mark>3</mark></span>}
             keepInViewPort={false}
           />
         </Menu.Menu>

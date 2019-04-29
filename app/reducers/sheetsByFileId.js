@@ -12,7 +12,18 @@ const thumb = (state = {}, action, index) => {
       return Object.assign({}, state, {
         hidden: !state.hidden
       });
+    case 'UPDATE_SCENE_LENGTH':
+      if (state.sceneId !== action.payload.sceneId) {
+        return state;
+      }
+      return Object.assign({}, state, {
+        length: action.payload.length
+      });
     case 'ADD_THUMB':
+      return Object.assign({}, state, {
+        index
+      });
+    case 'INSERT_SCENE':
       return Object.assign({}, state, {
         index
       });
@@ -103,6 +114,59 @@ const sheetsByFileId = (state = {}, action) => {
         }
       };
     }
+    case 'INSERT_SCENE': {
+      // load the current scene array, if it does not exist it stays empty
+      // log.debug(action.payload);
+      // log.debug(state);
+      let currentArray = [];
+      if (state[action.payload.fileId] !== undefined &&
+        state[action.payload.fileId][action.payload.sheetId] !== undefined &&
+        state[action.payload.fileId][action.payload.sheetId].sceneArray !== undefined) {
+        currentArray = state[action.payload.fileId][action.payload.sheetId].sceneArray.slice();
+      }
+      currentArray.splice(action.payload.index, 0, action.payload);
+      const combinedArrayReordered = currentArray.map((t, index) => thumb(t, action, index));
+      return {
+        ...state,
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          [action.payload.sheetId]: {
+            // conditional adding of properties
+            ...(state[action.payload.fileId] === undefined ?
+              {} :
+              state[action.payload.fileId][action.payload.sheetId]
+            ),
+            sceneArray: combinedArrayReordered
+          }
+        }
+      };
+    }
+    case 'DELETE_SCENE': {
+      // load the current scene array, if it does not exist it stays empty
+      // log.debug(action.payload);
+      // log.debug(state);
+      let currentArray = [];
+      if (state[action.payload.fileId] !== undefined &&
+        state[action.payload.fileId][action.payload.sheetId] !== undefined &&
+        state[action.payload.fileId][action.payload.sheetId].sceneArray !== undefined) {
+        currentArray = state[action.payload.fileId][action.payload.sheetId].sceneArray.slice();
+      }
+      currentArray.splice(action.payload.index, 1);
+      return {
+        ...state,
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          [action.payload.sheetId]: {
+            // conditional adding of properties
+            ...(state[action.payload.fileId] === undefined ?
+              {} :
+              state[action.payload.fileId][action.payload.sheetId]
+            ),
+            sceneArray: currentArray
+          }
+        }
+      };
+    }
     case 'ADD_SCENES': {
       // load the current scenes array, if it does not exist it stays empty
       log.debug(action.payload);
@@ -141,6 +205,7 @@ const sheetsByFileId = (state = {}, action) => {
         }
       };
     case 'TOGGLE_SCENE':
+    case 'UPDATE_SCENE_LENGTH':
       return {
         ...state,
         [action.payload.fileId]: {
@@ -192,6 +257,32 @@ const sheetsByFileId = (state = {}, action) => {
               state[action.payload.fileId][action.payload.sheetId]
             ),
             thumbsArray: combinedArrayReordered
+          }
+        }
+      };
+    }
+    case 'DELETE_THUMB': {
+      // load the current thumbs array, if it does not exist it stays empty
+      // log.debug(action.payload);
+      // log.debug(state);
+      let currentArray = [];
+      if (state[action.payload.fileId] !== undefined &&
+        state[action.payload.fileId][action.payload.sheetId] !== undefined &&
+        state[action.payload.fileId][action.payload.sheetId].sceneArray !== undefined) {
+        currentArray = state[action.payload.fileId][action.payload.sheetId].thumbsArray.slice();
+      }
+      currentArray.splice(action.payload.index, 1);
+      return {
+        ...state,
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          [action.payload.sheetId]: {
+            // conditional adding of properties
+            ...(state[action.payload.fileId] === undefined ?
+              {} :
+              state[action.payload.fileId][action.payload.sheetId]
+            ),
+            thumbsArray: currentArray
           }
         }
       };

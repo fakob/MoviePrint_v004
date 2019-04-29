@@ -13,6 +13,17 @@
   object-fit: contain;
 }
 
+.videoOverlay {
+  position: absolute;
+  transform-origin: center bottom;
+  transform: translate(-50%, 0%);
+  top: 0;
+  left: 50%;
+  width: 640px;
+  object-fit: contain;
+  background-color: rgba(0,0,0,0.8); /* Black w/ opacity */
+}
+
 .frameNumberOrTimeCode {
   position: absolute;
   top: 0;
@@ -26,6 +37,10 @@
   color: #000000;
   -webkit-user-select:none;
   /*opacity: 0.5;*/
+}
+
+.moveToMiddle {
+  left: 50%;
 }
 
 .controlsWrapper button, .rightMenu button, .leftMenu button {
@@ -137,6 +152,105 @@
     transform: translate(-50%, 0%);
     opacity: 0.5;
     /* cursor: col-resize; */
+}
+
+.previousScene {
+    position: absolute;
+    bottom: 0;
+    left: 15%;
+    transform-origin: center bottom;
+    transform: translate(-50%, 0%);
+    opacity: 0.5;
+}
+
+.nextScene {
+    position: absolute;
+    bottom: 0;
+    right: 10%;
+    transform-origin: center bottom;
+    transform: translate(-50%, 0%);
+    opacity: 0.5;
+}
+
+.hundredFramesBack {
+    position: absolute;
+    bottom: 0;
+    left: 30%;
+    transform-origin: center bottom;
+    transform: translate(-50%, 0%);
+    opacity: 0.5;
+}
+
+.tenFramesBack {
+    position: absolute;
+    bottom: 0;
+    left: 35%;
+    transform-origin: center bottom;
+    transform: translate(-50%, 0%);
+    opacity: 0.5;
+}
+
+.oneFrameBack {
+    position: absolute;
+    bottom: 0;
+    left: 40%;
+    transform-origin: center bottom;
+    transform: translate(-50%, 0%);
+    opacity: 0.5;
+}
+
+.hundredFramesForward {
+    position: absolute;
+    bottom: 0;
+    right: 30%;
+    transform-origin: center bottom;
+    transform: translate(-50%, 0%);
+    opacity: 0.5;
+}
+
+.tenFramesForward {
+    position: absolute;
+    bottom: 0;
+    right: 35%;
+    transform-origin: center bottom;
+    transform: translate(-50%, 0%);
+    opacity: 0.5;
+}
+
+.oneFrameForward {
+    position: absolute;
+    bottom: 0;
+    right: 40%;
+    transform-origin: center bottom;
+    transform: translate(-50%, 0%);
+    opacity: 0.5;
+}
+
+.html5Button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-top: 8px;
+    margin-left: 8px;
+    z-Index: 1;
+}
+
+.backButton {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-top: 8px;
+    margin-right: 8px;
+    z-Index: 1;
+}
+
+.cutMergeButton {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform-origin: center bottom;
+    transform: translateX(-50%);
+    display: block;
 }
 
 .textButton {

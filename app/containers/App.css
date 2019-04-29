@@ -96,10 +96,10 @@
 .ItemVideoPlayer {
   transition: all 0.5s ease;
   position: fixed;
-  left: 50%;
-  right: auto;
-  bottom: auto;
-  margin-right: -50%;
+  /* left: 50%; */
+  /* right: auto; */
+  /* bottom: auto; */
+  /* margin-right: -50%; */
 }
 
 .ItemMainEdit {

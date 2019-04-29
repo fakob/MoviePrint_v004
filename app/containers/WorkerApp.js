@@ -17,7 +17,7 @@ import {
  } from '../utils/utils';
 import saveMoviePrint from '../utils/saveMoviePrint';
 import {
-  SHEETVIEW,
+  SHEET_VIEW,
   VIEW,
 } from '../utils/constants';
 import {
@@ -151,14 +151,14 @@ class WorkerApp extends Component {
               ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
               className={`${styles.ItemMain}`}
               style={{
-                width: `${sheetView !== SHEETVIEW.TIMELINEVIEW ?
+                width: `${sheetView !== SHEET_VIEW.TIMELINEVIEW ?
                   sentData.moviePrintWidth :
                   (Math.ceil(sentData.scaleValueObject.newMoviePrintTimelineWidth) + Math.ceil(sentData.scaleValueObject.thumbMarginTimeline) * 2)
                 }px`
               }}
             >
               <Fragment>
-                <Conditional if={sheetView === SHEETVIEW.GRIDVIEW}>
+                <Conditional if={sheetView === SHEET_VIEW.GRIDVIEW}>
                   <SortedVisibleThumbGrid
                     viewForPrinting
                     inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
@@ -182,7 +182,7 @@ class WorkerApp extends Component {
                     useBase64
                   />
                 </Conditional>
-                <Conditional if={sheetView === SHEETVIEW.TIMELINEVIEW}>
+                <Conditional if={sheetView === SHEET_VIEW.TIMELINEVIEW}>
                   <SortedVisibleSceneGrid
                     view={VIEW.STANDARDVIEW}
                     sheetView={sheetView}
@@ -191,6 +191,7 @@ class WorkerApp extends Component {
                     inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                     keyObject={{}}
                     selectedSceneId={undefined}
+                    selectedSceneIdArray={undefined}
                     scaleValueObject={sentData.scaleValueObject}
                     scenes={sentData.scenes}
                     settings={sentData.settings}

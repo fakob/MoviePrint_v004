@@ -7,22 +7,30 @@ import { Popup } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
 import log from 'electron-log';
 import { changeThumb, addIntervalSheet, addThumb } from '../actions';
+import VideoCaptureProperties from '../utils/videoCaptureProperties';
 import {
   MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
-  CHANGE_THUMB_STEP, MOVIEPRINT_COLORS
+  MOVIEPRINT_COLORS,
+  VIDEOPLAYER_SLICE_ARRAY_SIZE,
+  CHANGE_THUMB_STEP,
+  SHEET_VIEW,
+  SHEET_TYPE,
 } from '../utils/constants';
 import {
+  frameCountToTimeCode,
+  secondsToFrameCount,
   frameCountToSeconds,
   getHighestFrame,
   getLowestFrame,
+  getSceneFromFrameNumber,
+  getPreviousThumb,
+  getNextThumb,
+  getSliceWidthArrayForCut,
   getVisibleThumbs,
+  limitRange,
   mapRange,
-  secondsToFrameCount,
-  secondsToTimeCode,
-  frameCountToTimeCode,
   setPosition,
-  renderImage,
-} from './../utils/utils';
+} from '../utils/utils';
 import styles from './VideoPlayer.css';
 import stylesPop from './Popup.css';
 
@@ -34,178 +42,182 @@ class VideoPlayer extends Component {
     super(props);
 
     this.state = {
-      currentTime: 0, // in seconds
       currentFrame: 0, // in frames
-      duration: 0, // in seconds
-      playHeadPosition: 0, // in pixel
-      mouseStartDragInsideTimeline: false,
+      currentScene: {
+        start: 0,
+        length: 0
+      }, // in frames
       videoHeight: 360,
       videoWidth: 640,
-      showPlaybar: false,
+      playHeadPosition: 0, // in pixel
+      currentTime: 0, // in seconds
+      duration: 0, // in seconds
+      mouseStartDragInsideTimeline: false,
+      showPlaybar: true,
       loadVideo: false,
-      // opencvVideo: undefined
+      showHTML5Player: false,
     };
 
     // this.onSaveThumbClick = this.onSaveThumbClick.bind(this);
 
+    this.handleKeyPress = this.handleKeyPress.bind(this);
+
     this.getCurrentFrameNumber = this.getCurrentFrameNumber.bind(this);
-    this.onInPointClick = this.onInPointClick.bind(this);
-    this.onOutPointClick = this.onOutPointClick.bind(this);
-    this.onBackClick = this.onBackClick.bind(this);
-    this.onForwardClick = this.onForwardClick.bind(this);
+    this.onBackForwardClick = this.onBackForwardClick.bind(this);
     this.updateOpencvVideoCanvas = this.updateOpencvVideoCanvas.bind(this);
     this.updatePositionWithStep = this.updatePositionWithStep.bind(this);
     this.onDurationChange = this.onDurationChange.bind(this);
-    this.updateTimeFromThumbId = this.updateTimeFromThumbId.bind(this);
+    this.updateTimeFromFrameNumber = this.updateTimeFromFrameNumber.bind(this);
     this.updatePositionFromTime = this.updatePositionFromTime.bind(this);
     this.updatePositionFromFrame = this.updatePositionFromFrame.bind(this);
     this.onVideoError = this.onVideoError.bind(this);
     this.onLoadedData = this.onLoadedData.bind(this);
-    this.onShowPlaybar = this.onShowPlaybar.bind(this);
-    this.onHidePlaybar = this.onHidePlaybar.bind(this);
+    this.toggleHTML5Player = this.toggleHTML5Player.bind(this);
 
     this.onTimelineClick = this.onTimelineClick.bind(this);
     this.onTimelineDrag = this.onTimelineDrag.bind(this);
     this.onTimelineDragStop = this.onTimelineDragStop.bind(this);
     this.onTimelineMouseOver = this.onTimelineMouseOver.bind(this);
     this.onTimelineExit = this.onTimelineExit.bind(this);
-    this.onApplyClick = this.onApplyClick.bind(this);
+    this.onNextSceneClickWithStop = this.onNextSceneClickWithStop.bind(this);
+    this.onNextThumbClickWithStop = this.onNextThumbClickWithStop.bind(this);
+    this.onChangeThumbClick = this.onChangeThumbClick.bind(this);
+    this.onChangeOrAddClick = this.onChangeOrAddClick.bind(this);
   }
 
   componentWillMount() {
-    const videoHeight = this.props.height - this.props.controllerHeight;
-    const videoWidth = videoHeight / this.props.aspectRatioInv;
+    const { aspectRatioInv, height, controllerHeight } = this.props;
+    const videoHeight = parseInt(height - controllerHeight, 10);
+    const videoWidth = videoHeight / aspectRatioInv;
     this.setState({
       videoHeight,
       videoWidth,
       loadVideo: true,
-      // opencvVideo: new opencv.VideoCapture(this.props.file.path),
     });
   }
 
   componentDidMount() {
-    this.updateTimeFromThumbId(this.props.selectedThumbId);
+    const { jumpToFrameNumber, scenes } = this.props;
+    if (jumpToFrameNumber !== undefined) {
+      this.updateTimeFromFrameNumber(jumpToFrameNumber);
+    }
+    document.addEventListener('keydown', this.handleKeyPress);
   }
 
-  componentWillReceiveProps(nextProps) {
-    // log.debug('VideoPlayer - componentWillReceiveProps');
+  componentDidUpdate(prevProps, prevState) {
+    const { aspectRatioInv, controllerHeight, file, height, jumpToFrameNumber, opencvVideo, scenes, width} = this.props;
+    const { currentFrame, currentScene, videoHeight } = this.state;
+
+    // update videoHeight if window size changed
     if (
-      nextProps.aspectRatioInv !== this.props.aspectRatioInv ||
-      nextProps.height !== this.props.height ||
-      nextProps.width !== this.props.width
+      prevProps.aspectRatioInv !== aspectRatioInv ||
+      prevProps.height !== height ||
+      prevProps.width !== width
     ) {
-      const videoHeight = nextProps.height - nextProps.controllerHeight;
-      const videoWidth = videoHeight / nextProps.aspectRatioInv;
+      const videoHeight = parseInt(height - controllerHeight, 10);
+      const videoWidth = videoHeight / aspectRatioInv;
       this.setState({
         videoHeight,
-        videoWidth
-      });
-    }
-    if (nextProps.file.path !== this.props.file.path) {
-      this.setState({
-        loadVideo: true,
-        // opencvVideo: new opencv.VideoCapture(nextProps.file.path),
+        videoWidth,
       });
     }
 
-  }
+    if (jumpToFrameNumber !== undefined) {
+      if (prevProps.jumpToFrameNumber !== jumpToFrameNumber) {
+        this.updateTimeFromFrameNumber(jumpToFrameNumber);
+      }
+    }
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.selectedThumbId !== this.props.selectedThumbId) {
-      this.updateTimeFromThumbId(this.props.selectedThumbId);
+    if (
+      prevProps.scenes.length !== scenes.length ||
+      (prevProps.opencvVideo !== undefined && opencvVideo !== undefined &&
+        (prevProps.opencvVideo.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) !== opencvVideo.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT))) ||
+      prevState.videoHeight !== videoHeight
+    ) {
+      this.updateTimeFromFrameNumber(currentFrame);
     }
   }
 
-  onShowPlaybar() {
-    if (!this.state.showPlaybar) {
-      this.setState({
-        showPlaybar: true
-      });
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyPress);
+  }
+
+  handleKeyPress(event) {
+    // you may also add a filter here to skip keys, that do not have an effect for your app
+    // this.props.keyPressAction(event.keyCode);
+
+    const { arrayOfCuts, onCutSceneClick, onMergeSceneClick, sheetView } = this.props;
+    const { currentFrame } = this.state;
+    const thisFrameIsACut = arrayOfCuts.some(item => item === currentFrame);
+    // only listen to key events when feedback form is not shown
+    if (event.target.tagName !== 'INPUT') {
+      let stepValue = 1;
+      const [stepValue0, stepValue1, stepValue2] = CHANGE_THUMB_STEP;
+      if (event) {
+        switch (event.which) {
+          case 13: // press enter
+            if (sheetView === SHEET_VIEW.TIMELINEVIEW) {
+              if (thisFrameIsACut) {
+                onMergeSceneClick(currentFrame);
+              } else {
+                onCutSceneClick(currentFrame);
+              }
+            }
+            if (sheetView === SHEET_VIEW.GRIDVIEW) {
+              this.onChangeThumbClick();
+            }
+            break;
+          case 37: // press arrow left
+            stepValue = stepValue1 * -1;
+            if (event.shiftKey) {
+              stepValue = stepValue0 * -1;
+            }
+            if (event.altKey) {
+              stepValue = stepValue2 * -1;
+            }
+            if (event.shiftKey && event.altKey) {
+              if (sheetView === SHEET_VIEW.TIMELINEVIEW) {
+                this.onNextSceneClickWithStop('back', currentFrame);
+              } else {
+                this.onNextThumbClickWithStop('back', currentFrame);
+              }
+            } else {
+              this.updatePositionWithStep(stepValue);
+            }
+            break;
+          case 39: // press arrow right
+            stepValue = stepValue1 * 1;
+            if (event.shiftKey) {
+              stepValue = stepValue0 * 1;
+            }
+            if (event.altKey) {
+              stepValue = stepValue2 * 1;
+            }
+            if (event.shiftKey && event.altKey) {
+              if (sheetView === SHEET_VIEW.TIMELINEVIEW) {
+                this.onNextSceneClickWithStop('forward', currentFrame);
+              } else {
+                this.onNextThumbClickWithStop('forward', currentFrame);
+              }
+            } else {
+              this.updatePositionWithStep(stepValue);
+            }
+            break;
+          default:
+        }
+      }
     }
   }
 
-  onHidePlaybar() {
-    if (this.state.showPlaybar) {
-      this.setState({
-        showPlaybar: false
-      });
-    }
-  }
 
   getCurrentFrameNumber() {
     let newFrameNumber;
-    if (this.state.loadVideo) {
-      newFrameNumber = mapRange(
-        this.state.currentTime,
-        0, this.state.duration,
-        0, this.props.file.frameCount - 1
-      );
-    } else {
-      newFrameNumber = this.state.currentFrame;
-    }
+    newFrameNumber = this.state.currentFrame;
     return newFrameNumber
   }
 
-  onInPointClick() {
-    const { store } = this.context;
-    const newFrameNumber = this.getCurrentFrameNumber();
-    store.dispatch(addIntervalSheet(
-      this.props.file,
-      this.props.settings.currentSheetId,
-      this.props.thumbs.length,
-      newFrameNumber,
-      getHighestFrame(this.props.thumbs),
-      this.props.frameSize,
-    ));
-  }
-
-  onOutPointClick() {
-    const { store } = this.context;
-    const newFrameNumber = this.getCurrentFrameNumber();
-    store.dispatch(addIntervalSheet(
-      this.props.file,
-      this.props.settings.currentSheetId,
-      this.props.thumbs.length,
-      getLowestFrame(this.props.thumbs),
-      newFrameNumber,
-      this.props.frameSize,
-    ));
-  }
-
-  onBackClick(step = undefined) {
-    const [stepValue0, stepValue1, stepValue2] = CHANGE_THUMB_STEP;
-    let stepValue;
-    if (step) {
-      stepValue = step;
-    } else {
-      stepValue = stepValue1 * -1;
-      if (this.props.keyObject.shiftKey) {
-        stepValue = stepValue0 * -1;
-      }
-      if (this.props.keyObject.altKey) {
-        stepValue = stepValue2 * -1;
-      }
-    }
-    // log.debug(stepValue);
-    this.updatePositionWithStep(stepValue);
-  }
-
-  onForwardClick(step = undefined) {
-    const [stepValue0, stepValue1, stepValue2] = CHANGE_THUMB_STEP;
-    let stepValue;
-    if (step) {
-      stepValue = step;
-    } else {
-      stepValue = stepValue1;
-      if (this.props.keyObject.shiftKey) {
-        stepValue = stepValue0;
-      }
-      if (this.props.keyObject.altKey) {
-        stepValue = stepValue2;
-      }
-    }
-    // log.debug(stepValue);
-    this.updatePositionWithStep(stepValue);
+  onBackForwardClick(step) {
+    this.updatePositionWithStep(step);
   }
 
   onDurationChange(duration) {
@@ -217,93 +229,182 @@ class VideoPlayer extends Component {
   }
 
   updateOpencvVideoCanvas(currentFrame) {
-    setPosition(this.props.opencvVideo, currentFrame, this.props.file.useRatio);
-    const frame = this.props.opencvVideo.read();
-    if (!frame.empty) {
-      const matResized = frame.resizeToMax(parseInt(this.state.videoWidth, 10));
-      renderImage(matResized, this.opencvVideoPlayerCanvasRef, opencv);
+    const { arrayOfCuts, containerWidth, file, opencvVideo, sheetView } = this.props;
+    const { frameCount } = file;
+    // offset currentFrame due to main frame is in middle of sliceArraySize
+    let offsetCorrection = 0;
+    let sliceArraySize = VIDEOPLAYER_SLICE_ARRAY_SIZE;
+    if (sheetView === SHEET_VIEW.GRIDVIEW) {
+      sliceArraySize -= 1;
+      offsetCorrection = 1;
+    }
+    const sliceArraySizeHalf = Math.floor(sliceArraySize / 2);
+    const offsetFrameNumber = currentFrame - parseInt(sliceArraySizeHalf, 10) + offsetCorrection;
+    const { videoHeight } = this.state
+    const vid = opencvVideo;
+    setPosition(vid, offsetFrameNumber, file.useRatio);
+    const ctx = this.opencvVideoPlayerCanvasRef.getContext('2d');
+    const length = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT);
+    const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
+    const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
+    const rescaleFactor = videoHeight / height;
+    const sliceWidthArray = getSliceWidthArrayForCut(containerWidth, sliceArraySize);
+    const sliceGap = 1;
+    const cutGap = 8;
+    this.opencvVideoPlayerCanvasRef.height = videoHeight;
+    this.opencvVideoPlayerCanvasRef.width = containerWidth;
+    let canvasXPos = 0;
+
+    for (let i = 0; i < sliceArraySize; i += 1) {
+      const frame = vid.read();
+      const sliceWidth = sliceWidthArray[i];
+      const sliceXPos = Math.max(Math.floor((width * rescaleFactor) / 2) - Math.floor(sliceWidth / 2), 0);
+      const thisFrameIsACut = arrayOfCuts.some(item => item === offsetFrameNumber + i + 1);
+
+      if ((offsetFrameNumber + i) >= 0 && !frame.empty) {
+        const matResized = frame.rescale(rescaleFactor);
+        const matCropped = matResized.getRegion(new opencv.Rect(sliceXPos, 0, sliceWidth, videoHeight));
+
+        const matRGBA = matResized.channels === 1 ?
+          matCropped.cvtColor(opencv.COLOR_GRAY2RGBA) :
+          matCropped.cvtColor(opencv.COLOR_BGR2RGBA);
+
+        const imgData = new ImageData(
+          new Uint8ClampedArray(matRGBA.getData()),
+          matCropped.cols,
+          matCropped.rows
+        );
+        ctx.putImageData(imgData, canvasXPos, 0);
+      } else {
+        console.log('frame empty')
+      }
+      canvasXPos += sliceWidthArray[i] + (thisFrameIsACut ? cutGap : sliceGap);
     }
   }
 
   updatePositionWithStep(step) {
-    if (this.state.loadVideo) {
-      const currentTimePlusStep = this.state.currentTime + frameCountToSeconds(step, this.props.file.fps);
-      this.updatePositionFromTime(currentTimePlusStep);
+    const { file } = this.props;
+    const { currentTime, loadVideo, showHTML5Player } = this.state;
+    const currentFramePlusStep = limitRange(this.getCurrentFrameNumber() + step, 0, file.frameCount - 1);
+    const currentTimePlusStep = currentTime + frameCountToSeconds(step, file.fps);
+    this.updatePositionFromFrame(currentFramePlusStep);
+    this.updateOpencvVideoCanvas(currentFramePlusStep);
+    if (loadVideo && showHTML5Player) {
       this.video.currentTime = currentTimePlusStep;
-    } else {
-      const currentFramePlusStep = this.getCurrentFrameNumber() + step;
-      this.updatePositionFromFrame(currentFramePlusStep);
-      this.updateOpencvVideoCanvas(currentFramePlusStep);
     }
   }
 
   updatePositionFromTime(currentTime) {
+    const { containerWidth, file, onSelectThumbMethod, scenes } = this.props;
+    const { currentScene, duration } = this.state;
     if (currentTime) {
       // rounds the number with 3 decimals
       const roundedCurrentTime = Math.round((currentTime * 1000) + Number.EPSILON) / 1000;
-
-      this.setState({ currentTime: roundedCurrentTime });
-         const xPos = mapRange(
+      const currentFrame = secondsToFrameCount(currentTime, file.fps);
+      const xPos = mapRange(
         roundedCurrentTime,
-        0, this.state.duration,
-         0, this.state.videoWidth, false
-       );
-       this.setState({ playHeadPosition: xPos });
-     }
+        0, duration,
+        0, containerWidth, false
+      );
+      this.setState({
+        currentFrame,
+        currentTime: roundedCurrentTime,
+        playHeadPosition: xPos,
+      });
+      const newScene = getSceneFromFrameNumber(scenes, currentFrame);
+      if (currentScene !== undefined &&
+        newScene !== undefined &&
+        currentScene.sceneId !== newScene.sceneId) {
+        this.setState({
+          currentScene: newScene,
+        });
+        onSelectThumbMethod(newScene.sceneId); // call to update selection when scrubbing
+      }
+      this.updateOpencvVideoCanvas(currentFrame);
+      // log.debug(`${currentTime} : ${xPos} : ${containerWidth} : ${duration}`);
+    }
+
    }
 
   updatePositionFromFrame(currentFrame) {
-    if (currentFrame) {
-      this.setState({ currentFrame });
+    const { containerWidth, file, onSelectThumbMethod, scenes } = this.props;
+    const { currentScene } = this.state;
+
+    if (currentFrame !== undefined) {
+      const newScene = getSceneFromFrameNumber(scenes, currentFrame);
+      if (newScene !== undefined &&
+        (currentScene === undefined ||
+        currentScene.sceneId !== newScene.sceneId)) {
+        this.setState({
+          currentScene: newScene,
+        });
+        onSelectThumbMethod(newScene.sceneId); // call to update selection when scrubbing
+      }
       const xPos = mapRange(
         currentFrame,
-        0, (this.props.file.frameCount - 1),
-        0, this.state.videoWidth, false
+        0, (file.frameCount - 1),
+        0, containerWidth, false
       );
-      this.setState({ playHeadPosition: xPos });
+      this.setState({
+        currentFrame,
+        playHeadPosition: xPos,
+      });
     }
   }
 
-  updateTimeFromThumbId(thumbId) {
-    if (this.props.thumbs && thumbId) {
-      let xPos = 0;
-      let currentTime = 0;
-      let currentFrame = 0;
-      if (thumbId) {
-        // log.debug('updateTimeFromThumbId');
-        const selectedThumb = this.props.thumbs.find((thumb) => thumb.thumbId === thumbId);
-        if (selectedThumb) {
-          currentFrame = selectedThumb.frameNumber;
-          const { frameCount } = this.props.file;
-          xPos = mapRange(currentFrame, 0, frameCount - 1, 0, this.state.videoWidth, false);
-          currentTime = frameCountToSeconds(currentFrame, this.props.file.fps);
-        }
-      }
-      this.setState({ playHeadPosition: xPos });
-      if (this.state.loadVideo) {
-        this.setState({ currentTime });
-        this.video.currentTime = currentTime;
-      } else {
-        this.setState({ currentFrame });
-        this.updateOpencvVideoCanvas(currentFrame);
-      }
+  updateTimeFromFrameNumber(currentFrame) {
+    const { containerWidth, file, scenes } = this.props;
+    const { loadVideo, showHTML5Player } = this.state;
+
+    const currentScene = getSceneFromFrameNumber(scenes, currentFrame);
+    if (currentScene !== undefined) {
+      this.setState({
+        currentScene,
+      });
     }
+    const xPos = mapRange(
+      currentFrame,
+      0, (file.frameCount - 1),
+      0, containerWidth, false
+    );
+    const currentTime = frameCountToSeconds(currentFrame, file.fps);
+    this.setState({
+      currentFrame,
+      currentTime,
+      playHeadPosition: xPos,
+    });
+    if (loadVideo && showHTML5Player) {
+      this.video.currentTime = currentTime;
+    }
+    this.updateOpencvVideoCanvas(currentFrame);
   }
 
   updateTimeFromPosition(xPos) {
-    if (xPos) {
-      this.setState({ playHeadPosition: xPos });
-      if (this.state.loadVideo) {
-        const currentTime = mapRange(xPos, 0, this.state.videoWidth, 0, this.state.duration, false);
-        // log.debug(`${currentTime} : ${xPos} : ${this.state.videoWidth} : ${this.state.duration}`);
-        this.setState({ currentTime });
+    const { containerWidth, file, scenes, onSelectThumbMethod } = this.props;
+    const { currentScene, duration, loadVideo, showHTML5Player } = this.state;
+
+    if (xPos !== undefined) {
+      const { frameCount } = file;
+      const currentFrame = mapRange(xPos, 0, containerWidth, 0, frameCount - 1);
+      const newScene = getSceneFromFrameNumber(scenes, currentFrame);
+      if (currentScene !== undefined &&
+        newScene !== undefined &&
+        currentScene.sceneId !== newScene.sceneId) {
+        this.setState({
+          currentScene: newScene,
+        });
+        onSelectThumbMethod(newScene.sceneId); // call to update selection when scrubbing
+      }
+      this.setState({
+        playHeadPosition: xPos,
+        currentFrame,
+      });
+      this.updateOpencvVideoCanvas(currentFrame);
+      const currentTime = mapRange(xPos, 0, containerWidth, 0, duration, false);
+      // log.debug(`${currentTime} : ${xPos} : ${containerWidth} : ${duration}`);
+      this.setState({ currentTime });
+      if (loadVideo && showHTML5Player) {
         this.video.currentTime = currentTime;
-      } else {
-        const { frameCount } = this.props.file;
-        const currentFrame = mapRange(xPos, 0, this.state.videoWidth, 0, frameCount - 1);
-        // log.debug(`${currentFrame} : ${xPos} : ${this.state.videoWidth} : ${this.state.frameCount - 1}`);
-        this.setState({ currentFrame });
-        this.updateOpencvVideoCanvas(currentFrame);
       }
     }
   }
@@ -336,47 +437,126 @@ class VideoPlayer extends Component {
     }
   }
 
-  onApplyClick = () => {
-    // only do changes if there is a thumb selected
-    if (this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId) !== undefined) {
-      const { store } = this.context;
-      let newFrameNumber;
-      if (this.state.loadVideo) {
-        newFrameNumber = secondsToFrameCount(this.state.currentTime, this.props.file.fps);
-        // log.debug(`${newFrameNumber} = secondsToFrameCount(${this.state.currentTime}, ${this.props.file.fps})`);
-      } else {
-        newFrameNumber = this.state.currentFrame;
-        // log.debug(`${newFrameNumber}: ${this.state.currentFrame}`);
+  onNextThumbClickWithStop(direction, frameNumber) {
+    const { currentScene } = this.state;
+    const { file, onSelectThumbMethod, scenes, selectedThumb, thumbs, sheetType } = this.props;
+
+    if (sheetType === SHEET_TYPE.SCENES) {
+      let newSceneToSelect;
+
+      if (direction === 'back') {
+        newSceneToSelect = getSceneFromFrameNumber(scenes, currentScene.start - 1);
+      } else if (direction === 'forward') {
+        newSceneToSelect = getSceneFromFrameNumber(scenes, currentScene.start + currentScene.length);
       }
-      if (this.props.keyObject.altKey || this.props.keyObject.shiftKey) {
+      const newThumbToSelect = thumbs.find((thumb) => thumb.thumbId === newSceneToSelect.sceneId);
+      if (newSceneToSelect !== undefined) {
+        onSelectThumbMethod(newSceneToSelect.sceneId); // call to update selection
+      }
+      if (newThumbToSelect !== undefined) {
+        let newFrameNumberToJumpTo = newThumbToSelect.frameNumber;
+        newFrameNumberToJumpTo = limitRange(newFrameNumberToJumpTo, 0, file.frameCount - 1);
+        this.updatePositionFromFrame(newFrameNumberToJumpTo);
+        this.updateOpencvVideoCanvas(newFrameNumberToJumpTo);
+      }
+    } else if (sheetType === SHEET_TYPE.INTERVAL) {
+      if (selectedThumb !== undefined) {
+        let newThumbToSelect;
+        if (direction === 'back') {
+          newThumbToSelect = getPreviousThumb(thumbs, selectedThumb.thumbId);
+        } else if (direction === 'forward') {
+          newThumbToSelect = getNextThumb(thumbs, selectedThumb.thumbId);
+        }
+        if (newThumbToSelect !== undefined) {
+          onSelectThumbMethod(newThumbToSelect.thumbId); // call to update selection
+          let newFrameNumberToJumpTo = newThumbToSelect.frameNumber;
+          newFrameNumberToJumpTo = limitRange(newFrameNumberToJumpTo, 0, file.frameCount - 1);
+          this.updatePositionFromFrame(newFrameNumberToJumpTo);
+          this.updateOpencvVideoCanvas(newFrameNumberToJumpTo);
+        }
+      }
+    }
+  }
+
+  onNextSceneClickWithStop(direction, frameNumber) {
+    const { currentScene } = this.state;
+    const { file, onSelectThumbMethod, scenes } = this.props;
+
+    console.log(currentScene)
+    console.log(frameNumber)
+    let newFrameNumberToJumpTo;
+    let newSceneToSelect;
+    // if going back and frameNumber is within the scene not at the cut
+    // then just update position else jumpToScene
+    if (direction === 'back' && frameNumber !== currentScene.start) {
+      newFrameNumberToJumpTo = currentScene.start;
+    } else {
+      if (direction === 'back') {
+        newSceneToSelect = getSceneFromFrameNumber(scenes, currentScene.start - 1);
+        newFrameNumberToJumpTo = newSceneToSelect.start;
+      } else if (direction === 'forward') {
+        newFrameNumberToJumpTo = currentScene.start + currentScene.length;
+        newSceneToSelect = getSceneFromFrameNumber(scenes, newFrameNumberToJumpTo);
+      }
+      if (newSceneToSelect !== undefined) {
+        onSelectThumbMethod(newSceneToSelect.sceneId); // call to update selection
+      }
+    }
+    newFrameNumberToJumpTo = limitRange(newFrameNumberToJumpTo, 0, file.frameCount - 1);
+    this.updatePositionFromFrame(newFrameNumberToJumpTo);
+    this.updateOpencvVideoCanvas(newFrameNumberToJumpTo);
+  }
+
+  onChangeThumbClick() {
+    const { currentFrame, currentScene } = this.state;
+    const { currentSheetId, file, onChangeThumb, scenes } = this.props;
+
+    if (currentScene !== undefined && currentFrame !== undefined) {
+      onChangeThumb(file, currentSheetId, currentScene.sceneId, currentFrame);
+    }
+  }
+
+  onChangeOrAddClick = () => {
+    const { currentFrame } = this.state;
+    const { currentSheetId, file, frameSize, keyObject, onAddThumb, onChangeThumb, onSelectThumbMethod, selectedThumb, thumbs } = this.props;
+
+    // only do changes if there is a thumb selected
+    if (thumbs.find((thumb) => thumb.thumbId === selectedThumb.thumbId) !== undefined) {
+      if (keyObject.altKey || keyObject.shiftKey) {
         const newThumbId = uuidV4();
-        if (this.props.keyObject.altKey) {
-          store.dispatch(addThumb(
-            this.props.file,
-            this.props.settings.currentSheetId,
-            newFrameNumber,
-            this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index + 1,
+        if (keyObject.altKey) {
+          onAddThumb(
+            file,
+            currentSheetId,
             newThumbId,
-            this.props.frameSize,
-          ));
+            currentFrame,
+            thumbs.find((thumb) => thumb.thumbId === selectedThumb.thumbId).index + 1,
+            frameSize,
+          );
         } else { // if shiftKey
-          store.dispatch(addThumb(
-            this.props.file,
-            this.props.settings.currentSheetId,
-            newFrameNumber,
-            this.props.thumbs.find((thumb) => thumb.thumbId === this.props.selectedThumbId).index,
+          onAddThumb(
+            file,
+            currentSheetId,
             newThumbId,
-            this.props.frameSize,
-          ));
+            currentFrame,
+            thumbs.find((thumb) => thumb.thumbId === selectedThumb.thumbId).index,
+            frameSize,
+          );
         }
         // delay selection so it waits for add thumb to be ready
         setTimeout(() => {
-          this.props.selectThumbMethod(newThumbId, newFrameNumber);
+          onSelectThumbMethod(newThumbId, currentFrame);
         }, 500);
       } else { // if normal set new thumb
-        store.dispatch(changeThumb(this.props.settings.currentSheetId, this.props.file, this.props.selectedThumbId, newFrameNumber, this.props.frameSize));
+        onChangeThumb(file, currentSheetId, selectedThumb.thumbId, currentFrame, frameSize);
       }
     }
+  }
+
+  toggleHTML5Player() {
+    this.setState(prevState => ({
+      showHTML5Player: !prevState.showHTML5Player
+    }));
   }
 
   onVideoError = () => {
@@ -397,7 +577,9 @@ class VideoPlayer extends Component {
   }
 
   render() {
-    const { playHeadPosition } = this.state;
+    const { currentFrame, currentScene, playHeadPosition } = this.state;
+    const { arrayOfCuts, containerWidth, file, keyObject, scaleValueObject, selectedThumb, sheetType, sheetView, thumbs } = this.props;
+    const { showHTML5Player, showPlaybar, videoHeight, videoWidth } = this.state;
 
     function over(event) {
       event.target.style.opacity = 1;
@@ -407,78 +589,66 @@ class VideoPlayer extends Component {
       event.target.style.opacity = 0.5;
     }
 
-    const inPoint = getLowestFrame(this.props.thumbs);
-    const outPoint = getHighestFrame(this.props.thumbs);
+    const inPoint = currentScene !== undefined ? currentScene.start : 0;
+    const outPoint = currentScene !== undefined ? currentScene.start + currentScene.length : 0;
     const inPointPositionOnTimeline =
-      ((this.state.videoWidth * 1.0) / this.props.file.frameCount) * inPoint;
+      ((containerWidth * 1.0) / file.frameCount) * inPoint;
     const outPointPositionOnTimeline =
-      ((this.state.videoWidth * 1.0) / this.props.file.frameCount) * outPoint;
+      ((containerWidth * 1.0) / file.frameCount) * outPoint;
     const cutWidthOnTimeLine = Math.max(
       outPointPositionOnTimeline - inPointPositionOnTimeline,
       MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE
     );
+
+    const thisFrameIsACut = arrayOfCuts.some(item => item === currentFrame);
 
     return (
       <div>
         <div
           className={`${styles.player}`}
           style={{
-            width: this.state.videoWidth,
-            height: this.state.videoHeight,
+            // height: videoHeight,
+            width: containerWidth,
           }}
         >
           <Popup
             trigger={
               <button
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  right: 0,
-                  marginTop: '8px',
-                  marginRight: '8px',
-                  zIndex: 1,
-                }}
-                className={`${styles.hoverButton} ${styles.textButton}`}
-                onClick={this.props.onThumbDoubleClick}
+                type='button'
+                className={`${styles.hoverButton} ${styles.textButton} ${styles.html5Button}`}
+                onClick={this.toggleHTML5Player}
                 onMouseOver={over}
                 onMouseLeave={out}
                 onFocus={over}
                 onBlur={out}
               >
-                BACK
+                html5 player
               </button>
             }
             className={stylesPop.popup}
-            content="Back to MoviePrint view"
+            content={ showHTML5Player ? 'Hide HTML5 Player' : 'Show HTML5 Player'}
           />
-          {this.state.loadVideo ?
-            <video
-              ref={(el) => { this.video = el; }}
-              className={`${styles.video}`}
-              onMouseOver={this.onShowPlaybar}
-              onFocus={this.onShowPlaybar}
-              onMouseOut={this.onHidePlaybar}
-              onBlur={this.onHidePlaybar}
-              controls={this.state.showPlaybar ? true : undefined}
-              muted
-              src={this.props.file ? `${pathModule.dirname(this.props.file.path)}/${encodeURIComponent(pathModule.basename(this.props.file.path))}` || '' : ''}
-              width={this.state.videoWidth}
-              height={this.state.videoHeight}
-              onDurationChange={e => this.onDurationChange(e.target.duration)}
-              onTimeUpdate={e => this.updatePositionFromTime(e.target.currentTime)}
-              onLoadedData={this.onLoadedData}
-              onError={this.onVideoError}
-            >
-              <track kind="captions" />
-            </video>
-            :
-            <canvas ref={(el) => { this.opencvVideoPlayerCanvasRef = el; }} />
-          }
+          {showHTML5Player && <video
+            ref={(el) => { this.video = el; }}
+            className={`${styles.videoOverlay}`}
+            controls={showPlaybar ? true : undefined}
+            muted
+            src={file ? `${pathModule.dirname(file.path)}/${encodeURIComponent(pathModule.basename(file.path))}` || '' : ''}
+            width={videoWidth}
+            height={videoHeight}
+            onDurationChange={e => this.onDurationChange(e.target.duration)}
+            onTimeUpdate={e => this.updatePositionFromTime(e.target.currentTime)}
+            onLoadedData={this.onLoadedData}
+            onError={this.onVideoError}
+          >
+            <track kind="captions" />
+          </video>}
+          <canvas ref={(el) => { this.opencvVideoPlayerCanvasRef = el; }} />
           <div
             id="currentTimeDisplay"
-            className={styles.frameNumberOrTimeCode}
+            className={`${styles.frameNumberOrTimeCode} ${styles.moveToMiddle}`}
           >
-            {this.state.loadVideo ? secondsToTimeCode(this.state.currentTime, this.props.file.fps) : frameCountToTimeCode(this.state.currentFrame, this.props.file.fps)}
+            {this.state.currentFrame}
           </div>
         </div>
         <div className={`${styles.controlsWrapper}`}>
@@ -498,130 +668,251 @@ class VideoPlayer extends Component {
                 left: Number.isNaN(playHeadPosition) ? 0 : playHeadPosition,
               }}
             />
-            <div
+            {sheetType === SHEET_TYPE.SCENES && <div
               className={`${styles.timelineCut}`}
               style={{
                 left: Number.isNaN(inPointPositionOnTimeline) ? 0 : inPointPositionOnTimeline,
                 width: Number.isNaN(cutWidthOnTimeLine) ? 0 : cutWidthOnTimeLine,
               }}
-            />
+            />}
           </div>
           <div className={`${styles.buttonWrapper}`}>
-            <Popup
+            {sheetView === SHEET_VIEW.TIMELINEVIEW && <Popup
               trigger={
                 <button
-                  style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    marginLeft: '8px',
-                  }}
-                  className={`${styles.hoverButton} ${styles.textButton}`}
-                  onClick={this.onInPointClick}
+                  type='button'
+                  className={`${styles.hoverButton} ${styles.textButton} ${styles.previousScene}`}
+                  onClick={() => this.onNextSceneClickWithStop('back', this.state.currentFrame)}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}
                   onBlur={out}
                 >
-                  IN
+                  previous scene
                 </button>
               }
               className={stylesPop.popup}
-              content="Set this thumb as new IN-point"
-            />
-            <Popup
+              content={<span>Jump to previous scene cut <mark>SHIFT + ALT + Arrow left</mark></span>}
+            />}
+            {((sheetView === SHEET_VIEW.GRIDVIEW && sheetType === SHEET_TYPE.SCENES) ||
+              (sheetView === SHEET_VIEW.GRIDVIEW && selectedThumb !== undefined)) &&
+              <Popup
               trigger={
                 <button
-                  style={{
-                    transformOrigin: 'center bottom',
-                    transform: 'translateX(-50%)',
-                    position: 'absolute',
-                    bottom: 0,
-                    left: '30%',
-                  }}
-                  className={`${styles.hoverButton} ${styles.textButton}`}
-                  onClick={() => this.onBackClick()}
+                  type='button'
+                  className={`${styles.hoverButton} ${styles.textButton} ${styles.previousScene}`}
+                  onClick={() => this.onNextThumbClickWithStop('back', this.state.currentFrame)}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}
                   onBlur={out}
                 >
-                  {this.props.keyObject.altKey ? '<<<' : (this.props.keyObject.shiftKey ? '<' : '<<')}
+                  previous thumb
                 </button>
               }
               className={stylesPop.popup}
-              content={<span>Move 10 frames back | with <mark>SHIFT</mark> move 1 frame | with <mark>ALT</mark> move 100 frames</span>}
+              content={<span>Jump to previous thumb <mark>SHIFT + ALT + Arrow left</mark></span>}
+            />}
+            <Popup
+              trigger={
+                <button
+                  type='button'
+                  className={`${styles.hoverButton} ${styles.textButton} ${styles.hundredFramesBack}`}
+                  onClick={() => this.onBackForwardClick(-100)}
+                  onMouseOver={over}
+                  onMouseLeave={out}
+                  onFocus={over}
+                  onBlur={out}
+                >
+                  {'<<<'}
+                </button>
+              }
+              className={stylesPop.popup}
+              content={<span>Move 100 frames back <mark>ALT + Arrow left</mark></span>}
             />
             <Popup
               trigger={
                 <button
-                  className={`${styles.hoverButton} ${styles.textButton}`}
-                  onClick={this.onApplyClick}
+                  type='button'
+                  className={`${styles.hoverButton} ${styles.textButton} ${styles.tenFramesBack}`}
+                  onClick={() => this.onBackForwardClick(-10)}
+                  onMouseOver={over}
+                  onMouseLeave={out}
+                  onFocus={over}
+                  onBlur={out}
+                >
+                  {'<<'}
+                </button>
+              }
+              className={stylesPop.popup}
+              content={<span>Move 10 frames back <mark>Arrow left</mark></span>}
+            />
+            <Popup
+              trigger={
+                <button
+                  type='button'
+                  className={`${styles.hoverButton} ${styles.textButton} ${styles.oneFrameBack}`}
+                  onClick={() => this.onBackForwardClick(-1)}
+                  onMouseOver={over}
+                  onMouseLeave={out}
+                  onFocus={over}
+                  onBlur={out}
+                >
+                  {'<'}
+                </button>
+              }
+              className={stylesPop.popup}
+              content={<span>Move 1 frame back <mark>SHIFT + Arrow left</mark></span>}
+            />
+            {sheetType === SHEET_TYPE.SCENES && sheetView === SHEET_VIEW.TIMELINEVIEW && currentFrame !== 0 && <Popup
+              trigger={
+                <button
+                  type='button'
+                  className={`${styles.hoverButton} ${styles.textButton} ${styles.cutMergeButton}`}
+                  onClick={thisFrameIsACut ?
+                    () => this.props.onMergeSceneClick(currentFrame) :
+                    () => this.props.onCutSceneClick(currentFrame)}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}
                   onBlur={out}
                   style={{
-                    display: this.props.selectedThumbId ? 'block' : 'none',
-                    transformOrigin: 'center bottom',
-                    transform: 'translateX(-50%)',
-                    position: 'absolute',
-                    bottom: 0,
-                    left: '50%',
                     color: MOVIEPRINT_COLORS[0]
                   }}
                 >
-                  {this.props.keyObject.altKey ? 'ADD AFTER' : (this.props.keyObject.shiftKey ? 'ADD BEFORE' : 'CHANGE')}
+                  {thisFrameIsACut ? 'MERGE' : 'CUT'}
                 </button>
               }
               className={stylesPop.popup}
-              content={this.props.keyObject.altKey ? (<span>Add a new thumb <mark>after</mark> selection</span>) : (this.props.keyObject.shiftKey ? (<span>Add a new thumb <mark>before</mark> selection</span>) : (<span>Change the thumb to use this frame | with <mark>SHIFT</mark> add a thumb before selection | with <mark>ALT</mark> add a thumb after selection</span>))}
-            />
+              content={thisFrameIsACut ? (<span>Merge scenes <mark>ENTER</mark></span>) : (<span>Cut scene <mark>ENTER</mark></span>)}
+            />}
+            {sheetType === SHEET_TYPE.SCENES && sheetView === SHEET_VIEW.GRIDVIEW && currentFrame !== 0 && <Popup
+              trigger={
+                <button
+                  type='button'
+                  className={`${styles.hoverButton} ${styles.textButton} ${styles.cutMergeButton}`}
+                  onClick={this.onChangeThumbClick}
+                  onMouseOver={over}
+                  onMouseLeave={out}
+                  onFocus={over}
+                  onBlur={out}
+                  style={{
+                    color: MOVIEPRINT_COLORS[0]
+                  }}
+                >
+                  CHANGE
+                </button>
+              }
+              className={stylesPop.popup}
+              content={<span>Change the thumb to use this frame <mark>ENTER</mark></span>}
+            />}
+            {sheetType === SHEET_TYPE.INTERVAL && <Popup
+              trigger={
+                <button
+                  type='button'
+                  className={`${styles.hoverButton} ${styles.textButton} ${styles.cutMergeButton}`}
+                  onClick={this.onChangeOrAddClick}
+                  onMouseOver={over}
+                  onMouseLeave={out}
+                  onFocus={over}
+                  onBlur={out}
+                  style={{
+                    color: MOVIEPRINT_COLORS[0]
+                  }}
+                >
+                  {keyObject.altKey ? 'ADD AFTER' : (keyObject.shiftKey ? 'ADD BEFORE' : 'CHANGE')}
+                </button>
+              }
+              className={stylesPop.popup}
+              content={keyObject.altKey ? (<span>Add a new thumb <mark>after</mark> selection</span>) : (keyObject.shiftKey ? (<span>Add a new thumb <mark>before</mark> selection</span>) : (<span>Change the thumb to use this frame | with <mark>SHIFT</mark> add a thumb before selection | with <mark>ALT</mark> add a thumb after selection</span>))}
+            />}
             <Popup
               trigger={
                 <button
-                  style={{
-                    transformOrigin: 'center bottom',
-                    transform: 'translateX(-50%)',
-                    position: 'absolute',
-                    bottom: 0,
-                    left: '70%',
-                  }}
-                  className={`${styles.hoverButton} ${styles.textButton}`}
-                  onClick={() => this.onForwardClick()}
+                  type='button'
+                  className={`${styles.hoverButton} ${styles.textButton} ${styles.oneFrameForward}`}
+                  onClick={() => this.onBackForwardClick(1)}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}
                   onBlur={out}
                 >
-                  {this.props.keyObject.altKey ? '>>>' : (this.props.keyObject.shiftKey ? '>' : '>>')}
+                  {'>'}
                 </button>
               }
               className={stylesPop.popup}
-              content={<span>Move 10 frames forward | with <mark>SHIFT</mark> move 1 frame | with <mark>ALT</mark> move 100 frames</span>}
+              content={<span>Move 1 frame forward <mark>SHIFT + Arrow right</mark></span>}
             />
             <Popup
               trigger={
                 <button
-                  style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    right: 0,
-                    marginRight: '8px',
-                  }}
-                  className={`${styles.hoverButton} ${styles.textButton}`}
-                  onClick={this.onOutPointClick}
+                  type='button'
+                  className={`${styles.hoverButton} ${styles.textButton} ${styles.tenFramesForward}`}
+                  onClick={() => this.onBackForwardClick(10)}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}
                   onBlur={out}
                 >
-                  OUT
+                  {'>>'}
                 </button>
               }
               className={stylesPop.popup}
-              content="Set this thumb as new OUT-point"
+              content={<span>Move 10 frames forward<mark>Arrow right</mark></span>}
             />
+            <Popup
+              trigger={
+                <button
+                  type='button'
+                  className={`${styles.hoverButton} ${styles.textButton} ${styles.hundredFramesForward}`}
+                  onClick={() => this.onBackForwardClick(100)}
+                  onMouseOver={over}
+                  onMouseLeave={out}
+                  onFocus={over}
+                  onBlur={out}
+                >
+                  {'>>>'}
+                </button>
+              }
+              className={stylesPop.popup}
+              content={<span>Move 100 frames forward <mark>ALT + Arrow right</mark></span>}
+            />
+            {((sheetView === SHEET_VIEW.GRIDVIEW && sheetType === SHEET_TYPE.SCENES) ||
+              (sheetView === SHEET_VIEW.GRIDVIEW && selectedThumb !== undefined)) &&
+              <Popup
+              trigger={
+                <button
+                  type='button'
+                  className={`${styles.hoverButton} ${styles.textButton} ${styles.nextScene}`}
+                  onClick={() => this.onNextThumbClickWithStop('forward', this.state.currentFrame)}
+                  onMouseOver={over}
+                  onMouseLeave={out}
+                  onFocus={over}
+                  onBlur={out}
+                >
+                  next thumb
+                </button>
+              }
+              className={stylesPop.popup}
+              content={<span>Jump to next thumb <mark>SHIFT + ALT + Arrow right</mark></span>}
+            />}
+            {sheetView === SHEET_VIEW.TIMELINEVIEW && <Popup
+              trigger={
+                <button
+                  type='button'
+                  className={`${styles.hoverButton} ${styles.textButton} ${styles.nextScene}`}
+                  onClick={() => this.onNextSceneClickWithStop('forward', this.state.currentFrame)}
+                  onMouseOver={over}
+                  onMouseLeave={out}
+                  onFocus={over}
+                  onBlur={out}
+                >
+                  next scene
+                </button>
+              }
+              className={stylesPop.popup}
+              content={<span>Jump to next scene cut <mark>SHIFT + ALT + Arrow right</mark></span>}
+            />}
           </div>
         </div>
       </div>
@@ -629,26 +920,7 @@ class VideoPlayer extends Component {
   }
 }
 
-const mapStateToProps = state => {
-  const { visibilitySettings } = state;
-  const { settings, sheetsByFileId } = state.undoGroup.present;
-  const { currentFileId } = settings;
-
-  const allThumbs = (sheetsByFileId[currentFileId] === undefined ||
-    sheetsByFileId[currentFileId][settings.currentSheetId] === undefined)
-    ? undefined : sheetsByFileId[currentFileId][settings.currentSheetId].thumbsArray;
-  return {
-    thumbs: getVisibleThumbs(
-      allThumbs,
-      visibilitySettings.visibilityFilter
-    ),
-    settings,
-    visibilitySettings
-  };
-};
-
 VideoPlayer.contextTypes = {
-  store: PropTypes.object,
   thumbId: PropTypes.number,
   positionRatio: PropTypes.number,
   setNewFrame: PropTypes.func,
@@ -667,9 +939,11 @@ VideoPlayer.defaultProps = {
     path: '',
   },
   height: 360,
-  selectedThumbId: undefined,
   width: 640,
   thumbs: undefined,
+  frameNumber: 0,
+  scenes: [],
+  // selectedThumbId: undefined,
 };
 
 VideoPlayer.propTypes = {
@@ -686,15 +960,18 @@ VideoPlayer.propTypes = {
     useRatio: PropTypes.bool,
   }),
   height: PropTypes.number,
-  keyObject: PropTypes.object.isRequired,
+  frameNumber: PropTypes.number,
+  // selectedThumbId: PropTypes.string,
   onThumbDoubleClick: PropTypes.func.isRequired,
-  selectedThumbId: PropTypes.string,
-  selectThumbMethod: PropTypes.func.isRequired,
+  onChangeThumb: PropTypes.func.isRequired,
+  onJumpToCutThumbClick: PropTypes.func.isRequired,
+  onMergeSceneClick: PropTypes.func.isRequired,
+  onCutSceneClick: PropTypes.func.isRequired,
+  onSelectThumbMethod: PropTypes.func.isRequired,
+  containerWidth: PropTypes.number.isRequired,
   width: PropTypes.number,
-  // settings: PropTypes.object.isRequired,
+  scenes: PropTypes.array,
   thumbs: PropTypes.array,
-  // sheetsByFileId: PropTypes.object,
-  // visibilitySettings: PropTypes.object.isRequired,
 };
 
-export default connect(mapStateToProps)(VideoPlayer);
+export default VideoPlayer;

@@ -18,13 +18,37 @@ class SortedVisibleSceneGrid extends Component {
     this.state = {
     };
 
+    this.scrollIntoViewElement = React.createRef();
+
+    this.scrollThumbIntoView = this.scrollThumbIntoView.bind(this);
     this.onSelectClick = this.onSelectClick.bind(this);
+    this.onDeselectClick = this.onDeselectClick.bind(this);
   }
 
-  // componentDidMount() {
   componentWillMount() {
     const { store } = this.context;
     this.unsubscribe = store.subscribe(() => this.forceUpdate());
+  }
+
+  componentDidMount() {
+    setTimeout(() => {
+      this.scrollThumbIntoView();
+    }, 500);
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.selectedThumbsArray.length !== 0 &&
+      this.props.selectedThumbsArray.length !== 0 &&
+      (prevProps.selectedThumbsArray[0].thumbId !== this.props.selectedThumbsArray[0].thumbId)) {
+      this.scrollThumbIntoView();
+    }
+    // delay when switching to gridView so it waits for the sheetView to be ready
+    if ((prevProps.view !== this.props.view) &&
+    prevProps.view) {
+      setTimeout(() => {
+        this.scrollThumbIntoView();
+      }, 500);
+    }
   }
 
   componentWillUnmount() {
@@ -43,10 +67,25 @@ class SortedVisibleSceneGrid extends Component {
       newOrderedThumbs));
   };
 
-  onSelectClick = (sceneId) => {
-    console.log(sceneId);
-    this.props.selectSceneMethod(sceneId);
+  onSelectClick = (sceneId, frameNumber) => {
+    this.props.onSelectThumbMethod(sceneId, frameNumber);
   }
+
+  onDeselectClick = () => {
+    console.log('deselect')
+    this.props.onDeselectThumbMethod();
+  }
+
+  scrollThumbIntoView = () => {
+    if (this.scrollIntoViewElement && this.scrollIntoViewElement.current !== null) {
+      scrollIntoView(this.scrollIntoViewElement.current, {
+        time: 300,
+        align: {
+          left: 0.5,
+        }
+      });
+    }
+  };
 
   render() {
     // const { store } = this.context;
@@ -56,26 +95,32 @@ class SortedVisibleSceneGrid extends Component {
         useBase64={this.props.useBase64}
         sheetView={this.props.sheetView}
         view={this.props.view}
+        sheetType={this.props.sheetType}
         currentSheetId={this.props.currentSheetId}
         file={this.props.file}
+        inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
         frameCount={this.props.file ? this.props.file.frameCount : undefined}
         keyObject={this.props.keyObject}
         onAddThumbClick={this.props.onAddThumbClick}
+        onJumpToCutThumbClick={this.props.onJumpToCutThumbClick}
         onBackClick={this.props.onBackClick}
         onForwardClick={this.props.onForwardClick}
         onInPointClick={this.props.onInPointClick}
         onOutPointClick={this.props.onOutPointClick}
         onSaveThumbClick={this.props.onSaveThumbClick}
         onThumbDoubleClick={this.props.onThumbDoubleClick}
+        onToggleSheetView={this.props.onToggleSheetView}
         onScrubClick={this.props.onScrubClick}
         onSelectClick={this.onSelectClick}
+        onDeselectClick={this.onDeselectClick}
         onExpandClick={this.props.onExpandClick}
         onToggleClick={this.props.onToggleClick}
         minSceneLength={this.props.settings.defaultTimelineViewMinDisplaySceneLengthInFrames}
         scaleValueObject={this.props.scaleValueObject}
         scenes={this.props.scenes}
-        selectedSceneId={this.props.selectedSceneId}
+        selectedThumbsArray={this.props.selectedThumbsArray}
         settings={this.props.settings}
+        showMovielist={this.props.showMovielist}
         showSettings={this.props.showSettings}
         thumbCount={this.props.thumbCount}
         objectUrlObjects={this.props.objectUrlObjects}

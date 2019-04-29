@@ -7,7 +7,8 @@ import { Popup } from 'semantic-ui-react';
 import {
   MINIMUM_WIDTH_TO_SHRINK_HOVER,
   MINIMUM_WIDTH_TO_SHOW_HOVER,
-  SHEETVIEW,
+  SHEET_VIEW,
+  VIEW,
 } from '../utils/constants';
 import styles from './SceneGrid.css';
 import stylesPop from './Popup.css';
@@ -48,6 +49,7 @@ const Scene = ({
   color,
   controllersAreVisible,
   sheetView,
+  view,
   dim,
   doLineBreak,
   hexColor,
@@ -61,6 +63,8 @@ const Scene = ({
   onAddAfter,
   onAddBefore,
   onBack,
+  onCutAfter,
+  onCutBefore,
   onExpand,
   onForward,
   onHoverAddThumbAfter,
@@ -178,7 +182,7 @@ const Scene = ({
   function onThumbDoubleClickWithStop(e) {
     e.stopPropagation();
     if (controllersAreVisible) {
-      // if (sheetView === SHEETVIEW.TIMELINEVIEW) {
+      // if (sheetView === SHEET_VIEW.TIMELINEVIEW) {
       //   onSelect();
       // }
       onThumbDoubleClick();
@@ -186,6 +190,7 @@ const Scene = ({
   }
 
   function onSelectWithStop(e) {
+    console.log('onSelectWithStop');
     e.stopPropagation();
     if (controllersAreVisible) {
       onSelect();
@@ -215,6 +220,18 @@ const Scene = ({
     }
   }
 
+  function onCutAfterWithStop(e) {
+    console.log('onCutAfter');
+    e.stopPropagation();
+    onCutAfter();
+  }
+
+  function onCutBeforeWithStop(e) {
+    console.log('onCutBefore');
+    e.stopPropagation();
+    onCutBefore();
+  }
+
   return (
     <div
       ref={inputRefThumb}
@@ -232,7 +249,7 @@ const Scene = ({
       // onKeyPress={onSelectWithStop}
       onDoubleClick={onThumbDoubleClickWithStop}
       id={`scene${indexForId}`}
-      className={`${styles.gridItem} ${doLineBreak ? styles.lineBreak : ''}`}
+      className={`${styles.gridItem} ${doLineBreak ? styles.lineBreak : ''} ${(view === VIEW.PLAYERVIEW && selected) ? styles.gridItemSelected : ''}`}
       // width={`${thumbWidth}px`}
       // height={`${(thumbWidth * aspectRatioInv)}px`}
       style={{
@@ -242,8 +259,8 @@ const Scene = ({
         height:`${thumbHeight}px`,
         // width: width,
         margin: `${margin}px`,
-        outlineWidth: `${sheetView === SHEETVIEW.TIMELINEVIEW ? margin : Math.max(1, margin)}px`,
-        borderRadius: `${(selected && sheetView !== SHEETVIEW.TIMELINEVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
+        outlineWidth: `${view === VIEW.STANDARDVIEW ? margin : Math.max(1, margin)}px`,
+        borderRadius: `${selected ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: hexColor,
         backgroundImage: thumbImageObjectUrl === undefined ? `url(data:image/jpeg;base64,${base64})` : `url(${thumbImageObjectUrl}`,
         backgroundSize: `auto ${thumbHeight + 20}px`,
@@ -267,7 +284,7 @@ const Scene = ({
             display: controllersAreVisible ? 'block' : 'none'
           }}
         >
-          {/* {sheetView === SHEETVIEW.TIMELINEVIEW &&
+          {/* {sheetView === SHEET_VIEW.TIMELINEVIEW &&
             <DragHandle
               width={thumbWidth - 1} // shrink it to prevent rounding issues
               height={(thumbWidth * aspectRatioInv) - 1}
@@ -356,6 +373,33 @@ const Scene = ({
                 className={stylesPop.popup}
                 content={<span>Set this thumb as new <mark>IN-point</mark></span>}
               /> */}
+              {view === VIEW.STANDARDVIEW && <Popup // only show in standard view
+                trigger={
+                  <button
+                    data-tid={`cutBeforeBtn_${sceneId}`}
+                    type='button'
+                    className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayAddAfter} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
+                    style={{
+                      display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+                      transformOrigin: 'left center',
+                      transform: `translateY(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+                      position: 'absolute',
+                      top: '50%',
+                      left: 0,
+                      marginLeft: '8px',
+                    }}
+                    onClick={onCutBeforeWithStop}
+                    onMouseOver={over}
+                    onMouseLeave={out}
+                    onFocus={over}
+                    onBlur={out}
+                  >
+                    ||
+                  </button>
+                }
+                className={stylesPop.popup}
+                content={<span>Jump to cut at the beginning of this scene</span>}
+              />}
               {/* <Popup
                 trigger={
                   <button
@@ -383,6 +427,33 @@ const Scene = ({
                 className={stylesPop.popup}
                 content={<span>Click and drag left and right to change the frame (<mark>SHIFT</mark> add new thumb before, <mark>ALT</mark> add new thumb after, <mark>CTRL</mark> display original as overlay)</span>}
               /> */}
+              <Popup
+                trigger={
+                  <button
+                    data-tid={`cutAfterBtn_${sceneId}`}
+                    type='button'
+                    className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayAddAfter} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
+                    style={{
+                      display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
+                      transformOrigin: 'right center',
+                      transform: `translateY(-50%) scale(${(thumbWidth > MINIMUM_WIDTH_TO_SHRINK_HOVER) ? 1 : 0.7})`,
+                      position: 'absolute',
+                      top: '50%',
+                      right: 0,
+                      marginRight: '8px',
+                    }}
+                    onClick={onCutAfterWithStop}
+                    onMouseOver={over}
+                    onMouseLeave={out}
+                    onFocus={over}
+                    onBlur={out}
+                  >
+                    ||
+                  </button>
+                }
+                className={stylesPop.popup}
+                content={<span>Jump to cut at the end of this scene</span>}
+              />
               {/* <Popup
                 trigger={
                   <button

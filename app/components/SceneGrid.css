@@ -6,6 +6,7 @@
   overflow: auto;
   margin: auto;
   outline: none;
+  position: relative;
 }
 
 .gridItem {
@@ -247,4 +248,15 @@
 
 .lineBreak {
   clear: both;
+}
+
+.sheetTypeSwitchButton {
+    position: fixed;
+    transform-origin: center center;
+    transform: translateY(-50%);
+    top: 80%;
+    left: 0;
+    margin-top: 8px;
+    padding-left: 8px;
+    z-Index: 1;
 }

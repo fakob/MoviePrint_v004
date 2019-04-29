@@ -115,12 +115,12 @@ class Scrub extends Component {
       scrubLineOnTimelineValue,
     })
     e.stopPropagation();
-    this.props.onScrubWindowMouseOver(e);
+    this.props.onScrubWindowMouseOver(e, this.props.sheetType);
   }
 
   onScrubClickWithStop(e) {
     e.stopPropagation();
-    this.props.onScrubWindowClick(e);
+    this.props.onScrubWindowClick(e, this.props.sheetType);
   }
 
   render() {

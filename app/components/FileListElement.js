@@ -6,7 +6,7 @@ import { truncate, truncatePath, frameCountToTimeCode, formatBytes } from '../ut
 import styles from './FileList.css';
 import transparent from '../img/Thumb_TRANSPARENT.png';
 import {
-  SHEETVIEW,
+  SHEET_VIEW,
 } from '../utils/constants';
 
 
@@ -41,9 +41,9 @@ const FileListElement = ({
 
   function getSheetIcon(sheetView) {
     switch (sheetView) {
-      case SHEETVIEW.GRIDVIEW:
+      case SHEET_VIEW.GRIDVIEW:
         return 'grid layout';
-      case SHEETVIEW.TIMELINEVIEW:
+      case SHEET_VIEW.TIMELINEVIEW:
         return 'barcode';
       default:
         return 'exclamation';
@@ -222,6 +222,13 @@ const FileListElement = ({
                 <Icon name={getSheetIcon(sheetsObject[sheetId].sheetView)} inverted />
                 &nbsp;{sheetsObject[sheetId].name}
             </span>
+            <Label
+              size='mini'
+              horizontal
+              className={`${styles.SheetLabel}`}
+            >
+              {`${sheetsObject[sheetId].type} based`}
+            </Label>
             {/* <Input
               transparent
               fluid
@@ -255,17 +262,17 @@ const FileListElement = ({
                       text="Rename"
                       onClick={e => onRenameSheetClickWithStop(e, fileId, sheetId)}
                     /> */}
-                  {sheetsObject[sheetId].sheetView === SHEETVIEW.TIMELINEVIEW && <Dropdown.Item
+                  {sheetsObject[sheetId].sheetView === SHEET_VIEW.TIMELINEVIEW && <Dropdown.Item
                     data-tid='changeViewSheetToGridViewItemOption'
                     icon="grid layout"
                     text="Switch to grid view"
-                    onClick={e => onChangeSheetViewClickWithStop(e, fileId, sheetId, SHEETVIEW.GRIDVIEW)}
+                    onClick={e => onChangeSheetViewClickWithStop(e, fileId, sheetId, SHEET_VIEW.GRIDVIEW)}
                   />}
-                  {sheetsObject[sheetId].sheetView === SHEETVIEW.GRIDVIEW && <Dropdown.Item
+                  {sheetsObject[sheetId].sheetView === SHEET_VIEW.GRIDVIEW && <Dropdown.Item
                     data-tid='changeViewSheetToTimelineViewItemOption'
                     icon="barcode"
                     text="Switch to timeline view"
-                    onClick={e => onChangeSheetViewClickWithStop(e, fileId, sheetId, SHEETVIEW.TIMELINEVIEW)}
+                    onClick={e => onChangeSheetViewClickWithStop(e, fileId, sheetId, SHEET_VIEW.TIMELINEVIEW)}
                   />}
                   <Dropdown.Item
                     data-tid='duplicateSheetItemOption'

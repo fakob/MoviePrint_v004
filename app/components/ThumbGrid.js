@@ -3,11 +3,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
-import { Popup } from 'semantic-ui-react';
+import { Icon, Popup } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
 import Thumb from './Thumb';
 import ThumbGridHeader from './ThumbGridHeader';
 import styles from './ThumbGrid.css';
+import stylesApp from '../containers/App.css';
 import stylesPop from './Popup.css';
 import {
   getNextThumbs,
@@ -26,7 +27,8 @@ import {
   MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
   MINIMUM_WIDTH_TO_SHRINK_HOVER,
   MINIMUM_WIDTH_TO_SHOW_HOVER,
-  SHEETVIEW,
+  SHEET_TYPE,
+  SHEET_VIEW,
   VIEW,
 } from './../utils/constants';
 
@@ -69,6 +71,8 @@ class ThumbGrid extends Component {
     this.onScrub = this.onScrub.bind(this);
     this.onAddBefore = this.onAddBefore.bind(this);
     this.onAddAfter = this.onAddAfter.bind(this);
+    this.onJumpToCutBefore = this.onJumpToCutBefore.bind(this);
+    this.onJumpToCutAfter = this.onJumpToCutAfter.bind(this);
     this.onBack = this.onBack.bind(this);
     this.onForward = this.onForward.bind(this);
     this.onHoverAddThumbBefore = this.onHoverAddThumbBefore.bind(this);
@@ -235,6 +239,22 @@ class ThumbGrid extends Component {
     this.resetHover();
   }
 
+  onJumpToCutBefore(e) {
+    // console.log('onJumpToCutBefore');
+    e.stopPropagation();
+    const thumb = this.props.thumbs.find(thumb => thumb.thumbId === this.state.controllersVisible);
+    this.props.onJumpToCutThumbClick(this.props.file, thumb.thumbId, 'before');
+    this.resetHover();
+  }
+
+  onJumpToCutAfter(e) {
+    // console.log('onJumpToCutAfter');
+    e.stopPropagation();
+    const thumb = this.props.thumbs.find(thumb => thumb.thumbId === this.state.controllersVisible);
+    this.props.onJumpToCutThumbClick(this.props.file, thumb.thumbId, 'after');
+    this.resetHover();
+  }
+
   onHoverAddThumbBefore(e) {
     // console.log('onHoverAddThumbBefore');
     e.target.style.opacity = 1;
@@ -264,10 +284,16 @@ class ThumbGrid extends Component {
   }
 
   render() {
-    const fps = (this.props.file !== undefined && this.props.file.fps !== undefined ? this.props.file.fps : 25);
-    const fileDetails = this.props.file ? `${frameCountToTimeCode(this.props.file.frameCount, fps)} | ${roundNumber(fps)} FPS | ${this.props.file.width} × ${this.props.file.height} | ${formatBytes(this.props.file.size, 1)} | ${this.props.file.fourCC}` : '';
+    const { file, isGridView, keyObject, scaleValueObject, settings, sheetType, sheetView, thumbs, view } = this.props;
+    const { controllersVisible } = this.state;
+
+    const isPlayerView = view !== VIEW.STANDARDVIEW;
+
+
+    const fps = (file !== undefined && file.fps !== undefined ? file.fps : 25);
+    const fileDetails = file ? `${frameCountToTimeCode(file.frameCount, fps)} | ${roundNumber(fps)} FPS | ${file.width} × ${file.height} | ${formatBytes(file.size, 1)} | ${file.fourCC}` : '';
 // 00:06:48:12 (9789 frames) | 23.99 FPS | 1280 x 720 | 39.2 MB
-    let thumbArray = this.props.thumbs;
+    let thumbArray = thumbs;
 
     const getFrameInPercentage = (frameNumber, frameCount) => {
       if (frameCount > 1) {
@@ -277,19 +303,19 @@ class ThumbGrid extends Component {
     }
 
     // calculate in and outpoint for the timeline in percent
-    const inPoint = getLowestFrame(this.props.thumbs);
-    const outPoint = getHighestFrame(this.props.thumbs);
-    const inPointPositionOnTimeline = getFrameInPercentage(inPoint, this.props.file.frameCount);
-    const outPointPositionOnTimeline = getFrameInPercentage(outPoint, this.props.file.frameCount);
+    const inPoint = getLowestFrame(thumbs);
+    const outPoint = getHighestFrame(thumbs);
+    const inPointPositionOnTimeline = getFrameInPercentage(inPoint, file.frameCount);
+    const outPointPositionOnTimeline = getFrameInPercentage(outPoint, file.frameCount);
     const cutWidthOnTimeLine = Math.max(
       outPointPositionOnTimeline - inPointPositionOnTimeline,
       MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE
     );
-    const allFrameNumbersArray = getAllFrameNumbers(this.props.thumbs);
+    const allFrameNumbersArray = getAllFrameNumbers(thumbs);
     const allFrameNumbersInPercentArray = allFrameNumbersArray
-      .map(frameNumber => getFrameInPercentage(frameNumber, this.props.file.frameCount));
+      .map(frameNumber => getFrameInPercentage(frameNumber, file.frameCount));
 
-    if (this.props.showSettings || this.props.thumbs.length === 0) {
+    if (this.props.showSettings || thumbs.length === 0) {
       const tempArrayLength = this.props.thumbCount;
       thumbArray = Array(tempArrayLength);
 
@@ -297,22 +323,22 @@ class ThumbGrid extends Component {
         const mappedIterator = mapRange(
           i,
           0, tempArrayLength - 1,
-          0, (this.props.thumbs !== undefined ? this.props.thumbs.length : tempArrayLength) - 1
+          0, (thumbs !== undefined ? thumbs.length : tempArrayLength) - 1
         );
         let tempThumbObject = {
           id: String(mappedIterator),
         };
-        if (this.props.thumbs.length === 0) {
+        if (thumbs.length === 0) {
           tempThumbObject = {
             index: i,
           };
-        } else if (this.props.thumbs.length === tempArrayLength) {
-          tempThumbObject = this.props.thumbs[i];
+        } else if (thumbs.length === tempArrayLength) {
+          tempThumbObject = thumbs[i];
         } else {
           if ((this.props.objectUrlObjects !== undefined) &&
             (i === 0 || i === (tempArrayLength - 1))
           ) {
-            tempThumbObject = this.props.thumbs[mappedIterator];
+            tempThumbObject = thumbs[mappedIterator];
           } else {
             tempThumbObject.transparentThumb = true; // set this to control displaying a thumb image or a color
           }
@@ -321,10 +347,9 @@ class ThumbGrid extends Component {
         thumbArray[i] = tempThumbObject;
       }
     }
-    const thumbWidth = this.props.scaleValueObject.newThumbWidth;
+    const thumbWidth = scaleValueObject.newThumbWidth;
 
-    const { isGridView } = this.props;
-    const hoverThumbIndex = thumbArray.findIndex(thumb => thumb.thumbId === this.state.controllersVisible);
+    const hoverThumbIndex = thumbArray.findIndex(thumb => thumb.thumbId === controllersVisible);
     const isHidden = hoverThumbIndex !== -1 ? thumbArray[hoverThumbIndex].hidden : undefined;
     // console.log(this.thumbGridDivRef !== null ? this.thumbGridDivRef.getBoundingClientRect() : 'not set yet')
     // this.setState({
@@ -338,9 +363,11 @@ class ThumbGrid extends Component {
       };
     // console.log(this.state.hoverPos);
     // console.log(parentPos);
+    console.log(this.props.showMovielist);
+    console.log(this.props.showSettings);
 
-    const showBeforeController = (this.state.controllersVisible === this.state.addThumbBeforeController) || this.props.keyObject.shiftKey;
-    const showAfterController = (this.state.controllersVisible === this.state.addThumbAfterController) || this.props.keyObject.altKey;
+    const showBeforeController = (controllersVisible === this.state.addThumbBeforeController);
+    const showAfterController = (controllersVisible === this.state.addThumbAfterController);
 
     return (
       <div
@@ -348,25 +375,46 @@ class ThumbGrid extends Component {
         className={styles.grid}
         style={{
           width: this.props.moviePrintWidth,
-          marginLeft: this.props.view === VIEW.STANDARDVIEW ? undefined : (thumbWidth / 4),
+          paddingLeft: isPlayerView ? '48px' : undefined,
         }}
         id="ThumbGrid"
         onMouseLeave={this.onContainerOut}
         // ref={this.setThumbGridDivRef}
       >
-        {this.props.settings.defaultShowHeader && this.props.sheetView === SHEETVIEW.GRIDVIEW &&
+        {isPlayerView &&
+          sheetType === SHEET_TYPE.SCENES &&
+          <Popup
+          trigger={
+            <button
+              type='button'
+              className={`${styles.hoverButton} ${styles.textButton} ${styles.sheetTypeSwitchButton} ${this.props.showMovielist ? stylesApp.ItemMainLeftAnim : ''}`}
+              onClick={() => this.props.onToggleSheetView(file.id,this.props.currentSheetId)}
+              onMouseOver={this.over}
+              onMouseLeave={this.out}
+              onFocus={this.over}
+              onBlur={this.out}
+            >
+              <Icon
+                name="barcode"
+              />
+            </button>
+          }
+          className={stylesPop.popup}
+          content={<span>Switch to timeline view <mark>G</mark></span>}
+        />}
+        {!isPlayerView && settings.defaultShowHeader && this.props.sheetView === SHEET_VIEW.GRIDVIEW &&
           <ThumbGridHeader
             viewForPrinting={this.props.viewForPrinting}
-            fileName={this.props.file.name || ''}
-            filePath={this.props.file.path || ''}
+            fileName={file.name || ''}
+            filePath={file.path || ''}
             fileDetails={fileDetails}
-            showPathInHeader={this.props.settings.defaultShowPathInHeader}
-            showDetailsInHeader={this.props.settings.defaultShowDetailsInHeader}
-            showTimelineInHeader={this.props.settings.defaultShowTimelineInHeader}
+            showPathInHeader={settings.defaultShowPathInHeader}
+            showDetailsInHeader={settings.defaultShowDetailsInHeader}
+            showTimelineInHeader={settings.defaultShowTimelineInHeader}
             moviePrintWidth={this.props.moviePrintWidth}
-            headerHeight={this.props.scaleValueObject.newHeaderHeight}
-            logoHeight={this.props.scaleValueObject.newLogoHeight}
-            thumbMargin={this.props.scaleValueObject.newThumbMargin}
+            headerHeight={scaleValueObject.newHeaderHeight}
+            logoHeight={scaleValueObject.newLogoHeight}
+            thumbMargin={scaleValueObject.newThumbMargin}
             inPointPositionOnTimeline={inPointPositionOnTimeline}
             cutWidthOnTimeLine={cutWidthOnTimeLine}
             allFrameNumbersInPercentArray={allFrameNumbersInPercentArray}
@@ -379,14 +427,15 @@ class ThumbGrid extends Component {
           {thumbArray.map(thumb => (
             <SortableThumb
               sheetView={this.props.sheetView}
+              sheetType={this.props.sheetType}
               view={this.props.view}
-              keyObject={this.props.keyObject}
+              keyObject={keyObject}
               key={thumb.thumbId || uuidV4()}
               thumbId={thumb.thumbId}
               index={thumb.index}
               indexForId={thumb.index}
               dim={(this.state.thumbsToDim.find((thumbToDim) => thumbToDim.thumbId === thumb.thumbId))}
-              inputRefThumb={(this.props.selectedThumbId === thumb.thumbId) ?
+              inputRefThumb={(this.props.selectedThumbsArray.length !== 0 && this.props.selectedThumbsArray[0].thumbId === thumb.thumbId) ?
                 this.props.inputRefThumb : undefined} // for the thumb scrollIntoView function
               color={(this.props.colorArray !== undefined ? this.props.colorArray[thumb.index] : undefined)}
               thumbImageObjectUrl={ // used for data stored in IndexedDB
@@ -396,22 +445,25 @@ class ThumbGrid extends Component {
                 ((this.props.useBase64 !== undefined && this.props.objectUrlObjects !== undefined) ? this.props.objectUrlObjects[thumb.frameId] : undefined)
               }
               transparentThumb={thumb.transparentThumb || undefined}
-              aspectRatioInv={this.props.scaleValueObject.aspectRatioInv}
+              aspectRatioInv={scaleValueObject.aspectRatioInv}
               thumbWidth={thumbWidth}
-              borderRadius={this.props.scaleValueObject.newBorderRadius}
-              margin={this.props.scaleValueObject.newThumbMargin}
-              thumbInfoValue={getThumbInfoValue(this.props.settings.defaultThumbInfo, thumb.frameNumber, fps)}
-              thumbInfoRatio={this.props.settings.defaultThumbInfoRatio}
+              borderRadius={scaleValueObject.newBorderRadius}
+              margin={scaleValueObject.newThumbMargin}
+              thumbInfoValue={getThumbInfoValue(settings.defaultThumbInfo, thumb.frameNumber, fps)}
+              thumbInfoRatio={settings.defaultThumbInfoRatio}
               hidden={thumb.hidden}
-              controllersAreVisible={(thumb.thumbId === undefined) ? false : (thumb.thumbId === this.state.controllersVisible)}
-              selected={this.props.selectedThumbId ? (this.props.selectedThumbId === thumb.thumbId) : false}
+              controllersAreVisible={(thumb.thumbId === undefined) ? false : (thumb.thumbId === controllersVisible)}
+              selected={this.props.selectedThumbsArray.length !== 0 ?
+                this.props.selectedThumbsArray.some(item => item.thumbId === thumb.thumbId) :
+                false
+              }
               onOver={(event) => {
                 // console.log('onOver from Thumb');
                 // only setState if controllersVisible has changed
                 // console.log(event.target.getBoundingClientRect());
                 const hoverPos = event.target.getBoundingClientRect();
                 // event.stopPropagation();
-                if (this.state.controllersVisible !== thumb.thumbId) {
+                if (controllersVisible !== thumb.thumbId) {
                   this.setState({
                     controllersVisible: thumb.thumbId,
                     hoverPos,
@@ -425,17 +477,17 @@ class ThumbGrid extends Component {
                 // console.log(event.target.getBoundingClientRect());
                 // const hoverPos = event.target.getBoundingClientRect();
                 // event.stopPropagation();
-                // if (this.state.controllersVisible !== thumb.thumbId) {
+                // if (controllersVisible !== thumb.thumbId) {
                 //   this.resetHover();
                 // }
               }}
               onThumbDoubleClick={this.props.onThumbDoubleClick}
-              onSelect={(thumb.thumbId !== this.state.controllersVisible) ?
+              onSelect={(thumb.thumbId !== controllersVisible) ?
                 null : () => {
                   this.props.onSelectClick(thumb.thumbId, thumb.frameNumber);
                 }}
               onErrorThumb={() => this.props.onErrorThumb(
-                  this.props.file,
+                  file,
                   this.props.currentSheetId,
                   thumb.thumbId,
                   thumb.frameId)
@@ -456,13 +508,13 @@ class ThumbGrid extends Component {
               left: this.state.hoverPos.left - parentPos.left,
               top: this.state.hoverPos.top - parentPos.top,
               width: `${thumbWidth}px`,
-              height: `${(thumbWidth * this.props.scaleValueObject.aspectRatioInv)}px`,
+              height: `${(thumbWidth * scaleValueObject.aspectRatioInv)}px`,
             }}
           >
               <Popup
                 trigger={
                   <button
-                    data-tid={`ExpandThumbBtn_${this.state.controllersVisible}`}
+                    data-tid={`ExpandThumbBtn_${controllersVisible}`}
                     type='button'
                     className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayExit} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
                     onClick={this.onExpand}
@@ -480,7 +532,7 @@ class ThumbGrid extends Component {
               <Popup
                 trigger={
                   <button
-                    data-tid={`${isHidden ? 'show' : 'hide'}ThumbBtn_${this.state.controllersVisible}`}
+                    data-tid={`${isHidden ? 'show' : 'hide'}ThumbBtn_${controllersVisible}`}
                     type='button'
                     className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayHide} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
                     onClick={this.onToggle}
@@ -498,7 +550,7 @@ class ThumbGrid extends Component {
               <Popup
                 trigger={
                   <button
-                    data-tid={`saveThumbBtn_${this.state.controllersVisible}`}
+                    data-tid={`saveThumbBtn_${controllersVisible}`}
                     type='button'
                     className={`${styles.hoverButton} ${styles.textButton} ${styles.overlaySave} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
                     onClick={this.onSaveThumb}
@@ -515,10 +567,10 @@ class ThumbGrid extends Component {
               />
               {!isHidden &&
                 <div>
-                  <Popup
+                  {sheetType === SHEET_TYPE.INTERVAL && <Popup
                     trigger={
                       <button
-                        data-tid={`setInPointBtn_${this.state.controllersVisible}`}
+                        data-tid={`setInPointBtn_${controllersVisible}`}
                         type='button'
                         className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayIn} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
                         onClick={this.onInPoint}
@@ -532,39 +584,38 @@ class ThumbGrid extends Component {
                     }
                     className={stylesPop.popup}
                     content={<span>Set this thumb as new <mark>IN-point</mark></span>}
-                  />
+                  />}
                   <Popup
                     trigger={
                       <button
-                        data-tid={`addNewThumbBeforeBtn_${this.state.controllersVisible}`}
+                        data-tid={`addNewThumbBeforeBtn_${controllersVisible}`}
                         type='button'
                         className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayAddBefore} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
-                        onClick={this.onAddBefore}
+                        onClick={sheetType === SHEET_TYPE.SCENES ? this.onJumpToCutBefore : this.onAddBefore}
                         onMouseOver={this.onHoverAddThumbBefore}
                         onMouseOut={this.onLeaveAddThumb}
                         onFocus={this.over}
                         onBlur={this.out}
                       >
-                        +
+                        {sheetType === SHEET_TYPE.SCENES ? '||' : '+'}
                       </button>
                     }
                     className={stylesPop.popup}
-                    content={<span>Add new thumb before</span>}
+                    content={sheetType === SHEET_TYPE.SCENES ? (<span>Jump to cut</span>) : (<span>Add new thumb before</span>)}
                   />
                   <Popup
                     trigger={
                       <button
-                        data-tid={`scrubBtn_${this.state.controllersVisible}`}
+                        data-tid={`scrubBtn_${controllersVisible}`}
                         type='button'
                         className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayScrub} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
-                        // onClick={onScrubWithStop}
                         onMouseDown={this.onScrub}
                         onMouseOver={this.over}
                         onMouseOut={this.out}
                         onFocus={this.over}
                         onBlur={this.out}
                       >
-                        {'<'}|{'>'}
+                        {'<|>'}
                       </button>
                     }
                     className={stylesPop.popup}
@@ -573,25 +624,25 @@ class ThumbGrid extends Component {
                   <Popup
                     trigger={
                       <button
-                        data-tid={`addNewThumbAfterBtn_${this.state.controllersVisible}`}
+                        data-tid={`addNewThumbAfterBtn_${controllersVisible}`}
                         type='button'
                         className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayAddAfter} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
-                        onClick={this.onAddAfter}
+                        onClick={sheetType === SHEET_TYPE.SCENES ? this.onJumpToCutAfter : this.onAddAfter}
                         onMouseOver={this.onHoverAddThumbAfter}
                         onMouseOut={this.onLeaveAddThumb}
                         onFocus={this.over}
                         onBlur={this.out}
                       >
-                        +
+                        {sheetType === SHEET_TYPE.SCENES ? '||' : '+'}
                       </button>
                     }
                     className={stylesPop.popup}
-                    content={<span>Add new thumb after</span>}
+                    content={sheetType === SHEET_TYPE.SCENES ? (<span>Jump to cut</span>) : (<span>Add new thumb after</span>)}
                   />
-                  <Popup
+                  {sheetType === SHEET_TYPE.INTERVAL && <Popup
                     trigger={
                       <button
-                        data-tid={`setOutPointBtn_${this.state.controllersVisible}`}
+                        data-tid={`setOutPointBtn_${controllersVisible}`}
                         type='button'
                         className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayOut} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
                         onClick={this.onOutPoint}
@@ -605,41 +656,24 @@ class ThumbGrid extends Component {
                     }
                     className={stylesPop.popup}
                     content={<span>Set this thumb as new <mark>OUT-point</mark></span>}
-                  />
+                  />}
                 </div>
               }
-              {this.props.sheetView !== SHEETVIEW.GRIDVIEW && (showBeforeController || showAfterController) &&
+              {sheetType !== SHEET_TYPE.SCENES && (showBeforeController || showAfterController) && (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) &&
                 <div
-                  data-tid={`insertThumb${(!showAfterController && showBeforeController) ? 'Before' : 'After'}Div_${this.state.controllersVisible}`}
-                  style={{
-                    content: '',
-                    backgroundColor: '#FF5006',
-                    position: 'absolute',
-                    width: `${Math.max(1, this.props.scaleValueObject.newThumbMargin * 0.5)}px`,
-                    height: `${(thumbWidth * this.props.scaleValueObject.aspectRatioInv) + (Math.max(1, this.props.scaleValueObject.newThumbMargin * 2))}px`,
-                    top: (Math.max(1, this.props.scaleValueObject.newThumbMargin * -1.0)),
-                    left: `${(!showAfterController && showBeforeController) ? 0 : undefined}`,
-                    right: `${showAfterController ? 0 : undefined}`,
-                    display: 'block',
-                    transform: `translateX(${Math.max(1, this.props.scaleValueObject.newThumbMargin) * (showAfterController ? 1.25 : -1.25)}px)`,
-                  }}
-                />
-              }
-              {(showBeforeController || showAfterController) && (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) &&
-                <div
-                  data-tid={`insertThumb${(!showAfterController && showBeforeController) ? 'Before' : 'After'}Div_${this.state.controllersVisible}`}
+                  data-tid={`insertThumb${(!showAfterController && showBeforeController) ? 'Before' : 'After'}Div_${controllersVisible}`}
                   style={{
                     zIndex: 100,
                     content: '',
                     backgroundColor: '#FF5006',
                     position: 'absolute',
-                    width: `${Math.max(1, this.props.scaleValueObject.newThumbMargin * 0.5)}px`,
-                    height: `${thumbWidth * this.props.scaleValueObject.aspectRatioInv}px`,
-                    // top: (Math.max(1, this.props.scaleValueObject.newThumbMargin * -1.0)),
+                    width: `${Math.max(1, scaleValueObject.newThumbMargin * 0.5)}px`,
+                    height: `${thumbWidth * scaleValueObject.aspectRatioInv}px`,
+                    // top: (Math.max(1, scaleValueObject.newThumbMargin * -1.0)),
                     left: `${(!showAfterController && showBeforeController) ? 0 : undefined}`,
                     right: `${showAfterController ? 0 : undefined}`,
                     display: 'block',
-                    transform: `translateX(${Math.max(1, this.props.scaleValueObject.newThumbMargin) * (showAfterController ? 1.25 : -1.25)}px)`,
+                    transform: `translateX(${Math.max(1, scaleValueObject.newThumbMargin) * (showAfterController ? 1.25 : -1.25)}px)`,
                   }}
                 />
               }
@@ -652,7 +686,7 @@ class ThumbGrid extends Component {
 }
 
 ThumbGrid.defaultProps = {
-  selectedThumbId: undefined,
+  selectedThumbsArray: [],
   thumbs: [],
   thumbsToDim: [],
   file: {}
@@ -679,12 +713,14 @@ ThumbGrid.propTypes = {
   onThumbDoubleClick: PropTypes.func,
   onScrubClick: PropTypes.func.isRequired,
   onAddThumbClick: PropTypes.func.isRequired,
+  onJumpToCutThumbClick: PropTypes.func.isRequired,
   onToggleClick: PropTypes.func.isRequired,
   onExpandClick: PropTypes.func.isRequired,
   scaleValueObject: PropTypes.object.isRequired,
-  selectedThumbId: PropTypes.string,
+  selectedThumbsArray: PropTypes.array,
   settings: PropTypes.object.isRequired,
   sheetView: PropTypes.string.isRequired,
+  showMovielist: PropTypes.bool.isRequired,
   showSettings: PropTypes.bool.isRequired,
   thumbCount: PropTypes.number.isRequired,
   objectUrlObjects: PropTypes.object,
