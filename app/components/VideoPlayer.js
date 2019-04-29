@@ -146,7 +146,7 @@ class VideoPlayer extends Component {
     // you may also add a filter here to skip keys, that do not have an effect for your app
     // this.props.keyPressAction(event.keyCode);
 
-    const { arrayOfCuts, onCutSceneClick, onMergeSceneClick, sheetView } = this.props;
+    const { arrayOfCuts, onCutSceneClick, onMergeSceneClick, sheetType, sheetView } = this.props;
     const { currentFrame } = this.state;
     const thisFrameIsACut = arrayOfCuts.some(item => item === currentFrame);
     // only listen to key events when feedback form is not shown
@@ -163,8 +163,11 @@ class VideoPlayer extends Component {
                 onCutSceneClick(currentFrame);
               }
             }
-            if (sheetView === SHEET_VIEW.GRIDVIEW) {
+            if (sheetType === SHEET_TYPE.SCENES && sheetView === SHEET_VIEW.GRIDVIEW) {
               this.onChangeThumbClick();
+            }
+            if (sheetType === SHEET_TYPE.INTERVAL && sheetView === SHEET_VIEW.GRIDVIEW) {
+              this.onChangeOrAddClick();
             }
             break;
           case 37: // press arrow left
@@ -824,7 +827,7 @@ class VideoPlayer extends Component {
                 </button>
               }
               className={stylesPop.popup}
-              content={keyObject.altKey ? (<span>Add a new thumb <mark>after</mark> selection</span>) : (keyObject.shiftKey ? (<span>Add a new thumb <mark>before</mark> selection</span>) : (<span>Change the thumb to use this frame | with <mark>SHIFT</mark> add a thumb before selection | with <mark>ALT</mark> add a thumb after selection</span>))}
+              content={keyObject.altKey ? (<span>Add a new thumb <mark>after</mark> selection</span>) : (keyObject.shiftKey ? (<span>Add a new thumb <mark>before</mark> selection</span>) : (<span>Change the thumb to use this frame <mark>ENTER</mark> | with <mark>SHIFT</mark> add a thumb before selection | with <mark>ALT</mark> add a thumb after selection</span>))}
             />}
             <Popup
               trigger={
