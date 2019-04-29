@@ -102,7 +102,7 @@ const Header = ({
         <Menu.Menu position="right">
           {file &&
             visibilitySettings.defaultSheetView === SHEET_VIEW.GRIDVIEW &&
-            // !visibilitySettings.showSettings &&
+            visibilitySettings.defaultView === VIEW.STANDARDVIEW &&
             visibilitySettings.defaultSheetFit !== SHEET_FIT.HEIGHT &&
             scaleValueObject.moviePrintAspectRatioInv < scaleValueObject.containerAspectRatioInv &&
             <Popup
@@ -124,7 +124,7 @@ const Header = ({
           }
           {file &&
             visibilitySettings.defaultSheetView === SHEET_VIEW.GRIDVIEW &&
-            // !visibilitySettings.showSettings &&
+            visibilitySettings.defaultView === VIEW.STANDARDVIEW &&
             visibilitySettings.defaultSheetFit !== SHEET_FIT.WIDTH &&
             scaleValueObject.moviePrintAspectRatioInv > scaleValueObject.containerAspectRatioInv &&
             <Popup
@@ -144,7 +144,9 @@ const Header = ({
               keepInViewPort={false}
             />
           }
-          {file && visibilitySettings.defaultSheetView === SHEET_VIEW.GRIDVIEW && visibilitySettings.defaultSheetFit !== SHEET_FIT.BOTH &&
+          {file && visibilitySettings.defaultSheetView === SHEET_VIEW.GRIDVIEW &&
+            visibilitySettings.defaultView === VIEW.STANDARDVIEW &&
+            visibilitySettings.defaultSheetFit !== SHEET_FIT.BOTH &&
             <Popup
               trigger={
                 <Menu.Item
@@ -163,6 +165,7 @@ const Header = ({
             />
           }
           {file && visibilitySettings.defaultSheetView === SHEET_VIEW.GRIDVIEW &&
+            visibilitySettings.defaultView === VIEW.STANDARDVIEW &&
             <Popup
               trigger={
                 <Menu.Item

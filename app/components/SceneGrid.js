@@ -11,8 +11,8 @@ import {
   getWidthOfSingleRow,
 } from '../utils/utils';
 import {
-  CUTPLAYER_FIXED_PIXEL_PER_FRAME_RATIO,
-  CUTPLAYER_SCENE_MARGIN,
+  VIDEOPLAYER_FIXED_PIXEL_PER_FRAME_RATIO,
+  VIDEOPLAYER_SCENE_MARGIN,
   VIEW,
   SHEET_TYPE,
 } from '../utils/constants';
@@ -44,17 +44,17 @@ class SceneGrid extends Component {
     const isPlayerView = view !== VIEW.STANDARDVIEW;
     const breakOnWidth = isPlayerView || settings.defaultTimelineViewFlow;
 
-    const thumbMarginTimeline = isPlayerView ? CUTPLAYER_SCENE_MARGIN : Math.floor(scaleValueObject.thumbMarginTimeline);
+    const thumbMarginTimeline = isPlayerView ? VIDEOPLAYER_SCENE_MARGIN : Math.floor(scaleValueObject.thumbMarginTimeline);
 
     const rowHeight = scaleValueObject.newMoviePrintTimelineRowHeight;
     const rowHeightForPlayer = ((scaleValueObject.videoPlayerHeight / 2) - (settings.defaultBorderMargin * 3));
 
     const realWidth = (rowHeight / scaleValueObject.aspectRatioInv);
     const realWidthForPlayer = (rowHeightForPlayer / scaleValueObject.aspectRatioInv);
-    const newPixelPerFrameRatio = isPlayerView ? CUTPLAYER_FIXED_PIXEL_PER_FRAME_RATIO : scaleValueObject.newMoviePrintTimelinePixelPerFrameRatio; // set fixed pixel per frame ratio for player
+    const newPixelPerFrameRatio = isPlayerView ? VIDEOPLAYER_FIXED_PIXEL_PER_FRAME_RATIO : scaleValueObject.newMoviePrintTimelinePixelPerFrameRatio; // set fixed pixel per frame ratio for player
     const indexRowArray = scenesInRows.map(item => item.index);
 
-    // for CutPlayer
+    // for VideoPlayer
     const widthOfSingleRow =
       getWidthOfSingleRow(
         scenes,
@@ -97,7 +97,7 @@ class SceneGrid extends Component {
         <div
           data-tid='sceneGridBodyDiv'
           style={{
-            width: isPlayerView ? widthOfSingleRow : undefined, // if CutPlayer then single row
+            width: isPlayerView ? widthOfSingleRow : undefined, // if VideoPlayer then single row
           }}
         >
           {scenes.map((scene, index) => {

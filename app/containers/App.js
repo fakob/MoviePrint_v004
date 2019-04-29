@@ -24,7 +24,6 @@ import ErrorBoundary from '../components/ErrorBoundary';
 import HeaderComponent from '../components/HeaderComponent';
 import Footer from '../components/Footer';
 import VideoPlayer from '../components/VideoPlayer';
-import CutPlayer from '../components/CutPlayer';
 import Scrub from '../components/Scrub';
 import ThumbEmpty from '../components/ThumbEmpty';
 import getScaleValueObject from '../utils/getScaleValueObject';
@@ -2777,7 +2776,7 @@ class App extends Component {
                     />
                   </div>
                   <div
-                    className={`${sheetType === SHEET_TYPE.SCENES ? styles.ItemCutPlayer : styles.ItemVideoPlayer} ${visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''}`}
+                    className={`${styles.ItemVideoPlayer} ${visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''}`}
                     style={{
                       top: `${MENU_HEADER_HEIGHT + settings.defaultBorderMargin}px`,
                       transform: visibilitySettings.defaultView === VIEW.PLAYERVIEW ? `translate(${sheetType === SHEET_TYPE.SCENES ? '0px' : '-50%'}, 0px)` : `translate(-50%, ${(scaleValueObject.videoPlayerHeight + settings.defaultVideoPlayerControllerHeight) * -1}px)`,
@@ -2785,7 +2784,7 @@ class App extends Component {
                     }}
                   >
                     { file ? (
-                      <CutPlayer
+                      <VideoPlayer
                         ref={(el) => { this.videoPlayer = el; }}
                         file={file}
                         currentSheetId={settings.currentSheetId}
