@@ -129,6 +129,7 @@ class SortedVisibleThumbGrid extends Component {
       settings,
       sheetType,
       sheetView,
+      showMovielist,
       showSettings,
       thumbCount,
       thumbs,
@@ -166,6 +167,7 @@ class SortedVisibleThumbGrid extends Component {
         moviePrintWidth={moviePrintWidth}
         selectedThumbsArray={selectedThumbsArray}
         settings={settings}
+        showMovielist={showMovielist}
         showSettings={showSettings}
         thumbCount={thumbCount}
         objectUrlObjects={objectUrlObjects}
@@ -301,6 +303,7 @@ SortedVisibleThumbGrid.propTypes = {
   sheetType: PropTypes.string.isRequired,
   sheetView: PropTypes.string.isRequired,
   // currentSheetId: PropTypes.string.isRequired,
+  showMovielist: PropTypes.bool.isRequired,
   showSettings: PropTypes.bool.isRequired,
   thumbCount: PropTypes.number.isRequired,
   objectUrlObjects: PropTypes.object,

@@ -2779,7 +2779,7 @@ class App extends Component {
                     className={`${styles.ItemVideoPlayer} ${visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''}`}
                     style={{
                       top: `${MENU_HEADER_HEIGHT + settings.defaultBorderMargin}px`,
-                      transform: visibilitySettings.defaultView === VIEW.PLAYERVIEW ? `translate(${sheetType === SHEET_TYPE.SCENES ? '0px' : '-50%'}, 0px)` : `translate(-50%, ${(scaleValueObject.videoPlayerHeight + settings.defaultVideoPlayerControllerHeight) * -1}px)`,
+                      transform: visibilitySettings.defaultView === VIEW.PLAYERVIEW ? `translate(0px, 0px)` : `translate(-50%, ${(scaleValueObject.videoPlayerHeight + settings.defaultVideoPlayerControllerHeight) * -1}px)`,
                       overflow: visibilitySettings.defaultView === VIEW.PLAYERVIEW ? 'visible' : 'hidden'
                     }}
                   >
@@ -2884,6 +2884,7 @@ class App extends Component {
                             selectedThumbsArray={this.state.selectedThumbsArray}
                             onSelectThumbMethod={this.onSelectThumbMethod}
                             settings={settings}
+                            showMovielist={visibilitySettings.showMovielist}
                             showSettings={visibilitySettings.showSettings}
                             thumbCount={this.state.thumbCountTemp}
                             objectUrlObjects={filteredObjectUrlObjects}
@@ -2915,6 +2916,7 @@ class App extends Component {
                             scaleValueObject={scaleValueObject}
                             scenes={visibilitySettings.defaultView === VIEW.PLAYERVIEW ? allScenes : scenes}
                             settings={settings}
+                            showMovielist={visibilitySettings.showMovielist}
                             showSettings={visibilitySettings.showSettings}
                             objectUrlObjects={filteredObjectUrlObjects}
                             thumbs={this.props.thumbs}

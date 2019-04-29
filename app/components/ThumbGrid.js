@@ -8,6 +8,7 @@ import uuidV4 from 'uuid/v4';
 import Thumb from './Thumb';
 import ThumbGridHeader from './ThumbGridHeader';
 import styles from './ThumbGrid.css';
+import stylesApp from '../containers/App.css';
 import stylesPop from './Popup.css';
 import {
   getNextThumbs,
@@ -362,6 +363,8 @@ class ThumbGrid extends Component {
       };
     // console.log(this.state.hoverPos);
     // console.log(parentPos);
+    console.log(this.props.showMovielist);
+    console.log(this.props.showSettings);
 
     const showBeforeController = (controllersVisible === this.state.addThumbBeforeController);
     const showAfterController = (controllersVisible === this.state.addThumbAfterController);
@@ -384,7 +387,7 @@ class ThumbGrid extends Component {
           trigger={
             <button
               type='button'
-              className={`${styles.hoverButton} ${styles.textButton} ${styles.sheetTypeSwitchButton}`}
+              className={`${styles.hoverButton} ${styles.textButton} ${styles.sheetTypeSwitchButton} ${this.props.showMovielist ? stylesApp.ItemMainLeftAnim : ''}`}
               onClick={() => this.props.onToggleSheetView(file.id,this.props.currentSheetId)}
               onMouseOver={this.over}
               onMouseLeave={this.out}
@@ -717,6 +720,7 @@ ThumbGrid.propTypes = {
   selectedThumbsArray: PropTypes.array,
   settings: PropTypes.object.isRequired,
   sheetView: PropTypes.string.isRequired,
+  showMovielist: PropTypes.bool.isRequired,
   showSettings: PropTypes.bool.isRequired,
   thumbCount: PropTypes.number.isRequired,
   objectUrlObjects: PropTypes.object,

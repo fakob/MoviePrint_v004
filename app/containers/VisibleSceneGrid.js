@@ -120,6 +120,7 @@ class SortedVisibleSceneGrid extends Component {
         scenes={this.props.scenes}
         selectedThumbsArray={this.props.selectedThumbsArray}
         settings={this.props.settings}
+        showMovielist={this.props.showMovielist}
         showSettings={this.props.showSettings}
         thumbCount={this.props.thumbCount}
         objectUrlObjects={this.props.objectUrlObjects}

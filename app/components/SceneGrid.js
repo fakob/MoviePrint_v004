@@ -6,6 +6,7 @@ import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import { Icon, Popup } from 'semantic-ui-react';
 import Scene from './Scene';
 import styles from './SceneGrid.css';
+import stylesApp from '../containers/App.css';
 import stylesPop from './Popup.css';
 import {
   getWidthOfSingleRow,
@@ -79,7 +80,7 @@ class SceneGrid extends Component {
           trigger={
             <button
               type='button'
-              className={`${styles.hoverButton} ${styles.textButton} ${styles.sheetTypeSwitchButton}`}
+              className={`${styles.hoverButton} ${styles.textButton} ${styles.sheetTypeSwitchButton} ${this.props.showMovielist ? stylesApp.ItemMainLeftAnim : ''}`}
               onClick={() => this.props.onToggleSheetView(file.id,this.props.currentSheetId)}
               onMouseOver={this.over}
               onMouseLeave={this.out}
