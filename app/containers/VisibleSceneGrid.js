@@ -25,10 +25,15 @@ class SortedVisibleSceneGrid extends Component {
     this.onDeselectClick = this.onDeselectClick.bind(this);
   }
 
-  // componentDidMount() {
   componentWillMount() {
     const { store } = this.context;
     this.unsubscribe = store.subscribe(() => this.forceUpdate());
+  }
+
+  componentDidMount() {
+    setTimeout(() => {
+      this.scrollThumbIntoView();
+    }, 500);
   }
 
   componentDidUpdate(prevProps) {
@@ -90,6 +95,7 @@ class SortedVisibleSceneGrid extends Component {
         useBase64={this.props.useBase64}
         sheetView={this.props.sheetView}
         view={this.props.view}
+        sheetType={this.props.sheetType}
         currentSheetId={this.props.currentSheetId}
         file={this.props.file}
         inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
@@ -103,6 +109,7 @@ class SortedVisibleSceneGrid extends Component {
         onOutPointClick={this.props.onOutPointClick}
         onSaveThumbClick={this.props.onSaveThumbClick}
         onThumbDoubleClick={this.props.onThumbDoubleClick}
+        onToggleSheetView={this.props.onToggleSheetView}
         onScrubClick={this.props.onScrubClick}
         onSelectClick={this.onSelectClick}
         onDeselectClick={this.onDeselectClick}

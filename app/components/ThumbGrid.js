@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
-import { Popup } from 'semantic-ui-react';
+import { Icon, Popup } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
 import Thumb from './Thumb';
 import ThumbGridHeader from './ThumbGridHeader';
@@ -363,8 +363,8 @@ class ThumbGrid extends Component {
     // console.log(this.state.hoverPos);
     // console.log(parentPos);
 
-    const showBeforeController = (controllersVisible === this.state.addThumbBeforeController) || keyObject.shiftKey;
-    const showAfterController = (controllersVisible === this.state.addThumbAfterController) || keyObject.altKey;
+    const showBeforeController = (controllersVisible === this.state.addThumbBeforeController);
+    const showAfterController = (controllersVisible === this.state.addThumbAfterController);
 
     return (
       <div
@@ -372,13 +372,34 @@ class ThumbGrid extends Component {
         className={styles.grid}
         style={{
           width: this.props.moviePrintWidth,
-          marginLeft: isPlayerView ? (thumbWidth / 4) : undefined,
+          paddingLeft: isPlayerView ? '48px' : undefined,
         }}
         id="ThumbGrid"
         onMouseLeave={this.onContainerOut}
         // ref={this.setThumbGridDivRef}
       >
-        {settings.defaultShowHeader && this.props.sheetView === SHEET_VIEW.GRIDVIEW &&
+        {isPlayerView &&
+          sheetType === SHEET_TYPE.SCENES &&
+          <Popup
+          trigger={
+            <button
+              type='button'
+              className={`${styles.hoverButton} ${styles.textButton} ${styles.sheetTypeSwitchButton}`}
+              onClick={() => this.props.onToggleSheetView(file.id,this.props.currentSheetId)}
+              onMouseOver={this.over}
+              onMouseLeave={this.out}
+              onFocus={this.over}
+              onBlur={this.out}
+            >
+              <Icon
+                name="barcode"
+              />
+            </button>
+          }
+          className={stylesPop.popup}
+          content={<span>Switch to timeline view <mark>G</mark></span>}
+        />}
+        {!isPlayerView && settings.defaultShowHeader && this.props.sheetView === SHEET_VIEW.GRIDVIEW &&
           <ThumbGridHeader
             viewForPrinting={this.props.viewForPrinting}
             fileName={file.name || ''}
@@ -561,7 +582,7 @@ class ThumbGrid extends Component {
                     className={stylesPop.popup}
                     content={<span>Set this thumb as new <mark>IN-point</mark></span>}
                   />}
-                  {!isPlayerView && <Popup
+                  <Popup
                     trigger={
                       <button
                         data-tid={`addNewThumbBeforeBtn_${controllersVisible}`}
@@ -578,7 +599,7 @@ class ThumbGrid extends Component {
                     }
                     className={stylesPop.popup}
                     content={sheetType === SHEET_TYPE.SCENES ? (<span>Jump to cut</span>) : (<span>Add new thumb before</span>)}
-                  />}
+                  />
                   <Popup
                     trigger={
                       <button
@@ -597,7 +618,7 @@ class ThumbGrid extends Component {
                     className={stylesPop.popup}
                     content={<span>Click and drag left and right to change the frame (<mark>SHIFT</mark> add new thumb before, <mark>ALT</mark> add new thumb after, <mark>CTRL</mark> display original as overlay)</span>}
                   />
-                  {!isPlayerView && <Popup
+                  <Popup
                     trigger={
                       <button
                         data-tid={`addNewThumbAfterBtn_${controllersVisible}`}
@@ -614,7 +635,7 @@ class ThumbGrid extends Component {
                     }
                     className={stylesPop.popup}
                     content={sheetType === SHEET_TYPE.SCENES ? (<span>Jump to cut</span>) : (<span>Add new thumb after</span>)}
-                  />}
+                  />
                   {sheetType === SHEET_TYPE.INTERVAL && <Popup
                     trigger={
                       <button
@@ -635,7 +656,7 @@ class ThumbGrid extends Component {
                   />}
                 </div>
               }
-              {sheetType !== SHEET_TYPE.SCENES  && (showBeforeController || showAfterController) && (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) &&
+              {sheetType !== SHEET_TYPE.SCENES && (showBeforeController || showAfterController) && (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) &&
                 <div
                   data-tid={`insertThumb${(!showAfterController && showBeforeController) ? 'Before' : 'After'}Div_${controllersVisible}`}
                   style={{

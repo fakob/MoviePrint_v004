@@ -23,6 +23,8 @@ import {
   getHighestFrame,
   getLowestFrame,
   getSceneFromFrameNumber,
+  getPreviousThumb,
+  getNextThumb,
   getSliceWidthArrayForCut,
   getVisibleThumbs,
   limitRange,
@@ -78,6 +80,7 @@ class CutPlayer extends Component {
     this.onTimelineMouseOver = this.onTimelineMouseOver.bind(this);
     this.onTimelineExit = this.onTimelineExit.bind(this);
     this.onNextSceneClickWithStop = this.onNextSceneClickWithStop.bind(this);
+    this.onNextThumbClickWithStop = this.onNextThumbClickWithStop.bind(this);
     this.onChangeThumbClick = this.onChangeThumbClick.bind(this);
     this.onChangeOrAddClick = this.onChangeOrAddClick.bind(this);
   }
@@ -127,7 +130,8 @@ class CutPlayer extends Component {
 
     if (
       prevProps.scenes.length !== scenes.length ||
-      prevProps.opencvVideo.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) !== opencvVideo.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) ||
+      (prevProps.opencvVideo !== undefined && opencvVideo !== undefined &&
+        (prevProps.opencvVideo.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) !== opencvVideo.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT))) ||
       prevState.videoHeight !== videoHeight
     ) {
       this.updateTimeFromFrameNumber(currentFrame);
@@ -172,7 +176,11 @@ class CutPlayer extends Component {
               stepValue = stepValue2 * -1;
             }
             if (event.shiftKey && event.altKey) {
-              this.onNextSceneClickWithStop('back', currentFrame);
+              if (sheetView === SHEET_VIEW.TIMELINEVIEW) {
+                this.onNextSceneClickWithStop('back', currentFrame);
+              } else {
+                this.onNextThumbClickWithStop('back', currentFrame);
+              }
             } else {
               this.updatePositionWithStep(stepValue);
             }
@@ -186,7 +194,11 @@ class CutPlayer extends Component {
               stepValue = stepValue2 * 1;
             }
             if (event.shiftKey && event.altKey) {
-              this.onNextSceneClickWithStop('forward', currentFrame);
+              if (sheetView === SHEET_VIEW.TIMELINEVIEW) {
+                this.onNextSceneClickWithStop('forward', currentFrame);
+              } else {
+                this.onNextThumbClickWithStop('forward', currentFrame);
+              }
             } else {
               this.updatePositionWithStep(stepValue);
             }
@@ -425,10 +437,53 @@ class CutPlayer extends Component {
     }
   }
 
+  onNextThumbClickWithStop(direction, frameNumber) {
+    const { currentScene } = this.state;
+    const { file, onSelectThumbMethod, scenes, selectedThumb, thumbs, sheetType } = this.props;
+
+    if (sheetType === SHEET_TYPE.SCENES) {
+      let newSceneToSelect;
+
+      if (direction === 'back') {
+        newSceneToSelect = getSceneFromFrameNumber(scenes, currentScene.start - 1);
+      } else if (direction === 'forward') {
+        newSceneToSelect = getSceneFromFrameNumber(scenes, currentScene.start + currentScene.length);
+      }
+      const newThumbToSelect = thumbs.find((thumb) => thumb.thumbId === newSceneToSelect.sceneId);
+      if (newSceneToSelect !== undefined) {
+        onSelectThumbMethod(newSceneToSelect.sceneId); // call to update selection
+      }
+      if (newThumbToSelect !== undefined) {
+        let newFrameNumberToJumpTo = newThumbToSelect.frameNumber;
+        newFrameNumberToJumpTo = limitRange(newFrameNumberToJumpTo, 0, file.frameCount - 1);
+        this.updatePositionFromFrame(newFrameNumberToJumpTo);
+        this.updateOpencvVideoCanvas(newFrameNumberToJumpTo);
+      }
+    } else if (sheetType === SHEET_TYPE.INTERVAL) {
+      if (selectedThumb !== undefined) {
+        let newThumbToSelect;
+        if (direction === 'back') {
+          newThumbToSelect = getPreviousThumb(thumbs, selectedThumb.thumbId);
+        } else if (direction === 'forward') {
+          newThumbToSelect = getNextThumb(thumbs, selectedThumb.thumbId);
+        }
+        if (newThumbToSelect !== undefined) {
+          onSelectThumbMethod(newThumbToSelect.thumbId); // call to update selection
+          let newFrameNumberToJumpTo = newThumbToSelect.frameNumber;
+          newFrameNumberToJumpTo = limitRange(newFrameNumberToJumpTo, 0, file.frameCount - 1);
+          this.updatePositionFromFrame(newFrameNumberToJumpTo);
+          this.updateOpencvVideoCanvas(newFrameNumberToJumpTo);
+        }
+      }
+    }
+  }
+
   onNextSceneClickWithStop(direction, frameNumber) {
     const { currentScene } = this.state;
     const { file, onSelectThumbMethod, scenes } = this.props;
 
+    console.log(currentScene)
+    console.log(frameNumber)
     let newFrameNumberToJumpTo;
     let newSceneToSelect;
     // if going back and frameNumber is within the scene not at the cut
@@ -523,7 +578,7 @@ class CutPlayer extends Component {
 
   render() {
     const { currentFrame, currentScene, playHeadPosition } = this.state;
-    const { arrayOfCuts, containerWidth, file, keyObject, scaleValueObject, sheetType, sheetView, thumbs } = this.props;
+    const { arrayOfCuts, containerWidth, file, keyObject, scaleValueObject, selectedThumb, sheetType, sheetView, thumbs } = this.props;
     const { showHTML5Player, showPlaybar, videoHeight, videoWidth } = this.state;
 
     function over(event) {
@@ -613,16 +668,16 @@ class CutPlayer extends Component {
                 left: Number.isNaN(playHeadPosition) ? 0 : playHeadPosition,
               }}
             />
-            <div
+            {sheetType === SHEET_TYPE.SCENES && <div
               className={`${styles.timelineCut}`}
               style={{
                 left: Number.isNaN(inPointPositionOnTimeline) ? 0 : inPointPositionOnTimeline,
                 width: Number.isNaN(cutWidthOnTimeLine) ? 0 : cutWidthOnTimeLine,
               }}
-            />
+            />}
           </div>
           <div className={`${styles.buttonWrapper}`}>
-            <Popup
+            {sheetView === SHEET_VIEW.TIMELINEVIEW && <Popup
               trigger={
                 <button
                   type='button'
@@ -638,7 +693,26 @@ class CutPlayer extends Component {
               }
               className={stylesPop.popup}
               content={<span>Jump to previous scene cut <mark>SHIFT + ALT + Arrow left</mark></span>}
-            />
+            />}
+            {((sheetView === SHEET_VIEW.GRIDVIEW && sheetType === SHEET_TYPE.SCENES) ||
+              (sheetView === SHEET_VIEW.GRIDVIEW && selectedThumb !== undefined)) &&
+              <Popup
+              trigger={
+                <button
+                  type='button'
+                  className={`${styles.hoverButton} ${styles.textButton} ${styles.previousScene}`}
+                  onClick={() => this.onNextThumbClickWithStop('back', this.state.currentFrame)}
+                  onMouseOver={over}
+                  onMouseLeave={out}
+                  onFocus={over}
+                  onBlur={out}
+                >
+                  previous thumb
+                </button>
+              }
+              className={stylesPop.popup}
+              content={<span>Jump to previous thumb <mark>SHIFT + ALT + Arrow left</mark></span>}
+            />}
             <Popup
               trigger={
                 <button
@@ -803,7 +877,26 @@ class CutPlayer extends Component {
               className={stylesPop.popup}
               content={<span>Move 100 frames forward <mark>ALT + Arrow right</mark></span>}
             />
-            <Popup
+            {((sheetView === SHEET_VIEW.GRIDVIEW && sheetType === SHEET_TYPE.SCENES) ||
+              (sheetView === SHEET_VIEW.GRIDVIEW && selectedThumb !== undefined)) &&
+              <Popup
+              trigger={
+                <button
+                  type='button'
+                  className={`${styles.hoverButton} ${styles.textButton} ${styles.nextScene}`}
+                  onClick={() => this.onNextThumbClickWithStop('forward', this.state.currentFrame)}
+                  onMouseOver={over}
+                  onMouseLeave={out}
+                  onFocus={over}
+                  onBlur={out}
+                >
+                  next thumb
+                </button>
+              }
+              className={stylesPop.popup}
+              content={<span>Jump to next thumb <mark>SHIFT + ALT + Arrow right</mark></span>}
+            />}
+            {sheetView === SHEET_VIEW.TIMELINEVIEW && <Popup
               trigger={
                 <button
                   type='button'
@@ -819,7 +912,7 @@ class CutPlayer extends Component {
               }
               className={stylesPop.popup}
               content={<span>Jump to next scene cut <mark>SHIFT + ALT + Arrow right</mark></span>}
-            />
+            />}
           </div>
         </div>
       </div>

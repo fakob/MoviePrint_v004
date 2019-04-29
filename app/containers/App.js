@@ -2456,7 +2456,12 @@ class App extends Component {
       this.hideSettings();
       this.hideMovielist();
     }
+    // remove selection when switching back to standard view
+    if (value === VIEW.STANDARDVIEW) {
+      this.onDeselectThumbMethod();
+    }
     store.dispatch(setView(value));
+
   };
 
   onChangeOutputPathClick = () => {
@@ -2874,6 +2879,7 @@ class App extends Component {
                             onScrubClick={this.onScrubClick}
                             onExpandClick={this.onExpandClick}
                             onThumbDoubleClick={this.onViewToggle}
+                            onToggleSheetView={this.toggleSheetView}
                             scaleValueObject={scaleValueObject}
                             moviePrintWidth={scaleValueObject.newMoviePrintWidth}
                             selectedThumbsArray={this.state.selectedThumbsArray}
@@ -2891,6 +2897,7 @@ class App extends Component {
                         <Conditional if={visibilitySettings.defaultSheetView === SHEET_VIEW.TIMELINEVIEW}>
                           <SortedVisibleSceneGrid
                             sheetView={visibilitySettings.defaultSheetView}
+                            sheetType={sheetType}
                             view={visibilitySettings.defaultView}
                             file={file}
                             currentSheetId={settings.currentSheetId}
@@ -2901,6 +2908,7 @@ class App extends Component {
                             onSelectThumbMethod={this.onSelectThumbMethod}
                             onDeselectThumbMethod={this.onDeselectThumbMethod}
                             onThumbDoubleClick={this.onViewToggle}
+                            onToggleSheetView={this.toggleSheetView}
                             onJumpToCutThumbClick={this.onJumpToCutThumbClick}
                             onExpandClick={this.onExpandClick}
                             moviePrintWidth={scaleValueObject.newMoviePrintTimelineWidth}

@@ -28,8 +28,15 @@ class SortedVisibleThumbGrid extends Component {
     this.onErrorThumb = this.onErrorThumb.bind(this);
   }
 
-  // componentDidMount() {
   componentWillMount() {
+    const { store } = this.context;
+    this.unsubscribe = store.subscribe(() => this.forceUpdate());
+  }
+
+  componentDidMount() {
+    setTimeout(() => {
+      this.scrollThumbIntoView();
+    }, 500);
   }
 
   componentDidUpdate(prevProps) {
@@ -48,7 +55,7 @@ class SortedVisibleThumbGrid extends Component {
   }
 
   componentWillUnmount() {
-    // this.unsubscribe();
+    this.unsubscribe();
   }
 
   onSortStart = () => {
@@ -115,6 +122,7 @@ class SortedVisibleThumbGrid extends Component {
       onScrubClick,
       onThumbDoubleClick,
       onToggleClick,
+      onToggleSheetView,
       useBase64,
       scaleValueObject,
       selectedThumbsArray,
@@ -152,6 +160,7 @@ class SortedVisibleThumbGrid extends Component {
         onExpandClick={onExpandClick}
         onThumbDoubleClick={onThumbDoubleClick}
         onToggleClick={onToggleClick}
+        onToggleSheetView={onToggleSheetView}
         ref={inputRef} // for the saveMoviePrint function
         scaleValueObject={scaleValueObject}
         moviePrintWidth={moviePrintWidth}
@@ -284,6 +293,7 @@ SortedVisibleThumbGrid.propTypes = {
   onExpandClick: PropTypes.func,
   onThumbDoubleClick: PropTypes.func,
   onToggleClick: PropTypes.func.isRequired,
+  onToggleSheetView: PropTypes.func.isRequired,
   scaleValueObject: PropTypes.object.isRequired,
   selectedThumbsArray: PropTypes.array,
   onSelectThumbMethod: PropTypes.func,

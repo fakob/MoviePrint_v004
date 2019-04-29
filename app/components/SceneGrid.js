@@ -3,8 +3,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import { Icon, Popup } from 'semantic-ui-react';
 import Scene from './Scene';
 import styles from './SceneGrid.css';
+import stylesPop from './Popup.css';
 import {
   getWidthOfSingleRow,
 } from '../utils/utils';
@@ -12,6 +14,7 @@ import {
   CUTPLAYER_FIXED_PIXEL_PER_FRAME_RATIO,
   CUTPLAYER_SCENE_MARGIN,
   VIEW,
+  SHEET_TYPE,
 } from '../utils/constants';
 
 const SortableScene = SortableElement(Scene);
@@ -35,7 +38,7 @@ class SceneGrid extends Component {
   }
 
   render() {
-    const { file, minSceneLength, scaleValueObject, scenes, selectedThumbsArray, settings, view } = this.props;
+    const { file, minSceneLength, scaleValueObject, scenes, selectedThumbsArray, settings, sheetType, view } = this.props;
     const { scenesInRows } = scaleValueObject;
 
     const isPlayerView = view !== VIEW.STANDARDVIEW;
@@ -67,9 +70,30 @@ class SceneGrid extends Component {
         className={styles.grid}
         id="SceneGrid"
         style={{
-          // marginLeft: isPlayerView ? '48px' : undefined,
+          paddingLeft: isPlayerView ? '48px' : undefined,
         }}
       >
+        {isPlayerView &&
+          sheetType === SHEET_TYPE.SCENES &&
+          <Popup
+          trigger={
+            <button
+              type='button'
+              className={`${styles.hoverButton} ${styles.textButton} ${styles.sheetTypeSwitchButton}`}
+              onClick={() => this.props.onToggleSheetView(file.id,this.props.currentSheetId)}
+              onMouseOver={this.over}
+              onMouseLeave={this.out}
+              onFocus={this.over}
+              onBlur={this.out}
+            >
+              <Icon
+                name="grid layout"
+              />
+            </button>
+          }
+          className={stylesPop.popup}
+          content={<span>Switch to grid view <mark>G</mark></span>}
+        />}
         <div
           data-tid='sceneGridBodyDiv'
           style={{
