@@ -975,7 +975,6 @@ VideoPlayer.propTypes = {
   // selectedThumbId: PropTypes.string,
   onThumbDoubleClick: PropTypes.func.isRequired,
   onChangeThumb: PropTypes.func.isRequired,
-  onJumpToCutThumbClick: PropTypes.func.isRequired,
   onMergeSceneClick: PropTypes.func.isRequired,
   onCutSceneClick: PropTypes.func.isRequired,
   onSelectThumbMethod: PropTypes.func.isRequired,

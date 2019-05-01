@@ -268,6 +268,7 @@ class App extends Component {
     this.onExpandClick = this.onExpandClick.bind(this);
     this.onAddThumbClick = this.onAddThumbClick.bind(this);
     this.onJumpToCutThumbClick = this.onJumpToCutThumbClick.bind(this);
+    this.onJumpToCutSceneClick = this.onJumpToCutSceneClick.bind(this);
     this.onCutSceneClick = this.onCutSceneClick.bind(this);
     this.onMergeSceneClick = this.onMergeSceneClick.bind(this);
     this.openMoviesDialog = this.openMoviesDialog.bind(this);
@@ -1519,6 +1520,12 @@ class App extends Component {
   }
 
   onJumpToCutThumbClick(file, thumbId, otherSceneIs) {
+    const { currentSheetId } = this.props;
+    this.onChangeSheetViewClick(file.id, currentSheetId, SHEET_VIEW.TIMELINEVIEW);
+    this.onJumpToCutSceneClick(file, thumbId, otherSceneIs);
+  }
+
+  onJumpToCutSceneClick(file, thumbId, otherSceneIs) {
     const { store } = this.context;
     const { allScenes, currentSheetId, sheetsByFileId, visibilitySettings } = this.props;
 
@@ -2809,7 +2816,6 @@ class App extends Component {
                         onChangeThumb={this.onChangeThumb}
                         onAddThumb={this.onAddThumb}
                         onSelectThumbMethod={this.onSelectThumbMethod}
-                        onJumpToCutThumbClick={this.onJumpToCutThumbClick}
                         onCutSceneClick={this.onCutSceneClick}
                         onMergeSceneClick={this.onMergeSceneClick}
                         opencvVideo={this.state.opencvVideo}
@@ -2910,7 +2916,7 @@ class App extends Component {
                             onDeselectThumbMethod={this.onDeselectThumbMethod}
                             onThumbDoubleClick={this.onViewToggle}
                             onToggleSheetView={this.toggleSheetView}
-                            onJumpToCutThumbClick={this.onJumpToCutThumbClick}
+                            onJumpToCutSceneClick={this.onJumpToCutSceneClick}
                             onExpandClick={this.onExpandClick}
                             moviePrintWidth={scaleValueObject.newMoviePrintTimelineWidth}
                             moviePrintRowHeight={scaleValueObject.newTimelineRowHeight}

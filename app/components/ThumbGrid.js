@@ -14,7 +14,6 @@ import {
   getNextThumbs,
   getPreviousThumbs,
   mapRange,
-  getObjectProperty,
   getThumbInfoValue,
   formatBytes,
   frameCountToTimeCode,
@@ -22,7 +21,7 @@ import {
   getHighestFrame,
   getAllFrameNumbers,
   roundNumber,
-} from './../utils/utils';
+} from '../utils/utils';
 import {
   MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
   MINIMUM_WIDTH_TO_SHRINK_HOVER,
@@ -30,7 +29,8 @@ import {
   SHEET_TYPE,
   SHEET_VIEW,
   VIEW,
-} from './../utils/constants';
+  VIDEOPLAYER_THUMB_MARGIN,
+} from '../utils/constants';
 
 const SortableThumb = SortableElement(Thumb);
 
@@ -369,6 +369,8 @@ class ThumbGrid extends Component {
     const showBeforeController = (controllersVisible === this.state.addThumbBeforeController);
     const showAfterController = (controllersVisible === this.state.addThumbAfterController);
 
+    const thumbMarginGridView = isPlayerView ? VIDEOPLAYER_THUMB_MARGIN : Math.floor(scaleValueObject.newThumbMargin);
+
     return (
       <div
         data-tid='thumbGridDiv'
@@ -414,7 +416,7 @@ class ThumbGrid extends Component {
             moviePrintWidth={this.props.moviePrintWidth}
             headerHeight={scaleValueObject.newHeaderHeight}
             logoHeight={scaleValueObject.newLogoHeight}
-            thumbMargin={scaleValueObject.newThumbMargin}
+            thumbMargin={thumbMarginGridView}
             inPointPositionOnTimeline={inPointPositionOnTimeline}
             cutWidthOnTimeLine={cutWidthOnTimeLine}
             allFrameNumbersInPercentArray={allFrameNumbersInPercentArray}
@@ -448,7 +450,7 @@ class ThumbGrid extends Component {
               aspectRatioInv={scaleValueObject.aspectRatioInv}
               thumbWidth={thumbWidth}
               borderRadius={scaleValueObject.newBorderRadius}
-              margin={scaleValueObject.newThumbMargin}
+              margin={thumbMarginGridView}
               thumbInfoValue={getThumbInfoValue(settings.defaultThumbInfo, thumb.frameNumber, fps)}
               thumbInfoRatio={settings.defaultThumbInfoRatio}
               hidden={thumb.hidden}
@@ -667,13 +669,13 @@ class ThumbGrid extends Component {
                     content: '',
                     backgroundColor: '#FF5006',
                     position: 'absolute',
-                    width: `${Math.max(1, scaleValueObject.newThumbMargin * 0.5)}px`,
+                    width: `${Math.max(1, thumbMarginGridView * 0.5)}px`,
                     height: `${thumbWidth * scaleValueObject.aspectRatioInv}px`,
-                    // top: (Math.max(1, scaleValueObject.newThumbMargin * -1.0)),
+                    // top: (Math.max(1, thumbMarginGridView * -1.0)),
                     left: `${(!showAfterController && showBeforeController) ? 0 : undefined}`,
                     right: `${showAfterController ? 0 : undefined}`,
                     display: 'block',
-                    transform: `translateX(${Math.max(1, scaleValueObject.newThumbMargin) * (showAfterController ? 1.25 : -1.25)}px)`,
+                    transform: `translateX(${Math.max(1, thumbMarginGridView) * (showAfterController ? 1.25 : -1.25)}px)`,
                   }}
                 />
               }

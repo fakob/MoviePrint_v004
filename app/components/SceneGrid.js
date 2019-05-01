@@ -180,11 +180,11 @@ class SceneGrid extends Component {
                 }}
               onCutBefore={(scene.sceneId !== this.state.controllersVisible) ?
                 null : () => {
-                  this.props.onJumpToCutThumbClick(this.props.file, scene.sceneId, 'before');
+                  this.props.onJumpToCutSceneClick(this.props.file, scene.sceneId, 'before');
                 }}
               onCutAfter={(scene.sceneId !== this.state.controllersVisible) ?
                 null : () => {
-                  this.props.onJumpToCutThumbClick(this.props.file, scene.sceneId, 'after');
+                  this.props.onJumpToCutSceneClick(this.props.file, scene.sceneId, 'after');
                 }}
               onExpand={(scene.sceneId !== this.state.controllersVisible) ?
                 null : () => {
@@ -202,10 +202,12 @@ class SceneGrid extends Component {
 
 SceneGrid.defaultProps = {
   scenes: [],
+  selectedThumbsArray: [],
 };
 
 SceneGrid.propTypes = {
   scenes: PropTypes.array,
+  selectedThumbsArray: PropTypes.array,
 };
 
 const SortableSceneGrid = SortableContainer(SceneGrid);

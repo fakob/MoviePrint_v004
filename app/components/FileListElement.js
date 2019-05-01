@@ -122,7 +122,7 @@ const FileListElement = ({
           {lastModified !== undefined &&
               <Dropdown.Item
               data-tid='addShotDetectionMovieListItemOption'
-              icon="barcode"
+              icon="add"
               text="Add MoviePrint (shot detection based)"
               onClick={e => onScanMovieListItemClickWithStop(e, fileId)}
             />
@@ -130,7 +130,7 @@ const FileListElement = ({
           {lastModified !== undefined &&
             <Dropdown.Item
               data-tid='addIntervalMovieListItemOption'
-              icon="grid layout"
+              icon="add"
               text="Add MoviePrint (interval based)"
               onClick={e => onAddIntervalSheetClickWithStop(e, fileId)}
             />

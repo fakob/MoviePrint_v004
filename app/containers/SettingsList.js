@@ -458,7 +458,7 @@ class SettingsList extends Component {
                   }
                 </Grid.Column>
               </Grid.Row>
-              {<Grid.Row>
+              {false && <Grid.Row>
                 <Grid.Column width={4}>
                   Flow
                 </Grid.Column>
@@ -516,7 +516,6 @@ class SettingsList extends Component {
                 </Grid.Row>
                 <Grid.Row>
                   <Grid.Column width={4}>
-
                   </Grid.Column>
                   <Grid.Column width={12}>
                     <Popup
@@ -529,7 +528,7 @@ class SettingsList extends Component {
                           disabled={fileScanRunning}
                           onClick={() => this.props.runSceneDetection(file.id, file.path, file.useRatio, settings.defaultSceneDetectionThreshold)}
                         >
-                          Apply
+                          Add new MoviePrint
                         </Button>
                       }
                       className={stylesPop.popup}
