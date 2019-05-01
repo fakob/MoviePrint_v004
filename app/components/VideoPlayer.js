@@ -2,7 +2,7 @@
 
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Popup } from 'semantic-ui-react';
+import { Icon, Popup } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
 import log from 'electron-log';
 import { changeThumb, addIntervalSheet, addThumb } from '../actions';
@@ -104,7 +104,7 @@ class VideoPlayer extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { aspectRatioInv, controllerHeight, file, height, jumpToFrameNumber, opencvVideo, scenes, width} = this.props;
+    const { aspectRatioInv, controllerHeight, defaultSheetView, file, height, jumpToFrameNumber, opencvVideo, scenes, width} = this.props;
     const { currentFrame, currentScene, videoHeight } = this.state;
 
     // update videoHeight if window size changed
@@ -145,7 +145,7 @@ class VideoPlayer extends Component {
     // you may also add a filter here to skip keys, that do not have an effect for your app
     // this.props.keyPressAction(event.keyCode);
 
-    const { arrayOfCuts, onCutSceneClick, onMergeSceneClick, sheetType, sheetView } = this.props;
+    const { arrayOfCuts, onCutSceneClick, onMergeSceneClick, sheetType, defaultSheetView } = this.props;
     const { currentFrame } = this.state;
     const thisFrameIsACut = arrayOfCuts.some(item => item === currentFrame);
     // only listen to key events when feedback form is not shown
@@ -155,17 +155,17 @@ class VideoPlayer extends Component {
       if (event) {
         switch (event.which) {
           case 13: // press enter
-            if (sheetView === SHEET_VIEW.TIMELINEVIEW) {
+            if (defaultSheetView === SHEET_VIEW.TIMELINEVIEW) {
               if (thisFrameIsACut) {
                 onMergeSceneClick(currentFrame);
               } else {
                 onCutSceneClick(currentFrame);
               }
             }
-            if (sheetType === SHEET_TYPE.SCENES && sheetView === SHEET_VIEW.GRIDVIEW) {
+            if (sheetType === SHEET_TYPE.SCENES && defaultSheetView === SHEET_VIEW.GRIDVIEW) {
               this.onChangeThumbClick();
             }
-            if (sheetType === SHEET_TYPE.INTERVAL && sheetView === SHEET_VIEW.GRIDVIEW) {
+            if (sheetType === SHEET_TYPE.INTERVAL && defaultSheetView === SHEET_VIEW.GRIDVIEW) {
               this.onChangeOrAddClick();
             }
             break;
@@ -178,7 +178,7 @@ class VideoPlayer extends Component {
               stepValue = stepValue2 * -1;
             }
             if (event.shiftKey && event.altKey) {
-              if (sheetView === SHEET_VIEW.TIMELINEVIEW) {
+              if (defaultSheetView === SHEET_VIEW.TIMELINEVIEW) {
                 this.onNextSceneClickWithStop('back', currentFrame);
               } else {
                 this.onNextThumbClickWithStop('back', currentFrame);
@@ -196,7 +196,7 @@ class VideoPlayer extends Component {
               stepValue = stepValue2 * 1;
             }
             if (event.shiftKey && event.altKey) {
-              if (sheetView === SHEET_VIEW.TIMELINEVIEW) {
+              if (defaultSheetView === SHEET_VIEW.TIMELINEVIEW) {
                 this.onNextSceneClickWithStop('forward', currentFrame);
               } else {
                 this.onNextThumbClickWithStop('forward', currentFrame);
@@ -231,12 +231,12 @@ class VideoPlayer extends Component {
   }
 
   updateOpencvVideoCanvas(currentFrame) {
-    const { arrayOfCuts, containerWidth, file, opencvVideo, sheetView } = this.props;
+    const { arrayOfCuts, containerWidth, file, opencvVideo, defaultSheetView } = this.props;
     const { frameCount } = file;
     // offset currentFrame due to main frame is in middle of sliceArraySize
     let offsetCorrection = 0;
     let sliceArraySize = VIDEOPLAYER_SLICE_ARRAY_SIZE;
-    if (sheetView === SHEET_VIEW.GRIDVIEW) {
+    if (defaultSheetView === SHEET_VIEW.GRIDVIEW) {
       sliceArraySize -= 1;
       offsetCorrection = 1;
     }
@@ -249,7 +249,7 @@ class VideoPlayer extends Component {
     const length = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT);
     const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
     const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
-    const rescaleFactor = videoHeight / height;
+    const rescaleFactor = Math.abs(videoHeight / height);
     const sliceWidthArray = getSliceWidthArrayForCut(containerWidth, sliceArraySize);
     const sliceGap = 1;
     const cutGap = 8;
@@ -265,7 +265,12 @@ class VideoPlayer extends Component {
 
       if ((offsetFrameNumber + i) >= 0 && !frame.empty) {
         const matResized = frame.rescale(rescaleFactor);
-        const matCropped = matResized.getRegion(new opencv.Rect(sliceXPos, 0, sliceWidth, videoHeight));
+        const matCropped = matResized.getRegion(new opencv.Rect(
+          sliceXPos,
+          0,
+          Math.min(matResized.cols, sliceWidth),
+          Math.min(matResized.rows, Math.abs(videoHeight))
+        ));
 
         const matRGBA = matResized.channels === 1 ?
           matCropped.cvtColor(opencv.COLOR_GRAY2RGBA) :
@@ -580,7 +585,7 @@ class VideoPlayer extends Component {
 
   render() {
     const { currentFrame, currentScene, playHeadPosition } = this.state;
-    const { arrayOfCuts, containerWidth, file, keyObject, scaleValueObject, selectedThumb, sheetType, sheetView, thumbs } = this.props;
+    const { arrayOfCuts, containerWidth, file, keyObject, scaleValueObject, selectedThumb, sheetType, defaultSheetView, thumbs } = this.props;
     const { showHTML5Player, showPlaybar, videoHeight, videoWidth } = this.state;
 
     function over(event) {
@@ -688,7 +693,24 @@ class VideoPlayer extends Component {
             />}
           </div>
           <div className={`${styles.buttonWrapper}`}>
-            {sheetView === SHEET_VIEW.TIMELINEVIEW && <Popup
+            <Popup
+            trigger={
+              <button
+                type='button'
+                className={`${styles.hoverButton} ${styles.textButton} ${styles.changeModeButton}`}
+                onClick={() => this.props.setOrToggleDefaultSheetView()}
+                onMouseOver={this.over}
+                onMouseLeave={this.out}
+                onFocus={this.over}
+                onBlur={this.out}
+              >
+                mode
+              </button>
+            }
+            className={stylesPop.popup}
+            content={<span>Switch to grid view <mark>G</mark></span>}
+          />
+            {defaultSheetView === SHEET_VIEW.TIMELINEVIEW && <Popup
               trigger={
                 <button
                   type='button'
@@ -705,8 +727,8 @@ class VideoPlayer extends Component {
               className={stylesPop.popup}
               content={<span>Jump to previous cut <mark>SHIFT + ALT + Arrow left</mark></span>}
             />}
-            {((sheetView === SHEET_VIEW.GRIDVIEW && sheetType === SHEET_TYPE.SCENES) ||
-              (sheetView === SHEET_VIEW.GRIDVIEW && selectedThumb !== undefined)) &&
+            {((defaultSheetView === SHEET_VIEW.GRIDVIEW && sheetType === SHEET_TYPE.SCENES) ||
+              (defaultSheetView === SHEET_VIEW.GRIDVIEW && selectedThumb !== undefined)) &&
               <Popup
               trigger={
                 <button
@@ -775,7 +797,7 @@ class VideoPlayer extends Component {
               className={stylesPop.popup}
               content={<span>Move 1 frame back <mark>SHIFT + Arrow left</mark></span>}
             />
-            {sheetType === SHEET_TYPE.SCENES && sheetView === SHEET_VIEW.TIMELINEVIEW && currentFrame !== 0 && <Popup
+            {sheetType === SHEET_TYPE.SCENES && defaultSheetView === SHEET_VIEW.TIMELINEVIEW && currentFrame !== 0 && <Popup
               trigger={
                 <button
                   type='button'
@@ -797,7 +819,7 @@ class VideoPlayer extends Component {
               className={stylesPop.popup}
               content={thisFrameIsACut ? (<span>Merge scenes <mark>ENTER</mark></span>) : (<span>Cut scene <mark>ENTER</mark></span>)}
             />}
-            {sheetType === SHEET_TYPE.SCENES && sheetView === SHEET_VIEW.GRIDVIEW && currentFrame !== 0 && <Popup
+            {sheetType === SHEET_TYPE.SCENES && defaultSheetView === SHEET_VIEW.GRIDVIEW && currentFrame !== 0 && <Popup
               trigger={
                 <button
                   type='button'
@@ -888,8 +910,8 @@ class VideoPlayer extends Component {
               className={stylesPop.popup}
               content={<span>Move 100 frames forward <mark>ALT + Arrow right</mark></span>}
             />
-            {((sheetView === SHEET_VIEW.GRIDVIEW && sheetType === SHEET_TYPE.SCENES) ||
-              (sheetView === SHEET_VIEW.GRIDVIEW && selectedThumb !== undefined)) &&
+            {((defaultSheetView === SHEET_VIEW.GRIDVIEW && sheetType === SHEET_TYPE.SCENES) ||
+              (defaultSheetView === SHEET_VIEW.GRIDVIEW && selectedThumb !== undefined)) &&
               <Popup
               trigger={
                 <button
@@ -907,7 +929,7 @@ class VideoPlayer extends Component {
               className={stylesPop.popup}
               content={<span>Jump to next thumb <mark>SHIFT + ALT + Arrow right</mark></span>}
             />}
-            {sheetView === SHEET_VIEW.TIMELINEVIEW && <Popup
+            {defaultSheetView === SHEET_VIEW.TIMELINEVIEW && <Popup
               trigger={
                 <button
                   type='button'
@@ -973,6 +995,7 @@ VideoPlayer.propTypes = {
   height: PropTypes.number,
   frameNumber: PropTypes.number,
   // selectedThumbId: PropTypes.string,
+  setOrToggleDefaultSheetView: PropTypes.func.isRequired,
   onThumbDoubleClick: PropTypes.func.isRequired,
   onChangeThumb: PropTypes.func.isRequired,
   onMergeSceneClick: PropTypes.func.isRequired,

@@ -190,8 +190,8 @@ class App extends Component {
     this.dropzoneRef = React.createRef();
 
     this.state = {
-      containerHeight: 0,
-      containerWidth: 0,
+      containerHeight: 360,
+      containerWidth: 640,
       secondsPerRowTemp: undefined,
       columnCountTemp: undefined,
       thumbCountTemp: undefined,
@@ -321,6 +321,7 @@ class App extends Component {
     this.onClearMovieList = this.onClearMovieList.bind(this);
     this.onChangeSheetViewClick = this.onChangeSheetViewClick.bind(this);
     this.toggleSheetView = this.toggleSheetView.bind(this);
+    this.setOrToggleDefaultSheetView = this.setOrToggleDefaultSheetView.bind(this);
     this.onSetSheetClick = this.onSetSheetClick.bind(this);
     this.onDuplicateSheetClick = this.onDuplicateSheetClick.bind(this);
     this.onExportSheetClick = this.onExportSheetClick.bind(this);
@@ -2455,6 +2456,19 @@ class App extends Component {
     } else {
       this.onChangeSheetViewClick(fileId, sheetId, SHEET_VIEW.GRIDVIEW);
     }
+    // store.dispatch(setDefaultSheetView(sheetView));
+  };
+
+  setOrToggleDefaultSheetView = (sheetView = undefined) => {
+    const { store } = this.context;
+    const { visibilitySettings } = this.props;
+    let newSheetView = sheetView;
+    if (visibilitySettings.defaultSheetView === SHEET_VIEW.GRIDVIEW) {
+      newSheetView = SHEET_VIEW.TIMELINEVIEW;
+    } else if (visibilitySettings.defaultSheetView === SHEET_VIEW.TIMELINEVIEW) {
+      newSheetView = SHEET_VIEW.GRIDVIEW;
+    }
+    store.dispatch(setDefaultSheetView(newSheetView));
   };
 
   onSetViewClick = (value) => {
@@ -2558,7 +2572,9 @@ class App extends Component {
 
     const secondsPerRow = getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings);
     const sheetView = getSheetView(sheetsByFileId, currentFileId, currentSheetId, visibilitySettings);
+    console.log(sheetView)
     const sheetType = getSheetType(sheetsByFileId, currentFileId, currentSheetId, settings);
+    const { defaultSheetView } = visibilitySettings;
 
 
     let isGridView = true;
@@ -2796,7 +2812,7 @@ class App extends Component {
                         ref={(el) => { this.videoPlayer = el; }}
                         file={file}
                         currentSheetId={settings.currentSheetId}
-                        sheetView={sheetView}
+                        defaultSheetView={defaultSheetView}
                         sheetType={sheetType}
                         keyObject={this.state.keyObject}
                         containerWidth={this.state.containerWidth}
@@ -2812,6 +2828,7 @@ class App extends Component {
                         selectedThumb={this.state.selectedThumbsArray.length !== 0 ?
                           this.state.selectedThumbsArray[0] : undefined}
                         jumpToFrameNumber={this.state.jumpToFrameNumber}
+                        setOrToggleDefaultSheetView={this.setOrToggleDefaultSheetView}
                         onThumbDoubleClick={this.onViewToggle}
                         onChangeThumb={this.onChangeThumb}
                         onAddThumb={this.onAddThumb}
@@ -2847,7 +2864,7 @@ class App extends Component {
                     style={{
                       width: ( // use window width if any of these are true
                         // visibilitySettings.showSettings ||
-                        visibilitySettings.defaultSheetView === SHEET_VIEW.TIMELINEVIEW ||
+                        defaultSheetView === SHEET_VIEW.TIMELINEVIEW ||
                         (visibilitySettings.defaultView !== VIEW.PLAYERVIEW &&
                           visibilitySettings.defaultSheetFit !== SHEET_FIT.HEIGHT &&
                           !this.state.zoom
@@ -2868,12 +2885,17 @@ class App extends Component {
                     }}
                   >
                     { (file || visibilitySettings.showSettings || this.state.loadingFirstFile) ? (
-                      // (visibilitySettings.defaultSheetView === 'gridView') ? (
+                      // (defaultSheetView === 'gridView') ? (
                       <Fragment>
-                        <Conditional if={visibilitySettings.defaultSheetView !== SHEET_VIEW.TIMELINEVIEW}>
+                        <Conditional
+                          // when in playerview use defaultSheetview which is used as cut and change modes, else use sheetView from sheet
+                          if={visibilitySettings.defaultView === VIEW.PLAYERVIEW ?
+                          defaultSheetView !== SHEET_VIEW.TIMELINEVIEW :
+                          sheetView !== SHEET_VIEW.TIMELINEVIEW
+                        }>
                           <SortedVisibleThumbGrid
                             colorArray={this.state.colorArray}
-                            sheetView={visibilitySettings.defaultSheetView}
+                            sheetView={sheetView}
                             sheetType={sheetType}
                             view={visibilitySettings.defaultView}
                             currentSheetId={settings.currentSheetId}
@@ -2901,9 +2923,14 @@ class App extends Component {
                             isGridView={isGridView}
                           />
                         </Conditional>
-                        <Conditional if={visibilitySettings.defaultSheetView === SHEET_VIEW.TIMELINEVIEW}>
+                        <Conditional
+                          // when in playerview use defaultSheetview which is used as cut and change modes, else use sheetView from sheet
+                          if={visibilitySettings.defaultView === VIEW.PLAYERVIEW ?
+                          defaultSheetView === SHEET_VIEW.TIMELINEVIEW :
+                          sheetView === SHEET_VIEW.TIMELINEVIEW
+                        }>
                           <SortedVisibleSceneGrid
-                            sheetView={visibilitySettings.defaultSheetView}
+                            sheetView={sheetView}
                             sheetType={sheetType}
                             view={visibilitySettings.defaultView}
                             file={file}
@@ -3085,7 +3112,7 @@ class App extends Component {
                   onSaveAllMoviePrints={this.onSaveAllMoviePrints}
                   savingMoviePrint={this.state.savingMoviePrint}
                   savingAllMoviePrints={this.state.savingAllMoviePrints}
-                  defaultSheetView={visibilitySettings.defaultSheetView}
+                  defaultSheetView={defaultSheetView}
                   defaultView={visibilitySettings.defaultView}
                 />
               </div>

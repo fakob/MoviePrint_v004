@@ -383,27 +383,6 @@ class ThumbGrid extends Component {
         onMouseLeave={this.onContainerOut}
         // ref={this.setThumbGridDivRef}
       >
-        {isPlayerView &&
-          sheetType === SHEET_TYPE.SCENES &&
-          <Popup
-          trigger={
-            <button
-              type='button'
-              className={`${styles.hoverButton} ${styles.textButton} ${styles.sheetTypeSwitchButton} ${this.props.showMovielist ? stylesApp.ItemMainLeftAnim : ''}`}
-              onClick={() => this.props.onToggleSheetView(file.id,this.props.currentSheetId)}
-              onMouseOver={this.over}
-              onMouseLeave={this.out}
-              onFocus={this.over}
-              onBlur={this.out}
-            >
-              <Icon
-                name="barcode"
-              />
-            </button>
-          }
-          className={stylesPop.popup}
-          content={<span>Switch to timeline view <mark>G</mark></span>}
-        />}
         {!isPlayerView && settings.defaultShowHeader && this.props.sheetView === SHEET_VIEW.GRIDVIEW &&
           <ThumbGridHeader
             viewForPrinting={this.props.viewForPrinting}

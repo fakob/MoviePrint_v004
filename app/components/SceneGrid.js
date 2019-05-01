@@ -74,27 +74,6 @@ class SceneGrid extends Component {
           paddingLeft: isPlayerView ? '48px' : undefined,
         }}
       >
-        {isPlayerView &&
-          sheetType === SHEET_TYPE.SCENES &&
-          <Popup
-          trigger={
-            <button
-              type='button'
-              className={`${styles.hoverButton} ${styles.textButton} ${styles.sheetTypeSwitchButton} ${this.props.showMovielist ? stylesApp.ItemMainLeftAnim : ''}`}
-              onClick={() => this.props.onToggleSheetView(file.id,this.props.currentSheetId)}
-              onMouseOver={this.over}
-              onMouseLeave={this.out}
-              onFocus={this.over}
-              onBlur={this.out}
-            >
-              <Icon
-                name="grid layout"
-              />
-            </button>
-          }
-          className={stylesPop.popup}
-          content={<span>Switch to grid view <mark>G</mark></span>}
-        />}
         <div
           data-tid='sceneGridBodyDiv'
           style={{
