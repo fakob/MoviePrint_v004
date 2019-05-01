@@ -261,3 +261,12 @@
   -webkit-user-select:none;
   /* text-shadow: 1px 1px 80px rgba(0,0,0,0.6); */
 }
+
+.noVideoText {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform-origin: center center;
+  transform: translateX(-50%);
+  z-Index: 1;
+}

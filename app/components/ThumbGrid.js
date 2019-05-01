@@ -363,8 +363,8 @@ class ThumbGrid extends Component {
       };
     // console.log(this.state.hoverPos);
     // console.log(parentPos);
-    console.log(this.props.showMovielist);
-    console.log(this.props.showSettings);
+    // console.log(this.props.showMovielist);
+    // console.log(this.props.showSettings);
 
     const showBeforeController = (controllersVisible === this.state.addThumbBeforeController);
     const showAfterController = (controllersVisible === this.state.addThumbAfterController);

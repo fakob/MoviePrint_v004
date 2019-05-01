@@ -1,7 +1,6 @@
 /* eslint no-param-reassign: "error" */
 
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Popup } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
@@ -631,21 +630,30 @@ class VideoPlayer extends Component {
             className={stylesPop.popup}
             content={ showHTML5Player ? 'Hide HTML5 Player' : 'Show HTML5 Player'}
           />
-          {showHTML5Player && <video
-            ref={(el) => { this.video = el; }}
-            className={`${styles.videoOverlay}`}
-            controls={showPlaybar ? true : undefined}
-            muted
-            src={file ? `${pathModule.dirname(file.path)}/${encodeURIComponent(pathModule.basename(file.path))}` || '' : ''}
-            width={videoWidth}
-            height={videoHeight}
-            onDurationChange={e => this.onDurationChange(e.target.duration)}
-            onTimeUpdate={e => this.updatePositionFromTime(e.target.currentTime)}
-            onLoadedData={this.onLoadedData}
-            onError={this.onVideoError}
-          >
-            <track kind="captions" />
-          </video>}
+          {showHTML5Player &&
+            <Fragment>
+              <div
+                className={`${styles.noVideoText}`}
+              >
+                The video format is not supported by this player
+              </div>
+              <video
+              ref={(el) => { this.video = el; }}
+              className={`${styles.videoOverlay}`}
+              controls={showPlaybar ? true : undefined}
+              muted
+              src={file ? `${pathModule.dirname(file.path)}/${encodeURIComponent(pathModule.basename(file.path))}` || '' : ''}
+              width={videoWidth}
+              height={videoHeight}
+              onDurationChange={e => this.onDurationChange(e.target.duration)}
+              onTimeUpdate={e => this.updatePositionFromTime(e.target.currentTime)}
+              onLoadedData={this.onLoadedData}
+              onError={this.onVideoError}
+              >
+              <track kind="captions" />
+              </video>
+            </Fragment>
+          }
           <canvas ref={(el) => { this.opencvVideoPlayerCanvasRef = el; }} />
           <div
             id="currentTimeDisplay"
@@ -691,11 +699,11 @@ class VideoPlayer extends Component {
                   onFocus={over}
                   onBlur={out}
                 >
-                  previous scene
+                  previous cut
                 </button>
               }
               className={stylesPop.popup}
-              content={<span>Jump to previous scene cut <mark>SHIFT + ALT + Arrow left</mark></span>}
+              content={<span>Jump to previous cut <mark>SHIFT + ALT + Arrow left</mark></span>}
             />}
             {((sheetView === SHEET_VIEW.GRIDVIEW && sheetType === SHEET_TYPE.SCENES) ||
               (sheetView === SHEET_VIEW.GRIDVIEW && selectedThumb !== undefined)) &&
@@ -910,11 +918,11 @@ class VideoPlayer extends Component {
                   onFocus={over}
                   onBlur={out}
                 >
-                  next scene
+                  next cut
                 </button>
               }
               className={stylesPop.popup}
-              content={<span>Jump to next scene cut <mark>SHIFT + ALT + Arrow right</mark></span>}
+              content={<span>Jump to next cut <mark>SHIFT + ALT + Arrow right</mark></span>}
             />}
           </div>
         </div>
