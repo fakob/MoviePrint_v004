@@ -603,11 +603,13 @@ class App extends Component {
     });
 
     ipcRenderer.on('received-get-file-scan', (event, fileId, filePath, useRatio, sheetId) => {
+      const { files } = this.props;
+      const file = files.find(file2 => file2.id === fileId);
       this.setState({
         fileScanRunning: false,
       });
       store.dispatch(updateFileScanStatus(fileId, true));
-      this.runSceneDetection(fileId, filePath, useRatio, undefined, sheetId);
+      this.runSceneDetection(fileId, filePath, useRatio, undefined, sheetId, file.transformObject);
     });
 
     ipcRenderer.on('received-saved-file', (event, id, path) => {
@@ -1029,7 +1031,7 @@ class App extends Component {
             break;
           case 83: // press 's'
             if (currentFileId) {
-              this.runSceneDetection(file.id, file.path, file.useRatio, 20.0)
+              this.runSceneDetection(file.id, file.path, file.useRatio, undefined, undefined, file.transformObject)
             }
             break;
           default:
@@ -2184,7 +2186,7 @@ class App extends Component {
   onScanMovieListItemClick = (fileId) => {
     const { files } = this.props;
     const file = files.find(file2 => file2.id === fileId);
-    this.runSceneDetection(fileId, file.path, file.useRatio, 20.0, undefined, file.transformObject);
+    this.runSceneDetection(fileId, file.path, file.useRatio, undefined, undefined, file.transformObject);
   };
 
   onReplaceMovieListItemClick = (fileId) => {
@@ -2572,7 +2574,6 @@ class App extends Component {
 
     const secondsPerRow = getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings);
     const sheetView = getSheetView(sheetsByFileId, currentFileId, currentSheetId, visibilitySettings);
-    console.log(sheetView)
     const sheetType = getSheetType(sheetsByFileId, currentFileId, currentSheetId, settings);
     const { defaultSheetView } = visibilitySettings;
 

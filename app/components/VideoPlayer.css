@@ -22,6 +22,7 @@
   width: 640px;
   object-fit: contain;
   background-color: rgba(0,0,0,0.8); /* Black w/ opacity */
+  z-index: 2;
 }
 
 .frameNumberOrTimeCode {
@@ -36,7 +37,7 @@
   padding: 1px;
   color: #000000;
   -webkit-user-select:none;
-  /*opacity: 0.5;*/
+  z-index: 3;
 }
 
 .moveToMiddle {
@@ -157,31 +158,22 @@
 .previousScene {
     position: absolute;
     bottom: 0;
-    left: 15%;
+    left: 30%;
     transform-origin: center bottom;
-    transform: translate(-50%, 0%);
+    transform: translate(-100%, 0%);
     opacity: 0.5;
 }
 
 .nextScene {
     position: absolute;
     bottom: 0;
-    right: 10%;
+    right: 28%;
     transform-origin: center bottom;
-    transform: translate(-50%, 0%);
+    transform: translate(50%, 0%);
     opacity: 0.5;
 }
 
 .hundredFramesBack {
-    position: absolute;
-    bottom: 0;
-    left: 30%;
-    transform-origin: center bottom;
-    transform: translate(-50%, 0%);
-    opacity: 0.5;
-}
-
-.tenFramesBack {
     position: absolute;
     bottom: 0;
     left: 35%;
@@ -190,7 +182,7 @@
     opacity: 0.5;
 }
 
-.oneFrameBack {
+.tenFramesBack {
     position: absolute;
     bottom: 0;
     left: 40%;
@@ -199,16 +191,16 @@
     opacity: 0.5;
 }
 
-.hundredFramesForward {
+.oneFrameBack {
     position: absolute;
     bottom: 0;
-    right: 30%;
+    left: 44%;
     transform-origin: center bottom;
     transform: translate(-50%, 0%);
     opacity: 0.5;
 }
 
-.tenFramesForward {
+.hundredFramesForward {
     position: absolute;
     bottom: 0;
     right: 35%;
@@ -217,10 +209,19 @@
     opacity: 0.5;
 }
 
-.oneFrameForward {
+.tenFramesForward {
     position: absolute;
     bottom: 0;
     right: 40%;
+    transform-origin: center bottom;
+    transform: translate(-50%, 0%);
+    opacity: 0.5;
+}
+
+.oneFrameForward {
+    position: absolute;
+    bottom: 0;
+    right: 44%;
     transform-origin: center bottom;
     transform: translate(-50%, 0%);
     opacity: 0.5;
@@ -249,7 +250,7 @@
     bottom: 0;
     left: 50%;
     transform-origin: center bottom;
-    transform: translateX(-50%);
+    transform: translateX(-60%);
     /* display: block; */
 }
 

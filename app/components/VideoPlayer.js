@@ -80,6 +80,9 @@ class VideoPlayer extends Component {
     this.onTimelineExit = this.onTimelineExit.bind(this);
     this.onNextSceneClickWithStop = this.onNextSceneClickWithStop.bind(this);
     this.onNextThumbClickWithStop = this.onNextThumbClickWithStop.bind(this);
+    this.onMergeSceneClickWithStop = this.onMergeSceneClickWithStop.bind(this);
+    this.onCutSceneClickWithStop = this.onCutSceneClickWithStop.bind(this);
+    this.setOrToggleDefaultSheetViewWithStop = this.setOrToggleDefaultSheetViewWithStop.bind(this);
     this.onChangeThumbClick = this.onChangeThumbClick.bind(this);
     this.onChangeOrAddClick = this.onChangeOrAddClick.bind(this);
   }
@@ -144,6 +147,7 @@ class VideoPlayer extends Component {
   handleKeyPress(event) {
     // you may also add a filter here to skip keys, that do not have an effect for your app
     // this.props.keyPressAction(event.keyCode);
+    event.stopPropagation();
 
     const { arrayOfCuts, onCutSceneClick, onMergeSceneClick, sheetType, defaultSheetView } = this.props;
     const { currentFrame } = this.state;
@@ -157,8 +161,10 @@ class VideoPlayer extends Component {
           case 13: // press enter
             if (defaultSheetView === SHEET_VIEW.TIMELINEVIEW) {
               if (thisFrameIsACut) {
+                log.debug(`merging scenes at ${currentFrame}`)
                 onMergeSceneClick(currentFrame);
               } else {
+                log.debug(`cutting scene at ${currentFrame}`)
                 onCutSceneClick(currentFrame);
               }
             }
@@ -179,9 +185,9 @@ class VideoPlayer extends Component {
             }
             if (event.shiftKey && event.altKey) {
               if (defaultSheetView === SHEET_VIEW.TIMELINEVIEW) {
-                this.onNextSceneClickWithStop('back', currentFrame);
+                this.onNextSceneClickWithStop(undefined, 'back', currentFrame);
               } else {
-                this.onNextThumbClickWithStop('back', currentFrame);
+                this.onNextThumbClickWithStop(undefined, 'back', currentFrame);
               }
             } else {
               this.updatePositionWithStep(stepValue);
@@ -197,9 +203,9 @@ class VideoPlayer extends Component {
             }
             if (event.shiftKey && event.altKey) {
               if (defaultSheetView === SHEET_VIEW.TIMELINEVIEW) {
-                this.onNextSceneClickWithStop('forward', currentFrame);
+                this.onNextSceneClickWithStop(undefined, 'forward', currentFrame);
               } else {
-                this.onNextThumbClickWithStop('forward', currentFrame);
+                this.onNextThumbClickWithStop(undefined, 'forward', currentFrame);
               }
             } else {
               this.updatePositionWithStep(stepValue);
@@ -218,7 +224,9 @@ class VideoPlayer extends Component {
     return newFrameNumber
   }
 
-  onBackForwardClick(step) {
+  onBackForwardClick(e, step) {
+    e.target.blur(); // remove focus so button gets not triggered when clicking enter
+    e.stopPropagation();
     this.updatePositionWithStep(step);
   }
 
@@ -444,9 +452,36 @@ class VideoPlayer extends Component {
     }
   }
 
-  onNextThumbClickWithStop(direction, frameNumber) {
+  onMergeSceneClickWithStop(e, currentFrame) {
+    const { onMergeSceneClick } = this.props;
+    e.target.blur(); // remove focus so button gets not triggered when clicking enter
+    e.stopPropagation();
+    onMergeSceneClick(currentFrame);
+    log.debug(`Mouse click: merging scenes at ${currentFrame}`)
+  }
+
+  onCutSceneClickWithStop(e, currentFrame) {
+    const { onCutSceneClick } = this.props;
+    e.target.blur(); // remove focus so button gets not triggered when clicking enter
+    e.stopPropagation();
+    log.debug(`Mouse click: cutting scene at ${currentFrame}`)
+    onCutSceneClick(currentFrame);
+  }
+
+  setOrToggleDefaultSheetViewWithStop(e) {
+    const { setOrToggleDefaultSheetView } = this.props;
+    e.target.blur(); // remove focus so button gets not triggered when clicking enter
+    e.stopPropagation();
+    setOrToggleDefaultSheetView();
+  }
+
+  onNextThumbClickWithStop(e, direction, frameNumber) {
     const { currentScene } = this.state;
     const { file, onSelectThumbMethod, scenes, selectedThumb, thumbs, sheetType } = this.props;
+    if (e !== undefined) {
+      e.target.blur(); // remove focus so button gets not triggered when clicking enter
+      e.stopPropagation();
+    }
 
     if (sheetType === SHEET_TYPE.SCENES) {
       let newSceneToSelect;
@@ -485,12 +520,14 @@ class VideoPlayer extends Component {
     }
   }
 
-  onNextSceneClickWithStop(direction, frameNumber) {
+  onNextSceneClickWithStop(e, direction, frameNumber) {
     const { currentScene } = this.state;
     const { file, onSelectThumbMethod, scenes } = this.props;
+    if (e !== undefined) {
+      e.target.blur(); // remove focus so button gets not triggered when clicking enter
+      e.stopPropagation();
+    }
 
-    console.log(currentScene)
-    console.log(frameNumber)
     let newFrameNumberToJumpTo;
     let newSceneToSelect;
     // if going back and frameNumber is within the scene not at the cut
@@ -560,7 +597,9 @@ class VideoPlayer extends Component {
     }
   }
 
-  toggleHTML5Player() {
+  toggleHTML5Player(e) {
+    e.target.blur(); // remove focus so button gets not triggered when clicking enter
+    e.stopPropagation();
     this.setState(prevState => ({
       showHTML5Player: !prevState.showHTML5Player
     }));
@@ -623,7 +662,7 @@ class VideoPlayer extends Component {
               <button
                 type='button'
                 className={`${styles.hoverButton} ${styles.textButton} ${styles.html5Button}`}
-                onClick={this.toggleHTML5Player}
+                onClick={(e) => this.toggleHTML5Player(e)}
                 onMouseOver={over}
                 onMouseLeave={out}
                 onFocus={over}
@@ -698,7 +737,7 @@ class VideoPlayer extends Component {
               <button
                 type='button'
                 className={`${styles.hoverButton} ${styles.textButton} ${styles.changeModeButton}`}
-                onClick={() => this.props.setOrToggleDefaultSheetView()}
+                onClick={(e) => this.setOrToggleDefaultSheetViewWithStop(e)}
                 onMouseOver={this.over}
                 onMouseLeave={this.out}
                 onFocus={this.over}
@@ -715,7 +754,7 @@ class VideoPlayer extends Component {
                 <button
                   type='button'
                   className={`${styles.hoverButton} ${styles.textButton} ${styles.previousScene}`}
-                  onClick={() => this.onNextSceneClickWithStop('back', this.state.currentFrame)}
+                  onClick={(e) => this.onNextSceneClickWithStop(e, 'back', this.state.currentFrame)}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}
@@ -734,7 +773,7 @@ class VideoPlayer extends Component {
                 <button
                   type='button'
                   className={`${styles.hoverButton} ${styles.textButton} ${styles.previousScene}`}
-                  onClick={() => this.onNextThumbClickWithStop('back', this.state.currentFrame)}
+                  onClick={(e) => this.onNextThumbClickWithStop(e, 'back', this.state.currentFrame)}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}
@@ -751,7 +790,7 @@ class VideoPlayer extends Component {
                 <button
                   type='button'
                   className={`${styles.hoverButton} ${styles.textButton} ${styles.hundredFramesBack}`}
-                  onClick={() => this.onBackForwardClick(-100)}
+                  onClick={(e) => this.onBackForwardClick(e, -100)}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}
@@ -768,7 +807,7 @@ class VideoPlayer extends Component {
                 <button
                   type='button'
                   className={`${styles.hoverButton} ${styles.textButton} ${styles.tenFramesBack}`}
-                  onClick={() => this.onBackForwardClick(-10)}
+                  onClick={(e) => this.onBackForwardClick(e, -10)}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}
@@ -785,7 +824,7 @@ class VideoPlayer extends Component {
                 <button
                   type='button'
                   className={`${styles.hoverButton} ${styles.textButton} ${styles.oneFrameBack}`}
-                  onClick={() => this.onBackForwardClick(-1)}
+                  onClick={(e) => this.onBackForwardClick(e, -1)}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}
@@ -803,8 +842,8 @@ class VideoPlayer extends Component {
                   type='button'
                   className={`${styles.hoverButton} ${styles.textButton} ${styles.cutMergeButton}`}
                   onClick={thisFrameIsACut ?
-                    () => this.props.onMergeSceneClick(currentFrame) :
-                    () => this.props.onCutSceneClick(currentFrame)}
+                    (e) => this.onMergeSceneClickWithStop(e, currentFrame) :
+                    (e) => this.onCutSceneClickWithStop(e, currentFrame)}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}
@@ -864,7 +903,7 @@ class VideoPlayer extends Component {
                 <button
                   type='button'
                   className={`${styles.hoverButton} ${styles.textButton} ${styles.oneFrameForward}`}
-                  onClick={() => this.onBackForwardClick(1)}
+                  onClick={(e) => this.onBackForwardClick(e, 1)}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}
@@ -881,7 +920,7 @@ class VideoPlayer extends Component {
                 <button
                   type='button'
                   className={`${styles.hoverButton} ${styles.textButton} ${styles.tenFramesForward}`}
-                  onClick={() => this.onBackForwardClick(10)}
+                  onClick={(e) => this.onBackForwardClick(e, 10)}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}
@@ -898,7 +937,7 @@ class VideoPlayer extends Component {
                 <button
                   type='button'
                   className={`${styles.hoverButton} ${styles.textButton} ${styles.hundredFramesForward}`}
-                  onClick={() => this.onBackForwardClick(100)}
+                  onClick={(e) => this.onBackForwardClick(e, 100)}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}
@@ -917,7 +956,7 @@ class VideoPlayer extends Component {
                 <button
                   type='button'
                   className={`${styles.hoverButton} ${styles.textButton} ${styles.nextScene}`}
-                  onClick={() => this.onNextThumbClickWithStop('forward', this.state.currentFrame)}
+                  onClick={(e) => this.onNextThumbClickWithStop(e, 'forward', this.state.currentFrame)}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}
@@ -934,7 +973,7 @@ class VideoPlayer extends Component {
                 <button
                   type='button'
                   className={`${styles.hoverButton} ${styles.textButton} ${styles.nextScene}`}
-                  onClick={() => this.onNextSceneClickWithStop('forward', this.state.currentFrame)}
+                  onClick={(e) => this.onNextSceneClickWithStop(e, 'forward', this.state.currentFrame)}
                   onMouseOver={over}
                   onMouseLeave={out}
                   onFocus={over}

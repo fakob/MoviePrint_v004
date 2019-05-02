@@ -377,7 +377,7 @@ class ThumbGrid extends Component {
         className={styles.grid}
         style={{
           width: this.props.moviePrintWidth,
-          paddingLeft: isPlayerView ? '48px' : undefined,
+          // paddingLeft: isPlayerView ? '48px' : undefined,
         }}
         id="ThumbGrid"
         onMouseLeave={this.onContainerOut}

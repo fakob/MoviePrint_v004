@@ -71,7 +71,7 @@ class SceneGrid extends Component {
         className={styles.grid}
         id="SceneGrid"
         style={{
-          paddingLeft: isPlayerView ? '48px' : undefined,
+          // paddingLeft: isPlayerView ? '48px' : undefined,
         }}
       >
         <div

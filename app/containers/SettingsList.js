@@ -501,13 +501,13 @@ class SettingsList extends Component {
                     <SliderWithTooltip
                       // data-tid='sceneDetectionThresholdSlider'
                       className={styles.slider}
-                      min={5}
+                      min={3}
                       max={40}
                       defaultValue={settings.defaultSceneDetectionThreshold}
                       marks={{
-                        5: '5',
-                        20: '20',
-                        40: '40',
+                        3: '3',
+                        15: '15',
+                        30: '30',
                       }}
                       handle={handle}
                       onChange={onChangeSceneDetectionThreshold}

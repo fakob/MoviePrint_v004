@@ -106,9 +106,9 @@ export const DEFAULT_SCRUB_CONTAINER_MAXHEIGHTRATIO = 0.8;
 export const DEFAULT_SCRUB_WINDOW_WIDTHRATIO = 0.5;
 export const DEFAULT_SCRUB_WINDOW_HEIGHTRATIO = 0.5;
 export const DEFAULT_SCRUB_WINDOW_MARGIN = 2;
-export const DEFAULT_SCENE_DETECTION_THRESHOLD = 20.0;
+export const DEFAULT_SCENE_DETECTION_THRESHOLD = 6.0;
 export const DEFAULT_TIMELINEVIEW_SECONDS_PER_ROW = 120.0;
-export const DEFAULT_TIMELINEVIEW_MIN_DISPLAY_SCENE_LENGTH_IN_FRAMES = 15;
+export const DEFAULT_TIMELINEVIEW_MIN_DISPLAY_SCENE_LENGTH_IN_FRAMES = 10;
 export const DEFAULT_TIMELINEVIEW_WIDTH_SCALE = 50;
 export const DEFAULT_TIMELINEVIEW_FLOW = false;
 export const DEFAULT_CACHED_FRAMES_SIZE = 640; // 0 stands for original size
@@ -140,7 +140,7 @@ export const CHANGE_THUMB_STEP = [1, 10, 100];
 export const IN_OUT_POINT_SEARCH_LENGTH = 300;
 export const IN_OUT_POINT_SEARCH_THRESHOLD = 20; // previous 15
 
-export const SCENE_DETECTION_MIN_SCENE_LENGTH = 15; // for scene detection
+export const SCENE_DETECTION_MIN_SCENE_LENGTH = 10; // for scene detection
 
 export const DEFAULT_FRAME_SCALE = 1; // scale of frames to be stored in the database if 1 then original size is stored
 
