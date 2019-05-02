@@ -19,6 +19,7 @@ import {
   PAPER_LAYOUT_OPTIONS,
   OUTPUT_FORMAT_OPTIONS,
   CACHED_FRAMES_SIZE_OPTIONS,
+  SHEET_TYPE,
 } from '../utils/constants';
 import getScaleValueObject from '../utils/getScaleValueObject';
 
@@ -278,6 +279,7 @@ class SettingsList extends Component {
       sceneArray,
       secondsPerRowTemp,
       settings,
+      sheetType,
       showChart,
       thumbCount,
       thumbCountTemp,
@@ -364,7 +366,7 @@ class SettingsList extends Component {
                       20: '20',
                     }}
                     handle={handle}
-                    onChange={(reCapture && isGridView) ? onChangeColumn :
+                    onChange={(sheetType === SHEET_TYPE.INTERVAL && reCapture && isGridView) ? onChangeColumn :
                       onChangeColumnAndApply}
                   />
                 }
@@ -381,7 +383,8 @@ class SettingsList extends Component {
               </Grid.Column>
             </Grid.Row>
           }
-          { isGridView &&
+          { sheetType === SHEET_TYPE.INTERVAL &&
+            isGridView &&
             reCapture &&
             <Grid.Row>
               <Grid.Column width={4}>
@@ -458,41 +461,28 @@ class SettingsList extends Component {
                   }
                 </Grid.Column>
               </Grid.Row>
-              {false && <Grid.Row>
-                <Grid.Column width={4}>
-                  Flow
-                </Grid.Column>
-                <Grid.Column width={12}>
-                  <Checkbox
-                    // data-tid='showPaperPreviewCheckbox'
-                    label={
-                      <label className={styles.label}>
-                        Flow
-                      </label>
-                    }
-                    checked={settings.defaultTimelineViewFlow}
-                    onChange={this.onChangeTimelineViewFlow}
-                  />
-                </Grid.Column>
-              </Grid.Row>}
-              <Grid.Row>
-                <Grid.Column width={4}>
-                  Count
-                </Grid.Column>
-                <Grid.Column width={12}>
-                  <Checkbox
-                    data-tid='changeSceneCountCheckbox'
-                    label={
-                      <label className={styles.label}>
-                        Change scene count
-                      </label>
-                    }
-                    checked={this.state.changeSceneCount}
-                    onChange={this.onChangeSceneCount}
-                  />
-                </Grid.Column>
-              </Grid.Row>
-              {this.state.changeSceneCount && <Fragment>
+              { sheetType === SHEET_TYPE.SCENES &&
+                <Grid.Row>
+                  <Grid.Column width={4}>
+                    Count
+                  </Grid.Column>
+                  <Grid.Column width={12}>
+                    <Checkbox
+                      data-tid='changeSceneCountCheckbox'
+                      label={
+                        <label className={styles.label}>
+                          Change scene count
+                        </label>
+                      }
+                      checked={this.state.changeSceneCount}
+                      onChange={this.onChangeSceneCount}
+                    />
+                  </Grid.Column>
+                </Grid.Row>
+              }
+              { sheetType === SHEET_TYPE.SCENES &&
+                this.state.changeSceneCount &&
+                <Fragment>
                 <Grid.Row>
                   <Grid.Column width={4}>
                     Shot detection threshold
@@ -540,7 +530,8 @@ class SettingsList extends Component {
               </Fragment>}
             </Fragment>
           }
-          { isGridView &&
+          { sheetType === SHEET_TYPE.INTERVAL &&
+            isGridView &&
             <Grid.Row>
               <Grid.Column width={4}>
                 Count
@@ -559,7 +550,8 @@ class SettingsList extends Component {
               </Grid.Column>
             </Grid.Row>
           }
-          { isGridView &&
+          { sheetType === SHEET_TYPE.INTERVAL &&
+            isGridView &&
             (thumbCount !== thumbCountTemp) &&
             <Grid.Row>
               <Grid.Column width={4} />
@@ -574,7 +566,8 @@ class SettingsList extends Component {
               </Grid.Column>
             </Grid.Row>
           }
-          { isGridView &&
+          { sheetType === SHEET_TYPE.INTERVAL &&
+            isGridView &&
             <Grid.Row>
               <Grid.Column width={4} />
               <Grid.Column width={12}>

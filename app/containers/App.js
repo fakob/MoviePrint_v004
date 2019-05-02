@@ -2748,6 +2748,7 @@ class App extends Component {
                       settings={settings}
                       visibilitySettings={visibilitySettings}
                       file={file}
+                      sheetType={sheetType}
                       columnCountTemp={this.state.columnCountTemp}
                       thumbCountTemp={this.state.thumbCountTemp}
                       thumbCount={this.state.thumbCount}
