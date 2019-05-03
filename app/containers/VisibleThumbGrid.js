@@ -122,7 +122,6 @@ class SortedVisibleThumbGrid extends Component {
       onScrubClick,
       onThumbDoubleClick,
       onToggleClick,
-      onToggleSheetView,
       useBase64,
       scaleValueObject,
       selectedThumbsArray,
@@ -161,7 +160,6 @@ class SortedVisibleThumbGrid extends Component {
         onExpandClick={onExpandClick}
         onThumbDoubleClick={onThumbDoubleClick}
         onToggleClick={onToggleClick}
-        onToggleSheetView={onToggleSheetView}
         ref={inputRef} // for the saveMoviePrint function
         scaleValueObject={scaleValueObject}
         moviePrintWidth={moviePrintWidth}
@@ -295,7 +293,6 @@ SortedVisibleThumbGrid.propTypes = {
   onExpandClick: PropTypes.func,
   onThumbDoubleClick: PropTypes.func,
   onToggleClick: PropTypes.func.isRequired,
-  onToggleSheetView: PropTypes.func.isRequired,
   scaleValueObject: PropTypes.object.isRequired,
   selectedThumbsArray: PropTypes.array,
   onSelectThumbMethod: PropTypes.func,

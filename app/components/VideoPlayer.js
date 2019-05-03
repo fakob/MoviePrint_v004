@@ -731,261 +731,264 @@ class VideoPlayer extends Component {
               }}
             />}
           </div>
-          <div className={`${styles.buttonWrapper}`}>
-            <Popup
-            trigger={
-              <button
-                type='button'
-                className={`${styles.hoverButton} ${styles.textButton} ${styles.changeModeButton}`}
-                onClick={(e) => this.setOrToggleDefaultSheetViewWithStop(e)}
-                onMouseOver={this.over}
-                onMouseLeave={this.out}
-                onFocus={this.over}
-                onBlur={this.out}
-              >
-                mode
-              </button>
-            }
-            className={stylesPop.popup}
-            content={<span>Switch to grid view <mark>G</mark></span>}
-          />
-            {defaultSheetView === SHEET_VIEW.TIMELINEVIEW && <Popup
-              trigger={
-                <button
-                  type='button'
-                  className={`${styles.hoverButton} ${styles.textButton} ${styles.previousScene}`}
-                  onClick={(e) => this.onNextSceneClickWithStop(e, 'back', this.state.currentFrame)}
-                  onMouseOver={over}
-                  onMouseLeave={out}
-                  onFocus={over}
-                  onBlur={out}
-                >
-                  previous cut
-                </button>
-              }
-              className={stylesPop.popup}
-              content={<span>Jump to previous cut <mark>SHIFT + ALT + Arrow left</mark></span>}
-            />}
-            {((defaultSheetView === SHEET_VIEW.GRIDVIEW && sheetType === SHEET_TYPE.SCENES) ||
-              (defaultSheetView === SHEET_VIEW.GRIDVIEW && selectedThumb !== undefined)) &&
+          {(sheetType === SHEET_TYPE.SCENES ||
+            defaultSheetView === SHEET_VIEW.GRIDVIEW) &&
+            <div className={`${styles.buttonWrapper}`}>
+              {sheetType === SHEET_TYPE.SCENES && <Popup
+                trigger={
+                  <button
+                    type='button'
+                    className={`${styles.hoverButton} ${styles.textButton} ${styles.changeModeButton}`}
+                    onClick={(e) => this.setOrToggleDefaultSheetViewWithStop(e)}
+                    onMouseOver={over}
+                    onMouseLeave={out}
+                    onFocus={over}
+                    onBlur={out}
+                  >
+                    mode
+                  </button>
+                }
+                className={stylesPop.popup}
+                content={<span>Switch between cut/merge scenes and change thumb mode <mark>SPACE</mark></span>}
+              />}
+              {defaultSheetView === SHEET_VIEW.TIMELINEVIEW && <Popup
+                trigger={
+                  <button
+                    type='button'
+                    className={`${styles.hoverButton} ${styles.textButton} ${styles.previousScene}`}
+                    onClick={(e) => this.onNextSceneClickWithStop(e, 'back', this.state.currentFrame)}
+                    onMouseOver={over}
+                    onMouseLeave={out}
+                    onFocus={over}
+                    onBlur={out}
+                  >
+                    previous cut
+                  </button>
+                }
+                className={stylesPop.popup}
+                content={<span>Jump to previous cut <mark>SHIFT + ALT + Arrow left</mark></span>}
+              />}
+              {((defaultSheetView === SHEET_VIEW.GRIDVIEW && sheetType === SHEET_TYPE.SCENES) ||
+                (defaultSheetView === SHEET_VIEW.GRIDVIEW && selectedThumb !== undefined)) &&
+                <Popup
+                trigger={
+                  <button
+                    type='button'
+                    className={`${styles.hoverButton} ${styles.textButton} ${styles.previousScene}`}
+                    onClick={(e) => this.onNextThumbClickWithStop(e, 'back', this.state.currentFrame)}
+                    onMouseOver={over}
+                    onMouseLeave={out}
+                    onFocus={over}
+                    onBlur={out}
+                  >
+                    previous thumb
+                  </button>
+                }
+                className={stylesPop.popup}
+                content={<span>Jump to previous thumb <mark>SHIFT + ALT + Arrow left</mark></span>}
+              />}
               <Popup
-              trigger={
-                <button
-                  type='button'
-                  className={`${styles.hoverButton} ${styles.textButton} ${styles.previousScene}`}
-                  onClick={(e) => this.onNextThumbClickWithStop(e, 'back', this.state.currentFrame)}
-                  onMouseOver={over}
-                  onMouseLeave={out}
-                  onFocus={over}
-                  onBlur={out}
-                >
-                  previous thumb
-                </button>
-              }
-              className={stylesPop.popup}
-              content={<span>Jump to previous thumb <mark>SHIFT + ALT + Arrow left</mark></span>}
-            />}
-            <Popup
-              trigger={
-                <button
-                  type='button'
-                  className={`${styles.hoverButton} ${styles.textButton} ${styles.hundredFramesBack}`}
-                  onClick={(e) => this.onBackForwardClick(e, -100)}
-                  onMouseOver={over}
-                  onMouseLeave={out}
-                  onFocus={over}
-                  onBlur={out}
-                >
-                  {'<<<'}
-                </button>
-              }
-              className={stylesPop.popup}
-              content={<span>Move 100 frames back <mark>ALT + Arrow left</mark></span>}
-            />
-            <Popup
-              trigger={
-                <button
-                  type='button'
-                  className={`${styles.hoverButton} ${styles.textButton} ${styles.tenFramesBack}`}
-                  onClick={(e) => this.onBackForwardClick(e, -10)}
-                  onMouseOver={over}
-                  onMouseLeave={out}
-                  onFocus={over}
-                  onBlur={out}
-                >
-                  {'<<'}
-                </button>
-              }
-              className={stylesPop.popup}
-              content={<span>Move 10 frames back <mark>Arrow left</mark></span>}
-            />
-            <Popup
-              trigger={
-                <button
-                  type='button'
-                  className={`${styles.hoverButton} ${styles.textButton} ${styles.oneFrameBack}`}
-                  onClick={(e) => this.onBackForwardClick(e, -1)}
-                  onMouseOver={over}
-                  onMouseLeave={out}
-                  onFocus={over}
-                  onBlur={out}
-                >
-                  {'<'}
-                </button>
-              }
-              className={stylesPop.popup}
-              content={<span>Move 1 frame back <mark>SHIFT + Arrow left</mark></span>}
-            />
-            {sheetType === SHEET_TYPE.SCENES && defaultSheetView === SHEET_VIEW.TIMELINEVIEW && currentFrame !== 0 && <Popup
-              trigger={
-                <button
-                  type='button'
-                  className={`${styles.hoverButton} ${styles.textButton} ${styles.cutMergeButton}`}
-                  onClick={thisFrameIsACut ?
-                    (e) => this.onMergeSceneClickWithStop(e, currentFrame) :
-                    (e) => this.onCutSceneClickWithStop(e, currentFrame)}
-                  onMouseOver={over}
-                  onMouseLeave={out}
-                  onFocus={over}
-                  onBlur={out}
-                  style={{
-                    color: MOVIEPRINT_COLORS[0]
-                  }}
-                >
-                  {thisFrameIsACut ? 'MERGE' : 'CUT'}
-                </button>
-              }
-              className={stylesPop.popup}
-              content={thisFrameIsACut ? (<span>Merge scenes <mark>ENTER</mark></span>) : (<span>Cut scene <mark>ENTER</mark></span>)}
-            />}
-            {sheetType === SHEET_TYPE.SCENES && defaultSheetView === SHEET_VIEW.GRIDVIEW && currentFrame !== 0 && <Popup
-              trigger={
-                <button
-                  type='button'
-                  className={`${styles.hoverButton} ${styles.textButton} ${styles.cutMergeButton}`}
-                  onClick={this.onChangeThumbClick}
-                  onMouseOver={over}
-                  onMouseLeave={out}
-                  onFocus={over}
-                  onBlur={out}
-                  style={{
-                    color: MOVIEPRINT_COLORS[0]
-                  }}
-                >
-                  CHANGE
-                </button>
-              }
-              className={stylesPop.popup}
-              content={<span>Change the thumb to use this frame <mark>ENTER</mark></span>}
-            />}
-            {sheetType === SHEET_TYPE.INTERVAL && <Popup
-              trigger={
-                <button
-                  type='button'
-                  className={`${styles.hoverButton} ${styles.textButton} ${styles.cutMergeButton}`}
-                  onClick={this.onChangeOrAddClick}
-                  onMouseOver={over}
-                  onMouseLeave={out}
-                  onFocus={over}
-                  onBlur={out}
-                  style={{
-                    color: MOVIEPRINT_COLORS[0]
-                  }}
-                >
-                  {keyObject.altKey ? 'ADD AFTER' : (keyObject.shiftKey ? 'ADD BEFORE' : 'CHANGE')}
-                </button>
-              }
-              className={stylesPop.popup}
-              content={keyObject.altKey ? (<span>Add a new thumb <mark>after</mark> selection</span>) : (keyObject.shiftKey ? (<span>Add a new thumb <mark>before</mark> selection</span>) : (<span>Change the thumb to use this frame <mark>ENTER</mark> | with <mark>SHIFT</mark> add a thumb before selection | with <mark>ALT</mark> add a thumb after selection</span>))}
-            />}
-            <Popup
-              trigger={
-                <button
-                  type='button'
-                  className={`${styles.hoverButton} ${styles.textButton} ${styles.oneFrameForward}`}
-                  onClick={(e) => this.onBackForwardClick(e, 1)}
-                  onMouseOver={over}
-                  onMouseLeave={out}
-                  onFocus={over}
-                  onBlur={out}
-                >
-                  {'>'}
-                </button>
-              }
-              className={stylesPop.popup}
-              content={<span>Move 1 frame forward <mark>SHIFT + Arrow right</mark></span>}
-            />
-            <Popup
-              trigger={
-                <button
-                  type='button'
-                  className={`${styles.hoverButton} ${styles.textButton} ${styles.tenFramesForward}`}
-                  onClick={(e) => this.onBackForwardClick(e, 10)}
-                  onMouseOver={over}
-                  onMouseLeave={out}
-                  onFocus={over}
-                  onBlur={out}
-                >
-                  {'>>'}
-                </button>
-              }
-              className={stylesPop.popup}
-              content={<span>Move 10 frames forward<mark>Arrow right</mark></span>}
-            />
-            <Popup
-              trigger={
-                <button
-                  type='button'
-                  className={`${styles.hoverButton} ${styles.textButton} ${styles.hundredFramesForward}`}
-                  onClick={(e) => this.onBackForwardClick(e, 100)}
-                  onMouseOver={over}
-                  onMouseLeave={out}
-                  onFocus={over}
-                  onBlur={out}
-                >
-                  {'>>>'}
-                </button>
-              }
-              className={stylesPop.popup}
-              content={<span>Move 100 frames forward <mark>ALT + Arrow right</mark></span>}
-            />
-            {((defaultSheetView === SHEET_VIEW.GRIDVIEW && sheetType === SHEET_TYPE.SCENES) ||
-              (defaultSheetView === SHEET_VIEW.GRIDVIEW && selectedThumb !== undefined)) &&
+                trigger={
+                  <button
+                    type='button'
+                    className={`${styles.hoverButton} ${styles.textButton} ${styles.hundredFramesBack}`}
+                    onClick={(e) => this.onBackForwardClick(e, -100)}
+                    onMouseOver={over}
+                    onMouseLeave={out}
+                    onFocus={over}
+                    onBlur={out}
+                  >
+                    {'<<<'}
+                  </button>
+                }
+                className={stylesPop.popup}
+                content={<span>Move 100 frames back <mark>ALT + Arrow left</mark></span>}
+              />
               <Popup
-              trigger={
-                <button
-                  type='button'
-                  className={`${styles.hoverButton} ${styles.textButton} ${styles.nextScene}`}
-                  onClick={(e) => this.onNextThumbClickWithStop(e, 'forward', this.state.currentFrame)}
-                  onMouseOver={over}
-                  onMouseLeave={out}
-                  onFocus={over}
-                  onBlur={out}
-                >
-                  next thumb
-                </button>
-              }
-              className={stylesPop.popup}
-              content={<span>Jump to next thumb <mark>SHIFT + ALT + Arrow right</mark></span>}
-            />}
-            {defaultSheetView === SHEET_VIEW.TIMELINEVIEW && <Popup
-              trigger={
-                <button
-                  type='button'
-                  className={`${styles.hoverButton} ${styles.textButton} ${styles.nextScene}`}
-                  onClick={(e) => this.onNextSceneClickWithStop(e, 'forward', this.state.currentFrame)}
-                  onMouseOver={over}
-                  onMouseLeave={out}
-                  onFocus={over}
-                  onBlur={out}
-                >
-                  next cut
-                </button>
-              }
-              className={stylesPop.popup}
-              content={<span>Jump to next cut <mark>SHIFT + ALT + Arrow right</mark></span>}
-            />}
-          </div>
+                trigger={
+                  <button
+                    type='button'
+                    className={`${styles.hoverButton} ${styles.textButton} ${styles.tenFramesBack}`}
+                    onClick={(e) => this.onBackForwardClick(e, -10)}
+                    onMouseOver={over}
+                    onMouseLeave={out}
+                    onFocus={over}
+                    onBlur={out}
+                  >
+                    {'<<'}
+                  </button>
+                }
+                className={stylesPop.popup}
+                content={<span>Move 10 frames back <mark>Arrow left</mark></span>}
+              />
+              <Popup
+                trigger={
+                  <button
+                    type='button'
+                    className={`${styles.hoverButton} ${styles.textButton} ${styles.oneFrameBack}`}
+                    onClick={(e) => this.onBackForwardClick(e, -1)}
+                    onMouseOver={over}
+                    onMouseLeave={out}
+                    onFocus={over}
+                    onBlur={out}
+                  >
+                    {'<'}
+                  </button>
+                }
+                className={stylesPop.popup}
+                content={<span>Move 1 frame back <mark>SHIFT + Arrow left</mark></span>}
+              />
+              {sheetType === SHEET_TYPE.SCENES && defaultSheetView === SHEET_VIEW.TIMELINEVIEW && currentFrame !== 0 && <Popup
+                trigger={
+                  <button
+                    type='button'
+                    className={`${styles.hoverButton} ${styles.textButton} ${styles.cutMergeButton}`}
+                    onClick={thisFrameIsACut ?
+                      (e) => this.onMergeSceneClickWithStop(e, currentFrame) :
+                      (e) => this.onCutSceneClickWithStop(e, currentFrame)}
+                    onMouseOver={over}
+                    onMouseLeave={out}
+                    onFocus={over}
+                    onBlur={out}
+                    style={{
+                      color: MOVIEPRINT_COLORS[0]
+                    }}
+                  >
+                    {thisFrameIsACut ? 'MERGE' : 'CUT'}
+                  </button>
+                }
+                className={stylesPop.popup}
+                content={thisFrameIsACut ? (<span>Merge scenes <mark>ENTER</mark></span>) : (<span>Cut scene <mark>ENTER</mark></span>)}
+              />}
+              {sheetType === SHEET_TYPE.SCENES && defaultSheetView === SHEET_VIEW.GRIDVIEW && currentFrame !== 0 && <Popup
+                trigger={
+                  <button
+                    type='button'
+                    className={`${styles.hoverButton} ${styles.textButton} ${styles.cutMergeButton}`}
+                    onClick={this.onChangeThumbClick}
+                    onMouseOver={over}
+                    onMouseLeave={out}
+                    onFocus={over}
+                    onBlur={out}
+                    style={{
+                      color: MOVIEPRINT_COLORS[0]
+                    }}
+                  >
+                    CHANGE
+                  </button>
+                }
+                className={stylesPop.popup}
+                content={<span>Change the thumb to use this frame <mark>ENTER</mark></span>}
+              />}
+              {sheetType === SHEET_TYPE.INTERVAL && <Popup
+                trigger={
+                  <button
+                    type='button'
+                    className={`${styles.hoverButton} ${styles.textButton} ${styles.cutMergeButton}`}
+                    onClick={this.onChangeOrAddClick}
+                    onMouseOver={over}
+                    onMouseLeave={out}
+                    onFocus={over}
+                    onBlur={out}
+                    style={{
+                      color: MOVIEPRINT_COLORS[0]
+                    }}
+                  >
+                    {keyObject.altKey ? 'ADD AFTER' : (keyObject.shiftKey ? 'ADD BEFORE' : 'CHANGE')}
+                  </button>
+                }
+                className={stylesPop.popup}
+                content={keyObject.altKey ? (<span>Add a new thumb <mark>after</mark> selection</span>) : (keyObject.shiftKey ? (<span>Add a new thumb <mark>before</mark> selection</span>) : (<span>Change the thumb to use this frame <mark>ENTER</mark> | with <mark>SHIFT</mark> add a thumb before selection | with <mark>ALT</mark> add a thumb after selection</span>))}
+              />}
+              <Popup
+                trigger={
+                  <button
+                    type='button'
+                    className={`${styles.hoverButton} ${styles.textButton} ${styles.oneFrameForward}`}
+                    onClick={(e) => this.onBackForwardClick(e, 1)}
+                    onMouseOver={over}
+                    onMouseLeave={out}
+                    onFocus={over}
+                    onBlur={out}
+                  >
+                    {'>'}
+                  </button>
+                }
+                className={stylesPop.popup}
+                content={<span>Move 1 frame forward <mark>SHIFT + Arrow right</mark></span>}
+              />
+              <Popup
+                trigger={
+                  <button
+                    type='button'
+                    className={`${styles.hoverButton} ${styles.textButton} ${styles.tenFramesForward}`}
+                    onClick={(e) => this.onBackForwardClick(e, 10)}
+                    onMouseOver={over}
+                    onMouseLeave={out}
+                    onFocus={over}
+                    onBlur={out}
+                  >
+                    {'>>'}
+                  </button>
+                }
+                className={stylesPop.popup}
+                content={<span>Move 10 frames forward<mark>Arrow right</mark></span>}
+              />
+              <Popup
+                trigger={
+                  <button
+                    type='button'
+                    className={`${styles.hoverButton} ${styles.textButton} ${styles.hundredFramesForward}`}
+                    onClick={(e) => this.onBackForwardClick(e, 100)}
+                    onMouseOver={over}
+                    onMouseLeave={out}
+                    onFocus={over}
+                    onBlur={out}
+                  >
+                    {'>>>'}
+                  </button>
+                }
+                className={stylesPop.popup}
+                content={<span>Move 100 frames forward <mark>ALT + Arrow right</mark></span>}
+              />
+              {((defaultSheetView === SHEET_VIEW.GRIDVIEW && sheetType === SHEET_TYPE.SCENES) ||
+                (defaultSheetView === SHEET_VIEW.GRIDVIEW && selectedThumb !== undefined)) &&
+                <Popup
+                trigger={
+                  <button
+                    type='button'
+                    className={`${styles.hoverButton} ${styles.textButton} ${styles.nextScene}`}
+                    onClick={(e) => this.onNextThumbClickWithStop(e, 'forward', this.state.currentFrame)}
+                    onMouseOver={over}
+                    onMouseLeave={out}
+                    onFocus={over}
+                    onBlur={out}
+                  >
+                    next thumb
+                  </button>
+                }
+                className={stylesPop.popup}
+                content={<span>Jump to next thumb <mark>SHIFT + ALT + Arrow right</mark></span>}
+              />}
+              {defaultSheetView === SHEET_VIEW.TIMELINEVIEW && <Popup
+                trigger={
+                  <button
+                    type='button'
+                    className={`${styles.hoverButton} ${styles.textButton} ${styles.nextScene}`}
+                    onClick={(e) => this.onNextSceneClickWithStop(e, 'forward', this.state.currentFrame)}
+                    onMouseOver={over}
+                    onMouseLeave={out}
+                    onFocus={over}
+                    onBlur={out}
+                  >
+                    next cut
+                  </button>
+                }
+                className={stylesPop.popup}
+                content={<span>Jump to next cut <mark>SHIFT + ALT + Arrow right</mark></span>}
+              />}
+            </div>
+          }
         </div>
       </div>
     );

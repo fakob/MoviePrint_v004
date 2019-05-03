@@ -109,7 +109,6 @@ class SortedVisibleSceneGrid extends Component {
         onOutPointClick={this.props.onOutPointClick}
         onSaveThumbClick={this.props.onSaveThumbClick}
         onThumbDoubleClick={this.props.onThumbDoubleClick}
-        onToggleSheetView={this.props.onToggleSheetView}
         onScrubClick={this.props.onScrubClick}
         onSelectClick={this.onSelectClick}
         onDeselectClick={this.onDeselectClick}

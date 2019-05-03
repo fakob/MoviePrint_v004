@@ -3,11 +3,10 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone';
 import fs from 'fs';
-import { TransitionablePortal, Segment, Progress, Modal, Button, Icon, Container, Loader, Header, Divider, Form, Input } from 'semantic-ui-react';
+import { TransitionablePortal, Segment, Progress, Modal, Button, Icon, Container, Loader, Header, Divider, Form } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
 import {Line, defaults} from 'react-chartjs-2';
 import path from 'path';
-import throttle from 'lodash/throttle';
 import log from 'electron-log';
 import os from 'os';
 import Database from 'better-sqlite3';
@@ -15,12 +14,11 @@ import extract from 'png-chunks-extract';
 import text from 'png-chunk-text';
 
 import '../app.global.css';
-import FileList from '../containers/FileList';
-import SettingsList from '../containers/SettingsList';
-import SortedVisibleThumbGrid from '../containers/VisibleThumbGrid';
-import SortedVisibleSceneGrid from '../containers/VisibleSceneGrid';
+import FileList from './FileList';
+import SettingsList from './SettingsList';
+import SortedVisibleThumbGrid from './VisibleThumbGrid';
+import SortedVisibleSceneGrid from './VisibleSceneGrid';
 import Conditional from '../components/Conditional';
-import ErrorBoundary from '../components/ErrorBoundary';
 import HeaderComponent from '../components/HeaderComponent';
 import Footer from '../components/Footer';
 import VideoPlayer from '../components/VideoPlayer';
@@ -57,7 +55,7 @@ import { getLowestFrame,
   getAdjacentSceneIndicesFromCut,
 } from '../utils/utils';
 import styles from './App.css';
-import stylesPop from './../components/Popup.css';
+import stylesPop from '../components/Popup.css';
 import {
   addIntervalSheet,
   addScene,
@@ -138,7 +136,6 @@ import {
   SHEET_FIT,
   SHEET_TYPE,
   DEFAULT_THUMB_COUNT,
-  DEFAULT_CACHED_FRAMES_SIZE,
   FRAMESDB_PATH,
 } from '../utils/constants';
 import {
@@ -152,7 +149,6 @@ import {
 } from '../utils/utilsForSqlite';
 
 import startupImg from '../img/MoviePrint-steps.svg';
-import transparent from '../img/Thumb_TRANSPARENT.png';
 
 const { ipcRenderer } = require('electron');
 const { dialog, app } = require('electron').remote;
@@ -979,10 +975,19 @@ class App extends Component {
     // only listen to key events when feedback form is not shown
     if (!this.state.showFeedbackForm && event.target.tagName !== 'INPUT') {
       const { store } = this.context;
-      const { currentFileId, currentSheetId, file, visibilitySettings } = this.props;
+      const { currentFileId, currentSheetId, file, settings, sheetsByFileId, visibilitySettings } = this.props;
+      const sheetType = getSheetType(sheetsByFileId, currentFileId, currentSheetId, settings);
+
 
       if (event) {
         switch (event.which) {
+          case 32: // press 'space bar'
+            if (sheetType === SHEET_TYPE.SCENES) {
+              this.setOrToggleDefaultSheetView();
+            } else {
+              this.setOrToggleDefaultSheetView(SHEET_VIEW.GRIDVIEW);
+            }
+            break;
           case 49: // press 1
             this.toggleMovielist();
             break;
@@ -2453,12 +2458,13 @@ class App extends Component {
   toggleSheetView = (fileId, sheetId) => {
     const { sheetsByFileId, visibilitySettings } = this.props;
     const sheetView = getSheetView(sheetsByFileId, fileId, sheetId, visibilitySettings);
+    let newSheetView;
     if (sheetView === SHEET_VIEW.GRIDVIEW) {
-      this.onChangeSheetViewClick(fileId, sheetId, SHEET_VIEW.TIMELINEVIEW);
+      newSheetView = SHEET_VIEW.TIMELINEVIEW;
     } else {
-      this.onChangeSheetViewClick(fileId, sheetId, SHEET_VIEW.GRIDVIEW);
+      newSheetView = SHEET_VIEW.GRIDVIEW;
     }
-    // store.dispatch(setDefaultSheetView(sheetView));
+    this.onChangeSheetViewClick(fileId, sheetId, newSheetView);
   };
 
   setOrToggleDefaultSheetView = (sheetView = undefined) => {
@@ -2475,9 +2481,18 @@ class App extends Component {
 
   onSetViewClick = (value) => {
     const { store } = this.context;
+    const { currentFileId, currentSheetId, sheetsByFileId, settings } = this.props;
+
     if (value === VIEW.PLAYERVIEW) {
       this.hideSettings();
       this.hideMovielist();
+    }
+
+    // change defaultSheetView to gridview for interval type as it should not have
+    // a cut mode (timelineview) in playerview
+    const sheetType = getSheetType(sheetsByFileId, currentFileId, currentSheetId, settings);
+    if (sheetType === SHEET_TYPE.INTERVAL) {
+      store.dispatch(setDefaultSheetView(SHEET_VIEW.GRIDVIEW));
     }
     // remove selection when switching back to standard view
     if (value === VIEW.STANDARDVIEW) {
@@ -2909,7 +2924,6 @@ class App extends Component {
                             onScrubClick={this.onScrubClick}
                             onExpandClick={this.onExpandClick}
                             onThumbDoubleClick={this.onViewToggle}
-                            onToggleSheetView={this.toggleSheetView}
                             scaleValueObject={scaleValueObject}
                             moviePrintWidth={scaleValueObject.newMoviePrintWidth}
                             selectedThumbsArray={this.state.selectedThumbsArray}
@@ -2944,7 +2958,6 @@ class App extends Component {
                             onSelectThumbMethod={this.onSelectThumbMethod}
                             onDeselectThumbMethod={this.onDeselectThumbMethod}
                             onThumbDoubleClick={this.onViewToggle}
-                            onToggleSheetView={this.toggleSheetView}
                             onJumpToCutSceneClick={this.onJumpToCutSceneClick}
                             onExpandClick={this.onExpandClick}
                             moviePrintWidth={scaleValueObject.newMoviePrintTimelineWidth}
