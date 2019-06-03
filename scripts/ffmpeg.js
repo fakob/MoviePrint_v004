@@ -113,7 +113,4 @@ if (process.platform === 'darwin') {
 
   // copy ffmpeg files
   shell.cp('-n', path.resolve(ffmpegSourceDir, '3.4.2\\bin\\*'), ffmpegDestDir);
-
-  // copy c++ redistributable file
-  shell.cp('-n', 'C:\\Windows\\system32\\CONCRT140.dll', ffmpegDestDir);
 }

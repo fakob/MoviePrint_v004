@@ -106,7 +106,7 @@
       ],
       "extraResources": [
         {
-          "from": "app/dist/ffmpeg/CONCRT140.dll",
+          "from": "/Windows/system32/CONCRT140.dll",
           "to": "../"
         }
       ],
