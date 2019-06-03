@@ -1,7 +1,7 @@
 {
   "name": "movieprint-v004",
   "productName": "MoviePrint_v004",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "A tool which lets you create screenshots of entire movies in an instant.",
   "scripts": {
     "build": "concurrently \"yarn build-main\" \"yarn build-renderer\"",
@@ -50,6 +50,7 @@
   "build": {
     "productName": "MoviePrint_v004",
     "appId": "com.fakob.movieprint",
+    "afterPack": "scripts/myAfterPackHook.js",
     "files": [
       "dist/",
       "node_modules/",
@@ -102,6 +103,12 @@
     "win": {
       "target": [
         "nsis"
+      ],
+      "extraResources": [
+        {
+          "from": "app/dist/ffmpeg/CONCRT140.dll",
+          "to": "../"
+        }
       ],
       "files": [
         "!node_modules/opencv-build/opencv/opencv/",
