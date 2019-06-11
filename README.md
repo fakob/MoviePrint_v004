@@ -88,11 +88,11 @@ These instructions should work, if you run into errors maybe [look here](https:/
 4. you might need to have [ffmpeg](https://www.ffmpeg.org/download.html) installed (v3.4.2 works, v4.1 should too)
 5. we'll need [opencv4nodejs](https://github.com/justadudewhohacks/opencv4nodejs#on-windows) to work which requires `npm install --global windows-build-tools`
 6. we need [better-sqlite3](https://github.com/JoshuaWise/better-sqlite3/issues/126) to work which additionally requires VC++ 2015.3 v14.00(v140) toolset for desktop
-  1. Start Visual Studio Installer
-  2. Modify Visual Studio Build Tools 2017
-  3. Click on Individual components
-  4. Tick VC++ 2015.3 v14.00 (v140) toolset for desktop
-  5. Click on Modify/Install
+   - Start Visual Studio Installer
+   - Modify Visual Studio Build Tools 2017
+   - Click on Individual components
+   - Tick VC++ 2015.3 v14.00 (v140) toolset for desktop
+   - Click on Modify/Install
 7. make sure you have [python 2](https://www.python.org/downloads/) (_not 3_) installed (v2.7.15 works), test by running `python --version`
 8. run the command `yarn` (this may take 10+ minutes and may automatically download supporting libraries from Microsoft). If this process errors out, try to debug.
 
