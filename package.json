@@ -50,7 +50,6 @@
   "build": {
     "productName": "MoviePrint_v004",
     "appId": "com.fakob.movieprint",
-    "afterPack": "scripts/myAfterPackHook.js",
     "files": [
       "dist/",
       "node_modules/",

@@ -75,26 +75,27 @@ MoviePrint_v004 is based on [electron-react-boilerplate](https://github.com/chen
 
 1. clone the repo via git: `git clone --depth=1 https://github.com/fakob/MoviePrint_v004.git MoviePrint_v004`
 2. Make sure you have cmake installed `brew install cmake`
-3. Enter the folder `cd MoviePrint_v004`
-4. Install dependencies with [yarn](https://yarnpkg.com/en/) by running the command `yarn`
+3. To have ffmpeg support in opencv4nodejs you need to have [ffmpeg](https://www.ffmpeg.org/download.html) v3.4.2 installed before opencv4nodejs gets built ([ffmpeg v4.x is currently not supported](https://github.com/justadudewhohacks/opencv4nodejs/issues/503))
+4. Enter the folder `cd MoviePrint_v004`
+5. Install dependencies with [yarn](https://yarnpkg.com/en/) by running the command `yarn`
 
 ##### Windows setup
 
 These instructions should work, if you run into errors maybe [look here](https://github.com/fakob/MoviePrint_v004/issues/1#issuecomment-449582453) and comment.
 
 1. `git clone --depth=1 https://github.com/fakob/MoviePrint_v004.git MoviePrint_v004`
-2. install [CMake](https://cmake.org/download/) (v3.13.2 works), choose "add to PATH" option during installation
-3. make sure you have [yarn](https://yarnpkg.com/en/) (v1.12.3 works) installed
-4. you might need to have [ffmpeg](https://www.ffmpeg.org/download.html) installed (v3.4.2 works, v4.1 should too)
-5. we'll need [opencv4nodejs](https://github.com/justadudewhohacks/opencv4nodejs#on-windows) to work which requires `npm install --global windows-build-tools`
-6. we need [better-sqlite3](https://github.com/JoshuaWise/better-sqlite3/issues/126) to work which additionally requires VC++ 2015.3 v14.00(v140) toolset for desktop
+2. Install [CMake](https://cmake.org/download/) (v3.13.2 works), choose "add to PATH" option during installation
+3. Make sure you have [yarn](https://yarnpkg.com/en/) (v1.12.3 works) installed
+4. To have ffmpeg support in opencv4nodejs you need to have [ffmpeg](https://www.ffmpeg.org/download.html) installed (v3.4.2 works, v4.1 should too)
+5. We'll need [opencv4nodejs](https://github.com/justadudewhohacks/opencv4nodejs#on-windows) to work which requires `npm install --global windows-build-tools`
+6. We need [better-sqlite3](https://github.com/JoshuaWise/better-sqlite3/issues/126) to work which additionally requires VC++ 2015.3 v14.00(v140) toolset for desktop
    - Start Visual Studio Installer
    - Modify Visual Studio Build Tools 2017
    - Click on Individual components
    - Tick VC++ 2015.3 v14.00 (v140) toolset for desktop
    - Click on Modify/Install
-7. make sure you have [python 2](https://www.python.org/downloads/) (_not 3_) installed (v2.7.15 works), test by running `python --version`
-8. run the command `yarn` (this may take 10+ minutes and may automatically download supporting libraries from Microsoft). If this process errors out, try to debug.
+7. Make sure you have [python 2](https://www.python.org/downloads/) (_not 3_) installed (v2.7.15 works), test by running `python --version`
+8. Run the command `yarn` (this may take 10+ minutes and may automatically download supporting libraries from Microsoft). If this process errors out, try to debug.
 
 The rest of the instructions are the same for Mac and Windows:
 
