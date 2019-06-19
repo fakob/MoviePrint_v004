@@ -26,7 +26,9 @@ label {
 }
 
 mark {
-  background-color: rgba(255, 80, 6, 0.4);
+  margin-left: 4px;
+  margin-right: 4px;
+  background-color: rgba(255, 80, 6, 0.9);
   color: white;
 }
 

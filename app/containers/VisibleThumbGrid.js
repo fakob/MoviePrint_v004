@@ -178,7 +178,6 @@ class SortedVisibleThumbGrid extends Component {
         axis="xy"
         distance={1}
         helperClass={styles.whileDragging}
-        useWindowAsScrollContainer
         onSortStart={
           this.onSortStart.bind(this)
         }

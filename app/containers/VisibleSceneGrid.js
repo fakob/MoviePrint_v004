@@ -129,7 +129,6 @@ class SortedVisibleSceneGrid extends Component {
         axis="xy"
         distance={1}
         helperClass={styles.whileDragging}
-        useWindowAsScrollContainer
         onSortEnd={
           this.onSortEnd.bind(this)
         }

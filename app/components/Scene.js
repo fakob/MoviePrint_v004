@@ -37,7 +37,12 @@ const DragHandle = SortableHandle(({ width, height, sceneId }) =>
           />
         </button>
       }
-      className={stylesPop.popup}
+      mouseEnterDelay={2000}
+      bottomed
+      offset='-50%r, -50%r'
+      position='top right'
+      basic
+      className={stylesPop.popupSmall}
       content="Drag thumb"
     />
   ));
@@ -315,6 +320,8 @@ const Scene = ({
                 EXPAND
               </button>
             }
+            mouseEnterDelay={1000}
+            position='bottom center'
             className={stylesPop.popup}
             content="Expand scene"
           />
@@ -341,6 +348,8 @@ const Scene = ({
                 {hidden ? 'SHOW' : 'HIDE'}
               </button>
             }
+            mouseEnterDelay={1000}
+            position='bottom center'
             className={stylesPop.popup}
             content="Hide thumb"
           />
@@ -370,6 +379,8 @@ const Scene = ({
                     IN
                   </button>
                 }
+                mouseEnterDelay={1000}
+                position='bottom center'
                 className={stylesPop.popup}
                 content={<span>Set this thumb as new <mark>IN-point</mark></span>}
               /> */}
@@ -397,6 +408,8 @@ const Scene = ({
                     ||
                   </button>
                 }
+                mouseEnterDelay={1000}
+                position='bottom center'
                 className={stylesPop.popup}
                 content={<span>Jump to cut at the beginning of this scene</span>}
               />}
@@ -424,6 +437,8 @@ const Scene = ({
                     {'<'}|{'>'}
                   </button>
                 }
+                mouseEnterDelay={1000}
+                position='bottom center'
                 className={stylesPop.popup}
                 content={<span>Click and drag left and right to change the frame (<mark>SHIFT</mark> add new thumb before, <mark>ALT</mark> add new thumb after, <mark>CTRL</mark> display original as overlay)</span>}
               /> */}
@@ -451,6 +466,8 @@ const Scene = ({
                     ||
                   </button>
                 }
+                mouseEnterDelay={1000}
+                position='bottom center'
                 className={stylesPop.popup}
                 content={<span>Jump to cut at the end of this scene</span>}
               />
@@ -478,6 +495,8 @@ const Scene = ({
                     OUT
                   </button>
                 }
+                mouseEnterDelay={1000}
+                position='bottom center'
                 className={stylesPop.popup}
                 content={<span>Set this thumb as new <mark>OUT-point</mark></span>}
               /> */}

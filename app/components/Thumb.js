@@ -18,6 +18,7 @@ const DragHandle = SortableHandle(({ width, height, thumbId }) =>
     <Popup
       trigger={
         <button
+          type='button'
           data-tid={`thumbDragHandleBtn_${thumbId}`}
           className={`${styles.dragHandleButton}`}
           style={{
@@ -35,7 +36,12 @@ const DragHandle = SortableHandle(({ width, height, thumbId }) =>
           />
         </button>
       }
-      className={stylesPop.popup}
+      mouseEnterDelay={2000}
+      pinned
+      offset='-50%r, -50%r'
+      position='top right'
+      basic
+      className={stylesPop.popupSmall}
       content="Drag thumb"
     />
   ));

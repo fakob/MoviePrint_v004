@@ -521,9 +521,10 @@ class SettingsList extends Component {
                           Add new MoviePrint
                         </Button>
                       }
+                      mouseEnterDelay={1000}
+                      position='bottom center'
                       className={stylesPop.popup}
                       content="Run shot detection with new threshold"
-                      keepInViewPort={false}
                     />
                   </Grid.Column>
                 </Grid.Row>
@@ -583,9 +584,10 @@ class SettingsList extends Component {
                         Apply
                     </Button>
                   }
+                  mouseEnterDelay={1000}
+                  position='bottom center'
                   className={stylesPop.popup}
                   content="Apply new grid for MoviePrint"
-                  keepInViewPort={false}
                 />
               </Grid.Column>
             </Grid.Row>
@@ -976,9 +978,10 @@ class SettingsList extends Component {
                     {showChart ? 'Hide detection chart' : 'Show detection chart'}
                   </Button>
                 }
+                mouseEnterDelay={1000}
+                position='bottom center'
                 className={stylesPop.popup}
                 content="Show detection chart with mean and difference values per frame"
-                keepInViewPort={false}
               />
             </Grid.Column>
           </Grid.Row>
@@ -1044,9 +1047,10 @@ class SettingsList extends Component {
                     Update frame cache
                   </Button>
                 }
+                mouseEnterDelay={1000}
+                position='bottom center'
                 className={stylesPop.popup}
                 content="Recapture all frames and store it in the frame cache (uses max size)"
-                keepInViewPort={false}
               />
             </Grid.Column>
           </Grid.Row>

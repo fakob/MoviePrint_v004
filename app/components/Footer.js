@@ -41,9 +41,11 @@ const Footer = ({
                 Share Feedback
               </Menu.Item>
             }
+            mouseEnterDelay={1000}
+            position='top center'
+            offset='0,8px'
             className={stylesPop.popup}
             content="Share Feedback"
-            keepInViewPort={false}
           />
           {file &&
             (defaultSheetView === SHEET_VIEW.GRIDVIEW || defaultSheetView === SHEET_VIEW.TIMELINEVIEW) &&
@@ -71,9 +73,12 @@ const Footer = ({
                   Save MoviePrint
                 </Menu.Item>
               }
+              mouseEnterDelay={1000}
+              position='top center'
+              offset='0,8px'
+              pinned
               className={stylesPop.popup}
               content={<span>Save MoviePrint <mark>M</mark></span>}
-              keepInViewPort={false}
             />
           }
           {file &&
@@ -99,9 +104,12 @@ const Footer = ({
                   </Dropdown.Menu>
                 </Dropdown>
               }
+              mouseEnterDelay={1000}
+              position='top right'
+              offset='0,8px'
+              pinned
               className={stylesPop.popup}
               content="More options"
-              keepInViewPort={false}
             />
           }
         </Menu.Menu>

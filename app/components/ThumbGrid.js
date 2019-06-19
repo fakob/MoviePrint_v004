@@ -507,6 +507,8 @@ class ThumbGrid extends Component {
                     EXPAND
                   </button>
                 }
+                mouseEnterDelay={1000}
+                position='bottom center'
                 className={stylesPop.popup}
                 content="Expand scene"
               />
@@ -525,6 +527,8 @@ class ThumbGrid extends Component {
                     {isHidden ? 'SHOW' : 'HIDE'}
                   </button>
                 }
+                mouseEnterDelay={1000}
+                position='bottom center'
                 className={stylesPop.popup}
                 content="Hide thumb"
               />
@@ -543,6 +547,8 @@ class ThumbGrid extends Component {
                     SAVE
                   </button>
                 }
+                mouseEnterDelay={1000}
+                position='bottom center'
                 className={stylesPop.popup}
                 content="Save thumb"
               />
@@ -563,6 +569,8 @@ class ThumbGrid extends Component {
                         IN
                       </button>
                     }
+                    mouseEnterDelay={1000}
+                    position='bottom center'
                     className={stylesPop.popup}
                     content={<span>Set this thumb as new <mark>IN-point</mark></span>}
                   />}
@@ -581,6 +589,8 @@ class ThumbGrid extends Component {
                         {sheetType === SHEET_TYPE.SCENES ? '||' : '+'}
                       </button>
                     }
+                    mouseEnterDelay={1000}
+                    position='bottom center'
                     className={stylesPop.popup}
                     content={sheetType === SHEET_TYPE.SCENES ? (<span>Jump to cut</span>) : (<span>Add new thumb before</span>)}
                   />
@@ -599,6 +609,8 @@ class ThumbGrid extends Component {
                         {'<|>'}
                       </button>
                     }
+                    mouseEnterDelay={1000}
+                    position='bottom center'
                     className={stylesPop.popup}
                     content={<span>Click and drag left and right to change the frame (<mark>SHIFT</mark> add new thumb before, <mark>ALT</mark> add new thumb after, <mark>CTRL</mark> display original as overlay)</span>}
                   />
@@ -617,6 +629,8 @@ class ThumbGrid extends Component {
                         {sheetType === SHEET_TYPE.SCENES ? '||' : '+'}
                       </button>
                     }
+                    mouseEnterDelay={1000}
+                    position='bottom center'
                     className={stylesPop.popup}
                     content={sheetType === SHEET_TYPE.SCENES ? (<span>Jump to cut</span>) : (<span>Add new thumb after</span>)}
                   />
@@ -635,6 +649,8 @@ class ThumbGrid extends Component {
                         OUT
                       </button>
                     }
+                    mouseEnterDelay={1000}
+                    position='bottom center'
                     className={stylesPop.popup}
                     content={<span>Set this thumb as new <mark>OUT-point</mark></span>}
                   />}

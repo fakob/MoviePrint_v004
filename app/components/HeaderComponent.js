@@ -51,9 +51,10 @@ const Header = ({
                 {(visibilitySettings.showMovielist === false) ? 'Show Movie list' : 'Hide Movie list'}
               </Menu.Item>
             }
+            mouseEnterDelay={1000}
+            position='bottom center'
             className={stylesPop.popup}
             content={(visibilitySettings.showMovielist === false) ? <span>Show Movie and Sheets list <mark>1</mark></span> : <span>Hide Movie list <mark>1</mark></span>}
-            keepInViewPort={false}
           />
         }
         <Popup
@@ -68,9 +69,10 @@ const Header = ({
               {file ? 'Add Movies' : 'Add Movies'}
             </Menu.Item>
           }
+          mouseEnterDelay={1000}
+          position='bottom center'
           className={stylesPop.popup}
           content={<span>Add one or more movies <mark>A</mark></span>}
-          keepInViewPort={false}
         />
         <Popup
           trigger={
@@ -95,9 +97,10 @@ const Header = ({
               </Dropdown.Menu>
             </Dropdown>
           }
+          mouseEnterDelay={1000}
+          position='bottom center'
           className={stylesPop.popup}
           content="Import MoviePrint from json file"
-          keepInViewPort={false}
         />
         <Menu.Menu position="right">
           {file &&
@@ -117,9 +120,10 @@ const Header = ({
                   Fit height
                 </Menu.Item>
               }
+              mouseEnterDelay={1000}
+              position='bottom center'
               className={stylesPop.popup}
               content='Fit height'
-              keepInViewPort={false}
             />
           }
           {file &&
@@ -139,9 +143,10 @@ const Header = ({
                   Fit width
                 </Menu.Item>
               }
+              mouseEnterDelay={1000}
+              position='bottom center'
               className={stylesPop.popup}
               content='Fit width'
-              keepInViewPort={false}
             />
           }
           {file && visibilitySettings.defaultSheetView === SHEET_VIEW.GRIDVIEW &&
@@ -159,9 +164,10 @@ const Header = ({
                   Fit all
                 </Menu.Item>
               }
+              mouseEnterDelay={1000}
+              position='bottom center'
               className={stylesPop.popup}
               content='Fit all'
-              keepInViewPort={false}
             />
           }
           {file && visibilitySettings.defaultSheetView === SHEET_VIEW.GRIDVIEW &&
@@ -178,9 +184,10 @@ const Header = ({
                   {zoom ? 'Zoom out' : 'Zoom in'}
                 </Menu.Item>
               }
+              mouseEnterDelay={1000}
+              position='bottom center'
               className={stylesPop.popup}
               content={zoom ? 'Zoom out' : 'Zoom in'}
-              keepInViewPort={false}
             />
           }
           {/* file &&
@@ -198,7 +205,6 @@ const Header = ({
               }
               className={stylesPop.popup}
               content={(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'Show all' : 'Show only visible'}
-              keepInViewPort={false}
             />
           */}
           {/* file &&
@@ -215,7 +221,6 @@ const Header = ({
               }
               className={stylesPop.popup}
               content="Show frames or timecode"
-              keepInViewPort={false}
             />
           */}
           {file &&
@@ -238,9 +243,10 @@ const Header = ({
                   {(visibilitySettings.defaultView === VIEW.STANDARDVIEW) ? 'Show player view' : 'Hide player view'}
                 </Menu.Item>
               }
+              mouseEnterDelay={1000}
+              position='bottom center'
               className={stylesPop.popup}
               content={(visibilitySettings.defaultView === VIEW.STANDARDVIEW) ? <span>Show player view <mark>2</mark></span> : <span>Hide player view <mark>2</mark></span>}
-              keepInViewPort={false}
             />
           }
           <Popup
@@ -255,9 +261,10 @@ const Header = ({
                 {(visibilitySettings.showSettings === false) ? 'Show settings' : 'Hide settings'}
               </Menu.Item>
             }
+            mouseEnterDelay={1000}
+            position='bottom center'
             className={stylesPop.popup}
             content={(visibilitySettings.showSettings === false) ? <span>Show settings <mark>3</mark></span> : <span>Hide settings <mark>3</mark></span>}
-            keepInViewPort={false}
           />
         </Menu.Menu>
       </Menu>

@@ -2659,9 +2659,8 @@ class App extends Component {
     return (
       <Dropzone
         ref={this.dropzoneRef}
-        // ref={(el) => { this.dropzoneRef = el; }}
-        disableClick
-        // disablePreview
+        noClick
+        noKeyboard
         style={{ position: 'relative' }}
         accept={this.state.accept}
         onDrop={this.onDrop.bind(this)}
@@ -2671,9 +2670,10 @@ class App extends Component {
         acceptClassName={styles.dropzoneshowAccept}
         rejectClassName={styles.dropzoneshowReject}
       >
-        {({ isDragAccept, isDragReject }) => {
+        {({ getRootProps, getInputProps, isDragAccept, isDragReject }) => {
           return (
-            <div>
+            <div {...getRootProps()}>
+              <input {...getInputProps()} />
               <div className={`${styles.Site}`}>
                 <HeaderComponent
                   visibilitySettings={visibilitySettings}

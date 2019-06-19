@@ -1,7 +1,7 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
 import { createHashHistory } from 'history';
-import { routerMiddleware, push } from 'react-router-redux';
+import { routerMiddleware, push } from 'connected-react-router';
 import { createLogger } from 'redux-logger';
 import throttle from 'lodash/throttle';
 import rootReducer from '../reducers';
