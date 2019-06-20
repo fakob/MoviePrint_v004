@@ -179,19 +179,16 @@ class Scrub extends Component {
               <div
                 style={{
                   content: '',
+                  zIndex: 1,
                   backgroundImage: `url(${objectUrlObjects[scrubThumb.frameId]})`,
                   backgroundSize: 'cover',
                   opacity: '0.4',
                   position: 'absolute',
-                  width: (containerHeight * settings.defaultScrubWindowHeightRatio) / scaleValueObject.aspectRatioInv,
-                  height: containerHeight * settings.defaultScrubWindowHeightRatio,
+                  height: scaleValueObject.scrubMovieHeight,
+                  width: scaleValueObject.scrubMovieWidth,
+                  margin: settings.defaultScrubWindowMargin,
                   top: 0,
-                  left: addAfter ? (containerWidth -
-                    ((containerHeight * settings.defaultScrubWindowHeightRatio) / scaleValueObject.aspectRatioInv)) / 2 -
-                    settings.defaultScrubWindowMargin + (containerHeight * settings.defaultScrubWindowHeightRatio) / scaleValueObject.aspectRatioInv :
-                    (containerWidth -
-                      ((containerHeight * settings.defaultScrubWindowHeightRatio) / scaleValueObject.aspectRatioInv)) / 2 -
-                      settings.defaultScrubWindowMargin,
+                  left: scaleValueObject.scrubInOutMovieWidth,
                 }}
               />
             }
