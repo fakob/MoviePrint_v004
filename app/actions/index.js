@@ -1113,7 +1113,7 @@ export const addMoviesToList = (files, clearList) => {
       return newFiles.slice();
     });
     if (clearList) {
-      clearMovieList();
+      dispatch(clearMovieList());
     }
 
     dispatch({
