@@ -12,6 +12,7 @@ import {
 import transparent from '../img/Thumb_TRANSPARENT.png';
 import {
   MENU_FOOTER_HEIGHT,
+  SHEET_TYPE,
 } from '../utils/constants';
 
 class Scrub extends Component {
@@ -124,6 +125,17 @@ class Scrub extends Component {
   }
 
   render() {
+    const { containerHeight, containerWidth, file, keyObject, objectUrlObjects,
+      scaleValueObject, scrubThumb, scrubThumbLeft, scrubThumbRight, settings, sheetType } = this.props;
+
+    let addBefore = false;
+    let addAfter = false;
+
+    // only allow add before and add after when interval type
+    if (sheetType === SHEET_TYPE.INTERVAL) {
+      addBefore = keyObject.shiftKey;
+      addAfter = keyObject.altKey;
+    }
 
     return (
       <div
@@ -135,59 +147,59 @@ class Scrub extends Component {
         <div
           className={styles.scrubInfo}
         >
-          {this.props.keyObject.shiftKey && 'ADD BEFORE'}
-          {this.props.keyObject.altKey && 'ADD AFTER'}
-          {!this.props.keyObject.shiftKey && !this.props.keyObject.altKey && 'CHANGE TO'}
+          {addBefore && 'ADD BEFORE'}
+          {addAfter && 'ADD AFTER'}
+          {!addBefore && !addAfter && 'CHANGE TO'}
         </div>
         <div
           className={styles.scrubContainer}
           style={{
-            height: this.props.scaleValueObject.scrubContainerHeight,
-            width: this.props.scaleValueObject.scrubContainerWidth,
+            height: scaleValueObject.scrubContainerHeight,
+            width: scaleValueObject.scrubContainerWidth,
           }}
         >
           <div
             className={styles.scrubInnerContainer}
             style={{
-              width: this.props.scaleValueObject.scrubInnerContainerWidth,
+              width: scaleValueObject.scrubInnerContainerWidth,
             }}
           >
             <span
               className={styles.scrubThumbLeft}
               style={{
-                backgroundImage: `url(${this.props.keyObject.altKey ?
-                  this.props.objectUrlObjects[this.props.scrubThumb.frameId] :
-                  this.props.objectUrlObjects[this.props.scrubThumbLeft.frameId] || transparent})`,
-                height: this.props.scaleValueObject.scrubInOutMovieHeight,
-                width: this.props.scaleValueObject.scrubInOutMovieWidth,
-                margin: this.props.settings.defaultScrubWindowMargin,
+                backgroundImage: `url(${addAfter ?
+                  objectUrlObjects[scrubThumb.frameId] :
+                  objectUrlObjects[scrubThumbLeft.frameId] || transparent})`,
+                height: scaleValueObject.scrubInOutMovieHeight,
+                width: scaleValueObject.scrubInOutMovieWidth,
+                margin: settings.defaultScrubWindowMargin,
               }}
             />
-            {this.props.keyObject.ctrlKey &&
+            {keyObject.ctrlKey &&
               <div
                 style={{
                   content: '',
-                  backgroundImage: `url(${this.props.objectUrlObjects[this.props.scrubThumb.frameId]})`,
+                  backgroundImage: `url(${objectUrlObjects[scrubThumb.frameId]})`,
                   backgroundSize: 'cover',
                   opacity: '0.4',
                   position: 'absolute',
-                  width: (this.props.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.props.scaleValueObject.aspectRatioInv,
-                  height: this.props.containerHeight * this.props.settings.defaultScrubWindowHeightRatio,
+                  width: (containerHeight * settings.defaultScrubWindowHeightRatio) / scaleValueObject.aspectRatioInv,
+                  height: containerHeight * settings.defaultScrubWindowHeightRatio,
                   top: 0,
-                  left: this.props.keyObject.altKey ? (this.props.containerWidth -
-                    ((this.props.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.props.scaleValueObject.aspectRatioInv)) / 2 -
-                    this.props.settings.defaultScrubWindowMargin + (this.props.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.props.scaleValueObject.aspectRatioInv :
-                    (this.props.containerWidth -
-                      ((this.props.containerHeight * this.props.settings.defaultScrubWindowHeightRatio) / this.props.scaleValueObject.aspectRatioInv)) / 2 -
-                      this.props.settings.defaultScrubWindowMargin,
+                  left: addAfter ? (containerWidth -
+                    ((containerHeight * settings.defaultScrubWindowHeightRatio) / scaleValueObject.aspectRatioInv)) / 2 -
+                    settings.defaultScrubWindowMargin + (containerHeight * settings.defaultScrubWindowHeightRatio) / scaleValueObject.aspectRatioInv :
+                    (containerWidth -
+                      ((containerHeight * settings.defaultScrubWindowHeightRatio) / scaleValueObject.aspectRatioInv)) / 2 -
+                      settings.defaultScrubWindowMargin,
                 }}
               />
             }
             <span
               className={styles.scrubThumb}
               style={{
-                height: this.props.scaleValueObject.scrubMovieHeight,
-                width: this.props.scaleValueObject.scrubMovieWidth,
+                height: scaleValueObject.scrubMovieHeight,
+                width: scaleValueObject.scrubMovieWidth,
               }}
             >
               <canvas
@@ -197,12 +209,12 @@ class Scrub extends Component {
             <span
               className={styles.scrubThumbRight}
               style={{
-                backgroundImage: `url(${this.props.keyObject.shiftKey ?
-                  this.props.objectUrlObjects[this.props.scrubThumb.frameId] :
-                  this.props.objectUrlObjects[this.props.scrubThumbRight.frameId] || transparent})`,
-                height: this.props.scaleValueObject.scrubInOutMovieHeight,
-                width: this.props.scaleValueObject.scrubInOutMovieWidth,
-                margin: this.props.settings.defaultScrubWindowMargin,
+                backgroundImage: `url(${addBefore ?
+                  objectUrlObjects[scrubThumb.frameId] :
+                  objectUrlObjects[scrubThumbRight.frameId] || transparent})`,
+                height: scaleValueObject.scrubInOutMovieHeight,
+                width: scaleValueObject.scrubInOutMovieWidth,
+                margin: settings.defaultScrubWindowMargin,
               }}
             />
           </div>
@@ -216,7 +228,7 @@ class Scrub extends Component {
             {getThumbInfoValue(
               this.state.scrubInfo,
               this.state.scrubFrameNumber,
-              this.props.file.fps
+              file.fps
             )}
           </span>
           <div
@@ -233,11 +245,11 @@ class Scrub extends Component {
           >
             {getThumbInfoValue(
               this.state.scrubInfo,
-              this.props.keyObject.altKey ? this.props.scrubThumb.frameNumber : this.props.scrubThumbLeft.frameNumber,
-              this.props.file.fps
+              addAfter ? scrubThumb.frameNumber : scrubThumbLeft.frameNumber,
+              file.fps
             )}
           </span>
-          {!this.props.keyObject.shiftKey && !this.props.keyObject.altKey &&
+          {!addBefore && !addAfter &&
             <span
               className={styles.scrubThumbframeNumberOrTimeCode}
               style={{
@@ -246,8 +258,8 @@ class Scrub extends Component {
             >
               {getThumbInfoValue(
                 this.state.scrubInfo,
-                this.props.scrubThumb.frameNumber,
-                this.props.file.fps
+                scrubThumb.frameNumber,
+                file.fps
               )}
             </span>
           }
@@ -259,8 +271,8 @@ class Scrub extends Component {
           >
             {getThumbInfoValue(
               this.state.scrubInfo,
-              this.props.keyObject.shiftKey ? this.props.scrubThumb.frameNumber : this.props.scrubThumbRight.frameNumber,
-              this.props.file.fps
+              addBefore ? scrubThumb.frameNumber : scrubThumbRight.frameNumber,
+              file.fps
             )}
           </span>
           <div
@@ -300,7 +312,7 @@ class Scrub extends Component {
             height: `${MENU_HEADER_HEIGHT}px`,
           }}
         >
-          {this.props.keyObject.altKey ? 'Add after' : (this.props.keyObject.shiftKey ? 'Add before' : 'Change')}
+          {addAfter ? 'Add after' : (addBefore ? 'Add before' : 'Change')}
         </div> */}
         <div
           className={styles.scrubCancelBar}
