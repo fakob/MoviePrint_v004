@@ -260,7 +260,9 @@
   },
   "dependencies": {
     "ajv": "^6.5.3",
+    "axios": "^0.18.0",
     "chart.js": "^2.7.2",
+    "compare-versions": "^3.4.0",
     "connected-react-router": "^6.4.0",
     "devtron": "^1.4.0",
     "dexie": "^2.0.1",
@@ -287,6 +289,7 @@
     "react-redux": "^5.0.7",
     "react-router": "^5.0.1",
     "react-router-dom": "^5.0.1",
+    "react-semantic-toasts": "^0.5.3",
     "react-sortable-hoc": "^1.9.1",
     "redux": "^4.0.0",
     "redux-undo": "^1.0.0-beta9-9-5",

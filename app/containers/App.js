@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone';
 import fs from 'fs';
 import { TransitionablePortal, Segment, Progress, Modal, Button, Icon, Container, Loader, Header, Divider, Form } from 'semantic-ui-react';
+import { SemanticToastContainer, toast } from 'react-semantic-toasts';
 import uuidV4 from 'uuid/v4';
 import {Line, defaults} from 'react-chartjs-2';
 import path from 'path';
@@ -12,6 +13,7 @@ import os from 'os';
 import Database from 'better-sqlite3';
 import extract from 'png-chunks-extract';
 import text from 'png-chunk-text';
+import axios from 'axios';
 
 import '../app.global.css';
 import FileList from './FileList';
@@ -56,6 +58,7 @@ import { getLowestFrame,
 } from '../utils/utils';
 import styles from './App.css';
 import stylesPop from '../components/Popup.css';
+import stylesToast from '../components/react-semantic-alert.css';
 import {
   addIntervalSheet,
   addScene,
@@ -149,6 +152,8 @@ import {
 } from '../utils/utilsForSqlite';
 
 import startupImg from '../img/MoviePrint-steps.svg';
+
+const compareVersions = require('compare-versions');
 
 const { ipcRenderer } = require('electron');
 const { dialog, app } = require('electron').remote;
@@ -657,6 +662,52 @@ class App extends Component {
 
     this.updatecontainerWidthAndHeight();
     window.addEventListener('resize', this.updatecontainerWidthAndHeight);
+
+    // check for updates
+    let latestVersion = null;
+    const { platform } = process;
+    axios.get('https://movieprint.fakob.com/wp-json/wp/v2/pages/522')
+    // axios.get('https://api.github.com/repos/fakob/MoviePrint_v004/releases/latest')
+    // axios.get('https://api.github.com/users/fakob')
+    // .then(response => this.setState({username: response.data.name}))
+    .then(response => {
+      console.log(response);
+      // console.log(response.data.tag_name);
+      // console.log(response.data.name);
+      console.log(response.data.acf);
+      console.log(response.data.acf.windows_version_number);
+      console.log(response.data.acf.mac_version_number);
+      if (platform === 'darwin') {
+        latestVersion = response.data.acf.mac_version_number;
+      } else if (platform === 'win32') {
+        latestVersion = response.data.acf.windows_version_number;
+      }
+      console.log(compareVersions(latestVersion, '0.2.1'));
+      console.log(compareVersions(latestVersion, app.getVersion()));
+      setTimeout(() => {
+        toast({
+          type: 'warning',
+          icon: 'envelope',
+          title: 'Warning Toast',
+          description: `This is a Semantic UI toast wich waits 5 seconds before closing ${platform}`,
+          animation: 'bounce',
+          time: 5000,
+          onClick: () => alert('you click on the toast'),
+          onClose: () => alert('you close this toast')
+        });
+      }, 0);
+      return undefined;
+    }).catch((error) => {
+      log.error(error);
+    });
+
+    log.debug('App.js reports: componentDidMount');
+    log.debug(`Operating system: ${platform}-${os.release()}`);
+    log.debug(`App version: ${app.getName()}-${app.getVersion()}`);
+    console.log(process.platform);
+    console.log(os.release());
+    console.log(app.getName());
+    console.log(app.getVersion());
   }
 
   componentWillReceiveProps(nextProps) {
@@ -3246,6 +3297,9 @@ class App extends Component {
                   </Button>
                 </Container>
               </Modal>
+              <SemanticToastContainer
+                className={`${stylesToast.uiAlerts} ${stylesToast.topRight}`}
+              />
               { dropzoneActive &&
                 <div
                   className={`${styles.dropzoneshow} ${isDragAccept ? styles.dropzoneshowAccept : ''} ${isDragReject ? styles.dropzoneshowReject : ''}`}
