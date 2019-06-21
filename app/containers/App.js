@@ -446,40 +446,14 @@ class App extends Component {
     });
 
     ipcRenderer.on('receive-get-in-and-outpoint', (event, fileId, fadeInPoint, fadeOutPoint) => {
-      const { currentFileId, settings, sheetsByFileId } = this.props;
       const { filesToLoad } = this.state;
 
       store.dispatch(updateInOutPoint(fileId, fadeInPoint, fadeOutPoint));
-      // load thumbs for first item only until currentFileId is set
-      // log.debug(currentFileId);
-      if (currentFileId === undefined) {
-        // log.debug('Hello, log, I am the firstItem');
-        const newSheetId = uuidV4();
-        const firstFile = store.getState().undoGroup.present.files.find((file) => file.id === fileId);
-        store.dispatch(setCurrentFileId(firstFile.id));
-        this.updateScaleValue(); // so the aspect ratio of the thumbs are correct after drag
-        store.dispatch(deleteSheets());
-        // log.debug(firstFile);
-        store.dispatch(addIntervalSheet(
-          firstFile,
-          newSheetId,
-          store.getState().undoGroup.present.settings.defaultThumbCount,
-          fadeInPoint,
-          fadeOutPoint,
-          settings.defaultCachedFramesSize
-        ));
-        const newColumnCount = getColumnCount(sheetsByFileId, firstFile.id, newSheetId, settings);
-        store.dispatch(updateSheetColumnCount(firstFile.id, newSheetId, newColumnCount)); // set columnCount on firstFile
-        store.dispatch(updateSheetName(firstFile.id, newSheetId, getNewSheetName())); // set name on firstFile
-        store.dispatch(updateSheetCounter(firstFile.id));
-        store.dispatch(updateSheetType(firstFile.id, newSheetId, SHEET_TYPE.INTERVAL));
-        store.dispatch(updateSheetView(firstFile.id, newSheetId, SHEET_VIEW.GRIDVIEW));
-        store.dispatch(setCurrentSheetId(newSheetId));
-      }
 
+      // check if this was not the last file coming back from the renderer
       if (filesToLoad.length > 0) {
-
         // check if the movie just coming back from the renderer should be displayed
+        // this parameter is set in onDrop (when files are added)
         if (filesToLoad[0].displayMe) {
           this.onAddIntervalSheetClick(filesToLoad[0].id);
         }
