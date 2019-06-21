@@ -446,10 +446,13 @@ class App extends Component {
     });
 
     ipcRenderer.on('receive-get-in-and-outpoint', (event, fileId, fadeInPoint, fadeOutPoint) => {
+      const { currentFileId, settings, sheetsByFileId } = this.props;
+      const { filesToLoad } = this.state;
+
       store.dispatch(updateInOutPoint(fileId, fadeInPoint, fadeOutPoint));
       // load thumbs for first item only until currentFileId is set
-      // log.debug(this.props.currentFileId);
-      if (this.props.currentFileId === undefined) {
+      // log.debug(currentFileId);
+      if (currentFileId === undefined) {
         // log.debug('Hello, log, I am the firstItem');
         const newSheetId = uuidV4();
         const firstFile = store.getState().undoGroup.present.files.find((file) => file.id === fileId);
@@ -463,9 +466,9 @@ class App extends Component {
           store.getState().undoGroup.present.settings.defaultThumbCount,
           fadeInPoint,
           fadeOutPoint,
-          this.props.settings.defaultCachedFramesSize
+          settings.defaultCachedFramesSize
         ));
-        const newColumnCount = getColumnCount(this.props.sheetsByFileId, firstFile.id, newSheetId, this.props.settings);
+        const newColumnCount = getColumnCount(sheetsByFileId, firstFile.id, newSheetId, settings);
         store.dispatch(updateSheetColumnCount(firstFile.id, newSheetId, newColumnCount)); // set columnCount on firstFile
         store.dispatch(updateSheetName(firstFile.id, newSheetId, getNewSheetName())); // set name on firstFile
         store.dispatch(updateSheetCounter(firstFile.id));
@@ -473,10 +476,17 @@ class App extends Component {
         store.dispatch(updateSheetView(firstFile.id, newSheetId, SHEET_VIEW.GRIDVIEW));
         store.dispatch(setCurrentSheetId(newSheetId));
       }
-      if (this.state.filesToLoad.length > 0) {
+
+      if (filesToLoad.length > 0) {
+
+        // check if the movie just coming back from the renderer should be displayed
+        if (filesToLoad[0].displayMe) {
+          this.onAddIntervalSheetClick(filesToLoad[0].id);
+        }
+
         // state should be immutable, therefor
         // make a copy with slice, then remove the first item with shift, then set new state
-        const copyOfFilesToLoad = this.state.filesToLoad.slice();
+        const copyOfFilesToLoad = filesToLoad.slice();
         copyOfFilesToLoad.shift();
         this.setState({
           filesToLoad: copyOfFilesToLoad,
@@ -1129,6 +1139,10 @@ class App extends Component {
       file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
       store.dispatch(setDefaultSheetView(SHEET_VIEW.GRIDVIEW));
       store.dispatch(addMoviesToList(droppedFiles, clearList)).then((response) => {
+
+        // add a property to first movie indicating that it should be displayed when ready
+        response[0].displayMe = true;
+
         this.setState({
           filesToLoad: response,
         });
