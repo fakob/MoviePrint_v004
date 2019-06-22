@@ -20,6 +20,7 @@ import SortedVisibleThumbGrid from './VisibleThumbGrid';
 import SortedVisibleSceneGrid from './VisibleSceneGrid';
 import Conditional from '../components/Conditional';
 import HeaderComponent from '../components/HeaderComponent';
+import FloatingMenu from '../components/FloatingMenu';
 import Footer from '../components/Footer';
 import VideoPlayer from '../components/VideoPlayer';
 import Scrub from '../components/Scrub';
@@ -301,7 +302,7 @@ class App extends Component {
     this.onChangeTimelineViewSecondsPerRow = this.onChangeTimelineViewSecondsPerRow.bind(this);
     this.onChangeTimelineViewWidthScale = this.onChangeTimelineViewWidthScale.bind(this);
     this.onTimelineViewFlowClick = this.onTimelineViewFlowClick.bind(this);
-    this.onShowHeaderClick = this.onShowHeaderClick.bind(this);
+    this.onToggleHeaderClick = this.onToggleHeaderClick.bind(this);
     this.onShowPathInHeaderClick = this.onShowPathInHeaderClick.bind(this);
     this.onShowDetailsInHeaderClick = this.onShowDetailsInHeaderClick.bind(this);
     this.onShowTimelineInHeaderClick = this.onShowTimelineInHeaderClick.bind(this);
@@ -1410,6 +1411,9 @@ class App extends Component {
     const { allScenes, thumbs } = this.props;
     const { keyObject } = this.state;
 
+    store.dispatch(hideMovielist());
+    store.dispatch(hideSettings());
+
     let scrubScene;
     if (allScenes !== undefined) {
       scrubScene = allScenes.find(scene => scene.sceneId === scrubThumb.thumbId);
@@ -1435,8 +1439,6 @@ class App extends Component {
       scrubThumbLeft,
       scrubThumbRight,
     });
-    store.dispatch(hideMovielist());
-    store.dispatch(hideSettings());
   }
 
   onExpandClick(file, sceneOrThumbId, parentSheetId) {
@@ -2074,9 +2076,15 @@ class App extends Component {
     store.dispatch(setDefaultTimelineViewFlow(value));
   };
 
-  onShowHeaderClick = (value) => {
+  onToggleHeaderClick = (value) => {
     const { store } = this.context;
-    store.dispatch(setDefaultShowHeader(value));
+    if (value === undefined) {
+      const { settings } = this.props;
+      const { defaultShowHeader } = settings;
+      store.dispatch(setDefaultShowHeader(!defaultShowHeader));
+    } else {
+      store.dispatch(setDefaultShowHeader(value));
+    }
   };
 
   onShowPathInHeaderClick = (value) => {
@@ -2429,19 +2437,22 @@ class App extends Component {
 
   onChangeSheetViewClick = (fileId, sheetId, sheetView) => {
     const { store } = this.context;
-    const { sheetsByFileId, settings } = this.props;
+    const { currentFileId, currentSheetId, sheetsByFileId, settings } = this.props;
+
+    const theFileId = fileId || currentFileId;
+    const theSheetId = sheetId || currentSheetId;
 
     // if sheet type interval then create 'artificial' scene Array
-    const sheetType = getSheetType(sheetsByFileId, fileId, sheetId, settings);
+    const sheetType = getSheetType(sheetsByFileId, theFileId, theSheetId, settings);
     if (sheetType === SHEET_TYPE.INTERVAL) {
-      const sceneArray = createSceneArray(sheetsByFileId, fileId, sheetId);
-      store.dispatch(updateSceneArray(fileId, sheetId, sceneArray));
+      const sceneArray = createSceneArray(sheetsByFileId, theFileId, theSheetId);
+      store.dispatch(updateSceneArray(theFileId, theSheetId, sceneArray));
       // sceneArray.map(scene => {
       //   store.dispatch(updateSceneId(fileId, sheetId, scene.thumbId, scene.sceneId));
       //   return undefined;
       // })
     }
-    store.dispatch(updateSheetView(fileId, sheetId, sheetView));
+    store.dispatch(updateSheetView(theFileId, theSheetId, sheetView));
 
     if (sheetView === SHEET_VIEW.TIMELINEVIEW) {
       this.onReCaptureClick(false);
@@ -2688,6 +2699,26 @@ class App extends Component {
                   scaleValueObject={scaleValueObject}
                   isGridView
                 />
+                {file &&
+                  <FloatingMenu
+                    visibilitySettings={visibilitySettings}
+                    settings={settings}
+                    scaleValueObject={scaleValueObject}
+                    sheetView={sheetView}
+                    toggleMovielist={this.toggleMovielist}
+                    onAddIntervalSheetClick={this.onAddIntervalSheetClick}
+                    onChangeSheetViewClick={this.onChangeSheetViewClick}
+                    onScanMovieListItemClick={this.onScanMovieListItemClick}
+                    zoom={this.state.zoom}
+                    onSetViewClick={this.onSetViewClick}
+                    onSetSheetFitClick={this.onSetSheetFitClick}
+                    toggleZoom={this.toggleZoom}
+                    onToggleShowHiddenThumbsClick={this.onToggleShowHiddenThumbsClick}
+                    onThumbInfoClick={this.onThumbInfoClick}
+                    onToggleHeaderClick={this.onToggleHeaderClick}
+                    toggleSettings={this.toggleSettings}
+                  />
+                }
                 <TransitionablePortal
                   // onClose={this.setState({ progressMessage: undefined })}
                   // open={true}
@@ -2785,7 +2816,7 @@ class App extends Component {
                       onChangeTimelineViewSecondsPerRow={this.onChangeTimelineViewSecondsPerRow}
                       onChangeTimelineViewWidthScale={this.onChangeTimelineViewWidthScale}
                       onTimelineViewFlowClick={this.onTimelineViewFlowClick}
-                      onShowHeaderClick={this.onShowHeaderClick}
+                      onToggleHeaderClick={this.onToggleHeaderClick}
                       onShowPathInHeaderClick={this.onShowPathInHeaderClick}
                       onShowDetailsInHeaderClick={this.onShowDetailsInHeaderClick}
                       onShowTimelineInHeaderClick={this.onShowTimelineInHeaderClick}
@@ -2814,7 +2845,7 @@ class App extends Component {
                     className={`${styles.ItemVideoPlayer} ${visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''}`}
                     style={{
                       top: `${MENU_HEADER_HEIGHT + settings.defaultBorderMargin}px`,
-                      transform: visibilitySettings.defaultView === VIEW.PLAYERVIEW ? `translate(0px, 0px)` : `translate(-50%, ${(scaleValueObject.videoPlayerHeight + settings.defaultVideoPlayerControllerHeight) * -1}px)`,
+                      transform: visibilitySettings.defaultView === VIEW.PLAYERVIEW ? `translate(0px, 0px)` : `translate(0, ${(scaleValueObject.videoPlayerHeight + settings.defaultVideoPlayerControllerHeight) * -1}px)`,
                       overflow: visibilitySettings.defaultView === VIEW.PLAYERVIEW ? 'visible' : 'hidden'
                     }}
                   >

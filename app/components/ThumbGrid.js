@@ -612,7 +612,7 @@ class ThumbGrid extends Component {
                     mouseEnterDelay={1000}
                     position='bottom center'
                     className={stylesPop.popup}
-                    content={<span>Click and drag left and right to change the frame (then with <mark>SHIFT</mark> add new thumb before, <mark>ALT</mark> add new thumb after, <mark>CTRL</mark> display original as overlay)</span>}
+                    content={<span>Click and drag left and right to change the frame (then with <mark>SHIFT</mark> add new thumb before, <mark>ALT</mark> add new thumb after, <mark>CTRL</mark> allow dragging over whole movie)</span>}
                   />
                   <Popup
                     trigger={

@@ -575,16 +575,24 @@ export const getScrubFrameNumber = (
   let scrubFrameNumber;
 
   // depending on if scrubbing over ScrubMovie change mapping range
-  // scrubbing over ScrubMovie scrubbs over scene, scrubbing left or right of it scrubs over whole movie
+  // scrubbing over ScrubMovie scrubbs over scene, with ctrl pressed scrubbing left or right of it scrubs over whole movie
   // depending on if add before (shift) or after (alt) changing the mapping range
   const tempLeftFrameNumber = keyObject.altKey ? scrubThumb.frameNumber : scrubThumbLeft.frameNumber
   const tempRightFrameNumber = keyObject.shiftKey ? scrubThumb.frameNumber : scrubThumbRight.frameNumber
   const leftOfScrubMovie = (scaleValueObject.scrubInnerContainerWidth - scaleValueObject.scrubMovieWidth) / 2;
   const rightOfScrubMovie = leftOfScrubMovie + scaleValueObject.scrubMovieWidth;
   if (mouseX < leftOfScrubMovie) {
-    scrubFrameNumber = mapRange(mouseX, 0, leftOfScrubMovie, 0, tempLeftFrameNumber);
+    if (keyObject.ctrlKey) {
+      scrubFrameNumber = mapRange(mouseX, 0, leftOfScrubMovie, 0, tempLeftFrameNumber);
+    } else {
+      scrubFrameNumber = tempLeftFrameNumber;
+    }
   } else if (mouseX > rightOfScrubMovie) {
-    scrubFrameNumber = mapRange(mouseX, rightOfScrubMovie, scaleValueObject.containerWidth, tempRightFrameNumber, frameCount - 1);
+    if (keyObject.ctrlKey) {
+      scrubFrameNumber = mapRange(mouseX, rightOfScrubMovie, scaleValueObject.containerWidth, tempRightFrameNumber, frameCount - 1);
+    } else {
+      scrubFrameNumber = tempRightFrameNumber;
+    }
   } else {
     scrubFrameNumber = mapRange(mouseX, leftOfScrubMovie, rightOfScrubMovie, tempLeftFrameNumber, tempRightFrameNumber);
   }
@@ -804,7 +812,7 @@ export const createSceneArray = (sheetsByFileId, fileId, sheetId) => {
     if (thumbsArray.length > 0) {
       const visibleThumbsArray = getVisibleThumbs(thumbsArray, 'SHOW_VISIBLE');
       visibleThumbsArray.sort((t1,t2) => t1.frameNumber - t2.frameNumber);
-      console.log(visibleThumbsArray);
+      // console.log(visibleThumbsArray);
       const sceneArray = [];
       let sceneStart = visibleThumbsArray[0].frameNumber; // first sceneStart value
       let sceneLength = Math.floor((visibleThumbsArray[1].frameNumber - visibleThumbsArray[0].frameNumber) / 2); // first sceneLength value
@@ -828,7 +836,7 @@ export const createSceneArray = (sheetsByFileId, fileId, sheetId) => {
         })
         return undefined;
       });
-      console.log(sceneArray);
+      // console.log(sceneArray);
       return sceneArray;
     }
     return [];

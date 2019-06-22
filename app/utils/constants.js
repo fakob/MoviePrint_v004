@@ -21,6 +21,18 @@ export const SHEET_TYPE_OPTIONS = [
   { value: SHEET_TYPE.SCENES, text: 'Scenes' , 'data-tid': 'sheetTypeOptionsScenes'},
 ];
 
+export const THUMB_INFO = {
+  FRAMES: 'frames',
+  TIMECODE: 'timecode',
+  HIDEINFO: 'hideInfo',
+};
+
+export const THUMB_INFO_OPTIONS = [
+  { value: THUMB_INFO.FRAMES, text: 'Show frames', 'data-tid':'framesOption'},
+  { value: THUMB_INFO.TIMECODE, text: 'Show timecode', 'data-tid':'timecodeOption'},
+  { value: THUMB_INFO.HIDEINFO, text: 'Hide info', 'data-tid':'hideInfoOption'},
+];
+
 export const SHEET_VIEW = {
   GRIDVIEW: 'gridView',
   TIMELINEVIEW: 'timelineView',

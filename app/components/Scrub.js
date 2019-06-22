@@ -175,7 +175,7 @@ class Scrub extends Component {
                 margin: settings.defaultScrubWindowMargin,
               }}
             />
-            {keyObject.ctrlKey &&
+            {/* keyObject.ctrlKey &&
               <div
                 style={{
                   content: '',
@@ -191,7 +191,7 @@ class Scrub extends Component {
                   left: scaleValueObject.scrubInOutMovieWidth,
                 }}
               />
-            }
+            */}
             <span
               className={styles.scrubThumb}
               style={{

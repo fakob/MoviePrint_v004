@@ -198,7 +198,7 @@ class SettingsList extends Component {
   }
 
   onChangeShowHeader = (e, { checked }) => {
-    this.props.onShowHeaderClick(checked);
+    this.props.onToggleHeaderClick(checked);
   }
 
   onChangeShowPathInHeader = (e, { checked }) => {

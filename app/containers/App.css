@@ -202,30 +202,6 @@
   /* padding: 20px */
 }
 
-.FixedActionMenuLeft {
-  transition: transform 0.5s ease;
-  position: fixed;
-  bottom: 24px;
-  left: calc(350px + 24px);
-  z-index: 990;
-}
-
-.FixedActionMenuRight {
-  transition: transform 0.5s ease;
-  position: fixed;
-  bottom: 24px;
-  right: calc(100vw + 24px);
-  z-index: 990;
-}
-
-.FixedActionMenuFlex {
-  flex-shrink: 1 !important;
-}
-
-.hiddenItem {
-  display: none;
-}
-
 .chart {
   position: fixed; /* Stay in place */
   left: 50%;
