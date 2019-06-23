@@ -1954,14 +1954,17 @@ class App extends Component {
   onAddIntervalSheetClick(fileId) {
     // log.debug(`FileListElement clicked: ${file.name}`);
     const { store } = this.context;
-    const { sheetsByFileId, settings, visibilitySettings } = this.props;
+    const { currentFileId, sheetsByFileId, settings, visibilitySettings } = this.props;
 
-    store.dispatch(setCurrentFileId(fileId));
+    // if fileId is undefined then use currentFileId
+    const theFileId = fileId || currentFileId;
 
-    const newSheetId = this.onAddIntervalSheet(sheetsByFileId, fileId, settings);
+    store.dispatch(setCurrentFileId(theFileId));
 
-    const sheetView = getSheetView(sheetsByFileId, fileId, newSheetId, visibilitySettings);
-    this.onSetSheetClick(fileId, newSheetId, sheetView);
+    const newSheetId = this.onAddIntervalSheet(sheetsByFileId, theFileId, settings);
+
+    const sheetView = getSheetView(sheetsByFileId, theFileId, newSheetId, visibilitySettings);
+    this.onSetSheetClick(theFileId, newSheetId, sheetView);
 
   }
 
@@ -2316,9 +2319,13 @@ class App extends Component {
   };
 
   onScanMovieListItemClick = (fileId) => {
-    const { files } = this.props;
-    const file = files.find(file2 => file2.id === fileId);
-    this.runSceneDetection(fileId, file.path, file.useRatio, undefined, undefined, file.transformObject);
+    const { currentFileId, files } = this.props;
+
+    // if fileId is undefined then use currentFileId
+    const theFileId = fileId || currentFileId;
+
+    const file = files.find(file2 => file2.id === theFileId);
+    this.runSceneDetection(theFileId, file.path, file.useRatio, undefined, undefined, file.transformObject);
   };
 
   onReplaceMovieListItemClick = (fileId) => {
@@ -2379,11 +2386,16 @@ class App extends Component {
 
   onDuplicateSheetClick = (fileId, sheetId) => {
     const { store } = this.context;
-    const { files } = this.props;
+    const { currentFileId, currentSheetId, files } = this.props;
+
+    // if fileId  and or sheetId are undefined then use currentFileId and or currentSheetId
+    const theFileId = fileId || currentFileId;
+    const theSheetId = sheetId || currentSheetId;
+
     const newSheetId = uuidV4();
-    store.dispatch(duplicateSheet(fileId, sheetId, newSheetId));
-    store.dispatch(updateSheetName(fileId, newSheetId, getNewSheetName(getSheetCount(files, fileId)))); // set name on firstFile
-    store.dispatch(updateSheetCounter(fileId));
+    store.dispatch(duplicateSheet(theFileId, theSheetId, newSheetId));
+    store.dispatch(updateSheetName(theFileId, newSheetId, getNewSheetName(getSheetCount(files, theFileId)))); // set name on firstFile
+    store.dispatch(updateSheetCounter(theFileId));
     store.dispatch(setCurrentSheetId(newSheetId));
   };
 
@@ -2560,6 +2572,7 @@ class App extends Component {
     const { store } = this.context;
     const { currentFileId, currentSheetId, sheetsByFileId, settings } = this.props;
 
+    // if fileId  and or sheetId are undefined then use currentFileId and or currentSheetId
     const theFileId = fileId || currentFileId;
     const theSheetId = sheetId || currentSheetId;
 
@@ -2831,6 +2844,8 @@ class App extends Component {
                     sheetView={sheetView}
                     toggleMovielist={this.toggleMovielist}
                     onAddIntervalSheetClick={this.onAddIntervalSheetClick}
+                    onScanMovieListItemClick={this.onScanMovieListItemClick}
+                    onDuplicateSheetClick={this.onDuplicateSheetClick}
                     onChangeSheetViewClick={this.onChangeSheetViewClick}
                     onScanMovieListItemClick={this.onScanMovieListItemClick}
                     zoom={this.state.zoom}

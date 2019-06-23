@@ -638,7 +638,7 @@ ipcRenderer.on(
                 'progressMessage',
                 'error',
                 messageToSend,
-                10000
+                6000
               );
 
             } else if (iterator < vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)) {

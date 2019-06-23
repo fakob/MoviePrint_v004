@@ -8,11 +8,16 @@ import {
 } from '../utils/constants';
 import styles from './FloatingMenu.css';
 import stylesPop from './Popup.css';
+import iconCutView from '../img/icon-cut-view.svg';
+import iconThumbView from '../img/icon-thumb-view.svg';
 import iconHeader from '../img/icon-header.svg';
 import iconFrameInfo from '../img/icon-frame-info.svg';
 
 const ButtonExampleCircularSocial = ({
+  onAddIntervalSheetClick,
   onChangeSheetViewClick,
+  onDuplicateSheetClick,
+  onScanMovieListItemClick,
   onSetViewClick,
   onSetSheetFitClick,
   onToggleHeaderClick,
@@ -59,18 +64,109 @@ const ButtonExampleCircularSocial = ({
           trigger={
             <Button
               className={styles.normalButton}
-              circular
-              data-tid={(sheetView === SHEET_VIEW.GRIDVIEW) ? 'changeViewSheetToTimelineViewBtn' : 'changeViewSheetToGridViewBtn'}
-              onClick={() => onChangeSheetViewClick(undefined, undefined, (sheetView === SHEET_VIEW.GRIDVIEW) ? SHEET_VIEW.TIMELINEVIEW : SHEET_VIEW.GRIDVIEW)}
-              icon={(sheetView === SHEET_VIEW.GRIDVIEW) ? 'barcode' : 'grid layout'}
+              disabled={!isGridViewAndDefault}
+              data-tid='addShotDetectionMovieListItemBtn'
+              onClick={() => onScanMovieListItemClick(undefined)}
+              icon='add'
             />
           }
           mouseEnterDelay={1000}
           position='bottom center'
           className={stylesPop.popup}
-          content={(sheetView === SHEET_VIEW.GRIDVIEW) ? 'Switch to timeline view' : 'Switch to grid view'}
+          content='Add MoviePrint (shot detection based)'
         />
+        {/* <Popup
+          trigger={
+            <Button
+              className={styles.normalButton}
+              disabled={!isGridViewAndDefault}
+              data-tid='addIntervalMovieListItemBtn'
+              onClick={() => onAddIntervalSheetClick(undefined)}
+              icon='add'
+            />
+          }
+          mouseEnterDelay={1000}
+          position='bottom center'
+          className={stylesPop.popup}
+          content='Add MoviePrint (interval based)'
+        /> */}
+        <Popup
+          trigger={
+            <Button
+              className={styles.normalButton}
+              disabled={!isGridViewAndDefault}
+              data-tid='duplicateSheetItemBtn'
+              onClick={() => onDuplicateSheetClick(undefined, undefined)}
+              icon='copy'
+            />
+          }
+          mouseEnterDelay={1000}
+          position='bottom center'
+          className={stylesPop.popup}
+          content='Duplicate MoviePrint'
+        />
+        {(visibilitySettings.defaultView === VIEW.STANDARDVIEW) &&
+          <Popup
+            trigger={
+              <Button
+                className={styles.normalButton}
+                data-tid={(sheetView === SHEET_VIEW.GRIDVIEW) ? 'changeViewSheetToTimelineViewBtn' : 'changeViewSheetToGridViewBtn'}
+                onClick={() => onChangeSheetViewClick(undefined, undefined, (sheetView === SHEET_VIEW.GRIDVIEW) ? SHEET_VIEW.TIMELINEVIEW : SHEET_VIEW.GRIDVIEW)}
+                icon={(sheetView === SHEET_VIEW.GRIDVIEW) ? 'barcode' : 'grid layout'}
+              />
+            }
+            mouseEnterDelay={1000}
+            position='bottom center'
+            className={stylesPop.popup}
+            content={(sheetView === SHEET_VIEW.GRIDVIEW) ? 'Switch to timeline view' : 'Switch to grid view'}
+          />
+        }
+        {(visibilitySettings.defaultView !== VIEW.STANDARDVIEW) &&
+          <Popup
+          trigger={
+            <Button
+              className={styles.imageButton}
+              disabled={visibilitySettings.defaultView === VIEW.STANDARDVIEW}
+              data-tid={(sheetView === SHEET_VIEW.GRIDVIEW) ? 'changeViewSheetToTimelineViewBtn' : 'changeViewSheetToGridViewBtn'}
+              onClick={() => onChangeSheetViewClick(undefined, undefined, (sheetView === SHEET_VIEW.GRIDVIEW) ? SHEET_VIEW.TIMELINEVIEW : SHEET_VIEW.GRIDVIEW)}
+            >
+              <img src={(sheetView === SHEET_VIEW.GRIDVIEW) ? iconCutView : iconThumbView} height='14px' alt='' />
+            </Button>
+          }
+          mouseEnterDelay={1000}
+          position='bottom center'
+          className={stylesPop.popup}
+          content={(sheetView === SHEET_VIEW.GRIDVIEW) ? 'Switch to cut view' : 'Switch to thumb view'}
+        />
+      }
       </Button.Group>
+      {' '}
+      <Popup
+        trigger={
+          <Button
+            className={`${styles.normalButton} ${visibilitySettings.defaultView === VIEW.STANDARDVIEW ? '' : styles.selected}`}
+            style={{
+              marginRight: '8px',
+              marginLeft: '8px',
+            }}
+            circular
+            data-tid={(visibilitySettings.defaultView === VIEW.STANDARDVIEW) ? 'showPlayerBtn' : 'hidePlayerBtn'}
+            onClick={() => {
+              if (visibilitySettings.defaultView === VIEW.STANDARDVIEW) {
+                onSetViewClick(VIEW.PLAYERVIEW);
+              } else {
+                onSetViewClick(VIEW.STANDARDVIEW);
+              }
+              return undefined;
+            }}
+            icon="video"
+          />
+        }
+        mouseEnterDelay={1000}
+        position='bottom center'
+        className={stylesPop.popup}
+        content={(visibilitySettings.defaultView === VIEW.STANDARDVIEW) ? <span>Show player view <mark>2</mark></span> : <span>Hide player view <mark>2</mark></span>}
+      />
       {' '}
       <Button.Group>
         {visibilitySettings.defaultSheetFit !== SHEET_FIT.HEIGHT &&
@@ -142,33 +238,6 @@ const ButtonExampleCircularSocial = ({
           content={zoom ? 'Zoom out' : 'Zoom in'}
         />
       </Button.Group>
-      {' '}
-      <Popup
-        trigger={
-          <Button
-            className={`${styles.normalButton} ${visibilitySettings.defaultView === VIEW.STANDARDVIEW ? '' : styles.selected}`}
-            style={{
-              marginRight: '8px',
-              marginLeft: '8px',
-            }}
-            circular
-            data-tid={(visibilitySettings.defaultView === VIEW.STANDARDVIEW) ? 'showPlayerBtn' : 'hidePlayerBtn'}
-            onClick={() => {
-              if (visibilitySettings.defaultView === VIEW.STANDARDVIEW) {
-                onSetViewClick(VIEW.PLAYERVIEW);
-              } else {
-                onSetViewClick(VIEW.STANDARDVIEW);
-              }
-              return undefined;
-            }}
-            icon="video"
-          />
-        }
-        mouseEnterDelay={1000}
-        position='bottom center'
-        className={stylesPop.popup}
-        content={(visibilitySettings.defaultView === VIEW.STANDARDVIEW) ? <span>Show player view <mark>2</mark></span> : <span>Hide player view <mark>2</mark></span>}
-      />
       {' '}
       <Button.Group>
         <Popup
