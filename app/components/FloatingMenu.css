@@ -3,7 +3,7 @@
   transition: transform 0.5s ease;
   position: fixed;
   transform: translate(-50%);
-  top: 16px;
+  top: 12px;
   left: calc(50% + 10px);
   z-index: 990;
   /* background-color: rgba(255, 0, 0, 0.5); */
@@ -11,7 +11,7 @@
 
 .imageButton {
   color: white !important;
-  background-color: rgba(0, 0, 0, 1.0) !important;
+  background-color: rgba(30, 15, 0, 1.0) !important;
   /* box-shadow: none !important; */
   padding-left: 11px !important;
   padding-right: 11px !important;
@@ -20,18 +20,18 @@
 }
 
 .imageButton:hover {
-  background-color: rgba(60, 60, 60, 1.0) !important;
+  background-color: rgba(60, 30, 0, 1.0) !important;
 }
 
 .normalButton {
   color: white !important;
-  background-color: rgba(0, 0, 0, 1.0) !important;
+  background-color: rgba(30, 15, 0, 1.0) !important;
   font-family: Lato, 'Helvetica Neue', Arial, Helvetica, sans-serif !important;
   box-shadow: none !important;
 }
 
 .normalButton:hover {
-  background-color: rgba(60, 60, 60, 1.0) !important;
+  background-color: rgba(60, 30, 0, 1.0) !important;
 }
 
 .textButton {
@@ -44,9 +44,9 @@
 }
 
 .textButton:hover {
-  background-color: rgba(60, 60, 60, 1.0) !important;
+  background-color: rgba(60, 30, 0, 1.0) !important;
 }
 
 .selected {
-  background-color: rgba(40, 40, 40, 1.0) !important;
+  background-color: rgba(60, 30, 0, 1.0) !important;
 }
