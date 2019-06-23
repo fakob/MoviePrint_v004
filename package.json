@@ -287,6 +287,7 @@
     "react-router": "^5.0.1",
     "react-router-dom": "^5.0.1",
     "react-sortable-hoc": "^1.9.1",
+    "react-toastify": "^5.3.1",
     "redux": "^4.0.0",
     "redux-undo": "^1.0.0-beta9-9-5",
     "scroll-into-view": "^1.9.3",

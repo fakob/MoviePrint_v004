@@ -12,6 +12,7 @@ import os from 'os';
 import Database from 'better-sqlite3';
 import extract from 'png-chunks-extract';
 import text from 'png-chunk-text';
+import { Zoom, ToastContainer, toast } from 'react-toastify';
 
 import '../app.global.css';
 import FileList from './FileList';
@@ -340,6 +341,7 @@ class App extends Component {
     this.updateOpencvVideoCanvas = this.updateOpencvVideoCanvas.bind(this);
     this.runSceneDetection = this.runSceneDetection.bind(this);
     this.runFileScan = this.runFileScan.bind(this);
+    this.cancelFileScan = this.cancelFileScan.bind(this);
     this.calculateSceneList = this.calculateSceneList.bind(this);
     this.onToggleDetectionChart = this.onToggleDetectionChart.bind(this);
     this.onHideDetectionChart = this.onHideDetectionChart.bind(this);
@@ -410,14 +412,36 @@ class App extends Component {
 
   componentDidMount() {
     const { store } = this.context;
+    const { currentFileId } = this.props;
 
     ipcRenderer.on('progress', (event, fileId, progressBarPercentage) => {
       this.setState({
         progressBarPercentage: Math.ceil(progressBarPercentage)
       });
+      if (progressBarPercentage === 100) {
+        toast.update(fileId, {
+          className: `${stylesPop.toast} ${stylesPop.toastSuccess}`,
+          progress: null,
+          render: 'Shot detection finished',
+          hideProgressBar: true,
+          autoClose: 3000,
+          closeButton: true,
+          closeOnClick: true,
+        })
+      } else {
+        toast.update(fileId, {
+          progress: (progressBarPercentage/100.0),
+        })
+      }
     });
 
     ipcRenderer.on('progressMessage', (event, status, message, time) => {
+      // display toast and set toastId to fileId
+      toast(message, {
+        className: `${stylesPop.toast} ${stylesPop.toastInfo}`,
+        autoClose: time,
+      });
+
       this.showMessage(message, time);
     });
 
@@ -1003,6 +1027,7 @@ class App extends Component {
             // this.recaptureAllFrames();
             break;
           case 68: // press 'd'
+            this.cancelFileScan(currentFileId);
             break;
           case 70: // press 'f'
             if (currentFileId) {
@@ -1018,6 +1043,27 @@ class App extends Component {
           case 80: // press 'p'
             break;
           case 81: // press 'q'
+            // display toast and set toastId to fileId
+            toast(({ closeToast }) => (
+              <div>
+                  This is a test toast
+                  <Button
+                    compact
+                    floated='right'
+                    content='Cancel'
+                    onClick={() => {
+                      console.error('click');
+                      closeToast();
+                    }}
+                  />
+              </div>
+            ), {
+              className: `${stylesPop.toast} ${stylesPop.toastInfo}`,
+              hideProgressBar: false,
+              autoClose: 100000,
+              closeButton: false,
+              closeOnClick: false,
+            });
             break;
           case 83: // press 's'
             if (currentFileId) {
@@ -1402,9 +1448,54 @@ class App extends Component {
   runFileScan(fileId, filePath, useRatio, threshold, sheetId, transformObject) {
     if (this.state.fileScanRunning === false) {
       this.setState({ fileScanRunning: true });
+
+      // display toast and set toastId to fileId
+      toast(({ closeToast }) => (
+        <div>
+            Shot detection in progress
+            <Button
+              compact
+              floated='right'
+              content='Cancel'
+              onClick={() => {
+                console.error('click');
+                this.cancelFileScan(fileId);
+                closeToast();
+              }}
+            />
+        </div>
+      ), {
+        toastId: fileId,
+        className: `${stylesPop.toast} ${stylesPop.toastInfo}`,
+        hideProgressBar: false,
+        autoClose: false,
+        closeButton: false,
+        closeOnClick: false,
+      });
+
       ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-scan', fileId, filePath, useRatio, threshold, sheetId, transformObject);
     }
   }
+
+  cancelFileScan(fileId) {
+    ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'cancelFileScan', fileId);
+    this.setState({
+      fileScanRunning: false,
+    });
+    toast.update(fileId, {
+      className: `${stylesPop.toast} ${stylesPop.toastError}`,
+      // hideProgressBar: false,
+      render: 'Shot detection was cancelled !',
+      autoClose: 3000,
+      closeButton: true,
+      closeOnClick: true,
+    })
+    // toast.error("Shot detection was cancelled !", {
+    //   toastId: `${fileId}-fileScanCancelled`,
+    //   autoClose: 3000,
+    // });
+  }
+
 
   onScrubClick(file, scrubThumb) {
     const { store } = this.context;
@@ -2719,38 +2810,6 @@ class App extends Component {
                     toggleSettings={this.toggleSettings}
                   />
                 }
-                <TransitionablePortal
-                  // onClose={this.setState({ progressMessage: undefined })}
-                  // open={true}
-                  open={this.state.progressBarPercentage < 100}
-                  // open
-                  transition={{
-                    animation: 'fade up',
-                    duration: 600,
-                  }}
-                  closeOnDocumentClick={false}
-                  closeOnEscape={false}
-                  closeOnPortalMouseLeave={false}
-                  closeOnRootNodeClick={false}
-                  closeOnTriggerBlur={false}
-                  closeOnTriggerClick={false}
-                  closeOnTriggerMouseLeave={false}
-                >
-                  <Progress
-                    percent={this.state.progressBarPercentage}
-                    attached="bottom"
-                    size="tiny"
-                    indicating
-                    // progress
-                    style={{
-                      position: 'absolute',
-                      bottom: MENU_FOOTER_HEIGHT,
-                      width: '100%',
-                      zIndex: 1000,
-                      margin: 0
-                    }}
-                  />
-                </TransitionablePortal>
                 <div
                   className={`${styles.SiteContent}`}
                   ref={(el) => { this.siteContent = el; }}
@@ -3051,7 +3110,7 @@ class App extends Component {
                   closeOnTriggerMouseLeave={false}
                 >
                   <Segment
-                    className={stylesPop.toast}
+                    className={stylesPop.toastOld}
                     size='large'
                   >
                     {this.state.progressMessage}
@@ -3271,6 +3330,12 @@ class App extends Component {
                   </Button>
                 </Container>
               </Modal>
+              <ToastContainer
+                transition={Zoom}
+                draggable={false}
+                hideProgressBar
+                progressClassName={stylesPop.toastProgress}
+              />
               { dropzoneActive &&
                 <div
                   className={`${styles.dropzoneshow} ${isDragAccept ? styles.dropzoneshowAccept : ''} ${isDragReject ? styles.dropzoneshowReject : ''}`}

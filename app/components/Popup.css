@@ -20,7 +20,7 @@
   display: none !important;
 }
 
-.toast {
+.toastOld {
   background-color: rgba(30, 30, 30, 0.5) !important;
   margin-bottom: 0 !important;
   color: #FF5006 !important;
@@ -35,4 +35,26 @@
   transform: translateX(-50%) !important;
   z-index: 1000;
   padding: 0.5em 0.5em !important;
+}
+
+.toast {
+  padding: 20px;
+  border-radius: 4px;
+}
+
+.toastInfo {
+  /* background-color: black; */
+  background-color: rgba(60, 60, 60, 1.0);
+}
+
+.toastSuccess {
+  background-color: green;
+}
+
+.toastError {
+  background-color: red;
+}
+
+.toastProgress {
+  background: #f2711c;
 }

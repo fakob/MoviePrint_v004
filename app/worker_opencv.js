@@ -26,6 +26,9 @@ unhandled();
 const searchLimit = 25; // how long to go forward or backward to find a none-empty frame
 const { ipcRenderer } = require('electron');
 
+// to cancel file scan
+let fileScanRunning = false;
+
 log.debug('I am the opencvWorkerWindow - responsible for capturing the necessary frames from the video using opencv');
 
 window.addEventListener('error', event => {
@@ -60,6 +63,11 @@ process.on('SIGTERM', err => {
 // ipcRenderer.on('message-from-mainWindow-to-opencvWorkerWindow', (event, ...args) => {
 //   log.debug(...args);
 // });
+
+ipcRenderer.on('cancelFileScan', (event, fileId) => {
+  log.info('cancelling fileScan');
+  fileScanRunning = false;
+});
 
 ipcRenderer.on('recapture-frames', (event, files, sheetsByFileId, frameSize, fileId = undefined, onlyReplace = true) => {
   log.debug('opencvWorkerWindow | on recapture frames');
@@ -495,6 +503,8 @@ ipcRenderer.on(
     log.debug(`opencvWorkerWindow | ${filePath}`);
 
     try {
+      fileScanRunning = true;
+
       const timeBeforeSceneDetection = Date.now();
       console.time(`${fileId}-fileScanning`);
       const vid = new opencv.VideoCapture(filePath);
@@ -610,7 +620,28 @@ ipcRenderer.on(
               });
             }
             iterator += 1;
-            if (iterator < vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)) {
+
+            if (!fileScanRunning) {
+              const messageToSend = `opencvWorkerWindow | File scanning cancelled at frame ${frame}`;
+              log.debug(messageToSend);
+              console.timeEnd(`${fileId}-fileScanning`);
+
+              // ipcRenderer.send(
+              //   'message-from-opencvWorkerWindow-to-mainWindow',
+              //   'progress',
+              //   fileId,
+              //   100
+              // ); // set to full
+
+              ipcRenderer.send(
+                'message-from-opencvWorkerWindow-to-mainWindow',
+                'progressMessage',
+                'error',
+                messageToSend,
+                10000
+              );
+
+            } else if (iterator < vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)) {
               read();
             } else {
               const timeAfterSceneDetection = Date.now();
