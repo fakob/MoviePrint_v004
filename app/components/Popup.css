@@ -20,39 +20,28 @@
   display: none !important;
 }
 
-.toastOld {
-  background-color: rgba(30, 30, 30, 0.5) !important;
-  margin-bottom: 0 !important;
-  color: #FF5006 !important;
-  font-family: Lato, 'Helvetica Neue', Arial, Helvetica, sans-serif !important;
-  font-weight: 100 !important;
-  font-size: 12px !important;
-  position: fixed !important;
-  left: 50%;
-  bottom: 0 !important;
-  border: none !important;
-  max-width: none !important;
-  transform: translateX(-50%) !important;
-  z-index: 1000;
-  padding: 0.5em 0.5em !important;
-}
-
 .toast {
   padding: 20px;
   border-radius: 4px;
 }
 
 .toastInfo {
-  /* background-color: black; */
-  background-color: rgba(60, 60, 60, 1.0);
+  /* background-color: rgba(60, 60, 60, 1.0); */
+  background-color: rgba(60, 60, 60, 0.97);
+  box-shadow: 0px 0px 64px 0px rgba(255,255,255,0.1);
+  color: white;
 }
 
 .toastSuccess {
-  background-color: green;
+  background-color: rgba(56, 143, 2, 0.97);
+  /* background-color: #388F02; */
+  color: white;
 }
 
 .toastError {
-  background-color: red;
+  background-color: rgba(194, 0, 0, 0.97);
+  /* background-color: #c20000; */
+  color: white;
 }
 
 .toastProgress {

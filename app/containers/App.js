@@ -214,12 +214,10 @@ class App extends Component {
       },
       zoom: false,
       filesToLoad: [],
-      progressMessage: undefined,
       showMessage: false,
       progressBarPercentage: 100,
       showFeedbackForm: false,
       intendToCloseFeedbackForm: false,
-      timeBefore: undefined,
       opencvVideo: undefined,
       showScrubWindow: false,
       scrubThumb: undefined,
@@ -340,7 +338,6 @@ class App extends Component {
     this.onMoviePrintWidthClick = this.onMoviePrintWidthClick.bind(this);
     this.updateOpencvVideoCanvas = this.updateOpencvVideoCanvas.bind(this);
     this.runSceneDetection = this.runSceneDetection.bind(this);
-    this.runFileScan = this.runFileScan.bind(this);
     this.cancelFileScan = this.cancelFileScan.bind(this);
     this.calculateSceneList = this.calculateSceneList.bind(this);
     this.onToggleDetectionChart = this.onToggleDetectionChart.bind(this);
@@ -435,14 +432,8 @@ class App extends Component {
       }
     });
 
-    ipcRenderer.on('progressMessage', (event, status, message, time) => {
-      // display toast and set toastId to fileId
-      toast(message, {
-        className: `${stylesPop.toast} ${stylesPop.toastInfo}`,
-        autoClose: time,
-      });
-
-      this.showMessage(message, time);
+    ipcRenderer.on('progressMessage', (event, status, message, time = 3000) => {
+      this.showMessage(message, time, status);
     });
 
     ipcRenderer.on('error-savingMoviePrint', () => {
@@ -538,21 +529,6 @@ class App extends Component {
     });
 
     ipcRenderer.on('receive-get-thumbs', (event, fileId, sheetId, thumbId, frameId, frameNumber, lastThumb) => {
-      if (lastThumb && this.state.timeBefore !== undefined) {
-        const timeAfter = Date.now();
-        log.debug(`receive-get-thumbs took ${timeAfter - this.state.timeBefore}ms`);
-        this.setState({
-          progressMessage: `loading time: ${(timeAfter - this.state.timeBefore) / 1000.0}`,
-          showMessage: true,
-          timeBefore: undefined,
-        }, () => {
-          setTimeout(() => {
-            this.setState({
-              showMessage: false
-            });
-          }, 3000);
-        });
-      }
 
       if (this.props.sheetsByFileId[fileId] !== undefined ||
         this.props.sheetsByFileId[fileId][sheetId] !== undefined ||
@@ -653,7 +629,7 @@ class App extends Component {
     });
 
     ipcRenderer.on('received-saved-file-error', (event, message) => {
-      this.showMessage(message, 3000);
+      this.showMessage(message, 3000, 'error');
       setTimeout(
         this.setState({ savingMoviePrint: false }),
         1000
@@ -751,10 +727,6 @@ class App extends Component {
 
     if ((filesToLoad.length !== 0) &&
     (prevState.filesToLoad.length !== filesToLoad.length)) {
-      const timeBefore = Date.now();
-      this.setState({
-        timeBefore
-      });
       ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', filesToLoad[0].id, filesToLoad[0].path, filesToLoad[0].posterFrameId);
     }
 
@@ -800,10 +772,7 @@ class App extends Component {
       // run if there is a file readyForPrinting, but not if there is one already printing
       if ((sheetsToPrint.findIndex(item => item.status === 'printing' ) === -1) &&
         (sheetsToPrint.findIndex(item => item.status === 'readyForPrinting' ) > -1)) {
-        const timeBefore = Date.now();
-        this.setState({
-          timeBefore
-        });
+
         // log.debug(sheetsToPrint);
         const sheetToPrint = sheetsToPrint.find(item => item.status === 'readyForPrinting' );
 
@@ -1027,7 +996,7 @@ class App extends Component {
             // this.recaptureAllFrames();
             break;
           case 68: // press 'd'
-            this.cancelFileScan(currentFileId);
+            // this.cancelFileScan(currentFileId);
             break;
           case 70: // press 'f'
             if (currentFileId) {
@@ -1043,27 +1012,27 @@ class App extends Component {
           case 80: // press 'p'
             break;
           case 81: // press 'q'
-            // display toast and set toastId to fileId
-            toast(({ closeToast }) => (
-              <div>
-                  This is a test toast
-                  <Button
-                    compact
-                    floated='right'
-                    content='Cancel'
-                    onClick={() => {
-                      console.error('click');
-                      closeToast();
-                    }}
-                  />
-              </div>
-            ), {
-              className: `${stylesPop.toast} ${stylesPop.toastInfo}`,
-              hideProgressBar: false,
-              autoClose: 100000,
-              closeButton: false,
-              closeOnClick: false,
-            });
+            // // display toast and set toastId to fileId
+            // toast(({ closeToast }) => (
+            //   <div>
+            //       This is a test toast
+            //       <Button
+            //         compact
+            //         floated='right'
+            //         content='Cancel'
+            //         onClick={() => {
+            //           console.error('click');
+            //           closeToast();
+            //         }}
+            //       />
+            //   </div>
+            // ), {
+            //   className: `${stylesPop.toast} ${stylesPop.toastInfo}`,
+            //   hideProgressBar: false,
+            //   autoClose: 100000,
+            //   closeButton: false,
+            //   closeOnClick: false,
+            // });
             break;
           case 83: // press 's'
             if (currentFileId) {
@@ -1085,18 +1054,10 @@ class App extends Component {
     }
   }
 
-  showMessage(message, time) {
-    this.setState({
-      progressMessage: message,
-      showMessage: true
-    }, () => {
-      if (time) {
-        setTimeout(() => {
-          this.setState({
-            showMessage: false
-          });
-        }, time);
-      }
+  showMessage(message, time, status = 'info') {
+    toast(message, {
+      className: `${stylesPop.toast} ${(status === 'info') ? stylesPop.toastInfo : ''}  ${(status === 'error') ? stylesPop.toastError : ''}  ${(status === 'success') ? stylesPop.toastSuccess : ''}`,
+      autoClose: time,
     });
   }
 
@@ -1350,7 +1311,40 @@ class App extends Component {
     // console.log(arrayOfFrameScanData);
     // if meanArray not stored, runFileScan
     if (arrayOfFrameScanData.length === 0) {
-      this.runFileScan(fileId, filePath, useRatio, threshold, sheetId, transformObject);
+
+      if (this.state.fileScanRunning === false) {
+        this.setState({ fileScanRunning: true });
+
+        // display toast and set toastId to fileId
+        toast(({ closeToast }) => (
+          <div>
+              Shot detection in progress
+              <Button
+                compact
+                floated='right'
+                content='Cancel'
+                onClick={() => {
+                  console.error('click');
+                  this.cancelFileScan(fileId);
+                  closeToast();
+                }}
+              />
+          </div>
+        ), {
+          toastId: fileId,
+          className: `${stylesPop.toast} ${stylesPop.toastInfo}`,
+          hideProgressBar: false,
+          autoClose: false,
+          closeButton: false,
+          closeOnClick: false,
+        });
+
+        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-scan', fileId, filePath, useRatio, threshold, sheetId, transformObject);
+
+      } else {
+        this.showMessage('Sorry, only one shot detection at a time.', 3000, 'error');
+      }
+
     } else {
       const meanValueArray = arrayOfFrameScanData.map(frame => frame.meanValue)
       const meanColorArray = arrayOfFrameScanData.map(frame => JSON.parse(frame.meanColor))
@@ -1442,38 +1436,6 @@ class App extends Component {
       store.dispatch(addScenes(tempFile, sceneList, clearOldScenes, settings.defaultCachedFramesSize, sheetId));
     } else {
       this.showMessage('No scenes detected', 3000);
-    }
-  }
-
-  runFileScan(fileId, filePath, useRatio, threshold, sheetId, transformObject) {
-    if (this.state.fileScanRunning === false) {
-      this.setState({ fileScanRunning: true });
-
-      // display toast and set toastId to fileId
-      toast(({ closeToast }) => (
-        <div>
-            Shot detection in progress
-            <Button
-              compact
-              floated='right'
-              content='Cancel'
-              onClick={() => {
-                console.error('click');
-                this.cancelFileScan(fileId);
-                closeToast();
-              }}
-            />
-        </div>
-      ), {
-        toastId: fileId,
-        className: `${stylesPop.toast} ${stylesPop.toastInfo}`,
-        hideProgressBar: false,
-        autoClose: false,
-        closeButton: false,
-        closeOnClick: false,
-      });
-
-      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-scan', fileId, filePath, useRatio, threshold, sheetId, transformObject);
     }
   }
 
@@ -2330,10 +2292,6 @@ class App extends Component {
         onlyReplace = false;
       }
 
-      const timeBefore = Date.now();
-      this.setState({
-        timeBefore
-      });
       ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', fileId, newFilePath, file.posterFrameId, onlyReplace);
       if (onlyReplace) {
         this.setState({
@@ -2458,7 +2416,7 @@ class App extends Component {
         }
 
         if (dataAvailable) {
-          this.showMessage('Data is found and being loaded...', 3000);
+          this.showMessage('Data was found! Loading...', 3000, 'success');
           const fileName = path.basename(newFilePath);
           const { lastModified, size}  = getFileStatsObject(newFilePath) || {};
 
@@ -2492,7 +2450,7 @@ class App extends Component {
           store.dispatch(setCurrentFileId(fileId));
           ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', fileId, newFilePath, posterFrameId, false, true);
         } else {
-          this.showMessage('There is no fitting data found found or embedded', 3000);
+          this.showMessage('No fitting data found or embedded', 3000, 'error');
         }
       });
     }
@@ -3093,29 +3051,6 @@ class App extends Component {
                     }
                   </div>
                 </div>
-                <TransitionablePortal
-                  // onClose={this.setState({ progressMessage: undefined })}
-                  open={this.state.showMessage}
-                  // open
-                  // transition={{
-                  //   animation: 'fade up',
-                  //   duration: 600,
-                  // }}
-                  closeOnDocumentClick={false}
-                  closeOnEscape={false}
-                  closeOnPortalMouseLeave={false}
-                  closeOnRootNodeClick={false}
-                  closeOnTriggerBlur={false}
-                  closeOnTriggerClick={false}
-                  closeOnTriggerMouseLeave={false}
-                >
-                  <Segment
-                    className={stylesPop.toastOld}
-                    size='large'
-                  >
-                    {this.state.progressMessage}
-                  </Segment>
-                </TransitionablePortal>
                 <Modal
                   open={this.state.showFeedbackForm}
                   onClose={() => this.setState({ intendToCloseFeedbackForm: true})}

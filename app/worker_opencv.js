@@ -160,7 +160,7 @@ ipcRenderer.on(
         'progressMessage',
         'error',
         `Failed to open ${filePath}`,
-        3000
+        10000
       );
       log.error(e);
     }
@@ -645,10 +645,10 @@ ipcRenderer.on(
               read();
             } else {
               const timeAfterSceneDetection = Date.now();
-              const messageToSend = `opencvWorkerWindow | File scanning finished - ${(timeAfterSceneDetection -
+              const messageToSend = `File scanning finished - ${(timeAfterSceneDetection -
                 timeBeforeSceneDetection) / 1000}s - speed: ${(timeAfterSceneDetection -
                   timeBeforeSceneDetection) / vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`;
-              log.debug(messageToSend);
+              log.debug(`opencvWorkerWindow | ${messageToSend}`);
               console.timeEnd(`${fileId}-fileScanning`);
 
               // add last scene
@@ -823,6 +823,7 @@ ipcRenderer.on(
 
     try {
       const vid = new opencv.VideoCapture(filePath);
+      const timeBefore = Date.now();
 
       // transform
       const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
@@ -882,6 +883,8 @@ ipcRenderer.on(
               const outBase64 = opencv.imencode('.jpg', matRescaled || matCropped || mat).toString('base64'); // maybe change to .png?
               const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
               const frameId = frameIdArray[iterator];
+              const isLastThumb = iterator === (frameNumberArray.length - 1);
+
               ipcRenderer.send(
                 'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
                 'send-base64-frame',
@@ -898,8 +901,21 @@ ipcRenderer.on(
                 thumbIdArray[iterator],
                 frameId,
                 frameNumber,
-                iterator === (frameNumberArray.length - 1)
+                isLastThumb
               );
+
+              if (isLastThumb) {
+                const duration = Date.now() - timeBefore;
+                log.debug('lastThumb');
+                ipcRenderer.send(
+                  'message-from-opencvWorkerWindow-to-mainWindow',
+                  'progressMessage',
+                  'info',
+                  `Loading of frames took ${duration/1000.0}s`,
+                  3000
+                );
+              }
+
               iterator += 1;
               if (iterator < frameNumberArray.length) {
                 read();
@@ -926,6 +942,8 @@ ipcRenderer.on(
                 );
                 const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
                 const frameId = frameIdArray[iterator];
+                const isLastThumb = iterator === (frameNumberArray.length - 1);
+
                 ipcRenderer.send(
                   'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
                   'send-base64-frame',
@@ -942,7 +960,7 @@ ipcRenderer.on(
                   thumbIdArray[iterator],
                   frameId,
                   frameNumber,
-                  iterator === (frameNumberArray.length - 1),
+                  isLastThumb,
                 );
                 iterator += 1;
                 if (iterator < frameNumberArray.length) {
