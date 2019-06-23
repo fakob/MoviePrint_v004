@@ -1372,37 +1372,37 @@ class App extends Component {
   }
 
   runSceneDetection(fileId, filePath, useRatio, threshold = this.props.settings.defaultSceneDetectionThreshold, sheetId = uuidV4(), transformObject = undefined) {
-    // this.hideSettings();
-    console.log(transformObject);
-    this.onHideDetectionChart();
     const { store } = this.context;
-    store.dispatch(setDefaultSheetView(SHEET_VIEW.TIMELINEVIEW));
-    store.dispatch(setCurrentSheetId(sheetId));
-    store.dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.SCENES));
-    store.dispatch(updateSheetView(fileId, sheetId, SHEET_VIEW.TIMELINEVIEW));
-    // get meanArray if it is stored else return false
+    const { fileScanRunning } = this.state;
     const arrayOfFrameScanData = getFrameScanByFileId(fileId);
-    // console.log(arrayOfFrameScanData);
-    // if meanArray not stored, runFileScan
-    if (arrayOfFrameScanData.length === 0) {
 
-      if (this.state.fileScanRunning === false) {
+    // only start creating a sheet if there is already scanned data or
+    // there is no fileScanRunning
+    if (arrayOfFrameScanData.length !== 0 || fileScanRunning === false) {
+      this.onHideDetectionChart();
+      store.dispatch(setDefaultSheetView(SHEET_VIEW.TIMELINEVIEW));
+      store.dispatch(setCurrentSheetId(sheetId));
+      store.dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.SCENES));
+      store.dispatch(updateSheetView(fileId, sheetId, SHEET_VIEW.TIMELINEVIEW));
+      // get meanArray if it is stored else return false
+      // console.log(arrayOfFrameScanData);
+      // if meanArray not stored, runFileScan
+      if (arrayOfFrameScanData.length === 0) {
         this.setState({ fileScanRunning: true });
-
         // display toast and set toastId to fileId
         toast(({ closeToast }) => (
           <div>
-              Shot detection in progress
-              <Button
-                compact
-                floated='right'
-                content='Cancel'
-                onClick={() => {
-                  console.error('click');
-                  this.cancelFileScan(fileId);
-                  closeToast();
-                }}
-              />
+            Shot detection in progress
+            <Button
+              compact
+              floated='right'
+              content='Cancel'
+              onClick={() => {
+                console.error('click');
+                this.cancelFileScan(fileId);
+                closeToast();
+              }}
+            />
           </div>
         ), {
           toastId: fileId,
@@ -1412,19 +1412,17 @@ class App extends Component {
           closeButton: false,
           closeOnClick: false,
         });
-
         ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-scan', fileId, filePath, useRatio, threshold, sheetId, transformObject);
-
       } else {
-        this.showMessage('Sorry, only one shot detection at a time.', 3000, 'error');
+        const meanValueArray = arrayOfFrameScanData.map(frame => frame.meanValue)
+        const meanColorArray = arrayOfFrameScanData.map(frame => JSON.parse(frame.meanColor))
+        // console.log(meanColorArray);
+        this.calculateSceneList(fileId, meanValueArray, meanColorArray, threshold, sheetId);
       }
-
     } else {
-      const meanValueArray = arrayOfFrameScanData.map(frame => frame.meanValue)
-      const meanColorArray = arrayOfFrameScanData.map(frame => JSON.parse(frame.meanColor))
-      // console.log(meanColorArray);
-      this.calculateSceneList(fileId, meanValueArray, meanColorArray, threshold, sheetId);
+      this.showMessage('Sorry, only one shot detection at a time.', 3000, 'error');
     }
+
     return true;
   }
 
