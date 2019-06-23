@@ -10,8 +10,8 @@ import styles from './Menu.css';
 import stylesPop from './Popup.css';
 
 const Footer = ({
-  file, visibilitySettings, toggleMovielist, toggleSettings, onSaveMoviePrint,
-  savingMoviePrint, defaultSheetView, showFeedbackForm, onOpenFeedbackForm,
+  file, onSaveMoviePrint,
+  savingMoviePrint, defaultSheetView,
   onSaveAllMoviePrints, defaultView
 }) => {
 
@@ -28,25 +28,6 @@ const Footer = ({
         // widths={3}
       >
         <Menu.Menu position="right">
-          <Popup
-            trigger={
-              <Menu.Item
-                data-tid='onOpenFeedbackFormBtn'
-                name="send"
-                onClick={onOpenFeedbackForm}
-              >
-                <Icon
-                  name="mail"
-                />
-                Share Feedback
-              </Menu.Item>
-            }
-            mouseEnterDelay={1000}
-            position='top center'
-            offset='0,8px'
-            className={stylesPop.popup}
-            content="Share Feedback"
-          />
           {file &&
             (defaultSheetView === SHEET_VIEW.GRIDVIEW || defaultSheetView === SHEET_VIEW.TIMELINEVIEW) &&
             defaultView === VIEW.STANDARDVIEW &&

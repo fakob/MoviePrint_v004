@@ -13,6 +13,7 @@ import Database from 'better-sqlite3';
 import extract from 'png-chunks-extract';
 import text from 'png-chunk-text';
 import { Zoom, ToastContainer, toast } from 'react-toastify';
+import axios from 'axios';
 
 import '../app.global.css';
 import FileList from './FileList';
@@ -152,8 +153,10 @@ import {
 
 import startupImg from '../img/MoviePrint-steps.svg';
 
+const compareVersions = require('compare-versions');
+
 const { ipcRenderer } = require('electron');
-const { dialog, app } = require('electron').remote;
+const { dialog, app, shell } = require('electron').remote;
 const opencv = require('opencv4nodejs');
 
 const moviePrintDB = new Database(FRAMESDB_PATH, { verbose: console.log });
@@ -342,6 +345,7 @@ class App extends Component {
     this.calculateSceneList = this.calculateSceneList.bind(this);
     this.onToggleDetectionChart = this.onToggleDetectionChart.bind(this);
     this.onHideDetectionChart = this.onHideDetectionChart.bind(this);
+    this.checkForUpdates = this.checkForUpdates.bind(this);
 
     // this.addToFramesToFetch = this.addToFramesToFetch.bind(this);
 
@@ -642,6 +646,14 @@ class App extends Component {
 
     this.updatecontainerWidthAndHeight();
     window.addEventListener('resize', this.updatecontainerWidthAndHeight);
+
+    log.debug('App.js reports: componentDidMount');
+    log.debug(`Operating system: ${process.platform}-${os.release()}`);
+    log.debug(`App version: ${app.getName()}-${app.getVersion()}`);
+    console.log(process.platform);
+    console.log(os.release());
+    console.log(app.getName());
+    console.log(app.getVersion());
   }
 
   componentWillReceiveProps(nextProps) {
@@ -1144,6 +1156,68 @@ class App extends Component {
       });
     }
     return false;
+  }
+
+  checkForUpdates() {
+    // check for updates
+    this.setState({
+      isCheckingForUpdates: true,
+    });
+    let latestVersion = null;
+    const { platform } = process;
+    axios.get(
+      'https://movieprint.fakob.com/wp-json/wp/v2/pages/522',
+      {
+        timeout: 30000
+      }
+    )
+    .then(response => {
+      log.debug(response.data.acf);
+      if (platform === 'darwin') {
+        latestVersion = response.data.acf.mac_version_number;
+      } else if (platform === 'win32') {
+        latestVersion = response.data.acf.windows_version_number;
+      }
+      const thisVersion = app.getVersion();
+      const updateAvailable = compareVersions(latestVersion, thisVersion);
+      log.debug(`this version: ${thisVersion}, latest version: ${latestVersion}, update available: ${updateAvailable}`);
+      if (updateAvailable > 0) {
+        toast(({ closeToast }) => (
+          <div>
+            An update is available: {latestVersion} <br/>
+            Your version is: {thisVersion} <br/><br/>
+            <Button
+              compact
+              fluid
+              content="See what's new"
+              onClick={() => {
+                shell.openExternal('https://movieprint.fakob.com/movieprint-changelog/');
+                closeToast();
+              }}
+            />
+          </div>
+        ), {
+          className: `${stylesPop.toast} ${stylesPop.toastSuccess}`,
+          autoClose: false,
+        });
+      } else {
+        this.showMessage(`Your version is up to date: ${thisVersion}`, 3000, 'info');
+      }
+
+      this.setState({
+        isCheckingForUpdates: undefined,
+      });
+
+      return undefined;
+    }).catch((error) => {
+      this.showMessage(`There has been an error while checking for updates:
+        ${error}`, 3000, 'error');
+      log.error(error);
+
+      this.setState({
+        isCheckingForUpdates: undefined,
+      });
+    });
   }
 
   applyMimeTypes(event) {
@@ -2744,7 +2818,10 @@ class App extends Component {
                   onSetViewClick={this.onSetViewClick}
                   onSetSheetFitClick={this.onSetSheetFitClick}
                   openMoviesDialog={this.openMoviesDialog}
+                  checkForUpdates={this.checkForUpdates}
+                  onOpenFeedbackForm={this.onOpenFeedbackForm}
                   zoom={this.state.zoom}
+                  isCheckingForUpdates={this.state.isCheckingForUpdates}
                   scaleValueObject={scaleValueObject}
                   isGridView
                 />
@@ -3058,11 +3135,12 @@ class App extends Component {
                   // closeOnEscape={false}
                   // closeOnRootNodeClick={false}
                   // basic
-                  size='fullscreen'
-                  style={{
-                    marginTop: 0,
-                    height: '80vh',
-                  }}
+                  // size='fullscreen'
+                  // style={{
+                  //   marginTop: 0,
+                  //   height: '80vh',
+                  // }}
+                  className={styles.feedbackFormModal}
                   onMount={() => {
                     setTimeout(() => {
                       this.webviewRef.current.addEventListener('ipc-message', event => {
@@ -3077,16 +3155,6 @@ class App extends Component {
                           this.onCloseFeedbackForm();
                         }
                       })
-                      // log.debug(this.webviewRef.current.getWebContents());
-                      // this.webviewRef.current.addEventListener('dom-ready', () => {
-                      //   this.webviewRef.current.openDevTools();
-                      // })
-                      // this.webviewRef.current.addEventListener('did-stop-loading', (event) => {
-                      //   log.debug(event);
-                      // });
-                      // this.webviewRef.current.addEventListener('did-start-loading', (event) => {
-                      //   log.debug(event);
-                      // });
                     }, 300); // wait a tiny bit until webview is mounted
                   }}
                 >
@@ -3101,10 +3169,7 @@ class App extends Component {
                       autosize='true'
                       // nodeintegration='true'
                       // disablewebsecurity='true'
-                      // minheight='80vh'
-                      style={{
-                        height: '80vh',
-                      }}
+                      className={styles.feedbackFormWebView}
                       preload='./webViewPreload.js'
                       ref={this.webviewRef}
                       src={`http://movieprint.fakob.com/feedback-for-movieprint-app?app-version=${process.platform}-${os.release()}-${app.getName()}-${app.getVersion()}&your-email=${settings.emailAddress}`}
@@ -3140,8 +3205,6 @@ class App extends Component {
                 <Footer
                   visibilitySettings={visibilitySettings}
                   file={file}
-                  onOpenFeedbackForm={this.onOpenFeedbackForm}
-                  showFeedbackForm={this.state.showFeedbackForm}
                   onSaveMoviePrint={this.onSaveMoviePrint}
                   onSaveAllMoviePrints={this.onSaveAllMoviePrints}
                   savingMoviePrint={this.state.savingMoviePrint}

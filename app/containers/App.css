@@ -211,3 +211,15 @@
   z-index: 3000 !important;
   transform: translate(-50%, -50%);
 }
+
+.feedbackFormModal {
+  height: 90vh;
+  width: 50vw !important;
+  min-width: 680px;
+  transform: translate(-50%);
+  left: 50% !important
+}
+
+.feedbackFormWebView {
+  height: 85vh;
+}

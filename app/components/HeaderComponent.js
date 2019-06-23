@@ -8,8 +8,9 @@ import styles from './Menu.css';
 import stylesPop from './Popup.css';
 
 const Header = ({
-  file, visibilitySettings, openMoviesDialog,
-  onImportMoviePrint, fileCount, onClearMovieList
+  file, visibilitySettings, openMoviesDialog, onOpenFeedbackForm,
+  onImportMoviePrint, fileCount, onClearMovieList, checkForUpdates,
+  isCheckingForUpdates,
 }) => {
 
   return (
@@ -69,6 +70,45 @@ const Header = ({
           className={stylesPop.popup}
           content="Import MoviePrint from json file"
         />
+        <Menu.Menu position="right">
+          <Popup
+            trigger={
+              <Menu.Item
+                data-tid='checkForUpdatesBtn'
+                onClick={checkForUpdates}
+                disabled={isCheckingForUpdates}
+              >
+                <Icon
+                  name="redo"
+                />
+                Check for updates
+              </Menu.Item>
+            }
+            mouseEnterDelay={1000}
+            position='bottom center'
+            className={stylesPop.popup}
+            content='Check online if there are updates available'
+          />
+          <Popup
+            trigger={
+              <Menu.Item
+                data-tid='onOpenFeedbackFormBtn'
+                name="send"
+                onClick={onOpenFeedbackForm}
+              >
+                <Icon
+                  name="mail"
+                />
+                Share Feedback
+              </Menu.Item>
+            }
+            mouseEnterDelay={1000}
+            position='top center'
+            offset='0,8px'
+            className={stylesPop.popup}
+            content="Share Feedback"
+          />
+        </Menu.Menu>
       </Menu>
     </div>
   );

@@ -753,7 +753,7 @@ class VideoPlayer extends Component {
                 mouseEnterDelay={1000}
                 position='bottom center'
                 className={stylesPop.popup}
-                content={<span>Switch between cut/merge scenes and change thumb mode <mark>SPACE</mark></span>}
+                content={<span>Switch between cut/merge shots and change thumb mode <mark>SPACE</mark></span>}
               />}
               {defaultSheetView === SHEET_VIEW.TIMELINEVIEW && <Popup
                 trigger={
