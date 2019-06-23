@@ -347,6 +347,7 @@ class App extends Component {
     this.calculateSceneList = this.calculateSceneList.bind(this);
     this.onToggleDetectionChart = this.onToggleDetectionChart.bind(this);
     this.onHideDetectionChart = this.onHideDetectionChart.bind(this);
+    this.checkForUpdates = this.checkForUpdates.bind(this);
 
     // this.addToFramesToFetch = this.addToFramesToFetch.bind(this);
 
@@ -663,46 +664,8 @@ class App extends Component {
     this.updatecontainerWidthAndHeight();
     window.addEventListener('resize', this.updatecontainerWidthAndHeight);
 
-    // check for updates
-    let latestVersion = null;
-    const { platform } = process;
-    axios.get('https://movieprint.fakob.com/wp-json/wp/v2/pages/522')
-    // axios.get('https://api.github.com/repos/fakob/MoviePrint_v004/releases/latest')
-    // axios.get('https://api.github.com/users/fakob')
-    // .then(response => this.setState({username: response.data.name}))
-    .then(response => {
-      console.log(response);
-      // console.log(response.data.tag_name);
-      // console.log(response.data.name);
-      console.log(response.data.acf);
-      console.log(response.data.acf.windows_version_number);
-      console.log(response.data.acf.mac_version_number);
-      if (platform === 'darwin') {
-        latestVersion = response.data.acf.mac_version_number;
-      } else if (platform === 'win32') {
-        latestVersion = response.data.acf.windows_version_number;
-      }
-      console.log(compareVersions(latestVersion, '0.2.1'));
-      console.log(compareVersions(latestVersion, app.getVersion()));
-      setTimeout(() => {
-        toast({
-          type: 'warning',
-          icon: 'envelope',
-          title: 'Warning Toast',
-          description: `This is a Semantic UI toast wich waits 5 seconds before closing ${platform}`,
-          animation: 'bounce',
-          time: 5000,
-          onClick: () => alert('you click on the toast'),
-          onClose: () => alert('you close this toast')
-        });
-      }, 0);
-      return undefined;
-    }).catch((error) => {
-      log.error(error);
-    });
-
     log.debug('App.js reports: componentDidMount');
-    log.debug(`Operating system: ${platform}-${os.release()}`);
+    log.debug(`Operating system: ${process.platform}-${os.release()}`);
     log.debug(`App version: ${app.getName()}-${app.getVersion()}`);
     console.log(process.platform);
     console.log(os.release());
@@ -1199,6 +1162,57 @@ class App extends Component {
       });
     }
     return false;
+  }
+
+  checkForUpdates() {
+    // check for updates
+    console.log(this.state);
+    let latestVersion = null;
+    const { platform } = process;
+    axios.get('https://movieprint.fakob.com/wp-json/wp/v2/pages/522')
+    // axios.get('https://api.github.com/repos/fakob/MoviePrint_v004/releases/latest')
+    // axios.get('https://api.github.com/users/fakob')
+    // .then(response => this.setState({username: response.data.name}))
+    .then(response => {
+      console.log(response);
+      // console.log(response.data.tag_name);
+      // console.log(response.data.name);
+      console.log(response.data.acf);
+      console.log(response.data.acf.windows_version_number);
+      console.log(response.data.acf.mac_version_number);
+      if (platform === 'darwin') {
+        latestVersion = response.data.acf.mac_version_number;
+      } else if (platform === 'win32') {
+        latestVersion = response.data.acf.windows_version_number;
+      }
+      const thisVersion = app.getVersion();
+      const updateAvailable = compareVersions(latestVersion, thisVersion);
+      // if (updateAvailable) {
+      if (true) {
+        this.setState({
+          showUpdates: true,
+        })
+      }
+      // console.log(compareVersions(latestVersion, '0.2.1'));
+      console.log(updateAvailable);
+      setTimeout(() => {
+        toast({
+          type: 'warning',
+          icon: 'envelope',
+          title: 'Warning Toast',
+          description: `This version: ${thisVersion}
+          Latest version: ${latestVersion}
+          An update is available: ${updateAvailable}`,
+          animation: 'bounce',
+          time: 5000,
+          onClick: () => alert('you click on the toast'),
+          onClose: () => alert('you close this toast')
+        });
+      }, 0);
+      return undefined;
+    }).catch((error) => {
+      log.error(error);
+    });
   }
 
   applyMimeTypes(event) {
@@ -2741,6 +2755,7 @@ class App extends Component {
                   onSetViewClick={this.onSetViewClick}
                   onSetSheetFitClick={this.onSetSheetFitClick}
                   openMoviesDialog={this.openMoviesDialog}
+                  checkForUpdates={this.checkForUpdates}
                   zoom={this.state.zoom}
                   scaleValueObject={scaleValueObject}
                   isGridView
@@ -3167,6 +3182,40 @@ class App extends Component {
                         </Button>
                       </Modal.Actions>
                     </Modal>
+                  </Modal.Content>
+                </Modal>
+                <Modal
+                  open={this.state.showUpdates}
+                  onClose={() => this.setState({ showUpdates: false})}
+                  closeIcon
+                  // closeOnEscape={false}
+                  // closeOnRootNodeClick={false}
+                  // basic
+                  size='fullscreen'
+                  style={{
+                    marginTop: 0,
+                    height: '80vh',
+                  }}
+                >
+                  <Modal.Content
+                    // scrolling
+                    style={{
+                      // overflow: 'auto',
+                      // height: '80vh',
+                    }}
+                  >
+                    <webview
+                      autosize='true'
+                      // nodeintegration='true'
+                      // disablewebsecurity='true'
+                      // minheight='80vh'
+                      style={{
+                        height: '80vh',
+                      }}
+                      preload='./webViewPreload.js'
+                      ref={this.webviewRef}
+                      src={`https://movieprint.fakob.com/movieprint-changelog/`}
+                    />
                   </Modal.Content>
                 </Modal>
                 <Footer

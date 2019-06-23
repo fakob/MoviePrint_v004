@@ -11,7 +11,7 @@ import stylesPop from './Popup.css';
 const Header = ({
   file, visibilitySettings, toggleMovielist, toggleSettings,
   onToggleShowHiddenThumbsClick, settings, onThumbInfoClick,
-  openMoviesDialog, toggleZoom, zoom, onSetViewClick,
+  openMoviesDialog, toggleZoom, zoom, onSetViewClick, checkForUpdates,
   onSetSheetFitClick, scaleValueObject, onImportMoviePrint, fileCount, onClearMovieList
 }) => {
 
@@ -101,6 +101,23 @@ const Header = ({
           position='bottom center'
           className={stylesPop.popup}
           content="Import MoviePrint from json file"
+        />
+        <Popup
+          trigger={
+            <Menu.Item
+              data-tid='checkForUpdatesBtn'
+              onClick={checkForUpdates}
+            >
+              <Icon
+                name="reload"
+              />
+              Check for updates
+            </Menu.Item>
+          }
+          mouseEnterDelay={1000}
+          position='bottom center'
+          className={stylesPop.popup}
+          content='Check online if there are updates available'
         />
         <Menu.Menu position="right">
           {file &&
