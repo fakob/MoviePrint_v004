@@ -12,7 +12,7 @@
     "electron-rebuild": "electron-rebuild --parallel --force --types prod,dev,optional --module-dir app",
     "opencv": "node -r babel-register scripts/opencv.js",
     "flow": "flow",
-    "flow-typed": "rimraf flow-typed/npm && flow-typed install --overwrite || true",
+    "flow-typed": "rimraf flow-typed/npm && flow-typed update || true",
     "includeInDist": "node -r babel-register scripts/includeInDist.js",
     "lint": "cross-env NODE_ENV=development eslint --cache --format=node_modules/eslint-formatter-pretty .",
     "lint-fix": "yarn --silent lint --fix; exit 0",
