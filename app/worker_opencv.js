@@ -686,7 +686,7 @@ ipcRenderer.on(
                 'progressMessage',
                 'info',
                 messageToSend,
-                6000
+                3000
               );
             }
           });
