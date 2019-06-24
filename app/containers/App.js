@@ -1504,6 +1504,7 @@ class App extends Component {
       store.dispatch(updateSheetName(tempFile.id, sheetId, getNewSheetName(getSheetCount(files, tempFile.id))));
       store.dispatch(updateSheetCounter(tempFile.id));
       store.dispatch(setCurrentSheetId(sheetId));
+      store.dispatch(updateSheetColumnCount(tempFile.id, sheetId, Math.ceil(Math.sqrt(sceneList.length))));
       store.dispatch(setDefaultSheetView(SHEET_VIEW.TIMELINEVIEW));
       store.dispatch(addScenes(tempFile, sceneList, clearOldScenes, settings.defaultCachedFramesSize, sheetId));
     } else {
