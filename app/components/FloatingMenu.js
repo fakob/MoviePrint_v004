@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Popup } from 'semantic-ui-react'
+import { Button, Dropdown, Popup } from 'semantic-ui-react'
 import {
   VIEW,
   SHEET_VIEW,
@@ -12,6 +12,13 @@ import iconCutView from '../img/icon-cut-view.svg';
 import iconThumbView from '../img/icon-thumb-view.svg';
 import iconHeader from '../img/icon-header.svg';
 import iconFrameInfo from '../img/icon-frame-info.svg';
+import iconAddInterval from '../img/icon-add-interval.svg';
+import iconAddScene from '../img/icon-add-scene.svg';
+import icon2x2 from '../img/icon-2x2.svg';
+import icon3x3 from '../img/icon-3x3.svg';
+import icon4x4 from '../img/icon-4x4.svg';
+import icon5x5 from '../img/icon-5x5.svg';
+import icon6x6 from '../img/icon-6x6.svg';
 
 const ButtonExampleCircularSocial = ({
   onAddIntervalSheetClick,
@@ -43,15 +50,15 @@ const ButtonExampleCircularSocial = ({
       <Popup
         trigger={
           <Button
-            className={`${styles.textButton} ${visibilitySettings.showMovielist === false ? '' : styles.selected}`}
+            className={`${styles.normalButton} ${visibilitySettings.showMovielist === false ? '' : styles.selected}`}
             style={{
-              marginRight: '8px',
+              marginRight: '16px',
             }}
+            size='large'
             data-tid={(visibilitySettings.showMovielist === false) ? 'showMovieListBtn' : 'hideMovieListBtn'}
             onClick={toggleMovielist}
-          >
-            Movie list
-          </Button>
+            icon='list'
+          />
         }
         mouseEnterDelay={1000}
         position='bottom center'
@@ -63,37 +70,79 @@ const ButtonExampleCircularSocial = ({
         <Popup
           trigger={
             <Button
-              className={styles.normalButton}
+              className={styles.imageButton}
+              size='large'
               disabled={!isGridViewAndDefault}
               data-tid='addShotDetectionMovieListItemBtn'
               onClick={() => onScanMovieListItemClick(undefined)}
-              icon='add'
-            />
+            >
+              <img src={iconAddScene} height='18px' alt='' />
+            </Button>
           }
           mouseEnterDelay={1000}
           position='bottom center'
           className={stylesPop.popup}
           content='Add MoviePrint (shot detection based)'
         />
-        {/* <Popup
+        <Popup
           trigger={
-            <Button
-              className={styles.normalButton}
-              disabled={!isGridViewAndDefault}
-              data-tid='addIntervalMovieListItemBtn'
-              onClick={() => onAddIntervalSheetClick(undefined)}
-              icon='add'
-            />
+            <Dropdown
+              button
+              className={styles.dropDownButton}
+              floating
+              icon={<img src={iconAddInterval} height='18px' alt='' />}
+            >
+              <Dropdown.Menu
+                className={styles.dropDownMenu}
+              >
+                <Dropdown.Item
+                  className={styles.dropDownItem}
+                  onClick={() => onAddIntervalSheetClick(undefined, 4, 2)}
+                >
+                  <img src={icon2x2} height='18px' alt='' />
+                  2x2
+                </Dropdown.Item>
+                <Dropdown.Item
+                  className={styles.dropDownItem}
+                  onClick={() => onAddIntervalSheetClick(undefined, 9, 3)}
+                >
+                  <img src={icon3x3} height='18px' alt='' />
+                  3x3
+                </Dropdown.Item>
+                <Dropdown.Item
+                  className={styles.dropDownItem}
+                  onClick={() => onAddIntervalSheetClick(undefined, 16, 4)}
+                >
+                  <img src={icon4x4} height='18px' alt='' />
+                  4x4
+                </Dropdown.Item>
+                <Dropdown.Item
+                  className={styles.dropDownItem}
+                  onClick={() => onAddIntervalSheetClick(undefined, 25, 5)}
+                >
+                  <img src={icon5x5} height='18px' alt='' />
+                  5x5
+                </Dropdown.Item>
+                <Dropdown.Item
+                  className={styles.dropDownItem}
+                  onClick={() => onAddIntervalSheetClick(undefined, 36, 6)}
+                >
+                  <img src={icon6x6} height='18px' alt='' />
+                  6x6
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
           }
           mouseEnterDelay={1000}
           position='bottom center'
           className={stylesPop.popup}
           content='Add MoviePrint (interval based)'
-        /> */}
+        />
         <Popup
           trigger={
             <Button
               className={styles.normalButton}
+              size='large'
               disabled={!isGridViewAndDefault}
               data-tid='duplicateSheetItemBtn'
               onClick={() => onDuplicateSheetClick(undefined, undefined)}
@@ -110,6 +159,7 @@ const ButtonExampleCircularSocial = ({
             trigger={
               <Button
                 className={styles.normalButton}
+                size='large'
                 data-tid={(sheetView === SHEET_VIEW.GRIDVIEW) ? 'changeViewSheetToTimelineViewBtn' : 'changeViewSheetToGridViewBtn'}
                 onClick={() => onChangeSheetViewClick(undefined, undefined, (sheetView === SHEET_VIEW.GRIDVIEW) ? SHEET_VIEW.TIMELINEVIEW : SHEET_VIEW.GRIDVIEW)}
                 icon={(sheetView === SHEET_VIEW.GRIDVIEW) ? 'barcode' : 'grid layout'}
@@ -126,11 +176,12 @@ const ButtonExampleCircularSocial = ({
           trigger={
             <Button
               className={styles.imageButton}
+              size='large'
               disabled={visibilitySettings.defaultView === VIEW.STANDARDVIEW}
               data-tid={(sheetView === SHEET_VIEW.GRIDVIEW) ? 'changeViewSheetToTimelineViewBtn' : 'changeViewSheetToGridViewBtn'}
               onClick={() => onChangeSheetViewClick(undefined, undefined, (sheetView === SHEET_VIEW.GRIDVIEW) ? SHEET_VIEW.TIMELINEVIEW : SHEET_VIEW.GRIDVIEW)}
             >
-              <img src={(sheetView === SHEET_VIEW.GRIDVIEW) ? iconCutView : iconThumbView} height='14px' alt='' />
+              <img src={(sheetView === SHEET_VIEW.GRIDVIEW) ? iconCutView : iconThumbView} height='18px' alt='' />
             </Button>
           }
           mouseEnterDelay={1000}
@@ -149,6 +200,7 @@ const ButtonExampleCircularSocial = ({
               marginRight: '8px',
               marginLeft: '8px',
             }}
+            size='large'
             circular
             data-tid={(visibilitySettings.defaultView === VIEW.STANDARDVIEW) ? 'showPlayerBtn' : 'hidePlayerBtn'}
             onClick={() => {
@@ -175,6 +227,7 @@ const ButtonExampleCircularSocial = ({
             trigger={
               <Button
                 className={styles.normalButton}
+                size='large'
                 disabled={!isGridViewAndDefault}
                 data-tid='fitHeightBtn'
                 onClick={() => onSetSheetFitClick(SHEET_FIT.HEIGHT)}
@@ -193,6 +246,7 @@ const ButtonExampleCircularSocial = ({
             trigger={
               <Button
                 className={styles.normalButton}
+                size='large'
                 disabled={!isGridViewAndDefault}
                 data-tid='fitWidthBtn'
                 onClick={() => onSetSheetFitClick(SHEET_FIT.WIDTH)}
@@ -210,6 +264,7 @@ const ButtonExampleCircularSocial = ({
             trigger={
               <Button
                 className={styles.normalButton}
+                size='large'
                 disabled={!isGridViewAndDefault}
                 data-tid='fitAllBtn'
                 onClick={() => onSetSheetFitClick(SHEET_FIT.BOTH)}
@@ -226,6 +281,7 @@ const ButtonExampleCircularSocial = ({
           trigger={
             <Button
               className={styles.normalButton}
+              size='large'
               disabled={!isGridViewAndDefault}
               data-tid={zoom ? 'zoomOutBtn' : 'zoomInBtn'}
               onClick={toggleZoom}
@@ -244,6 +300,7 @@ const ButtonExampleCircularSocial = ({
           trigger={
             <Button
               className={styles.normalButton}
+              size='large'
               circular
               data-tid={(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'showOnlyVisibleBtn' : 'showHiddenBtn'}
               onClick={onToggleShowHiddenThumbsClick}
@@ -259,11 +316,12 @@ const ButtonExampleCircularSocial = ({
           trigger={
             <Button
               className={styles.imageButton}
+              size='large'
               disabled={!isGridViewAndDefault}
               data-tid='toggleHeaderBtn'
               onClick={() => onToggleHeaderClick()}
             >
-              <img src={iconHeader} height='14px' alt='' />
+              <img src={iconHeader} height='18px' alt='' />
             </Button>
           }
           mouseEnterDelay={1000}
@@ -275,6 +333,7 @@ const ButtonExampleCircularSocial = ({
           trigger={
             <Button
               className={styles.imageButton}
+              size='large'
               disabled={!isGridViewAndDefault}
               data-tid='showThumbInfoBtn'
               onClick={() => {
@@ -284,7 +343,7 @@ const ButtonExampleCircularSocial = ({
                 onThumbInfoClick(THUMB_INFO_OPTIONS[nextIndex].value);
               }}
             >
-              <img src={iconFrameInfo} height='14px' alt='' />
+              <img src={iconFrameInfo} height='18px' alt='' />
             </Button>
           }
           mouseEnterDelay={1000}
@@ -297,15 +356,15 @@ const ButtonExampleCircularSocial = ({
       <Popup
         trigger={
           <Button
-            className={`${styles.textButton} ${visibilitySettings.showSettings === false ? '' : styles.selected}`}
+            className={`${styles.normalButton} ${visibilitySettings.showSettings === false ? '' : styles.selected}`}
             style={{
-              marginLeft: '8px',
+              marginLeft: '16px',
             }}
+            size='large'
             data-tid={(visibilitySettings.showSettings === false) ? 'moreSettingsBtn' : 'hideSettingsBtn'}
             onClick={toggleSettings}
-          >
-            Settings
-          </Button>
+            icon='edit'
+          />
         }
         mouseEnterDelay={1000}
         position='bottom center'

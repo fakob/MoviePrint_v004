@@ -1935,14 +1935,14 @@ class App extends Component {
     });
   }
 
-  onAddIntervalSheet(sheetsByFileId, fileId, settings) {
+  onAddIntervalSheet(sheetsByFileId, fileId, settings, thumbCount = undefined, columnCount = undefined) {
     const { store } = this.context;
     const { files } = this.props;
 
     const newSheetId = uuidV4();
     // set columnCount as it is not defined yet
-    this.getThumbsForFile(fileId, newSheetId);
-    const newColumnCount = getColumnCount(sheetsByFileId, fileId, newSheetId, settings);
+    this.getThumbsForFile(fileId, newSheetId, thumbCount);
+    const newColumnCount = columnCount || getColumnCount(sheetsByFileId, fileId, newSheetId, settings);
     store.dispatch(updateSheetColumnCount(fileId, newSheetId, newColumnCount));
     store.dispatch(updateSheetName(fileId, newSheetId, getNewSheetName(getSheetCount(files, fileId))));
     store.dispatch(updateSheetCounter(fileId));
@@ -1951,7 +1951,7 @@ class App extends Component {
     return newSheetId;
   }
 
-  onAddIntervalSheetClick(fileId) {
+  onAddIntervalSheetClick(fileId = undefined, thumbCount = undefined, columnCount = undefined) {
     // log.debug(`FileListElement clicked: ${file.name}`);
     const { store } = this.context;
     const { currentFileId, sheetsByFileId, settings, visibilitySettings } = this.props;
@@ -1961,7 +1961,7 @@ class App extends Component {
 
     store.dispatch(setCurrentFileId(theFileId));
 
-    const newSheetId = this.onAddIntervalSheet(sheetsByFileId, theFileId, settings);
+    const newSheetId = this.onAddIntervalSheet(sheetsByFileId, theFileId, settings, thumbCount, columnCount);
 
     const sheetView = getSheetView(sheetsByFileId, theFileId, newSheetId, visibilitySettings);
     this.onSetSheetClick(theFileId, newSheetId, sheetView);
@@ -1993,7 +1993,7 @@ class App extends Component {
     // store.dispatch(updateThumbObjectUrlFromDB(file.id, undefined, undefined, file.posterFrameId, true));
   }
 
-  getThumbsForFile(fileId, newSheetId = uuidV4()) {
+  getThumbsForFile(fileId, newSheetId = uuidV4(), thumbCount = this.props.settings.defaultThumbCount) {
     log.debug(`inside getThumbsForFileId: ${fileId}`);
     const { store } = this.context;
     const { files, sheetsByFileId, settings } = this.props;
@@ -2005,7 +2005,7 @@ class App extends Component {
       store.dispatch(addIntervalSheet(
           file,
           newSheetId,
-          settings.defaultThumbCount,
+          thumbCount,
           file.fadeInPoint,
           file.fadeOutPoint,
           settings.defaultCachedFramesSize,
@@ -2542,6 +2542,7 @@ class App extends Component {
 
   onClearMovieList = () => {
     const { store } = this.context;
+    store.dispatch(setView(VIEW.STANDARDVIEW));
     store.dispatch(clearMovieList());
     store.dispatch(hideMovielist());
     store.dispatch(hideSettings());
