@@ -1,7 +1,7 @@
 {
-  "name": "movieprint-v004",
+  "name": "MoviePrint_v004",
   "productName": "MoviePrint_v004",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "A tool which lets you create screenshots of entire movies in an instant.",
   "main": "./main.prod.js",
   "author": {
