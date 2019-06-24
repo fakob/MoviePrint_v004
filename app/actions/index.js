@@ -1131,10 +1131,14 @@ export const clearMovieList = () => {
       type: 'CLEAR_CURRENT_FILEID',
     });
     log.debug('dispatch: CLEAR_CURRENT_FILEID');
+
     dispatch({
       type: 'CLEAR_MOVIE_LIST',
     });
     log.debug('dispatch: CLEAR_MOVIE_LIST');
+
+    dispatch(deleteSheets());
+    log.debug('dispatch: deleteSheets');
 
     clearTableFrameScanList();
     log.debug('clear fileId from frameScanList in sqlite3');
