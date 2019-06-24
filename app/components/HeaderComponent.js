@@ -15,7 +15,7 @@ const Header = ({
 
   return (
     <div
-      className={`${styles.menu}`}
+      className={`${styles.container}`}
       style={{
         height: MENU_HEADER_HEIGHT
       }}
@@ -23,6 +23,7 @@ const Header = ({
       <Menu
         size="tiny"
         inverted
+        className={`${styles.menu}`}
         // widths={3}
       >
         <Popup

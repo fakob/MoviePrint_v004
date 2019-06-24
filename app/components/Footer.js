@@ -17,7 +17,7 @@ const Footer = ({
 
   return (
     <div
-      className={`${styles.menu}`}
+      className={`${styles.container}`}
       style={{
         height: MENU_FOOTER_HEIGHT
       }}
@@ -25,6 +25,7 @@ const Footer = ({
       <Menu
         size="tiny"
         inverted
+        className={`${styles.menu}`}
         // widths={3}
       >
         <Menu.Menu position="right">

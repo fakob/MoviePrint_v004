@@ -1,6 +1,12 @@
+.container {
+  z-index: 200;
+  background-color: rgba(30,30,30,1);
+}
+
 .menu {
   z-index: 200;
-  background-color: #1e1e1e;
+  /* background-color: #1e1e1e; */
+  background-color: rgba(30,30,30,1) !important;
 }
 
 /* .headerItem {
