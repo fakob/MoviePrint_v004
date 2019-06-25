@@ -79,45 +79,17 @@ if (process.platform === 'darwin') {
 } else if (process.platform === 'win32') {
 
   // it seems that on windows opencv is already bundled with ffmpeg
+  // but the redistributable files need to be copied into the the apps root folder
+  // I did not manage to configure electron-builder to copy the dll's directly
+  // therefore this is done in a 2 step process
+  // 1. this script copies the dll's into the dist folder
+  // 2. electron-builder copies the dll's into the root folder when packaging
 
-  // // Include all opencv dependencies including ffmpeg
-  // log.info(
-  //   'running opencv script to copy ffmpeg files into the opencv folder for later packaging'
-  // );
-  //
-  // if (!shell.which('ffmpeg')) {
-  //   shell.echo('ffmpeg could not be found and packaged. It is therefore very likely that opencv was built without ffmpeg support. MoviePrint might still work, just without ffmpeg support.');
-  //   shell.exit(1);
-  // }
-  //
-  // // get ffmpeg version
-  // const ffmpegVersionLine = shell.exec('ffmpeg -version', {silent:true}).grep('ffmpeg version');
-  // const regex = /ffmpeg version (\d+\.\d+\.\d)/g;
-  // const ffmpegVersion = regex.exec(ffmpegVersionLine)[1];
-  // log.debug(`trying to package ffmpeg version: ${ffmpegVersion}`);
-  //
-  // // get ffmpeg folder where ffmpeg.exe, (ffplay.exe and ffprobe.exe) are installed
-  // const ffmpegSource = shell.exec('powershell where.exe ffmpeg').stdout;
-  // log.debug(ffmpegSource);
-  //
-  // let ffmpegSourceDir;
-  // if (ffmpegSource.indexOf('scoop') >= 0) {
-  //   // if installed with scoop then hardcode path as this does not support shims
-  //   ffmpegSourceDir = path.resolve(
-  //     process.env.HOME || process.env.USERPROFILE,
-  //     'scoop\\apps\\ffmpeg\\current\\bin'
-  //   );
-  //   log.debug(ffmpegSourceDir);
-  // } else {
-  //   ffmpegSourceDir = path.dirname(ffmpegSource);
-  //   log.debug(ffmpegSourceDir);
-  // }
-  //
-  // const opencvLibDir = path.resolve(
-  //   projectRoot,
-  //   'app/node_modules/opencv-build/opencv/build/bin/Release/'
-  // );
-  //
-  // // copy ffmpeg files
-  // shell.cp('-n', path.join(ffmpegSourceDir, 'ffmpeg.exe'), opencvLibDir);
+  const distDir = path.resolve(projectRoot, 'app/dist/redistributable/');
+  shell.mkdir('-p', distDir); // create folder if it does not exist yet
+
+  // copy necessary redistributable files
+  shell.cp('-n', '/Windows/system32/CONCRT140.dll',distDir );
+  shell.cp('-n', '/Windows/system32/MSVCP140.dll',distDir );
+  shell.cp('-n', '/Windows/system32/VCRUNTIME140.dll',distDir );
 }

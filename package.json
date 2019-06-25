@@ -105,8 +105,9 @@
       ],
       "extraResources": [
         {
-          "from": "/Windows/system32/CONCRT140.dll",
-          "to": "../"
+          "from": "app/dist/",
+          "to": "../",
+          "filter": "*"
         }
       ],
       "files": [
