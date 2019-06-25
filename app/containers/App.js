@@ -140,6 +140,9 @@ import {
   SHEET_TYPE,
   DEFAULT_THUMB_COUNT,
   FRAMESDB_PATH,
+  URL_CHANGE_LOG,
+  URL_REST_API_CHECK_FOR_UPDATES,
+  URL_FEEDBACK_FORM,
 } from '../utils/constants';
 import {
   deleteTableFramelist,
@@ -1165,8 +1168,7 @@ class App extends Component {
     });
     let latestVersion = null;
     const { platform } = process;
-    axios.get(
-      'https://movieprint.fakob.com/wp-json/wp/v2/pages/522',
+    axios.get(URL_REST_API_CHECK_FOR_UPDATES,
       {
         timeout: 30000
       }
@@ -1191,7 +1193,7 @@ class App extends Component {
               fluid
               content="See what's new"
               onClick={() => {
-                shell.openExternal('https://movieprint.fakob.com/movieprint-changelog/');
+                shell.openExternal(URL_CHANGE_LOG);
                 closeToast();
               }}
             />
@@ -3187,7 +3189,7 @@ class App extends Component {
                       className={styles.feedbackFormWebView}
                       preload='./webViewPreload.js'
                       ref={this.webviewRef}
-                      src={`http://movieprint.fakob.com/feedback-for-movieprint-app?app-version=${process.platform}-${os.release()}-${app.getName()}-${app.getVersion()}&your-email=${settings.emailAddress}`}
+                      src={`${URL_FEEDBACK_FORM}?app-version=${process.platform}-${os.release()}-${app.getName()}-${app.getVersion()}&your-email=${settings.emailAddress}`}
                     />
                     <Modal
                       open={this.state.intendToCloseFeedbackForm}
