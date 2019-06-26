@@ -178,11 +178,18 @@ export default class MenuBuilder {
       label: 'Help',
       submenu: [
         {
+          label: 'Help',
+          click() {
+            shell.openExternal('https://movieprint.fakob.com/movieprint-help/');
+          }
+        },
+        {
           label: 'Home',
           click() {
             shell.openExternal('https://movieprint.fakob.com');
           }
         },
+        { type: 'separator' },
         {
           label: 'Development',
           click() {
@@ -195,6 +202,13 @@ export default class MenuBuilder {
           label: 'Search Issues',
           click() {
             shell.openExternal('https://github.com/fakob/MoviePrint_v004/issues');
+          }
+        },
+        { type: 'separator' },
+        {
+          label: 'Changelog',
+          click() {
+            shell.openExternal('https://movieprint.fakob.com/movieprint-changelog/');
           }
         }
       ]
@@ -319,23 +333,22 @@ export default class MenuBuilder {
       label: 'Help',
       submenu: [
         {
+          label: 'Help',
+          click() {
+            shell.openExternal('https://movieprint.fakob.com/movieprint-help/');
+          }
+        },
+        {
           label: 'Home',
           click() {
             shell.openExternal('https://movieprint.fakob.com');
           }
         },
+        { type: 'separator' },
         {
           label: 'Development',
           click() {
-            shell.openExternal(
-              'https://github.com/fakob/MoviePrint_v004'
-            );
-          }
-        },
-        {
-          label: 'Community Discussions',
-          click() {
-            shell.openExternal('https://discuss.atom.io/c/electron');
+            shell.openExternal('https://github.com/fakob/MoviePrint_v004');
           }
         },
         {
@@ -345,6 +358,12 @@ export default class MenuBuilder {
           }
         },
         { type: 'separator' },
+        {
+          label: 'Changelog',
+          click() {
+            shell.openExternal('https://movieprint.fakob.com/movieprint-changelog/');
+          }
+        },
         { label: 'Credits', click: () => { this.creditsWindow.show(); } },
       ]
     };
