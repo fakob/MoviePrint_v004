@@ -272,7 +272,7 @@
     "electron-process-manager": "^0.6.0",
     "electron-unhandled": "^1.1.0",
     "history": "^4.7.2",
-    "html2canvas": "^1.0.0-alpha.10",
+    "html2canvas": "1.0.0-alpha.12",
     "lodash": "^4.17.4",
     "png-chunk-text": "^1.0.0",
     "png-chunks-encode": "^1.0.0",
