@@ -3281,28 +3281,35 @@ class App extends Component {
                   />
                 </div>
               }
-              <Modal
-                open={this.state.showTransformModal}
-                onClose={() => this.setState({ showTransformModal: false})}
-                size='small'
-                closeIcon
+              <div
+                onKeyDown={e => e.stopPropagation()}
+                onClick={e => e.stopPropagation()}
+                onFocus={e => e.stopPropagation()}
+                onMouseOver={e => e.stopPropagation()}
               >
-                <Modal.Header>Set transform</Modal.Header>
-                <Modal.Content image>
-                  <Modal.Description>
-                    <Form onSubmit={this.onChangeTransform}>
-                      <Form.Group>
-                        <Header as='h3'>Cropping in pixel</Header>
-                        <Form.Input name='cropTop' label='From top' placeholder='top' type='number' min='0' width={3} defaultValue={this.state.transformObject.cropTop} />
-                        <Form.Input name='cropBottom' label='From bottom' placeholder='bottom' type='number' min='0' width={3} defaultValue={this.state.transformObject.cropBottom} />
-                        <Form.Input name='cropLeft' label='From left' placeholder='left' type='number' min='0' width={3} defaultValue={this.state.transformObject.cropLeft} />
-                        <Form.Input name='cropRight' label='From right' placeholder='right' type='number' min='0' width={3} defaultValue={this.state.transformObject.cropRight} />
-                      </Form.Group>
-                    <Form.Button content='Update cropping' />
-                    </Form>
-                  </Modal.Description>
-                </Modal.Content>
-              </Modal>
+                <Modal
+                  open={this.state.showTransformModal}
+                  onClose={() => this.setState({ showTransformModal: false})}
+                  size='small'
+                  closeIcon
+                >
+                  <Modal.Header>Set transform</Modal.Header>
+                  <Modal.Content image>
+                    <Modal.Description>
+                      <Form onSubmit={this.onChangeTransform}>
+                        <Form.Group>
+                          <Header as='h3'>Cropping in pixel</Header>
+                          <Form.Input name='cropTop' label='From top' placeholder='top' type='number' min='0' width={3} defaultValue={this.state.transformObject.cropTop} />
+                          <Form.Input name='cropBottom' label='From bottom' placeholder='bottom' type='number' min='0' width={3} defaultValue={this.state.transformObject.cropBottom} />
+                          <Form.Input name='cropLeft' label='From left' placeholder='left' type='number' min='0' width={3} defaultValue={this.state.transformObject.cropLeft} />
+                          <Form.Input name='cropRight' label='From right' placeholder='right' type='number' min='0' width={3} defaultValue={this.state.transformObject.cropRight} />
+                        </Form.Group>
+                        <Form.Button content='Update cropping' />
+                      </Form>
+                    </Modal.Description>
+                  </Modal.Content>
+                </Modal>
+              </div>
               <Modal
                 open={this.state.savingAllMoviePrints}
                 basic
