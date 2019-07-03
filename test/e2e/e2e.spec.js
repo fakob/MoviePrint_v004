@@ -4,6 +4,7 @@ import { Application } from 'spectron';
 import electronPath from 'electron';
 import fakeDialog from 'spectron-fake-dialog';
 import path from 'path';
+import fs from 'fs';
 import '../../internals/scripts/CheckBuiltsExist';
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
@@ -19,6 +20,7 @@ describe('main window', function spec() {
     });
     fakeDialog.apply(this.app);
     console.log(await this.app.getSettings());
+    await delay(3000);
     return this.app.start();
   });
 
@@ -33,16 +35,11 @@ describe('main window', function spec() {
 
   it('should open the 5 windows', async () => {
     const { client } = this.app;
-    // await client.waitUntilWindowLoaded();
-    // await client.waitForExist('[data-tid="startupImg"]', 10000);
-    // const windowCount = await client.getWindowCount();
     const windowHandles = await client.windowHandles();
     const windowNames = [];
     for (const windowHandleValue of windowHandles.value) {
       await client.window(windowHandleValue);
       const title = await client.getTitle();
-
-      console.log(title);
       // only add to array if it has a title
       // this will exclude debug windows
       if (title !== '') {
@@ -85,25 +82,38 @@ describe('main window', function spec() {
     await client.chooseFile(dragndropInput, pathOfMovie);
     const val = await client.getValue(dragndropInput)
     console.log(val);
-    client.waitForExist('[data-tid="thumbGridDiv"]', 3000);
+    client.waitForExist('[data-tid="thumbGridDiv"]', 5000);
     expect(await client.isExisting('[data-tid="thumbGridDiv"]')).toBe(true);
     expect(await client.isExisting('#thumb15')).toBe(true);
+    // await client.browserWindow.capturePage().then((imageBuffer) => {
+    //   fs.writeFile('end of should load a movie and get all 16 thumbs.png', imageBuffer);
+    //   return undefined;
+    // }).catch((err) => {
+    //   console.error(err);
+    // });
   });
 
-  // it('should increase thumb count to 20 - NOT WORKING YET', async () => {
-  //   const { client } = this.app;
-  //   console.log(client);
-  //   await client.element('[data-tid="moreSettingsBtn"]').click();
-  //   await client.element('[data-tid="showSlidersCheckbox"]').scroll();
-  //   await client.element('[data-tid="showSlidersCheckbox"]').click();
-  //   await client.element('[data-tid="columnCountInput"]').scroll();
-  //   const findColumnCountInput = () => client.element('[data-tid="columnCountInput"]');
-  //   await findColumnCountInput().setValue(5);
-  //   await client.element('[data-tid="applyNewGridBtn"]').click();
-  //   await client.element('[data-tid="showSlidersCheckbox"]').click();
-  //   client.waitForExist('#thumb19', 3000);
-  //   expect(await client.isExisting('#thumb19')).toBe(true);
-  // });
+  it('should increase thumb count to 20', async () => {
+    const { client } = this.app;
+    // show settings menu
+    await client.waitForExist('[data-tid="moreSettingsBtn"]', 3000);
+    await client.element('[data-tid="moreSettingsBtn"]').click();
+
+    // move down to switch sliders to inputs
+    await client.moveToObject('[data-tid="changeCachedFramesSizeDropdown"]');
+    await client.waitForVisible('[data-tid="showSlidersCheckbox"]', 3000);
+    await client.element('[data-tid="showSlidersCheckbox"]').click();
+
+    // move up and change column count
+    await client.moveToObject('[data-tid="columnCountInput"]');
+    await client.waitForVisible('[data-tid="columnCountInput"]', 3000);
+    await client.setValue('[data-tid="columnCountInput"] input', 5);
+    await client.keys('Enter');
+    await client.element('[data-tid="applyNewGridBtn"]').click();
+
+    await client.waitForExist('#thumb19', 3000);
+    expect(await client.isExisting('#thumb19')).toBe(true);
+  });
 
   // it('should open a dialog', async () => {
   //   const { client } = this.app;
