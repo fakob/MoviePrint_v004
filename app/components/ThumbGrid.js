@@ -65,6 +65,8 @@ class ThumbGrid extends Component {
     this.onSaveThumb = this.onSaveThumb.bind(this);
     this.onInPoint = this.onInPoint.bind(this);
     this.onOutPoint = this.onOutPoint.bind(this);
+    this.onHideBefore = this.onHideBefore.bind(this);
+    this.onHideAfter = this.onHideAfter.bind(this);
     this.onHoverInPoint = this.onHoverInPoint.bind(this);
     this.onHoverOutPoint = this.onHoverOutPoint.bind(this);
     this.onLeaveInOut = this.onLeaveInOut.bind(this);
@@ -169,6 +171,26 @@ class ThumbGrid extends Component {
     e.stopPropagation();
     const thumb = this.props.thumbs.find(thumb => thumb.thumbId === this.state.controllersVisible);
     this.props.onOutPointClick(this.props.file, this.props.thumbs, thumb.thumbId, thumb.frameNumber);
+    this.resetHover();
+  }
+
+  onHideBefore(e) {
+    // console.log('onHideBefore');
+    e.stopPropagation();
+    const thumb = this.props.thumbs.find(thumb => thumb.thumbId === this.state.controllersVisible);
+    const previousThumbs = getPreviousThumbs(this.props.thumbs, thumb.thumbId);
+    const previousThumbIds = previousThumbs.map(t => t.thumbId);
+    this.props.onHideBeforeAfterClick(this.props.file.id, this.props.currentSheetId, previousThumbIds);
+    this.resetHover();
+  }
+
+  onHideAfter(e) {
+    // console.log('onHideAfter');
+    e.stopPropagation();
+    const thumb = this.props.thumbs.find(thumb => thumb.thumbId === this.state.controllersVisible);
+    const previousThumbs = getNextThumbs(this.props.thumbs, thumb.thumbId);
+    const previousThumbIds = previousThumbs.map(t => t.thumbId);
+    this.props.onHideBeforeAfterClick(this.props.file.id, this.props.currentSheetId, previousThumbIds);
     this.resetHover();
   }
 
@@ -574,6 +596,26 @@ class ThumbGrid extends Component {
                     className={stylesPop.popup}
                     content={<span>Set this thumb as new <mark>IN-point</mark></span>}
                   />}
+                  {sheetType === SHEET_TYPE.SCENES && <Popup
+                    trigger={
+                      <button
+                        data-tid={`hideBeforeBtn_${controllersVisible}`}
+                        type='button'
+                        className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayIn} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
+                        onClick={this.onHideBefore}
+                        onMouseOver={this.onHoverInPoint}
+                        onMouseOut={this.onLeaveInOut}
+                        onFocus={this.over}
+                        onBlur={this.out}
+                      >
+                        IN
+                      </button>
+                    }
+                    mouseEnterDelay={1000}
+                    position='bottom center'
+                    className={stylesPop.popup}
+                    content={<span>Hide all thumbs before</span>}
+                  />}
                   <Popup
                     trigger={
                       <button
@@ -634,6 +676,26 @@ class ThumbGrid extends Component {
                     className={stylesPop.popup}
                     content={sheetType === SHEET_TYPE.SCENES ? (<span>Jump to cut</span>) : (<span>Add new thumb after</span>)}
                   />
+                  {sheetType === SHEET_TYPE.SCENES && <Popup
+                    trigger={
+                      <button
+                        data-tid={`hideAfterBtn_${controllersVisible}`}
+                        type='button'
+                        className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayOut} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
+                        onClick={this.onHideAfter}
+                        onMouseOver={this.onHoverOutPoint}
+                        onMouseOut={this.onLeaveInOut}
+                        onFocus={this.over}
+                        onBlur={this.out}
+                      >
+                        OUT
+                      </button>
+                    }
+                    mouseEnterDelay={1000}
+                    position='bottom center'
+                    className={stylesPop.popup}
+                    content={<span>Hide all thumbs after</span>}
+                  />}
                   {sheetType === SHEET_TYPE.INTERVAL && <Popup
                     trigger={
                       <button
@@ -705,6 +767,7 @@ ThumbGrid.propTypes = {
   onForwardClick: PropTypes.func.isRequired,
   onInPointClick: PropTypes.func.isRequired,
   onOutPointClick: PropTypes.func.isRequired,
+  onHideBeforeAfterClick: PropTypes.func.isRequired,
   onSaveThumbClick: PropTypes.func.isRequired,
   onSelectClick: PropTypes.func.isRequired,
   onThumbDoubleClick: PropTypes.func,

@@ -362,6 +362,7 @@ export const addScene = (fileId, sheetId, start, length, colorArray, sceneId = u
         start,
         length,
         colorArray,
+        hidden: false,
       }
     });
   };
@@ -379,6 +380,7 @@ export const addScenes = (file, sceneList, clearOldScenes = false, frameSize, ne
       scene.sceneId = uuidV4();
       scene.fileId = file.id;
       scene.sheetId = newSheetId;
+      scene.hidden = false;
       return scene;
     });
     log.debug('dispatch: ADD_SCENES');
@@ -425,6 +427,18 @@ export const toggleScene = (fileId, sheetId, sceneId) => {
   };
 };
 
+export const toggleSceneArray = (fileId, sheetId, sceneIdArray) => {
+  log.debug(`action: toggleSceneArray - ${sceneIdArray}`);
+  return {
+    type: 'TOGGLE_SCENE_ARRAY',
+    payload: {
+      fileId,
+      sheetId,
+      sceneIdArray,
+    },
+  };
+};
+
 export const updateSceneArray = (fileId, sheetId, sceneArray) => {
   log.debug(`action: updateSceneArray - ${sheetId}`);
   return {
@@ -449,6 +463,7 @@ export const insertScene = (fileId, sheetId, index, start, length, colorArray, n
       length,
       colorArray,
       sceneId: newSceneId,
+      hidden: false,
     },
   };
 };
@@ -589,6 +604,19 @@ export const toggleThumb = (currentFileId, sheetId, thumbId) => {
       fileId: currentFileId,
       sheetId,
       thumbId
+    },
+  };
+};
+
+
+export const toggleThumbArray = (fileId, sheetId, thumbIdArray) => {
+  log.debug(`action: toggleThumbArray - ${thumbIdArray}`);
+  return {
+    type: 'TOGGLE_THUMB_ARRAY',
+    payload: {
+      fileId,
+      sheetId,
+      thumbIdArray,
     },
   };
 };

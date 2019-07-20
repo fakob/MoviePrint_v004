@@ -3104,7 +3104,7 @@ class App extends Component {
                             showMovielist={visibilitySettings.showMovielist}
                             showSettings={visibilitySettings.showSettings}
                             objectUrlObjects={filteredObjectUrlObjects}
-                            thumbs={this.props.thumbs}
+                            thumbs={this.props.allThumbs}
                             currentSheetId={settings.currentSheetId}
                           />
                         </Conditional>

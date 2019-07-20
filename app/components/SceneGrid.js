@@ -9,7 +9,7 @@ import styles from './SceneGrid.css';
 import stylesApp from '../containers/App.css';
 import stylesPop from './Popup.css';
 import {
-  getWidthOfSingleRow,
+  getWidthOfSingleRow, getPreviousScenes, getNextScenes
 } from '../utils/utils';
 import {
   VIDEOPLAYER_FIXED_PIXEL_PER_FRAME_RATIO,
@@ -26,7 +26,11 @@ class SceneGrid extends Component {
 
     this.state = {
       controllersVisible: undefined,
+      scenesToDim: [],
     };
+
+    this.resetHover = this.resetHover.bind(this);
+
   }
 
   componentWillMount() {
@@ -38,8 +42,15 @@ class SceneGrid extends Component {
   componentDidUpdate(prevProps) {
   }
 
+  resetHover() {
+    this.setState({
+      scenesToDim: [],
+      controllersVisible: undefined,
+    });
+  }
+
   render() {
-    const { file, minSceneLength, scaleValueObject, scenes, selectedThumbsArray, settings, sheetType, view } = this.props;
+    const { file, currentSheetId, minSceneLength, scaleValueObject, scenes, selectedThumbsArray, settings, sheetType, thumbs, view } = this.props;
     const { scenesInRows } = scaleValueObject;
 
     const isPlayerView = view !== VIEW.STANDARDVIEW;
@@ -93,7 +104,10 @@ class SceneGrid extends Component {
               // rowCounter += 1;
             }
 
-            const thumb = this.props.thumbs.find((foundThumb) => foundThumb.thumbId === scene.sceneId);
+            let thumb;
+            if (thumbs !== undefined) {
+              thumb = thumbs.find((foundThumb) => foundThumb.thumbId === scene.sceneId);
+            }
 
             return (
             <SortableScene
@@ -109,6 +123,7 @@ class SceneGrid extends Component {
               key={scene.sceneId}
               sceneId={scene.sceneId}
               margin={thumbMarginTimeline}
+              dim={(this.state.scenesToDim.find((sceneToDim) => sceneToDim.sceneId === scene.sceneId))}
 
               // only allow expanding of scenes which are not already large enough and deselecting
               allowSceneToBeSelected={isPlayerView || selected || width < (realWidth * 0.95)}
@@ -140,17 +155,44 @@ class SceneGrid extends Component {
                   });
                 }
               }}
-              onOut={() => {
-                this.setState({
-                  thumbsToDim: [],
-                  controllersVisible: undefined,
-                  addThumbBeforeController: undefined,
-                  addThumbAfterController: undefined,
-                });
-              }}
+              onOut={this.resetHover}
               onThumbDoubleClick={this.props.onThumbDoubleClick}
               onToggle={(scene.sceneId !== this.state.controllersVisible) ?
-                null : () => this.props.onToggleClick(this.props.file.id, scene.sceneId)}
+                null : () => this.props.onToggleClick(file.id, scene.sceneId)}
+              onHideBefore={(scene.sceneId !== this.state.controllersVisible) ?
+                null : () => {
+                  const previousScenes = getPreviousScenes(scenes, scene.sceneId);
+                  const previousSceneIds = previousScenes.map(s => s.sceneId);
+                  this.props.onHideBeforeAfterClick(file.id, currentSheetId, previousSceneIds);
+                  this.resetHover();
+                }}
+              onHideAfter={(scene.sceneId !== this.state.controllersVisible) ?
+                null : () => {
+                  const nextScenes = getNextScenes(scenes, scene.sceneId);
+                  const nextSceneIds = nextScenes.map(s => s.sceneId);
+                  this.props.onHideBeforeAfterClick(file.id, currentSheetId, nextSceneIds);
+                  this.resetHover();
+                }}
+              onHoverInPoint={(scene.sceneId !== this.state.controllersVisible) ?
+                null : () => {
+                  const previousScenes = getPreviousScenes(scenes, scene.sceneId)
+                  console.log(previousScenes)
+                  this.setState({
+                    scenesToDim: getPreviousScenes(scenes, scene.sceneId)
+                  });
+                }}
+              onHoverOutPoint={(scene.sceneId !== this.state.controllersVisible) ?
+                null : () => {
+                  this.setState({
+                    scenesToDim: getNextScenes(scenes, scene.sceneId)
+                  });
+                }}
+              onLeaveInOut={(scene.sceneId !== this.state.controllersVisible) ?
+                null : () => {
+                  this.setState({
+                    scenesToDim: []
+                  });
+                }}
               onSelect={(scene.sceneId !== this.state.controllersVisible) ?
                 null : (!isPlayerView && selected) ? () => {
                   this.props.onDeselectClick();
@@ -159,15 +201,15 @@ class SceneGrid extends Component {
                 }}
               onCutBefore={(scene.sceneId !== this.state.controllersVisible) ?
                 null : () => {
-                  this.props.onJumpToCutSceneClick(this.props.file, scene.sceneId, 'before');
+                  this.props.onJumpToCutSceneClick(file, scene.sceneId, 'before');
                 }}
               onCutAfter={(scene.sceneId !== this.state.controllersVisible) ?
                 null : () => {
-                  this.props.onJumpToCutSceneClick(this.props.file, scene.sceneId, 'after');
+                  this.props.onJumpToCutSceneClick(file, scene.sceneId, 'after');
                 }}
               onExpand={(scene.sceneId !== this.state.controllersVisible) ?
                 null : () => {
-                  this.props.onExpandClick(this.props.file, scene.sceneId, this.props.currentSheetId);
+                  this.props.onExpandClick(file, scene.sceneId, currentSheetId);
                 }}
               inputRefThumb={(this.props.selectedThumbsArray.length !== 0 && this.props.selectedThumbsArray[0].thumbId === scene.sceneId) ?
                 this.props.inputRefThumb : undefined} // for the thumb scrollIntoView function
@@ -182,11 +224,13 @@ class SceneGrid extends Component {
 SceneGrid.defaultProps = {
   scenes: [],
   selectedThumbsArray: [],
+  scenesToDim: [],
 };
 
 SceneGrid.propTypes = {
   scenes: PropTypes.array,
   selectedThumbsArray: PropTypes.array,
+  scenesToDim: PropTypes.array,
 };
 
 const SortableSceneGrid = SortableContainer(SceneGrid);

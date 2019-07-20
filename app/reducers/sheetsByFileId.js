@@ -19,6 +19,13 @@ const thumb = (state = {}, action, index) => {
       return Object.assign({}, state, {
         length: action.payload.length
       });
+    case 'TOGGLE_SCENE_ARRAY':
+      if (!action.payload.sceneIdArray.includes(state.sceneId)) {
+        return state;
+      }
+      return Object.assign({}, state, {
+        hidden: !state.hidden
+      });
     case 'ADD_THUMB':
       return Object.assign({}, state, {
         index
@@ -51,6 +58,13 @@ const thumb = (state = {}, action, index) => {
       });
     case 'TOGGLE_THUMB':
       if (state.thumbId !== action.payload.thumbId) {
+        return state;
+      }
+      return Object.assign({}, state, {
+        hidden: !state.hidden
+      });
+    case 'TOGGLE_THUMB_ARRAY':
+      if (!action.payload.thumbIdArray.includes(state.thumbId)) {
         return state;
       }
       return Object.assign({}, state, {
@@ -205,6 +219,7 @@ const sheetsByFileId = (state = {}, action) => {
         }
       };
     case 'TOGGLE_SCENE':
+    case 'TOGGLE_SCENE_ARRAY':
     case 'UPDATE_SCENE_LENGTH':
       return {
         ...state,
@@ -355,6 +370,7 @@ const sheetsByFileId = (state = {}, action) => {
         }
       };
     case 'TOGGLE_THUMB':
+    case 'TOGGLE_THUMB_ARRAY':
       return {
         ...state,
         [action.payload.fileId]: {

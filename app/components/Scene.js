@@ -76,10 +76,10 @@ const Scene = ({
   onHoverAddThumbBefore,
   onHoverInPoint,
   onHoverOutPoint,
-  onInPoint,
+  onHideAfter,
+  onHideBefore,
   onLeaveInOut,
   onOut,
-  onOutPoint,
   onOver,
   onSaveThumb,
   onScrub,
@@ -132,6 +132,7 @@ const Scene = ({
 
   function onHoverInPointWithStop(e) {
     e.stopPropagation();
+    console.log('onHoverInPointWithStop')
     e.target.style.opacity = 1;
     onHoverInPoint();
   }
@@ -145,6 +146,7 @@ const Scene = ({
   function onLeaveInOutWithStop(e) {
     e.stopPropagation();
     e.target.style.opacity = 0.2;
+    console.log('onLeaveInOutWithStop')
     onLeaveInOut();
   }
 
@@ -164,14 +166,14 @@ const Scene = ({
     onAddAfter();
   }
 
-  function onInPointWithStop(e) {
+  function onHideBeforeWithStop(e) {
     e.stopPropagation();
-    onInPoint();
+    onHideBefore();
   }
 
-  function onOutPointWithStop(e) {
+  function onHideAfterWithStop(e) {
     e.stopPropagation();
-    onOutPoint();
+    onHideAfter();
   }
 
   function onForwardWithStop(e) {
@@ -254,7 +256,7 @@ const Scene = ({
       // onKeyPress={onSelectWithStop}
       onDoubleClick={onThumbDoubleClickWithStop}
       id={`scene${indexForId}`}
-      className={`${styles.gridItem} ${doLineBreak ? styles.lineBreak : ''} ${(view === VIEW.PLAYERVIEW && selected) ? styles.gridItemSelected : ''}`}
+      className={`${styles.gridItem} ${doLineBreak ? styles.lineBreak : ''} ${dim ? styles.dim : ''} ${(view === VIEW.PLAYERVIEW && selected) ? styles.gridItemSelected : ''} ${(view !== VIEW.PLAYERVIEW && selected) ? styles.sceneExpanded : ''}`}
       // width={`${thumbWidth}px`}
       // height={`${(thumbWidth * aspectRatioInv)}px`}
       style={{
@@ -355,10 +357,10 @@ const Scene = ({
           />
           {!hidden &&
             <div>
-              {/* <Popup
+              <Popup
                 trigger={
                   <button
-                    data-tid={`setInPointBtn_${sceneId}`}
+                    data-tid={`setInPointSceneBtn_${sceneId}`}
                     type='button'
                     style={{
                       display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
@@ -370,7 +372,7 @@ const Scene = ({
                       marginLeft: '8px',
                     }}
                     className={`${styles.hoverButton} ${styles.textButton}`}
-                    onClick={onInPointWithStop}
+                    onClick={onHideBeforeWithStop}
                     onMouseOver={onHoverInPointWithStop}
                     onMouseLeave={onLeaveInOutWithStop}
                     onFocus={over}
@@ -382,8 +384,8 @@ const Scene = ({
                 mouseEnterDelay={1000}
                 position='bottom center'
                 className={stylesPop.popup}
-                content={<span>Set this thumb as new <mark>IN-point</mark></span>}
-              /> */}
+                content={<span>Hide all scenes before</span>}
+              />
               {view === VIEW.STANDARDVIEW && <Popup // only show in standard view
                 trigger={
                   <button
@@ -471,10 +473,10 @@ const Scene = ({
                 className={stylesPop.popup}
                 content={<span>Jump to cut at the end of this scene</span>}
               />
-              {/* <Popup
+              <Popup
                 trigger={
                   <button
-                    data-tid={`setOutPointBtn_${sceneId}`}
+                    data-tid={`setOutPointSceneBtn_${sceneId}`}
                     type='button'
                     style={{
                       display: (thumbWidth > MINIMUM_WIDTH_TO_SHOW_HOVER) ? 'block' : 'none',
@@ -486,7 +488,7 @@ const Scene = ({
                       marginRight: '8px',
                     }}
                     className={`${styles.hoverButton} ${styles.textButton}`}
-                    onClick={onOutPointWithStop}
+                    onClick={onHideAfterWithStop}
                     onMouseOver={onHoverOutPointWithStop}
                     onMouseLeave={onLeaveInOutWithStop}
                     onFocus={over}
@@ -498,8 +500,8 @@ const Scene = ({
                 mouseEnterDelay={1000}
                 position='bottom center'
                 className={stylesPop.popup}
-                content={<span>Set this thumb as new <mark>OUT-point</mark></span>}
-              /> */}
+                content={<span>Hide all scenes after</span>}
+              />
             </div>
         }
         </div>

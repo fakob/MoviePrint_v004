@@ -5,7 +5,7 @@ import { arrayMove } from 'react-sortable-hoc';
 import scrollIntoView from 'scroll-into-view';
 import {
   toggleThumb, updateOrder,
-  changeThumb, addIntervalSheet, toggleScene
+  changeThumb, addIntervalSheet, toggleScene, toggleSceneArray
 } from '../actions';
 import styles from '../components/ThumbGrid.css';
 import SortableSceneGrid from '../components/SceneGrid';
@@ -105,8 +105,8 @@ class SortedVisibleSceneGrid extends Component {
         onJumpToCutSceneClick={this.props.onJumpToCutSceneClick}
         onBackClick={this.props.onBackClick}
         onForwardClick={this.props.onForwardClick}
-        onInPointClick={this.props.onInPointClick}
-        onOutPointClick={this.props.onOutPointClick}
+        onInPointSceneClick={this.props.onInPointSceneClick}
+        onOutPointSceneClick={this.props.onOutPointSceneClick}
         onSaveThumbClick={this.props.onSaveThumbClick}
         onThumbDoubleClick={this.props.onThumbDoubleClick}
         onScrubClick={this.props.onScrubClick}
@@ -114,6 +114,7 @@ class SortedVisibleSceneGrid extends Component {
         onDeselectClick={this.onDeselectClick}
         onExpandClick={this.props.onExpandClick}
         onToggleClick={this.props.onToggleClick}
+        onHideBeforeAfterClick={this.props.onHideBeforeAfterClick}
         minSceneLength={this.props.settings.defaultTimelineViewMinDisplaySceneLengthInFrames}
         scaleValueObject={this.props.scaleValueObject}
         scenes={this.props.scenes}
@@ -146,6 +147,13 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     onToggleClick: (fileId, sceneId) => {
       dispatch(toggleScene(fileId, ownProps.settings.currentSheetId, sceneId));
+    },
+    onHideBeforeAfterClick: (fileId, sheetId, thumbIdArray) => {
+      dispatch(toggleSceneArray(
+        fileId,
+        sheetId,
+        thumbIdArray
+      ));
     },
   };
 };

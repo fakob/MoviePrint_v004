@@ -6,7 +6,7 @@ import { arrayMove } from 'react-sortable-hoc';
 import scrollIntoView from 'scroll-into-view';
 import {
   toggleThumb, updateOrder,
-  changeThumb, addIntervalSheet, setCurrentSheetId, setView, updateThumbObjectUrlFromDB
+  changeThumb, addIntervalSheet, setCurrentSheetId, setView, toggleThumbArray, updateThumbObjectUrlFromDB
 } from '../actions';
 import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
@@ -118,6 +118,7 @@ class SortedVisibleThumbGrid extends Component {
       onForwardClick,
       onInPointClick,
       onOutPointClick,
+      onHideBeforeAfterClick,
       onSaveThumbClick,
       onScrubClick,
       onThumbDoubleClick,
@@ -153,6 +154,7 @@ class SortedVisibleThumbGrid extends Component {
         onForwardClick={onForwardClick}
         onInPointClick={onInPointClick}
         onOutPointClick={onOutPointClick}
+        onHideBeforeAfterClick={onHideBeforeAfterClick}
         onSaveThumbClick={onSaveThumbClick}
         onScrubClick={onScrubClick}
         onSelectClick={this.onSelectClick}
@@ -232,6 +234,14 @@ const mapDispatchToProps = (dispatch, ownProps) => {
         ownProps.frameSize,
       ));
     },
+    onHideBeforeAfterClick: (fileId, sheetId, thumbIdArray) => {
+      dispatch(toggleThumbArray(
+        fileId,
+        sheetId,
+        thumbIdArray
+      ));
+    },
+
     onSaveThumbClick: (filePath, fileUseRatio, fileName, frameNumber, frameId, transformObject) => {
       const filePathDirectory = path.dirname(filePath);
       const outputPath = ownProps.settings.defaultOutputPathFromMovie ? filePathDirectory : ownProps.settings.defaultOutputPath;
@@ -285,6 +295,7 @@ SortedVisibleThumbGrid.propTypes = {
   onForwardClick: PropTypes.func.isRequired,
   onInPointClick: PropTypes.func.isRequired,
   onOutPointClick: PropTypes.func.isRequired,
+  onHideBeforeAfterClick: PropTypes.func.isRequired,
   onSaveThumbClick: PropTypes.func.isRequired,
   onScrubClick: PropTypes.func,
   onAddThumbClick: PropTypes.func,

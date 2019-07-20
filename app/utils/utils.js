@@ -285,11 +285,38 @@ export const getAllFrameNumbers = (thumbs) => {
   return [];
 };
 
+export const getPreviousScenes = (scenes, sceneId) => {
+  if (scenes) {
+    if (sceneId) {
+      // get index of array as scene does not have an own index
+      const currentIndex = scenes.findIndex((scene) => scene.sceneId === sceneId);
+      return scenes.filter((scene, index) => (((scene.hidden === false) || (scene.hidden === undefined)) &&
+        (index < currentIndex)));
+    }
+    return scenes; // return last item if no sceneId provided
+  }
+  return undefined; // return undefined if no scenes provided
+};
+
+export const getNextScenes = (scenes, sceneId) => {
+  if (scenes) {
+    if (sceneId) {
+      // get index of array as scene does not have an own index
+      const currentIndex = scenes.findIndex((scene) => scene.sceneId === sceneId);
+      return scenes.filter((scene, index) => (((scene.hidden === false) || (scene.hidden === undefined)) &&
+        (index > currentIndex)));
+    }
+    return scenes; // return last item if no sceneId provided
+  }
+  return undefined; // return undefined if no thumbs provided
+};
+
 export const getPreviousThumbs = (thumbs, thumbId) => {
   if (thumbs) {
     if (thumbId) {
+      // get index of thumb
       const currentIndex = thumbs.find((thumb) => thumb.thumbId === thumbId).index;
-      return thumbs.filter((thumb) => ((thumb.hidden === false) &&
+      return thumbs.filter((thumb) => (((thumb.hidden === false) || (thumb.hidden === undefined)) &&
         (thumb.index < currentIndex)));
     }
     return thumbs; // return last item if no thumbId provided
@@ -300,8 +327,9 @@ export const getPreviousThumbs = (thumbs, thumbId) => {
 export const getNextThumbs = (thumbs, thumbId) => {
   if (thumbs) {
     if (thumbId) {
+      // get index of thumb
       const currentIndex = thumbs.find((thumb) => thumb.thumbId === thumbId).index;
-      return thumbs.filter((thumb) => ((thumb.hidden === false) &&
+      return thumbs.filter((thumb) => (((thumb.hidden === false) || (thumb.hidden === undefined)) &&
         (thumb.index > currentIndex)));
     }
     return thumbs; // return last item if no thumbId provided
@@ -312,6 +340,7 @@ export const getNextThumbs = (thumbs, thumbId) => {
 export const getPreviousThumb = (thumbs, thumbId) => {
   if (thumbs) {
     if (thumbId) {
+      // get index of thumb
       const currentIndex = thumbs.find((thumb) => thumb.thumbId === thumbId).index;
       const newIndex = ((currentIndex - 1) >= 0) ? (currentIndex - 1) : (thumbs.length - 1);
       // log.debug(thumbs[newIndex]);
@@ -325,6 +354,7 @@ export const getPreviousThumb = (thumbs, thumbId) => {
 export const getNextThumb = (thumbs, thumbId) => {
   if (thumbs) {
     if (thumbId) {
+      // get index of thumb
       const currentIndex = thumbs.find((thumb) => thumb.thumbId === thumbId).index;
       const newIndex = ((currentIndex + 1) < thumbs.length) ? (currentIndex + 1) : 0;
       // log.debug(thumbs[newIndex]);

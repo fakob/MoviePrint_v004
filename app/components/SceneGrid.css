@@ -92,6 +92,15 @@
   /* box-shadow: 5px 0px 0px 0px #FF5006 */
 }
 
+.sceneExpanded {
+  outline-style: solid;
+  outline-color: #ffd3bf;
+  /* outline-color: #ff5006; */
+  outline-offset: -1px;
+  /* background-color: #ff5006; */
+  /* box-shadow: 5px 0px 0px 0px #FF5006 */
+}
+
 /* .gridItemSelected:after {
   content: "";
   background-color: #FF5006;
