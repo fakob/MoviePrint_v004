@@ -51,25 +51,43 @@ const Header = ({
               icon="ellipsis vertical"
             >
               <Dropdown.Menu>
-                <Dropdown.Item
-                  data-tid='importMoviesOverflowOption'
-                  icon="folder open"
-                  text="Import MoviePrint (png/json)"
-                  onClick={() => onImportMoviePrint()}
+                <Popup
+                  trigger={
+                    <Dropdown.Item
+                      data-tid='importMoviesOverflowOption'
+                      icon="folder open"
+                      text="Import MoviePrint (png/json)"
+                      onClick={() => onImportMoviePrint()}
+                    />
+                  }
+                  mouseEnterDelay={1000}
+                  position='right center'
+                  className={stylesPop.popup}
+                  content='Import a MoviePrint from JSON file or a PNG file with embedded data'
                 />
-                {fileCount > 0 && <Dropdown.Item
-                  data-tid='clearMovieListOverflowOption'
-                  icon="delete"
-                  text="Clear Movie list"
-                  onClick={onClearMovieList}
-                />}
+                {fileCount > 0 &&
+                  <Popup
+                    trigger={
+                      <Dropdown.Item
+                        data-tid='clearMovieListOverflowOption'
+                        icon="delete"
+                        text="Clear Movie list"
+                        onClick={onClearMovieList}
+                      />
+                    }
+                    mouseEnterDelay={1000}
+                    position='right center'
+                    className={stylesPop.popup}
+                    content='Clear Movie list - THIS CAN NOT BE UNDONE!'
+                  />
+                }
               </Dropdown.Menu>
             </Dropdown>
           }
           mouseEnterDelay={1000}
-          position='bottom center'
+          position='right center'
           className={stylesPop.popup}
-          content="Import MoviePrint from json file"
+          content="more options"
         />
         <Menu.Menu position="right">
           <Popup
