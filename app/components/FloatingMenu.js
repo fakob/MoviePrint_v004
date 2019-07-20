@@ -72,7 +72,6 @@ const ButtonExampleCircularSocial = ({
             <Button
               className={styles.imageButton}
               size='large'
-              disabled={!isGridViewAndDefault}
               data-tid='addShotDetectionMovieListItemBtn'
               onClick={() => onScanMovieListItemClick(undefined)}
             >
@@ -134,7 +133,7 @@ const ButtonExampleCircularSocial = ({
             </Dropdown>
           }
           mouseEnterDelay={1000}
-          position='bottom center'
+          position='right center'
           className={stylesPop.popup}
           content='Add MoviePrint (interval based)'
         />
@@ -143,7 +142,6 @@ const ButtonExampleCircularSocial = ({
             <Button
               className={styles.normalButton}
               size='large'
-              disabled={!isGridViewAndDefault}
               data-tid='duplicateSheetItemBtn'
               onClick={() => onDuplicateSheetClick(undefined, undefined)}
               icon='copy'
