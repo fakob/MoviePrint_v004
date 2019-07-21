@@ -146,8 +146,9 @@ const Scene = ({
   function onLeaveInOutWithStop(e) {
     e.stopPropagation();
     e.target.style.opacity = 0.2;
-    console.log('onLeaveInOutWithStop')
-    onLeaveInOut();
+    if (typeof onLeaveInOut === "function") {
+      onLeaveInOut();
+    }
   }
 
 

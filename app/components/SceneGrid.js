@@ -164,6 +164,7 @@ class SceneGrid extends Component {
                   const previousScenes = getPreviousScenes(scenes, scene.sceneId);
                   const previousSceneIds = previousScenes.map(s => s.sceneId);
                   this.props.onHideBeforeAfterClick(file.id, currentSheetId, previousSceneIds);
+                  this.props.onDeselectClick();
                   this.resetHover();
                 }}
               onHideAfter={(scene.sceneId !== this.state.controllersVisible) ?
@@ -171,12 +172,12 @@ class SceneGrid extends Component {
                   const nextScenes = getNextScenes(scenes, scene.sceneId);
                   const nextSceneIds = nextScenes.map(s => s.sceneId);
                   this.props.onHideBeforeAfterClick(file.id, currentSheetId, nextSceneIds);
+                  this.props.onDeselectClick();
                   this.resetHover();
                 }}
               onHoverInPoint={(scene.sceneId !== this.state.controllersVisible) ?
                 null : () => {
                   const previousScenes = getPreviousScenes(scenes, scene.sceneId)
-                  console.log(previousScenes)
                   this.setState({
                     scenesToDim: getPreviousScenes(scenes, scene.sceneId)
                   });
