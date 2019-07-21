@@ -49,8 +49,10 @@ class VideoPlayer extends Component {
       videoHeight: 360,
       videoWidth: 640,
       playHeadPosition: 0, // in pixel
+      playHeadPositionSelection: 0, // in pixel
       currentTime: 0, // in seconds
       duration: 0, // in seconds
+      mouseStartDragInsideTimelineSelection: false,
       mouseStartDragInsideTimeline: false,
       showPlaybar: true,
       loadVideo: false,
@@ -74,10 +76,15 @@ class VideoPlayer extends Component {
     this.toggleHTML5Player = this.toggleHTML5Player.bind(this);
 
     this.onTimelineClick = this.onTimelineClick.bind(this);
+    this.onTimelineSelectionClick = this.onTimelineSelectionClick.bind(this);
     this.onTimelineDrag = this.onTimelineDrag.bind(this);
     this.onTimelineDragStop = this.onTimelineDragStop.bind(this);
+    this.onTimelineSelectionDrag = this.onTimelineSelectionDrag.bind(this);
+    this.onTimelineSelectionDragStop = this.onTimelineSelectionDragStop.bind(this);
     this.onTimelineMouseOver = this.onTimelineMouseOver.bind(this);
+    this.onTimelineSelectionMouseOver = this.onTimelineSelectionMouseOver.bind(this);
     this.onTimelineExit = this.onTimelineExit.bind(this);
+    this.onTimelineSelectionExit = this.onTimelineSelectionExit.bind(this);
     this.onNextSceneClickWithStop = this.onNextSceneClickWithStop.bind(this);
     this.onNextThumbClickWithStop = this.onNextThumbClickWithStop.bind(this);
     this.onMergeSceneClickWithStop = this.onMergeSceneClickWithStop.bind(this);
@@ -235,6 +242,7 @@ class VideoPlayer extends Component {
     // updatePosition needs to wait for setState, therefore it is put into callback of setState
     this.setState({ duration }, () => {
       this.updateTimeFromPosition(this.state.playHeadPosition);
+      this.updateTimeFromPositionSelection(this.state.playHeadPositionSelection);
     });
   }
 
@@ -316,16 +324,6 @@ class VideoPlayer extends Component {
       // rounds the number with 3 decimals
       const roundedCurrentTime = Math.round((currentTime * 1000) + Number.EPSILON) / 1000;
       const currentFrame = secondsToFrameCount(currentTime, file.fps);
-      const xPos = mapRange(
-        roundedCurrentTime,
-        0, duration,
-        0, containerWidth, false
-      );
-      this.setState({
-        currentFrame,
-        currentTime: roundedCurrentTime,
-        playHeadPosition: xPos,
-      });
       const newScene = getSceneFromFrameNumber(scenes, currentFrame);
       if (currentScene !== undefined &&
         newScene !== undefined &&
@@ -335,6 +333,23 @@ class VideoPlayer extends Component {
         });
         onSelectThumbMethod(newScene.sceneId); // call to update selection when scrubbing
       }
+      const xPos = mapRange(
+        roundedCurrentTime,
+        0, duration,
+        0, containerWidth, false
+      );
+      const { inPoint, outPoint } = this.getInOutObject(newScene);
+      const xPosSelection = mapRange(
+        roundedCurrentTime,
+        inPoint, outPoint,
+        0, containerWidth, false
+      );
+      this.setState({
+        currentFrame,
+        currentTime: roundedCurrentTime,
+        playHeadPosition: xPos,
+        playHeadPositionSelection: xPosSelection,
+      });
       this.updateOpencvVideoCanvas(currentFrame);
       // log.debug(`${currentTime} : ${xPos} : ${containerWidth} : ${duration}`);
     }
@@ -360,9 +375,16 @@ class VideoPlayer extends Component {
         0, (file.frameCount - 1),
         0, containerWidth, false
       );
+      const { inPoint, outPoint } = this.getInOutObject(newScene);
+      const xPosSelection = mapRange(
+        currentFrame,
+        inPoint, outPoint,
+        0, containerWidth, false
+      );
       this.setState({
         currentFrame,
         playHeadPosition: xPos,
+        playHeadPositionSelection: xPosSelection,
       });
     }
   }
@@ -382,16 +404,36 @@ class VideoPlayer extends Component {
       0, (file.frameCount - 1),
       0, containerWidth, false
     );
+    const { inPoint, outPoint } = this.getInOutObject(currentScene);
+    const xPosSelection = mapRange(
+      currentFrame,
+      inPoint, outPoint,
+      0, containerWidth, false
+    );
     const currentTime = frameCountToSeconds(currentFrame, file.fps);
     this.setState({
       currentFrame,
       currentTime,
       playHeadPosition: xPos,
+      playHeadPositionSelection: xPosSelection,
     });
     if (loadVideo && showHTML5Player) {
       this.video.currentTime = currentTime;
     }
     this.updateOpencvVideoCanvas(currentFrame);
+  }
+
+  getInOutObject = (currentScene) => {
+    let inPoint = 0;
+    let outPoint = 0;
+    if (currentScene !== undefined) {
+      inPoint = currentScene.start;
+      outPoint = currentScene.start + currentScene.length;
+    }
+    return {
+      inPoint,
+      outPoint,
+    }
   }
 
   updateTimeFromPosition(xPos) {
@@ -410,8 +452,15 @@ class VideoPlayer extends Component {
         });
         onSelectThumbMethod(newScene.sceneId); // call to update selection when scrubbing
       }
+      const { inPoint, outPoint } = this.getInOutObject(newScene);
+      const xPosSelection = mapRange(
+        currentFrame,
+        inPoint, outPoint,
+        0, containerWidth, false
+      );
       this.setState({
         playHeadPosition: xPos,
+        playHeadPositionSelection: xPosSelection,
         currentFrame,
       });
       this.updateOpencvVideoCanvas(currentFrame);
@@ -424,14 +473,68 @@ class VideoPlayer extends Component {
     }
   }
 
+  updateTimeFromPositionSelection(xPosSelection) {
+    const { containerWidth, file, scenes, onSelectThumbMethod } = this.props;
+    const { currentScene, duration, loadVideo, showHTML5Player } = this.state;
+
+    if (xPosSelection !== undefined) {
+      const { inPoint, outPoint } = this.getInOutObject(currentScene);
+      const currentFrame = mapRange(xPosSelection, 0, containerWidth, inPoint, outPoint);
+      const xPos = mapRange(
+        currentFrame,
+        0, (file.frameCount - 1),
+        0, containerWidth, false
+      );
+      const newScene = getSceneFromFrameNumber(scenes, currentFrame);
+      if (currentScene !== undefined &&
+        newScene !== undefined &&
+        currentScene.sceneId !== newScene.sceneId) {
+        this.setState({
+          currentScene: newScene,
+        });
+        onSelectThumbMethod(newScene.sceneId); // call to update selection when scrubbing
+      }
+      this.setState({
+        playHeadPosition: xPos,
+        playHeadPositionSelection: xPosSelection,
+        currentFrame,
+      });
+      this.updateOpencvVideoCanvas(currentFrame);
+      const currentTime = mapRange(xPos, 0, containerWidth, 0, duration, false);
+      // log.debug(`${currentTime} : ${xPos} : ${containerWidth} : ${duration}`);
+      this.setState({ currentTime });
+      if (loadVideo && showHTML5Player) {
+        this.video.currentTime = currentTime;
+      }
+    }
+  }
+
+  onTimelineSelectionClick(e) {
+    const bounds = this.timeLineSelection.getBoundingClientRect();
+    const x = e.clientX - bounds.left;
+    this.updateTimeFromPositionSelection(x);
+  }
+
   onTimelineClick(e) {
     const bounds = this.timeLine.getBoundingClientRect();
     const x = e.clientX - bounds.left;
     this.updateTimeFromPosition(x);
   }
 
+  onTimelineSelectionDrag() {
+    this.setState({ mouseStartDragInsideTimelineSelection: true });
+  }
+
   onTimelineDrag() {
     this.setState({ mouseStartDragInsideTimeline: true });
+  }
+
+  onTimelineSelectionMouseOver(e) {
+    if (this.state.mouseStartDragInsideTimelineSelection) { // check if dragging over timeline
+      const bounds = this.timeLineSelection.getBoundingClientRect();
+      const x = e.clientX - bounds.left;
+      this.updateTimeFromPositionSelection(x);
+    }
   }
 
   onTimelineMouseOver(e) {
@@ -442,8 +545,18 @@ class VideoPlayer extends Component {
     }
   }
 
+  onTimelineSelectionDragStop() {
+    this.setState({ mouseStartDragInsideTimelineSelection: false });
+  }
+
   onTimelineDragStop() {
     this.setState({ mouseStartDragInsideTimeline: false });
+  }
+
+  onTimelineSelectionExit() {
+    if (this.state.mouseStartDragInsideTimelineSelection) {
+      this.setState({ mouseStartDragInsideTimelineSelection: false });
+    }
   }
 
   onTimelineExit() {
@@ -622,8 +735,27 @@ class VideoPlayer extends Component {
     });
   }
 
+  getSceneInOutOnTimelineObject = (file, containerWidth, currentScene) => {
+    const { inPoint, outPoint } = this.getInOutObject(currentScene);
+    const inPointPositionOnTimeline =
+      ((containerWidth * 1.0) / file.frameCount) * inPoint;
+    const outPointPositionOnTimeline =
+      ((containerWidth * 1.0) / file.frameCount) * outPoint;
+    const cutWidthOnTimeLine = Math.max(
+      outPointPositionOnTimeline - inPointPositionOnTimeline,
+      MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE
+    );
+    return {
+      inPoint,
+      outPoint,
+      inPointPositionOnTimeline,
+      outPointPositionOnTimeline,
+      cutWidthOnTimeLine,
+    }
+  }
+
   render() {
-    const { currentFrame, currentScene, playHeadPosition } = this.state;
+    const { currentFrame, currentScene, playHeadPosition, playHeadPositionSelection } = this.state;
     const { arrayOfCuts, containerWidth, file, keyObject, scaleValueObject, selectedThumb, sheetType, defaultSheetView, thumbs } = this.props;
     const { showHTML5Player, showPlaybar, videoHeight, videoWidth } = this.state;
 
@@ -635,16 +767,7 @@ class VideoPlayer extends Component {
       event.target.style.opacity = 0.5;
     }
 
-    const inPoint = currentScene !== undefined ? currentScene.start : 0;
-    const outPoint = currentScene !== undefined ? currentScene.start + currentScene.length : 0;
-    const inPointPositionOnTimeline =
-      ((containerWidth * 1.0) / file.frameCount) * inPoint;
-    const outPointPositionOnTimeline =
-      ((containerWidth * 1.0) / file.frameCount) * outPoint;
-    const cutWidthOnTimeLine = Math.max(
-      outPointPositionOnTimeline - inPointPositionOnTimeline,
-      MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE
-    );
+    const sceneInOutObject = this.getSceneInOutOnTimelineObject(file, containerWidth, currentScene);
 
     const thisFrameIsACut = arrayOfCuts.some(item => item === currentFrame);
 
@@ -710,6 +833,30 @@ class VideoPlayer extends Component {
         </div>
         <div className={`${styles.controlsWrapper}`}>
           <div
+            id="timeLineSelection"
+            className={`${styles.timelineWrapperSelection}`}
+            onClick={this.onTimelineSelectionClick}
+            onMouseDown={this.onTimelineSelectionDrag}
+            onMouseUp={this.onTimelineSelectionDragStop}
+            onMouseMove={this.onTimelineSelectionMouseOver}
+            onMouseLeave={this.onTimelineSelectionExit}
+            ref={(el) => { this.timeLineSelection = el; }}
+          >
+            <div
+              className={`${styles.timelinePlayheadSelection}`}
+              style={{
+                left: Number.isNaN(playHeadPositionSelection) ? 0 : playHeadPositionSelection,
+              }}
+            />
+            {sheetType === SHEET_TYPE.SCENES && <div
+              className={`${styles.timelineCutSelection}`}
+              style={{
+                left: 0,
+                width: containerWidth,
+              }}
+            />}
+          </div>
+          <div
             id="timeLine"
             className={`${styles.timelineWrapper}`}
             onClick={this.onTimelineClick}
@@ -728,8 +875,8 @@ class VideoPlayer extends Component {
             {sheetType === SHEET_TYPE.SCENES && <div
               className={`${styles.timelineCut}`}
               style={{
-                left: Number.isNaN(inPointPositionOnTimeline) ? 0 : inPointPositionOnTimeline,
-                width: Number.isNaN(cutWidthOnTimeLine) ? 0 : cutWidthOnTimeLine,
+                left: Number.isNaN(sceneInOutObject.inPointPositionOnTimeline) ? 0 : sceneInOutObject.inPointPositionOnTimeline,
+                width: Number.isNaN(sceneInOutObject.cutWidthOnTimeLine) ? 0 : sceneInOutObject.cutWidthOnTimeLine,
               }}
             />}
           </div>
@@ -774,8 +921,7 @@ class VideoPlayer extends Component {
                 className={stylesPop.popup}
                 content={<span>Jump to previous cut <mark>SHIFT + ALT + Arrow left</mark></span>}
               />}
-              {((defaultSheetView === SHEET_VIEW.GRIDVIEW && sheetType === SHEET_TYPE.SCENES) ||
-                (defaultSheetView === SHEET_VIEW.GRIDVIEW && selectedThumb !== undefined)) &&
+              {(defaultSheetView === SHEET_VIEW.GRIDVIEW) &&
                 <Popup
                 trigger={
                   <button
@@ -977,8 +1123,7 @@ class VideoPlayer extends Component {
                 className={stylesPop.popup}
                 content={<span>Move 100 frames forward <mark>ALT + Arrow right</mark></span>}
               />
-              {((defaultSheetView === SHEET_VIEW.GRIDVIEW && sheetType === SHEET_TYPE.SCENES) ||
-                (defaultSheetView === SHEET_VIEW.GRIDVIEW && selectedThumb !== undefined)) &&
+              {(defaultSheetView === SHEET_VIEW.GRIDVIEW) &&
                 <Popup
                 trigger={
                   <button

@@ -341,7 +341,11 @@ export const getPreviousThumb = (thumbs, thumbId) => {
   if (thumbs) {
     if (thumbId) {
       // get index of thumb
-      const currentIndex = thumbs.find((thumb) => thumb.thumbId === thumbId).index;
+      const foundThumb = thumbs.find((thumb) => thumb.thumbId === thumbId);
+      if (foundThumb === undefined) {
+        return thumbs[thumbs.length - 1]; // return last item if no thumb found
+      }
+      const currentIndex = foundThumb.index;
       const newIndex = ((currentIndex - 1) >= 0) ? (currentIndex - 1) : (thumbs.length - 1);
       // log.debug(thumbs[newIndex]);
       return thumbs[newIndex];
@@ -355,7 +359,11 @@ export const getNextThumb = (thumbs, thumbId) => {
   if (thumbs) {
     if (thumbId) {
       // get index of thumb
-      const currentIndex = thumbs.find((thumb) => thumb.thumbId === thumbId).index;
+      const foundThumb = thumbs.find((thumb) => thumb.thumbId === thumbId);
+      if (foundThumb === undefined) {
+        return thumbs[0]; // return first item if no thumb found
+      }
+      const currentIndex = foundThumb.index;
       const newIndex = ((currentIndex + 1) < thumbs.length) ? (currentIndex + 1) : 0;
       // log.debug(thumbs[newIndex]);
       return thumbs[newIndex];
