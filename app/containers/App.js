@@ -192,6 +192,7 @@ class App extends Component {
     this.webviewRef = React.createRef();
     this.opencvVideoCanvasRef = React.createRef();
     this.dropzoneRef = React.createRef();
+    this.videoPlayer = React.createRef();
 
     this.state = {
       containerHeight: 360,
@@ -975,10 +976,8 @@ class App extends Component {
       if (event) {
         switch (event.which) {
           case 32: // press 'space bar'
-            if (sheetType === SHEET_TYPE.SCENES) {
+            if (visibilitySettings.defaultView === VIEW.PLAYERVIEW && sheetType === SHEET_TYPE.SCENES) {
               this.setOrToggleDefaultSheetView();
-            } else {
-              this.setOrToggleDefaultSheetView(SHEET_VIEW.GRIDVIEW);
             }
             break;
           case 49: // press 1
@@ -2614,10 +2613,12 @@ class App extends Component {
     const { store } = this.context;
     const { visibilitySettings } = this.props;
     let newSheetView = sheetView;
-    if (visibilitySettings.defaultSheetView === SHEET_VIEW.GRIDVIEW) {
-      newSheetView = SHEET_VIEW.TIMELINEVIEW;
-    } else if (visibilitySettings.defaultSheetView === SHEET_VIEW.TIMELINEVIEW) {
-      newSheetView = SHEET_VIEW.GRIDVIEW;
+    if (newSheetView === undefined) {
+      if (visibilitySettings.defaultSheetView === SHEET_VIEW.GRIDVIEW) {
+        newSheetView = SHEET_VIEW.TIMELINEVIEW;
+      } else if (visibilitySettings.defaultSheetView === SHEET_VIEW.TIMELINEVIEW) {
+        newSheetView = SHEET_VIEW.GRIDVIEW;
+      }
     }
     store.dispatch(setDefaultSheetView(newSheetView));
   };
@@ -2962,7 +2963,7 @@ class App extends Component {
                   >
                     { file ? (
                       <VideoPlayer
-                        ref={(el) => { this.videoPlayer = el; }}
+                        ref={this.videoPlayer}
                         file={file}
                         currentSheetId={settings.currentSheetId}
                         defaultSheetView={defaultSheetView}

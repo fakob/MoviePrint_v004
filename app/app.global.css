@@ -31,6 +31,7 @@ mark {
   margin-right: 4px;
   background-color: rgba(255, 80, 6, 0.9);
   color: white;
+  white-space: nowrap;
 }
 
 mark::before {
