@@ -15,6 +15,7 @@ import {
 import {
   insertFrameScanArray,
 } from './utils/utilsForSqlite';
+import Queue from './utils/queue';
 
 process.env.OPENCV4NODEJS_DISABLE_EXTERNAL_MEM_TRACKING = 1;
 
@@ -28,6 +29,9 @@ const { ipcRenderer } = require('electron');
 
 // to cancel file scan
 let fileScanRunning = false;
+
+// set up a queue
+const frameScanQueue = new Queue();
 
 log.debug('I am the opencvWorkerWindow - responsible for capturing the necessary frames from the video using opencv');
 

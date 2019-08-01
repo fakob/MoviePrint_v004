@@ -248,6 +248,7 @@ class App extends Component {
       framesToFetch: [],
       fileIdToBeRecaptured: undefined,
       fileIdToBeCaptured: undefined,
+      requestIdleCallbackHandle: undefined,
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -351,6 +352,8 @@ class App extends Component {
     this.onToggleDetectionChart = this.onToggleDetectionChart.bind(this);
     this.onHideDetectionChart = this.onHideDetectionChart.bind(this);
     this.checkForUpdates = this.checkForUpdates.bind(this);
+
+    this.pullScenesFromOpencvWorker = this.pullScenesFromOpencvWorker.bind(this);
 
     // this.addToFramesToFetch = this.addToFramesToFetch.bind(this);
 
@@ -604,6 +607,12 @@ class App extends Component {
     ipcRenderer.on('received-get-file-scan', (event, fileId, filePath, useRatio, sheetId) => {
       const { files } = this.props;
       const file = files.find(file2 => file2.id === fileId);
+
+      // cancel pullScenesFromOpencvWorker
+      window.cancelIdleCallback;
+      console.log('now I cancelIdleCallback');
+
+
       this.setState({
         fileScanRunning: false,
       });
@@ -1424,6 +1433,11 @@ class App extends Component {
           closeOnClick: false,
         });
         ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-scan', fileId, filePath, useRatio, threshold, sheetId, transformObject);
+
+        // start scheduled work to pull scenes from worker_opencv with requestIdleCallback
+        const requestIdleCallbackHandle = window.requestIdleCallback(this.pullScenesFromOpencvWorker);
+        console.log('now I requestIdleCallback');
+
       } else {
         const meanValueArray = arrayOfFrameScanData.map(frame => frame.meanValue)
         const meanColorArray = arrayOfFrameScanData.map(frame => JSON.parse(frame.meanColor))
@@ -1435,6 +1449,13 @@ class App extends Component {
     }
 
     return true;
+  }
+
+  pullScenesFromOpencvWorker(deadline) {
+    while (deadline.timeRemaining() > 0) {
+      const { scenes } = this.props;
+      console.log('now I am not busy - requestIdleCallback');
+    }
   }
 
   calculateSceneList(fileId, meanArray, meanColorArray, threshold = this.props.settings.defaultSceneDetectionThreshold, sheetId) {
