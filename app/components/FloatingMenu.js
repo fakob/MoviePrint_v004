@@ -47,25 +47,6 @@ const ButtonExampleCircularSocial = ({
     <div
       className={`${styles.floatingMenu}`}
     >
-      <Popup
-        trigger={
-          <Button
-            className={`${styles.normalButton} ${visibilitySettings.showMovielist === false ? '' : styles.selected}`}
-            style={{
-              marginRight: '16px',
-            }}
-            size='large'
-            data-tid={(visibilitySettings.showMovielist === false) ? 'showMovieListBtn' : 'hideMovieListBtn'}
-            onClick={toggleMovielist}
-            icon='list'
-          />
-        }
-        mouseEnterDelay={1000}
-        position='bottom center'
-        className={stylesPop.popup}
-        content={(visibilitySettings.showMovielist === false) ? <span>Show Movie and Sheets list <mark>1</mark></span> : <span>Hide Movie list <mark>1</mark></span>}
-      />
-      {' '}
       <Button.Group>
         <Popup
           trigger={
@@ -350,25 +331,6 @@ const ButtonExampleCircularSocial = ({
           content="Show frames, timecode or none"
         />
       </Button.Group>
-      {' '}
-      <Popup
-        trigger={
-          <Button
-            className={`${styles.normalButton} ${visibilitySettings.showSettings === false ? '' : styles.selected}`}
-            style={{
-              marginLeft: '16px',
-            }}
-            size='large'
-            data-tid={(visibilitySettings.showSettings === false) ? 'moreSettingsBtn' : 'hideSettingsBtn'}
-            onClick={toggleSettings}
-            icon='edit'
-          />
-        }
-        mouseEnterDelay={1000}
-        position='bottom center'
-        className={stylesPop.popup}
-        content={(visibilitySettings.showSettings === false) ? <span>Show settings <mark>3</mark></span> : <span>Hide settings <mark>3</mark></span>}
-      />
     </div>
   )
 }

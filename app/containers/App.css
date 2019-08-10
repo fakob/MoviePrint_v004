@@ -118,10 +118,46 @@
   margin-right: 350px;
 }
 
+.openCloseMovieList {
+  position: fixed;
+  z-index: 10;
+  transition: transform 0.5s ease, left 0.5s ease;
+  left: 310px;
+  top: 35px;
+  background: rgba(0,0,0,0.8);
+  /* background: rgba(255,255,255,0.1); */
+  height: 56px;
+  width: 80px;
+  border-radius: 40px;
+  cursor: pointer;
+}
+
+.openCloseMovieList:hover {
+  left: 320px;
+}
+
+.openCloseSettings {
+  position: fixed;
+  z-index: 10;
+  transition: transform 0.5s ease, left 0.5s ease;
+  left: -40px;
+  top: 35px;
+  background: rgba(0,0,0,0.8);
+  /* background: rgba(255,255,255,0.1); */
+  height: 56px;
+  width: 80px;
+  border-radius: 40px;
+  cursor: pointer;
+}
+
+.openCloseSettings:hover {
+  left: -50px;
+}
+
 .ItemSideBar {
   min-height: calc(100vh);
   /* background: linear-gradient(270deg, #444242 0%, #3B3B3B 100%); */
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.8);
   width: 350px;
   position: fixed;
   transition: transform 0.5s ease;

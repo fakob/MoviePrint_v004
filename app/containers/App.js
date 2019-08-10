@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone';
 import fs from 'fs';
-import { TransitionablePortal, Segment, Progress, Modal, Button, Icon, Container, Loader, Header, Divider, Form } from 'semantic-ui-react';
+import { TransitionablePortal, Segment, Progress, Modal, Button, Icon, Container, Loader, Header, Divider, Form, Popup } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
 import {Line, defaults} from 'react-chartjs-2';
 import path from 'path';
@@ -2870,6 +2870,30 @@ class App extends Component {
                     height: `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)`,
                   }}
                 >
+                  <Popup
+                    trigger={
+                      <div
+                        className={`${styles.openCloseMovieList} ${styles.ItemMovielist} ${visibilitySettings.showMovielist ? styles.ItemMovielistAnim : ''}`}
+                        onClick={this.toggleMovielist}
+                        data-tid={(visibilitySettings.showMovielist === false) ? 'showMovieListBtn' : 'hideMovieListBtn'}
+                      >
+                        <Icon
+                          className={`${styles.normalButton} ${visibilitySettings.showMovielist === false ? '' : styles.selected}`}
+                          style={{
+                            marginRight: '16px',
+                            marginTop: '18px',
+                            marginLeft: '46px',
+                          }}
+                          size='large'
+                          name={visibilitySettings.showMovielist ? 'angle left' : 'angle right'}
+                        />
+                      </div>
+                    }
+                    mouseEnterDelay={1000}
+                    position='right center'
+                    className={stylesPop.popup}
+                    content={(visibilitySettings.showMovielist === false) ? <span>Show Movie and Sheets list <mark>1</mark></span> : <span>Hide Movie list <mark>1</mark></span>}
+                  />
                   <div
                     className={`${styles.ItemSideBar} ${styles.ItemMovielist} ${visibilitySettings.showMovielist ? styles.ItemMovielistAnim : ''}`}
                   >
@@ -2893,6 +2917,30 @@ class App extends Component {
                       currentSheetId={currentSheetId}
                     />
                   </div>
+                  <Popup
+                    trigger={
+                      <div
+                        className={`${styles.openCloseSettings} ${styles.ItemSettings} ${visibilitySettings.showSettings ? styles.ItemSettingsAnim : ''}`}
+                        onClick={this.toggleSettings}
+                        data-tid={(visibilitySettings.showSettings === false) ? 'moreSettingsBtn' : 'hideSettingsBtn'}
+                      >
+                        <Icon
+                          className={`${styles.normalButton} ${visibilitySettings.showSettings === false ? '' : styles.selected}`}
+                          style={{
+                            // marginRight: '16px',
+                            marginTop: '18px',
+                            marginLeft: '10px',
+                          }}
+                          size='large'
+                          name={visibilitySettings.showSettings ? 'angle right' : 'angle left'}
+                        />
+                      </div>
+                    }
+                    mouseEnterDelay={1000}
+                    position='left center'
+                    className={stylesPop.popup}
+                    content={(visibilitySettings.showSettings === false) ? <span>Show settings <mark>3</mark></span> : <span>Hide settings <mark>3</mark></span>}
+                  />
                   <div
                     className={`${styles.ItemSideBar} ${styles.ItemSettings} ${visibilitySettings.showSettings ? styles.ItemSettingsAnim : ''}`}
                   >
