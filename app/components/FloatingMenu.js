@@ -47,7 +47,9 @@ const ButtonExampleCircularSocial = ({
     <div
       className={`${styles.floatingMenu}`}
     >
-      <Button.Group>
+      <Button.Group
+        className={`${visibilitySettings.defaultView === VIEW.STANDARDVIEW ? '' : styles.hidden}`}
+      >
         <Popup
           trigger={
             <Button
@@ -190,7 +192,7 @@ const ButtonExampleCircularSocial = ({
               }
               return undefined;
             }}
-            icon="video"
+            icon={(visibilitySettings.defaultView === VIEW.STANDARDVIEW) ? 'video' : 'grid layout'}
           />
         }
         mouseEnterDelay={1000}
@@ -199,7 +201,9 @@ const ButtonExampleCircularSocial = ({
         content={(visibilitySettings.defaultView === VIEW.STANDARDVIEW) ? <span>Show player view <mark>2</mark></span> : <span>Hide player view <mark>2</mark></span>}
       />
       {' '}
-      <Button.Group>
+      <Button.Group
+        className={`${visibilitySettings.defaultView === VIEW.STANDARDVIEW ? '' : styles.hidden}`}
+      >
         {visibilitySettings.defaultSheetFit !== SHEET_FIT.HEIGHT &&
           scaleValueObject.moviePrintAspectRatioInv < scaleValueObject.containerAspectRatioInv &&
           <Popup
@@ -274,7 +278,9 @@ const ButtonExampleCircularSocial = ({
         />
       </Button.Group>
       {' '}
-      <Button.Group>
+      <Button.Group
+        className={`${visibilitySettings.defaultView === VIEW.STANDARDVIEW ? '' : styles.hidden}`}
+      >
         <Popup
           trigger={
             <Button

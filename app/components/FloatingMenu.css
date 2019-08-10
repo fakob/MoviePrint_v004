@@ -79,3 +79,7 @@
 .selected {
   background-color: rgba(60, 30, 0, 1.0) !important;
 }
+
+.hidden {
+  visibility: hidden;
+}
