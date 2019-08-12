@@ -11,7 +11,8 @@
 
 .imageButton {
   color: white !important;
-  background-color: rgba(30, 15, 0, 1.0) !important;
+  /* background-color: rgba(30, 15, 0, 1.0) !important; */
+  background: rgba(0,0,0,0.8) !important;
   /* box-shadow: none !important; */
   padding-left: 11px !important;
   padding-right: 11px !important;
@@ -25,7 +26,8 @@
 
 .dropDownButton {
   color: white !important;
-  background-color: rgba(30, 15, 0, 1.0) !important;
+  /* background-color: rgba(30, 15, 0, 1.0) !important; */
+  background: rgba(0,0,0,0.8) !important;
   /* box-shadow: none !important; */
   padding-left: 15px !important;
   padding-right: 11px !important;
@@ -52,7 +54,8 @@
 
 .normalButton {
   color: white !important;
-  background-color: rgba(30, 15, 0, 1.0) !important;
+  /* background-color: rgba(30, 15, 0, 1.0) !important; */
+  background: rgba(0,0,0,0.8) !important;
   font-family: Lato, 'Helvetica Neue', Arial, Helvetica, sans-serif !important;
   box-shadow: none !important;
 }

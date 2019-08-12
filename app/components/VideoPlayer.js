@@ -615,20 +615,19 @@ class VideoPlayer extends Component {
         this.updateOpencvVideoCanvas(newFrameNumberToJumpTo);
       }
     } else if (sheetType === SHEET_TYPE.INTERVAL) {
-      if (selectedThumb !== undefined) {
-        let newThumbToSelect;
-        if (direction === 'back') {
-          newThumbToSelect = getPreviousThumb(thumbs, selectedThumb.thumbId);
-        } else if (direction === 'forward') {
-          newThumbToSelect = getNextThumb(thumbs, selectedThumb.thumbId);
-        }
-        if (newThumbToSelect !== undefined) {
-          onSelectThumbMethod(newThumbToSelect.thumbId); // call to update selection
-          let newFrameNumberToJumpTo = newThumbToSelect.frameNumber;
-          newFrameNumberToJumpTo = limitRange(newFrameNumberToJumpTo, 0, file.frameCount - 1);
-          this.updatePositionFromFrame(newFrameNumberToJumpTo);
-          this.updateOpencvVideoCanvas(newFrameNumberToJumpTo);
-        }
+      const selectedThumbId = selectedThumb === undefined ? undefined : selectedThumb.thumbId;
+      let newThumbToSelect;
+      if (direction === 'back') {
+        newThumbToSelect = getPreviousThumb(thumbs, selectedThumbId);
+      } else if (direction === 'forward') {
+        newThumbToSelect = getNextThumb(thumbs, selectedThumbId);
+      }
+      if (newThumbToSelect !== undefined) {
+        onSelectThumbMethod(newThumbToSelect.thumbId); // call to update selection
+        let newFrameNumberToJumpTo = newThumbToSelect.frameNumber;
+        newFrameNumberToJumpTo = limitRange(newFrameNumberToJumpTo, 0, file.frameCount - 1);
+        this.updatePositionFromFrame(newFrameNumberToJumpTo);
+        this.updateOpencvVideoCanvas(newFrameNumberToJumpTo);
       }
     }
   }
