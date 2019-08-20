@@ -440,6 +440,17 @@ ipcMain.on(
   }
 );
 
+ipcMain.on(
+  'message-from-mainWindow-to-mainWindow',
+  (e, ipcName, ...args) => {
+    log.debug(
+      `mainThread | passing ${ipcName} from mainWindow to mainWindow`
+    );
+    // log.debug(...args);
+    mainWindow.webContents.send(ipcName, ...args);
+  }
+);
+
 // // retransmit it to workerWindow
 // ipcMain.on('printPDF', (event: any, content: any) => {
 //   workerWindow.webContents.send('printPDF', content);

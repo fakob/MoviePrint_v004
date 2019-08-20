@@ -932,6 +932,30 @@ export const getSceneFromFrameNumber = (scenes, frameNumber) => {
   return closestScene;
 }
 
+export const getLeftAndRightThumb = (thumbs, thumbCenterId) => {
+  if (thumbs === undefined || thumbCenterId === undefined) {
+    return undefined;
+  }
+  // get thumb left and right of scrubThumb
+  const indexOfThumb = thumbs.findIndex((thumb) => thumb.thumbId === thumbCenterId);
+  const thumbCenter = thumbs[indexOfThumb];
+  const tempLeftThumb = thumbs[Math.max(0, indexOfThumb - 1)];
+  const tempRightThumb = thumbs[Math.min(thumbs.length - 1, indexOfThumb + 1)];
+
+  // the three thumbs might not be in ascending order, left has to be lower, right has to be higher
+  // create an array to compare the three thumbs
+  const arrayToCompare = [tempLeftThumb, tempRightThumb, thumbCenter];
+
+  // copy the first array with slice so I can run it a second time (reduce mutates the array)
+  const thumbLeft = arrayToCompare.slice().reduce((prev, current) => prev.frameNumber < current.frameNumber ? prev : current);
+  const thumbRight = arrayToCompare.reduce((prev, current) => prev.frameNumber > current.frameNumber ? prev : current);
+  return {
+    thumbCenter,
+    thumbLeft,
+    thumbRight,
+  }
+}
+
 export const getAdjacentSceneIndicesFromCut = (scenes, frameNumber) => {
   // return an array of 2 adjacent scenes if the frameNumber is the cut in between
   // else return undefined

@@ -909,6 +909,12 @@ ipcRenderer.on(
                 log.debug('lastThumb');
                 ipcRenderer.send(
                   'message-from-opencvWorkerWindow-to-mainWindow',
+                  'finished-getting-thumbs',
+                  fileId,
+                  sheetId,
+                );
+                ipcRenderer.send(
+                  'message-from-opencvWorkerWindow-to-mainWindow',
                   'progressMessage',
                   'info',
                   `Loading of frames took ${duration/1000.0}s`,

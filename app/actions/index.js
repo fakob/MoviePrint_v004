@@ -775,6 +775,10 @@ export const addThumbs = (file, sheetId, frameNumberArray, frameSize = 0) => {
         notExistingFrameIdArray = notExistingFrameNumberArray.map(() => uuidV4());
         notExistingThumbIdArray = notExistingFrameNumberArray.map(() => uuidV4());
         ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs', file.id, file.path, sheetId, notExistingThumbIdArray, notExistingFrameIdArray, notExistingFrameNumberArray, file.useRatio, frameSize, file.transformObject);
+      } else {
+        // send finished-getting-thumbs if no thumbs have to be captured
+        // otherwise this is sent from worker_opencv after last thumb was captured
+        ipcRenderer.send('message-from-mainWindow-to-mainWindow', 'finished-getting-thumbs', file.id, sheetId);
       }
 
       let alreadyExistingThumbIdsArray = [];

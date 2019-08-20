@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone';
 import fs from 'fs';
-import { TransitionablePortal, Segment, Progress, Modal, Button, Icon, Container, Loader, Header, Divider, Form, Popup } from 'semantic-ui-react';
+import { Progress, Modal, Button, Icon, Container, Loader, Header, Divider, Form, Popup } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
 import {Line, defaults} from 'react-chartjs-2';
 import path from 'path';
@@ -55,6 +55,7 @@ import { getLowestFrame,
   getFileName,
   getSheetName,
   getSceneFromFrameNumber,
+  getLeftAndRightThumb,
   getAdjacentSceneIndicesFromCut,
 } from '../utils/utils';
 import styles from './App.css';
@@ -417,7 +418,6 @@ class App extends Component {
 
   componentDidMount() {
     const { store } = this.context;
-    const { currentFileId } = this.props;
 
     ipcRenderer.on('progress', (event, fileId, progressBarPercentage) => {
       this.setState({
@@ -572,6 +572,16 @@ class App extends Component {
             });
           }
         }
+    });
+
+    ipcRenderer.on('finished-getting-thumbs', (event, fileId, sheetId) => {
+      const { settings, sheetsByFileId } = this.props;
+
+      // update artificial sceneArray if interval scene
+      if (getSheetType(sheetsByFileId, fileId, sheetId, settings) === SHEET_TYPE.INTERVAL) {
+        const sceneArray = createSceneArray(sheetsByFileId, fileId, sheetId);
+        store.dispatch(updateSceneArray(fileId, sheetId, sceneArray));
+      }
     });
 
     ipcRenderer.on('clearScenes', (event, fileId, sheetId) => {
@@ -1546,18 +1556,7 @@ class App extends Component {
       scrubScene = allScenes.find(scene => scene.sceneId === scrubThumb.thumbId);
     }
 
-    // get thumb left and right of scrubThumb
-    const indexOfThumb = thumbs.findIndex((thumb) => thumb.thumbId === scrubThumb.thumbId);
-    const leftThumb = thumbs[Math.max(0, indexOfThumb - 1)];
-    const rightThumb = thumbs[Math.min(thumbs.length - 1, indexOfThumb + 1)];
-
-    // the three thumbs might not be in ascending order, left has to be lower, right has to be higher
-    // create an array to compare the three thumbs
-    const arrayToCompare = [leftThumb, rightThumb, scrubThumb];
-
-    // copy the first array with slice so I can run it a second time (reduce mutates the array)
-    const scrubThumbLeft = arrayToCompare.slice().reduce((prev, current) => prev.frameNumber < current.frameNumber ? prev : current);
-    const scrubThumbRight = arrayToCompare.reduce((prev, current) => prev.frameNumber > current.frameNumber ? prev : current);
+    const { thumbLeft: scrubThumbLeft, thumbRight: scrubThumbRight } = getLeftAndRightThumb(thumbs, scrubThumb.thumbId);
 
     this.setState({
       showScrubWindow: true,
@@ -2388,7 +2387,7 @@ class App extends Component {
 
   onDuplicateSheetClick = (fileId, sheetId) => {
     const { store } = this.context;
-    const { currentFileId, currentSheetId, files } = this.props;
+    const { currentFileId, currentSheetId, files, settings, sheetsByFileId } = this.props;
 
     // if fileId  and or sheetId are undefined then use currentFileId and or currentSheetId
     const theFileId = fileId || currentFileId;
@@ -2399,6 +2398,12 @@ class App extends Component {
     store.dispatch(updateSheetName(theFileId, newSheetId, getNewSheetName(getSheetCount(files, theFileId)))); // set name on firstFile
     store.dispatch(updateSheetCounter(theFileId));
     store.dispatch(setCurrentSheetId(newSheetId));
+
+    // if interval scene then create artificial sceneArray
+    if (getSheetType(sheetsByFileId, theFileId, newSheetId, settings) === SHEET_TYPE.INTERVAL) {
+      const sceneArray = createSceneArray(sheetsByFileId, theFileId, newSheetId);
+      store.dispatch(updateSceneArray(theFileId, newSheetId, sceneArray));
+    }
   };
 
   onExportSheetClick = (fileId, sheetId) => {
@@ -2625,7 +2630,7 @@ class App extends Component {
 
   onSetViewClick = (value) => {
     const { store } = this.context;
-    const { currentFileId, currentSheetId, sheetsByFileId, settings } = this.props;
+    const { currentFileId, currentSheetId, scenes, sheetsByFileId, settings } = this.props;
 
     if (value === VIEW.PLAYERVIEW) {
       this.hideSettings();
