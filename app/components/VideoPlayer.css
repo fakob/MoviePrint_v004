@@ -71,35 +71,6 @@
   /* padding: .5em; */
 }
 
-.timelineWrapperSelection {
-  width: 100%;
-  position: relative;
-  background-color: #421400;
-  /* background-color: rgba(255, 80, 6, 0.4); */
-  height: 32px;
-  margin-bottom: 8px;
-}
-
-.timelineWrapper {
-  width: 100%;
-  position: relative;
-  background-color: #421400;
-  height: 8px;
-}
-
-.timelineCutSelection {
-  position: absolute;
-  background-color: rgba(255, 80, 6, 0.4);
-  height: 32px;
-  cursor: col-resize;
-}
-
-.timelineCut {
-  position: absolute;
-  background-color: rgba(255, 80, 6, 0.4);
-  height: 8px;
-}
-
 .buttonWrapper {
   width: 100%;
   position: relative;
@@ -115,37 +86,6 @@
   transform: translate(0%, -100%);
   height: 36px;
   /* background-color: rgba(0, 0, 0, 0.05); */
-}
-
-.timelinePlayheadSelection {
-  position: absolute;
-  /* bottom: 0; */
-  /* top: 0; */
-  width: 2px;
-  background-color: rgba(255, 80, 6, 1);
-  height: 28px;
-  margin-top: 2px;
-}
-
-.timelinePlayhead {
-  position: absolute;
-  /* bottom: 0; */
-  /* top: 0; */
-  width: 2px;
-  background-color: rgba(255, 80, 6, 1);
-  height: 8px;
-  margin-top: 0px;
-}
-
-.timelineWrapper .currentTime {
-  background-color: #FF5006;
-  z-index: 2;
-}
-.timelineWrapper .cutStartTime {
-  background-color: rgba(0, 0, 0, 0.3);
-  border-left: 1px solid black;
-  border-right: 1px solid black;
-  z-index: 1;
 }
 
 .hoverButton {

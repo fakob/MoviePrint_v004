@@ -30,6 +30,7 @@ import {
   mapRange,
   setPosition,
 } from '../utils/utils';
+import Timeline from './Timeline';
 import styles from './VideoPlayer.css';
 import stylesPop from './Popup.css';
 
@@ -48,8 +49,8 @@ class VideoPlayer extends Component {
       }, // in frames
       videoHeight: 360,
       videoWidth: 640,
-      playHeadPosition: 0, // in pixel
-      playHeadPositionSelection: 0, // in pixel
+      playHeadPositionPerc: 0, // in pixel
+      playHeadPositionPercSelection: 0, // in pixel
       currentTime: 0, // in seconds
       duration: 0, // in seconds
       mouseStartDragInsideTimelineSelection: false,
@@ -71,20 +72,12 @@ class VideoPlayer extends Component {
     this.updateTimeFromFrameNumber = this.updateTimeFromFrameNumber.bind(this);
     this.updatePositionFromTime = this.updatePositionFromTime.bind(this);
     this.updatePositionFromFrame = this.updatePositionFromFrame.bind(this);
+    this.updateTimeFromPosition = this.updateTimeFromPosition.bind(this);
+    this.updateTimeFromPositionSelection = this.updateTimeFromPositionSelection.bind(this);
     this.onVideoError = this.onVideoError.bind(this);
     this.onLoadedData = this.onLoadedData.bind(this);
     this.toggleHTML5Player = this.toggleHTML5Player.bind(this);
 
-    this.onTimelineClick = this.onTimelineClick.bind(this);
-    this.onTimelineSelectionClick = this.onTimelineSelectionClick.bind(this);
-    this.onTimelineDrag = this.onTimelineDrag.bind(this);
-    this.onTimelineDragStop = this.onTimelineDragStop.bind(this);
-    this.onTimelineSelectionDrag = this.onTimelineSelectionDrag.bind(this);
-    this.onTimelineSelectionDragStop = this.onTimelineSelectionDragStop.bind(this);
-    this.onTimelineMouseOver = this.onTimelineMouseOver.bind(this);
-    this.onTimelineSelectionMouseOver = this.onTimelineSelectionMouseOver.bind(this);
-    this.onTimelineExit = this.onTimelineExit.bind(this);
-    this.onTimelineSelectionExit = this.onTimelineSelectionExit.bind(this);
     this.onNextSceneClickWithStop = this.onNextSceneClickWithStop.bind(this);
     this.onNextThumbClickWithStop = this.onNextThumbClickWithStop.bind(this);
     this.onMergeSceneClickWithStop = this.onMergeSceneClickWithStop.bind(this);
@@ -241,8 +234,8 @@ class VideoPlayer extends Component {
     // setState is asynchronious
     // updatePosition needs to wait for setState, therefore it is put into callback of setState
     this.setState({ duration }, () => {
-      this.updateTimeFromPosition(this.state.playHeadPosition);
-      this.updateTimeFromPositionSelection(this.state.playHeadPositionSelection);
+      this.updateTimeFromPosition(this.state.playHeadPositionPerc);
+      this.updateTimeFromPositionSelection(this.state.playHeadPositionPercSelection);
     });
   }
 
@@ -336,19 +329,19 @@ class VideoPlayer extends Component {
       const xPos = mapRange(
         roundedCurrentTime,
         0, duration,
-        0, containerWidth, false
+        0, 1.0, false
       );
       const { inPoint, outPoint } = this.getInOutObject(newScene);
       const xPosSelection = mapRange(
         roundedCurrentTime,
         inPoint, outPoint,
-        0, containerWidth, false
+        0, 1.0, false
       );
       this.setState({
         currentFrame,
         currentTime: roundedCurrentTime,
-        playHeadPosition: xPos,
-        playHeadPositionSelection: xPosSelection,
+        playHeadPositionPerc: xPos,
+        playHeadPositionPercSelection: xPosSelection,
       });
       this.updateOpencvVideoCanvas(currentFrame);
       // log.debug(`${currentTime} : ${xPos} : ${containerWidth} : ${duration}`);
@@ -373,18 +366,18 @@ class VideoPlayer extends Component {
       const xPos = mapRange(
         currentFrame,
         0, (file.frameCount - 1),
-        0, containerWidth, false
+        0, 1.0, false
       );
       const { inPoint, outPoint } = this.getInOutObject(newScene);
       const xPosSelection = mapRange(
         currentFrame,
         inPoint, outPoint,
-        0, containerWidth, false
+        0, 1.0, false
       );
       this.setState({
         currentFrame,
-        playHeadPosition: xPos,
-        playHeadPositionSelection: xPosSelection,
+        playHeadPositionPerc: xPos,
+        playHeadPositionPercSelection: xPosSelection,
       });
     }
   }
@@ -402,20 +395,20 @@ class VideoPlayer extends Component {
     const xPos = mapRange(
       currentFrame,
       0, (file.frameCount - 1),
-      0, containerWidth, false
+      0, 1.0, false
     );
     const { inPoint, outPoint } = this.getInOutObject(currentScene);
     const xPosSelection = mapRange(
       currentFrame,
       inPoint, outPoint,
-      0, containerWidth, false
+      0, 1.0, false
     );
     const currentTime = frameCountToSeconds(currentFrame, file.fps);
     this.setState({
       currentFrame,
       currentTime,
-      playHeadPosition: xPos,
-      playHeadPositionSelection: xPosSelection,
+      playHeadPositionPerc: xPos,
+      playHeadPositionPercSelection: xPosSelection,
     });
     if (loadVideo && showHTML5Player) {
       this.video.currentTime = currentTime;
@@ -442,7 +435,7 @@ class VideoPlayer extends Component {
 
     if (xPos !== undefined) {
       const { frameCount } = file;
-      const currentFrame = mapRange(xPos, 0, containerWidth, 0, frameCount - 1);
+      const currentFrame = mapRange(xPos, 0, 1.0, 0, frameCount - 1);
       const newScene = getSceneFromFrameNumber(scenes, currentFrame);
       if (currentScene !== undefined &&
         newScene !== undefined &&
@@ -456,15 +449,15 @@ class VideoPlayer extends Component {
       const xPosSelection = mapRange(
         currentFrame,
         inPoint, outPoint,
-        0, containerWidth, false
+        0, 1.0, false
       );
       this.setState({
-        playHeadPosition: xPos,
-        playHeadPositionSelection: xPosSelection,
+        playHeadPositionPerc: xPos,
+        playHeadPositionPercSelection: xPosSelection,
         currentFrame,
       });
       this.updateOpencvVideoCanvas(currentFrame);
-      const currentTime = mapRange(xPos, 0, containerWidth, 0, duration, false);
+      const currentTime = mapRange(xPos, 0, 1.0, 0, duration, false);
       // log.debug(`${currentTime} : ${xPos} : ${containerWidth} : ${duration}`);
       this.setState({ currentTime });
       if (loadVideo && showHTML5Player) {
@@ -479,7 +472,7 @@ class VideoPlayer extends Component {
 
     if (xPosSelection !== undefined) {
       const { inPoint, outPoint } = this.getInOutObject(currentScene);
-      const currentFrame = mapRange(xPosSelection, 0, containerWidth, inPoint, outPoint);
+      const currentFrame = mapRange(xPosSelection, 0, 1.0, inPoint, outPoint);
       const xPos = mapRange(
         currentFrame,
         0, (file.frameCount - 1),
@@ -495,73 +488,17 @@ class VideoPlayer extends Component {
         onSelectThumbMethod(newScene.sceneId); // call to update selection when scrubbing
       }
       this.setState({
-        playHeadPosition: xPos,
-        playHeadPositionSelection: xPosSelection,
+        playHeadPositionPerc: xPos,
+        playHeadPositionPercSelection: xPosSelection,
         currentFrame,
       });
       this.updateOpencvVideoCanvas(currentFrame);
-      const currentTime = mapRange(xPos, 0, containerWidth, 0, duration, false);
+      const currentTime = mapRange(xPos, 0, 1.0, 0, duration, false);
       // log.debug(`${currentTime} : ${xPos} : ${containerWidth} : ${duration}`);
       this.setState({ currentTime });
       if (loadVideo && showHTML5Player) {
         this.video.currentTime = currentTime;
       }
-    }
-  }
-
-  onTimelineSelectionClick(e) {
-    const bounds = this.timeLineSelection.getBoundingClientRect();
-    const x = e.clientX - bounds.left;
-    this.updateTimeFromPositionSelection(x);
-  }
-
-  onTimelineClick(e) {
-    const bounds = this.timeLine.getBoundingClientRect();
-    const x = e.clientX - bounds.left;
-    this.updateTimeFromPosition(x);
-  }
-
-  onTimelineSelectionDrag() {
-    this.setState({ mouseStartDragInsideTimelineSelection: true });
-  }
-
-  onTimelineDrag() {
-    this.setState({ mouseStartDragInsideTimeline: true });
-  }
-
-  onTimelineSelectionMouseOver(e) {
-    if (this.state.mouseStartDragInsideTimelineSelection) { // check if dragging over timeline
-      const bounds = this.timeLineSelection.getBoundingClientRect();
-      const x = e.clientX - bounds.left;
-      this.updateTimeFromPositionSelection(x);
-    }
-  }
-
-  onTimelineMouseOver(e) {
-    if (this.state.mouseStartDragInsideTimeline) { // check if dragging over timeline
-      const bounds = this.timeLine.getBoundingClientRect();
-      const x = e.clientX - bounds.left;
-      this.updateTimeFromPosition(x);
-    }
-  }
-
-  onTimelineSelectionDragStop() {
-    this.setState({ mouseStartDragInsideTimelineSelection: false });
-  }
-
-  onTimelineDragStop() {
-    this.setState({ mouseStartDragInsideTimeline: false });
-  }
-
-  onTimelineSelectionExit() {
-    if (this.state.mouseStartDragInsideTimelineSelection) {
-      this.setState({ mouseStartDragInsideTimelineSelection: false });
-    }
-  }
-
-  onTimelineExit() {
-    if (this.state.mouseStartDragInsideTimeline) {
-      this.setState({ mouseStartDragInsideTimeline: false });
     }
   }
 
@@ -754,7 +691,7 @@ class VideoPlayer extends Component {
   }
 
   render() {
-    const { currentFrame, currentScene, playHeadPosition, playHeadPositionSelection } = this.state;
+    const { currentFrame, currentScene, playHeadPositionPerc, playHeadPositionPercSelection } = this.state;
     const { arrayOfCuts, containerWidth, file, keyObject, scaleValueObject, selectedThumb, sheetType, defaultSheetView, thumbs } = this.props;
     const { showHTML5Player, showPlaybar, videoHeight, videoWidth } = this.state;
 
@@ -831,54 +768,15 @@ class VideoPlayer extends Component {
           </div>
         </div>
         <div className={`${styles.controlsWrapper}`}>
-          <div
-            id="timeLineSelection"
-            className={`${styles.timelineWrapperSelection}`}
-            onClick={this.onTimelineSelectionClick}
-            onMouseDown={this.onTimelineSelectionDrag}
-            onMouseUp={this.onTimelineSelectionDragStop}
-            onMouseMove={this.onTimelineSelectionMouseOver}
-            onMouseLeave={this.onTimelineSelectionExit}
-            ref={(el) => { this.timeLineSelection = el; }}
-          >
-            <div
-              className={`${styles.timelinePlayheadSelection}`}
-              style={{
-                left: Number.isNaN(playHeadPositionSelection) ? 0 : playHeadPositionSelection,
-              }}
-            />
-            {sheetType === SHEET_TYPE.SCENES && <div
-              className={`${styles.timelineCutSelection}`}
-              style={{
-                left: 0,
-                width: containerWidth,
-              }}
-            />}
-          </div>
-          <div
-            id="timeLine"
-            className={`${styles.timelineWrapper}`}
-            onClick={this.onTimelineClick}
-            onMouseDown={this.onTimelineDrag}
-            onMouseUp={this.onTimelineDragStop}
-            onMouseMove={this.onTimelineMouseOver}
-            onMouseLeave={this.onTimelineExit}
-            ref={(el) => { this.timeLine = el; }}
-          >
-            <div
-              className={`${styles.timelinePlayhead}`}
-              style={{
-                left: Number.isNaN(playHeadPosition) ? 0 : playHeadPosition,
-              }}
-            />
-            {sheetType === SHEET_TYPE.SCENES && <div
-              className={`${styles.timelineCut}`}
-              style={{
-                left: Number.isNaN(sceneInOutObject.inPointPositionOnTimeline) ? 0 : sceneInOutObject.inPointPositionOnTimeline,
-                width: Number.isNaN(sceneInOutObject.cutWidthOnTimeLine) ? 0 : sceneInOutObject.cutWidthOnTimeLine,
-              }}
-            />}
-          </div>
+          <Timeline
+            playHeadPositionPercSelection={playHeadPositionPercSelection}
+            containerWidth={containerWidth}
+            playHeadPositionPerc={playHeadPositionPerc}
+            sceneInOutObject={sceneInOutObject}
+            sheetType={sheetType}
+            updateTimeFromPosition={this.updateTimeFromPosition}
+            updateTimeFromPositionSelection={this.updateTimeFromPositionSelection}
+          />
           {(sheetType === SHEET_TYPE.SCENES ||
             defaultSheetView === SHEET_VIEW.GRIDVIEW) &&
             <div className={`${styles.buttonWrapper}`}>
