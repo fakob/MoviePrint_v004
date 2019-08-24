@@ -731,6 +731,7 @@ class VideoPlayer extends Component {
               </button>
             }
             mouseEnterDelay={1000}
+            on={['hover']}
             position='bottom center'
             className={stylesPop.popup}
             content={ showHTML5Player ? 'Hide HTML5 Player' : 'Show HTML5 Player'}
@@ -795,6 +796,7 @@ class VideoPlayer extends Component {
                   </button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content={<span>Switch between cut/merge shots and change thumb mode <mark>SPACE</mark></span>}
@@ -814,6 +816,7 @@ class VideoPlayer extends Component {
                   </button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content={<span>Jump to previous cut <mark>SHIFT + ALT + Arrow left</mark></span>}
@@ -834,6 +837,7 @@ class VideoPlayer extends Component {
                   </button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content={<span>Jump to previous thumb <mark>SHIFT + ALT + Arrow left</mark></span>}
@@ -853,6 +857,7 @@ class VideoPlayer extends Component {
                   </button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content={<span>Move 100 frames back <mark>ALT + Arrow left</mark></span>}
@@ -872,6 +877,7 @@ class VideoPlayer extends Component {
                   </button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content={<span>Move 10 frames back <mark>Arrow left</mark></span>}
@@ -891,6 +897,7 @@ class VideoPlayer extends Component {
                   </button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content={<span>Move 1 frame back <mark>SHIFT + Arrow left</mark></span>}
@@ -915,6 +922,7 @@ class VideoPlayer extends Component {
                   </button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content={thisFrameIsACut ? (<span>Merge scenes <mark>ENTER</mark></span>) : (<span>Cut scene <mark>ENTER</mark></span>)}
@@ -937,6 +945,7 @@ class VideoPlayer extends Component {
                   </button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content={<span>Change the thumb to use this frame <mark>ENTER</mark></span>}
@@ -959,6 +968,7 @@ class VideoPlayer extends Component {
                   </button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content={keyObject.altKey ? (<span>Add a new thumb <mark>after</mark> selection</span>) : (keyObject.shiftKey ? (<span>Add a new thumb <mark>before</mark> selection</span>) : (<span>Change the thumb to use this frame <mark>ENTER</mark> | with <mark>SHIFT</mark> add a thumb before selection | with <mark>ALT</mark> add a thumb after selection</span>))}
@@ -978,6 +988,7 @@ class VideoPlayer extends Component {
                   </button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content={<span>Move 1 frame forward <mark>SHIFT + Arrow right</mark></span>}
@@ -997,6 +1008,7 @@ class VideoPlayer extends Component {
                   </button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content={<span>Move 10 frames forward<mark>Arrow right</mark></span>}
@@ -1016,6 +1028,7 @@ class VideoPlayer extends Component {
                   </button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content={<span>Move 100 frames forward <mark>ALT + Arrow right</mark></span>}
@@ -1036,6 +1049,7 @@ class VideoPlayer extends Component {
                   </button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content={<span>Jump to next thumb <mark>SHIFT + ALT + Arrow right</mark></span>}
@@ -1055,6 +1069,7 @@ class VideoPlayer extends Component {
                   </button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content={<span>Jump to next cut <mark>SHIFT + ALT + Arrow right</mark></span>}

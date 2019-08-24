@@ -39,6 +39,7 @@ const Header = ({
             </Menu.Item>
           }
           mouseEnterDelay={1000}
+          on={['hover']}
           position='bottom center'
           className={stylesPop.popup}
           content={<span>Add one or more movies <mark>A</mark></span>}
@@ -61,6 +62,7 @@ const Header = ({
                     />
                   }
                   mouseEnterDelay={1000}
+                  on={['hover']}
                   position='right center'
                   className={stylesPop.popup}
                   content='Import a MoviePrint from JSON file or a PNG file with embedded data'
@@ -76,6 +78,7 @@ const Header = ({
                       />
                     }
                     mouseEnterDelay={1000}
+                    on={['hover']}
                     position='right center'
                     className={stylesPop.popup}
                     content='Clear Movie list - THIS CAN NOT BE UNDONE!'
@@ -85,6 +88,7 @@ const Header = ({
             </Dropdown>
           }
           mouseEnterDelay={1000}
+          on={['hover']}
           position='right center'
           className={stylesPop.popup}
           content="more options"
@@ -104,6 +108,7 @@ const Header = ({
               </Menu.Item>
             }
             mouseEnterDelay={1000}
+            on={['hover']}
             position='bottom center'
             className={stylesPop.popup}
             content='Check online if there are updates available'
@@ -122,6 +127,7 @@ const Header = ({
               </Menu.Item>
             }
             mouseEnterDelay={1000}
+            on={['hover']}
             position='top center'
             offset='0,8px'
             className={stylesPop.popup}

@@ -295,7 +295,7 @@
     "redux-undo": "^1.0.0-beta9-9-5",
     "scroll-into-view": "^1.9.3",
     "semantic-ui-css": "^2.3.3",
-    "semantic-ui-react": "^0.87.2",
+    "semantic-ui-react": "^0.88.0",
     "shelljs": "^0.8.2",
     "spectron-fake-dialog": "^0.0.1"
   },

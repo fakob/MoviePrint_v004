@@ -56,6 +56,7 @@ const Footer = ({
                 </Menu.Item>
               }
               mouseEnterDelay={1000}
+              on={['hover']}
               position='top center'
               offset='0,8px'
               pinned
@@ -87,6 +88,7 @@ const Footer = ({
                 </Dropdown>
               }
               mouseEnterDelay={1000}
+              on={['hover']}
               position='top right'
               offset='0,8px'
               pinned

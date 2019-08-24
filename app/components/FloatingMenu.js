@@ -62,6 +62,7 @@ const ButtonExampleCircularSocial = ({
             </Button>
           }
           mouseEnterDelay={1000}
+          on={['hover']}
           position='bottom center'
           className={stylesPop.popup}
           content='Add MoviePrint (shot detection based)'
@@ -116,6 +117,7 @@ const ButtonExampleCircularSocial = ({
             </Dropdown>
           }
           mouseEnterDelay={1000}
+          on={['hover']}
           position='right center'
           className={stylesPop.popup}
           content='Add MoviePrint (interval based)'
@@ -131,6 +133,7 @@ const ButtonExampleCircularSocial = ({
             />
           }
           mouseEnterDelay={1000}
+          on={['hover']}
           position='bottom center'
           className={stylesPop.popup}
           content='Duplicate MoviePrint'
@@ -147,6 +150,7 @@ const ButtonExampleCircularSocial = ({
               />
             }
             mouseEnterDelay={1000}
+            on={['hover']}
             position='bottom center'
             className={stylesPop.popup}
             content={(sheetView === SHEET_VIEW.GRIDVIEW) ? 'Switch to timeline view' : 'Switch to grid view'}
@@ -166,6 +170,7 @@ const ButtonExampleCircularSocial = ({
             </Button>
           }
           mouseEnterDelay={1000}
+          on={['hover']}
           position='bottom center'
           className={stylesPop.popup}
           content={(sheetView === SHEET_VIEW.GRIDVIEW) ? 'Switch to cut view' : 'Switch to thumb view'}
@@ -196,6 +201,7 @@ const ButtonExampleCircularSocial = ({
           />
         }
         mouseEnterDelay={1000}
+        on={['hover']}
         position='bottom center'
         className={stylesPop.popup}
         content={(visibilitySettings.defaultView === VIEW.STANDARDVIEW) ? <span>Show player view <mark>2</mark></span> : <span>Hide player view <mark>2</mark></span>}
@@ -218,6 +224,7 @@ const ButtonExampleCircularSocial = ({
               />
             }
             mouseEnterDelay={1000}
+            on={['hover']}
             position='bottom center'
             className={stylesPop.popup}
             content='Fit height'
@@ -237,6 +244,7 @@ const ButtonExampleCircularSocial = ({
               />
             }
             mouseEnterDelay={1000}
+            on={['hover']}
             position='bottom center'
             className={stylesPop.popup}
             content='Fit width'
@@ -255,6 +263,7 @@ const ButtonExampleCircularSocial = ({
               />
             }
             mouseEnterDelay={1000}
+            on={['hover']}
             position='bottom center'
             className={stylesPop.popup}
             content='Fit all'
@@ -272,6 +281,7 @@ const ButtonExampleCircularSocial = ({
             />
           }
           mouseEnterDelay={1000}
+          on={['hover']}
           position='bottom center'
           className={stylesPop.popup}
           content={zoom ? 'Zoom out' : 'Zoom in'}
@@ -293,6 +303,7 @@ const ButtonExampleCircularSocial = ({
             />
           }
           mouseEnterDelay={1000}
+          on={['hover']}
           position='bottom center'
           className={stylesPop.popup}
           content={(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'Show visible thumbs' : 'Show hidden thumbs'}
@@ -310,6 +321,7 @@ const ButtonExampleCircularSocial = ({
             </Button>
           }
           mouseEnterDelay={1000}
+          on={['hover']}
           position='bottom center'
           className={stylesPop.popup}
           content="Show header"
@@ -332,6 +344,7 @@ const ButtonExampleCircularSocial = ({
             </Button>
           }
           mouseEnterDelay={1000}
+          on={['hover']}
           position='bottom center'
           className={stylesPop.popup}
           content="Show frames, timecode or none"

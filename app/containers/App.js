@@ -2895,6 +2895,7 @@ class App extends Component {
                       </div>
                     }
                     mouseEnterDelay={1000}
+                    on={['hover']}
                     position='right center'
                     className={stylesPop.popup}
                     content={(visibilitySettings.showMovielist === false) ? <span>Show Movie and Sheets list <mark>1</mark></span> : <span>Hide Movie list <mark>1</mark></span>}
@@ -2942,6 +2943,7 @@ class App extends Component {
                       </div>
                     }
                     mouseEnterDelay={1000}
+                    on={['hover']}
                     position='left center'
                     className={stylesPop.popup}
                     content={(visibilitySettings.showSettings === false) ? <span>Show settings <mark>3</mark></span> : <span>Hide settings <mark>3</mark></span>}

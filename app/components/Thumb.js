@@ -37,6 +37,7 @@ const DragHandle = SortableHandle(({ width, height, thumbId }) =>
         </button>
       }
       mouseEnterDelay={2000}
+      on={['hover']}
       pinned
       offset='-50%r, -50%r'
       position='top right'

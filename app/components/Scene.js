@@ -38,6 +38,7 @@ const DragHandle = SortableHandle(({ width, height, sceneId }) =>
         </button>
       }
       mouseEnterDelay={2000}
+      on={['hover']}
       bottomed
       offset='-50%r, -50%r'
       position='top right'
@@ -324,6 +325,7 @@ const Scene = ({
               </button>
             }
             mouseEnterDelay={1000}
+            on={['hover']}
             position='bottom center'
             className={stylesPop.popup}
             content="Expand scene"
@@ -352,6 +354,7 @@ const Scene = ({
               </button>
             }
             mouseEnterDelay={1000}
+            on={['hover']}
             position='bottom center'
             className={stylesPop.popup}
             content="Hide thumb"
@@ -383,6 +386,7 @@ const Scene = ({
                   </button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content={<span>Hide all scenes before</span>}
@@ -412,6 +416,7 @@ const Scene = ({
                   </button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content={<span>Jump to cut at the beginning of this scene</span>}
@@ -441,6 +446,7 @@ const Scene = ({
                   </button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content={<span>Click and drag left and right to change the frame (<mark>SHIFT</mark> add new thumb before, <mark>ALT</mark> add new thumb after, <mark>CTRL</mark> display original as overlay)</span>}
@@ -470,6 +476,7 @@ const Scene = ({
                   </button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content={<span>Jump to cut at the end of this scene</span>}
@@ -499,6 +506,7 @@ const Scene = ({
                   </button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content={<span>Hide all scenes after</span>}

@@ -530,6 +530,7 @@ class ThumbGrid extends Component {
                   </button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content="Expand scene"
@@ -550,6 +551,7 @@ class ThumbGrid extends Component {
                   </button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content="Hide thumb"
@@ -570,6 +572,7 @@ class ThumbGrid extends Component {
                   </button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content="Save thumb"
@@ -592,6 +595,7 @@ class ThumbGrid extends Component {
                       </button>
                     }
                     mouseEnterDelay={1000}
+                    on={['hover']}
                     position='bottom center'
                     className={stylesPop.popup}
                     content={<span>Set this thumb as new <mark>IN-point</mark></span>}
@@ -612,6 +616,7 @@ class ThumbGrid extends Component {
                       </button>
                     }
                     mouseEnterDelay={1000}
+                    on={['hover']}
                     position='bottom center'
                     className={stylesPop.popup}
                     content={<span>Hide all thumbs before</span>}
@@ -632,6 +637,7 @@ class ThumbGrid extends Component {
                       </button>
                     }
                     mouseEnterDelay={1000}
+                    on={['hover']}
                     position='bottom center'
                     className={stylesPop.popup}
                     content={sheetType === SHEET_TYPE.SCENES ? (<span>Jump to cut</span>) : (<span>Add new thumb before</span>)}
@@ -652,6 +658,7 @@ class ThumbGrid extends Component {
                       </button>
                     }
                     mouseEnterDelay={1000}
+                    on={['hover']}
                     position='bottom center'
                     className={stylesPop.popup}
                     content={<span>Click and drag left and right to change the frame (then with <mark>SHIFT</mark> add new thumb before, <mark>ALT</mark> add new thumb after, <mark>CTRL</mark> allow dragging over whole movie)</span>}
@@ -672,6 +679,7 @@ class ThumbGrid extends Component {
                       </button>
                     }
                     mouseEnterDelay={1000}
+                    on={['hover']}
                     position='bottom center'
                     className={stylesPop.popup}
                     content={sheetType === SHEET_TYPE.SCENES ? (<span>Jump to cut</span>) : (<span>Add new thumb after</span>)}
@@ -692,6 +700,7 @@ class ThumbGrid extends Component {
                       </button>
                     }
                     mouseEnterDelay={1000}
+                    on={['hover']}
                     position='bottom center'
                     className={stylesPop.popup}
                     content={<span>Hide all thumbs after</span>}
@@ -712,6 +721,7 @@ class ThumbGrid extends Component {
                       </button>
                     }
                     mouseEnterDelay={1000}
+                    on={['hover']}
                     position='bottom center'
                     className={stylesPop.popup}
                     content={<span>Set this thumb as new <mark>OUT-point</mark></span>}

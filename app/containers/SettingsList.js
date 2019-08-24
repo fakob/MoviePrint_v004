@@ -522,6 +522,7 @@ class SettingsList extends Component {
                         </Button>
                       }
                       mouseEnterDelay={1000}
+                      on={['hover']}
                       position='bottom center'
                       className={stylesPop.popup}
                       content="Run shot detection with new threshold"
@@ -585,6 +586,7 @@ class SettingsList extends Component {
                     </Button>
                   }
                   mouseEnterDelay={1000}
+                  on={['hover']}
                   position='bottom center'
                   className={stylesPop.popup}
                   content="Apply new grid for MoviePrint"
@@ -979,6 +981,7 @@ class SettingsList extends Component {
                   </Button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content="Show detection chart with mean and difference values per frame"
@@ -1048,6 +1051,7 @@ class SettingsList extends Component {
                   </Button>
                 }
                 mouseEnterDelay={1000}
+                on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
                 content="Recapture all frames and store it in the frame cache (uses max size)"
