@@ -96,7 +96,6 @@
 * runFileScan if file not scanned yet
   * ipc send-get-file-scan to opencvWorkerWindow
     * ipc addScene to mainWindow for every single scene
-    * ipc addScene to mainWindow for every single scene
     * ipc received-get-file-scan to mainWindow
 * dispatch updateFileScanStatus
 * runSceneDetection again
