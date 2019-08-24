@@ -1,8 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
+  MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
   SHEET_TYPE,
 } from '../utils/constants';
+import {
+  getBucketValueOfPercentage,
+  roundNumber,
+} from '../utils/utils';
 import styles from './Timeline.css';
 // import stylesPop from './Popup.css';
 
@@ -10,10 +15,11 @@ const Timeline = ({
   playHeadPositionPercSelection,
   containerWidth,
   playHeadPositionPerc,
-  sceneInOutObject,
   sheetType,
   updateTimeFromPosition,
   updateTimeFromPositionSelection,
+  frameCount,
+  currentScene,
 }) => {
 
   // initialise refs
@@ -27,6 +33,9 @@ const Timeline = ({
   const [width, setWidth] = useState(0);
   const [mouseStartDragInsideTimelineSelection, setMouseStartDragInsideTimelineSelection] = useState(false);
   const [mouseStartDragInsideTimeline, setMouseStartDragInsideTimeline] = useState(false);
+
+  const sceneInOutObject = getSceneInOutOnTimelineObject(frameCount, containerWidth, currentScene);
+  // console.log(sceneInOutObject)
 
   // componentDidMount
   // initial call to getBoundingClientRect
@@ -53,27 +62,32 @@ const Timeline = ({
   });
 
   function onTimelineSelectionClick(e) {
-    const xPerc = ((e.clientX - leftBoundsSelection) * 1.0) / widthSelection;
+    const xPerc = ((e.clientX - leftBoundsSelection) * 1.0) / (widthSelection - widthOfSingleFrameSelection);
+    const xPercBucket = getBucketValueOfPercentage(xPerc, sceneInOutObject.length);
     // console.log(widthSelection)
     // console.log(e.clientX)
     // console.log(leftBoundsSelection)
     // console.log(xPerc)
-    updateTimeFromPositionSelection(xPerc);
+    updateTimeFromPositionSelection(xPercBucket);
   }
 
   function onTimelineClick(e) {
-    const xPerc = ((e.clientX - leftBounds) * 1.0) / width;
-    updateTimeFromPosition(xPerc);
+    const xPerc = ((e.clientX - leftBounds) * 1.0) / (width - widthOfSingleFrame);
+    const xPercBucket = getBucketValueOfPercentage(xPerc, sceneInOutObject.length);
+    updateTimeFromPosition(xPercBucket);
   }
 
   function onTimelineMouseOver(e) {
     if (mouseStartDragInsideTimeline) { // check if dragging over timeline
-      const xPerc = ((e.clientX - leftBounds) * 1.0) / width;
-      updateTimeFromPosition(xPerc);
+      const xPerc = ((e.clientX - leftBounds) * 1.0) / (width - widthOfSingleFrame);
+      const xPercBucket = getBucketValueOfPercentage(xPerc, sceneInOutObject.length);
+      updateTimeFromPosition(xPercBucket);
     }
     if (mouseStartDragInsideTimelineSelection) { // check if dragging over timeline
-      const xPerc = ((e.clientX - leftBoundsSelection) * 1.0) / widthSelection;
-      updateTimeFromPositionSelection(xPerc);
+      const xPerc = ((e.clientX - leftBoundsSelection) * 1.0) / (widthSelection - widthOfSingleFrameSelection);
+      const xPercBucket = getBucketValueOfPercentage(xPerc, sceneInOutObject.length);
+      console.log(xPercBucket)
+      updateTimeFromPositionSelection(xPercBucket);
     }
   }
 
@@ -99,8 +113,40 @@ const Timeline = ({
     }
   }
 
-  const playHeadPositionSelection = playHeadPositionPercSelection * widthSelection + leftBoundsSelection;
-  const playHeadPosition = playHeadPositionPerc * width + leftBounds;
+  function getSceneInOutOnTimelineObject(frameCount, containerWidth, currentScene) {
+    let inPoint = 0;
+    let outPoint = 0;
+    let length = 0;
+    if (currentScene !== undefined) {
+      inPoint = currentScene.start;
+      outPoint = currentScene.start + currentScene.length - 1;
+      length = currentScene.length;
+    }
+    const inPointPositionOnTimeline =
+      ((containerWidth * 1.0) / frameCount) * inPoint;
+    const outPointPositionOnTimeline =
+      ((containerWidth * 1.0) / frameCount) * outPoint;
+    const cutWidthOnTimeLine = Math.max(
+      outPointPositionOnTimeline - inPointPositionOnTimeline,
+      MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE
+    );
+    return {
+      inPoint,
+      outPoint,
+      length,
+      inPointPositionOnTimeline,
+      outPointPositionOnTimeline,
+      cutWidthOnTimeLine,
+    }
+  }
+
+  const widthOfSingleFrameSelection = Math.floor(containerWidth / sceneInOutObject.length);
+  const playHeadPositionSelection = Math.floor(playHeadPositionPercSelection * (widthSelection - widthOfSingleFrameSelection) + leftBoundsSelection);
+  const widthOfSingleFrame = containerWidth * 1.0 / frameCount;
+  const playHeadPosition = playHeadPositionPerc * (width - widthOfSingleFrame) + leftBounds;
+  console.log(widthOfSingleFrame)
+  console.log(playHeadPositionPerc)
+  console.log(playHeadPosition)
 
   return (
     <div
@@ -117,24 +163,19 @@ const Timeline = ({
       onClick={onTimelineSelectionClick}
       onMouseDown={onTimelineSelectionDrag}
       onMouseUp={onTimelineDragStop}
-      // onMouseMove={onTimelineSelectionMouseOver}
-      // onMouseLeave={onTimelineSelectionExit}
       ref={refTimelineSelection}
-      // ref={measuredRefSelection}
+      style={{
+        // backgroundImage: `url(${timelineFrameBackground})`,
+        backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${widthOfSingleFrameSelection*2}' height='64' fill='none'><rect opacity='0.015' width='${widthOfSingleFrameSelection}' height='64' fill='white'/></svg>")`,
+      }}
     >
       <div
         className={`${styles.timelinePlayheadSelection}`}
         style={{
           left: Number.isNaN(playHeadPositionSelection) ? 0 : playHeadPositionSelection,
+          width: widthOfSingleFrameSelection,
         }}
       />
-        {sheetType === SHEET_TYPE.SCENES && <div
-          className={`${styles.timelineCutSelection}`}
-          style={{
-            left: 0,
-            width: containerWidth,
-          }}
-        />}
       </div>
       <div
         id="timeLine"
@@ -142,10 +183,7 @@ const Timeline = ({
         onClick={onTimelineClick}
         onMouseDown={onTimelineDrag}
         onMouseUp={onTimelineDragStop}
-        // onMouseMove={onTimelineMouseOver}
-        // onMouseLeave={onTimelineExit}
         ref={refTimeline}
-        // ref={measuredRef}
       >
         <div
           className={`${styles.timelinePlayhead}`}
@@ -153,13 +191,13 @@ const Timeline = ({
             left: Number.isNaN(playHeadPosition) ? 0 : playHeadPosition,
           }}
         />
-        {sheetType === SHEET_TYPE.SCENES && <div
+        <div
           className={`${styles.timelineCut}`}
           style={{
             left: Number.isNaN(sceneInOutObject.inPointPositionOnTimeline) ? 0 : sceneInOutObject.inPointPositionOnTimeline,
             width: Number.isNaN(sceneInOutObject.cutWidthOnTimeLine) ? 0 : sceneInOutObject.cutWidthOnTimeLine,
           }}
-        />}
+        />
       </div>
     </div>
   );

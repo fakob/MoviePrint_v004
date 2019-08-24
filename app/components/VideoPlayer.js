@@ -421,7 +421,7 @@ class VideoPlayer extends Component {
     let outPoint = 0;
     if (currentScene !== undefined) {
       inPoint = currentScene.start;
-      outPoint = currentScene.start + currentScene.length;
+      outPoint = currentScene.start + currentScene.length - 1;
     }
     return {
       inPoint,
@@ -476,7 +476,7 @@ class VideoPlayer extends Component {
       const xPos = mapRange(
         currentFrame,
         0, (file.frameCount - 1),
-        0, containerWidth, false
+        0, 1.0, false
       );
       const newScene = getSceneFromFrameNumber(scenes, currentFrame);
       if (currentScene !== undefined &&
@@ -671,25 +671,6 @@ class VideoPlayer extends Component {
     });
   }
 
-  getSceneInOutOnTimelineObject = (file, containerWidth, currentScene) => {
-    const { inPoint, outPoint } = this.getInOutObject(currentScene);
-    const inPointPositionOnTimeline =
-      ((containerWidth * 1.0) / file.frameCount) * inPoint;
-    const outPointPositionOnTimeline =
-      ((containerWidth * 1.0) / file.frameCount) * outPoint;
-    const cutWidthOnTimeLine = Math.max(
-      outPointPositionOnTimeline - inPointPositionOnTimeline,
-      MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE
-    );
-    return {
-      inPoint,
-      outPoint,
-      inPointPositionOnTimeline,
-      outPointPositionOnTimeline,
-      cutWidthOnTimeLine,
-    }
-  }
-
   render() {
     const { currentFrame, currentScene, playHeadPositionPerc, playHeadPositionPercSelection } = this.state;
     const { arrayOfCuts, containerWidth, file, keyObject, scaleValueObject, selectedThumb, sheetType, defaultSheetView, thumbs } = this.props;
@@ -702,8 +683,6 @@ class VideoPlayer extends Component {
     function out(event) {
       event.target.style.opacity = 0.5;
     }
-
-    const sceneInOutObject = this.getSceneInOutOnTimelineObject(file, containerWidth, currentScene);
 
     const thisFrameIsACut = arrayOfCuts.some(item => item === currentFrame);
 
@@ -773,7 +752,8 @@ class VideoPlayer extends Component {
             playHeadPositionPercSelection={playHeadPositionPercSelection}
             containerWidth={containerWidth}
             playHeadPositionPerc={playHeadPositionPerc}
-            sceneInOutObject={sceneInOutObject}
+            frameCount={file.frameCount}
+            currentScene={currentScene}
             sheetType={sheetType}
             updateTimeFromPosition={this.updateTimeFromPosition}
             updateTimeFromPositionSelection={this.updateTimeFromPositionSelection}

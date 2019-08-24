@@ -972,3 +972,8 @@ export const getAdjacentSceneIndicesFromCut = (scenes, frameNumber) => {
   console.log(adjacentSceneIndicesArray);
   return adjacentSceneIndicesArray;
 }
+
+export const getBucketValueOfPercentage = (percentage, amountOfBuckets) => {
+  // take percentage and return bucketed percentage value, like a histogram value or bin
+  return Math.floor(percentage * 100.0 / (100.0 / (amountOfBuckets - 1))) * (100.0 / (amountOfBuckets - 1)) / 100.0;
+}
