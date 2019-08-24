@@ -331,6 +331,18 @@ export const getNextScenes = (scenes, sceneId) => {
   return undefined; // return undefined if no thumbs provided
 };
 
+export const getInvertedThumbs = (thumbs, thumbId) => {
+  if (thumbs) {
+    if (thumbId) {
+      // get index of thumb
+      return thumbs.filter((thumb) => (((thumb.hidden === false) || (thumb.hidden === undefined)) &&
+        (thumb.thumbId !== thumbId)));
+    }
+    return thumbs; // return last item if no thumbId provided
+  }
+  return undefined; // return undefined if no thumbs provided
+};
+
 export const getPreviousThumbs = (thumbs, thumbId) => {
   if (thumbs) {
     if (thumbId) {

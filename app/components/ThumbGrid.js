@@ -13,6 +13,7 @@ import stylesPop from './Popup.css';
 import {
   getNextThumbs,
   getPreviousThumbs,
+  getInvertedThumbs,
   mapRange,
   getThumbInfoValue,
   formatBytes,
@@ -68,6 +69,7 @@ class ThumbGrid extends Component {
     this.onOutPoint = this.onOutPoint.bind(this);
     this.onHideBefore = this.onHideBefore.bind(this);
     this.onHideAfter = this.onHideAfter.bind(this);
+    this.onHoverExpand = this.onHoverExpand.bind(this);
     this.onHoverInPoint = this.onHoverInPoint.bind(this);
     this.onHoverOutPoint = this.onHoverOutPoint.bind(this);
     this.onLeaveInOut = this.onLeaveInOut.bind(this);
@@ -209,6 +211,15 @@ class ThumbGrid extends Component {
     const thumb = this.props.thumbs.find(thumb => thumb.thumbId === this.state.controllersVisible);
     this.props.onForwardClick(this.props.file, thumb.thumbId, thumb.frameNumber);
     this.resetHover();
+  }
+
+  onHoverExpand(e) {
+    // console.log('onHoverInPoint');
+    e.target.style.opacity = 1;
+    e.stopPropagation();
+    this.setState({
+      thumbsToDim: getInvertedThumbs(this.props.thumbs, this.state.controllersVisible)
+    });
   }
 
   onHoverInPoint(e) {
@@ -515,8 +526,8 @@ class ThumbGrid extends Component {
                     type='button'
                     className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayExit} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
                     onClick={this.onExpand}
-                    onMouseOver={this.over}
-                    onMouseOut={this.out}
+                    onMouseOver={this.onHoverExpand}
+                    onMouseOut={this.onLeaveInOut}
                     onFocus={this.over}
                     onBlur={this.out}
                   >
