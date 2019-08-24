@@ -66,17 +66,14 @@ const Timeline = ({
     updateTimeFromPosition(xPerc);
   }
 
-  function onTimelineSelectionMouseOver(e) {
-    if (mouseStartDragInsideTimelineSelection) { // check if dragging over timeline
-      const xPerc = ((e.clientX - leftBoundsSelection) * 1.0) / widthSelection;
-      updateTimeFromPositionSelection(xPerc);
-    }
-  }
-
   function onTimelineMouseOver(e) {
     if (mouseStartDragInsideTimeline) { // check if dragging over timeline
       const xPerc = ((e.clientX - leftBounds) * 1.0) / width;
       updateTimeFromPosition(xPerc);
+    }
+    if (mouseStartDragInsideTimelineSelection) { // check if dragging over timeline
+      const xPerc = ((e.clientX - leftBoundsSelection) * 1.0) / widthSelection;
+      updateTimeFromPositionSelection(xPerc);
     }
   }
 
@@ -88,23 +85,17 @@ const Timeline = ({
     setMouseStartDragInsideTimeline(true);
   }
 
-  function onTimelineSelectionDragStop() {
-    setMouseStartDragInsideTimelineSelection(false);
-  }
-
   function onTimelineDragStop() {
     setMouseStartDragInsideTimeline(false);
-  }
-
-  function onTimelineSelectionExit() {
-    if (mouseStartDragInsideTimelineSelection) {
-      setMouseStartDragInsideTimelineSelection(false);
-    }
+    setMouseStartDragInsideTimelineSelection(false);
   }
 
   function onTimelineExit() {
     if (mouseStartDragInsideTimeline) {
       setMouseStartDragInsideTimeline(false);
+    }
+    if (mouseStartDragInsideTimelineSelection) {
+      setMouseStartDragInsideTimelineSelection(false);
     }
   }
 
@@ -116,15 +107,18 @@ const Timeline = ({
       className={`${styles.container}`}
       style={{
       }}
+      onMouseMove={onTimelineMouseOver}
+      onMouseLeave={onTimelineExit}
+      onMouseUp={onTimelineDragStop}
     >
     <div
       id="timeLineSelection"
       className={`${styles.timelineWrapperSelection}`}
       onClick={onTimelineSelectionClick}
       onMouseDown={onTimelineSelectionDrag}
-      onMouseUp={onTimelineSelectionDragStop}
-      onMouseMove={onTimelineSelectionMouseOver}
-      onMouseLeave={onTimelineSelectionExit}
+      onMouseUp={onTimelineDragStop}
+      // onMouseMove={onTimelineSelectionMouseOver}
+      // onMouseLeave={onTimelineSelectionExit}
       ref={refTimelineSelection}
       // ref={measuredRefSelection}
     >
@@ -148,8 +142,8 @@ const Timeline = ({
         onClick={onTimelineClick}
         onMouseDown={onTimelineDrag}
         onMouseUp={onTimelineDragStop}
-        onMouseMove={onTimelineMouseOver}
-        onMouseLeave={onTimelineExit}
+        // onMouseMove={onTimelineMouseOver}
+        // onMouseLeave={onTimelineExit}
         ref={refTimeline}
         // ref={measuredRef}
       >
