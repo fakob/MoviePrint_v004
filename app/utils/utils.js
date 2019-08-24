@@ -285,6 +285,26 @@ export const getAllFrameNumbers = (thumbs) => {
   return [];
 };
 
+export const getLowestFrameFromScenes = (scenes) => {
+  if (scenes && (scenes.length > 0)) {
+    return scenes.reduce(
+      (min, p) => (p.start < min ? p.start : min),
+      scenes[0].start
+    );
+  }
+  return undefined;
+};
+
+export const getHighestFrameFromScenes = (scenes) => {
+  if (scenes && (scenes.length > 0)) {
+    return scenes.reduce(
+      (max, p) => ((p.start + p.length - 1) > max ? (p.start + p.length - 1) : max),
+      (scenes[0].start + scenes[0].length - 1)
+    );
+  }
+  return undefined;
+};
+
 export const getPreviousScenes = (scenes, sceneId) => {
   if (scenes) {
     if (sceneId) {
@@ -976,4 +996,11 @@ export const getAdjacentSceneIndicesFromCut = (scenes, frameNumber) => {
 export const getBucketValueOfPercentage = (percentage, amountOfBuckets) => {
   // take percentage and return bucketed percentage value, like a histogram value or bin
   return Math.floor(percentage * 100.0 / (100.0 / (amountOfBuckets - 1))) * (100.0 / (amountOfBuckets - 1)) / 100.0;
+}
+
+export const getFrameInPercentage = (frameNumber, frameCount) => {
+  if (frameCount > 1) {
+    return (frameNumber / ((frameCount - 1) * 1.0)) * 100.0;
+  }
+  return 0;
 }

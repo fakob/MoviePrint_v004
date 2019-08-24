@@ -21,6 +21,8 @@ import {
   frameCountToSeconds,
   getHighestFrame,
   getLowestFrame,
+  getLowestFrameFromScenes,
+  getHighestFrameFromScenes,
   getSceneFromFrameNumber,
   getPreviousThumb,
   getNextThumb,
@@ -99,7 +101,7 @@ class VideoPlayer extends Component {
   }
 
   componentDidMount() {
-    const { jumpToFrameNumber, scenes } = this.props;
+    const { jumpToFrameNumber, allScenes } = this.props;
     if (jumpToFrameNumber !== undefined) {
       this.updateTimeFromFrameNumber(jumpToFrameNumber);
     }
@@ -107,7 +109,7 @@ class VideoPlayer extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { aspectRatioInv, controllerHeight, defaultSheetView, file, height, jumpToFrameNumber, opencvVideo, scenes, width} = this.props;
+    const { aspectRatioInv, controllerHeight, defaultSheetView, file, height, jumpToFrameNumber, opencvVideo, allScenes, width} = this.props;
     const { currentFrame, currentScene, videoHeight } = this.state;
 
     // update videoHeight if window size changed
@@ -131,7 +133,7 @@ class VideoPlayer extends Component {
     }
 
     if (
-      prevProps.scenes.length !== scenes.length ||
+      prevProps.allScenes.length !== allScenes.length ||
       (prevProps.opencvVideo !== undefined && opencvVideo !== undefined &&
         (prevProps.opencvVideo.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) !== opencvVideo.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT))) ||
       prevState.videoHeight !== videoHeight
@@ -311,13 +313,13 @@ class VideoPlayer extends Component {
   }
 
   updatePositionFromTime(currentTime) {
-    const { containerWidth, file, onSelectThumbMethod, scenes } = this.props;
+    const { file, onSelectThumbMethod, allScenes } = this.props;
     const { currentScene, duration } = this.state;
     if (currentTime) {
       // rounds the number with 3 decimals
       const roundedCurrentTime = Math.round((currentTime * 1000) + Number.EPSILON) / 1000;
       const currentFrame = secondsToFrameCount(currentTime, file.fps);
-      const newScene = getSceneFromFrameNumber(scenes, currentFrame);
+      const newScene = getSceneFromFrameNumber(allScenes, currentFrame);
       if (currentScene !== undefined &&
         newScene !== undefined &&
         currentScene.sceneId !== newScene.sceneId) {
@@ -350,11 +352,11 @@ class VideoPlayer extends Component {
    }
 
   updatePositionFromFrame(currentFrame) {
-    const { containerWidth, file, onSelectThumbMethod, scenes } = this.props;
+    const { file, onSelectThumbMethod, allScenes } = this.props;
     const { currentScene } = this.state;
 
     if (currentFrame !== undefined) {
-      const newScene = getSceneFromFrameNumber(scenes, currentFrame);
+      const newScene = getSceneFromFrameNumber(allScenes, currentFrame);
       if (newScene !== undefined &&
         (currentScene === undefined ||
         currentScene.sceneId !== newScene.sceneId)) {
@@ -383,10 +385,10 @@ class VideoPlayer extends Component {
   }
 
   updateTimeFromFrameNumber(currentFrame) {
-    const { containerWidth, file, scenes } = this.props;
+    const { file, allScenes } = this.props;
     const { loadVideo, showHTML5Player } = this.state;
 
-    const currentScene = getSceneFromFrameNumber(scenes, currentFrame);
+    const currentScene = getSceneFromFrameNumber(allScenes, currentFrame);
     if (currentScene !== undefined) {
       this.setState({
         currentScene,
@@ -430,13 +432,13 @@ class VideoPlayer extends Component {
   }
 
   updateTimeFromPosition(xPos) {
-    const { containerWidth, file, scenes, onSelectThumbMethod } = this.props;
+    const { file, allScenes, onSelectThumbMethod } = this.props;
     const { currentScene, duration, loadVideo, showHTML5Player } = this.state;
 
     if (xPos !== undefined) {
       const { frameCount } = file;
       const currentFrame = mapRange(xPos, 0, 1.0, 0, frameCount - 1);
-      const newScene = getSceneFromFrameNumber(scenes, currentFrame);
+      const newScene = getSceneFromFrameNumber(allScenes, currentFrame);
       if (currentScene !== undefined &&
         newScene !== undefined &&
         currentScene.sceneId !== newScene.sceneId) {
@@ -467,7 +469,7 @@ class VideoPlayer extends Component {
   }
 
   updateTimeFromPositionSelection(xPosSelection) {
-    const { containerWidth, file, scenes, onSelectThumbMethod } = this.props;
+    const { file, allScenes, onSelectThumbMethod } = this.props;
     const { currentScene, duration, loadVideo, showHTML5Player } = this.state;
 
     if (xPosSelection !== undefined) {
@@ -478,7 +480,7 @@ class VideoPlayer extends Component {
         0, (file.frameCount - 1),
         0, 1.0, false
       );
-      const newScene = getSceneFromFrameNumber(scenes, currentFrame);
+      const newScene = getSceneFromFrameNumber(allScenes, currentFrame);
       if (currentScene !== undefined &&
         newScene !== undefined &&
         currentScene.sceneId !== newScene.sceneId) {
@@ -527,7 +529,7 @@ class VideoPlayer extends Component {
 
   onNextThumbClickWithStop(e, direction, frameNumber) {
     const { currentScene } = this.state;
-    const { file, onSelectThumbMethod, scenes, selectedThumb, thumbs, sheetType } = this.props;
+    const { file, onSelectThumbMethod, allScenes, selectedThumb, thumbs, sheetType } = this.props;
     if (e !== undefined) {
       e.target.blur(); // remove focus so button gets not triggered when clicking enter
       e.stopPropagation();
@@ -537,9 +539,9 @@ class VideoPlayer extends Component {
       let newSceneToSelect;
 
       if (direction === 'back') {
-        newSceneToSelect = getSceneFromFrameNumber(scenes, currentScene.start - 1);
+        newSceneToSelect = getSceneFromFrameNumber(allScenes, currentScene.start - 1);
       } else if (direction === 'forward') {
-        newSceneToSelect = getSceneFromFrameNumber(scenes, currentScene.start + currentScene.length);
+        newSceneToSelect = getSceneFromFrameNumber(allScenes, currentScene.start + currentScene.length);
       }
       const newThumbToSelect = thumbs.find((thumb) => thumb.thumbId === newSceneToSelect.sceneId);
       if (newSceneToSelect !== undefined) {
@@ -571,7 +573,7 @@ class VideoPlayer extends Component {
 
   onNextSceneClickWithStop(e, direction, frameNumber) {
     const { currentScene } = this.state;
-    const { file, onSelectThumbMethod, scenes } = this.props;
+    const { file, onSelectThumbMethod, allScenes } = this.props;
     if (e !== undefined) {
       e.target.blur(); // remove focus so button gets not triggered when clicking enter
       e.stopPropagation();
@@ -585,11 +587,11 @@ class VideoPlayer extends Component {
       newFrameNumberToJumpTo = currentScene.start;
     } else {
       if (direction === 'back') {
-        newSceneToSelect = getSceneFromFrameNumber(scenes, currentScene.start - 1);
+        newSceneToSelect = getSceneFromFrameNumber(allScenes, currentScene.start - 1);
         newFrameNumberToJumpTo = newSceneToSelect.start;
       } else if (direction === 'forward') {
         newFrameNumberToJumpTo = currentScene.start + currentScene.length;
-        newSceneToSelect = getSceneFromFrameNumber(scenes, newFrameNumberToJumpTo);
+        newSceneToSelect = getSceneFromFrameNumber(allScenes, newFrameNumberToJumpTo);
       }
       if (newSceneToSelect !== undefined) {
         onSelectThumbMethod(newSceneToSelect.sceneId); // call to update selection
@@ -602,7 +604,7 @@ class VideoPlayer extends Component {
 
   onChangeThumbClick() {
     const { currentFrame, currentScene } = this.state;
-    const { currentSheetId, file, onChangeThumb, scenes } = this.props;
+    const { currentSheetId, file, onChangeThumb, allScenes } = this.props;
 
     if (currentScene !== undefined && currentFrame !== undefined) {
       onChangeThumb(file, currentSheetId, currentScene.sceneId, currentFrame);
@@ -673,7 +675,7 @@ class VideoPlayer extends Component {
 
   render() {
     const { currentFrame, currentScene, playHeadPositionPerc, playHeadPositionPercSelection } = this.state;
-    const { arrayOfCuts, containerWidth, file, keyObject, scaleValueObject, selectedThumb, sheetType, defaultSheetView, thumbs } = this.props;
+    const { arrayOfCuts, containerWidth, file, keyObject, scaleValueObject, selectedThumb, sheetType, defaultSheetView, scenes, thumbs } = this.props;
     const { showHTML5Player, showPlaybar, videoHeight, videoWidth } = this.state;
 
     function over(event) {
@@ -757,6 +759,8 @@ class VideoPlayer extends Component {
             sheetType={sheetType}
             updateTimeFromPosition={this.updateTimeFromPosition}
             updateTimeFromPositionSelection={this.updateTimeFromPositionSelection}
+            lowestFrame={sheetType === SHEET_TYPE.SCENES ? getLowestFrameFromScenes(scenes) : getLowestFrame(thumbs)}
+            highestFrame={sheetType === SHEET_TYPE.SCENES ? getHighestFrameFromScenes(scenes) : getHighestFrame(thumbs)}
           />
           {(sheetType === SHEET_TYPE.SCENES ||
             defaultSheetView === SHEET_VIEW.GRIDVIEW) &&
@@ -1085,6 +1089,7 @@ VideoPlayer.defaultProps = {
   thumbs: undefined,
   frameNumber: 0,
   scenes: [],
+  allScenes: [],
   // selectedThumbId: undefined,
 };
 
@@ -1113,6 +1118,7 @@ VideoPlayer.propTypes = {
   containerWidth: PropTypes.number.isRequired,
   width: PropTypes.number,
   scenes: PropTypes.array,
+  allScenes: PropTypes.array,
   thumbs: PropTypes.array,
 };
 

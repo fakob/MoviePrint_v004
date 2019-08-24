@@ -8,15 +8,17 @@
   position: relative;
   background-color: #421400;
   /* background-color: rgba(255, 80, 6, 0.4); */
-  height: 32px;
-  margin-bottom: 8px;
+  height: 28px;
+  margin-bottom: 4px;
+  cursor: col-resize;
 }
 
 .timelineWrapper {
   width: 100%;
   position: relative;
-  background-color: #421400;
-  height: 8px;
+  /* background-color: #421400; */
+  height: 16px;
+  /* cursor: col-resize; */
 }
 
 .timelinePlayheadSelection {
@@ -25,7 +27,7 @@
   /* top: 0; */
   width: 2px;
   background-color: rgba(255, 80, 6, 1);
-  height: 28px;
+  height: 24px;
   margin-top: 2px;
 }
 
@@ -35,21 +37,22 @@
   /* top: 0; */
   width: 2px;
   background-color: rgba(255, 80, 6, 1);
-  height: 8px;
+  height: 16px;
   margin-top: 0px;
 }
 
 .timelineCutSelection {
   position: absolute;
   background-color: rgba(255, 80, 6, 0.4);
-  height: 32px;
+  height: 16px;
   cursor: col-resize;
 }
 
 .timelineCut {
   position: absolute;
-  background-color: rgba(255, 80, 6, 0.4);
-  height: 8px;
+  background-color: #421400;
+  height: 16px;
+  cursor: col-resize;
 }
 
 .timelineWrapper .currentTime {

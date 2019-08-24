@@ -3032,7 +3032,8 @@ class App extends Component {
                         objectUrlObjects={filteredObjectUrlObjects}
                         controllerHeight={settings.defaultVideoPlayerControllerHeight}
                         arrayOfCuts={this.props.arrayOfCuts}
-                        scenes={allScenes}
+                        allScenes={allScenes}
+                        scenes={scenes}
                         thumbs={allThumbs}
                         selectedThumb={this.state.selectedThumbsArray.length !== 0 ?
                           this.state.selectedThumbsArray[0] : undefined}

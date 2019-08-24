@@ -17,6 +17,7 @@ import {
   getThumbInfoValue,
   formatBytes,
   frameCountToTimeCode,
+  getFrameInPercentage,
   getLowestFrame,
   getHighestFrame,
   getAllFrameNumbers,
@@ -316,13 +317,6 @@ class ThumbGrid extends Component {
     const fileDetails = file ? `${frameCountToTimeCode(file.frameCount, fps)} | ${roundNumber(fps)} FPS | ${file.width} × ${file.height} | ${formatBytes(file.size, 1)} | ${file.fourCC}` : '';
 // 00:06:48:12 (9789 frames) | 23.99 FPS | 1280 x 720 | 39.2 MB
     let thumbArray = thumbs;
-
-    const getFrameInPercentage = (frameNumber, frameCount) => {
-      if (frameCount > 1) {
-        return (frameNumber / ((frameCount - 1) * 1.0)) * 100.0;
-      }
-      return 0;
-    }
 
     // calculate in and outpoint for the timeline in percent
     const inPoint = getLowestFrame(thumbs);
