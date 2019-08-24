@@ -538,7 +538,7 @@ class ThumbGrid extends Component {
                 on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
-                content="Expand scene"
+                content="Create a new MoviePrint for this scene"
               />
               <Popup
                 trigger={
