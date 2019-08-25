@@ -2,6 +2,14 @@
 
 // import log from 'electron-log';
 
+// the queue adds all new ones in front
+// const q = new Queue():
+// q.add(1);
+// q.add(2);
+// q.add(3);
+// console.log(q);
+// // [3,2,1]
+
 function Queue() {
   this.data = [];
 }
@@ -21,6 +29,10 @@ Queue.prototype.removeFirst = function() {
 
 Queue.prototype.removeFirstMany = function(amount) {
   return this.data.splice(0, amount);
+}
+
+Queue.prototype.removeLastMany = function(amount) {
+  return this.data.splice(amount * -1, amount);
 }
 
 Queue.prototype.removeLast = function() {

@@ -63,7 +63,8 @@ import stylesPop from '../components/Popup.css';
 import {
   addIntervalSheet,
   addScene,
-  addScenes,
+  addScenesFromSceneList,
+  addScenesWithoutCapturingThumbs,
   addThumb,
   changeThumb,
   clearMovieList,
@@ -355,8 +356,6 @@ class App extends Component {
 
     this.pullScenesFromOpencvWorker = this.pullScenesFromOpencvWorker.bind(this);
 
-    // this.addToFramesToFetch = this.addToFramesToFetch.bind(this);
-
     // moving ipcRenderer into constructor so it gets executed even when
     // the component can not mount and the ErrorBoundary kicks in
     ipcRenderer.on('delete-all-tables', (event) => {
@@ -594,30 +593,54 @@ class App extends Component {
       ));
     });
 
-    ipcRenderer.on('addScene', (event, fileId, sheetId, start, length, colorArray) => {
-      store.dispatch(addScene(
-        fileId,
-        sheetId,
-        start,
-        length,
-        colorArray,
-      ));
-    });
+    // ipcRenderer.on('addScene', (event, fileId, sheetId, start, length, colorArray) => {
+    //   store.dispatch(addScene(
+    //     fileId,
+    //     sheetId,
+    //     start,
+    //     length,
+    //     colorArray,
+    //   ));
+    // });
 
     ipcRenderer.on('received-get-file-scan', (event, fileId, filePath, useRatio, sheetId) => {
       const { files } = this.props;
+      const { requestIdleCallbackHandle } = this.state;
       const file = files.find(file2 => file2.id === fileId);
 
       // cancel pullScenesFromOpencvWorker
-      window.cancelIdleCallback;
+      window.cancelIdleCallback(requestIdleCallbackHandle);
+      this.setState({
+        requestIdleCallbackHandle: undefined,
+      });
       console.log('now I cancelIdleCallback');
-
 
       this.setState({
         fileScanRunning: false,
       });
       store.dispatch(updateFileScanStatus(fileId, true));
       this.runSceneDetection(fileId, filePath, useRatio, undefined, sheetId, file.transformObject);
+    });
+
+    ipcRenderer.on('receive-some-scenes-from-sceneQueue', (event, someScenes) => {
+      const { requestIdleCallbackHandle } = this.state;
+
+      console.log(someScenes);
+      if (someScenes.length > 0) {
+        // add scenes in reveres as they are stored inverse in the queue
+        store.dispatch(addScenesWithoutCapturingThumbs(someScenes.reverse()));
+      }
+
+      // schedule the next one until scan is done and requestIdleCallback is cancelled
+      if (requestIdleCallbackHandle !== undefined) {
+        const newRequestIdleCallbackHandle = window.requestIdleCallback(this.pullScenesFromOpencvWorker);
+        this.setState({
+          requestIdleCallbackHandle: newRequestIdleCallbackHandle,
+        });
+        console.log('now I requestIdleCallback');
+      } else {
+        console.log('requestIdleCallback already cancelled. no new requestIdleCallback will be started.');
+      }
     });
 
     ipcRenderer.on('received-saved-file', (event, id, path) => {
@@ -1017,8 +1040,17 @@ class App extends Component {
             }
             break;
           case 52: // press '4'
+            ipcRenderer.send(
+              'message-from-mainWindow-to-opencvWorkerWindow',
+              'clear-sceneQueue',
+            );
             break;
           case 53: // press '5'
+            ipcRenderer.send(
+              'message-from-mainWindow-to-opencvWorkerWindow',
+              'get-some-scenes-from-sceneQueue',
+              10, // amount
+            );
             break;
           case 54: // press '6'
             break;
@@ -1029,7 +1061,6 @@ class App extends Component {
             // this.recaptureAllFrames();
             break;
           case 68: // press 'd'
-            // this.cancelFileScan(currentFileId);
             break;
           case 70: // press 'f'
             if (currentFileId) {
@@ -1436,6 +1467,9 @@ class App extends Component {
 
         // start scheduled work to pull scenes from worker_opencv with requestIdleCallback
         const requestIdleCallbackHandle = window.requestIdleCallback(this.pullScenesFromOpencvWorker);
+        this.setState({
+          requestIdleCallbackHandle,
+        });
         console.log('now I requestIdleCallback');
 
       } else {
@@ -1452,10 +1486,12 @@ class App extends Component {
   }
 
   pullScenesFromOpencvWorker(deadline) {
-    while (deadline.timeRemaining() > 0) {
-      const { scenes } = this.props;
-      console.log('now I am not busy - requestIdleCallback');
-    }
+    console.log('now I am not busy - requestIdleCallback');
+    ipcRenderer.send(
+      'message-from-mainWindow-to-opencvWorkerWindow',
+      'get-some-scenes-from-sceneQueue',
+      10, // amount
+    );
   }
 
   calculateSceneList(fileId, meanArray, meanColorArray, threshold = this.props.settings.defaultSceneDetectionThreshold, sheetId) {
@@ -1538,14 +1574,24 @@ class App extends Component {
       store.dispatch(setCurrentSheetId(sheetId));
       store.dispatch(updateSheetColumnCount(tempFile.id, sheetId, Math.ceil(Math.sqrt(sceneList.length))));
       store.dispatch(setDefaultSheetView(SHEET_VIEW.TIMELINEVIEW));
-      store.dispatch(addScenes(tempFile, sceneList, clearOldScenes, settings.defaultCachedFramesSize, sheetId));
+      store.dispatch(addScenesFromSceneList(tempFile, sceneList, clearOldScenes, settings.defaultCachedFramesSize, sheetId));
     } else {
       this.showMessage('No scenes detected', 3000);
     }
   }
 
   cancelFileScan(fileId) {
+    const { requestIdleCallbackHandle } = this.state;
+
+    // cancel pullScenesFromOpencvWorker
+    window.cancelIdleCallback(requestIdleCallbackHandle);
+    this.setState({
+      requestIdleCallbackHandle: undefined,
+    });
+    console.log('now I cancelIdleCallback');
+
     ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'cancelFileScan', fileId);
+
     this.setState({
       fileScanRunning: false,
     });

@@ -182,11 +182,20 @@ const sheetsByFileId = (state = {}, action) => {
       };
     }
     case 'ADD_SCENES': {
-      // load the current scenes array, if it does not exist it stays empty
+      // load the current scenes array, if it does not exist or it should be cleared it stays empty
+      let currentArray = [];
+      if (!action.payload.clearOldScenes) {
+        if (state[action.payload.fileId] !== undefined &&
+          state[action.payload.fileId][action.payload.sheetId] !== undefined &&
+          state[action.payload.fileId][action.payload.sheetId].sceneArray !== undefined) {
+            currentArray = state[action.payload.fileId][action.payload.sheetId].sceneArray.slice();
+          }
+      }
+      const combinedArray = currentArray.concat(action.payload.sceneArray);
       log.debug(action.payload);
       log.debug(state);
+      log.debug(combinedArray);
 
-      // assumption is that adding scenes always overwrites the current scenes
       return {
         ...state,
         [action.payload.fileId]: {
@@ -197,7 +206,7 @@ const sheetsByFileId = (state = {}, action) => {
               {} :
               state[action.payload.fileId][action.payload.sheetId]
             ),
-            sceneArray: action.payload.sceneArray,
+            sceneArray: combinedArray,
           }
         }
       };

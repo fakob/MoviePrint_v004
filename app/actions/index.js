@@ -368,12 +368,27 @@ export const addScene = (fileId, sheetId, start, length, colorArray, sceneId = u
   };
 };
 
-export const addScenes = (file, sceneList, clearOldScenes = false, frameSize, newSheetId) => {
+export const addScenesWithoutCapturingThumbs = (sceneArray, clearOldScenes = false) => {
   return (dispatch) => {
-    log.debug('action: addScenes');
-    if (clearOldScenes) {
-      dispatch(clearScenes(file.id, newSheetId));
-    }
+    log.debug('action: addScenesWithoutCapturingThumbs');
+
+    // add scenes
+    log.debug('dispatch: ADD_SCENES');
+    dispatch({
+      type: 'ADD_SCENES',
+      payload: {
+        sceneArray,
+        fileId: sceneArray[0].fileId,
+        sheetId: sceneArray[0].sheetId,
+        clearOldScenes,
+      }
+    });
+  };
+};
+
+export const addScenesFromSceneList = (file, sceneList, clearOldScenes = false, frameSize, newSheetId) => {
+  return (dispatch) => {
+    log.debug('action: addScenesFromSceneList');
 
     // add scenes
     const sceneArray = sceneList.map(scene => {
@@ -390,6 +405,7 @@ export const addScenes = (file, sceneList, clearOldScenes = false, frameSize, ne
         sceneArray,
         fileId: file.id,
         sheetId: newSheetId,
+        clearOldScenes,
       }
     });
 

@@ -31,7 +31,7 @@ const { ipcRenderer } = require('electron');
 let fileScanRunning = false;
 
 // set up a queue
-const frameScanQueue = new Queue();
+const sceneQueue = new Queue();
 
 log.debug('I am the opencvWorkerWindow - responsible for capturing the necessary frames from the video using opencv');
 
@@ -583,15 +583,25 @@ ipcRenderer.on(
                 if ((frame - lastSceneCut) >= minSceneLength) {
                   // add scene
                   const length = frame - lastSceneCut; // length
-                  ipcRenderer.send(
-                    'message-from-opencvWorkerWindow-to-mainWindow',
-                    'addScene',
+                  const colorArray = HSVtoRGB(frameMean.w, frameMean.x, frameMean.y);
+                  // ipcRenderer.send(
+                  //   'message-from-opencvWorkerWindow-to-mainWindow',
+                  //   'addScene',
+                  //   fileId,
+                  //   sheetId,
+                  //   lastSceneCut, // start
+                  //   length,
+                  //   colorArray,
+                  // );
+                  sceneQueue.add({
                     fileId,
                     sheetId,
-                    lastSceneCut, // start
+                    start: lastSceneCut, // start
                     length,
-                    HSVtoRGB(frameMean.w, frameMean.x, frameMean.y), // color
-                  );
+                    colorArray,
+                  });
+                  console.log(sceneQueue);
+
                   lastSceneCut = frame;
                 }
               }
@@ -657,15 +667,25 @@ ipcRenderer.on(
 
               // add last scene
               const length = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - lastSceneCut; // length
-              ipcRenderer.send(
-                'message-from-opencvWorkerWindow-to-mainWindow',
-                'addScene',
+              const colorArray = HSVtoRGB(frameMean.w, frameMean.x, frameMean.y);
+              // ipcRenderer.send(
+              //   'message-from-opencvWorkerWindow-to-mainWindow',
+              //   'addScene',
+              //   fileId,
+              //   sheetId,
+              //   lastSceneCut, // start
+              //   length,
+              //   colorArray,
+              // );
+              sceneQueue.add({
                 fileId,
                 sheetId,
-                lastSceneCut, // start
+                start: lastSceneCut, // start
                 length,
-                HSVtoRGB(frameMean.w, frameMean.x, frameMean.y), // color
-              );
+                colorArray,
+              });
+              console.log(sceneQueue);
+
 
               // insert all frames into sqlite3
               insertFrameScanArray(frameMetrics);
@@ -716,6 +736,25 @@ ipcRenderer.on(
     }
   }
 );
+
+ipcRenderer.on('clear-sceneQueue', (event) => {
+  log.info('clear-sceneQueue');
+  log.info(sceneQueue.size());
+  sceneQueue.clear();
+  log.info(sceneQueue.size());
+});
+
+ipcRenderer.on('get-some-scenes-from-sceneQueue', (event, amount) => {
+  log.info('get-some-scenes-from-sceneQueue');
+  log.info(sceneQueue.size());
+  const someScenes = sceneQueue.removeLastMany(amount);
+  ipcRenderer.send(
+    'message-from-opencvWorkerWindow-to-mainWindow',
+    'receive-some-scenes-from-sceneQueue',
+    someScenes,
+  );
+  log.info(sceneQueue.size());
+});
 
 // read sync test
 ipcRenderer.on(

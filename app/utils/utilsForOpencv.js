@@ -187,7 +187,7 @@ export const getDominantColor = (image, k=4) => {
 
 
 export const HSVtoRGB = (h, s, v) => {
-  console.log(`h: ${h}, s: ${s}, v: ${v}`);
+  // console.log(`h: ${h}, s: ${s}, v: ${v}`);
   let r, g, b;
   const i = Math.floor((h / 180) * 6);
   const f = (h / 180) * 6 - i;
@@ -221,7 +221,7 @@ export const HSVtoRGB = (h, s, v) => {
         Math.round(g * 255),
         Math.round(b * 255)
     ];
-    console.log(rgbArray);
+    // console.log(rgbArray);
     return rgbArray;
 }
 

@@ -143,10 +143,6 @@ const Timeline = ({
   const playHeadPositionSelection = Math.floor(playHeadPositionPercSelection * (widthTimeline - widthOfSingleFrameSelection));
   const widthOfSingleFrame = containerWidth * 1.0 / frameCount;
   const playHeadPosition = playHeadPositionPerc * (widthTimeline - widthOfSingleFrame);
-  console.log(playHeadPositionPerc)
-  console.log(widthTimeline)
-  console.log(playHeadPosition)
-  console.log(leftBoundsTimeline)
 
   return (
     <div
