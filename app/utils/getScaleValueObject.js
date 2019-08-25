@@ -1,7 +1,15 @@
 import log from 'electron-log';
 import {
-  DEFAULT_THUMB_COUNT, DEFAULT_COLUMN_COUNT, DEFAULT_MOVIE_WIDTH, DEFAULT_MOVIE_HEIGHT,
-  PAPER_ADJUSTMENT_SCALE, DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN, VIEW, SHEET_FIT, MARGIN_ADJUSTMENT_SCALE
+  DEFAULT_COLUMN_COUNT,
+  DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN,
+  DEFAULT_MOVIE_HEIGHT,
+  DEFAULT_MOVIE_WIDTH,
+  DEFAULT_THUMB_COUNT,
+  MARGIN_ADJUSTMENT_SCALE,
+  PAPER_ADJUSTMENT_SCALE,
+  SHEET_FIT,
+  VIDEOPLAYER_THUMB_MARGIN,
+  VIEW,
 } from './constants';
 import {
   getScenesInRows,
@@ -70,7 +78,8 @@ const getScaleValueObject = (
     ((videoPlayerHeight / 2) - (defaultBorderMargin * 3));
   const thumbnailWidthForThumbView = thumbnailHeightForThumbView / movieAspectRatioInv;
   const borderRadiusForThumbView = thumbnailWidthForThumbView * defaultBorderRadiusRatio;
-  const thumbMarginForThumbView = Math.max(2, thumbnailWidthForThumbView * defaultMarginRatio);
+  const thumbMarginForThumbView = VIDEOPLAYER_THUMB_MARGIN;
+  // const thumbMarginForThumbView = Math.max(2, thumbnailWidthForThumbView * defaultMarginRatio);
   const thumbnailWidthPlusMarginForThumbView =
     thumbnailWidthForThumbView + (thumbMarginForThumbView * 2);
   const moviePrintWidthForThumbView =
