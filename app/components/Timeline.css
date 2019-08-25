@@ -6,8 +6,8 @@
 .timelineWrapperSelection {
   width: 100%;
   position: relative;
-  background-color: #421400;
-  /* background-color: rgba(255, 80, 6, 0.4); */
+  /* background-color: #421400; */
+  background-color: rgba(142, 44, 2, 1.0);
   height: 28px;
   margin-bottom: 4px;
   cursor: col-resize;

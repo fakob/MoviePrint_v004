@@ -675,7 +675,18 @@ class VideoPlayer extends Component {
 
   render() {
     const { currentFrame, currentScene, playHeadPositionPerc, playHeadPositionPercSelection } = this.state;
-    const { arrayOfCuts, containerWidth, file, keyObject, scaleValueObject, selectedThumb, sheetType, defaultSheetView, scenes, thumbs } = this.props;
+    const {
+      arrayOfCuts,
+      containerWidth,
+      defaultSheetView,
+      file,
+      keyObject,
+      scaleValueObject,
+      scenes,
+      selectedThumb,
+      sheetType,
+      thumbs,
+    } = this.props;
     const { showHTML5Player, showPlaybar, videoHeight, videoWidth } = this.state;
 
     function over(event) {
@@ -776,7 +787,7 @@ class VideoPlayer extends Component {
                     onFocus={over}
                     onBlur={out}
                   >
-                    mode
+                    {(defaultSheetView === SHEET_VIEW.TIMELINEVIEW) ? 'thumb mode' : 'cut mode'}
                   </button>
                 }
                 mouseEnterDelay={1000}
