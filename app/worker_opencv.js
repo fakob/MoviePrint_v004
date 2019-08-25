@@ -582,17 +582,9 @@ ipcRenderer.on(
               if (frameHsvAverage >= threshold) {
                 if ((frame - lastSceneCut) >= minSceneLength) {
                   // add scene
+                  // sceneQueue is used for preview purpose and is pulled from mainWindow
                   const length = frame - lastSceneCut; // length
                   const colorArray = HSVtoRGB(frameMean.w, frameMean.x, frameMean.y);
-                  // ipcRenderer.send(
-                  //   'message-from-opencvWorkerWindow-to-mainWindow',
-                  //   'addScene',
-                  //   fileId,
-                  //   sheetId,
-                  //   lastSceneCut, // start
-                  //   length,
-                  //   colorArray,
-                  // );
                   sceneQueue.add({
                     fileId,
                     sheetId,
@@ -600,7 +592,6 @@ ipcRenderer.on(
                     length,
                     colorArray,
                   });
-                  console.log(sceneQueue);
 
                   lastSceneCut = frame;
                 }
@@ -640,13 +631,6 @@ ipcRenderer.on(
               log.debug(messageToSend);
               console.timeEnd(`${fileId}-fileScanning`);
 
-              // ipcRenderer.send(
-              //   'message-from-opencvWorkerWindow-to-mainWindow',
-              //   'progress',
-              //   fileId,
-              //   100
-              // ); // set to full
-
               ipcRenderer.send(
                 'message-from-opencvWorkerWindow-to-mainWindow',
                 'progressMessage',
@@ -668,15 +652,6 @@ ipcRenderer.on(
               // add last scene
               const length = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - lastSceneCut; // length
               const colorArray = HSVtoRGB(frameMean.w, frameMean.x, frameMean.y);
-              // ipcRenderer.send(
-              //   'message-from-opencvWorkerWindow-to-mainWindow',
-              //   'addScene',
-              //   fileId,
-              //   sheetId,
-              //   lastSceneCut, // start
-              //   length,
-              //   colorArray,
-              // );
               sceneQueue.add({
                 fileId,
                 sheetId,
@@ -684,8 +659,10 @@ ipcRenderer.on(
                 length,
                 colorArray,
               });
-              console.log(sceneQueue);
 
+              // sceneQueue was only necessary for preview
+              // clear sceneQueue so it is not accidentally pulled in from mainWindow
+              sceneQueue.clear();
 
               // insert all frames into sqlite3
               insertFrameScanArray(frameMetrics);

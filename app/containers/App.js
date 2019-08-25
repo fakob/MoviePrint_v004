@@ -593,16 +593,6 @@ class App extends Component {
       ));
     });
 
-    // ipcRenderer.on('addScene', (event, fileId, sheetId, start, length, colorArray) => {
-    //   store.dispatch(addScene(
-    //     fileId,
-    //     sheetId,
-    //     start,
-    //     length,
-    //     colorArray,
-    //   ));
-    // });
-
     ipcRenderer.on('received-get-file-scan', (event, fileId, filePath, useRatio, sheetId) => {
       const { files } = this.props;
       const { requestIdleCallbackHandle } = this.state;
@@ -1040,17 +1030,8 @@ class App extends Component {
             }
             break;
           case 52: // press '4'
-            ipcRenderer.send(
-              'message-from-mainWindow-to-opencvWorkerWindow',
-              'clear-sceneQueue',
-            );
             break;
           case 53: // press '5'
-            ipcRenderer.send(
-              'message-from-mainWindow-to-opencvWorkerWindow',
-              'get-some-scenes-from-sceneQueue',
-              10, // amount
-            );
             break;
           case 54: // press '6'
             break;
@@ -1486,6 +1467,8 @@ class App extends Component {
   }
 
   pullScenesFromOpencvWorker(deadline) {
+    // this is used to show a scene detection preview
+    // it pulls scenes from worker_opencv sceneQueue during idle time
     console.log('now I am not busy - requestIdleCallback');
     ipcRenderer.send(
       'message-from-mainWindow-to-opencvWorkerWindow',
