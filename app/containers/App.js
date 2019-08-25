@@ -2937,7 +2937,7 @@ class App extends Component {
                           style={{
                             marginRight: '16px',
                             marginTop: '18px',
-                            marginLeft: '46px',
+                            marginLeft: '50px',
                           }}
                           size='large'
                           name={visibilitySettings.showMovielist ? 'angle left' : 'angle right'}
@@ -2985,7 +2985,7 @@ class App extends Component {
                           style={{
                             // marginRight: '16px',
                             marginTop: '18px',
-                            marginLeft: '10px',
+                            marginLeft: '6px',
                           }}
                           size='large'
                           name={visibilitySettings.showSettings ? 'angle right' : 'angle left'}

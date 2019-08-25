@@ -464,6 +464,24 @@ class SettingsList extends Component {
               { sheetType === SHEET_TYPE.SCENES &&
                 <Grid.Row>
                   <Grid.Column width={4}>
+                  </Grid.Column>
+                  <Grid.Column width={12}>
+                    <Checkbox
+                      data-tid='changeTimelineViewFlow'
+                      label={
+                        <label className={styles.label}>
+                          Natural flow
+                        </label>
+                      }
+                      checked={settings.defaultTimelineViewFlow}
+                      onChange={this.onChangeTimelineViewFlow}
+                    />
+                  </Grid.Column>
+                </Grid.Row>
+              }
+              { sheetType === SHEET_TYPE.SCENES &&
+                <Grid.Row>
+                  <Grid.Column width={4}>
                     Count
                   </Grid.Column>
                   <Grid.Column width={12}>

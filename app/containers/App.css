@@ -122,8 +122,8 @@
   position: fixed;
   z-index: 10;
   transition: transform 0.5s ease, left 0.5s ease;
-  left: 310px;
-  top: 35px;
+  left: 300px;
+  top: calc(50% - 28px);
   background: rgba(0,0,0,0.8);
   /* background: rgba(255,255,255,0.1); */
   height: 56px;
@@ -133,15 +133,15 @@
 }
 
 .openCloseMovieList:hover {
-  left: 320px;
+  left: 315px;
 }
 
 .openCloseSettings {
   position: fixed;
   z-index: 10;
   transition: transform 0.5s ease, left 0.5s ease;
-  left: -40px;
-  top: 35px;
+  left: -30px;
+  top: calc(50% - 28px);
   background: rgba(0,0,0,0.8);
   /* background: rgba(255,255,255,0.1); */
   height: 56px;
@@ -151,7 +151,7 @@
 }
 
 .openCloseSettings:hover {
-  left: -50px;
+  left: -45px;
 }
 
 .ItemSideBar {
