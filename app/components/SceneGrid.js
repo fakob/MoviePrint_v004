@@ -133,6 +133,8 @@ class SceneGrid extends Component {
               thumbHeight={isPlayerView ? rowHeightForPlayer : Math.max(1, rowHeight)}
 
               hexColor={`#${((1 << 24) + (Math.round(scene.colorArray[0]) << 16) + (Math.round(scene.colorArray[1]) << 8) + Math.round(scene.colorArray[2])).toString(16).slice(1)}`}
+              transparentThumb={!settings.defaultShowImages}
+
               thumbImageObjectUrl={ // used for data stored in IndexedDB
                 ((this.props.useBase64 === undefined &&
                   this.props.objectUrlObjects !== undefined &&

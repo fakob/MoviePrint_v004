@@ -46,7 +46,6 @@ class ThumbGrid extends Component {
       addThumbBeforeController: undefined,
       addThumbAfterController: undefined,
       hoverPos: undefined,
-      parentPos: undefined,
     };
 
     // this.thumbGridDivRef = null;
@@ -91,15 +90,6 @@ class ThumbGrid extends Component {
   }
 
   componentDidMount() {
-    // console.log(this.thumbGridDivRef);
-    // console.log(this.thumbGridDivRef.current);
-    // console.log(this.thumbGridDivRef.getBoundingClientRect());
-    // console.log(this.thumbGridBodyDivRef);
-    // console.log(this.thumbGridBodyDivRef.current);
-    // console.log(this.thumbGridBodyDivRef.getBoundingClientRect());
-    this.setState({
-      parentPos: this.thumbGridBodyDivRef.getBoundingClientRect(),
-    })
   }
 
   componentWillReceiveProps(nextProps) {
@@ -378,10 +368,7 @@ class ThumbGrid extends Component {
 
     const hoverThumbIndex = thumbArray.findIndex(thumb => thumb.thumbId === controllersVisible);
     const isHidden = hoverThumbIndex !== -1 ? thumbArray[hoverThumbIndex].hidden : undefined;
-    // console.log(this.thumbGridDivRef !== null ? this.thumbGridDivRef.getBoundingClientRect() : 'not set yet')
-    // this.setState({
-    //   parentPos: this.thumbGridDivRef.getBoundingClientRect(),
-    // })
+
     const parentPos = this.thumbGridBodyDivRef !== null ?
       this.thumbGridBodyDivRef.getBoundingClientRect() :
       {
@@ -452,7 +439,7 @@ class ThumbGrid extends Component {
               base64={ // used for live captured data when saving movieprint
                 ((this.props.useBase64 !== undefined && this.props.objectUrlObjects !== undefined) ? this.props.objectUrlObjects[thumb.frameId] : undefined)
               }
-              transparentThumb={thumb.transparentThumb || undefined}
+              transparentThumb={!settings.defaultShowImages || thumb.transparentThumb || undefined}
               aspectRatioInv={scaleValueObject.aspectRatioInv}
               thumbWidth={thumbWidth}
               borderRadius={scaleValueObject.newBorderRadius}

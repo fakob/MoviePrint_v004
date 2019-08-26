@@ -20,6 +20,8 @@ const settings = (state = {}, action) => {
       return { ...state, defaultMarginRatio: action.defaultMarginRatio };
     case 'SET_DEFAULT_SHOW_HEADER':
       return { ...state, defaultShowHeader: action.defaultShowHeader };
+    case 'SET_DEFAULT_SHOW_IMAGES':
+      return { ...state, defaultShowImages: action.defaultShowImages };
     case 'SET_DEFAULT_PATH_IN_HEADER':
       return { ...state, defaultShowPathInHeader: action.defaultShowPathInHeader };
     case 'SET_DEFAULT_DETAILS_IN_HEADER':

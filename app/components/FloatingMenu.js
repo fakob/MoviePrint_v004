@@ -28,6 +28,7 @@ const ButtonExampleCircularSocial = ({
   onSetViewClick,
   onSetSheetFitClick,
   onToggleHeaderClick,
+  onToggleImagesClick,
   onToggleShowHiddenThumbsClick,
   onThumbInfoClick,
   scaleValueObject,
@@ -348,6 +349,22 @@ const ButtonExampleCircularSocial = ({
           position='bottom center'
           className={stylesPop.popup}
           content="Show frames, timecode or none"
+        />
+        <Popup
+          trigger={
+            <Button
+              className={styles.imageButton}
+              size='large'
+              data-tid='toggleImageBtn'
+              onClick={() => onToggleImagesClick()}
+              icon='image'
+            />
+          }
+          mouseEnterDelay={1000}
+          on={['hover']}
+          position='bottom center'
+          className={stylesPop.popup}
+          content="Toggle images"
         />
       </Button.Group>
     </div>

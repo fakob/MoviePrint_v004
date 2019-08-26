@@ -160,6 +160,14 @@ export const setDefaultShowHeader = (defaultShowHeader) => {
   };
 };
 
+export const setDefaultShowImages = (defaultShowImages) => {
+  log.debug(`action: setDefaultShowImages - ${defaultShowImages}`);
+  return {
+    type: 'SET_DEFAULT_SHOW_IMAGES',
+    defaultShowImages
+  };
+};
+
 export const setDefaultShowPathInHeader = (defaultShowPathInHeader) => {
   log.debug(`action: setDefaultShowPathInHeader - ${defaultShowPathInHeader}`);
   return {

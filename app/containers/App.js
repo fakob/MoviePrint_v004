@@ -99,6 +99,7 @@ import {
   setDefaultSceneDetectionThreshold,
   setDefaultShowDetailsInHeader,
   setDefaultShowHeader,
+  setDefaultShowImages,
   setDefaultShowPaperPreview,
   setDefaultShowPathInHeader,
   setDefaultShowTimelineInHeader,
@@ -312,6 +313,7 @@ class App extends Component {
     this.onChangeTimelineViewWidthScale = this.onChangeTimelineViewWidthScale.bind(this);
     this.onTimelineViewFlowClick = this.onTimelineViewFlowClick.bind(this);
     this.onToggleHeaderClick = this.onToggleHeaderClick.bind(this);
+    this.onToggleImagesClick = this.onToggleImagesClick.bind(this);
     this.onShowPathInHeaderClick = this.onShowPathInHeaderClick.bind(this);
     this.onShowDetailsInHeaderClick = this.onShowDetailsInHeaderClick.bind(this);
     this.onShowTimelineInHeaderClick = this.onShowTimelineInHeaderClick.bind(this);
@@ -2266,6 +2268,17 @@ class App extends Component {
     }
   };
 
+  onToggleImagesClick = (value) => {
+    const { store } = this.context;
+    if (value === undefined) {
+      const { settings } = this.props;
+      const { defaultShowImages } = settings;
+      store.dispatch(setDefaultShowImages(!defaultShowImages));
+    } else {
+      store.dispatch(setDefaultShowImages(value));
+    }
+  };
+
   onShowPathInHeaderClick = (value) => {
     const { store } = this.context;
     store.dispatch(setDefaultShowPathInHeader(value));
@@ -2915,6 +2928,7 @@ class App extends Component {
                     onToggleShowHiddenThumbsClick={this.onToggleShowHiddenThumbsClick}
                     onThumbInfoClick={this.onThumbInfoClick}
                     onToggleHeaderClick={this.onToggleHeaderClick}
+                    onToggleImagesClick={this.onToggleImagesClick}
                     toggleSettings={this.toggleSettings}
                   />
                 }

@@ -98,6 +98,7 @@ const Scene = ({
   thumbInfoRatio,
   thumbInfoValue,
   thumbWidth,
+  transparentThumb,
 }) => {
   function over(e) {
     e.stopPropagation();
@@ -271,7 +272,7 @@ const Scene = ({
         outlineWidth: `${view === VIEW.STANDARDVIEW ? margin : Math.max(1, margin)}px`,
         borderRadius: `${selected ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: hexColor,
-        backgroundImage: thumbImageObjectUrl === undefined ? `url(data:image/jpeg;base64,${base64})` : `url(${thumbImageObjectUrl}`,
+        backgroundImage: transparentThumb ? undefined : (thumbImageObjectUrl === undefined ? `url(data:image/jpeg;base64,${base64})` : `url(${thumbImageObjectUrl}`),
         backgroundSize: `auto ${thumbHeight + 20}px`,
         borderWidth: '0px',
       }}
