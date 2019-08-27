@@ -6,6 +6,8 @@ import { truncate, truncatePath, frameCountToTimeCode, formatBytes } from '../ut
 import styles from './FileList.css';
 import transparent from '../img/Thumb_TRANSPARENT.png';
 import {
+  EXPORT_FORMAT_OPTIONS,
+  SHEET_TYPE,
   SHEET_VIEW,
 } from '../utils/constants';
 
@@ -70,9 +72,9 @@ const FileListElement = ({
     onDuplicateSheetClick(fileId, sheetId);
   }
 
-  function onExportSheetClickWithStop(e, fileId, sheetId) {
+  function onExportSheetClickWithStop(e, fileId, sheetId, exportType) {
     e.stopPropagation();
-    onExportSheetClick(fileId, sheetId);
+    onExportSheetClick(fileId, sheetId, exportType, fps);
   }
 
   function onDeleteSheetClickWithStop(e, fileId, sheetId) {
@@ -283,9 +285,15 @@ const FileListElement = ({
                   <Dropdown.Item
                     data-tid='exportSheetItemOption'
                     icon="download"
-                    text="Export"
-                    onClick={e => onExportSheetClickWithStop(e, fileId, sheetId)}
+                    text="Export JSON"
+                    onClick={e => onExportSheetClickWithStop(e, fileId, sheetId, EXPORT_FORMAT_OPTIONS.JSON)}
                   />
+                  {sheetsObject[sheetId].type === SHEET_TYPE.SCENES && <Dropdown.Item
+                    data-tid='exportSheetItemOption'
+                    icon="download"
+                    text="Export EDL"
+                    onClick={e => onExportSheetClickWithStop(e, fileId, sheetId, EXPORT_FORMAT_OPTIONS.EDL)}
+                  />}
                   <Dropdown.Item
                     data-tid='deleteSheetItemOption'
                     icon="delete"

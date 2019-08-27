@@ -72,6 +72,11 @@ export const OUTPUT_FORMAT_OPTIONS = [
   { value: 'jpg', text: 'JPG', 'data-tid': 'jpgOption' },
 ];
 
+export const EXPORT_FORMAT_OPTIONS = {
+  JSON: 'json',
+  EDL: 'edl',
+};
+
 export const CACHED_FRAMES_SIZE_OPTIONS = [
   { value: 0, text: 'Original size', 'data-tid': 'originalSizeOption' }, // 0 stands for original size
   { value: 80, text: '80px', 'data-tid': '80option' },

@@ -486,6 +486,24 @@ export const getFramenumbersOfSheet = (sheetsByFileId, fileId, sheetId, visibili
   return thumbsArray.map(thumb => thumb.frameNumber);
 };
 
+export const getEDLscenes = (sheetsByFileId, fileId, sheetId, visibilitySettings, fps) => {
+  if (sheetsByFileId[fileId] === undefined ||
+    fileId === undefined ||
+    sheetId === undefined ||
+    sheetsByFileId[fileId][sheetId] === undefined ||
+    sheetsByFileId[fileId][sheetId].sceneArray === undefined) {
+    return undefined;
+  }
+  const { sceneArray } = sheetsByFileId[fileId][sheetId];
+  if (visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') {
+    const frameNumberArray = sceneArray
+      .filter(scene => scene.hidden === false)
+      .map((scene, index) => `${pad(index + 1, 3)}  ${pad(index % 2, 3)}       V     C        ${frameCountToTimeCode(scene.start, fps)} ${frameCountToTimeCode(scene.start + scene.length, fps)} ${frameCountToTimeCode(scene.start, fps)} ${frameCountToTimeCode(scene.start + scene.length, fps)}`);
+    return frameNumberArray;
+  }
+  return sceneArray.map((scene, index) => `${pad(index + 1, 3)}  ${pad(index % 2, 3)}       V     C        ${frameCountToTimeCode(scene.start, fps)} ${frameCountToTimeCode(scene.start + scene.length, fps)} ${frameCountToTimeCode(scene.start, fps)} ${frameCountToTimeCode(scene.start + scene.length, fps)}`);
+};
+
 export const getSheetCount = (files, fileId) => {
   const file = files.find(file2 => file2.id === fileId);
   console.log(file);

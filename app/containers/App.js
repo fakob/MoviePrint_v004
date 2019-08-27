@@ -33,6 +33,7 @@ import { getLowestFrame,
   getHighestFrame,
   getVisibleThumbs,
   getColumnCount,
+  getEDLscenes,
   getFileStatsObject,
   getSecondsPerRow,
   getSheetCount,
@@ -57,6 +58,7 @@ import { getLowestFrame,
   getSceneFromFrameNumber,
   getLeftAndRightThumb,
   getAdjacentSceneIndicesFromCut,
+  roundNumber,
 } from '../utils/utils';
 import styles from './App.css';
 import stylesPop from '../components/Popup.css';
@@ -132,20 +134,21 @@ import {
   mergeScenes,
 } from '../actions';
 import {
-  MENU_HEADER_HEIGHT,
-  MENU_FOOTER_HEIGHT,
-  ZOOM_SCALE,
-  SCENE_DETECTION_MIN_SCENE_LENGTH,
   DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN,
-  VIEW,
-  SHEET_VIEW,
+  DEFAULT_THUMB_COUNT,
+  EXPORT_FORMAT_OPTIONS,
+  FRAMESDB_PATH,
+  MENU_FOOTER_HEIGHT,
+  MENU_HEADER_HEIGHT,
+  SCENE_DETECTION_MIN_SCENE_LENGTH,
   SHEET_FIT,
   SHEET_TYPE,
-  DEFAULT_THUMB_COUNT,
-  FRAMESDB_PATH,
+  SHEET_VIEW,
   URL_CHANGE_LOG,
-  URL_REST_API_CHECK_FOR_UPDATES,
   URL_FEEDBACK_FORM,
+  URL_REST_API_CHECK_FOR_UPDATES,
+  VIEW,
+  ZOOM_SCALE,
 } from '../utils/constants';
 import {
   deleteTableFramelist,
@@ -2469,26 +2472,42 @@ class App extends Component {
     }
   };
 
-  onExportSheetClick = (fileId, sheetId) => {
+  onExportSheetClick = (fileId, sheetId, exportType, fps) => {
     const { files, settings, sheetsByFileId, visibilitySettings } = this.props;
-    log.debug('onExportSheetClick');
-    const frameNumberArray = getFramenumbersOfSheet(sheetsByFileId, fileId, sheetId, visibilitySettings);
+    log.debug(`onExportSheetClick: ${exportType}`);
     const sheetName = getSheetName(sheetsByFileId, fileId, sheetId);
     const fileName = getFileName(files, fileId);
     const filePath = getFilePath(files, fileId);
-    const transformObject = getFileTransformObject(files, fileId);
-    const columnCount = getColumnCount(sheetsByFileId, fileId, sheetId, settings);
-    const exportObject = JSON.stringify({
-      filePath,
-      transformObject,
-      columnCount,
-      frameNumberArray,
-    }, null, '\t'); // for pretty print with tab
+    // not sure if that is needed so I deactivated it for now
+    // const isDropFrame = (roundNumber(fps) === 29.97) || (roundNumber(fps) === 59.94);
+    const isDropFrame = false;
+    let exportObject;
+    if (exportType === EXPORT_FORMAT_OPTIONS.JSON) {
+      const frameNumberArray = getFramenumbersOfSheet(sheetsByFileId, fileId, sheetId, visibilitySettings);
+      const transformObject = getFileTransformObject(files, fileId);
+      const columnCount = getColumnCount(sheetsByFileId, fileId, sheetId, settings);
+      exportObject = JSON.stringify({
+        filePath,
+        transformObject,
+        columnCount,
+        frameNumberArray,
+      }, null, '\t'); // for pretty print with tab
+    } else if (exportType === EXPORT_FORMAT_OPTIONS.EDL) {
+      const sceneArray = getEDLscenes(sheetsByFileId, fileId, sheetId, visibilitySettings, fps);
+      exportObject = sceneArray.join(`
+* FROM CLIP NAME: ${fileName}
+
+`);
+      exportObject = `TITLE: ${fileName}
+FCM: ${isDropFrame ? 'DROP FRAME' : 'NON-DROP FRAME'}
+
+${exportObject}`;
+    }
     const filePathDirectory = path.dirname(filePath);
     const outputPath = settings.defaultOutputPathFromMovie ? filePathDirectory : settings.defaultOutputPath;
     const filePathAndName = path.join(
       outputPath,
-      `${fileName}-${sheetName}.json`
+      `${fileName}-${sheetName}.${exportType}`
     );
     const newFilePathAndName = dialog.showSaveDialog({
       defaultPath: filePathAndName,
