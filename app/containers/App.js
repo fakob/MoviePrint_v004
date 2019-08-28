@@ -1598,7 +1598,7 @@ class App extends Component {
   }
 
 
-  onScrubClick(file, scrubThumb) {
+  onScrubClick(file, scrubThumb, scrubWindowTriggerTime) {
     const { store } = this.context;
     const { allScenes, thumbs } = this.props;
     const { keyObject } = this.state;
@@ -1615,6 +1615,7 @@ class App extends Component {
 
     this.setState({
       showScrubWindow: true,
+      scrubWindowTriggerTime,
       scrubThumb,
       scrubScene,
       scrubThumbLeft,
@@ -1863,6 +1864,7 @@ class App extends Component {
     }
     this.setState({
       showScrubWindow: false,
+      scrubWindowTriggerTime: undefined,
     });
   }
 
@@ -3378,6 +3380,7 @@ ${exportObject}`;
                   sheetType={sheetType}
                   objectUrlObjects={filteredObjectUrlObjects}
                   keyObject={this.state.keyObject}
+                  scrubWindowTriggerTime={this.state.scrubWindowTriggerTime}
                   scrubThumb={this.state.scrubThumb}
                   scrubThumbLeft={this.state.scrubThumbLeft}
                   scrubThumbRight={this.state.scrubThumbRight}

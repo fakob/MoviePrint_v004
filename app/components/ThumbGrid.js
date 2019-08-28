@@ -239,11 +239,13 @@ class ThumbGrid extends Component {
     });
   }
 
-  onScrub(e) {
+  onScrub(e, triggerTime) {
     // console.log('onScrub');
+    // for the scrub window the user has to click and drag while keeping the mouse pressed
+    // use triggerTime to keep scrub window open if users just click and release the mouse within 1000ms
     e.stopPropagation();
     const thumb = this.props.thumbs.find(thumb => thumb.thumbId === this.state.controllersVisible);
-    this.props.onScrubClick(this.props.file, thumb);
+    this.props.onScrubClick(this.props.file, thumb, triggerTime);
     this.resetHover();
   }
 
@@ -640,7 +642,7 @@ class ThumbGrid extends Component {
                         data-tid={`scrubBtn_${controllersVisible}`}
                         type='button'
                         className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayScrub} ${(thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER) ? styles.overlayShrink : ''}`}
-                        onMouseDown={this.onScrub}
+                        onMouseDown={(e) => this.onScrub(e, Date.now())}
                         onMouseOver={this.over}
                         onMouseOut={this.out}
                         onFocus={this.over}

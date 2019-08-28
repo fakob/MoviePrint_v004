@@ -121,7 +121,12 @@ class Scrub extends Component {
 
   onScrubClickWithStop(e) {
     e.stopPropagation();
-    this.props.onScrubWindowClick(e, this.props.sheetType);
+    // for the scrub window the user has to click and drag while keeping the mouse pressed
+    // use triggerTime to keep scrub window open if users just click and release the mouse within 1000ms
+    const timeSinceClick = Date.now() - this.props.scrubWindowTriggerTime;
+    if (timeSinceClick > 1000) {
+      this.props.onScrubWindowClick(e, this.props.sheetType);
+    }
   }
 
   render() {
