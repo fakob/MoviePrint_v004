@@ -902,10 +902,15 @@ ipcRenderer.on(
                 matRescaled = matCropped === undefined ? mat.resizeToMax(frameSize) :  matCropped.resizeToMax(frameSize);
               }
               // opencv.imshow('matRescaled', matRescaled);
-              const outBase64 = opencv.imencode('.jpg', matRescaled || matCropped || mat).toString('base64'); // maybe change to .png?
+              const matResult = matRescaled || matCropped || mat;
+              const outBase64 = opencv.imencode('.jpg', matResult).toString('base64'); // maybe change to .png?
               const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
               const frameId = frameIdArray[iterator];
               const isLastThumb = iterator === (frameNumberArray.length - 1);
+              // get color
+              const frameMean = matResult.resizeToMax(240).cvtColor(opencv.COLOR_BGR2HSV).mean()
+              const colorArray = HSVtoRGB(frameMean.w, frameMean.x, frameMean.y);
+
 
               imageQueue.add({
                 frameId,
@@ -922,6 +927,7 @@ ipcRenderer.on(
                 thumbIdArray[iterator],
                 frameId,
                 frameNumber,
+                colorArray,
                 isLastThumb
               );
 
@@ -1001,6 +1007,7 @@ ipcRenderer.on(
                   thumbIdArray[iterator],
                   frameId,
                   frameNumber,
+                  [0,0,0], // colorArray
                   isLastThumb,
                 );
                 iterator += 1;

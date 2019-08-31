@@ -17,7 +17,7 @@ const rootReducer = combineReducers({
     ]),
     groupBy: groupByActionTypes([
       'UPDATE_MOVIE_LIST_ITEM_USERATIO',
-      'UPDATE_FRAMENUMBER_OF_THUMB',
+      'UPDATE_FRAMENUMBER_AND_COLORARRAY_OF_THUMB',
       'UPDATE_OBJECTURL_FROM_THUMBLIST',
       'UPDATE_SHEET_COLUMNCOUNT',
       'SET_DEFAULT_MARGIN',

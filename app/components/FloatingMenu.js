@@ -11,6 +11,8 @@ import stylesPop from './Popup.css';
 import iconCutView from '../img/icon-cut-view.svg';
 import iconThumbView from '../img/icon-thumb-view.svg';
 import iconHeader from '../img/icon-header.svg';
+import iconImage from '../img/icon-image.svg';
+import iconNoImage from '../img/icon-no-image.svg';
 import iconFrameInfo from '../img/icon-frame-info.svg';
 import iconAddInterval from '../img/icon-add-interval.svg';
 import iconAddScene from '../img/icon-add-scene.svg';
@@ -357,8 +359,9 @@ const ButtonExampleCircularSocial = ({
               size='large'
               data-tid='toggleImageBtn'
               onClick={() => onToggleImagesClick()}
-              icon='image'
-            />
+            >
+              <img src={settings.defaultShowImages ? iconNoImage : iconImage} height='18px' alt='' />
+            </Button>
           }
           mouseEnterDelay={1000}
           on={['hover']}

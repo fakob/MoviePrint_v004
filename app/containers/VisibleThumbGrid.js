@@ -103,7 +103,7 @@ class SortedVisibleThumbGrid extends Component {
   render() {
     const { isSorting } = this.state;
     const {
-      colorArray,
+      emptyColorsArray,
       currentSheetId,
       file,
       inputRef,
@@ -140,7 +140,7 @@ class SortedVisibleThumbGrid extends Component {
     return (
       <SortableThumbGrid
         useBase64={useBase64}
-        colorArray={colorArray}
+        emptyColorsArray={emptyColorsArray}
         sheetView={sheetView}
         sheetType={sheetType}
         view={view}
@@ -283,7 +283,7 @@ SortedVisibleThumbGrid.defaultProps = {
 };
 
 SortedVisibleThumbGrid.propTypes = {
-  colorArray: PropTypes.array.isRequired,
+  emptyColorsArray: PropTypes.array.isRequired,
   file: PropTypes.shape({
     id: PropTypes.string,
     width: PropTypes.number,

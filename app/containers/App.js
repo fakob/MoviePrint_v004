@@ -127,7 +127,7 @@ import {
   updateSheetCounter,
   updateFileDetails,
   updateFileDetailUseRatio,
-  updateFrameNumber,
+  updateFrameNumberAndColorArray,
   updateInOutPoint,
   updateFileScanStatus,
   cutScene,
@@ -209,7 +209,7 @@ class App extends Component {
       columnCount: undefined,
       thumbCount: undefined,
       reCapture: true,
-      colorArray: undefined,
+      emptyColorsArray: undefined,
       scaleValueObject: undefined,
       savingMoviePrint: false,
       selectedThumbsArray: [],
@@ -398,7 +398,7 @@ class App extends Component {
       secondsPerRow,
     );
     this.setState({
-      colorArray: getMoviePrintColor(defaultThumbCountMax),
+      emptyColorsArray: getMoviePrintColor(defaultThumbCountMax),
       scaleValueObject: getScaleValueObject(
         file,
         settings,
@@ -574,15 +574,21 @@ class App extends Component {
       }
     });
 
-    ipcRenderer.on('receive-get-thumbs', (event, fileId, sheetId, thumbId, frameId, frameNumber, lastThumb) => {
-
+    ipcRenderer.on('receive-get-thumbs', (event, fileId, sheetId, thumbId, frameId, frameNumber, colorArray, lastThumb) => {
+      console.log(`receive-get-thumbs ${colorArray}`);
       if (this.props.sheetsByFileId[fileId] !== undefined ||
         this.props.sheetsByFileId[fileId][sheetId] !== undefined ||
         this.props.sheetsByFileId[fileId][sheetId].thumbsArray !== undefined) {
         const thumb = this.props.sheetsByFileId[fileId][sheetId].thumbsArray.find(item =>
           item.thumbId === thumbId);
-          if (thumb !== undefined && thumb.frameNumber !== frameNumber) {
-            store.dispatch(updateFrameNumber(fileId, sheetId, thumbId, frameNumber));
+          if (
+            thumb !== undefined &&
+            (
+              thumb.frameNumber !== frameNumber ||
+              thumb.colorArray !== colorArray
+            )
+          ) {
+            store.dispatch(updateFrameNumberAndColorArray(fileId, sheetId, thumbId, frameNumber, colorArray));
           }
       }
 
@@ -3194,8 +3200,8 @@ ${exportObject}`;
                         }}
                       >
                         <ThumbEmpty
-                          color={(this.state.colorArray !== undefined ?
-                            this.state.colorArray[0] : undefined)}
+                          color={(this.state.emptyColorsArray !== undefined ?
+                            this.state.emptyColorsArray[0] : undefined)}
                           thumbImageObjectUrl={undefined}
                           aspectRatioInv={scaleValueObject.aspectRatioInv}
                           thumbWidth={scaleValueObject.videoPlayerWidth}
@@ -3242,7 +3248,7 @@ ${exportObject}`;
                           sheetView !== SHEET_VIEW.TIMELINEVIEW
                         }>
                           <SortedVisibleThumbGrid
-                            colorArray={this.state.colorArray}
+                            emptyColorsArray={this.state.emptyColorsArray}
                             sheetView={sheetView}
                             sheetType={sheetType}
                             view={visibilitySettings.defaultView}

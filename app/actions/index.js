@@ -670,15 +670,16 @@ export const updateOrder = (currentFileId, sheetId, array) => {
 //   };
 // };
 
-export const updateFrameNumber = (fileId, sheetId, thumbId, frameNumber) => {
-  log.debug('action: updateFrameNumber');
+export const updateFrameNumberAndColorArray = (fileId, sheetId, thumbId, frameNumber, colorArray) => {
+  log.debug('action: updateFrameNumberAndColorArray');
   return {
-    type: 'UPDATE_FRAMENUMBER_OF_THUMB',
+    type: 'UPDATE_FRAMENUMBER_AND_COLORARRAY_OF_THUMB',
     payload: {
       fileId,
       sheetId,
       thumbId,
-      frameNumber
+      frameNumber,
+      colorArray,
     }
   };
 };

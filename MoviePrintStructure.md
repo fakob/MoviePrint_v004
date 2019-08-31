@@ -78,7 +78,7 @@
               * ipc mainWindow requests some objectUrls from objectUrlQueue
           * ipc send-arrayOfObjectUrls to mainWindow
         * ipc receive-get-thumbs for every single thumb
-          * dispatch updateFrameNumber
+          * dispatch updateFrameNumberAndColorArray
 			* dispatch ADD_THUMBS
 * remove this file from filesToLoad Array
 * --> in componentDidUpdate

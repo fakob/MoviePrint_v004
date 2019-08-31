@@ -77,12 +77,13 @@ const thumb = (state = {}, action, index) => {
     //   return Object.assign({}, state, {
     //     sceneId: action.payload.sceneId
     //   });
-    case 'UPDATE_FRAMENUMBER_OF_THUMB':
+    case 'UPDATE_FRAMENUMBER_AND_COLORARRAY_OF_THUMB':
       if (state.thumbId !== action.payload.thumbId) {
         return state;
       }
       return Object.assign({}, state, {
-        frameNumber: action.payload.frameNumber
+        frameNumber: action.payload.frameNumber,
+        colorArray: action.payload.colorArray,
       });
     case 'UPDATE_ORDER':
       // log.debug(state);
@@ -405,7 +406,7 @@ const sheetsByFileId = (state = {}, action) => {
     //       }
     //     }
     //   };
-    case 'UPDATE_FRAMENUMBER_OF_THUMB':
+    case 'UPDATE_FRAMENUMBER_AND_COLORARRAY_OF_THUMB':
       return {
         ...state,
         [action.payload.fileId]: {

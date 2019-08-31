@@ -434,7 +434,10 @@ class ThumbGrid extends Component {
               dim={(this.state.thumbsToDim.find((thumbToDim) => thumbToDim.thumbId === thumb.thumbId))}
               inputRefThumb={(this.props.selectedThumbsArray.length !== 0 && this.props.selectedThumbsArray[0].thumbId === thumb.thumbId) ?
                 this.props.inputRefThumb : undefined} // for the thumb scrollIntoView function
-              color={(this.props.colorArray !== undefined ? this.props.colorArray[thumb.index] : undefined)}
+              color={ // use thumb color, else emptyColor
+                thumb.colorArray !== undefined ?
+                `#${((1 << 24) + (Math.round(thumb.colorArray[0]) << 16) + (Math.round(thumb.colorArray[1]) << 8) + Math.round(thumb.colorArray[2])).toString(16).slice(1)}` :
+                (this.props.emptyColorsArray !== undefined ? this.props.emptyColorsArray[thumb.index] : undefined)}
               thumbImageObjectUrl={ // used for data stored in IndexedDB
                 ((this.props.useBase64 === undefined && this.props.objectUrlObjects !== undefined) ? this.props.objectUrlObjects[thumb.frameId] : undefined)
               }
@@ -756,7 +759,7 @@ ThumbGrid.defaultProps = {
 };
 
 ThumbGrid.propTypes = {
-  colorArray: PropTypes.array.isRequired,
+  emptyColorsArray: PropTypes.array.isRequired,
   file: PropTypes.shape({
     id: PropTypes.string,
     name: PropTypes.string,
