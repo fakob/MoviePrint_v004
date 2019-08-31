@@ -385,7 +385,7 @@ class ThumbGrid extends Component {
     const showBeforeController = (controllersVisible === this.state.addThumbBeforeController);
     const showAfterController = (controllersVisible === this.state.addThumbAfterController);
 
-    const thumbMarginGridView = isPlayerView ? VIDEOPLAYER_THUMB_MARGIN : Math.floor(scaleValueObject.newThumbMargin);
+    const thumbMarginGridView = isPlayerView ? VIDEOPLAYER_THUMB_MARGIN : scaleValueObject.newThumbMargin;
 
     return (
       <div
