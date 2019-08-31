@@ -24,7 +24,7 @@ export const deleteTableFramelist = () =>
 
 export const addFrameToIndexedDB = (frameId, fileId, frameNumber, outBase64, objectUrlQueue) => {
   const url = `data:image/jpg;base64,${outBase64}`;
-  fetch(url)
+  return fetch(url)
   .then(res => res.blob())
   .then(blob => {
     try {
@@ -36,7 +36,7 @@ export const addFrameToIndexedDB = (frameId, fileId, frameNumber, outBase64, obj
           data: blob
         });
         const key = await imageDB.frameList.get(frameId);
-        console.log(key);
+        // console.log(key);
         return key;
       })
       .catch(e => {
@@ -50,7 +50,7 @@ export const addFrameToIndexedDB = (frameId, fileId, frameNumber, outBase64, obj
   }
   )
   .then(frame => {
-    console.log(frame);
+    // console.log(frame);
     const objectUrl = window.URL.createObjectURL(frame.data);
     objectUrlQueue.add({
       frameId,

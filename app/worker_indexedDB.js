@@ -26,21 +26,33 @@ const objectUrlQueue = new Queue();
 // const objectUrlQueue = Queue.bind(this);
 
 // objectUrlQueue = objectUrlQueueUnbound.bind(this);
-console.log(objectUrlQueue);
-console.log(typeof objectUrlQueue);
+// log.debug(objectUrlQueue);
+// log.debug(typeof objectUrlQueue);
+
+let requestIdleCallbackForImagesHandle;
+let cancelIdleCallbackForImagesNextTime = false;
+
+const pullImagesFromOpencvWorker = () => {
+  log.debug('now I am not busy - requestIdleCallbackForImages');
+  ipcRenderer.send(
+    'message-from-mainWindow-to-opencvWorkerWindow',
+    'get-some-images-from-imageQueue',
+    100, // amount
+  );
+  // cancel handle and set to undefined
+  requestIdleCallbackForImagesHandle = window.cancelIdleCallback(requestIdleCallbackForImagesHandle);
+};
 
 setInterval(() => {
+  // objectUrlQueue
   const size = objectUrlQueue.size();
-  const arrayOfObjectUrls = objectUrlQueue.data;
-  console.log(`the queue size is: ${size}`);
-  console.log(arrayOfObjectUrls);
   if (size !== 0) {
+    log.debug(`the objectUrlQueue size is: ${size}`);
+    // start requestIdleCallback for imageQueue
     ipcRenderer.send(
-      'message-from-indexedDBWorkerWindow-to-mainWindow',
-      'send-arrayOfObjectUrls',
-      arrayOfObjectUrls
+      'message-from-opencvWorkerWindow-to-mainWindow',
+      'start-requestIdleCallback-for-objectUrlQueue',
     );
-    objectUrlQueue.clear();
   }
 }, 1000);
 
@@ -79,7 +91,7 @@ ipcRenderer.on('send-base64-frame', (event, frameId, fileId, frameNumber, outBas
     const fastTrack = onlyReplace; // make this one use fastTrack so it gets updated right away
     updateFrameInIndexedDB(frameId, outBase64, objectUrlQueue, fastTrack);
   } else {
-    addFrameToIndexedDB(frameId, fileId, frameNumber, outBase64, objectUrlQueue);
+    const objectUrl = addFrameToIndexedDB(frameId, fileId, frameNumber, outBase64, objectUrlQueue);
   }
 });
 
@@ -91,6 +103,61 @@ ipcRenderer.on('update-base64-frame', (event, frameId, outBase64) => {
 ipcRenderer.on('get-arrayOfObjectUrls', (event) => {
   log.debug('indexedDBWorkerWindow | on get-arrayOfObjectUrls');
   getObjectUrlsFromFramelist(objectUrlQueue);
+});
+
+ipcRenderer.on('get-some-objectUrls-from-objectUrlQueue', (event) => {
+  log.debug('indexedDBWorkerWindow | on get-some-objectUrls-from-objectUrlQueue');
+
+  const arrayOfObjectUrls = objectUrlQueue.data;
+  log.debug(arrayOfObjectUrls);
+  // start requestIdleCallback for objectUrlQueue
+  ipcRenderer.send(
+    'message-from-indexedDBWorkerWindow-to-mainWindow',
+    'send-arrayOfObjectUrls',
+    arrayOfObjectUrls
+  );
+  objectUrlQueue.clear();
+});
+
+ipcRenderer.on('start-requestIdleCallback-for-imageQueue', (event) => {
+  log.debug('indexedDBWorkerWindow | on start-requestIdleCallback-for-imageQueue');
+
+  // start requestIdleCallbackForImages until it is cancelled
+  if (requestIdleCallbackForImagesHandle === undefined) {
+    requestIdleCallbackForImagesHandle = window.requestIdleCallback(pullImagesFromOpencvWorker);
+    log.debug('now I requestIdleCallbackForImages');
+  } else {
+    log.debug('requestIdleCallbackForImages already running. no new requestIdleCallbackForImages will be started.');
+  }
+});
+
+ipcRenderer.on('cancel-requestIdleCallback-for-imageQueue', (event) => {
+  log.debug('indexedDBWorkerWindow | on cancel-requestIdleCallback-for-imageQueue');
+
+  // cancel pullImagesFromOpencvWorker next time
+  cancelIdleCallbackForImagesNextTime = true;
+
+});
+
+ipcRenderer.on('receive-some-images-from-imageQueue', (event, someImages) => {
+  log.debug(`indexedDBWorkerWindow | on receive-some-images-from-imageQueue: ${someImages.length}`);
+  if (someImages.length > 0) {
+    // add images in reveres as they are stored inverse in the queue
+    someImages.reverse().map(async (image) => {
+      // log.debug(image.frameNumber);
+      return addFrameToIndexedDB(image.frameId, image.fileId, image.frameNumber,image.outBase64, objectUrlQueue)
+    });
+  }
+
+  // cancelIdleCallbackForImagesNextTime if true else start requestIdleCallbackForImages again
+  if (cancelIdleCallbackForImagesNextTime) {
+    requestIdleCallbackForImagesHandle = window.cancelIdleCallback(requestIdleCallbackForImagesHandle);
+    log.debug('now I cancelIdleCallbackForImages');
+    cancelIdleCallbackForImagesNextTime = false;
+  } else {
+    requestIdleCallbackForImagesHandle = window.requestIdleCallback(pullImagesFromOpencvWorker);
+    log.debug('now I requestIdleCallbackForImages');
+  }
 });
 
 render(

@@ -67,11 +67,19 @@
 		* dispatch addThumbs
 			* check DB if thumb is already grabbed
 			* ipc send-get-thumbs to opencvWorkerWindow for every single thumb
-        * addFrameToIndexedDB
-        * ipc update-objectUrl to mainWindow
+        * ipc start requestIdleCallback to indexedDBWorkerWindow
+          * indexedDBWorkerWindow requests 100 images every time it is idle until get thumbs is finished
+        * ipc send-base64-frame to indexedDBWorkerWindow (only used for posterFrame and recaptureThumbs)
+          * addFrameToIndexedDB
+          * createObjectURL
+          * add to objectUrlQueue
+          * regularly (setInterval) check if objectUrlQueue is not empty
+            * ipc start-requestIdleCallback-for-objectUrlQueue to mainWindow
+              * ipc mainWindow requests some objectUrls from objectUrlQueue
+          * ipc send-arrayOfObjectUrls to mainWindow
+        * ipc receive-get-thumbs for every single thumb
+          * dispatch updateFrameNumber
 			* dispatch ADD_THUMBS
-* ipc receive-get-thumbs for every single thumb
-	* dispatch updateFrameNumber
 * remove this file from filesToLoad Array
 * --> in componentDidUpdate
 
@@ -95,10 +103,12 @@
 * runSceneDetection
 * runFileScan if file not scanned yet
   * ipc send-get-file-scan to opencvWorkerWindow
-    * ipc addScene to mainWindow for every single scene
+    * ipc start requestIdleCallback to mainWindow
+        * mainWindow requests 10 scenes every time it is idle until scene detection is finished
     * ipc received-get-file-scan to mainWindow
 * dispatch updateFileScanStatus
 * runSceneDetection again
+* cancel requestIdleCallback
 
 ##### on onReplaceMovieListItemClick
 

@@ -30,8 +30,12 @@ const { ipcRenderer } = require('electron');
 // to cancel file scan
 let fileScanRunning = false;
 
-// set up a queue
+// set up queues
+// sceneQueue stores scene data, is used for preview purpose and is pulled from mainWindow
 const sceneQueue = new Queue();
+
+// imageQueue stores image data, is used when grabbing images and is pulled from indexedDBWorkerWindow
+const imageQueue = new Queue();
 
 log.debug('I am the opencvWorkerWindow - responsible for capturing the necessary frames from the video using opencv');
 
@@ -69,7 +73,7 @@ process.on('SIGTERM', err => {
 // });
 
 ipcRenderer.on('cancelFileScan', (event, fileId) => {
-  log.info('cancelling fileScan');
+  log.debug('cancelling fileScan');
   fileScanRunning = false;
 });
 
@@ -201,7 +205,7 @@ ipcRenderer.on(
               frameNumberToCapture !==
               vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1
             ) {
-              log.info(
+              log.debug(
                 'opencvWorkerWindow | ########################### Playhead not at correct position: set useRatio to TRUE ###########################'
               );
               useRatio = true;
@@ -339,7 +343,7 @@ ipcRenderer.on(
                 ) {
                   // only run if still searching inpoint and frameMean over threshold or done scanning inpoint
                   searchInpoint = false; // done searching inPoint
-                  log.info('opencvWorkerWindow | resetting playhead');
+                  log.debug('opencvWorkerWindow | resetting playhead');
                   setPosition(vid, videoLength - searchLength, useRatio);
                   read();
                 } else if (
@@ -509,6 +513,12 @@ ipcRenderer.on(
     try {
       fileScanRunning = true;
 
+      // start requestIdleCallback for sceneQueue
+      ipcRenderer.send(
+        'message-from-opencvWorkerWindow-to-mainWindow',
+        'start-requestIdleCallback-for-sceneQueue',
+      );
+
       const timeBeforeSceneDetection = Date.now();
       console.time(`${fileId}-fileScanning`);
       const vid = new opencv.VideoCapture(filePath);
@@ -530,7 +540,7 @@ ipcRenderer.on(
       let cropLeft = 0;
       let cropRight = 0;
       if (transformObject !== undefined && transformObject !== null) {
-        console.log(transformObject)
+        log.debug(transformObject);
         cropTop = transformObject.cropTop;
         cropBottom = transformObject.cropBottom;
         cropLeft = transformObject.cropLeft;
@@ -665,7 +675,10 @@ ipcRenderer.on(
               sceneQueue.clear();
 
               // insert all frames into sqlite3
+              const timeBeforeInsertFrameScanArray = Date.now();
               insertFrameScanArray(frameMetrics);
+              const timeAfterInsertFrameScanArray = Date.now();
+              log.debug(`opencvWorkerWindow | insertFrameScanArray duration: ${timeAfterInsertFrameScanArray - timeBeforeInsertFrameScanArray}`);
 
               ipcRenderer.send(
                 'message-from-opencvWorkerWindow-to-mainWindow',
@@ -714,111 +727,92 @@ ipcRenderer.on(
   }
 );
 
-ipcRenderer.on('clear-sceneQueue', (event) => {
-  log.info('clear-sceneQueue');
-  log.info(sceneQueue.size());
-  sceneQueue.clear();
-  log.info(sceneQueue.size());
-});
-
-ipcRenderer.on('get-some-scenes-from-sceneQueue', (event, amount) => {
-  log.info('get-some-scenes-from-sceneQueue');
-  log.info(sceneQueue.size());
-  const someScenes = sceneQueue.removeLastMany(amount);
-  ipcRenderer.send(
-    'message-from-opencvWorkerWindow-to-mainWindow',
-    'receive-some-scenes-from-sceneQueue',
-    someScenes,
-  );
-  log.info(sceneQueue.size());
-});
-
-// read sync test
-ipcRenderer.on(
-  // 'send-get-thumbs',
-  'send-get-thumbs-sync',
-  (
-    event,
-    fileId,
-    filePath,
-    sheetId,
-    thumbIdArray,
-    frameIdArray,
-    frameNumberArray,
-    useRatio
-  ) => {
-    log.debug('opencvWorkerWindow | on send-get-thumbs-sync');
-    // log.debug(frameNumberArray);
-    log.debug(`opencvWorkerWindow | ${filePath}`);
-    log.debug(`opencvWorkerWindow | useRatio: ${useRatio}`);
-    // opencv.utils.setLogLevel('LOG_LEVEL_DEBUG');
-
-    try {
-      const vid = new opencv.VideoCapture(filePath);
-
-      for (let i = 0; i < frameNumberArray.length; i += 1) {
-        setPosition(vid, frameNumberArray[i], useRatio);
-        const frame = vid.read();
-        if (frame.empty) {
-          log.info('opencvWorkerWindow | frame is empty');
-          const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
-          ipcRenderer.send(
-            'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
-            'send-base64-frame',
-            frameIdArray[i],
-            fileId,
-            frameNumber,
-            ''
-          );
-          ipcRenderer.send(
-            'message-from-opencvWorkerWindow-to-mainWindow',
-            'receive-get-thumbs',
-            fileId,
-            sheetId,
-            thumbIdArray[i],
-            frameIdArray[i],
-            frameNumber,
-            i === (frameNumberArray.length - 1)
-          );
-        } else {
-          // log.debug('frame not empty');
-          log.debug(
-            `opencvWorkerWindow | readSync: ${i}, ${frameNumberArray[i]}/${vid.get(
-              VideoCaptureProperties.CAP_PROP_POS_FRAMES
-            ) - 1}(${vid.get(
-              VideoCaptureProperties.CAP_PROP_POS_MSEC
-            )}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`
-          );
-          // opencv.imshow('a window name', frame);
-          const outBase64 = opencv.imencode('.jpg', frame).toString('base64'); // maybe change to .png?
-          const lastThumb = i === (frameNumberArray.length - 1);
-          const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
-          ipcRenderer.send(
-            'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
-            'send-base64-frame',
-            frameIdArray[i],
-            fileId,
-            frameNumber,
-            outBase64
-          );
-          ipcRenderer.send(
-            'message-from-opencvWorkerWindow-to-mainWindow',
-            'receive-get-thumbs',
-            fileId,
-            sheetId,
-            thumbIdArray[i],
-            frameIdArray[i],
-            frameNumber,
-            lastThumb
-          );
-          // opencv.waitKey(10);
-        }
-      }
-    } catch (e) {
-      log.error(e);
-    }
-  }
-);
+// // read sync test
+// ipcRenderer.on(
+//   // 'send-get-thumbs',
+//   'send-get-thumbs-sync',
+//   (
+//     event,
+//     fileId,
+//     filePath,
+//     sheetId,
+//     thumbIdArray,
+//     frameIdArray,
+//     frameNumberArray,
+//     useRatio
+//   ) => {
+//     log.debug('opencvWorkerWindow | on send-get-thumbs-sync');
+//     // log.debug(frameNumberArray);
+//     log.debug(`opencvWorkerWindow | ${filePath}`);
+//     log.debug(`opencvWorkerWindow | useRatio: ${useRatio}`);
+//     // opencv.utils.setLogLevel('LOG_LEVEL_DEBUG');
+//
+//     try {
+//       const vid = new opencv.VideoCapture(filePath);
+//
+//       for (let i = 0; i < frameNumberArray.length; i += 1) {
+//         setPosition(vid, frameNumberArray[i], useRatio);
+//         const frame = vid.read();
+//         if (frame.empty) {
+//           log.debug('opencvWorkerWindow | frame is empty');
+//           const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
+//           ipcRenderer.send(
+//             'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
+//             'send-base64-frame',
+//             frameIdArray[i],
+//             fileId,
+//             frameNumber,
+//             ''
+//           );
+//           ipcRenderer.send(
+//             'message-from-opencvWorkerWindow-to-mainWindow',
+//             'receive-get-thumbs',
+//             fileId,
+//             sheetId,
+//             thumbIdArray[i],
+//             frameIdArray[i],
+//             frameNumber,
+//             i === (frameNumberArray.length - 1)
+//           );
+//         } else {
+//           // log.debug('frame not empty');
+//           log.debug(
+//             `opencvWorkerWindow | readSync: ${i}, ${frameNumberArray[i]}/${vid.get(
+//               VideoCaptureProperties.CAP_PROP_POS_FRAMES
+//             ) - 1}(${vid.get(
+//               VideoCaptureProperties.CAP_PROP_POS_MSEC
+//             )}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`
+//           );
+//           // opencv.imshow('a window name', frame);
+//           const outBase64 = opencv.imencode('.jpg', frame).toString('base64'); // maybe change to .png?
+//           const lastThumb = i === (frameNumberArray.length - 1);
+//           const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
+//           ipcRenderer.send(
+//             'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
+//             'send-base64-frame',
+//             frameIdArray[i],
+//             fileId,
+//             frameNumber,
+//             outBase64
+//           );
+//           ipcRenderer.send(
+//             'message-from-opencvWorkerWindow-to-mainWindow',
+//             'receive-get-thumbs',
+//             fileId,
+//             sheetId,
+//             thumbIdArray[i],
+//             frameIdArray[i],
+//             frameNumber,
+//             lastThumb
+//           );
+//           // opencv.waitKey(10);
+//         }
+//       }
+//     } catch (e) {
+//       log.error(e);
+//     }
+//   }
+// );
 
 // read async
 ipcRenderer.on(
@@ -841,9 +835,17 @@ ipcRenderer.on(
     log.debug(`opencvWorkerWindow | ${filePath}`);
     log.debug(`opencvWorkerWindow | useRatio: ${useRatio}`);
 
+    log.debug(`opencvWorkerWindow | imageQueue size: ${imageQueue.size()}`);
+
     try {
       const vid = new opencv.VideoCapture(filePath);
       const timeBefore = Date.now();
+
+      // start requestIdleCallback for imageQueue
+      ipcRenderer.send(
+        'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
+        'start-requestIdleCallback-for-imageQueue',
+      );
 
       // transform
       const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
@@ -853,7 +855,7 @@ ipcRenderer.on(
       let cropLeft = 0;
       let cropRight = 0;
       if (transformObject !== undefined && transformObject !== null) {
-        console.log(transformObject)
+        log.debug(transformObject);
         cropTop = transformObject.cropTop;
         cropBottom = transformObject.cropBottom;
         cropLeft = transformObject.cropLeft;
@@ -905,14 +907,13 @@ ipcRenderer.on(
               const frameId = frameIdArray[iterator];
               const isLastThumb = iterator === (frameNumberArray.length - 1);
 
-              ipcRenderer.send(
-                'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
-                'send-base64-frame',
+              imageQueue.add({
                 frameId,
                 fileId,
                 frameNumber,
-                outBase64
-              );
+                outBase64,
+              });
+
               ipcRenderer.send(
                 'message-from-opencvWorkerWindow-to-mainWindow',
                 'receive-get-thumbs',
@@ -940,6 +941,12 @@ ipcRenderer.on(
                   `Loading of frames took ${duration/1000.0}s`,
                   3000
                 );
+
+                // cancel requestIdleCallback for imageQueue
+                ipcRenderer.send(
+                  'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
+                  'cancel-requestIdleCallback-for-imageQueue',
+                );
               }
 
               iterator += 1;
@@ -947,7 +954,7 @@ ipcRenderer.on(
                 read();
               }
             } else {
-              log.info('opencvWorkerWindow | frame is empty');
+              log.debug('opencvWorkerWindow | frame is empty');
               // assumption is that the we might find frames forward or backward which work
               if (Math.abs(frameOffset) < searchLimit) {
                 // if frameNumberToCapture is close to the end go backward else go forward
@@ -970,14 +977,22 @@ ipcRenderer.on(
                 const frameId = frameIdArray[iterator];
                 const isLastThumb = iterator === (frameNumberArray.length - 1);
 
-                ipcRenderer.send(
-                  'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
-                  'send-base64-frame',
+                imageQueue.add({
                   frameId,
                   fileId,
                   frameNumber,
-                  ''
-                );
+                  base64: '',
+                });
+
+                // ipcRenderer.send(
+                //   'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
+                //   'send-base64-frame',
+                //   frameId,
+                //   fileId,
+                //   frameNumber,
+                //   ''
+                // );
+
                 ipcRenderer.send(
                   'message-from-opencvWorkerWindow-to-mainWindow',
                   'receive-get-thumbs',
@@ -1007,6 +1022,38 @@ ipcRenderer.on(
     }
   }
 );
+
+ipcRenderer.on('clear-sceneQueue', (event) => {
+  log.debug(`opencvWorkerWindow | on clear-sceneQueue ${sceneQueue.size()}`);
+  sceneQueue.clear();
+});
+
+ipcRenderer.on('get-some-scenes-from-sceneQueue', (event, amount) => {
+  log.debug(`opencvWorkerWindow | on get-some-scenes-from-sceneQueue ${sceneQueue.size()}`);
+  const someScenes = sceneQueue.removeLastMany(amount);
+  ipcRenderer.send(
+    'message-from-opencvWorkerWindow-to-mainWindow',
+    'receive-some-scenes-from-sceneQueue',
+    someScenes,
+  );
+  log.debug(sceneQueue.size());
+});
+
+ipcRenderer.on('clear-imageQueue', (event) => {
+  log.debug(`opencvWorkerWindow | on clear-imageQueue ${imageQueue.size()}`);
+  imageQueue.clear();
+});
+
+ipcRenderer.on('get-some-images-from-imageQueue', (event, amount) => {
+  log.debug(`opencvWorkerWindow | on get-some-images-from-imageQueue ${imageQueue.size()}`);
+  const someImages = imageQueue.removeLastMany(amount);
+  ipcRenderer.send(
+    'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
+    'receive-some-images-from-imageQueue',
+    someImages,
+  );
+  log.debug(imageQueue.size());
+});
 
 render(
   <div>

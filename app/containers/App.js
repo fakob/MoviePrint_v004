@@ -253,7 +253,9 @@ class App extends Component {
       framesToFetch: [],
       fileIdToBeRecaptured: undefined,
       fileIdToBeCaptured: undefined,
-      requestIdleCallbackHandle: undefined,
+      requestIdleCallbackForScenesHandle: undefined,
+      requestIdleCallbackForImagesHandle: undefined,
+      requestIdleCallbackForObjectUrlHandle: undefined,
     };
 
     this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -530,17 +532,46 @@ class App extends Component {
     });
 
     ipcRenderer.on('send-arrayOfObjectUrls', (event, arrayOfObjectUrls) => {
-      const { objectUrlObjects } = this.state;
+      const { objectUrlObjects, requestIdleCallbackForObjectUrlHandle } = this.state;
 
-      // create copy so the state does not get mutated
-      const copyOfObject = Object.assign({}, objectUrlObjects);
-      arrayOfObjectUrls.map(item => {
-        copyOfObject[item.frameId] = item.objectUrl;
-        return undefined;
-      });
-      this.setState({
-        objectUrlObjects: copyOfObject,
-      });
+      // if arrayOfObjectUrls not empty setState and renew
+      if (arrayOfObjectUrls.length !== 0) {
+        // create copy so the state does not get mutated
+        const copyOfObject = Object.assign({}, objectUrlObjects);
+        arrayOfObjectUrls.map(item => {
+          copyOfObject[item.frameId] = item.objectUrl;
+          return undefined;
+        });
+        this.setState({
+          objectUrlObjects: copyOfObject,
+        });
+        const newRequestIdleCallbackHandle = window.requestIdleCallback(this.pullObjectUrlFromIndexedDBWorkerWindow);
+        this.setState({
+          requestIdleCallbackForObjectUrlHandle: newRequestIdleCallbackHandle,
+        });
+        console.log('now I requestIdleCallbackForObjectUrl again');
+      } else {
+        // cancel pullObjectUrlFromIndexedDBWorkerWindow
+        window.cancelIdleCallback(requestIdleCallbackForObjectUrlHandle);
+        this.setState({
+          requestIdleCallbackForObjectUrlHandle: undefined,
+        });
+      }
+    });
+
+    ipcRenderer.on('start-requestIdleCallback-for-objectUrlQueue', (event) => {
+      const { requestIdleCallbackForObjectUrlHandle } = this.state;
+
+      // start requestIdleCallback until it is cancelled
+      if (requestIdleCallbackForObjectUrlHandle === undefined) {
+        const newRequestIdleCallbackHandle = window.requestIdleCallback(this.pullObjectUrlFromIndexedDBWorkerWindow);
+        this.setState({
+          requestIdleCallbackForObjectUrlHandle: newRequestIdleCallbackHandle,
+        });
+        console.log('now I requestIdleCallbackForObjectUrl');
+      } else {
+        console.log('requestIdleCallbackForObjectUrl already running. no new requestIdleCallbackForObjectUrl will be started.');
+      }
     });
 
     ipcRenderer.on('receive-get-thumbs', (event, fileId, sheetId, thumbId, frameId, frameNumber, lastThumb) => {
@@ -600,15 +631,15 @@ class App extends Component {
 
     ipcRenderer.on('received-get-file-scan', (event, fileId, filePath, useRatio, sheetId) => {
       const { files } = this.props;
-      const { requestIdleCallbackHandle } = this.state;
+      const { requestIdleCallbackForScenesHandle } = this.state;
       const file = files.find(file2 => file2.id === fileId);
 
       // cancel pullScenesFromOpencvWorker
-      window.cancelIdleCallback(requestIdleCallbackHandle);
+      window.cancelIdleCallback(requestIdleCallbackForScenesHandle);
       this.setState({
-        requestIdleCallbackHandle: undefined,
+        requestIdleCallbackForScenesHandle: undefined,
       });
-      console.log('now I cancelIdleCallback');
+      console.log('now I cancelIdleCallbackForScenes');
 
       this.setState({
         fileScanRunning: false,
@@ -618,23 +649,38 @@ class App extends Component {
     });
 
     ipcRenderer.on('receive-some-scenes-from-sceneQueue', (event, someScenes) => {
-      const { requestIdleCallbackHandle } = this.state;
+      const { requestIdleCallbackForScenesHandle } = this.state;
 
-      console.log(someScenes);
+      // console.log(someScenes);
       if (someScenes.length > 0) {
         // add scenes in reveres as they are stored inverse in the queue
         store.dispatch(addScenesWithoutCapturingThumbs(someScenes.reverse()));
       }
 
       // schedule the next one until scan is done and requestIdleCallback is cancelled
-      if (requestIdleCallbackHandle !== undefined) {
+      if (requestIdleCallbackForScenesHandle !== undefined) {
         const newRequestIdleCallbackHandle = window.requestIdleCallback(this.pullScenesFromOpencvWorker);
         this.setState({
-          requestIdleCallbackHandle: newRequestIdleCallbackHandle,
+          requestIdleCallbackForScenesHandle: newRequestIdleCallbackHandle,
         });
-        console.log('now I requestIdleCallback');
+        console.log('now I requestIdleCallbackForScenes');
       } else {
         console.log('requestIdleCallback already cancelled. no new requestIdleCallback will be started.');
+      }
+    });
+
+    ipcRenderer.on('start-requestIdleCallback-for-sceneQueue', (event) => {
+      const { requestIdleCallbackForScenesHandle } = this.state;
+
+      // start requestIdleCallback until it is cancelled
+      if (requestIdleCallbackForScenesHandle === undefined) {
+        const newRequestIdleCallbackHandle = window.requestIdleCallback(this.pullScenesFromOpencvWorker);
+        this.setState({
+          requestIdleCallbackForScenesHandle: newRequestIdleCallbackHandle,
+        });
+        console.log('now I requestIdleCallbackForScenes');
+      } else {
+        console.log('requestIdleCallbackForScenes already running. no new requestIdleCallbackForScenes will be started.');
       }
     });
 
@@ -1408,10 +1454,24 @@ class App extends Component {
     });
   }
 
+  pullObjectUrlFromIndexedDBWorkerWindow(deadline) {
+    // it pulls objectUrls from worker_indexedDB objectUrlQueue during idle time
+    console.log('now I am not busy - requestIdleCallbackForObjectUrl');
+    ipcRenderer.send(
+      'message-from-mainWindow-to-indexedDBWorkerWindow',
+      'get-some-objectUrls-from-objectUrlQueue',
+      100, // amount
+    );
+  }
+
   runSceneDetection(fileId, filePath, useRatio, threshold = this.props.settings.defaultSceneDetectionThreshold, sheetId = uuidV4(), transformObject = undefined) {
     const { store } = this.context;
     const { fileScanRunning } = this.state;
+    const timeBeforeGetFrameScanByFileId = Date.now();
     const arrayOfFrameScanData = getFrameScanByFileId(fileId);
+    const timeAfterGetFrameScanByFileId = Date.now();
+    log.debug(`getFrameScanByFileId duration: ${timeAfterGetFrameScanByFileId - timeBeforeGetFrameScanByFileId}`);
+
 
     // only start creating a sheet if there is already scanned data or
     // there is no fileScanRunning
@@ -1451,13 +1511,6 @@ class App extends Component {
         });
         ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-scan', fileId, filePath, useRatio, threshold, sheetId, transformObject);
 
-        // start scheduled work to pull scenes from worker_opencv with requestIdleCallback
-        const requestIdleCallbackHandle = window.requestIdleCallback(this.pullScenesFromOpencvWorker);
-        this.setState({
-          requestIdleCallbackHandle,
-        });
-        console.log('now I requestIdleCallback');
-
       } else {
         const meanValueArray = arrayOfFrameScanData.map(frame => frame.meanValue)
         const meanColorArray = arrayOfFrameScanData.map(frame => JSON.parse(frame.meanColor))
@@ -1474,7 +1527,7 @@ class App extends Component {
   pullScenesFromOpencvWorker(deadline) {
     // this is used to show a scene detection preview
     // it pulls scenes from worker_opencv sceneQueue during idle time
-    console.log('now I am not busy - requestIdleCallback');
+    console.log('now I am not busy - requestIdleCallbackForScenes');
     ipcRenderer.send(
       'message-from-mainWindow-to-opencvWorkerWindow',
       'get-some-scenes-from-sceneQueue',
@@ -1569,12 +1622,12 @@ class App extends Component {
   }
 
   cancelFileScan(fileId) {
-    const { requestIdleCallbackHandle } = this.state;
+    const { requestIdleCallbackForScenesHandle } = this.state;
 
     // cancel pullScenesFromOpencvWorker
-    window.cancelIdleCallback(requestIdleCallbackHandle);
+    window.cancelIdleCallback(requestIdleCallbackForScenesHandle);
     this.setState({
-      requestIdleCallbackHandle: undefined,
+      requestIdleCallbackForScenesHandle: undefined,
     });
     console.log('now I cancelIdleCallback');
 

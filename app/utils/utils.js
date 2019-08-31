@@ -506,7 +506,7 @@ export const getEDLscenes = (sheetsByFileId, fileId, sheetId, visibilitySettings
 
 export const getSheetCount = (files, fileId) => {
   const file = files.find(file2 => file2.id === fileId);
-  console.log(file);
+  // console.log(file);
   if (file === undefined) {
     // there is no file yet, so return undefined
     return 0;
