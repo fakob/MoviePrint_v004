@@ -166,7 +166,15 @@ class WorkerApp extends Component {
                     file={sentData.file}
                     thumbs={visibleThumbs}
                     objectUrlObjects={thumbObjectBase64s}
-                    settings={sentData.settings}
+                    defaultOutputPath={sentData.settings.defaultOutputPath}
+                    defaultOutputPathFromMovie={sentData.settings.defaultOutputPathFromMovie}
+                    defaultShowDetailsInHeader={sentData.settings.defaultShowDetailsInHeader}
+                    defaultShowHeader={sentData.settings.defaultShowHeader}
+                    defaultShowImages={sentData.settings.defaultShowImages}
+                    defaultShowPathInHeader={sentData.settings.defaultShowPathInHeader}
+                    defaultShowTimelineInHeader={sentData.settings.defaultShowTimelineInHeader}
+                    defaultThumbInfo={sentData.settings.defaultThumbInfo}
+                    defaultThumbInfoRatio={sentData.settings.defaultThumbInfoRatio}
 
                     selectedThumbId={undefined}
 

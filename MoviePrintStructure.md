@@ -14,7 +14,6 @@
 			* containers/FileList.js
 				* components/FileListElement.js
 			* components/VideoPlayer.js
-			* components/ThumbEmpty.js
 			* containers/VisibleThumbGrid.js
 				* components/ThumbGrid.js
 					* components/ThumbGridHeader.js

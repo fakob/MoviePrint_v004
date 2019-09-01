@@ -7,6 +7,9 @@ import text from 'png-chunk-text';
 import log from 'electron-log';
 import VideoCaptureProperties from './videoCaptureProperties';
 import sheetNames from '../img/listOfNames.json'
+import {
+  SHEET_VIEW,
+} from './constants';
 
 const randomColor = require('randomcolor');
 const { ipcRenderer } = require('electron');
@@ -573,7 +576,7 @@ export const getSheetView = (sheetsByFileId, fileId, sheetId, visibilitySettings
     sheetsByFileId[fileId] === undefined ||
     sheetsByFileId[fileId][sheetId] === undefined ||
     sheetsByFileId[fileId][sheetId].sheetView === undefined) {
-    return visibilitySettings.defaultSheetView;
+    return SHEET_VIEW.GRIDVIEW;
   }
   return sheetsByFileId[fileId][sheetId].sheetView;
 };

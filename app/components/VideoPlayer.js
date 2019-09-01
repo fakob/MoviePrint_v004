@@ -2,13 +2,11 @@
 
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Icon, Popup } from 'semantic-ui-react';
+import { Popup } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
 import log from 'electron-log';
-import { changeThumb, addIntervalSheet, addThumb } from '../actions';
 import VideoCaptureProperties from '../utils/videoCaptureProperties';
 import {
-  MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
   MOVIEPRINT_COLORS,
   VIDEOPLAYER_SLICE_ARRAY_SIZE,
   CHANGE_THUMB_STEP,
@@ -16,7 +14,6 @@ import {
   SHEET_TYPE,
 } from '../utils/constants';
 import {
-  frameCountToTimeCode,
   secondsToFrameCount,
   frameCountToSeconds,
   getHighestFrame,
@@ -27,7 +24,6 @@ import {
   getPreviousThumb,
   getNextThumb,
   getSliceWidthArrayForCut,
-  getVisibleThumbs,
   limitRange,
   mapRange,
   setPosition,
@@ -55,8 +51,6 @@ class VideoPlayer extends Component {
       playHeadPositionPercSelection: 0, // in pixel
       currentTime: 0, // in seconds
       duration: 0, // in seconds
-      mouseStartDragInsideTimelineSelection: false,
-      mouseStartDragInsideTimeline: false,
       showPlaybar: true,
       loadVideo: false,
       showHTML5Player: false,

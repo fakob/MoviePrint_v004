@@ -78,6 +78,7 @@ export const setView = (defaultView) => {
   };
 };
 
+// defaultSheetView is used for player mode (cut or thumb view)
 export const setDefaultSheetView = (defaultSheetView) => {
   log.debug(`action: setDefaultSheetView - ${defaultSheetView}`);
   return {

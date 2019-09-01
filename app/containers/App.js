@@ -26,7 +26,6 @@ import FloatingMenu from '../components/FloatingMenu';
 import Footer from '../components/Footer';
 import VideoPlayer from '../components/VideoPlayer';
 import Scrub from '../components/Scrub';
-import ThumbEmpty from '../components/ThumbEmpty';
 import getScaleValueObject from '../utils/getScaleValueObject';
 import { getLowestFrame,
   createSceneArray,
@@ -1707,7 +1706,6 @@ class App extends Component {
       store.dispatch(updateSheetType(file.id, sheetId, SHEET_TYPE.INTERVAL));
     }
     store.dispatch(updateSheetView(file.id, sheetId, SHEET_VIEW.GRIDVIEW));
-    store.dispatch(setDefaultSheetView(SHEET_VIEW.GRIDVIEW));
     store.dispatch(setCurrentSheetId(sheetId));
   }
 
@@ -1944,9 +1942,10 @@ class App extends Component {
   onSaveMoviePrint() {
     const { file, settings, scenes, sheetsByFileId, visibilitySettings } = this.props;
     const { currentFileId, currentSheetId, defaultMoviePrintWidth, defaultPaperAspectRatioInv } = settings;
-    const { defaultSheetView, visibilityFilter } = visibilitySettings;
+    const { visibilityFilter } = visibilitySettings;
 
     const sheet = sheetsByFileId[file.id][currentSheetId];
+    const sheetView = getSheetView(sheetsByFileId, currentFileId, currentSheetId, visibilitySettings);
     const secondsPerRow = getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings);
 
     const scaleValueObject = getScaleValueObject(
@@ -1956,17 +1955,17 @@ class App extends Component {
       getColumnCount(sheetsByFileId, file.id, currentSheetId, settings),
       file.thumbCount,
       defaultMoviePrintWidth,
-      defaultSheetView === SHEET_VIEW.TIMELINEVIEW ? defaultMoviePrintWidth * defaultPaperAspectRatioInv : undefined,
+      sheetView === SHEET_VIEW.TIMELINEVIEW ? defaultMoviePrintWidth * defaultPaperAspectRatioInv : undefined,
       1,
       undefined,
       true,
-      defaultSheetView !== SHEET_VIEW.TIMELINEVIEW ? undefined : scenes,
+      sheetView !== SHEET_VIEW.TIMELINEVIEW ? undefined : scenes,
       secondsPerRow,
     );
 
     const dataToSend = {
       // scale: 1,
-      elementId: defaultSheetView !== SHEET_VIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
+      elementId: sheetView !== SHEET_VIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
       file,
       sheetId: currentSheetId,
       moviePrintWidth: defaultMoviePrintWidth,
@@ -1974,7 +1973,7 @@ class App extends Component {
       sheet,
       visibilityFilter,
       scaleValueObject,
-      scenes: defaultSheetView !== SHEET_VIEW.TIMELINEVIEW ? undefined : scenes,
+      scenes: sheetView !== SHEET_VIEW.TIMELINEVIEW ? undefined : scenes,
       secondsPerRow,
     };
     // log.debug(dataToSend);
@@ -2665,7 +2664,6 @@ ${exportObject}`;
           store.dispatch(updateSheetColumnCount(fileId, sheetId, columnCount));
           store.dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.INTERVAL));
           store.dispatch(updateSheetView(fileId, sheetId, SHEET_VIEW.GRIDVIEW));
-          store.dispatch(setDefaultSheetView(SHEET_VIEW.GRIDVIEW));
           store.dispatch(setCurrentSheetId(sheetId));
           store.dispatch(setCurrentFileId(fileId));
           ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', fileId, newFilePath, posterFrameId, false, true);
@@ -2718,17 +2716,12 @@ ${exportObject}`;
     if (sheetType === SHEET_TYPE.INTERVAL) {
       const sceneArray = createSceneArray(sheetsByFileId, theFileId, theSheetId);
       store.dispatch(updateSceneArray(theFileId, theSheetId, sceneArray));
-      // sceneArray.map(scene => {
-      //   store.dispatch(updateSceneId(fileId, sheetId, scene.thumbId, scene.sceneId));
-      //   return undefined;
-      // })
     }
     store.dispatch(updateSheetView(theFileId, theSheetId, sheetView));
 
     if (sheetView === SHEET_VIEW.TIMELINEVIEW) {
       this.onReCaptureClick(false);
     }
-    store.dispatch(setDefaultSheetView(sheetView));
   };
 
   toggleSheetView = (fileId, sheetId) => {
@@ -3146,7 +3139,7 @@ ${exportObject}`;
                       overflow: visibilitySettings.defaultView === VIEW.PLAYERVIEW ? 'visible' : 'hidden'
                     }}
                   >
-                    { file ? (
+                    { file &&
                       <VideoPlayer
                         ref={this.videoPlayer}
                         file={file}
@@ -3178,24 +3171,6 @@ ${exportObject}`;
                         opencvVideo={this.state.opencvVideo}
                         frameSize={settings.defaultCachedFramesSize}
                       />
-                    ) :
-                    (
-                      <div
-                        style={{
-                          opacity: '0.3',
-                        }}
-                      >
-                        <ThumbEmpty
-                          color={(this.state.emptyColorsArray !== undefined ?
-                            this.state.emptyColorsArray[0] : undefined)}
-                          thumbImageObjectUrl={undefined}
-                          aspectRatioInv={scaleValueObject.aspectRatioInv}
-                          thumbWidth={scaleValueObject.videoPlayerWidth}
-                          borderRadius={scaleValueObject.newBorderRadius}
-                          margin={scaleValueObject.newThumbMargin}
-                        />
-                      </div>
-                    )
                     }
                   </div>
                   <div
@@ -3203,8 +3178,7 @@ ${exportObject}`;
                     className={`${styles.ItemMain} ${visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''} ${visibilitySettings.showSettings ? styles.ItemMainRightAnim : ''} ${visibilitySettings.showSettings ? styles.ItemMainEdit : ''} ${visibilitySettings.defaultView === VIEW.PLAYERVIEW ? styles.ItemMainTopAnim : ''}`}
                     style={{
                       width: ( // use window width if any of these are true
-                        // visibilitySettings.showSettings ||
-                        defaultSheetView === SHEET_VIEW.TIMELINEVIEW ||
+                        sheetView === SHEET_VIEW.TIMELINEVIEW ||
                         (visibilitySettings.defaultView !== VIEW.PLAYERVIEW &&
                           visibilitySettings.defaultSheetFit !== SHEET_FIT.HEIGHT &&
                           !this.state.zoom
@@ -3225,7 +3199,6 @@ ${exportObject}`;
                     }}
                   >
                     { (file || visibilitySettings.showSettings || this.state.loadingFirstFile) ? (
-                      // (defaultSheetView === 'gridView') ? (
                       <Fragment>
                         <Conditional
                           // when in playerview use defaultSheetview which is used as cut and change modes, else use sheetView from sheet
@@ -3421,7 +3394,7 @@ ${exportObject}`;
                   onSaveAllMoviePrints={this.onSaveAllMoviePrints}
                   savingMoviePrint={this.state.savingMoviePrint}
                   savingAllMoviePrints={this.state.savingAllMoviePrints}
-                  defaultSheetView={defaultSheetView}
+                  sheetView={sheetView}
                   defaultView={visibilitySettings.defaultView}
                 />
               </div>

@@ -43,7 +43,7 @@ const ButtonExampleCircularSocial = ({
   zoom,
 }) => {
 
-  const isGridViewAndDefault = visibilitySettings.defaultSheetView === SHEET_VIEW.GRIDVIEW &&
+  const isGridViewAndDefault = sheetView === SHEET_VIEW.GRIDVIEW &&
     visibilitySettings.defaultView === VIEW.STANDARDVIEW;
 
   return (

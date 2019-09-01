@@ -254,7 +254,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
 
     onSaveThumbClick: (filePath, fileUseRatio, fileName, frameNumber, frameId, transformObject) => {
       const filePathDirectory = path.dirname(filePath);
-      const outputPath = ownProps.settings.defaultOutputPathFromMovie ? filePathDirectory : ownProps.settings.defaultOutputPath;
+      const outputPath = ownProps.defaultOutputPathFromMovie ? filePathDirectory : ownProps.defaultOutputPath;
       saveThumb(filePath, fileUseRatio, fileName, frameNumber, frameId, outputPath, true, transformObject);
     },
     onBackClick: (file, thumbId, frameNumber) => {
@@ -287,9 +287,10 @@ SortedVisibleThumbGrid.contextTypes = {
 };
 
 SortedVisibleThumbGrid.defaultProps = {
-  thumbs: [],
+  currentSheetId: undefined,
   file: {},
   selectedThumbsArray: [],
+  thumbs: [],
   useBase64: undefined,
 };
 
@@ -305,7 +306,7 @@ SortedVisibleThumbGrid.propTypes = {
     hidden: PropTypes.bool.isRequired,
     frameNumber: PropTypes.number.isRequired
   }).isRequired),
-  currentSheetId: PropTypes.string.isRequired,
+  currentSheetId: PropTypes.string,
   emptyColorsArray: PropTypes.array.isRequired,
   inputRef: PropTypes.func.isRequired,
   isGridView: PropTypes.bool.isRequired,

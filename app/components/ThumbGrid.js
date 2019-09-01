@@ -827,9 +827,10 @@ class ThumbGrid extends Component {
 }
 
 ThumbGrid.defaultProps = {
+  currentSheetId: undefined,
+  file: {},
   selectedThumbsArray: [],
   thumbs: [],
-  file: {},
   useBase64: undefined,
 };
 
@@ -848,7 +849,7 @@ ThumbGrid.propTypes = {
     hidden: PropTypes.bool.isRequired,
     frameNumber: PropTypes.number.isRequired
   }).isRequired),
-  currentSheetId: PropTypes.string.isRequired,
+  currentSheetId: PropTypes.string,
   defaultShowDetailsInHeader: PropTypes.bool,
   defaultShowHeader: PropTypes.bool,
   defaultShowImages: PropTypes.bool,

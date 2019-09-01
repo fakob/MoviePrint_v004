@@ -79,8 +79,9 @@ const Thumb = ({
     if (controllersAreVisible) {
       if (view === VIEW.PLAYERVIEW) {
         onSelect();
+      } else {
+        onThumbDoubleClick();
       }
-      onThumbDoubleClick();
     }
   }
 

@@ -10,9 +10,12 @@ import styles from './Menu.css';
 import stylesPop from './Popup.css';
 
 const Footer = ({
-  file, onSaveMoviePrint,
-  savingMoviePrint, defaultSheetView,
-  onSaveAllMoviePrints, defaultView
+  defaultView,
+  file,
+  onSaveAllMoviePrints,
+  onSaveMoviePrint,
+  savingMoviePrint,
+  sheetView,
 }) => {
 
   return (
@@ -30,7 +33,7 @@ const Footer = ({
       >
         <Menu.Menu position="right">
           {file &&
-            (defaultSheetView === SHEET_VIEW.GRIDVIEW || defaultSheetView === SHEET_VIEW.TIMELINEVIEW) &&
+            (sheetView === SHEET_VIEW.GRIDVIEW || sheetView === SHEET_VIEW.TIMELINEVIEW) &&
             defaultView === VIEW.STANDARDVIEW &&
             <Popup
               trigger={
