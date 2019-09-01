@@ -840,6 +840,7 @@ ipcRenderer.on(
     try {
       const vid = new opencv.VideoCapture(filePath);
       const timeBefore = Date.now();
+      const frameNumberAndColorArray = [];
 
       // start requestIdleCallback for imageQueue
       ipcRenderer.send(
@@ -919,21 +920,24 @@ ipcRenderer.on(
                 outBase64,
               });
 
-              ipcRenderer.send(
-                'message-from-opencvWorkerWindow-to-mainWindow',
-                'receive-get-thumbs',
+              frameNumberAndColorArray.push({
                 fileId,
                 sheetId,
-                thumbIdArray[iterator],
-                frameId,
+                thumbId: thumbIdArray[iterator],
                 frameNumber,
                 colorArray,
-                isLastThumb
-              );
+              });
 
               if (isLastThumb) {
                 const duration = Date.now() - timeBefore;
                 log.debug('lastThumb');
+
+                ipcRenderer.send(
+                  'message-from-opencvWorkerWindow-to-mainWindow',
+                  'update-frameNumber-and-colorArray',
+                  frameNumberAndColorArray,
+                );
+
                 ipcRenderer.send(
                   'message-from-opencvWorkerWindow-to-mainWindow',
                   'finished-getting-thumbs',
@@ -990,26 +994,47 @@ ipcRenderer.on(
                   base64: '',
                 });
 
-                // ipcRenderer.send(
-                //   'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
-                //   'send-base64-frame',
-                //   frameId,
-                //   fileId,
-                //   frameNumber,
-                //   ''
-                // );
-
-                ipcRenderer.send(
-                  'message-from-opencvWorkerWindow-to-mainWindow',
-                  'receive-get-thumbs',
+                frameNumberAndColorArray.push({
                   fileId,
                   sheetId,
-                  thumbIdArray[iterator],
-                  frameId,
+                  thumbId: thumbIdArray[iterator],
                   frameNumber,
-                  [0,0,0], // colorArray
-                  isLastThumb,
-                );
+                  colorArray: [0,0,0],
+                });
+
+                // duplicated from above
+                // clean up so it is only once there
+                if (isLastThumb) {
+                  const duration = Date.now() - timeBefore;
+                  log.debug('lastThumb');
+
+                  ipcRenderer.send(
+                    'message-from-opencvWorkerWindow-to-mainWindow',
+                    'update-frameNumber-and-colorArray',
+                    frameNumberAndColorArray,
+                  );
+
+                  ipcRenderer.send(
+                    'message-from-opencvWorkerWindow-to-mainWindow',
+                    'finished-getting-thumbs',
+                    fileId,
+                    sheetId,
+                  );
+                  ipcRenderer.send(
+                    'message-from-opencvWorkerWindow-to-mainWindow',
+                    'progressMessage',
+                    'info',
+                    `Loading of frames took ${duration/1000.0}s`,
+                    3000
+                  );
+
+                  // cancel requestIdleCallback for imageQueue
+                  ipcRenderer.send(
+                    'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
+                    'cancel-requestIdleCallback-for-imageQueue',
+                  );
+                }
+
                 iterator += 1;
                 if (iterator < frameNumberArray.length) {
                   read();

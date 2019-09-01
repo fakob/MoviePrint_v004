@@ -574,27 +574,16 @@ class App extends Component {
       }
     });
 
-    ipcRenderer.on('receive-get-thumbs', (event, fileId, sheetId, thumbId, frameId, frameNumber, colorArray, lastThumb) => {
-      console.log(`receive-get-thumbs ${colorArray}`);
-      if (this.props.sheetsByFileId[fileId] !== undefined ||
-        this.props.sheetsByFileId[fileId][sheetId] !== undefined ||
-        this.props.sheetsByFileId[fileId][sheetId].thumbsArray !== undefined) {
-        const thumb = this.props.sheetsByFileId[fileId][sheetId].thumbsArray.find(item =>
-          item.thumbId === thumbId);
-          if (
-            thumb !== undefined &&
-            (
-              thumb.frameNumber !== frameNumber ||
-              thumb.colorArray !== colorArray
-            )
-          ) {
-            store.dispatch(updateFrameNumberAndColorArray(fileId, sheetId, thumbId, frameNumber, colorArray));
-          }
-      }
+    ipcRenderer.on('update-frameNumber-and-colorArray', (event, frameNumberAndColorArray) => {
+      store.dispatch(updateFrameNumberAndColorArray(frameNumberAndColorArray));
+    });
 
-      // check if this is the lastThumb of the sheetsToPrint when savingAllMoviePrints
+    ipcRenderer.on('finished-getting-thumbs', (event, fileId, sheetId) => {
+      const { settings, sheetsByFileId } = this.props;
+
+      // check if this is savingAllMoviePrints
       // if so change its status from gettingThumbs to readyForPrinting
-      if (lastThumb && this.state.savingAllMoviePrints
+      if (this.state.savingAllMoviePrints
         && this.state.sheetsToPrint.length > 0) {
           if (this.state.sheetsToPrint.findIndex(item => item.fileId === fileId && item.status === 'gettingThumbs' ) > -1) {
             // log.debug(this.state.sheetsToPrint);
@@ -616,10 +605,6 @@ class App extends Component {
             });
           }
         }
-    });
-
-    ipcRenderer.on('finished-getting-thumbs', (event, fileId, sheetId) => {
-      const { settings, sheetsByFileId } = this.props;
 
       // update artificial sceneArray if interval scene
       if (getSheetType(sheetsByFileId, fileId, sheetId, settings) === SHEET_TYPE.INTERVAL) {
@@ -743,10 +728,6 @@ class App extends Component {
     log.debug('App.js reports: componentDidMount');
     log.debug(`Operating system: ${process.platform}-${os.release()}`);
     log.debug(`App version: ${app.getName()}-${app.getVersion()}`);
-    console.log(process.platform);
-    console.log(os.release());
-    console.log(app.getName());
-    console.log(app.getVersion());
   }
 
   componentWillReceiveProps(nextProps) {
@@ -1344,15 +1325,20 @@ class App extends Component {
   updatecontainerWidthAndHeight() {
     // wrapped in try catch as in a global error case this.siteContent ref is not set
     try {
+      // set default values for clientWidth and clientHeight
+      // as on start up this.siteContent ref is not set yet
+      const { clientWidth = 1366, clientHeight = 768 } = this.siteContent;
+      const { file, visibilitySettings } = this.props;
+      const { containerHeight, containerWidth } = this.state;
       const containerWidthInner =
-        this.siteContent.clientWidth -
-        (this.props.visibilitySettings.showMovielist ? 350 : 0) -
-        (this.props.visibilitySettings.showSettings ? 350 : 0) -
-        (this.props.file ? 0 : 700); // for startup
-      const containerHeightInner = this.siteContent.clientHeight -
-        (this.props.file ? 0 : 100); // for startup
-      if ((Math.abs(this.state.containerHeight - containerHeightInner) > 10) ||
-      (Math.abs(this.state.containerWidth - containerWidthInner) > 10)) {
+        clientWidth -
+        (visibilitySettings.showMovielist ? 350 : 0) -
+        (visibilitySettings.showSettings ? 350 : 0) -
+        (file ? 0 : 700); // for startup
+      const containerHeightInner = clientHeight -
+        (file ? 0 : 100); // for startup
+      if ((Math.abs(containerHeight - containerHeightInner) > 10) ||
+      (Math.abs(containerWidth - containerWidthInner) > 10)) {
         log.debug(`new container size: ${containerWidthInner}x${containerHeightInner}`);
         this.setState({
           containerHeight: containerHeightInner,
@@ -2134,8 +2120,8 @@ class App extends Component {
 
   openMoviesDialog() {
     log.debug('inside openMoviesDialog');
-    console.log(this);
-    console.log(this.dropzoneRef);
+    // console.log(this);
+    // console.log(this.dropzoneRef);
     this.dropzoneRef.current.open();
   }
 

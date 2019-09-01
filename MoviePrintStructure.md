@@ -77,8 +77,7 @@
             * ipc start-requestIdleCallback-for-objectUrlQueue to mainWindow
               * ipc mainWindow requests some objectUrls from objectUrlQueue
           * ipc send-arrayOfObjectUrls to mainWindow
-        * ipc receive-get-thumbs for every single thumb
-          * dispatch updateFrameNumberAndColorArray
+        * dispatch updateFrameNumberAndColorArray
 			* dispatch ADD_THUMBS
 * remove this file from filesToLoad Array
 * --> in componentDidUpdate
@@ -91,8 +90,7 @@
 * in componentDidUpdate
   * getThumbsForFile if there is a file which needsThumbs
   	* --> dispatch addIntervalSheet
-    * ipc receive-get-thumbs
-      * when last thumb while saveAllMoviePrints then set status to readyForPrinting
+    * when last thumb while saveAllMoviePrints then set status to readyForPrinting
   * ipc action-save-MoviePrint if there is a file which is readyForPrinting
     * set status to printing
     * saveMoviePrint

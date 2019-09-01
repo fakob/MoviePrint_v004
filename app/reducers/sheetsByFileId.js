@@ -78,12 +78,15 @@ const thumb = (state = {}, action, index) => {
     //     sceneId: action.payload.sceneId
     //   });
     case 'UPDATE_FRAMENUMBER_AND_COLORARRAY_OF_THUMB':
-      if (state.thumbId !== action.payload.thumbId) {
+      const indexOfArray = action.payload.frameNumberAndColorArray.findIndex(
+        item => item.thumbId === state.thumbId
+      );
+      if (indexOfArray < 0) {
         return state;
       }
       return Object.assign({}, state, {
-        frameNumber: action.payload.frameNumber,
-        colorArray: action.payload.colorArray,
+        frameNumber: action.payload.frameNumberAndColorArray[indexOfArray].frameNumber,
+        colorArray: action.payload.frameNumberAndColorArray[indexOfArray].colorArray,
       });
     case 'UPDATE_ORDER':
       // log.debug(state);
@@ -324,8 +327,7 @@ const sheetsByFileId = (state = {}, action) => {
       }
 
       // create new thumbs array
-      const newArray = Object.keys(action.payload.thumbIdArray).map((t, index) =>
-        thumb(undefined, action, index));
+      const newArray = Object.keys(action.payload.thumbIdArray).map((t, index) => thumb(undefined, action, index));
 
       // combine current and new thumbs array
       const combinedArray = currentArray.concat(newArray);
