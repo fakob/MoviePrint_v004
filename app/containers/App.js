@@ -549,7 +549,7 @@ class App extends Component {
         this.setState({
           requestIdleCallbackForObjectUrlHandle: newRequestIdleCallbackHandle,
         });
-        console.log('now I requestIdleCallbackForObjectUrl again');
+        log.debug('now I requestIdleCallbackForObjectUrl again');
       } else {
         // cancel pullObjectUrlFromIndexedDBWorkerWindow
         window.cancelIdleCallback(requestIdleCallbackForObjectUrlHandle);
@@ -568,9 +568,9 @@ class App extends Component {
         this.setState({
           requestIdleCallbackForObjectUrlHandle: newRequestIdleCallbackHandle,
         });
-        console.log('now I requestIdleCallbackForObjectUrl');
+        log.debug('now I requestIdleCallbackForObjectUrl');
       } else {
-        console.log('requestIdleCallbackForObjectUrl already running. no new requestIdleCallbackForObjectUrl will be started.');
+        log.debug('requestIdleCallbackForObjectUrl already running. no new requestIdleCallbackForObjectUrl will be started.');
       }
     });
 
@@ -630,7 +630,7 @@ class App extends Component {
       this.setState({
         requestIdleCallbackForScenesHandle: undefined,
       });
-      console.log('now I cancelIdleCallbackForScenes');
+      log.debug('now I cancelIdleCallbackForScenes');
 
       this.setState({
         fileScanRunning: false,
@@ -642,7 +642,7 @@ class App extends Component {
     ipcRenderer.on('receive-some-scenes-from-sceneQueue', (event, someScenes) => {
       const { requestIdleCallbackForScenesHandle } = this.state;
 
-      // console.log(someScenes);
+      // log.debug(someScenes);
       if (someScenes.length > 0) {
         // add scenes in reveres as they are stored inverse in the queue
         store.dispatch(addScenesWithoutCapturingThumbs(someScenes.reverse()));
@@ -654,9 +654,9 @@ class App extends Component {
         this.setState({
           requestIdleCallbackForScenesHandle: newRequestIdleCallbackHandle,
         });
-        console.log('now I requestIdleCallbackForScenes');
+        log.debug('now I requestIdleCallbackForScenes');
       } else {
-        console.log('requestIdleCallback already cancelled. no new requestIdleCallback will be started.');
+        log.debug('requestIdleCallback already cancelled. no new requestIdleCallbackForScenes will be started.');
       }
     });
 
@@ -669,9 +669,9 @@ class App extends Component {
         this.setState({
           requestIdleCallbackForScenesHandle: newRequestIdleCallbackHandle,
         });
-        console.log('now I requestIdleCallbackForScenes');
+        log.debug('now I requestIdleCallbackForScenes');
       } else {
-        console.log('requestIdleCallbackForScenes already running. no new requestIdleCallbackForScenes will be started.');
+        log.debug('requestIdleCallbackForScenes already running. no new requestIdleCallbackForScenes will be started.');
       }
     });
 
@@ -898,7 +898,7 @@ class App extends Component {
           tempScenes,
           secondsPerRow,
         );
-        console.log(scaleValueObject);
+        // console.log(scaleValueObject);
         const dataToSend = {
           elementId: sheetView !== SHEET_VIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
           file: tempFile,
@@ -1448,7 +1448,7 @@ class App extends Component {
 
   pullObjectUrlFromIndexedDBWorkerWindow(deadline) {
     // it pulls objectUrls from worker_indexedDB objectUrlQueue during idle time
-    console.log('now I am not busy - requestIdleCallbackForObjectUrl');
+    log.debug('now I am not busy - requestIdleCallbackForObjectUrl');
     ipcRenderer.send(
       'message-from-mainWindow-to-indexedDBWorkerWindow',
       'get-some-objectUrls-from-objectUrlQueue',
@@ -1519,7 +1519,7 @@ class App extends Component {
   pullScenesFromOpencvWorker(deadline) {
     // this is used to show a scene detection preview
     // it pulls scenes from worker_opencv sceneQueue during idle time
-    console.log('now I am not busy - requestIdleCallbackForScenes');
+    log.debug('now I am not busy - requestIdleCallbackForScenes');
     ipcRenderer.send(
       'message-from-mainWindow-to-opencvWorkerWindow',
       'get-some-scenes-from-sceneQueue',
@@ -1621,7 +1621,7 @@ class App extends Component {
     this.setState({
       requestIdleCallbackForScenesHandle: undefined,
     });
-    console.log('now I cancelIdleCallback');
+    log.debug('now I cancelIdleCallback');
 
     ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'cancelFileScan', fileId);
 
@@ -1809,12 +1809,12 @@ class App extends Component {
     const { allScenes, currentSheetId, file, thumbs } = this.props;
 
     const adjacentSceneIndicesArray = getAdjacentSceneIndicesFromCut(allScenes, frameToCut);
-    console.log(adjacentSceneIndicesArray);
+    // console.log(adjacentSceneIndicesArray);
     if (adjacentSceneIndicesArray.length === 2) {
       store.dispatch(mergeScenes(thumbs, allScenes, file, currentSheetId, adjacentSceneIndicesArray));
     }
     const firstSceneId = allScenes[adjacentSceneIndicesArray[0]].sceneId;
-    console.log(firstSceneId);
+    // console.log(firstSceneId);
     this.onSelectThumbMethod(firstSceneId); // select first scene
   }
 
@@ -2085,7 +2085,7 @@ class App extends Component {
       newSheetId = this.onAddIntervalSheet(sheetsByFileId, fileId, settings);
     }
     const sheetView = getSheetView(sheetsByFileId, fileId, newSheetId, visibilitySettings);
-    console.log(sheetView);
+    // console.log(sheetView);
 
     this.onSetSheetClick(fileId, newSheetId, sheetView);
 
@@ -2416,7 +2416,7 @@ class App extends Component {
     const { store } = this.context;
     const { transformObject } = this.state;
     const { cropTop, cropBottom, cropLeft, cropRight } = e.target;
-    console.log(typeof cropTop.value);
+    // console.log(typeof cropTop.value);
     store.dispatch(
       updateCropping(
         transformObject.fileId,
@@ -2481,7 +2481,7 @@ class App extends Component {
       // if lastModified is undefined, then do not onlyReplace
       let onlyReplace = true;
       if (lastModifiedOfPrevious === undefined) {
-        console.log('lastModifiedOfPrevious is undefined');
+        log.debug('lastModifiedOfPrevious is undefined');
         onlyReplace = false;
       }
 
