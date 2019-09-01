@@ -78,7 +78,7 @@ describe('main window', function spec() {
     const { client } = this.app;
     await client.window(windowObject['MoviePrint']); // focus main window
     const dragndropInput = '[type="file"]'; // selecting the input div via type
-    const pathOfMovie = '/Users/jakobschindegger/Desktop/test.mp4';
+    const pathOfMovie = path.join(__dirname, '..', '..', 'resources', 'test_files', 'test_movie_1.mp4');
     await client.chooseFile(dragndropInput, pathOfMovie);
     const val = await client.getValue(dragndropInput)
     console.log(val);
