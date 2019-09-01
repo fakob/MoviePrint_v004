@@ -6,13 +6,13 @@ import { arrayMove } from 'react-sortable-hoc';
 import scrollIntoView from 'scroll-into-view';
 import {
   toggleThumb, updateOrder,
-  changeThumb, addIntervalSheet, setCurrentSheetId, setView, toggleThumbArray, updateThumbObjectUrlFromDB
+  changeThumb, addIntervalSheet, toggleThumbArray
 } from '../actions';
 import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
 import { getLowestFrame, getHighestFrame } from '../utils/utils';
 import saveThumb from '../utils/saveThumb';
-import { CHANGE_THUMB_STEP, SHEET_VIEW, DEFAULT_SHEET_SCENES } from '../utils/constants';
+import { CHANGE_THUMB_STEP } from '../utils/constants';
 
 class SortedVisibleThumbGrid extends Component {
   constructor(props) {
@@ -25,7 +25,6 @@ class SortedVisibleThumbGrid extends Component {
 
     this.scrollThumbIntoView = this.scrollThumbIntoView.bind(this);
     this.onSelectClick = this.onSelectClick.bind(this);
-    this.onErrorThumb = this.onErrorThumb.bind(this);
   }
 
   componentWillMount() {
@@ -40,13 +39,15 @@ class SortedVisibleThumbGrid extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    const { selectedThumbsArray, view } = this.props;
+
     if (prevProps.selectedThumbsArray.length !== 0 &&
-      this.props.selectedThumbsArray.length !== 0 &&
-      (prevProps.selectedThumbsArray[0].thumbId !== this.props.selectedThumbsArray[0].thumbId)) {
+      selectedThumbsArray.length !== 0 &&
+      (prevProps.selectedThumbsArray[0].thumbId !== selectedThumbsArray[0].thumbId)) {
       this.scrollThumbIntoView();
     }
     // delay when switching to gridView so it waits for the sheetView to be ready
-    if ((prevProps.view !== this.props.view) &&
+    if ((prevProps.view !== view) &&
     prevProps.view) {
       setTimeout(() => {
         this.scrollThumbIntoView();
@@ -66,27 +67,25 @@ class SortedVisibleThumbGrid extends Component {
 
   onSortEnd = ({ oldIndex, newIndex }) => {
     const { store } = this.context;
+    const { currentSheetId } = this.props;
+
     this.setState({
       isSorting: false,
     });
     const newOrderedThumbs = arrayMove(store.getState().undoGroup.present
-      .sheetsByFileId[store.getState().undoGroup.present.settings.currentFileId][this.props.currentSheetId].thumbsArray,
+      .sheetsByFileId[store.getState().undoGroup.present.settings.currentFileId][currentSheetId].thumbsArray,
       oldIndex,
       newIndex);
     store.dispatch(updateOrder(
       store.getState().undoGroup.present.settings.currentFileId,
-      this.props.currentSheetId,
+      currentSheetId,
       newOrderedThumbs));
   };
 
   onSelectClick = (thumbId, frameNumber) => {
-    this.props.onSelectThumbMethod(thumbId, frameNumber);
-  }
+    const { onSelectThumbMethod } = this.props;
 
-  onErrorThumb = (file, sheetId, thumbId, frameId) => {
-    const { store } = this.context;
-    console.log('inside onErrorThumb');
-    // onErrorThumb seems to slow things down quite a bit, maybe because it is called multiple times?
+    onSelectThumbMethod(thumbId, frameNumber);
   }
 
   scrollThumbIntoView = () => {
@@ -103,38 +102,44 @@ class SortedVisibleThumbGrid extends Component {
   render() {
     const { isSorting } = this.state;
     const {
-      emptyColorsArray,
       currentSheetId,
+      defaultShowDetailsInHeader,
+      defaultShowHeader,
+      defaultShowImages,
+      defaultShowPathInHeader,
+      defaultShowTimelineInHeader,
+      defaultThumbInfo,
+      defaultThumbInfoRatio,
+      emptyColorsArray,
       file,
       inputRef,
       isGridView,
+      isViewForPrinting,
       keyObject,
       moviePrintWidth,
       objectUrlObjects,
       onAddThumbClick,
       onBackClick,
-      onJumpToCutThumbClick,
       onExpandClick,
       onForwardClick,
-      onInPointClick,
-      onOutPointClick,
       onHideBeforeAfterClick,
+      onInPointClick,
+      onJumpToCutThumbClick,
+      onOutPointClick,
       onSaveThumbClick,
       onScrubClick,
       onThumbDoubleClick,
       onToggleClick,
-      useBase64,
       scaleValueObject,
       selectedThumbsArray,
-      settings,
       sheetType,
       sheetView,
       showMovielist,
       showSettings,
       thumbCount,
       thumbs,
+      useBase64,
       view,
-      viewForPrinting
     } = this.props;
 
     return (
@@ -158,7 +163,6 @@ class SortedVisibleThumbGrid extends Component {
         onSaveThumbClick={onSaveThumbClick}
         onScrubClick={onScrubClick}
         onSelectClick={this.onSelectClick}
-        onErrorThumb={this.onErrorThumb}
         onExpandClick={onExpandClick}
         onThumbDoubleClick={onThumbDoubleClick}
         onToggleClick={onToggleClick}
@@ -166,13 +170,19 @@ class SortedVisibleThumbGrid extends Component {
         scaleValueObject={scaleValueObject}
         moviePrintWidth={moviePrintWidth}
         selectedThumbsArray={selectedThumbsArray}
-        settings={settings}
+        defaultShowDetailsInHeader={defaultShowDetailsInHeader}
+        defaultShowHeader={defaultShowHeader}
+        defaultShowImages={defaultShowImages}
+        defaultShowPathInHeader={defaultShowPathInHeader}
+        defaultShowTimelineInHeader={defaultShowTimelineInHeader}
+        defaultThumbInfo={defaultThumbInfo}
+        defaultThumbInfoRatio={defaultThumbInfoRatio}
         showMovielist={showMovielist}
         showSettings={showSettings}
         thumbCount={thumbCount}
         objectUrlObjects={objectUrlObjects}
         thumbs={thumbs}
-        viewForPrinting={viewForPrinting}
+        isViewForPrinting={isViewForPrinting}
         isGridView={isGridView}
         isSorting={isSorting}
 
@@ -191,7 +201,7 @@ class SortedVisibleThumbGrid extends Component {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   // const tempThumbs = (state.undoGroup.present
   //   .sheetsByFileId[state.undoGroup.present.settings.currentFileId] === undefined)
   //   ? undefined : state.undoGroup.present
@@ -280,46 +290,60 @@ SortedVisibleThumbGrid.defaultProps = {
   thumbs: [],
   file: {},
   selectedThumbsArray: [],
+  useBase64: undefined,
 };
 
 SortedVisibleThumbGrid.propTypes = {
-  emptyColorsArray: PropTypes.array.isRequired,
   file: PropTypes.shape({
     id: PropTypes.string,
     width: PropTypes.number,
     height: PropTypes.number,
   }),
-  inputRef: PropTypes.func.isRequired,
-  keyObject: PropTypes.object.isRequired,
-  onBackClick: PropTypes.func.isRequired,
-  onForwardClick: PropTypes.func.isRequired,
-  onInPointClick: PropTypes.func.isRequired,
-  onOutPointClick: PropTypes.func.isRequired,
-  onHideBeforeAfterClick: PropTypes.func.isRequired,
-  onSaveThumbClick: PropTypes.func.isRequired,
-  onScrubClick: PropTypes.func,
-  onAddThumbClick: PropTypes.func,
-  onJumpToCutThumbClick: PropTypes.func,
-  onExpandClick: PropTypes.func,
-  onThumbDoubleClick: PropTypes.func,
-  onToggleClick: PropTypes.func.isRequired,
-  scaleValueObject: PropTypes.object.isRequired,
-  selectedThumbsArray: PropTypes.array,
-  onSelectThumbMethod: PropTypes.func,
-  settings: PropTypes.object.isRequired,
-  sheetType: PropTypes.string.isRequired,
-  sheetView: PropTypes.string.isRequired,
-  // currentSheetId: PropTypes.string.isRequired,
-  showMovielist: PropTypes.bool.isRequired,
-  showSettings: PropTypes.bool.isRequired,
-  thumbCount: PropTypes.number.isRequired,
-  objectUrlObjects: PropTypes.object,
   thumbs: PropTypes.arrayOf(PropTypes.shape({
     thumbId: PropTypes.string.isRequired,
     index: PropTypes.number.isRequired,
     hidden: PropTypes.bool.isRequired,
     frameNumber: PropTypes.number.isRequired
   }).isRequired),
+  currentSheetId: PropTypes.string.isRequired,
+  emptyColorsArray: PropTypes.array.isRequired,
+  inputRef: PropTypes.func.isRequired,
+  isGridView: PropTypes.bool.isRequired,
+  defaultOutputPath: PropTypes.string,
+  defaultOutputPathFromMovie: PropTypes.bool,
+  defaultShowDetailsInHeader: PropTypes.bool,
+  defaultShowHeader: PropTypes.bool,
+  defaultShowImages: PropTypes.bool,
+  defaultShowPathInHeader: PropTypes.bool,
+  defaultShowTimelineInHeader: PropTypes.bool,
+  defaultThumbInfo: PropTypes.string,
+  defaultThumbInfoRatio: PropTypes.number,
+  isViewForPrinting: PropTypes.bool.isRequired,
+  keyObject: PropTypes.object.isRequired,
+  moviePrintWidth: PropTypes.number.isRequired,
+  objectUrlObjects: PropTypes.object,
+  onAddThumbClick: PropTypes.func,
+  onBackClick: PropTypes.func.isRequired,
+  onExpandClick: PropTypes.func,
+  onForwardClick: PropTypes.func.isRequired,
+  onHideBeforeAfterClick: PropTypes.func.isRequired,
+  onInPointClick: PropTypes.func.isRequired,
+  onJumpToCutThumbClick: PropTypes.func,
+  onOutPointClick: PropTypes.func.isRequired,
+  onSaveThumbClick: PropTypes.func.isRequired,
+  onScrubClick: PropTypes.func,
+  onSelectThumbMethod: PropTypes.func,
+  onThumbDoubleClick: PropTypes.func,
+  onToggleClick: PropTypes.func.isRequired,
+  scaleValueObject: PropTypes.object.isRequired,
+  selectedThumbsArray: PropTypes.array,
+  sheetType: PropTypes.string.isRequired,
+  sheetView: PropTypes.string.isRequired,
+  showMovielist: PropTypes.bool.isRequired,
+  showSettings: PropTypes.bool.isRequired,
+  thumbCount: PropTypes.number.isRequired,
+  useBase64: PropTypes.bool,
+  view: PropTypes.string.isRequired,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SortedVisibleThumbGrid);

@@ -160,7 +160,7 @@ class WorkerApp extends Component {
               <Fragment>
                 <Conditional if={sheetView === SHEET_VIEW.GRIDVIEW}>
                   <SortedVisibleThumbGrid
-                    viewForPrinting
+                    isViewForPrinting
                     inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                     showSettings={false}
                     file={sentData.file}

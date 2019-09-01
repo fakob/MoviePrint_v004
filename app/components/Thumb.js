@@ -62,7 +62,6 @@ const Thumb = ({
   margin,
   onOver,
   onSelect,
-  onErrorThumb,
   onThumbDoubleClick,
   selected,
   view,
@@ -134,46 +133,43 @@ const Thumb = ({
           (thumbImageObjectUrl === 'blob:file:///fakeURL')? color : undefined,
       }}
     >
-      <div>
-        <img
-          data-tid={`thumbImg_${thumbId}`}
-          src={transparentThumb ? transparent : thumbImageObjectUrl === undefined ? `data:image/jpeg;base64, ${base64}` : thumbImageObjectUrl}
-          id={`thumbImage${indexForId}`}
-          className={`${styles.image} ${dim ? styles.dim : ''}`}
-          alt=""
-          width={`${thumbWidth}px`}
-          height={`${(thumbWidth * aspectRatioInv)}px`}
-          style={{
-            filter: `${controllersAreVisible ? 'brightness(80%)' : ''}`,
-            opacity: hidden ? '0.2' : '1',
-            borderRadius: `${(selected && view === VIEW.PLAYERVIEW) ? 0 : borderRadius}px`,
-          }}
-          onError={onErrorThumb}
-        />
-        {thumbInfoValue !== undefined &&
-          <div
-            data-tid={`thumbInfoText_${thumbId}`}
-            className={styles.frameNumber}
-            style={{
-              transform: `scale(${(thumbInfoRatio * thumbWidth * aspectRatioInv) / 10})`,
-            }}
-          >
-            {thumbInfoValue}
-          </div>
-        }
+      <img
+        data-tid={`thumbImg_${thumbId}`}
+        src={transparentThumb ? transparent : thumbImageObjectUrl === undefined ? `data:image/jpeg;base64, ${base64}` : thumbImageObjectUrl}
+        id={`thumbImage${indexForId}`}
+        className={`${styles.image} ${dim ? styles.dim : ''}`}
+        alt=""
+        width={`${thumbWidth}px`}
+        height={`${(thumbWidth * aspectRatioInv)}px`}
+        style={{
+          filter: `${controllersAreVisible ? 'brightness(80%)' : ''}`,
+          opacity: hidden ? '0.2' : '1',
+          borderRadius: `${(selected && view === VIEW.PLAYERVIEW) ? 0 : borderRadius}px`,
+        }}
+      />
+      {thumbInfoValue !== undefined &&
         <div
+          data-tid={`thumbInfoText_${thumbId}`}
+          className={styles.frameNumber}
           style={{
-            display: controllersAreVisible ? 'block' : 'none'
+            transform: `scale(${(thumbInfoRatio * thumbWidth * aspectRatioInv) / 10})`,
           }}
         >
-          {sheetType === SHEET_TYPE.INTERVAL &&
-            <DragHandle
-              width={thumbWidth - 1} // shrink it to prevent rounding issues
-              height={(thumbWidth * aspectRatioInv) - 1}
-              thumbId={thumbId}
-            />
-          }
+          {thumbInfoValue}
         </div>
+      }
+      <div
+        style={{
+          display: controllersAreVisible ? 'block' : 'none'
+        }}
+      >
+        {sheetType === SHEET_TYPE.INTERVAL &&
+          <DragHandle
+            width={thumbWidth - 1} // shrink it to prevent rounding issues
+            height={(thumbWidth * aspectRatioInv) - 1}
+            thumbId={thumbId}
+          />
+        }
       </div>
     </div>
   );

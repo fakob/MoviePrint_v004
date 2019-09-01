@@ -3251,13 +3251,21 @@ ${exportObject}`;
                             moviePrintWidth={scaleValueObject.newMoviePrintWidth}
                             selectedThumbsArray={this.state.selectedThumbsArray}
                             onSelectThumbMethod={this.onSelectThumbMethod}
-                            settings={settings}
+                            defaultOutputPath={settings.defaultOutputPath}
+                            defaultOutputPathFromMovie={settings.defaultOutputPathFromMovie}
+                            defaultShowDetailsInHeader={settings.defaultShowDetailsInHeader}
+                            defaultShowHeader={settings.defaultShowHeader}
+                            defaultShowImages={settings.defaultShowImages}
+                            defaultShowPathInHeader={settings.defaultShowPathInHeader}
+                            defaultShowTimelineInHeader={settings.defaultShowTimelineInHeader}
+                            defaultThumbInfo={settings.defaultThumbInfo}
+                            defaultThumbInfoRatio={settings.defaultThumbInfoRatio}
                             showMovielist={visibilitySettings.showMovielist}
                             showSettings={visibilitySettings.showSettings}
                             thumbCount={this.state.thumbCountTemp}
                             objectUrlObjects={filteredObjectUrlObjects}
                             thumbs={this.props.thumbs}
-                            viewForPrinting={false}
+                            isViewForPrinting={false}
                             frameSize={settings.defaultCachedFramesSize}
                             isGridView={isGridView}
                           />
