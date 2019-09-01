@@ -168,8 +168,8 @@ const Timeline = ({
       <div
         className={`${styles.timelinePlayheadSelection}`}
         style={{
-          left: Number.isNaN(playHeadPositionSelection) ? 0 : playHeadPositionSelection,
-          width: widthOfSingleFrameSelection,
+          left: Number.isFinite(playHeadPositionSelection) ? playHeadPositionSelection : 0,
+          width: Number.isFinite(widthOfSingleFrameSelection) ? widthOfSingleFrameSelection : 0,
         }}
       />
       </div>
@@ -184,21 +184,21 @@ const Timeline = ({
         <div
           className={`${styles.timelineCut}`}
           style={{
-            left: Number.isNaN(sceneInOutObject.lowestFrameOnTimeline) ? 0 : sceneInOutObject.lowestFrameOnTimeline,
-            width: Number.isNaN(sceneInOutObject.cutWidthOnTimeLine) ? 0 : sceneInOutObject.cutWidthOnTimeLine,
+            left: Number.isFinite(sceneInOutObject.lowestFrameOnTimeline) ? sceneInOutObject.lowestFrameOnTimeline : 0,
+            width: Number.isFinite(sceneInOutObject.cutWidthOnTimeLine) ? sceneInOutObject.cutWidthOnTimeLine : 0,
           }}
         />
         <div
           className={`${styles.timelineCutSelection}`}
           style={{
-            left: Number.isNaN(sceneInOutObject.inPointPositionOnTimeline) ? 0 : sceneInOutObject.inPointPositionOnTimeline,
-            width: Number.isNaN(sceneInOutObject.selectionWidthOnTimeLine) ? 0 : sceneInOutObject.selectionWidthOnTimeLine,
+            left: Number.isFinite(sceneInOutObject.inPointPositionOnTimeline) ? sceneInOutObject.inPointPositionOnTimeline : 0,
+            width: Number.isFinite(sceneInOutObject.selectionWidthOnTimeLine) ? sceneInOutObject.selectionWidthOnTimeLine : 0,
           }}
         />
         <div
           className={`${styles.timelinePlayhead}`}
           style={{
-            left: Number.isNaN(playHeadPosition) ? 0 : playHeadPosition,
+            left: Number.isFinite(playHeadPosition) ? playHeadPosition : 0,
           }}
         />
       </div>
