@@ -397,6 +397,17 @@ ipcMain.on(
 );
 
 ipcMain.on(
+  'message-from-indexedDBWorkerWindow-to-opencvWorkerWindow',
+  (e, ipcName, ...args) => {
+    log.debug(
+      `mainThread | passing ${ipcName} from indexedDBWorkerWindow to opencvWorkerWindow`
+    );
+    // log.debug(...args);
+    opencvWorkerWindow.webContents.send(ipcName, ...args);
+  }
+);
+
+ipcMain.on(
   'message-from-mainWindow-to-indexedDBWorkerWindow',
   (e, ipcName, ...args) => {
     log.debug(

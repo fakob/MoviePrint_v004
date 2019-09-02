@@ -23,38 +23,9 @@ openDBConnection();
 
 // set up a queue and check it in a regular interval
 const objectUrlQueue = new Queue();
-// const objectUrlQueue = Queue.bind(this);
-
-// objectUrlQueue = objectUrlQueueUnbound.bind(this);
-// log.debug(objectUrlQueue);
-// log.debug(typeof objectUrlQueue);
 
 let requestIdleCallbackForImagesHandle;
 let cancelIdleCallbackForImagesNextTime = false;
-
-const pullImagesFromOpencvWorker = () => {
-  log.debug('now I am not busy - requestIdleCallbackForImages');
-  ipcRenderer.send(
-    'message-from-mainWindow-to-opencvWorkerWindow',
-    'get-some-images-from-imageQueue',
-    100, // amount
-  );
-  // cancel handle and set to undefined
-  requestIdleCallbackForImagesHandle = window.cancelIdleCallback(requestIdleCallbackForImagesHandle);
-};
-
-setInterval(() => {
-  // objectUrlQueue
-  const size = objectUrlQueue.size();
-  if (size !== 0) {
-    log.debug(`the objectUrlQueue size is: ${size}`);
-    // start requestIdleCallback for imageQueue
-    ipcRenderer.send(
-      'message-from-opencvWorkerWindow-to-mainWindow',
-      'start-requestIdleCallback-for-objectUrlQueue',
-    );
-  }
-}, 1000);
 
 window.addEventListener('error', event => {
   log.error(event.error);
@@ -85,13 +56,39 @@ process.on('SIGTERM', err => {
   // fs.writeFileSync('shutdown.log', 'Received SIGTERM signal');
 });
 
+const pullImagesFromOpencvWorker = () => {
+  console.log('now I am not busy - requestIdleCallbackForImages');
+  log.debug('now I am not busy - requestIdleCallbackForImages');
+  ipcRenderer.send(
+    'message-from-indexedDBWorkerWindow-to-opencvWorkerWindow',
+    'get-some-images-from-imageQueue',
+    100, // amount
+  );
+  // cancel handle and set to undefined
+  requestIdleCallbackForImagesHandle = window.cancelIdleCallback(requestIdleCallbackForImagesHandle);
+};
+
+setInterval(() => {
+  // objectUrlQueue
+  console.log(objectUrlQueue.size())
+  const size = objectUrlQueue.size();
+  if (size !== 0) {
+    log.debug(`the objectUrlQueue size is: ${size}`);
+    // start requestIdleCallback for imageQueue
+    ipcRenderer.send(
+      'message-from-opencvWorkerWindow-to-mainWindow',
+      'start-requestIdleCallback-for-objectUrlQueue',
+    );
+  }
+}, 1000);
+
 ipcRenderer.on('send-base64-frame', (event, frameId, fileId, frameNumber, outBase64, onlyReplace = false) => {
   log.debug('indexedDBWorkerWindow | on send-base64-frame');
   if (onlyReplace) {
     const fastTrack = onlyReplace; // make this one use fastTrack so it gets updated right away
     updateFrameInIndexedDB(frameId, outBase64, objectUrlQueue, fastTrack);
   } else {
-    const objectUrl = addFrameToIndexedDB(frameId, fileId, frameNumber, outBase64, objectUrlQueue);
+    addFrameToIndexedDB(frameId, fileId, frameNumber, outBase64, objectUrlQueue);
   }
 });
 
@@ -124,7 +121,14 @@ ipcRenderer.on('start-requestIdleCallback-for-imageQueue', (event) => {
 
   // start requestIdleCallbackForImages until it is cancelled
   if (requestIdleCallbackForImagesHandle === undefined) {
-    requestIdleCallbackForImagesHandle = window.requestIdleCallback(pullImagesFromOpencvWorker);
+    // on windows it seems that requestIdleCallback does not work properly when the window is hidden
+    // setting this in main.dev.js had no effect: indexedDBWorkerWindow = new BrowserWindow({ webPreferences: { backgroundThrottling: false }});
+    // therefore for windows we set a timeout to enforce handling the request
+    if (process.platform === 'win32') {
+      requestIdleCallbackForImagesHandle = window.requestIdleCallback(pullImagesFromOpencvWorker, { timeout: 1000});
+    } else {
+      requestIdleCallbackForImagesHandle = window.requestIdleCallback(pullImagesFromOpencvWorker);
+    }
     log.debug('now I requestIdleCallbackForImages');
   } else {
     log.debug('requestIdleCallbackForImages already running. no new requestIdleCallbackForImages will be started.');
@@ -155,7 +159,14 @@ ipcRenderer.on('receive-some-images-from-imageQueue', (event, someImages) => {
     log.debug('now I cancelIdleCallbackForImages');
     cancelIdleCallbackForImagesNextTime = false;
   } else {
-    requestIdleCallbackForImagesHandle = window.requestIdleCallback(pullImagesFromOpencvWorker);
+    // on windows it seems that requestIdleCallback does not work properly when the window is hidden
+    // setting this in main.dev.js had no effect: indexedDBWorkerWindow = new BrowserWindow({ webPreferences: { backgroundThrottling: false }});
+    // therefore for windows we set a timeout to enforce handling the request
+    if (process.platform === 'win32') {
+      requestIdleCallbackForImagesHandle = window.requestIdleCallback(pullImagesFromOpencvWorker, { timeout: 1000});
+    } else {
+      requestIdleCallbackForImagesHandle = window.requestIdleCallback(pullImagesFromOpencvWorker);
+    }
     log.debug('now I requestIdleCallbackForImages');
   }
 });
