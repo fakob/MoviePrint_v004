@@ -121,14 +121,10 @@ ipcRenderer.on('start-requestIdleCallback-for-imageQueue', (event) => {
 
   // start requestIdleCallbackForImages until it is cancelled
   if (requestIdleCallbackForImagesHandle === undefined) {
-    // on windows it seems that requestIdleCallback does not work properly when the window is hidden
+    // it seems that requestIdleCallback does not work properly when the window is hidden
     // setting this in main.dev.js had no effect: indexedDBWorkerWindow = new BrowserWindow({ webPreferences: { backgroundThrottling: false }});
-    // therefore for windows we set a timeout to enforce handling the request
-    if (process.platform === 'win32') {
-      requestIdleCallbackForImagesHandle = window.requestIdleCallback(pullImagesFromOpencvWorker, { timeout: 1000});
-    } else {
-      requestIdleCallbackForImagesHandle = window.requestIdleCallback(pullImagesFromOpencvWorker);
-    }
+    // therefore we set a timeout to enforce handling the request
+    requestIdleCallbackForImagesHandle = window.requestIdleCallback(pullImagesFromOpencvWorker, { timeout: 1000});
     log.debug('now I requestIdleCallbackForImages');
   } else {
     log.debug('requestIdleCallbackForImages already running. no new requestIdleCallbackForImages will be started.');
@@ -159,14 +155,10 @@ ipcRenderer.on('receive-some-images-from-imageQueue', (event, someImages) => {
     log.debug('now I cancelIdleCallbackForImages');
     cancelIdleCallbackForImagesNextTime = false;
   } else {
-    // on windows it seems that requestIdleCallback does not work properly when the window is hidden
+    // it seems that requestIdleCallback does not work properly when the window is hidden
     // setting this in main.dev.js had no effect: indexedDBWorkerWindow = new BrowserWindow({ webPreferences: { backgroundThrottling: false }});
-    // therefore for windows we set a timeout to enforce handling the request
-    if (process.platform === 'win32') {
-      requestIdleCallbackForImagesHandle = window.requestIdleCallback(pullImagesFromOpencvWorker, { timeout: 1000});
-    } else {
-      requestIdleCallbackForImagesHandle = window.requestIdleCallback(pullImagesFromOpencvWorker);
-    }
+    // therefore we set a timeout to enforce handling the request
+    requestIdleCallbackForImagesHandle = window.requestIdleCallback(pullImagesFromOpencvWorker, { timeout: 1000});
     log.debug('now I requestIdleCallbackForImages');
   }
 });
