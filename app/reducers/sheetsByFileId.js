@@ -526,6 +526,22 @@ const sheetsByFileId = (state = {}, action) => {
           }
         }
       };
+    case 'UPDATE_SHEET_PARENT':
+      return {
+        ...state,
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          [action.payload.sheetId]: {
+            // conditional adding of properties
+            // only add when fileId exists
+            ...(state[action.payload.fileId] === undefined ?
+              {} :
+              state[action.payload.fileId][action.payload.sheetId]
+            ),
+            parentSheetId: action.payload.parentSheetId,
+          }
+        }
+      };
     case 'DELETE_SHEETS':
       // if fileId is an empty string, then clear all sheets
       // else only clear sheets of specific fileId

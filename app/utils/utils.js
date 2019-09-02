@@ -457,6 +457,25 @@ export const getSheetId = (sheetsByFileId, fileId) => {
   return sheetIdArray[0];
 };
 
+export const getParentSheetId = (sheetsByFileId, fileId, sheetId) => {
+  if (sheetsByFileId === undefined ||
+    sheetsByFileId[fileId] === undefined ||
+    sheetsByFileId[fileId][sheetId] === undefined ||
+    sheetsByFileId[fileId][sheetId].parentSheetId === undefined) {
+    return undefined;
+  }
+  return sheetsByFileId[fileId][sheetId].parentSheetId;
+};
+
+export const doesSheetExist = (sheetsByFileId, fileId, sheetId) => {
+  if (sheetsByFileId === undefined ||
+    sheetsByFileId[fileId] === undefined ||
+    sheetsByFileId[fileId][sheetId] === undefined) {
+    return false;
+  }
+  return true;
+};
+
 export const getFramenumbers = (sheet, visibilityFilter) => {
   if (sheet.thumbsArray === undefined) {
     return undefined;

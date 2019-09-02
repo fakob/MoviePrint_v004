@@ -21,7 +21,8 @@
 }
 
 .imageButton:hover {
-  background-color: rgba(60, 30, 0, 1.0) !important;
+  /* background-color: rgba(60, 30, 0, 1.0) !important; */
+  background-color: rgba(255, 80, 6, 1.0) !important;
 }
 
 .dropDownButton {
@@ -37,7 +38,8 @@
 }
 
 .dropDownButton:hover {
-  background-color: rgba(60, 30, 0, 1.0) !important;
+  /* background-color: rgba(60, 30, 0, 1.0) !important; */
+  background-color: rgba(255, 80, 6, 1.0) !important;
 }
 
 .dropDownButton i{
@@ -61,7 +63,8 @@
 }
 
 .normalButton:hover {
-  background-color: rgba(60, 30, 0, 1.0) !important;
+  /* background-color: rgba(60, 30, 0, 1.0) !important; */
+  background-color: rgba(255, 80, 6, 1.0) !important;
 }
 
 .textButton {
@@ -80,7 +83,14 @@
 }
 
 .selected {
-  background-color: rgba(60, 30, 0, 1.0) !important;
+  background-color: rgba(255, 80, 6, 0.5) !important;
+  color: white !important;
+}
+
+.selected:hover {
+  background-color: rgba(255, 80, 6, 1.0) !important;
+  /* background-color: rgba(60, 30, 0, 1.0) !important; */
+  color: white !important;
 }
 
 .hidden {

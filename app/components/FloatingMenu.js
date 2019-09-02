@@ -23,7 +23,9 @@ import icon5x5 from '../img/icon-5x5.svg';
 import icon6x6 from '../img/icon-6x6.svg';
 
 const ButtonExampleCircularSocial = ({
+  hasParent,
   onAddIntervalSheetClick,
+  onBackToParentClick,
   onChangeSheetViewClick,
   onDuplicateSheetClick,
   onScanMovieListItemClick,
@@ -50,6 +52,28 @@ const ButtonExampleCircularSocial = ({
     <div
       className={`${styles.floatingMenu}`}
     >
+      <Popup
+        trigger={
+          <Button
+            className={`${styles.normalButton} ${styles.selected} ${hasParent && visibilitySettings.defaultView === VIEW.STANDARDVIEW ? '' : styles.hidden}`}
+            style={{
+              marginRight: '8px',
+              marginLeft: '8px',
+            }}
+            size='large'
+            circular
+            data-tid='backToParentBtn'
+            onClick={onBackToParentClick}
+            icon='arrow up'
+          />
+        }
+        mouseEnterDelay={1000}
+        on={['hover']}
+        position='bottom center'
+        className={stylesPop.popup}
+        content={<span>Back to parent MoviePrint</span>}
+      />
+      {' '}
       <Button.Group
         className={`${visibilitySettings.defaultView === VIEW.STANDARDVIEW ? '' : styles.hidden}`}
       >
@@ -200,7 +224,7 @@ const ButtonExampleCircularSocial = ({
               }
               return undefined;
             }}
-            icon={(visibilitySettings.defaultView === VIEW.STANDARDVIEW) ? 'video' : 'grid layout'}
+            icon={(visibilitySettings.defaultView === VIEW.STANDARDVIEW) ? 'video' : 'close'}
           />
         }
         mouseEnterDelay={1000}

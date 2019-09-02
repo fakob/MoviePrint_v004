@@ -1039,6 +1039,20 @@ export const updateSheetType = (fileId, sheetId, type) => {
   };
 };
 
+export const updateSheetParent = (fileId, sheetId, parentSheetId) => {
+  return (dispatch) => {
+    log.debug(`action: updateSheetParent - ${parentSheetId}`);
+    dispatch({
+      type: 'UPDATE_SHEET_PARENT',
+      payload: {
+        fileId,
+        sheetId,
+        parentSheetId,
+      }
+    });
+  };
+};
+
 export const updateFileScanStatus = (fileId, fileScanStatus) => {
   return (dispatch) => {
     log.debug('action: updateFileScanStatus');

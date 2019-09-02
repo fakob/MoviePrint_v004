@@ -29,6 +29,7 @@ import Scrub from '../components/Scrub';
 import getScaleValueObject from '../utils/getScaleValueObject';
 import { getLowestFrame,
   createSceneArray,
+  doesSheetExist,
   getHighestFrame,
   getVisibleThumbs,
   getColumnCount,
@@ -37,6 +38,7 @@ import { getLowestFrame,
   getSecondsPerRow,
   getSheetCount,
   getNewSheetName,
+  getParentSheetId,
   getSheetId,
   getSheetIdArray,
   getSheetType,
@@ -74,6 +76,7 @@ import {
   addNewThumbsWithOrder,
   duplicateSheet,
   updateSceneArray,
+  updateSheetParent,
   updateSheetType,
   updateSheetView,
   updateCropping,
@@ -294,6 +297,7 @@ class App extends Component {
     this.showMessage = this.showMessage.bind(this);
 
     this.onFileListElementClick = this.onFileListElementClick.bind(this);
+    this.onBackToParentClick = this.onBackToParentClick.bind(this);
     this.onAddIntervalSheet = this.onAddIntervalSheet.bind(this);
     this.onAddIntervalSheetClick = this.onAddIntervalSheetClick.bind(this);
     this.onErrorPosterFrame = this.onErrorPosterFrame.bind(this);
@@ -1704,6 +1708,7 @@ class App extends Component {
       store.dispatch(updateSheetName(file.id, sheetId, getNewSheetName(getSheetCount(files, file.id)))); // set name on file
       store.dispatch(updateSheetCounter(file.id));
       store.dispatch(updateSheetType(file.id, sheetId, SHEET_TYPE.INTERVAL));
+      store.dispatch(updateSheetParent(file.id, sheetId, parentSheetId));
     }
     store.dispatch(updateSheetView(file.id, sheetId, SHEET_VIEW.GRIDVIEW));
     store.dispatch(setCurrentSheetId(sheetId));
@@ -2088,6 +2093,25 @@ class App extends Component {
 
     this.onSetSheetClick(fileId, newSheetId, sheetView);
 
+  }
+
+  onBackToParentClick() {
+    const { currentFileId, currentSheetId, sheetsByFileId, visibilitySettings } = this.props;
+
+    const parentSheetId = getParentSheetId(sheetsByFileId, currentFileId, currentSheetId);
+    const isParentSheet = doesSheetExist(sheetsByFileId, currentFileId, parentSheetId);
+
+    if (isParentSheet) {
+      const sheetView = getSheetView(sheetsByFileId, currentFileId, parentSheetId, visibilitySettings);
+      this.onSetSheetClick(currentFileId, parentSheetId, sheetView);
+    } else {
+      toast('The parent MoviePrint does not exist anymore', {
+        className: `${stylesPop.toast} ${stylesPop.toastError}`,
+        autoClose: 3000,
+        closeButton: true,
+        closeOnClick: true,
+      })
+    }
   }
 
   onErrorPosterFrame(file) {
@@ -2861,6 +2885,7 @@ ${exportObject}`;
     const secondsPerRow = getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings);
     const sheetView = getSheetView(sheetsByFileId, currentFileId, currentSheetId, visibilitySettings);
     const sheetType = getSheetType(sheetsByFileId, currentFileId, currentSheetId, settings);
+    const hasParent = getParentSheetId(sheetsByFileId, currentFileId, currentSheetId) !== undefined;
     const { defaultSheetView } = visibilitySettings;
 
 
@@ -2979,7 +3004,8 @@ ${exportObject}`;
                     onScanMovieListItemClick={this.onScanMovieListItemClick}
                     onDuplicateSheetClick={this.onDuplicateSheetClick}
                     onChangeSheetViewClick={this.onChangeSheetViewClick}
-                    onScanMovieListItemClick={this.onScanMovieListItemClick}
+                    hasParent={hasParent}
+                    onBackToParentClick={this.onBackToParentClick}
                     zoom={this.state.zoom}
                     onSetViewClick={this.onSetViewClick}
                     onSetSheetFitClick={this.onSetSheetFitClick}
