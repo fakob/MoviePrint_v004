@@ -329,7 +329,7 @@ const Scene = ({
             on={['hover']}
             position='bottom center'
             className={stylesPop.popup}
-            content="Expand scene"
+            content="Create a new MoviePrint using In- and Outpoints of this scene"
           />
           <Popup
             trigger={
