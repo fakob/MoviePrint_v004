@@ -9,6 +9,14 @@
   background-color: rgba(30,30,30,1) !important;
 }
 
+.saveButton {
+  background-color: rgba(255, 80, 6, 1.0) !important;
+}
+
+.saveButton:hover {
+  background-color: rgba(255, 80, 6, 0.5) !important;
+}
+
 /* .headerItem {
   float: left;
   opacity: 0.5;

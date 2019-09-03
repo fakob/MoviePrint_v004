@@ -43,7 +43,7 @@ const Footer = ({
                   onClick={onSaveMoviePrint}
                   color="orange"
                   active={!savingMoviePrint}
-                  // disabled={savingMoviePrint}
+                  className={styles.saveButton}
                 >
                   { savingMoviePrint ?
                     <Icon
@@ -68,36 +68,25 @@ const Footer = ({
             />
           }
           {file &&
-            <Popup
-              trigger={
-                <Dropdown
-                  data-tid='saveMoviePrintMoreOptionsDropdown'
-                  item
-                  floating
-                  pointing="bottom right"
-                  upward
-                  compact
-                  icon="caret down"
-                  color="orange"
-                >
-                  <Dropdown.Menu>
-                    <Dropdown.Item
-                      data-tid='saveAllMoviePrintsOption'
-                      icon="download"
-                      text="Save All MoviePrints"
-                      onClick={onSaveAllMoviePrints}
-                    />
-                  </Dropdown.Menu>
-                </Dropdown>
-              }
-              mouseEnterDelay={1000}
-              on={['hover']}
-              position='top right'
-              offset='0,8px'
-              pinned
-              className={stylesPop.popup}
-              content="More options"
-            />
+            <Dropdown
+              data-tid='saveMoviePrintMoreOptionsDropdown'
+              item
+              floating
+              pointing="bottom right"
+              upward
+              compact
+              icon="caret down"
+              color="orange"
+            >
+              <Dropdown.Menu>
+                <Dropdown.Item
+                  data-tid='saveAllMoviePrintsOption'
+                  icon="download"
+                  text="Save All MoviePrints"
+                  onClick={onSaveAllMoviePrints}
+                />
+              </Dropdown.Menu>
+            </Dropdown>
           }
         </Menu.Menu>
       </Menu>
