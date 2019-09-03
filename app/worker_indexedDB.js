@@ -24,8 +24,8 @@ openDBConnection();
 // set up a queue and check it in a regular interval
 const objectUrlQueue = new Queue();
 
-let requestIdleCallbackForImagesHandle;
-let cancelIdleCallbackForImagesNextTime = false;
+let setIntervalForImagesHandle;
+let cancelSetIntervalForImagesNextTime = false;
 
 window.addEventListener('error', event => {
   log.error(event.error);
@@ -57,15 +57,12 @@ process.on('SIGTERM', err => {
 });
 
 const pullImagesFromOpencvWorker = () => {
-  console.log('now I am not busy - requestIdleCallbackForImages');
-  log.debug('now I am not busy - requestIdleCallbackForImages');
+  log.debug('now I am running pullImagesFromOpencvWorker');
   ipcRenderer.send(
     'message-from-indexedDBWorkerWindow-to-opencvWorkerWindow',
     'get-some-images-from-imageQueue',
     100, // amount
   );
-  // cancel handle and set to undefined
-  requestIdleCallbackForImagesHandle = window.cancelIdleCallback(requestIdleCallbackForImagesHandle);
 };
 
 setInterval(() => {
@@ -74,7 +71,7 @@ setInterval(() => {
   const size = objectUrlQueue.size();
   if (size !== 0) {
     log.debug(`the objectUrlQueue size is: ${size}`);
-    // start requestIdleCallback for imageQueue
+    // start requestIdleCallback in mainWindow for objectUrlQueue
     ipcRenderer.send(
       'message-from-opencvWorkerWindow-to-mainWindow',
       'start-requestIdleCallback-for-objectUrlQueue',
@@ -107,7 +104,7 @@ ipcRenderer.on('get-some-objectUrls-from-objectUrlQueue', (event) => {
 
   const arrayOfObjectUrls = objectUrlQueue.data;
   log.debug(arrayOfObjectUrls);
-  // start requestIdleCallback for objectUrlQueue
+  // start requestIdleCallback in mainWindow for objectUrlQueue
   ipcRenderer.send(
     'message-from-indexedDBWorkerWindow-to-mainWindow',
     'send-arrayOfObjectUrls',
@@ -116,26 +113,26 @@ ipcRenderer.on('get-some-objectUrls-from-objectUrlQueue', (event) => {
   objectUrlQueue.clear();
 });
 
-ipcRenderer.on('start-requestIdleCallback-for-imageQueue', (event) => {
-  log.debug('indexedDBWorkerWindow | on start-requestIdleCallback-for-imageQueue');
+ipcRenderer.on('start-setIntervalForImages-for-imageQueue', (event) => {
+  log.debug('indexedDBWorkerWindow | on start-setIntervalForImages-for-imageQueue');
 
-  // start requestIdleCallbackForImages until it is cancelled
-  if (requestIdleCallbackForImagesHandle === undefined) {
-    // it seems that requestIdleCallback does not work properly when the window is hidden
-    // setting this in main.dev.js had no effect: indexedDBWorkerWindow = new BrowserWindow({ webPreferences: { backgroundThrottling: false }});
-    // therefore we set a timeout to enforce handling the request
-    requestIdleCallbackForImagesHandle = window.requestIdleCallback(pullImagesFromOpencvWorker, { timeout: 1000});
-    log.debug('now I requestIdleCallbackForImages');
+  // start setIntervalForImages until it is cancelled
+  if (setIntervalForImagesHandle === undefined) {
+    // start interval to pull images from the opencvWorkerWindow
+    setIntervalForImagesHandle = window.setInterval(() => {
+      pullImagesFromOpencvWorker();
+    }, 1000);
+    log.debug('now I start setIntervalForImages');
   } else {
-    log.debug('requestIdleCallbackForImages already running. no new requestIdleCallbackForImages will be started.');
+    log.debug('setIntervalForImages already running. no new setIntervalForImages will be started.');
   }
 });
 
-ipcRenderer.on('cancel-requestIdleCallback-for-imageQueue', (event) => {
-  log.debug('indexedDBWorkerWindow | on cancel-requestIdleCallback-for-imageQueue');
+ipcRenderer.on('cancel-setIntervalForImages-for-imageQueue', (event) => {
+  log.debug('indexedDBWorkerWindow | on cancel-setIntervalForImages-for-imageQueue');
 
   // cancel pullImagesFromOpencvWorker next time
-  cancelIdleCallbackForImagesNextTime = true;
+  cancelSetIntervalForImagesNextTime = true;
 
 });
 
@@ -149,17 +146,11 @@ ipcRenderer.on('receive-some-images-from-imageQueue', (event, someImages) => {
     });
   }
 
-  // cancelIdleCallbackForImagesNextTime if true else start requestIdleCallbackForImages again
-  if (cancelIdleCallbackForImagesNextTime) {
-    requestIdleCallbackForImagesHandle = window.cancelIdleCallback(requestIdleCallbackForImagesHandle);
-    log.debug('now I cancelIdleCallbackForImages');
-    cancelIdleCallbackForImagesNextTime = false;
-  } else {
-    // it seems that requestIdleCallback does not work properly when the window is hidden
-    // setting this in main.dev.js had no effect: indexedDBWorkerWindow = new BrowserWindow({ webPreferences: { backgroundThrottling: false }});
-    // therefore we set a timeout to enforce handling the request
-    requestIdleCallbackForImagesHandle = window.requestIdleCallback(pullImagesFromOpencvWorker, { timeout: 1000});
-    log.debug('now I requestIdleCallbackForImages');
+  // cancel setIntervalForImages if cancelSetIntervalForImagesNextTime
+  if (cancelSetIntervalForImagesNextTime) {
+    cancelSetIntervalForImagesNextTime = false;
+    log.debug('now I cancel setIntervalForImages');
+    setIntervalForImagesHandle = window.clearInterval(setIntervalForImagesHandle);
   }
 });
 

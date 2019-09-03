@@ -845,7 +845,7 @@ ipcRenderer.on(
       // start requestIdleCallback for imageQueue
       ipcRenderer.send(
         'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
-        'start-requestIdleCallback-for-imageQueue',
+        'start-setIntervalForImages-for-imageQueue',
       );
 
       // transform
@@ -955,7 +955,7 @@ ipcRenderer.on(
                 // cancel requestIdleCallback for imageQueue
                 ipcRenderer.send(
                   'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
-                  'cancel-requestIdleCallback-for-imageQueue',
+                  'cancel-setIntervalForImages-for-imageQueue',
                 );
               }
 
@@ -1031,7 +1031,7 @@ ipcRenderer.on(
                   // cancel requestIdleCallback for imageQueue
                   ipcRenderer.send(
                     'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
-                    'cancel-requestIdleCallback-for-imageQueue',
+                    'cancel-setIntervalForImages-for-imageQueue',
                   );
                 }
 
