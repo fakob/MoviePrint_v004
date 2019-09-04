@@ -68,9 +68,19 @@ process.on('SIGTERM', err => {
   // fs.writeFileSync('shutdown.log', 'Received SIGTERM signal');
 });
 
-// ipcRenderer.on('message-from-mainWindow-to-opencvWorkerWindow', (event, ...args) => {
-//   log.debug(...args);
-// });
+setInterval(() => {
+  // objectUrlQueue
+  // console.log(imageQueue.size())
+  const size = imageQueue.size();
+  if (size !== 0) {
+    log.debug(`the imageQueue size is: ${size}`);
+    // start requestIdleCallback for imageQueue
+    ipcRenderer.send(
+      'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
+      'start-setIntervalForImages-for-imageQueue',
+    );
+  }
+}, 1000);
 
 ipcRenderer.on('cancelFileScan', (event, fileId) => {
   log.debug('cancelling fileScan');
@@ -842,12 +852,6 @@ ipcRenderer.on(
       const timeBefore = Date.now();
       const frameNumberAndColorArray = [];
 
-      // start requestIdleCallback for imageQueue
-      ipcRenderer.send(
-        'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
-        'start-setIntervalForImages-for-imageQueue',
-      );
-
       // transform
       const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
       const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
@@ -951,12 +955,6 @@ ipcRenderer.on(
                   `Loading of frames took ${duration/1000.0}s`,
                   3000
                 );
-
-                // cancel requestIdleCallback for imageQueue
-                ipcRenderer.send(
-                  'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
-                  'cancel-setIntervalForImages-for-imageQueue',
-                );
               }
 
               iterator += 1;
@@ -1027,12 +1025,6 @@ ipcRenderer.on(
                     `Loading of frames took ${duration/1000.0}s`,
                     3000
                   );
-
-                  // cancel requestIdleCallback for imageQueue
-                  ipcRenderer.send(
-                    'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
-                    'cancel-setIntervalForImages-for-imageQueue',
-                  );
                 }
 
                 iterator += 1;
@@ -1069,11 +1061,6 @@ ipcRenderer.on('get-some-scenes-from-sceneQueue', (event, amount) => {
     someScenes,
   );
   log.debug(sceneQueue.size());
-});
-
-ipcRenderer.on('clear-imageQueue', (event) => {
-  log.debug(`opencvWorkerWindow | on clear-imageQueue ${imageQueue.size()}`);
-  imageQueue.clear();
 });
 
 ipcRenderer.on('get-some-images-from-imageQueue', (event, amount) => {

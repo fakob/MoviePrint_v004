@@ -25,7 +25,6 @@ openDBConnection();
 const objectUrlQueue = new Queue();
 
 let setIntervalForImagesHandle;
-let cancelSetIntervalForImagesNextTime = false;
 
 window.addEventListener('error', event => {
   log.error(event.error);
@@ -61,13 +60,13 @@ const pullImagesFromOpencvWorker = () => {
   ipcRenderer.send(
     'message-from-indexedDBWorkerWindow-to-opencvWorkerWindow',
     'get-some-images-from-imageQueue',
-    100, // amount
+    1000, // amount
   );
 };
 
 setInterval(() => {
   // objectUrlQueue
-  console.log(objectUrlQueue.size())
+  // console.log(objectUrlQueue.size())
   const size = objectUrlQueue.size();
   if (size !== 0) {
     log.debug(`the objectUrlQueue size is: ${size}`);
@@ -128,14 +127,6 @@ ipcRenderer.on('start-setIntervalForImages-for-imageQueue', (event) => {
   }
 });
 
-ipcRenderer.on('cancel-setIntervalForImages-for-imageQueue', (event) => {
-  log.debug('indexedDBWorkerWindow | on cancel-setIntervalForImages-for-imageQueue');
-
-  // cancel pullImagesFromOpencvWorker next time
-  cancelSetIntervalForImagesNextTime = true;
-
-});
-
 ipcRenderer.on('receive-some-images-from-imageQueue', (event, someImages) => {
   log.debug(`indexedDBWorkerWindow | on receive-some-images-from-imageQueue: ${someImages.length}`);
   if (someImages.length > 0) {
@@ -145,13 +136,8 @@ ipcRenderer.on('receive-some-images-from-imageQueue', (event, someImages) => {
       return addFrameToIndexedDB(image.frameId, image.fileId, image.frameNumber,image.outBase64, objectUrlQueue)
     });
   }
-
-  // cancel setIntervalForImages if cancelSetIntervalForImagesNextTime
-  if (cancelSetIntervalForImagesNextTime) {
-    cancelSetIntervalForImagesNextTime = false;
-    log.debug('now I cancel setIntervalForImages');
-    setIntervalForImagesHandle = window.clearInterval(setIntervalForImagesHandle);
-  }
+  log.debug('now I cancel setIntervalForImages');
+  setIntervalForImagesHandle = window.clearInterval(setIntervalForImagesHandle);
 });
 
 render(
