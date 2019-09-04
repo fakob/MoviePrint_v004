@@ -3204,7 +3204,8 @@ ${exportObject}`;
                     className={`${styles.ItemMain} ${visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''} ${visibilitySettings.showSettings ? styles.ItemMainRightAnim : ''} ${visibilitySettings.showSettings ? styles.ItemMainEdit : ''} ${visibilitySettings.defaultView === VIEW.PLAYERVIEW ? styles.ItemMainTopAnim : ''}`}
                     style={{
                       width: ( // use window width if any of these are true
-                        sheetView === SHEET_VIEW.TIMELINEVIEW ||
+                        defaultSheetView === SHEET_VIEW.TIMELINEVIEW ||
+                        // sheetView === SHEET_VIEW.TIMELINEVIEW ||
                         (visibilitySettings.defaultView !== VIEW.PLAYERVIEW &&
                           visibilitySettings.defaultSheetFit !== SHEET_FIT.HEIGHT &&
                           !this.state.zoom
