@@ -229,3 +229,10 @@ li p {
   border-left: 1px solid rgba(255, 0, 0, 1.0) !important;
   background-color: rgba(255, 0, 0, 0.1);
 }
+
+.emptyFilelist {
+  margin-top: 50%;
+  margin-left: 50%;
+  text-align: center;
+  transform: translate(-50%, -50%);
+}

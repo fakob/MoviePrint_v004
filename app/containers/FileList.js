@@ -31,7 +31,17 @@ class SortedFileList extends Component {
         <ul
           className={`${styles.MainList}`}
         >
-          {files.map((file, index) => (
+          {files.length === 0 ?
+            (
+              <div
+                className={`${styles.emptyFilelist}`}
+              >
+                The movie list is empty.
+                <br /><br />
+                Please drag in one or more movies.
+              </div>
+            ) :
+            (files.map((file, index) => (
             <FileListElement
               key={file.id}
               fileId={file.id}
@@ -56,7 +66,8 @@ class SortedFileList extends Component {
                 {} : this.props.sheetsByFileId[file.id]
               }
             />
-          ))}
+          )))
+          }
         </ul>
       </div>
     );
