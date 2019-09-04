@@ -1337,7 +1337,7 @@ class App extends Component {
         clientWidth -
         (visibilitySettings.showMovielist ? 350 : 0) -
         (visibilitySettings.showSettings ? 350 : 0) -
-        (file ? 0 : 700); // for startup
+        (file ? 0 : 300); // for startup
       const containerHeightInner = clientHeight -
         (file ? 0 : 100); // for startup
       if ((Math.abs(containerHeight - containerHeightInner) > 10) ||
