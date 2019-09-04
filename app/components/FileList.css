@@ -129,6 +129,10 @@ li p {
   background-color: rgba(232, 232, 232, 0.5) !important;
 }
 
+.shotBased {
+  background-color: #ff9365 !important;
+}
+
 .SheetList {
     margin: 18px 0 0 0;
 }

@@ -227,7 +227,7 @@ const FileListElement = ({
             <Label
               size='mini'
               horizontal
-              className={`${styles.SheetLabel}`}
+              className={`${styles.SheetLabel} ${(sheetsObject[sheetId].type === SHEET_TYPE.SCENES) ? styles.shotBased : ''}`}
             >
               {`${sheetsObject[sheetId].type} based`}
             </Label>
