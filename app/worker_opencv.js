@@ -663,9 +663,9 @@ ipcRenderer.on(
               read();
             } else {
               const timeAfterSceneDetection = Date.now();
-              const messageToSend = `File scanning finished - ${(timeAfterSceneDetection -
-                timeBeforeSceneDetection) / 1000}s - speed: ${(timeAfterSceneDetection -
-                  timeBeforeSceneDetection) / vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`;
+              const scanDurationInSeconds = (timeAfterSceneDetection - timeBeforeSceneDetection) / 1000;
+              const scanDurationString = scanDurationInSeconds > 180 ? `${Math.floor(scanDurationInSeconds / 60)} minutes` : `${Math.floor(scanDurationInSeconds)} seconds`
+              const messageToSend = `File scanning took ${scanDurationString} (${Math.floor(vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) / scanDurationInSeconds)} fps)`;
               log.debug(`opencvWorkerWindow | ${messageToSend}`);
               console.timeEnd(`${fileId}-fileScanning`);
 
@@ -710,7 +710,7 @@ ipcRenderer.on(
                 'progressMessage',
                 'info',
                 messageToSend,
-                3000
+                5000
               );
             }
           });
