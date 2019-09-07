@@ -51,6 +51,13 @@ class ThumbGrid extends Component {
   constructor(props) {
     super(props);
 
+    // stores all thumb refs in an object
+    this.thumbsRef = {};
+
+    // is set when the count has changed and used
+    // to trigger getting new refs on next componentDidUpdate
+    this.countHasChanged = false;
+
     this.state = {
       thumbsToDim: [],
       controllersVisible: undefined,
@@ -70,6 +77,7 @@ class ThumbGrid extends Component {
       this.thumbGridBodyDivRef = element;
     }
 
+    this.resetDim = this.resetDim.bind(this);
     this.resetHover = this.resetHover.bind(this);
     this.onContainerOut = this.onContainerOut.bind(this);
     this.onExpand = this.onExpand.bind(this);
@@ -104,12 +112,66 @@ class ThumbGrid extends Component {
   // componentWillReceiveProps(nextProps) {
   // }
 
-  // componentDidUpdate(prevProps) {
-  // }
+  componentDidUpdate(prevProps) {
+    const { moviePrintWidth, sheetView, thumbs } = this.props;
+    const { hoverPos } = this.state;
+    const prevThumbArraySize = prevProps.thumbs.length;
+    const currentThumbArraySize = thumbs.length;
+
+    if (this.countHasChanged) {
+      if (hoverPos !== undefined) {
+        const x = hoverPos.left - 10;
+        const y = hoverPos.top - 10;
+
+        let newClientRect;
+        // console.log(Object.keys(this.thumbsRef).length)
+        const foundThumbId = Object.keys(this.thumbsRef).find(thumbId => {
+          newClientRect = this.thumbsRef[thumbId].ref.node.getBoundingClientRect();
+          // console.log(newClientRect);
+          return (newClientRect.y > y) && (newClientRect.x > x);
+        });
+        // console.log(foundThumbId);
+        // console.log(thumbs[foundThumbId]);
+
+        if (foundThumbId === undefined) {
+          newClientRect = undefined;
+        }
+
+        this.setState({
+          controllersVisible: foundThumbId,
+          addThumbBeforeController: undefined,
+          addThumbAfterController: undefined,
+          hoverPos: newClientRect,
+        });
+      }
+      this.countHasChanged = false;
+    }
+
+    // when count has changed clear thumbsRef object and set countHasChanged
+    // to trigger getting new refs on next componentDidUpdate
+    if (prevThumbArraySize !== currentThumbArraySize) {
+      this.countHasChanged = true;
+      this.thumbsRef = {};
+      // console.log('countHasChanged');
+    }
+
+    // resetHover on moviePrintWidth and view change
+    if (
+      prevProps.moviePrintWidth !== moviePrintWidth ||
+      prevProps.sheetView !== sheetView
+      ) {
+      this.resetHover();
+    }
+  }
+
+  resetDim() {
+    this.setState({
+      thumbsToDim: [],
+    });
+  }
 
   resetHover() {
     this.setState({
-      thumbsToDim: [],
       controllersVisible: undefined,
       addThumbBeforeController: undefined,
       addThumbAfterController: undefined,
@@ -131,7 +193,7 @@ class ThumbGrid extends Component {
     e.stopPropagation();
     const thumb = thumbs.find(item => item.thumbId === controllersVisible);
     onExpandClick(file, thumb.thumbId, currentSheetId);
-    this.resetHover();
+    this.resetDim();
   }
 
   onToggle(e) {
@@ -141,7 +203,6 @@ class ThumbGrid extends Component {
 
     e.stopPropagation();
     onToggleClick(file.id, controllersVisible);
-    this.resetHover();
   }
 
   onSaveThumb(e) {
@@ -163,7 +224,7 @@ class ThumbGrid extends Component {
     e.stopPropagation();
     const thumb = thumbs.find(item => item.thumbId === controllersVisible);
     onInPointClick(file, thumbs, thumb.thumbId, thumb.frameNumber);
-    this.resetHover();
+    this.resetDim();
   }
 
   onOutPoint(e) {
@@ -174,7 +235,7 @@ class ThumbGrid extends Component {
     e.stopPropagation();
     const thumb = thumbs.find(item => item.thumbId === controllersVisible);
     onOutPointClick(file, thumbs, thumb.thumbId, thumb.frameNumber);
-    this.resetHover();
+    this.resetDim();
   }
 
   onHideBefore(e) {
@@ -187,7 +248,7 @@ class ThumbGrid extends Component {
     const previousThumbs = getPreviousThumbs(thumbs, thumb.thumbId);
     const previousThumbIds = previousThumbs.map(t => t.thumbId);
     onHideBeforeAfterClick(file.id, currentSheetId, previousThumbIds);
-    this.resetHover();
+    this.resetDim();
   }
 
   onHideAfter(e) {
@@ -200,7 +261,7 @@ class ThumbGrid extends Component {
     const previousThumbs = getNextThumbs(thumbs, thumb.thumbId);
     const previousThumbIds = previousThumbs.map(t => t.thumbId);
     onHideBeforeAfterClick(file.id, currentSheetId, previousThumbIds);
-    this.resetHover();
+    this.resetDim();
   }
 
   onBack(e) {
@@ -211,7 +272,6 @@ class ThumbGrid extends Component {
     e.stopPropagation();
     const thumb = thumbs.find(item => item.thumbId === controllersVisible);
     onBackClick(file, thumb.thumbId, thumb.frameNumber);
-    this.resetHover();
   }
 
   onForward(e) {
@@ -222,7 +282,6 @@ class ThumbGrid extends Component {
     e.stopPropagation();
     const thumb = thumbs.find(item => item.thumbId === controllersVisible);
     onForwardClick(file, thumb.thumbId, thumb.frameNumber);
-    this.resetHover();
   }
 
   onHoverExpand(e) {
@@ -280,7 +339,6 @@ class ThumbGrid extends Component {
     e.stopPropagation();
     const thumb = thumbs.find(item => item.thumbId === controllersVisible);
     onScrubClick(file, thumb, triggerTime);
-    this.resetHover();
   }
 
   onAddBefore(e) {
@@ -291,7 +349,6 @@ class ThumbGrid extends Component {
     e.stopPropagation();
     const thumb = thumbs.find(item => item.thumbId === controllersVisible);
     onAddThumbClick(file, thumb, 'before');
-    this.resetHover();
   }
 
   onAddAfter(e) {
@@ -302,7 +359,6 @@ class ThumbGrid extends Component {
     e.stopPropagation();
     const thumb = thumbs.find(item => item.thumbId === controllersVisible);
     onAddThumbClick(file, thumb, 'after');
-    this.resetHover();
   }
 
   onJumpToCutBefore(e) {
@@ -313,7 +369,6 @@ class ThumbGrid extends Component {
     e.stopPropagation();
     const thumb = thumbs.find(item => item.thumbId === controllersVisible);
     onJumpToCutThumbClick(file, thumb.thumbId, 'before');
-    this.resetHover();
   }
 
   onJumpToCutAfter(e) {
@@ -324,7 +379,6 @@ class ThumbGrid extends Component {
     e.stopPropagation();
     const thumb = thumbs.find(item => item.thumbId === controllersVisible);
     onJumpToCutThumbClick(file, thumb.thumbId, 'after');
-    this.resetHover();
   }
 
   onHoverAddThumbBefore(e) {
@@ -468,6 +522,8 @@ class ThumbGrid extends Component {
 
     const thumbMarginGridView = isPlayerView ? VIDEOPLAYER_THUMB_MARGIN : scaleValueObject.newThumbMargin;
 
+    // console.log(hoverPos)
+
     return (
       <div
         data-tid='thumbGridDiv'
@@ -504,6 +560,7 @@ class ThumbGrid extends Component {
         >
           {thumbArray.map(thumb => (
             <SortableThumb
+              ref={ref => this.thumbsRef[thumb.thumbId] = ref}
               sheetView={sheetView}
               sheetType={sheetType}
               view={view}
@@ -603,7 +660,7 @@ class ThumbGrid extends Component {
                 }
                 mouseEnterDelay={1000}
                 on={['hover']}
-                position='bottom center'
+                position='top center'
                 className={stylesPop.popup}
                 content="Create a new MoviePrint using In- and Outpoints of this scene"
               />
@@ -624,7 +681,7 @@ class ThumbGrid extends Component {
                 }
                 mouseEnterDelay={1000}
                 on={['hover']}
-                position='bottom center'
+                position='top center'
                 className={stylesPop.popup}
                 content="Hide thumb"
               />
@@ -645,7 +702,7 @@ class ThumbGrid extends Component {
                 }
                 mouseEnterDelay={1000}
                 on={['hover']}
-                position='bottom center'
+                position='top center'
                 className={stylesPop.popup}
                 content="Save thumb"
               />

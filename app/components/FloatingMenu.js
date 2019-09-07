@@ -326,14 +326,14 @@ const ButtonExampleCircularSocial = ({
               circular
               data-tid={(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'showOnlyVisibleBtn' : 'showHiddenBtn'}
               onClick={onToggleShowHiddenThumbsClick}
-              icon='hide'
+              icon={(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'hide' : 'unhide'}
             />
           }
           mouseEnterDelay={1000}
           on={['hover']}
           position='bottom center'
           className={stylesPop.popup}
-          content={(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'Show visible thumbs' : 'Show hidden thumbs'}
+          content={(visibilitySettings.visibilityFilter === 'SHOW_ALL') ? 'Show visible thumbs only' : 'Show hidden thumbs'}
         />
         <Popup
           trigger={
