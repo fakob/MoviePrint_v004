@@ -1464,29 +1464,12 @@ class App extends Component {
 
   runSceneDetection(fileId, filePath, useRatio, threshold = this.props.settings.defaultSceneDetectionThreshold, sheetId = uuidV4(), transformObject = undefined) {
     const { store } = this.context;
-    const { files } = this.props;
     const { fileScanRunning } = this.state;
     const timeBeforeGetFrameScanByFileId = Date.now();
-    let arrayOfFrameScanData = getFrameScanByFileId(fileId);
-
-    // check if frameScanData is complete
-    const frameCount = getFrameCount(files, fileId);
-    const frameScanDataLength = arrayOfFrameScanData.length;
-    console.log(frameCount)
-    console.log(frameScanDataLength)
-    if (frameCount !== frameScanDataLength) {
-      // frameScanData is not complete
-      // arrayOfFrameScanData will be repaired
-      log.error(`frameScanData is not complete: ${frameCount}:${frameScanDataLength}`);
-      repairFrameScanData(frameCount, arrayOfFrameScanData);
-    }
-
-
-
+    const arrayOfFrameScanData = getFrameScanByFileId(fileId);
 
     const timeAfterGetFrameScanByFileId = Date.now();
     log.debug(`getFrameScanByFileId duration: ${timeAfterGetFrameScanByFileId - timeBeforeGetFrameScanByFileId}`);
-
 
     // only start creating a sheet if there is already scanned data or
     // there is no fileScanRunning
@@ -1552,12 +1535,18 @@ class App extends Component {
     const { store } = this.context;
     const { files, settings } = this.props;
 
+    // check if frameScanData is complete
+    const frameCount = getFrameCount(files, fileId);
+    const frameScanDataLength = arrayOfFrameScanData.length;
+    if (frameCount !== frameScanDataLength) {
+      // frameScanData is not complete
+      // arrayOfFrameScanData will be repaired in place
+      log.error(`frameScanData is not complete: ${frameCount}:${frameScanDataLength}`);
+      repairFrameScanData(arrayOfFrameScanData, frameCount);
+    }
 
     const meanValueArray = arrayOfFrameScanData.map(frame => frame.meanValue)
     const meanColorArray = arrayOfFrameScanData.map(frame => JSON.parse(frame.meanColor))
-
-
-    store.dispatch(clearScenes(fileId, sheetId));
 
     // const sceneList = [];
 
@@ -1590,7 +1579,7 @@ class App extends Component {
       chartData: newChartData,
     });
 
-    // console.log(sceneList);
+    // store.dispatch(clearScenes(fileId, sheetId));
 
     // check if scenes detected
     if (sceneList.length !== 0) {

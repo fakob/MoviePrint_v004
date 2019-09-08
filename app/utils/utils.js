@@ -1070,18 +1070,37 @@ export const getFrameInPercentage = (frameNumber, frameCount) => {
 
 export const calculateSceneListFromDifferenceArray = (fileId, differenceArray, meanColorArray, threshold) => {
   let lastSceneCut = null;
-  const sceneList = []
+  let differenceValueFromLastSceneCut;
+  const sceneList = [];
 
-  differenceArray.map((value, index) => {
+  differenceArray.map((differenceValue, index) => {
     // initialise first scene cut
     if (lastSceneCut === null) {
       lastSceneCut = index;
     }
-    if (value >= threshold) {
+    if (differenceValue >= threshold) {
       if ((index - lastSceneCut) >= SCENE_DETECTION_MIN_SCENE_LENGTH) {
-        const length = index - lastSceneCut; // length
         const start = lastSceneCut; // start
-        const colorArray = meanColorArray[lastSceneCut + Math.floor(length / 2)];
+        const length = index - start; // length
+        const colorArray = meanColorArray[start + Math.floor(length / 2)];
+        // [frameMean.w, frameMean.x, frameMean.y], // color
+        sceneList.push({
+          fileId,
+          start,
+          length,
+          colorArray,
+        });
+        lastSceneCut = index;
+      } else if (differenceValue > differenceValueFromLastSceneCut) {
+        // check if differenceValue is within SCENE_DETECTION_MIN_SCENE_LENGTH
+        // and if it is larger than differenceValueFromLastSceneCut
+        // if so, then delete last cut and add new on activate
+        // console.log(`differenceValueFromLastSceneCut > differenceValue at: ${index}`);
+        const lastScene = sceneList.pop();
+        const { start } = lastScene; // get start from lastScene
+
+        const length = index - start; // length
+        const colorArray = meanColorArray[start + Math.floor(length / 2)];
         // [frameMean.w, frameMean.x, frameMean.y], // color
         sceneList.push({
           fileId,
@@ -1092,7 +1111,8 @@ export const calculateSceneListFromDifferenceArray = (fileId, differenceArray, m
         lastSceneCut = index;
       }
     }
-    // console.log(`${index} - ${lastSceneCut} = ${index - lastSceneCut} - ${value >= threshold}`);
+    differenceValueFromLastSceneCut = differenceValue;
+    // console.log(`${index} - ${lastSceneCut} = ${index - lastSceneCut} - ${differenceValue >= threshold}`);
     return true;
     }
   );
@@ -1108,8 +1128,8 @@ export const calculateSceneListFromDifferenceArray = (fileId, differenceArray, m
   return sceneList;
 }
 
-// repairs missing frames in frameScanData
-export const repairFrameScanData = (frameCount, arrayOfFrameScanData) => {
+// repairs missing frames in frameScanData in place
+export const repairFrameScanData = (arrayOfFrameScanData, frameCount) => {
   // frameScanData is not complete
   // create new array and fill in the blanks
   for (let i = 0; i < frameCount; i += 1) {
