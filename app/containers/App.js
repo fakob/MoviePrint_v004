@@ -27,39 +27,42 @@ import Footer from '../components/Footer';
 import VideoPlayer from '../components/VideoPlayer';
 import Scrub from '../components/Scrub';
 import getScaleValueObject from '../utils/getScaleValueObject';
-import { getLowestFrame,
+import {
+  calculateSceneListFromDifferenceArray,
   createSceneArray,
   doesSheetExist,
-  getHighestFrame,
-  getVisibleThumbs,
+  getAdjacentSceneIndicesFromCut,
   getColumnCount,
   getEDLscenes,
+  getFileName,
+  getFilePath,
   getFileStatsObject,
+  getFileTransformObject,
+  getFrameCount,
+  getFramenumbersOfSheet,
+  getHighestFrame,
+  getLeftAndRightThumb,
+  getLowestFrame,
+  getMoviePrintColor,
+  getNewSheetName,
+  getObjectProperty,
+  getParentSheetId,
+  getSceneFromFrameNumber,
+  getSceneScrubFrameNumber,
+  getScrubFrameNumber,
   getSecondsPerRow,
   getSheetCount,
-  getNewSheetName,
-  getParentSheetId,
   getSheetId,
   getSheetIdArray,
+  getSheetName,
   getSheetType,
   getSheetView,
   getThumbsCount,
-  getMoviePrintColor,
-  getObjectProperty,
-  setPosition,
-  getScrubFrameNumber,
-  getSceneScrubFrameNumber,
+  getVisibleThumbs,
   isEquivalent,
   limitFrameNumberWithinMovieRange,
-  getFramenumbersOfSheet,
-  getFilePath,
-  getFileTransformObject,
-  getFileName,
-  getSheetName,
-  getSceneFromFrameNumber,
-  getLeftAndRightThumb,
-  getAdjacentSceneIndicesFromCut,
-  roundNumber,
+  repairFrameScanData,
+  setPosition,
 } from '../utils/utils';
 import styles from './App.css';
 import stylesPop from '../components/Popup.css';
@@ -1461,9 +1464,26 @@ class App extends Component {
 
   runSceneDetection(fileId, filePath, useRatio, threshold = this.props.settings.defaultSceneDetectionThreshold, sheetId = uuidV4(), transformObject = undefined) {
     const { store } = this.context;
+    const { files } = this.props;
     const { fileScanRunning } = this.state;
     const timeBeforeGetFrameScanByFileId = Date.now();
-    const arrayOfFrameScanData = getFrameScanByFileId(fileId);
+    let arrayOfFrameScanData = getFrameScanByFileId(fileId);
+
+    // check if frameScanData is complete
+    const frameCount = getFrameCount(files, fileId);
+    const frameScanDataLength = arrayOfFrameScanData.length;
+    console.log(frameCount)
+    console.log(frameScanDataLength)
+    if (frameCount !== frameScanDataLength) {
+      // frameScanData is not complete
+      // arrayOfFrameScanData will be repaired
+      log.error(`frameScanData is not complete: ${frameCount}:${frameScanDataLength}`);
+      repairFrameScanData(frameCount, arrayOfFrameScanData);
+    }
+
+
+
+
     const timeAfterGetFrameScanByFileId = Date.now();
     log.debug(`getFrameScanByFileId duration: ${timeAfterGetFrameScanByFileId - timeBeforeGetFrameScanByFileId}`);
 
@@ -1507,10 +1527,8 @@ class App extends Component {
         ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-scan', fileId, filePath, useRatio, threshold, sheetId, transformObject);
 
       } else {
-        const meanValueArray = arrayOfFrameScanData.map(frame => frame.meanValue)
-        const meanColorArray = arrayOfFrameScanData.map(frame => JSON.parse(frame.meanColor))
         // console.log(meanColorArray);
-        this.calculateSceneList(fileId, meanValueArray, meanColorArray, threshold, sheetId);
+        this.calculateSceneList(fileId, arrayOfFrameScanData, threshold, sheetId);
       }
     } else {
       this.showMessage('Sorry, only one shot detection at a time.', 3000, 'error');
@@ -1530,53 +1548,28 @@ class App extends Component {
     );
   }
 
-  calculateSceneList(fileId, meanArray, meanColorArray, threshold = this.props.settings.defaultSceneDetectionThreshold, sheetId) {
+  calculateSceneList(fileId, arrayOfFrameScanData, threshold = this.props.settings.defaultSceneDetectionThreshold, sheetId) {
     const { store } = this.context;
     const { files, settings } = this.props;
-    let lastSceneCut = null;
+
+
+    const meanValueArray = arrayOfFrameScanData.map(frame => frame.meanValue)
+    const meanColorArray = arrayOfFrameScanData.map(frame => JSON.parse(frame.meanColor))
+
+
+    store.dispatch(clearScenes(fileId, sheetId));
+
+    // const sceneList = [];
 
     const differenceArray = [];
-    meanArray.reduce((prev, curr) => {
+    meanValueArray.reduce((prev, curr) => {
         differenceArray.push(Math.abs(prev - curr));
         return curr;
     }, 0);
 
-    store.dispatch(clearScenes(fileId, sheetId));
-
-    const sceneList = []
-    differenceArray.map((value, index) => {
-      // initialise first scene cut
-      if (lastSceneCut === null) {
-        lastSceneCut = index;
-      }
-      if (value >= threshold) {
-        if ((index - lastSceneCut) >= SCENE_DETECTION_MIN_SCENE_LENGTH) {
-          const length = index - lastSceneCut; // length
-          const start = lastSceneCut; // start
-          const colorArray = meanColorArray[lastSceneCut + Math.floor(length / 2)];
-          // [frameMean.w, frameMean.x, frameMean.y], // color
-          sceneList.push({
-            fileId,
-            start,
-            length,
-            colorArray,
-          });
-          lastSceneCut = index;
-        }
-      }
-      // console.log(`${index} - ${lastSceneCut} = ${index - lastSceneCut} - ${value >= threshold}`);
-      return true;
-      }
-    );
-    // add last scene
-    const length = meanArray.length - lastSceneCut; // meanArray.length should be frameCount
-    sceneList.push({
-      fileId,
-      start: lastSceneCut, // start
-      length,
-      colorArray: [128, 128, 128],
-      // [frameMean.w, frameMean.x, frameMean.y], // color
-    });
+    // console.log(meanValueArray)
+    // console.log(differenceArray)
+    const sceneList = calculateSceneListFromDifferenceArray(fileId, differenceArray, meanColorArray, threshold);
 
     const labels = [...Array(differenceArray.length).keys()].map((x) => String(x));
     const newChartData = {
@@ -1590,7 +1583,7 @@ class App extends Component {
         label: "Mean",
         backgroundColor: 'rgba(255, 80, 6, 0.2)',
         pointRadius: 0,
-        data: meanArray,
+        data: meanValueArray,
       }]
     };
     this.setState({

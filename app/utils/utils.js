@@ -8,6 +8,7 @@ import log from 'electron-log';
 import VideoCaptureProperties from './videoCaptureProperties';
 import sheetNames from '../img/listOfNames.json'
 import {
+  SCENE_DETECTION_MIN_SCENE_LENGTH,
   SHEET_VIEW,
 } from './constants';
 
@@ -556,6 +557,16 @@ export const getFilePath = (files, fileId) => {
   return file.path;
 };
 
+export const getFrameCount = (files, fileId) => {
+  const file = files.find(file2 => file2.id === fileId);
+  // console.log(file);
+  if (file === undefined) {
+    // there is no file yet, so return undefined
+    return 0;
+  }
+  return file.frameCount;
+};
+
 export const getFileTransformObject = (files, fileId) => {
   const file = files.find(file2 => file2.id === fileId);
   // console.log(file);
@@ -1055,4 +1066,74 @@ export const getFrameInPercentage = (frameNumber, frameCount) => {
     return (frameNumber / ((frameCount - 1) * 1.0)) * 100.0;
   }
   return 0;
+}
+
+export const calculateSceneListFromDifferenceArray = (fileId, differenceArray, meanColorArray, threshold) => {
+  let lastSceneCut = null;
+  const sceneList = []
+
+  differenceArray.map((value, index) => {
+    // initialise first scene cut
+    if (lastSceneCut === null) {
+      lastSceneCut = index;
+    }
+    if (value >= threshold) {
+      if ((index - lastSceneCut) >= SCENE_DETECTION_MIN_SCENE_LENGTH) {
+        const length = index - lastSceneCut; // length
+        const start = lastSceneCut; // start
+        const colorArray = meanColorArray[lastSceneCut + Math.floor(length / 2)];
+        // [frameMean.w, frameMean.x, frameMean.y], // color
+        sceneList.push({
+          fileId,
+          start,
+          length,
+          colorArray,
+        });
+        lastSceneCut = index;
+      }
+    }
+    // console.log(`${index} - ${lastSceneCut} = ${index - lastSceneCut} - ${value >= threshold}`);
+    return true;
+    }
+  );
+  // add last scene
+  const length = differenceArray.length - lastSceneCut; // meanArray.length should be frameCount
+  sceneList.push({
+    fileId,
+    start: lastSceneCut, // start
+    length,
+    colorArray: [128, 128, 128],
+    // [frameMean.w, frameMean.x, frameMean.y], // color
+  });
+  return sceneList;
+}
+
+// repairs missing frames in frameScanData
+export const repairFrameScanData = (frameCount, arrayOfFrameScanData) => {
+  // frameScanData is not complete
+  // create new array and fill in the blanks
+  for (let i = 0; i < frameCount; i += 1) {
+    if (i !== arrayOfFrameScanData[i].frameNumber) {
+      // if frame is missing, take previous data,
+      // fix framenumber, insert it and decrease i again
+      // so it loops through it again to check
+
+      // if first frame missing fill it with default object
+      let correctedDuplicate;
+      if (i === 0) {
+        correctedDuplicate = Object.assign({}, {
+          frameNumber: 0,
+          meanColor: "[0,0,0]",
+          meanValue: 0,
+        });
+      } else {
+        correctedDuplicate = Object.assign({}, arrayOfFrameScanData[i-1]);
+        correctedDuplicate.frameNumber = i;
+      }
+      log.info(`repaired frameScanData at: ${i}`);
+      arrayOfFrameScanData.splice(i, 0, correctedDuplicate);
+      i -= 1;
+    }
+  }
+  // no return is needed as arrayOfFrameScanData gets repaired in place
 }
