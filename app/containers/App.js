@@ -30,6 +30,7 @@ import getScaleValueObject from '../utils/getScaleValueObject';
 import {
   calculateSceneListFromDifferenceArray,
   createSceneArray,
+  doesFileFolderExist,
   doesSheetExist,
   getAdjacentSceneIndicesFromCut,
   getColumnCount,
@@ -68,6 +69,8 @@ import styles from './App.css';
 import stylesPop from '../components/Popup.css';
 import {
   addIntervalSheet,
+  addMoviesToList,
+  addNewThumbsWithOrder,
   addScene,
   addScenesFromSceneList,
   addScenesWithoutCapturingThumbs,
@@ -75,23 +78,22 @@ import {
   changeThumb,
   clearMovieList,
   clearScenes,
+  cutScene,
   deleteSheets,
-  addNewThumbsWithOrder,
   duplicateSheet,
-  updateSceneArray,
-  updateSheetParent,
-  updateSheetType,
-  updateSheetView,
-  updateCropping,
   hideMovielist,
   hideSettings,
+  mergeScenes,
   removeMovieListItem,
   replaceFileDetails,
-  setCurrentFileId,
   setCropping,
+  setCurrentFileId,
+  setCurrentSheetId,
   setDefaultCachedFramesSize,
   setDefaultColumnCount,
   setDefaultDetectInOutPoint,
+  setDefaultEmbedFilePath,
+  setDefaultEmbedFrameNumbers,
   setDefaultMarginRatio,
   setDefaultMoviePrintWidth,
   setDefaultOutputFormat,
@@ -101,9 +103,8 @@ import {
   setDefaultRoundedCorners,
   setDefaultSaveOptionIncludeIndividual,
   setDefaultSaveOptionOverwrite,
-  setDefaultEmbedFrameNumbers,
-  setDefaultEmbedFilePath,
   setDefaultSceneDetectionThreshold,
+  setDefaultSheetView,
   setDefaultShowDetailsInHeader,
   setDefaultShowHeader,
   setDefaultShowImages,
@@ -118,25 +119,26 @@ import {
   setDefaultTimelineViewSecondsPerRow,
   setDefaultTimelineViewWidthScale,
   setEmailAddress,
-  addMoviesToList,
-  setCurrentSheetId,
   setSheetFit,
-  setDefaultSheetView,
   setView,
   setVisibilityFilter,
   showMovielist,
   showSettings,
-  updateSheetSecondsPerRow,
-  updateSheetColumnCount,
-  updateSheetName,
-  updateSheetCounter,
+  updateCropping,
   updateFileDetails,
   updateFileDetailUseRatio,
+  updateFileMissingStatus,
+  updateFileScanStatus,
   updateFrameNumberAndColorArray,
   updateInOutPoint,
-  updateFileScanStatus,
-  cutScene,
-  mergeScenes,
+  updateSceneArray,
+  updateSheetColumnCount,
+  updateSheetCounter,
+  updateSheetName,
+  updateSheetParent,
+  updateSheetSecondsPerRow,
+  updateSheetType,
+  updateSheetView,
 } from '../actions';
 import {
   DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN,
@@ -145,7 +147,6 @@ import {
   FRAMESDB_PATH,
   MENU_FOOTER_HEIGHT,
   MENU_HEADER_HEIGHT,
-  SCENE_DETECTION_MIN_SCENE_LENGTH,
   SHEET_FIT,
   SHEET_TYPE,
   SHEET_VIEW,
@@ -380,9 +381,21 @@ class App extends Component {
   }
 
   componentWillMount() {
+    const { store } = this.context;
     const { columnCountTemp, thumbCountTemp, containerWidth, containerHeight, zoom } = this.state;
-    const { currentFileId, currentSheetId, file, scenes, settings, sheetsByFileId, visibilitySettings } = this.props;
+    const { currentFileId, currentSheetId, file, files, scenes, settings, sheetsByFileId, visibilitySettings } = this.props;
     const { defaultShowPaperPreview, defaultThumbCountMax } = settings;
+
+    // check if all movies exist
+    // if not then mark them with fileMissingStatus
+    if (files.length > 0) {
+      files.map(item => {
+        if (doesFileFolderExist(item.path) === false) {
+          console.log(item.path);
+          store.dispatch(updateFileMissingStatus(item.id, true));
+        }
+      })
+    }
 
     // get objecturls from all frames in imagedb
     ipcRenderer.send(
@@ -2477,10 +2490,13 @@ class App extends Component {
         log.error(e);
       }
 
-      // change fileScanStatus
-      store.dispatch(updateFileScanStatus(fileId, false));
-      // remove entries from frameScanList sqlite3
-      deleteFileIdFromFrameScanList(fileId);
+      // // change fileScanStatus
+      // store.dispatch(updateFileScanStatus(fileId, false));
+      // // remove entries from frameScanList sqlite3
+      // deleteFileIdFromFrameScanList(fileId);
+
+      store.dispatch(updateFileMissingStatus(fileId, false));
+
 
       // use lastModified as indicator if the movie which will be replaced existed
       // if lastModified is undefined, then do not onlyReplace
@@ -2654,7 +2670,7 @@ ${exportObject}`;
             name: fileName,
             path: newFilePath,
             size,
-            // type: files[key].type,
+            fileMissingStatus: lastModified === undefined, // if lastModified is undefined than file missing
             posterFrameId,
           };
           store.dispatch({
@@ -2981,6 +2997,7 @@ ${exportObject}`;
                     settings={settings}
                     scaleValueObject={scaleValueObject}
                     sheetView={sheetView}
+                    fileMissingStatus={file.fileMissingStatus}
                     toggleMovielist={this.toggleMovielist}
                     onAddIntervalSheetClick={this.onAddIntervalSheetClick}
                     onScanMovieListItemClick={this.onScanMovieListItemClick}

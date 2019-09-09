@@ -16,8 +16,12 @@ const randomColor = require('randomcolor');
 const { ipcRenderer } = require('electron');
 const { app } = require('electron').remote;
 
+export const doesFileFolderExist = (fileName) => {
+  return fsR.existsSync(fileName);
+}
+
 export const getFileStatsObject = (filename) => {
-  if (!fsR.existsSync(filename)) {
+  if (doesFileFolderExist(filename) === false) {
     return undefined;
   }
   const stats = fsR.statSync(filename);
@@ -36,7 +40,7 @@ export const ensureDirectoryExistence = (filePath, isDirectory = true) => {
     dirname = pathR.dirname(filePath);
   }
   // log.debug(dirname);
-  if (fsR.existsSync(dirname)) {
+  if (doesFileFolderExist(dirname)) {
     return true;
   }
   ensureDirectoryExistence(dirname, false);
@@ -233,12 +237,12 @@ export const getFilePathObject = (
   let newFilePathAndName = pathR.join(exportPath, newFileName);
 
   if (!overwrite) {
-    if (fsR.existsSync(newFilePathAndName)) {
+    if (doesFileFolderExist(newFilePathAndName)) {
       for (let i = 1; i < 1000; i += 1) {
         newFileName = fileName !== undefined ? `${fileName}${postfix} edit ${i}.${outputFormat}` :
           `MoviePrint edit ${i}.${outputFormat}`;
         newFilePathAndName = pathR.join(exportPath, newFileName);
-        if (!fsR.existsSync(newFilePathAndName)) {
+        if (doesFileFolderExist(newFilePathAndName) === false) {
           break;
         }
       }
@@ -658,15 +662,17 @@ export const getThumbsCount = (file, sheetsByFileId, settings, visibilitySetting
 };
 
 export const setPosition = (vid, frameNumberToCapture, useRatio) => {
-  if (useRatio) {
-    const positionRatio =
+  if (vid !== undefined) {
+    if (useRatio) {
+      const positionRatio =
       frameNumberToCapture *
       1.0 /
       (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1);
-    // log.debug(`using positionRatio: ${positionRatio}`);
-    vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, positionRatio);
-  } else {
-    vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberToCapture);
+      // log.debug(`using positionRatio: ${positionRatio}`);
+      vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, positionRatio);
+    } else {
+      vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberToCapture);
+    }
   }
 };
 

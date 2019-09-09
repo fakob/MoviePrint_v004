@@ -1066,6 +1066,19 @@ export const updateFileScanStatus = (fileId, fileScanStatus) => {
   };
 };
 
+export const updateFileMissingStatus = (fileId, fileMissingStatus) => {
+  return (dispatch) => {
+    log.debug('action: updateFileMissingStatus');
+    dispatch({
+      type: 'UPDATE_FILE_MISSING_STATUS',
+      payload: {
+        fileId,
+        fileMissingStatus
+      }
+    });
+  };
+};
+
 export const updateSheetCounter = (fileId, incrementValue = 1) => {
   return (dispatch) => {
     log.debug('action: updateSheetCounter');

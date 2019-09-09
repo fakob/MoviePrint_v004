@@ -23,6 +23,7 @@ import icon5x5 from '../img/icon-5x5.svg';
 import icon6x6 from '../img/icon-6x6.svg';
 
 const ButtonExampleCircularSocial = ({
+  fileMissingStatus,
   hasParent,
   onAddIntervalSheetClick,
   onBackToParentClick,
@@ -84,6 +85,7 @@ const ButtonExampleCircularSocial = ({
               size='large'
               data-tid='addShotDetectionMovieListItemBtn'
               onClick={() => onScanMovieListItemClick(undefined)}
+              disabled={fileMissingStatus}
             >
               <img src={iconAddScene} height='18px' alt='' />
             </Button>
@@ -100,6 +102,7 @@ const ButtonExampleCircularSocial = ({
               button
               className={styles.dropDownButton}
               floating
+              disabled={fileMissingStatus}
               icon={<img src={iconAddInterval} height='18px' alt='' />}
             >
               <Dropdown.Menu
@@ -156,6 +159,7 @@ const ButtonExampleCircularSocial = ({
               size='large'
               data-tid='duplicateSheetItemBtn'
               onClick={() => onDuplicateSheetClick(undefined, undefined)}
+              disabled={fileMissingStatus}
               icon='copy'
             />
           }
@@ -216,6 +220,7 @@ const ButtonExampleCircularSocial = ({
             size='large'
             circular
             data-tid={(visibilitySettings.defaultView === VIEW.STANDARDVIEW) ? 'showPlayerBtn' : 'hidePlayerBtn'}
+            disabled={fileMissingStatus}
             onClick={() => {
               if (visibilitySettings.defaultView === VIEW.STANDARDVIEW) {
                 onSetViewClick(VIEW.PLAYERVIEW);

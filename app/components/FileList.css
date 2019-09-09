@@ -240,3 +240,20 @@ li p {
   text-align: center;
   transform: translate(-50%, -50%);
 }
+
+.fileMissingContainer {
+  margin-left: 8px;
+  margin-bottom: 16px;
+  display: flex;
+  /* justify-content: space-between; */
+}
+
+.fileMissing {
+  color: rgba(255, 0, 0, 1.0);
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.fileMissingButton {
+  margin-left: 16px !important;
+}

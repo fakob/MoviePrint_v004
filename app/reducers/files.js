@@ -16,6 +16,13 @@ const file = (state = {}, type, payload, index) => {
       return Object.assign({}, state, {
         fileScanStatus: payload.fileScanStatus
       });
+    case 'UPDATE_FILE_MISSING_STATUS':
+      if (state.id !== payload.fileId) {
+        return state;
+      }
+      return Object.assign({}, state, {
+        fileMissingStatus: payload.fileMissingStatus
+      });
     case 'UPDATE_MOVIE_LIST_ITEM_USERATIO':
       if (state.id !== payload.fileId) {
         return state;
@@ -111,6 +118,7 @@ const files = (state = [], { type, payload }) => {
     case 'SET_CROPPING':
     case 'UPDATE_CROPPING':
     case 'UPDATE_IN_OUT_POINT':
+    case 'UPDATE_FILE_MISSING_STATUS':
     case 'UPDATE_FILESCAN_STATUS':
     case 'UPDATE_SHEETCOUNTER':
       return state.map((t, index) =>

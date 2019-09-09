@@ -1,10 +1,10 @@
 // @flow
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Image, Icon, Popup, Dropdown, Label, Input } from 'semantic-ui-react';
+import { Button, Image, Icon, Popup, Dropdown, Label } from 'semantic-ui-react';
 import { truncate, truncatePath, frameCountToTimeCode, formatBytes } from '../utils/utils';
 import styles from './FileList.css';
-import transparent from '../img/Thumb_TRANSPARENT.png';
+import stylesPop from './Popup.css';
 import {
   EXPORT_FORMAT_OPTIONS,
   SHEET_TYPE,
@@ -19,7 +19,7 @@ const FileListElement = ({
   fps,
   frameCount,
   fileScanStatus,
-  lastModified,
+  fileMissingStatus,
   height,
   name,
   objectUrl,
@@ -110,9 +110,56 @@ const FileListElement = ({
   return (
     <li
       data-tid={`fileListItem_${fileId}`}
-      onClick={e => onFileListElementClickWithStop(e, fileId)}
-      className={`${styles.FileListItem} ${(currentFileId === fileId) ? styles.Highlight : ''} ${(lastModified === undefined) ? styles.Missing : ''}`}
+      onClick={e => (fileMissingStatus === true) ? null : onFileListElementClickWithStop(e, fileId)}
+      className={`${styles.FileListItem} ${(currentFileId === fileId) ? styles.Highlight : ''} ${(fileMissingStatus === true) ? styles.Missing : ''}`}
     >
+      {(fileMissingStatus === true) &&
+        <div
+          className={`${styles.fileMissingContainer}`}
+        >
+          <div
+            className={`${styles.fileMissing}`}
+          >
+            Movie is missing
+          </div>
+          <Popup
+            trigger={
+              <Button
+                data-tid='findfileBtn'
+                size='mini'
+                inverted
+                className={`${styles.fileMissingButton}`}
+                onClick={e => onReplaceMovieListItemClickWithStop(e, fileId)}
+              >
+                Locate movie
+              </Button>
+            }
+            mouseEnterDelay={1000}
+            on={['hover']}
+            position='bottom center'
+            className={stylesPop.popup}
+            content="Locate the missing movie"
+          />
+          <Popup
+            trigger={
+              <Button
+                data-tid='removeFileBtn'
+                size='mini'
+                inverted
+                className={`${styles.fileMissingButton}`}
+                onClick={e => onRemoveMovieListItemClickWithStop(e, fileId)}
+              >
+                Remove
+              </Button>
+            }
+            mouseEnterDelay={1000}
+            on={['hover']}
+            position='bottom center'
+            className={stylesPop.popup}
+            content="Remove movie from list"
+          />
+        </div>
+      }
       <Dropdown
         data-tid='movieListItemOptionsDropdown'
         item
@@ -121,7 +168,7 @@ const FileListElement = ({
         className={`${styles.overflow} ${styles.overflowHidden}`}
       >
         <Dropdown.Menu>
-          {lastModified !== undefined &&
+          {fileMissingStatus !== true &&
               <Dropdown.Item
               data-tid='addShotDetectionMovieListItemOption'
               icon="add"
@@ -129,7 +176,7 @@ const FileListElement = ({
               onClick={e => onScanMovieListItemClickWithStop(e, fileId)}
             />
           }
-          {lastModified !== undefined &&
+          {fileMissingStatus !== true &&
             <Dropdown.Item
               data-tid='addIntervalMovieListItemOption'
               icon="add"
@@ -137,12 +184,14 @@ const FileListElement = ({
               onClick={e => onAddIntervalSheetClickWithStop(e, fileId)}
             />
           }
-          <Dropdown.Item
-            data-tid='changeCroppingListItemOption'
-            icon="crop"
-            text="Edit cropping"
-            onClick={e => onEditTransformListItemClickWithStop(e, fileId)}
-          />
+          {fileMissingStatus !== true &&
+            <Dropdown.Item
+              data-tid='changeCroppingListItemOption'
+              icon="crop"
+              text="Edit cropping"
+              onClick={e => onEditTransformListItemClickWithStop(e, fileId)}
+            />
+          }
           <Dropdown.Item
             data-tid='replaceMovieListItemOption'
             icon="exchange"
@@ -179,15 +228,15 @@ const FileListElement = ({
       </Image>
       <div
         className={`${styles.Title}`}
-        title={name}
+        title={`${(fileMissingStatus === true) ? 'MISSING: ' : ''}${name}`}
       >
         {truncate(name, 48)}
       </div>
       <div
         className={`${styles.Path}`}
-        title={path.slice(0, path.lastIndexOf('/'))}
+        title={`${(fileMissingStatus === true) ? 'MISSING: ' : ''}${path.slice(0, path.lastIndexOf('/'))}`}
       >
-        {lastModified !== undefined ? truncatePath(path.slice(0, path.lastIndexOf('/')), 40) : 'Wrong file path!'}
+        {truncatePath(path.slice(0, path.lastIndexOf('/')), 40)}
       </div>
       <div className={`${styles.Detail}`}>
         <div className={`${styles.DetailLeft}`}>
@@ -249,7 +298,7 @@ const FileListElement = ({
               }}
               className={`${styles.SheetNameInput}`}
             /> */}
-            {lastModified !== undefined &&
+            {fileMissingStatus !== undefined &&
               <Dropdown
                 data-tid='sheetItemOptionsDropdown'
                 item

@@ -239,58 +239,62 @@ class VideoPlayer extends Component {
     const { arrayOfCuts, containerWidth, file, opencvVideo, defaultSheetView } = this.props;
     const { frameCount } = file;
     // offset currentFrame due to main frame is in middle of sliceArraySize
-    let offsetCorrection = 0;
-    let sliceArraySize = VIDEOPLAYER_SLICE_ARRAY_SIZE;
-    if (defaultSheetView === SHEET_VIEW.GRIDVIEW) {
-      sliceArraySize -= 1;
-      offsetCorrection = 1;
-    }
-    const sliceArraySizeHalf = Math.floor(sliceArraySize / 2);
-    const offsetFrameNumber = currentFrame - parseInt(sliceArraySizeHalf, 10) + offsetCorrection;
-    const { videoHeight } = this.state
-    const vid = opencvVideo;
-    setPosition(vid, offsetFrameNumber, file.useRatio);
-    const ctx = this.opencvVideoPlayerCanvasRef.getContext('2d');
-    const length = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT);
-    const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
-    const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
-    const rescaleFactor = Math.abs(videoHeight / height);
-    const sliceWidthArray = getSliceWidthArrayForCut(containerWidth, sliceArraySize);
-    const sliceGap = 1;
-    const cutGap = 8;
-    this.opencvVideoPlayerCanvasRef.height = videoHeight;
-    this.opencvVideoPlayerCanvasRef.width = containerWidth;
-    let canvasXPos = 0;
 
-    for (let i = 0; i < sliceArraySize; i += 1) {
-      const frame = vid.read();
-      const sliceWidth = sliceWidthArray[i];
-      const sliceXPos = Math.max(Math.floor((width * rescaleFactor) / 2) - Math.floor(sliceWidth / 2), 0);
-      const thisFrameIsACut = arrayOfCuts.some(item => item === offsetFrameNumber + i + 1);
+    // check if the video was found and is loaded
+    if (opencvVideo !== undefined) {
+      let offsetCorrection = 0;
+      let sliceArraySize = VIDEOPLAYER_SLICE_ARRAY_SIZE;
+      if (defaultSheetView === SHEET_VIEW.GRIDVIEW) {
+        sliceArraySize -= 1;
+        offsetCorrection = 1;
+      }
+      const sliceArraySizeHalf = Math.floor(sliceArraySize / 2);
+      const offsetFrameNumber = currentFrame - parseInt(sliceArraySizeHalf, 10) + offsetCorrection;
+      const { videoHeight } = this.state
+      const vid = opencvVideo;
+      setPosition(vid, offsetFrameNumber, file.useRatio);
+      const ctx = this.opencvVideoPlayerCanvasRef.getContext('2d');
+      const length = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT);
+      const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
+      const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
+      const rescaleFactor = Math.abs(videoHeight / height);
+      const sliceWidthArray = getSliceWidthArrayForCut(containerWidth, sliceArraySize);
+      const sliceGap = 1;
+      const cutGap = 8;
+      this.opencvVideoPlayerCanvasRef.height = videoHeight;
+      this.opencvVideoPlayerCanvasRef.width = containerWidth;
+      let canvasXPos = 0;
 
-      if ((offsetFrameNumber + i) >= 0 && !frame.empty) {
-        const matResized = frame.rescale(rescaleFactor);
-        const matCropped = matResized.getRegion(new opencv.Rect(
-          sliceXPos,
-          0,
-          Math.min(matResized.cols, sliceWidth),
-          Math.min(matResized.rows, Math.abs(videoHeight))
-        ));
+      for (let i = 0; i < sliceArraySize; i += 1) {
+        const frame = vid.read();
+        const sliceWidth = sliceWidthArray[i];
+        const sliceXPos = Math.max(Math.floor((width * rescaleFactor) / 2) - Math.floor(sliceWidth / 2), 0);
+        const thisFrameIsACut = arrayOfCuts.some(item => item === offsetFrameNumber + i + 1);
 
-        const matRGBA = matResized.channels === 1 ?
+        if ((offsetFrameNumber + i) >= 0 && !frame.empty) {
+          const matResized = frame.rescale(rescaleFactor);
+          const matCropped = matResized.getRegion(new opencv.Rect(
+            sliceXPos,
+            0,
+            Math.min(matResized.cols, sliceWidth),
+            Math.min(matResized.rows, Math.abs(videoHeight))
+          ));
+
+          const matRGBA = matResized.channels === 1 ?
           matCropped.cvtColor(opencv.COLOR_GRAY2RGBA) :
           matCropped.cvtColor(opencv.COLOR_BGR2RGBA);
 
-        const imgData = new ImageData(
-          new Uint8ClampedArray(matRGBA.getData()),
-          matCropped.cols,
-          matCropped.rows
-        );
-        ctx.putImageData(imgData, canvasXPos, 0);
-      } else {
-        console.log('frame empty')
+          const imgData = new ImageData(
+            new Uint8ClampedArray(matRGBA.getData()),
+            matCropped.cols,
+            matCropped.rows
+          );
+          ctx.putImageData(imgData, canvasXPos, 0);
+        } else {
+          console.log('frame empty')
+        }
+        canvasXPos += sliceWidthArray[i] + (thisFrameIsACut ? cutGap : sliceGap);
       }
-      canvasXPos += sliceWidthArray[i] + (thisFrameIsACut ? cutGap : sliceGap);
     }
   }
 
