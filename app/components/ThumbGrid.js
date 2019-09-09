@@ -24,7 +24,7 @@ import {
   roundNumber,
 } from '../utils/utils';
 import {
-  MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
+  TIMELINE_SCENE_MINIMUM_WIDTH,
   MINIMUM_WIDTH_TO_SHRINK_HOVER,
   MINIMUM_WIDTH_TO_SHOW_HOVER,
   SHEET_TYPE,
@@ -465,7 +465,7 @@ class ThumbGrid extends Component {
     const outPointPositionOnTimeline = getFrameInPercentage(outPoint, file.frameCount);
     const cutWidthOnTimeLine = Math.max(
       outPointPositionOnTimeline - inPointPositionOnTimeline,
-      MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE
+      TIMELINE_SCENE_MINIMUM_WIDTH
     );
     const allFrameNumbersArray = getAllFrameNumbers(thumbs);
     const allFrameNumbersInPercentArray = allFrameNumbersArray

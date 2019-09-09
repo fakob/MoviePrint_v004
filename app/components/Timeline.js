@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-  MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE,
+  TIMELINE_PLAYHEAD_MINIMUM_WIDTH,
+  TIMELINE_SCENE_MINIMUM_WIDTH,
 } from '../utils/constants';
 import {
   getBucketValueOfPercentage,
@@ -117,7 +118,7 @@ const Timeline = ({
       ((widthInPixel * 1.0) / frameCountOfMovie) * outPoint;
     const selectionWidthOnTimeLine = Math.max(
       outPointPositionOnTimeline - inPointPositionOnTimeline,
-      MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE
+      TIMELINE_SCENE_MINIMUM_WIDTH
     );
 
     const lowestFrameOnTimeline =
@@ -126,7 +127,7 @@ const Timeline = ({
       ((widthInPixel * 1.0) / frameCountOfMovie) * highestFrame;
     const cutWidthOnTimeLine = Math.max(
       highestFrameOnTimeline - lowestFrameOnTimeline,
-      MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE
+      TIMELINE_SCENE_MINIMUM_WIDTH
     );
     return {
       inPoint,
@@ -139,9 +140,9 @@ const Timeline = ({
     }
   }
 
-  const widthOfSingleFrameSelection = Math.floor(containerWidth / sceneInOutObject.length);
+  const widthOfSingleFrameSelection = Math.max(Math.floor(containerWidth / sceneInOutObject.length), TIMELINE_PLAYHEAD_MINIMUM_WIDTH);
   const playHeadPositionSelection = Math.floor(playHeadPositionPercSelection * (widthTimeline - widthOfSingleFrameSelection));
-  const widthOfSingleFrame = containerWidth * 1.0 / frameCount;
+  const widthOfSingleFrame = Math.max((containerWidth * 1.0 / frameCount), TIMELINE_PLAYHEAD_MINIMUM_WIDTH);
   const playHeadPosition = playHeadPositionPerc * (widthTimeline - widthOfSingleFrame);
 
   return (

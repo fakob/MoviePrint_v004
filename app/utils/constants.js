@@ -155,7 +155,6 @@ export const DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN = 10;
 
 export const MINIMUM_WIDTH_TO_SHRINK_HOVER = 160; // if smaller then scale hover to 0.7
 export const MINIMUM_WIDTH_TO_SHOW_HOVER = 100; // if smaller then do not show hover elements over thumb
-export const MINIMUM_WIDTH_OF_CUTWIDTH_ON_TIMELINE = 2; // heightOfInOutPointButtons
 
 export const CHANGE_THUMB_STEP = [1, 10, 100];
 
@@ -175,3 +174,6 @@ export const VIDEOPLAYER_SLICE_ARRAY_SIZE = 20;
 export const VIDEOPLAYER_SCENE_MARGIN = 4;
 export const VIDEOPLAYER_THUMB_MARGIN = 4;
 export const VIDEOPLAYER_FIXED_PIXEL_PER_FRAME_RATIO = 0.3;
+
+export const TIMELINE_SCENE_MINIMUM_WIDTH = 2; // heightOfInOutPointButtons
+export const TIMELINE_PLAYHEAD_MINIMUM_WIDTH = 2;
