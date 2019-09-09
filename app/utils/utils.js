@@ -175,12 +175,12 @@ export const saveBlob = (blob, sheetId, fileName, dataToEmbed = undefined) => {
         const { filePath, transformObject, columnCount, frameNumberArray} = dataToEmbed;
         // Create chunks
         const version = text.encode('version', app.getVersion());
-        const filePathChunk = text.encode('filePath', filePath);
+        const filePathChunk = text.encode('filePath', encodeURIComponent(filePath));
         const transformObjectChunk = text.encode('transformObject', JSON.stringify(transformObject));
         const columnCountChunk = text.encode('columnCount', columnCount);
         const frameNumberArrayChunk = text.encode('frameNumberArray', JSON.stringify(frameNumberArray));
 
-        const chunks = extract(buffer)
+        const chunks = extract(buffer);
 
         // Add new chunks before the IEND chunk
         chunks.splice(-1, 0, version);

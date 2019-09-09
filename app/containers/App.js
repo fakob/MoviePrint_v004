@@ -2628,7 +2628,7 @@ ${exportObject}`;
           log.debug(textChunks);
 
           if (textChunks.length !== 0) {
-            newFilePath = textChunks.find(chunk => chunk.keyword === 'filePath').text;
+            newFilePath = decodeURIComponent(textChunks.find(chunk => chunk.keyword === 'filePath').text);
             const transformObjectString = textChunks.find(chunk => chunk.keyword === 'transformObject').text;
             transformObject = (transformObjectString !== 'undefined') ? JSON.parse(transformObjectString) : undefined;
             columnCount = textChunks.find(chunk => chunk.keyword === 'columnCount').text;
