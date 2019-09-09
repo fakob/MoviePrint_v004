@@ -148,11 +148,11 @@ export default class MenuBuilder {
       submenu: [
         { label: 'Toggle Full Screen', accelerator: 'Ctrl+Command+F', click: () => { this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen()); } },
         { type: 'separator' },
-        { label: 'Reset application', accelerator: 'Shift+Alt+Command+C', click: () => {
-          resetApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.indexedDBWorkerWindow)
-          } },
         { label: 'Reload application', accelerator: 'Command+R', click: () => {
           reloadApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.indexedDBWorkerWindow)
+        } },
+        { label: 'Reset application', accelerator: 'Shift+Alt+Command+C', click: () => {
+          resetApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.indexedDBWorkerWindow)
         } },
         { type: 'separator' },
         { label: 'Restart in debug mode', accelerator: 'Shift+Alt+Ctrl+X', click: () => {
@@ -304,11 +304,11 @@ export default class MenuBuilder {
           }
         },
         { type: 'separator' },
-        { label: 'Reset application', accelerator: 'Shift+Alt+Ctrl+C', click: () => {
-          resetApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.indexedDBWorkerWindow)
-          } },
         { label: 'Reload application', accelerator: 'Ctrl+R', click: () => {
           reloadApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.indexedDBWorkerWindow)
+        } },
+        { label: 'Reset application', accelerator: 'Shift+Alt+Ctrl+C', click: () => {
+          resetApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.indexedDBWorkerWindow)
         } },
         { type: 'separator' },
         { label: 'Restart in debug mode', accelerator: 'Shift+Alt+Ctrl+X', click: () => {
