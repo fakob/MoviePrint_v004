@@ -298,7 +298,7 @@ const FileListElement = ({
               }}
               className={`${styles.SheetNameInput}`}
             /> */}
-            {fileMissingStatus !== undefined &&
+            {fileMissingStatus !== true &&
               <Dropdown
                 data-tid='sheetItemOptionsDropdown'
                 item
