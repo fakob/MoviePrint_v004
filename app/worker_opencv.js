@@ -82,7 +82,7 @@ setInterval(() => {
   }
 }, 1000);
 
-ipcRenderer.on('cancelFileScan', (event, fileId) => {
+ipcRenderer.on('cancelFileScan', () => {
   log.debug('cancelling fileScan');
   fileScanRunning = false;
 });
@@ -106,6 +106,10 @@ ipcRenderer.on('recapture-frames', (event, files, sheetsByFileId, frameSize, fil
     if (sheets !== undefined) {
       Object.keys(sheets).map(sheetId => {
         const currentSheetArray = sheets[sheetId].thumbsArray;
+        if (currentSheetArray === undefined) {
+          return false;
+        }
+
         const frameNumberArray = currentSheetArray.map(frame => frame.frameNumber);
         const frameIdArray = currentSheetArray.map(frame => frame.frameId);
 
