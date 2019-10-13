@@ -1078,7 +1078,6 @@ export const calculateSceneListFromDifferenceArray = (fileId, differenceArray, m
   let lastSceneCut = null;
   let differenceValueFromLastSceneCut;
   const sceneList = [];
-
   differenceArray.map((differenceValue, index) => {
     // initialise first scene cut
     if (lastSceneCut === null) {
@@ -1086,6 +1085,7 @@ export const calculateSceneListFromDifferenceArray = (fileId, differenceArray, m
     }
     if (differenceValue >= threshold) {
       if ((index - lastSceneCut) >= SCENE_DETECTION_MIN_SCENE_LENGTH) {
+        // check if differenceValue is not within SCENE_DETECTION_MIN_SCENE_LENGTH
         const start = lastSceneCut; // start
         const length = index - start; // length
         const colorArray = meanColorArray[start + Math.floor(length / 2)];
@@ -1098,23 +1098,25 @@ export const calculateSceneListFromDifferenceArray = (fileId, differenceArray, m
         });
         lastSceneCut = index;
       } else if (differenceValue > differenceValueFromLastSceneCut) {
-        // check if differenceValue is within SCENE_DETECTION_MIN_SCENE_LENGTH
-        // and if it is larger than differenceValueFromLastSceneCut
-        // if so, then delete last cut and add new on activate
-        // console.log(`differenceValueFromLastSceneCut > differenceValue at: ${index}`);
-        const lastScene = sceneList.pop();
-        const { start } = lastScene; // get start from lastScene
+        // check if there is a more distinct cut within SCENE_DETECTION_MIN_SCENE_LENGTH
+        // if so, remove the previous one and use the new one
+        // only if sceneList not empty (otherwise pop returns undefined)
 
-        const length = index - start; // length
-        const colorArray = meanColorArray[start + Math.floor(length / 2)];
-        // [frameMean.w, frameMean.x, frameMean.y], // color
-        sceneList.push({
-          fileId,
-          start,
-          length,
-          colorArray,
-        });
-        lastSceneCut = index;
+        if (sceneList.length !== 0) {
+          const lastScene = sceneList.pop();
+          const { start } = lastScene; // get start from lastScene
+
+          const length = index - start; // length
+          const colorArray = meanColorArray[start + Math.floor(length / 2)];
+          // [frameMean.w, frameMean.x, frameMean.y], // color
+          sceneList.push({
+            fileId,
+            start,
+            length,
+            colorArray,
+          });
+          lastSceneCut = index;
+        }
       }
     }
     differenceValueFromLastSceneCut = differenceValue;
