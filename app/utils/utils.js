@@ -1044,35 +1044,41 @@ export const calculateSceneListFromDifferenceArray = (fileId, differenceArray, m
         const start = lastSceneCut; // start
         const length = index - start; // length
         const colorArray = meanColorArray[start + Math.floor(length / 2)];
-        // [frameMean.w, frameMean.x, frameMean.y], // color
         sceneList.push({
           fileId,
           start,
           length,
           colorArray,
         });
-        lastSceneCut = index;
       } else if (differenceValue > differenceValueFromLastSceneCut) {
         // check if there is a more distinct cut within SCENE_DETECTION_MIN_SCENE_LENGTH
         // if so, remove the previous one and use the new one
         // only if sceneList not empty (otherwise pop returns undefined)
-
         if (sceneList.length !== 0) {
           const lastScene = sceneList.pop();
           const { start } = lastScene; // get start from lastScene
-
           const length = index - start; // length
           const colorArray = meanColorArray[start + Math.floor(length / 2)];
-          // [frameMean.w, frameMean.x, frameMean.y], // color
-          sceneList.push({
+            sceneList.push({
             fileId,
             start,
             length,
             colorArray,
           });
-          lastSceneCut = index;
+        } else {
+          // if first scene within SCENE_DETECTION_MIN_SCENE_LENGTH
+          const start = 0;
+          const length = index - start; // length
+          const colorArray = meanColorArray[start + Math.floor(length / 2)];
+            sceneList.push({
+            fileId,
+            start,
+            length,
+            colorArray,
+          });
         }
       }
+      lastSceneCut = index;
     }
     differenceValueFromLastSceneCut = differenceValue;
     // console.log(`${index} - ${lastSceneCut} = ${index - lastSceneCut} - ${differenceValue >= threshold}`);
@@ -1088,6 +1094,7 @@ export const calculateSceneListFromDifferenceArray = (fileId, differenceArray, m
     colorArray: [128, 128, 128],
     // [frameMean.w, frameMean.x, frameMean.y], // color
   });
+  // console.log(sceneList);
   return sceneList;
 }
 
