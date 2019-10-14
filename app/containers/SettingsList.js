@@ -60,35 +60,52 @@ const outputSize = (file = {
     sceneArray,
     secondsPerRowTemp,
   );
-  const sizeLimit = 32767; // due to browser limitations https://html2canvas.hertzen.com/faq
+  const sizeLimit = 16384; // due to browser limitations https://html2canvas.hertzen.com/faq
   let moviePrintSize;
   if (isGridView) {
     moviePrintSize = [
-    { width: 16384, height: Math.round(16384 * newScaleValueObject.moviePrintAspectRatioInv) },
-    { width: 8192, height: Math.round(8192 * newScaleValueObject.moviePrintAspectRatioInv) },
-    { width: 4096, height: Math.round(4096 * newScaleValueObject.moviePrintAspectRatioInv) },
-    { width: 3072, height: Math.round(3072 * newScaleValueObject.moviePrintAspectRatioInv) },
-    { width: 2048, height: Math.round(2048 * newScaleValueObject.moviePrintAspectRatioInv) },
     { width: 1024, height: Math.round(1024 * newScaleValueObject.moviePrintAspectRatioInv) },
+    { width: 2048, height: Math.round(2048 * newScaleValueObject.moviePrintAspectRatioInv) },
+    { width: 3072, height: Math.round(3072 * newScaleValueObject.moviePrintAspectRatioInv) },
+    { width: 4096, height: Math.round(4096 * newScaleValueObject.moviePrintAspectRatioInv) },
+    { width: 8192, height: Math.round(8192 * newScaleValueObject.moviePrintAspectRatioInv) },
+    { width: 16384, height: Math.round(16384 * newScaleValueObject.moviePrintAspectRatioInv) },
     ];
+    if (newScaleValueObject.moviePrintAspectRatioInv > 1) {
+      const maxWidth = Math.round(sizeLimit / newScaleValueObject.moviePrintAspectRatioInv);
+      // to avoid duplicates due to rounding
+      if (maxWidth !== sizeLimit) {
+        moviePrintSize.push(
+          { width: maxWidth, height: sizeLimit}
+        )
+      }
+    }
   } else {
     moviePrintSize = [
-    { height: 16384, width: Math.round(16384 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
-    { height: 8192, width: Math.round(8192 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
-    { height: 4096, width: Math.round(4096 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
-    { height: 3072, width: Math.round(3072 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
-    { height: 2048, width: Math.round(2048 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
     { height: 1024, width: Math.round(1024 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
+    { height: 2048, width: Math.round(2048 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
+    { height: 3072, width: Math.round(3072 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
+    { height: 4096, width: Math.round(4096 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
+    { height: 8192, width: Math.round(8192 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
+    { height: 16384, width: Math.round(16384 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
     ];
+    if (newScaleValueObject.timelineMoviePrintAspectRatioInv < 1) {
+      const maxHeight = Math.round(sizeLimit * newScaleValueObject.timelineMoviePrintAspectRatioInv);
+      // to avoid duplicates due to rounding
+      if (maxHeight !== sizeLimit) {
+        moviePrintSize.push(
+          { height: maxHeight, width: sizeLimit}
+        )
+      }
+    }
   }
-  return [
-    { value: isGridView ? moviePrintSize[5].width : moviePrintSize[5].height, text: `${moviePrintSize[5].width}px (×${moviePrintSize[5].height}px)`, disabled: ((moviePrintSize[5].width + moviePrintSize[5].height) > sizeLimit), 'data-tid': `${moviePrintSize[5].width}-widthOption` },
-    { value: isGridView ? moviePrintSize[4].width : moviePrintSize[4].height, text: `${moviePrintSize[4].width}px (×${moviePrintSize[4].height}px)`, disabled: ((moviePrintSize[4].width + moviePrintSize[4].height) > sizeLimit), 'data-tid': `${moviePrintSize[4].width}-widthOption` },
-    { value: isGridView ? moviePrintSize[3].width : moviePrintSize[3].height, text: `${moviePrintSize[3].width}px (×${moviePrintSize[3].height}px)`, disabled: ((moviePrintSize[3].width + moviePrintSize[3].height) > sizeLimit), 'data-tid': `${moviePrintSize[3].width}-widthOption` },
-    { value: isGridView ? moviePrintSize[2].width : moviePrintSize[2].height, text: `${moviePrintSize[2].width}px (×${moviePrintSize[2].height}px)`, disabled: ((moviePrintSize[2].width + moviePrintSize[2].height) > sizeLimit), 'data-tid': `${moviePrintSize[2].width}-widthOption` },
-    { value: isGridView ? moviePrintSize[1].width : moviePrintSize[1].height, text: `${moviePrintSize[1].width}px (×${moviePrintSize[1].height}px)`, disabled: ((moviePrintSize[1].width + moviePrintSize[1].height) > sizeLimit), 'data-tid': `${moviePrintSize[1].width}-widthOption` },
-    { value: isGridView ? moviePrintSize[0].width : moviePrintSize[0].height, text: `${moviePrintSize[0].width}px (×${moviePrintSize[0].height}px)`, disabled: ((moviePrintSize[0].width + moviePrintSize[0].height) > sizeLimit), 'data-tid': `${moviePrintSize[0].width}-widthOption` },
-  ];
+  const moviePrintSizeArray = moviePrintSize.reduce((newFilteredArray, item) => {
+    if ((item.width <= sizeLimit) && (item.height <= sizeLimit)) {
+      newFilteredArray.push({ value: isGridView ? item.width : item.height, text: `${item.width}px (×${item.height}px)`, 'data-tid': `${item.width}-widthOption` });
+    }
+    return newFilteredArray;
+  }, []).sort((a, b) => b.value < a.value);
+  return moviePrintSizeArray;
 };
 
 class SettingsList extends Component {

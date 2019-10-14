@@ -730,7 +730,7 @@ class App extends Component {
     });
 
     ipcRenderer.on('received-saved-file-error', (event, message) => {
-      this.showMessage(message, 3000, 'error');
+      this.showMessage(message, 5000, 'error');
       setTimeout(
         this.setState({ savingMoviePrint: false }),
         1000

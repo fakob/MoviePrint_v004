@@ -53,32 +53,40 @@ class WorkerApp extends Component {
       log.debug('workerWindow | action-save-MoviePrint');
       log.debug(sentData);
 
-      const visibleThumbs = getVisibleThumbs(
-        sentData.sheet.thumbsArray,
-        sentData.visibilityFilter
-      );
+      if (sentData.moviePrintWidth > 16384) {
+        ipcRenderer.send(
+          'message-from-workerWindow-to-mainWindow',
+          'received-saved-file-error',
+          'MoviePrint could not be saved due to sizelimit (width > 16384)'
+        );
+      } else {
+        const visibleThumbs = getVisibleThumbs(
+          sentData.sheet.thumbsArray,
+          sentData.visibilityFilter
+        );
 
-      // calculate which frameSize is needed to be captured
-      // moviePrintAspectRatioInv
-      // need to check portrait thumbs as resizeToMax is used which is not width specific
-      const { newThumbWidth, moviePrintAspectRatioInv } = sentData.scaleValueObject;
-      const { file } = sentData;
-      const newThumbHeight = newThumbWidth * moviePrintAspectRatioInv;
-      const frameSize = Math.floor(Math.max(newThumbHeight, newThumbWidth) * 2) // get twice the needed resolution for better antialiasing
-      console.log(newThumbWidth);
-      console.log(newThumbHeight);
-      console.log(frameSize);
+        // calculate which frameSize is needed to be captured
+        // moviePrintAspectRatioInv
+        // need to check portrait thumbs as resizeToMax is used which is not width specific
+        const { newThumbWidth, moviePrintAspectRatioInv } = sentData.scaleValueObject;
+        const { file } = sentData;
+        const newThumbHeight = newThumbWidth * moviePrintAspectRatioInv;
+        const frameSize = Math.floor(Math.max(newThumbHeight, newThumbWidth) * 2) // get twice the needed resolution for better antialiasing
+        console.log(newThumbWidth);
+        console.log(newThumbHeight);
+        console.log(frameSize);
 
-      const base64Object = getBase64Object(sentData.file.path, sentData.file.useRatio, visibleThumbs, frameSize, file.transformObject);
+        const base64Object = getBase64Object(sentData.file.path, sentData.file.useRatio, visibleThumbs, frameSize, file.transformObject);
 
-      // console.log(base64Object);
+        // console.log(base64Object);
 
-      this.setState({
-        savingMoviePrint: true,
-        sentData,
-        visibleThumbs,
-        thumbObjectBase64s: base64Object,
-      });
+        this.setState({
+          savingMoviePrint: true,
+          sentData,
+          visibleThumbs,
+          thumbObjectBase64s: base64Object,
+        });
+      }
     });
   }
 
