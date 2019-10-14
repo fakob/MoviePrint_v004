@@ -1,9 +1,5 @@
-import uuidV4 from 'uuid/v4';
 import pathR from 'path';
 import fsR from 'fs';
-import extract from 'png-chunks-extract';
-import encode from 'png-chunks-encode';
-import text from 'png-chunk-text';
 import log from 'electron-log';
 import VideoCaptureProperties from './videoCaptureProperties';
 import sheetNames from '../img/listOfNames.json'
@@ -13,7 +9,6 @@ import {
 } from './constants';
 
 const randomColor = require('randomcolor');
-const { ipcRenderer } = require('electron');
 const { app } = require('electron').remote;
 
 export const doesFileFolderExist = (fileName) => {
@@ -161,46 +156,6 @@ export const formatBytes = (bytes, decimals = 1) => {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   // return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
   return `${parseFloat((bytes / (k ** i)).toFixed(dm))} ${sizes[i]}`;
-};
-
-export const saveBlob = (blob, sheetId, fileName, dataToEmbed = undefined) => {
-  const reader = new FileReader();
-  reader.onload = () => {
-    if (reader.readyState === 2) {
-      const buffer = Buffer.from(reader.result);
-      let chunkBuffer = buffer;
-
-      // if there is data to embed, create chunks and add them in the end
-      if (dataToEmbed !== undefined) {
-        const { filePath, transformObject, columnCount, frameNumberArray} = dataToEmbed;
-        // Create chunks
-        const version = text.encode('version', app.getVersion());
-        const filePathChunk = text.encode('filePath', encodeURIComponent(filePath));
-        const transformObjectChunk = text.encode('transformObject', JSON.stringify(transformObject));
-        const columnCountChunk = text.encode('columnCount', columnCount);
-        const frameNumberArrayChunk = text.encode('frameNumberArray', JSON.stringify(frameNumberArray));
-
-        const chunks = extract(buffer);
-
-        // Add new chunks before the IEND chunk
-        chunks.splice(-1, 0, version);
-        chunks.splice(-1, 0, filePathChunk);
-        chunks.splice(-1, 0, transformObjectChunk);
-        chunks.splice(-1, 0, columnCountChunk);
-        chunks.splice(-1, 0, frameNumberArrayChunk);
-
-        chunkBuffer = Buffer.from(encode(chunks));
-      }
-
-      ipcRenderer.send('send-save-file', sheetId, fileName, chunkBuffer, true);
-      log.debug(`Saving ${JSON.stringify({ fileName, size: blob.size })}`);
-    }
-  };
-  try {
-    reader.readAsArrayBuffer(blob);
-  } catch (e) {
-    ipcRenderer.send('send-save-file-error', true);
-  }
 };
 
 export const getMimeType = (outputFormat) => {

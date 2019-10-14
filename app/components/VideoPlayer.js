@@ -271,27 +271,29 @@ class VideoPlayer extends Component {
         const sliceXPos = Math.max(Math.floor((width * rescaleFactor) / 2) - Math.floor(sliceWidth / 2), 0);
         const thisFrameIsACut = arrayOfCuts.some(item => item === offsetFrameNumber + i + 1);
 
-        if ((offsetFrameNumber + i) >= 0 && !frame.empty) {
-          const matResized = frame.rescale(rescaleFactor);
-          const matCropped = matResized.getRegion(new opencv.Rect(
-            sliceXPos,
-            0,
-            Math.min(matResized.cols, sliceWidth),
-            Math.min(matResized.rows, Math.abs(videoHeight))
-          ));
+        if ((offsetFrameNumber + i) >= 0) {
+          if (!frame.empty) {
+            const matResized = frame.rescale(rescaleFactor);
+            const matCropped = matResized.getRegion(new opencv.Rect(
+              sliceXPos,
+              0,
+              Math.min(matResized.cols, sliceWidth),
+              Math.min(matResized.rows, Math.abs(videoHeight))
+            ));
 
-          const matRGBA = matResized.channels === 1 ?
-          matCropped.cvtColor(opencv.COLOR_GRAY2RGBA) :
-          matCropped.cvtColor(opencv.COLOR_BGR2RGBA);
+            const matRGBA = matResized.channels === 1 ?
+            matCropped.cvtColor(opencv.COLOR_GRAY2RGBA) :
+            matCropped.cvtColor(opencv.COLOR_BGR2RGBA);
 
-          const imgData = new ImageData(
-            new Uint8ClampedArray(matRGBA.getData()),
-            matCropped.cols,
-            matCropped.rows
-          );
-          ctx.putImageData(imgData, canvasXPos, 0);
-        } else {
-          console.log('frame empty')
+            const imgData = new ImageData(
+              new Uint8ClampedArray(matRGBA.getData()),
+              matCropped.cols,
+              matCropped.rows
+            );
+            ctx.putImageData(imgData, canvasXPos, 0);
+          } else {
+            log.debug('frame empty');
+          }
         }
         canvasXPos += sliceWidthArray[i] + (thisFrameIsACut ? cutGap : sliceGap);
       }
