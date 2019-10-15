@@ -63,20 +63,17 @@ const Timeline = ({
 
   function onTimelineClick(e) {
     const xPerc = ((e.clientX - leftBoundsTimeline) * 1.0) / (widthTimeline - widthOfSingleFrame);
-    const xPercBucket = getBucketValueOfPercentage(xPerc, sceneInOutObject.length);
-    updateTimeFromPosition(xPercBucket);
+    updateTimeFromPosition(xPerc);
   }
 
   function onTimelineMouseOver(e) {
     if (mouseStartDragInsideTimeline) { // check if dragging over timeline
       const xPerc = ((e.clientX - leftBoundsTimeline) * 1.0) / (widthTimeline - widthOfSingleFrame);
-      const xPercBucket = getBucketValueOfPercentage(xPerc, sceneInOutObject.length);
-      updateTimeFromPosition(xPercBucket);
+      updateTimeFromPosition(xPerc);
     }
     if (mouseStartDragInsideTimelineSelection) { // check if dragging over timeline
       const xPerc = ((e.clientX - leftBoundsTimeline) * 1.0) / (widthTimeline - widthOfSingleFrameSelection);
       const xPercBucket = getBucketValueOfPercentage(xPerc, sceneInOutObject.length);
-      console.log(xPercBucket)
       updateTimeFromPositionSelection(xPercBucket);
     }
   }
