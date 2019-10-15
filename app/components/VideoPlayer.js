@@ -252,7 +252,8 @@ class VideoPlayer extends Component {
       const offsetFrameNumber = currentFrame - parseInt(sliceArraySizeHalf, 10) + offsetCorrection;
       const { videoHeight } = this.state
       const vid = opencvVideo;
-      setPosition(vid, offsetFrameNumber, file.useRatio);
+      const startFrameToRead = Math.max(0, offsetFrameNumber);
+      setPosition(vid, startFrameToRead, file.useRatio);
       const ctx = this.opencvVideoPlayerCanvasRef.getContext('2d');
       const length = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT);
       const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
@@ -266,12 +267,12 @@ class VideoPlayer extends Component {
       let canvasXPos = 0;
 
       for (let i = 0; i < sliceArraySize; i += 1) {
-        const frame = vid.read();
         const sliceWidth = sliceWidthArray[i];
         const sliceXPos = Math.max(Math.floor((width * rescaleFactor) / 2) - Math.floor(sliceWidth / 2), 0);
         const thisFrameIsACut = arrayOfCuts.some(item => item === offsetFrameNumber + i + 1);
 
         if ((offsetFrameNumber + i) >= 0) {
+          const frame = vid.read();
           if (!frame.empty) {
             const matResized = frame.rescale(rescaleFactor);
             const matCropped = matResized.getRegion(new opencv.Rect(
@@ -434,7 +435,6 @@ class VideoPlayer extends Component {
   updateTimeFromPosition(xPos) {
     const { file, allScenes, onSelectThumbMethod } = this.props;
     const { currentScene, duration, loadVideo, showHTML5Player } = this.state;
-
     if (xPos !== undefined) {
       const { frameCount } = file;
       const currentFrame = mapRange(xPos, 0, 1.0, 0, frameCount - 1);
@@ -736,17 +736,17 @@ class VideoPlayer extends Component {
                 The video format is not supported by this player
               </div>
               <video
-              ref={(el) => { this.video = el; }}
-              className={`${styles.videoOverlay}`}
-              controls={showPlaybar ? true : undefined}
-              muted
-              src={file ? `${pathModule.dirname(file.path)}/${encodeURIComponent(pathModule.basename(file.path))}` || '' : ''}
-              width={videoWidth}
-              height={videoHeight}
-              onDurationChange={e => this.onDurationChange(e.target.duration)}
-              onTimeUpdate={e => this.updatePositionFromTime(e.target.currentTime)}
-              onLoadedData={this.onLoadedData}
-              onError={this.onVideoError}
+                ref={(el) => { this.video = el; }}
+                className={`${styles.videoOverlay}`}
+                controls={showPlaybar ? true : undefined}
+                muted
+                src={file ? `${pathModule.dirname(file.path)}/${encodeURIComponent(pathModule.basename(file.path))}` || '' : ''}
+                width={videoWidth}
+                height={videoHeight}
+                onDurationChange={e => this.onDurationChange(e.target.duration)}
+                onTimeUpdate={e => this.updatePositionFromTime(e.target.currentTime)}
+                onLoadedData={this.onLoadedData}
+                onError={this.onVideoError}
               >
               <track kind="captions" />
               </video>
