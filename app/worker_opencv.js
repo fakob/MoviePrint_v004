@@ -6,11 +6,13 @@ import VideoCaptureProperties from './utils/videoCaptureProperties';
 import { limitRange, setPosition, fourccToString } from './utils/utils';
 import {
   HSVtoRGB,
+  detectCut,
   recaptureThumbs,
  } from './utils/utilsForOpencv';
 import {
   IN_OUT_POINT_SEARCH_LENGTH,
   IN_OUT_POINT_SEARCH_THRESHOLD,
+  SHOT_DETECTION_METHOD,
 } from './utils/constants';
 import {
   insertFrameScanArray,
@@ -543,7 +545,7 @@ ipcRenderer.on(
       const minSceneLength = 15;
 
       const frameMetrics = [];
-      let lastFrameMean = new opencv.Vec(null, null, null, null);;
+      let previousData = {};
       let lastSceneCut = null;
 
       // transform
@@ -582,7 +584,6 @@ ipcRenderer.on(
                 )}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`
               );
             }
-            let frameMean = 0;
             if (mat.empty === false) {
 
               // optional cropping
@@ -591,46 +592,39 @@ ipcRenderer.on(
                 matCropped = mat.getRegion(new opencv.Rect(cropLeft, cropTop, cropWidth, cropHeight));
               }
 
-              frameMean = matCropped === undefined ?
-                mat.resizeToMax(240).cvtColor(opencv.COLOR_BGR2HSV).mean() :
-                matCropped.resizeToMax(240).cvtColor(opencv.COLOR_BGR2HSV).mean();
-
-              const deltaFrameMean = frameMean.absdiff(lastFrameMean);
-              const frameHsvAverage = (deltaFrameMean.w + deltaFrameMean.x + deltaFrameMean.y) / 3.0; // w = H, x = S, y = V = brightness
+              const resultingData = detectCut(previousData, matCropped || mat, threshold, SHOT_DETECTION_METHOD.MEAN);
+              const { isCut, lastColorRGB, lastValue } = resultingData;
 
               // initialise first scene cut
               if (lastSceneCut === null) {
                 lastSceneCut = frame;
               }
 
-              if (frameHsvAverage >= threshold) {
+              if (isCut) {
                 if ((frame - lastSceneCut) >= minSceneLength) {
                   // add scene
                   // sceneQueue is used for preview purpose and is pulled from mainWindow
                   const length = frame - lastSceneCut; // length
-                  const colorArray = HSVtoRGB(frameMean.w, frameMean.x, frameMean.y);
                   sceneQueue.add({
                     fileId,
                     sheetId,
                     start: lastSceneCut, // start
                     length,
-                    colorArray,
+                    colorArray: lastColorRGB,
                   });
 
                   lastSceneCut = frame;
                 }
               }
-              // log.debug(`${frame}: ${deltaFrameMean.y} = ${frameMean.y} - ${lastFrameMean.y}`);
-              lastFrameMean = frameMean;
 
-              log.debug(frameMean);
-              log.debug(`h: ${frameMean.w}, s: ${frameMean.x}, v: ${frameMean.y}`);
-              const meanValue = frameMean.y;
-              const meanColor = JSON.stringify(HSVtoRGB(frameMean.w, frameMean.x, frameMean.y));
+              previousData = Object.assign({}, resultingData);
+
+              log.debug(lastValue);
+              const meanColor = JSON.stringify(lastColorRGB);
               frameMetrics.push({
                 fileId,
                 frameNumber: frame,
-                meanValue,
+                meanValue: lastValue,
                 meanColor,
               });
             } else {
@@ -674,14 +668,15 @@ ipcRenderer.on(
               console.timeEnd(`${fileId}-fileScanning`);
 
               // add last scene
+              const { lastColorRGB } = previousData;
+
               const length = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - lastSceneCut; // length
-              const colorArray = HSVtoRGB(frameMean.w, frameMean.x, frameMean.y);
               sceneQueue.add({
                 fileId,
                 sheetId,
                 start: lastSceneCut, // start
                 length,
-                colorArray,
+                colorArray: lastColorRGB,
               });
 
               // sceneQueue was only necessary for preview

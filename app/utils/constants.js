@@ -8,6 +8,11 @@ export const URL_CHANGE_LOG = 'https://movieprint.fakob.com/movieprint-changelog
 export const URL_REST_API_CHECK_FOR_UPDATES = 'https://movieprint.fakob.com/wp-json/wp/v2/pages/568'; // _Latest_Release page
 export const URL_FEEDBACK_FORM = 'http://movieprint.fakob.com/feedback-for-movieprint-app';
 
+export const SHOT_DETECTION_METHOD = {
+  MEAN: 'meanAverage',
+  HIST: 'histogram',
+}
+
 export const SHEET_FIT = {
   WIDTH: 'width',
   HEIGHT: 'height',

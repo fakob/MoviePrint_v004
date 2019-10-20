@@ -7,6 +7,9 @@ import {
   setPosition,
 } from './utils';
 import {
+  SHOT_DETECTION_METHOD,
+} from './constants';
+import {
   // updateFrameBase64,
 } from './utilsForSqlite';
 
@@ -246,3 +249,59 @@ export const HSVtoRGB = (h, s, v) => {
 //     }
 //     return [h, newS, l]
 // }
+
+export const detectCut = (previousData, currentFrame, threshold, method) => {
+
+  switch (method) {
+    case SHOT_DETECTION_METHOD.MEAN: {
+      const frameMean = currentFrame.resizeToMax(240).cvtColor(opencv.COLOR_BGR2HSV).mean();
+
+      const { lastColorHSV = new opencv.Vec(null, null, null, null) } = previousData;
+      const deltaFrameMean = frameMean.absdiff(lastColorHSV);
+      const frameHsvAverage = (deltaFrameMean.w + deltaFrameMean.x + deltaFrameMean.y) / 3.0; // w = H, x = S, y = V = brightness
+      const colorArray = HSVtoRGB(frameMean.w, frameMean.x, frameMean.y);
+      const meanValue = frameMean.y;
+
+      const isCut = frameHsvAverage >= threshold;
+
+      return {
+        isCut,
+        lastValue: meanValue,
+        lastColorHSV: frameMean,
+        lastColorRGB: colorArray,
+      }
+      // log.error('no previousData detected');
+    }
+    case SHOT_DETECTION_METHOD.HIST: {
+      const { lastValue } = previousData;
+
+      // resize and convert to HSV
+      const convertedFrame = currentFrame.resizeToMax(240).cvtColor(opencv.COLOR_BGR2HSV);
+
+      // single axis for 1D hist
+      const getHistAxis = channel => ([
+        {
+          channel,
+          bins: 32,
+          ranges: [0, 256]
+        }
+      ]);
+      // get histogram for V channel
+      const vHist = opencv.calcHist(convertedFrame, getHistAxis(2));
+      const vHistNormalized = vHist.normalize();
+
+      const differenceValue = vHistNormalized.compareHist(lastValue);
+
+      const isCut = differenceValue >= threshold;
+
+      return {
+        isCut,
+        lastObject: vHistNormalized,
+        lastValue: differenceValue,
+        lastColorRGB: colorArray,
+      }
+      // log.error('no previousData detected');
+    }
+    default:
+  }
+}
