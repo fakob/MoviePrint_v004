@@ -1558,34 +1558,27 @@ class App extends Component {
       repairFrameScanData(arrayOfFrameScanData, frameCount);
     }
 
-    const meanValueArray = arrayOfFrameScanData.map(frame => frame.meanValue)
-    const meanColorArray = arrayOfFrameScanData.map(frame => JSON.parse(frame.meanColor))
+    const differenceValueArray = arrayOfFrameScanData.map(frame => frame.differenceValue);
+    const meanColorArray = arrayOfFrameScanData.map(frame => JSON.parse(frame.meanColor));
 
     // const sceneList = [];
 
-    const differenceArray = [];
-    meanValueArray.reduce((prev, curr) => {
-        differenceArray.push(Math.abs(prev - curr));
-        return curr;
-    }, 0);
+    const sceneList = calculateSceneListFromDifferenceArray(fileId, differenceValueArray, meanColorArray, threshold);
+    console.log(sceneList.map(shot => shot.start));
 
-    // console.log(meanValueArray)
-    // console.log(differenceArray)
-    const sceneList = calculateSceneListFromDifferenceArray(fileId, differenceArray, meanColorArray, threshold);
-
-    const labels = [...Array(differenceArray.length).keys()].map((x) => String(x));
+    const labels = [...Array(differenceValueArray.length).keys()].map((x) => String(x));
     const newChartData = {
       labels,
       datasets: [{
         label: "Difference",
         backgroundColor: 'rgb(255, 80, 6)',
         pointRadius: 2,
-        data: differenceArray,
+        data: differenceValueArray,
       },{
         label: "Mean",
         backgroundColor: 'rgba(255, 80, 6, 0.2)',
         pointRadius: 0,
-        data: meanValueArray,
+        data: differenceValueArray,
       }]
     };
     this.setState({

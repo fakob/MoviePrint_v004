@@ -256,19 +256,20 @@ export const detectCut = (previousData, currentFrame, threshold, method) => {
     case SHOT_DETECTION_METHOD.MEAN: {
       const frameMean = currentFrame.resizeToMax(240).cvtColor(opencv.COLOR_BGR2HSV).mean();
 
-      const { lastColorHSV = new opencv.Vec(null, null, null, null) } = previousData;
-      const deltaFrameMean = frameMean.absdiff(lastColorHSV);
-      const frameHsvAverage = (deltaFrameMean.w + deltaFrameMean.x + deltaFrameMean.y) / 3.0; // w = H, x = S, y = V = brightness
+      const { lastValue = new opencv.Vec(null, null, null, null) } = previousData;
+      const deltaFrameMean = frameMean.absdiff(lastValue);
+      // const differenceValue = (deltaFrameMean.w + deltaFrameMean.x + deltaFrameMean.y) / 3.0; // w = H, x = S, y = V = brightness
       const colorArray = HSVtoRGB(frameMean.w, frameMean.x, frameMean.y);
-      const meanValue = frameMean.y;
+      const differenceValue = deltaFrameMean.y;
 
-      const isCut = frameHsvAverage >= threshold;
+      const isCut = differenceValue >= threshold;
 
       return {
         isCut,
-        lastValue: meanValue,
-        lastColorHSV: frameMean,
+        // lastValue: meanValue,
+        differenceValue,
         lastColorRGB: colorArray,
+        lastValue: frameMean,
       }
       // log.error('no previousData detected');
     }
@@ -296,8 +297,8 @@ export const detectCut = (previousData, currentFrame, threshold, method) => {
 
       return {
         isCut,
-        lastObject: vHistNormalized,
-        lastValue: differenceValue,
+        lastValue: vHistNormalized,
+        differenceValue,
         lastColorRGB: colorArray,
       }
       // log.error('no previousData detected');

@@ -1114,7 +1114,7 @@ export const repairFrameScanData = (arrayOfFrameScanData, frameCount) => {
         correctedDuplicate = Object.assign({}, {
           frameNumber: 0,
           meanColor: "[0,0,0]",
-          meanValue: 0,
+          differenceValue: 0,
         });
       } else {
         correctedDuplicate = Object.assign({}, arrayOfFrameScanData[i-1]);

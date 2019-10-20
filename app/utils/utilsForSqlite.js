@@ -53,7 +53,7 @@ export const insertMovie = moviePrintDB.transaction((item) => {
 // framescan table actions
 // create frames table
 export const createTableFrameScanList = () => {
-  const stmt = moviePrintDB.prepare('CREATE TABLE IF NOT EXISTS frameScanList(fileId TEXT, frameNumber INTEGER, meanValue REAL, meanColor TEXT)');
+  const stmt = moviePrintDB.prepare('CREATE TABLE IF NOT EXISTS frameScanList(fileId TEXT, frameNumber INTEGER, differenceValue REAL, meanColor TEXT)');
   stmt.run();
 }
 
@@ -65,19 +65,19 @@ export const deleteTableFrameScanList = () => {
 
 // insert frame
 export const insertFrameScan = moviePrintDB.transaction((item) => {
-  const insert = moviePrintDB.prepare('INSERT INTO frameScanList (fileId, frameNumber, meanValue, meanColor) VALUES (@fileId, @frameNumber, @meanValue, @meanColor)');
+  const insert = moviePrintDB.prepare('INSERT INTO frameScanList (fileId, frameNumber, differenceValue, meanColor) VALUES (@fileId, @frameNumber, @differenceValue, @meanColor)');
   insert.run(item)
 });
 
 // insert multiple frames
 export const insertFrameScanArray = moviePrintDB.transaction((array) => {
-  const insert = moviePrintDB.prepare('INSERT INTO frameScanList (fileId, frameNumber, meanValue, meanColor) VALUES (@fileId, @frameNumber, @meanValue, @meanColor)');
+  const insert = moviePrintDB.prepare('INSERT INTO frameScanList (fileId, frameNumber, differenceValue, meanColor) VALUES (@fileId, @frameNumber, @differenceValue, @meanColor)');
   for (const item of array) insert.run(item);
 });
 
 // get all frames by fileId
 export const getFrameScanByFileId = (fileId) => {
-  const stmt = moviePrintDB.prepare(`SELECT frameNumber, meanValue, meanColor FROM frameScanList WHERE fileId = ? ORDER BY frameNumber ASC`);
+  const stmt = moviePrintDB.prepare(`SELECT frameNumber, differenceValue, meanColor FROM frameScanList WHERE fileId = ? ORDER BY frameNumber ASC`);
   return stmt.all(fileId);
 }
 

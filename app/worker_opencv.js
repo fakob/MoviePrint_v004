@@ -593,12 +593,14 @@ ipcRenderer.on(
               }
 
               const resultingData = detectCut(previousData, matCropped || mat, threshold, SHOT_DETECTION_METHOD.MEAN);
-              const { isCut, lastColorRGB, lastValue } = resultingData;
+              const { isCut, lastColorRGB, differenceValue } = resultingData;
 
               // initialise first scene cut
               if (lastSceneCut === null) {
                 lastSceneCut = frame;
               }
+              console.log(frame)
+              console.log(differenceValue)
 
               if (isCut) {
                 if ((frame - lastSceneCut) >= minSceneLength) {
@@ -619,12 +621,12 @@ ipcRenderer.on(
 
               previousData = Object.assign({}, resultingData);
 
-              log.debug(lastValue);
+              log.debug(differenceValue);
               const meanColor = JSON.stringify(lastColorRGB);
               frameMetrics.push({
                 fileId,
                 frameNumber: frame,
-                meanValue: lastValue,
+                differenceValue,
                 meanColor,
               });
             } else {
@@ -638,7 +640,7 @@ ipcRenderer.on(
               frameMetrics.push({
                 fileId,
                 frameNumber: frame,
-                meanValue: undefined,
+                differenceValue: undefined,
                 meanColor: undefined,
               });
             }

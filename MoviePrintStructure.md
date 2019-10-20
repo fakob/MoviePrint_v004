@@ -127,7 +127,7 @@
 ##### fileScanList (data from all scanned files)
 * fileId
 * frameNumber
-* meanValue
+* differenceValue
 * meanColor
 
 # Redux structure
