@@ -75,7 +75,7 @@ MoviePrint_v004 is based on [electron-react-boilerplate](https://github.com/chen
 
 1. clone the repo via git: `git clone --depth=1 https://github.com/fakob/MoviePrint_v004.git MoviePrint_v004`
 2. Make sure you have cmake installed `brew install cmake`
-3. To have ffmpeg support in opencv4nodejs you need to have [ffmpeg](https://www.ffmpeg.org/download.html) v3.4.2 installed before opencv4nodejs gets built ([ffmpeg v4.x is currently not supported](https://github.com/justadudewhohacks/opencv4nodejs/issues/503))
+3. To have ffmpeg support in opencv4nodejs you need to have [ffmpeg](https://www.ffmpeg.org/download.html) v3.4.2 and pkg-config installed before opencv4nodejs gets built ([ffmpeg v4.x is currently not supported](https://github.com/justadudewhohacks/opencv4nodejs/issues/503))
 4. Enter the folder `cd MoviePrint_v004`
 5. Install dependencies with [yarn](https://yarnpkg.com/en/) by running the command `yarn`
 
