@@ -105,6 +105,7 @@ import {
   setDefaultSaveOptionOverwrite,
   setDefaultSceneDetectionThreshold,
   setDefaultSheetView,
+  setDefaultShotDetectionMethod,
   setDefaultShowDetailsInHeader,
   setDefaultShowHeader,
   setDefaultShowImages,
@@ -360,6 +361,7 @@ class App extends Component {
     this.onEmbedFilePathClick = this.onEmbedFilePathClick.bind(this);
     this.onThumbnailScaleClick = this.onThumbnailScaleClick.bind(this);
     this.onMoviePrintWidthClick = this.onMoviePrintWidthClick.bind(this);
+    this.onShotDetectionMethodClick = this.onShotDetectionMethodClick.bind(this);
     this.updateOpencvVideoCanvas = this.updateOpencvVideoCanvas.bind(this);
     this.runSceneDetection = this.runSceneDetection.bind(this);
     this.cancelFileScan = this.cancelFileScan.bind(this);
@@ -1477,6 +1479,7 @@ class App extends Component {
 
   runSceneDetection(fileId, filePath, useRatio, threshold = this.props.settings.defaultSceneDetectionThreshold, sheetId = uuidV4(), transformObject = undefined) {
     const { store } = this.context;
+    const { settings } = this.props;
     const { fileScanRunning } = this.state;
     const timeBeforeGetFrameScanByFileId = Date.now();
     const arrayOfFrameScanData = getFrameScanByFileId(fileId);
@@ -1520,8 +1523,17 @@ class App extends Component {
           closeButton: false,
           closeOnClick: false,
         });
-        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-scan', fileId, filePath, useRatio, threshold, sheetId, transformObject);
-
+        ipcRenderer.send(
+          'message-from-mainWindow-to-opencvWorkerWindow',
+          'send-get-file-scan',
+          fileId,
+          filePath,
+          useRatio,
+          threshold,
+          sheetId,
+          transformObject,
+          settings.defaultShotDetectionMethod
+        );
       } else {
         // console.log(meanColorArray);
         this.calculateSceneList(fileId, arrayOfFrameScanData, threshold, sheetId);
@@ -2842,6 +2854,11 @@ ${exportObject}`;
     store.dispatch(setDefaultMoviePrintWidth(value));
   };
 
+  onShotDetectionMethodClick = (value) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultShotDetectionMethod(value));
+  };
+
   updateOpencvVideoCanvas(currentFrame) {
     setPosition(this.state.opencvVideo, currentFrame, this.props.file.useRatio);
     const frame = this.state.opencvVideo.read();
@@ -3140,6 +3157,7 @@ ${exportObject}`;
                       onEmbedFilePathClick={this.onEmbedFilePathClick}
                       onThumbnailScaleClick={this.onThumbnailScaleClick}
                       onMoviePrintWidthClick={this.onMoviePrintWidthClick}
+                      onShotDetectionMethodClick={this.onShotDetectionMethodClick}
                       scaleValueObject={scaleValueObject}
                       runSceneDetection={this.runSceneDetection}
                       fileScanRunning={this.state.fileScanRunning}

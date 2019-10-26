@@ -13,6 +13,11 @@ export const SHOT_DETECTION_METHOD = {
   HIST: 'histogram',
 }
 
+export const SHOT_DETECTION_METHOD_OPTIONS = [
+  { value: SHOT_DETECTION_METHOD.MEAN, text: 'Mean average' , 'data-tid': 'shotDetectionMethodOptionsMean'},
+  { value: SHOT_DETECTION_METHOD.HIST, text: 'Histogram' , 'data-tid': 'shotDetectionMethodOptionsHist'},
+];
+
 export const SHEET_FIT = {
   WIDTH: 'width',
   HEIGHT: 'height',

@@ -12,7 +12,6 @@ import {
 import {
   IN_OUT_POINT_SEARCH_LENGTH,
   IN_OUT_POINT_SEARCH_THRESHOLD,
-  SHOT_DETECTION_METHOD,
 } from './utils/constants';
 import {
   insertFrameScanArray,
@@ -520,7 +519,8 @@ ipcRenderer.on(
     useRatio,
     threshold = 20.0,
     sheetId,
-    transformObject
+    transformObject,
+    shotDetectionMethod
   ) => {
     log.debug('opencvWorkerWindow | on send-get-file-scan');
     // log.debug(fileId);
@@ -592,15 +592,13 @@ ipcRenderer.on(
                 matCropped = mat.getRegion(new opencv.Rect(cropLeft, cropTop, cropWidth, cropHeight));
               }
 
-              const resultingData = detectCut(previousData, matCropped || mat, threshold, SHOT_DETECTION_METHOD.MEAN);
+              const resultingData = detectCut(previousData, matCropped || mat, threshold, shotDetectionMethod);
               const { isCut, lastColorRGB, differenceValue } = resultingData;
 
               // initialise first scene cut
               if (lastSceneCut === null) {
                 lastSceneCut = frame;
               }
-              console.log(frame)
-              console.log(differenceValue)
 
               if (isCut) {
                 if ((frame - lastSceneCut) >= minSceneLength) {
@@ -666,7 +664,7 @@ ipcRenderer.on(
               const scanDurationInSeconds = (timeAfterSceneDetection - timeBeforeSceneDetection) / 1000;
               const scanDurationString = scanDurationInSeconds > 180 ? `${Math.floor(scanDurationInSeconds / 60)} minutes` : `${Math.floor(scanDurationInSeconds)} seconds`
               const messageToSend = `File scanning took ${scanDurationString} (${Math.floor(vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) / scanDurationInSeconds)} fps)`;
-              log.debug(`opencvWorkerWindow | ${messageToSend}`);
+              log.info(`opencvWorkerWindow | ${filePath} - ${shotDetectionMethod} - ${messageToSend}`);
               console.timeEnd(`${fileId}-fileScanning`);
 
               // add last scene

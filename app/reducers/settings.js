@@ -67,6 +67,8 @@ const settings = (state = {}, action) => {
       return { ...state, defaultTimelineViewFlow: action.defaultTimelineViewFlow };
     case 'SET_DEFAULT_OUTPUT_PATH_FROM_MOVIE':
       return { ...state, defaultOutputPathFromMovie: action.defaultOutputPathFromMovie };
+    case 'SET_DEFAULT_SHOT_DETECTION_METHOD':
+      return { ...state, defaultShotDetectionMethod: action.defaultShotDetectionMethod };
     default:
       return state;
   }

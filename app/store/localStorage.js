@@ -50,6 +50,7 @@ import {
   DEFAULT_CACHED_FRAMES_SIZE,
   DEFAULT_EMBED_FRAMENUMBERS,
   DEFAULT_EMBED_FILEPATH,
+  SHOT_DETECTION_METHOD,
 } from '../utils/constants';
 import {
   createTableReduxState,
@@ -115,6 +116,7 @@ const initialStateJSON = {
       defaultCachedFramesSize: DEFAULT_CACHED_FRAMES_SIZE,
       defaultEmbedFrameNumbers: DEFAULT_EMBED_FRAMENUMBERS,
       defaultEmbedFilePath: DEFAULT_EMBED_FILEPATH,
+      defaultShotDetectionMethod: SHOT_DETECTION_METHOD.MEAN,
       emailAddress: '',
     },
     sheetsByFileId: {},

@@ -20,6 +20,7 @@ import {
   OUTPUT_FORMAT_OPTIONS,
   CACHED_FRAMES_SIZE_OPTIONS,
   SHEET_TYPE,
+  SHOT_DETECTION_METHOD_OPTIONS,
 } from '../utils/constants';
 import getScaleValueObject from '../utils/getScaleValueObject';
 
@@ -140,6 +141,7 @@ class SettingsList extends Component {
     this.onChangeEmbedFilePath = this.onChangeEmbedFilePath.bind(this);
     this.onChangeThumbnailScale = this.onChangeThumbnailScale.bind(this);
     this.onChangeMoviePrintWidth = this.onChangeMoviePrintWidth.bind(this);
+    this.onChangeShotDetectionMethod = this.onChangeShotDetectionMethod.bind(this);
     this.onChangeColumnCountViaInput = this.onChangeColumnCountViaInput.bind(this);
     this.onChangeColumnCountViaInputAndApply = this.onChangeColumnCountViaInputAndApply.bind(this);
     this.onChangeRowViaInput = this.onChangeRowViaInput.bind(this);
@@ -272,6 +274,10 @@ class SettingsList extends Component {
 
   onChangeMoviePrintWidth = (e, { value }) => {
     this.props.onMoviePrintWidthClick(value);
+  }
+
+  onChangeShotDetectionMethod = (e, { value }) => {
+    this.props.onShotDetectionMethodClick(value);
   }
 
   render() {
@@ -1054,6 +1060,21 @@ class SettingsList extends Component {
                 }
                 checked={!this.state.showSliders}
                 onChange={this.onShowSliders}
+              />
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Shot detection method
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <Dropdown
+                data-tid='shotDetectionMethodOptionsDropdown'
+                placeholder="Select..."
+                selection
+                options={SHOT_DETECTION_METHOD_OPTIONS}
+                defaultValue={settings.defaultShotDetectionMethod}
+                onChange={this.onChangeShotDetectionMethod}
               />
             </Grid.Column>
           </Grid.Row>

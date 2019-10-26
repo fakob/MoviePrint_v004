@@ -345,6 +345,14 @@ export const setDefaultOutputPathFromMovie = (defaultOutputPathFromMovie) => {
   };
 };
 
+export const setDefaultShotDetectionMethod = (defaultShotDetectionMethod) => {
+  log.debug(`action: setDefaultShotDetectionMethod - ${defaultShotDetectionMethod}`);
+  return {
+    type: 'SET_DEFAULT_SHOT_DETECTION_METHOD',
+    defaultShotDetectionMethod
+  };
+};
+
 // sheetsByFileId
 
 export const clearScenes = (fileId, sheetId) => {

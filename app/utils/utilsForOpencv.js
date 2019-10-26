@@ -254,12 +254,14 @@ export const detectCut = (previousData, currentFrame, threshold, method) => {
 
   switch (method) {
     case SHOT_DETECTION_METHOD.MEAN: {
-      const frameMean = currentFrame.resizeToMax(240).cvtColor(opencv.COLOR_BGR2HSV).mean();
+
+      // resize and convert to HSV
+      const convertedFrame = currentFrame.resizeToMax(240).cvtColor(opencv.COLOR_BGR2HSV);
+      const frameMean = convertedFrame.mean();
+      const colorArray = HSVtoRGB(frameMean.w, frameMean.x, frameMean.y);
 
       const { lastValue = new opencv.Vec(null, null, null, null) } = previousData;
       const deltaFrameMean = frameMean.absdiff(lastValue);
-      // const differenceValue = (deltaFrameMean.w + deltaFrameMean.x + deltaFrameMean.y) / 3.0; // w = H, x = S, y = V = brightness
-      const colorArray = HSVtoRGB(frameMean.w, frameMean.x, frameMean.y);
       const differenceValue = deltaFrameMean.y;
 
       const isCut = differenceValue >= threshold;
@@ -274,24 +276,51 @@ export const detectCut = (previousData, currentFrame, threshold, method) => {
       // log.error('no previousData detected');
     }
     case SHOT_DETECTION_METHOD.HIST: {
-      const { lastValue } = previousData;
 
       // resize and convert to HSV
-      const convertedFrame = currentFrame.resizeToMax(240).cvtColor(opencv.COLOR_BGR2HSV);
+      const resizedFrame = currentFrame.resizeToMax(240);
+      const convertedFrame = resizedFrame.cvtColor(opencv.COLOR_BGR2HSV);
+      const frameMean = resizedFrame.mean();
+      const lastColorRGB = [frameMean.y, frameMean.x, frameMean.w];
 
-      // single axis for 1D hist
-      const getHistAxis = channel => ([
+      const { lastValue } = previousData;
+
+      // all axes for 3D hist
+      const getAllAxes = () => ([
         {
-          channel,
+          channel: 0,
+          bins: 32,
+          ranges: [0, 256]
+        },{
+          channel: 1,
+          bins: 32,
+          ranges: [0, 256]
+        },{
+          channel: 2,
           bins: 32,
           ranges: [0, 256]
         }
       ]);
-      // get histogram for V channel
-      const vHist = opencv.calcHist(convertedFrame, getHistAxis(2));
+
+      // get combined histogram for all channels
+      const vHist = opencv.calcHist(convertedFrame, getAllAxes()).convertTo(opencv.CV_32F);
       const vHistNormalized = vHist.normalize();
 
-      const differenceValue = vHistNormalized.compareHist(lastValue);
+      // when lastValue is undefined (when run for the first time) compare to itself
+      const differenceValue = vHistNormalized.compareHist(lastValue || vHistNormalized, opencv.HISTCMP_CHISQR_ALT);
+
+      // const blue = new opencv.Vec(255, 0, 0);
+      // const green = new opencv.Vec(0, 255, 0);
+      // const red = new opencv.Vec(0, 0, 255);
+      //
+      // // plot channel histograms
+      // const plot = new opencv.Mat(300, 600, opencv.CV_8UC3, [255, 255, 255]);
+      // opencv.plot1DHist(vHist, plot, blue, opencv.LINE_8, 2);
+      //
+      // // opencv.imshow('rgb image', currentFrame);
+      // opencv.imshow('hsv image', convertedFrame);
+      // opencv.imshow('hsv histogram', plot);
+      // opencv.waitKey();
 
       const isCut = differenceValue >= threshold;
 
@@ -299,7 +328,7 @@ export const detectCut = (previousData, currentFrame, threshold, method) => {
         isCut,
         lastValue: vHistNormalized,
         differenceValue,
-        lastColorRGB: colorArray,
+        lastColorRGB,
       }
       // log.error('no previousData detected');
     }
