@@ -1050,6 +1050,7 @@ export const calculateSceneListFromDifferenceArray = (fileId, differenceArray, m
           length,
           colorArray,
         });
+        lastSceneCut = index;
       } else if (differenceValue > differenceValueFromLastSceneCut) {
         // check if there is a more distinct cut within SCENE_DETECTION_MIN_SCENE_LENGTH
         // if so, remove the previous one and use the new one
@@ -1059,26 +1060,27 @@ export const calculateSceneListFromDifferenceArray = (fileId, differenceArray, m
           const { start } = lastScene; // get start from lastScene
           const length = index - start; // length
           const colorArray = meanColorArray[start + Math.floor(length / 2)];
-            sceneList.push({
+          sceneList.push({
             fileId,
             start,
             length,
             colorArray,
           });
+          lastSceneCut = index;
         } else {
           // if first scene within SCENE_DETECTION_MIN_SCENE_LENGTH
           const start = 0;
           const length = index - start; // length
           const colorArray = meanColorArray[start + Math.floor(length / 2)];
-            sceneList.push({
+          sceneList.push({
             fileId,
             start,
             length,
             colorArray,
           });
+          lastSceneCut = index;
         }
       }
-      lastSceneCut = index;
     }
     differenceValueFromLastSceneCut = differenceValue;
     // console.log(`${index} - ${lastSceneCut} = ${index - lastSceneCut} - ${differenceValue >= threshold}`);
