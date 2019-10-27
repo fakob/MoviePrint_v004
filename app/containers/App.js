@@ -1573,25 +1573,85 @@ class App extends Component {
     const differenceValueArray = arrayOfFrameScanData.map(frame => frame.differenceValue);
     const meanColorArray = arrayOfFrameScanData.map(frame => JSON.parse(frame.meanColor));
 
-    // const sceneList = [];
+    // calculate threshold with kmeans
+    // convert differenceValueArray into histogram
+    const matFromArray = new opencv.Mat([differenceValueArray], opencv.CV_8UC1);
+    const vHist = opencv.calcHist(
+      matFromArray,
+      [
+        {
+          channel: 0,
+          bins: 256,
+          ranges: [0, 256]
+        }
+      ]
+    ).convertTo(opencv.CV_32F);
+
+    // convert histogram to array of points
+    const histAsArray = vHist.getDataAsArray();
+    const points2 = histAsArray.map(([x], index) => new opencv.Point(index, x));
+
+    // run kmeans
+    const { labels: kmeansLabels, centers } = opencv.kmeans(
+      points2,
+      3, // k
+      new opencv.TermCriteria(opencv.termCriteria.EPS || opencv.termCriteria.MAX_ITER, 10, 0.1), // termCriteria
+      5, // attempts
+      opencv.KMEANS_RANDOM_CENTERS // flags
+    );
+
+    // get mainCenter
+    const centersYArray = centers.map(center => center.y);
+    // get index of max value
+    const mainCenterIndex = centersYArray.indexOf(Math.max(...centersYArray));
+    // double to get boundary + 1 to compensate for starting with 0
+    const calcThreshold = Math.round(centers[mainCenterIndex].x) * 2 + 1;
+    console.log(calcThreshold);
 
     const sceneList = calculateSceneListFromDifferenceArray(fileId, differenceValueArray, meanColorArray, threshold);
     console.log(sceneList.map(shot => shot.start));
 
     const labels = [...Array(differenceValueArray.length).keys()].map((x) => String(x));
+    const thresholdLine = [
+      {
+        x: String(0),
+        y: String(threshold)
+      }, {
+        x: String(differenceValueArray.length - 1),
+        y: String(threshold)
+      },
+    ];
+    const calcThresholdLine = [
+      {
+        x: String(0),
+        y: String(calcThreshold)
+      }, {
+        x: String(differenceValueArray.length - 1),
+        y: String(calcThreshold)
+      },
+    ];
     const newChartData = {
       labels,
-      datasets: [{
-        label: "Difference",
-        backgroundColor: 'rgb(255, 80, 6)',
-        pointRadius: 2,
-        data: differenceValueArray,
-      },{
-        label: "Mean",
-        backgroundColor: 'rgba(255, 80, 6, 0.2)',
-        pointRadius: 0,
-        data: differenceValueArray,
-      }]
+      datasets: [
+          {
+          label: "Difference",
+          backgroundColor: 'rgb(255, 80, 6)',
+          pointRadius: 2,
+          data: differenceValueArray,
+        },{
+          label: "Threshold",
+          borderColor: 'rgba(255, 0, 0, 1)',
+          borderWidth: 1,
+          pointRadius: 0,
+          data: thresholdLine,
+        },{
+          label: "Calculated Threshold",
+          borderColor: 'rgba(0, 255, 0, 1)',
+          borderWidth: 1,
+          pointRadius: 0,
+          data: calcThresholdLine,
+        }
+      ]
     };
     this.setState({
       chartData: newChartData,
