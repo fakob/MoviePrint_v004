@@ -4,6 +4,8 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Slider, { Handle, createSliderWithTooltip } from 'rc-slider';
 import Tooltip from 'rc-tooltip';
+import { SketchPicker } from 'react-color';
+import { Checkboard } from 'react-color/lib/components/common';
 import { Button, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List, Message, Popup, Input } from 'semantic-ui-react';
 import styles from './Settings.css';
 import stylesPop from '../components/Popup.css';
@@ -12,13 +14,15 @@ import {
   limitRange,
   } from '../utils/utils';
 import {
-  MENU_HEADER_HEIGHT,
-  MENU_FOOTER_HEIGHT,
+  CACHED_FRAMES_SIZE_OPTIONS,
+  COLOR_PALETTE_PICO_EIGHT,
   DEFAULT_MOVIE_WIDTH,
   DEFAULT_MOVIE_HEIGHT,
-  PAPER_LAYOUT_OPTIONS,
+  MENU_HEADER_HEIGHT,
+  MENU_FOOTER_HEIGHT,
+  OUTPUT_FORMAT,
   OUTPUT_FORMAT_OPTIONS,
-  CACHED_FRAMES_SIZE_OPTIONS,
+  PAPER_LAYOUT_OPTIONS,
   SHEET_TYPE,
   SHOT_DETECTION_METHOD_OPTIONS,
 } from '../utils/constants';
@@ -115,6 +119,7 @@ class SettingsList extends Component {
     this.state = {
       changeSceneCount: false,
       showSliders: true,
+      displayColorPicker: false,
     };
 
     // this.onToggleSliders = this.onToggleSliders.bind(this);
@@ -280,6 +285,21 @@ class SettingsList extends Component {
     this.props.onShotDetectionMethodClick(value);
   }
 
+  colorPickerHandleClick = (e) => {
+    e.stopPropagation();
+    this.setState({ displayColorPicker: !this.state.displayColorPicker });
+  };
+
+  colorPickerHandleClose = (e) => {
+    e.stopPropagation();
+    this.setState({ displayColorPicker: false });
+  };
+
+  colorPickerHandleChange = (color) => {
+    console.log(color)
+    this.props.onMoviePrintBackgroundColorClick(color.rgb);
+  };
+
   render() {
     const {
       columnCountTemp,
@@ -308,16 +328,48 @@ class SettingsList extends Component {
       thumbCountTemp,
       visibilitySettings,
     } = this.props;
-    const { showSliders } = this.state;
+    const { displayColorPicker, showSliders } = this.state;
     const fileFps = file !== undefined ? file.fps : 25;
     const minutes = file !== undefined ? frameCountToMinutes(file.frameCount, fileFps) : undefined;
     const minutesRounded = Math.round(minutes);
     const cutsPerMinuteRounded = Math.round((thumbCountTemp - 1) / minutes);
+    const pico8palette = [
+    'transparent',
+    '#000000',
+    '#1D2B53',
+    '#7E2553',
+    '#008751',
+    '#AB5236',
+    '#5F574F',
+    '#C2C3C7',
+    // '#FFF1E8',
+    '#FF004D',
+    '#FFA300',
+    '#FFEC27',
+    '#00E436',
+    '#29ADFF',
+    '#83769C',
+    '#FF77A8',
+    '#FFCCAA',
+    ];
+
+    const backgroundColorDependentOnFormat = settings.defaultOutputFormat === OUTPUT_FORMAT.JPG ? // set alpha only for PNG
+      {
+        r: settings.defaultMoviePrintBackgroundColor.r,
+        g: settings.defaultMoviePrintBackgroundColor.g,
+        b: settings.defaultMoviePrintBackgroundColor.b,
+      } :
+      settings.defaultMoviePrintBackgroundColor;
+    const backgroundColorDependentOnFormatString = settings.defaultOutputFormat === OUTPUT_FORMAT.JPG ? // set alpha only for PNG
+      `rgb(${settings.defaultMoviePrintBackgroundColor.r}, ${settings.defaultMoviePrintBackgroundColor.g}, ${settings.defaultMoviePrintBackgroundColor.b})` :
+      `rgba(${settings.defaultMoviePrintBackgroundColor.r}, ${settings.defaultMoviePrintBackgroundColor.g}, ${settings.defaultMoviePrintBackgroundColor.b}, ${settings.defaultMoviePrintBackgroundColor.a})`;
+
     return (
       <Container
         style={{
           marginBottom: `${MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT}px`,
         }}
+        // onClick={ this.colorPickerHandleClose }
       >
         <Grid padded inverted>
           { !isGridView &&
@@ -941,6 +993,46 @@ class SettingsList extends Component {
                 defaultValue={settings.defaultOutputFormat}
                 onChange={this.onChangeOutputFormat}
               />
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Background color
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <div>
+                <div
+                  className={styles.colorPickerSwatch}
+                  onClick={this.colorPickerHandleClick}
+                >
+                  <Checkboard />
+                  <div
+                    className={styles.colorPickerColor}
+                    style={{
+                      backgroundColor: backgroundColorDependentOnFormatString,
+                    }}
+                  />
+                </div>
+                {
+                  displayColorPicker ?
+                    <div
+                      className={styles.colorPickerPopover}
+                      onMouseLeave={this.colorPickerHandleClose}
+                    >
+                      <div
+                        className={styles.colorPickerCover}
+                        onClick={this.colorPickerHandleClose}
+                      />
+                      <SketchPicker
+                        color={backgroundColorDependentOnFormat}
+                        onChange={this.colorPickerHandleChange}
+                        disableAlpha={settings.defaultOutputFormat === OUTPUT_FORMAT.JPG}
+                        presetColors={COLOR_PALETTE_PICO_EIGHT}
+                      />
+                  </div>
+                  : null
+                }
+              </div>
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>

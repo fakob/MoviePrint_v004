@@ -353,6 +353,14 @@ export const setDefaultShotDetectionMethod = (defaultShotDetectionMethod) => {
   };
 };
 
+export const setDefaultMoviePrintBackgroundColor = (defaultMoviePrintBackgroundColor) => {
+  log.debug(`action: setDefaultMoviePrintBackgroundColor - ${defaultMoviePrintBackgroundColor}`);
+  return {
+    type: 'SET_DEFAULT_MOVIEPRINT_BACKGROUND_COLOR',
+    defaultMoviePrintBackgroundColor
+  };
+};
+
 // sheetsByFileId
 
 export const clearScenes = (fileId, sheetId) => {

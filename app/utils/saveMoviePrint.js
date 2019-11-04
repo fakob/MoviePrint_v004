@@ -66,7 +66,7 @@ const saveBlob = (blob, sheetId, fileName, dataToEmbed = undefined) => {
 
 const saveMoviePrint = (
   elementId, exportPath, file, sheetId, sheetName, scale, outputFormat, overwrite,
-  saveIndividualThumbs = false, thumbs, dataToEmbed
+    saveIndividualThumbs = false, thumbs, dataToEmbed, backgroundColor
 ) => {
   log.debug(file);
   const node = document.getElementById(elementId);
@@ -84,9 +84,12 @@ const saveMoviePrint = (
 
   // only embed data for PNGs
   const passOnDataToEmbed = outputFormat === 'png' ? dataToEmbed : undefined;
+  const backgroundColorDependentOnFormat = outputFormat === 'png' ? // set alpha only for PNG
+    `rgba(${backgroundColor.r}, ${backgroundColor.g}, ${backgroundColor.b}, ${backgroundColor.a})` :
+    `rgb(${backgroundColor.r}, ${backgroundColor.g}, ${backgroundColor.b})`;
 
   html2canvas(node, {
-    backgroundColor: null,
+    backgroundColor: backgroundColorDependentOnFormat,
     allowTaint: true,
     scale,
   }).then((canvas) => {

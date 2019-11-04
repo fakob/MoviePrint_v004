@@ -69,6 +69,8 @@ const settings = (state = {}, action) => {
       return { ...state, defaultOutputPathFromMovie: action.defaultOutputPathFromMovie };
     case 'SET_DEFAULT_SHOT_DETECTION_METHOD':
       return { ...state, defaultShotDetectionMethod: action.defaultShotDetectionMethod };
+    case 'SET_DEFAULT_MOVIEPRINT_BACKGROUND_COLOR':
+      return { ...state, defaultMoviePrintBackgroundColor: action.defaultMoviePrintBackgroundColor };
     default:
       return state;
   }

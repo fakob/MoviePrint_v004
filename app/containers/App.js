@@ -119,6 +119,7 @@ import {
   setDefaultTimelineViewMinDisplaySceneLengthInFrames,
   setDefaultTimelineViewSecondsPerRow,
   setDefaultTimelineViewWidthScale,
+  setDefaultMoviePrintBackgroundColor,
   setEmailAddress,
   setSheetFit,
   setView,
@@ -2372,6 +2373,11 @@ class App extends Component {
     store.dispatch(setDefaultRoundedCorners(value));
   };
 
+  onMoviePrintBackgroundColorClick = (value) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultMoviePrintBackgroundColor(value));
+  };
+
   toggleZoom = () => {
     this.setState({
       zoom: !this.state.zoom
@@ -3158,6 +3164,7 @@ ${exportObject}`;
                       onThumbnailScaleClick={this.onThumbnailScaleClick}
                       onMoviePrintWidthClick={this.onMoviePrintWidthClick}
                       onShotDetectionMethodClick={this.onShotDetectionMethodClick}
+                      onMoviePrintBackgroundColorClick={this.onMoviePrintBackgroundColorClick}
                       scaleValueObject={scaleValueObject}
                       runSceneDetection={this.runSceneDetection}
                       fileScanRunning={this.state.fileScanRunning}

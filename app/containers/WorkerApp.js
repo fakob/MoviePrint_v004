@@ -127,6 +127,7 @@ class WorkerApp extends Component {
         sentData.settings.defaultSaveOptionIncludeIndividual,
         visibleThumbs,
         dataToEmbed,
+        sentData.settings.defaultMoviePrintBackgroundColor,
       );
     }
   }

@@ -18,6 +18,17 @@ export const SHOT_DETECTION_METHOD_OPTIONS = [
   { value: SHOT_DETECTION_METHOD.HIST, text: 'Histogram' , 'data-tid': 'shotDetectionMethodOptionsHist'},
 ];
 
+export const OUTPUT_FORMAT = {
+  PNG: 'png',
+  JPG: 'jpg',
+};
+
+export const COLOR_PALETTE_PICO_EIGHT = [
+'transparent','#000000','#1D2B53','#7E2553','#008751','#AB5236','#5F574F','#C2C3C7',
+// '#FFF1E8',
+'#FF004D','#FFA300','#FFEC27','#00E436','#29ADFF','#83769C','#FF77A8','#FFCCAA',
+];
+
 export const SHEET_FIT = {
   WIDTH: 'width',
   HEIGHT: 'height',
@@ -78,8 +89,8 @@ export const PAPER_LAYOUT_OPTIONS = [
 ];
 
 export const OUTPUT_FORMAT_OPTIONS = [
-  { value: 'png', text: 'PNG', 'data-tid': 'pngOption' },
-  { value: 'jpg', text: 'JPG', 'data-tid': 'jpgOption' },
+  { value: OUTPUT_FORMAT.PNG, text: 'PNG', 'data-tid': 'pngOption' },
+  { value: OUTPUT_FORMAT.JPG, text: 'JPG', 'data-tid': 'jpgOption' },
 ];
 
 export const EXPORT_FORMAT_OPTIONS = {
@@ -123,7 +134,7 @@ export const DEFAULT_THUMB_INFO = 'hideInfo';
 export const DEFAULT_THUMB_INFO_RATIO = 0.075;
 // export const DEFAULT_OUTPUT_PATH = app.getPath('desktop'); // throws error see above
 export const DEFAULT_OUTPUT_PATH_FROM_MOVIE = false;
-export const DEFAULT_OUTPUT_FORMAT = 'png';
+export const DEFAULT_OUTPUT_FORMAT = OUTPUT_FORMAT.PNG;
 export const DEFAULT_SAVE_OPTION_OVERWRITE = false;
 export const DEFAULT_SAVE_OPTION_INCLUDE_INDIVIDUAL = false;
 export const DEFAULT_VIDEO_PLAYER_HEIGHT = 360;
@@ -146,6 +157,7 @@ export const DEFAULT_CACHED_FRAMES_SIZE = 640; // 0 stands for original size
 export const DEFAULT_EMBED_FRAMENUMBERS = true;
 export const DEFAULT_EMBED_FILEPATH = true;
 export const DEFAULT_SHOW_IMAGES = true;
+export const DEFAULT_MOVIEPRINT_BACKGROUND_COLOR = { r:0, g:0, b:0, a:0 };
 // end initialStateJSON
 
 export const MENU_HEADER_HEIGHT = 35;
