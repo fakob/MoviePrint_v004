@@ -4,6 +4,7 @@ import log from 'electron-log';
 // import FileObject from './utils/fileObject';
 import VideoCaptureProperties from './utils/videoCaptureProperties';
 import { limitRange, setPosition, fourccToString } from './utils/utils';
+import { detectFace } from './utils/faceDetection';
 import {
   HSVtoRGB,
   detectCut,
@@ -736,92 +737,95 @@ ipcRenderer.on(
   }
 );
 
-// // read sync test
-// ipcRenderer.on(
-//   // 'send-get-thumbs',
-//   'send-get-thumbs-sync',
-//   (
-//     event,
-//     fileId,
-//     filePath,
-//     sheetId,
-//     thumbIdArray,
-//     frameIdArray,
-//     frameNumberArray,
-//     useRatio
-//   ) => {
-//     log.debug('opencvWorkerWindow | on send-get-thumbs-sync');
-//     // log.debug(frameNumberArray);
-//     log.debug(`opencvWorkerWindow | ${filePath}`);
-//     log.debug(`opencvWorkerWindow | useRatio: ${useRatio}`);
-//     // opencv.utils.setLogLevel('LOG_LEVEL_DEBUG');
-//
-//     try {
-//       const vid = new opencv.VideoCapture(filePath);
-//
-//       for (let i = 0; i < frameNumberArray.length; i += 1) {
-//         setPosition(vid, frameNumberArray[i], useRatio);
-//         const frame = vid.read();
-//         if (frame.empty) {
-//           log.debug('opencvWorkerWindow | frame is empty');
-//           const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
-//           ipcRenderer.send(
-//             'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
-//             'send-base64-frame',
-//             frameIdArray[i],
-//             fileId,
-//             frameNumber,
-//             ''
-//           );
-//           ipcRenderer.send(
-//             'message-from-opencvWorkerWindow-to-mainWindow',
-//             'receive-get-thumbs',
-//             fileId,
-//             sheetId,
-//             thumbIdArray[i],
-//             frameIdArray[i],
-//             frameNumber,
-//             i === (frameNumberArray.length - 1)
-//           );
-//         } else {
-//           // log.debug('frame not empty');
-//           log.debug(
-//             `opencvWorkerWindow | readSync: ${i}, ${frameNumberArray[i]}/${vid.get(
-//               VideoCaptureProperties.CAP_PROP_POS_FRAMES
-//             ) - 1}(${vid.get(
-//               VideoCaptureProperties.CAP_PROP_POS_MSEC
-//             )}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`
-//           );
-//           // opencv.imshow('a window name', frame);
-//           const outBase64 = opencv.imencode('.jpg', frame).toString('base64'); // maybe change to .png?
-//           const lastThumb = i === (frameNumberArray.length - 1);
-//           const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
-//           ipcRenderer.send(
-//             'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
-//             'send-base64-frame',
-//             frameIdArray[i],
-//             fileId,
-//             frameNumber,
-//             outBase64
-//           );
-//           ipcRenderer.send(
-//             'message-from-opencvWorkerWindow-to-mainWindow',
-//             'receive-get-thumbs',
-//             fileId,
-//             sheetId,
-//             thumbIdArray[i],
-//             frameIdArray[i],
-//             frameNumber,
-//             lastThumb
-//           );
-//           // opencv.waitKey(10);
-//         }
-//       }
-//     } catch (e) {
-//       log.error(e);
-//     }
-//   }
-// );
+// read sync test
+ipcRenderer.on(
+  // 'send-get-thumbs',
+  'send-get-thumbs-sync',
+  (
+    event,
+    fileId,
+    filePath,
+    sheetId,
+    frameIdArray,
+    frameNumberArray,
+    useRatio
+  ) => {
+    log.debug('opencvWorkerWindow | on send-get-thumbs-sync');
+    // log.debug(frameNumberArray);
+    log.debug(`opencvWorkerWindow | ${filePath}`);
+    log.debug(`opencvWorkerWindow | useRatio: ${useRatio}`);
+    // opencv.utils.setLogLevel('LOG_LEVEL_DEBUG');
+
+    try {
+      const vid = new opencv.VideoCapture(filePath);
+
+      for (let i = 0; i < frameNumberArray.length; i += 1) {
+        setPosition(vid, frameNumberArray[i], useRatio);
+        const frame = vid.read();
+        if (frame.empty) {
+          log.debug('opencvWorkerWindow | frame is empty');
+          // const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
+          // ipcRenderer.send(
+          //   'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
+          //   'send-base64-frame',
+          //   frameIdArray[i],
+          //   fileId,
+          //   frameNumber,
+          //   ''
+          // );
+          // ipcRenderer.send(
+          //   'message-from-opencvWorkerWindow-to-mainWindow',
+          //   'receive-get-thumbs',
+          //   fileId,
+          //   sheetId,
+          //   thumbIdArray[i],
+          //   frameIdArray[i],
+          //   frameNumber,
+          //   i === (frameNumberArray.length - 1)
+          // );
+        } else {
+          // // log.debug('frame not empty');
+          // log.debug(
+          //   `opencvWorkerWindow | readSync: ${i}, ${frameNumberArray[i]}/${vid.get(
+          //     VideoCaptureProperties.CAP_PROP_POS_FRAMES
+          //   ) - 1}(${vid.get(
+          //     VideoCaptureProperties.CAP_PROP_POS_MSEC
+          //   )}ms) of ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)}`
+          // );
+          opencv.imshow('a window name', frame);
+          // const outBase64 = opencv.imencode('.jpg', frame).toString('base64'); // maybe change to .png?
+          // const lastThumb = i === (frameNumberArray.length - 1);
+          // const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
+          // ipcRenderer.send(
+          //   'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
+          //   'send-base64-frame',
+          //   frameIdArray[i],
+          //   fileId,
+          //   frameNumber,
+          //   outBase64
+          // );
+          // ipcRenderer.send(
+          //   'message-from-opencvWorkerWindow-to-mainWindow',
+          //   'receive-get-thumbs',
+          //   fileId,
+          //   sheetId,
+          //   thumbIdArray[i],
+          //   frameIdArray[i],
+          //   frameNumber,
+          //   lastThumb
+          // );
+          // opencv.waitKey(10);
+          const input = document.getElementById('myImg');
+
+          detectFace(input);
+          // detectFace(frame);
+        }
+      }
+    } catch (e) {
+      log.error(e);
+    }
+  }
+);
 
 // read async
 ipcRenderer.on(
@@ -1076,6 +1080,7 @@ ipcRenderer.on('get-some-images-from-imageQueue', (event, amount) => {
 render(
   <div>
     <h1>I am the opencv worker window.</h1>
+    <img id="myImg" alt='' src='https://spaexecutive.com/wp-content/uploads/2019/06/Yumi.jpg'/>
   </div>,
   document.getElementById('worker_opencv')
 );

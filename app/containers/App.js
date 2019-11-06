@@ -1133,6 +1133,9 @@ class App extends Component {
             // this.recaptureAllFrames();
             break;
           case 68: // press 'd'
+            const frameIdArray = [1234];
+            const frameNumberArray = [1511];
+            ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs-sync', file.id, file.path, currentSheetId, frameIdArray, frameNumberArray, file.useRatio, settings.defaultCachedFramesSize, file.transformObject);
             break;
           case 70: // press 'f'
             if (currentFileId) {

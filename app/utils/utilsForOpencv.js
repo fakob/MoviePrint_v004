@@ -1,5 +1,4 @@
 import log from 'electron-log';
-// import nj from 'numjs';
 import VideoCaptureProperties from './videoCaptureProperties';
 import imageDB from './db';
 import {
