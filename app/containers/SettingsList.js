@@ -4,6 +4,8 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Slider, { Handle, createSliderWithTooltip } from 'rc-slider';
 import Tooltip from 'rc-tooltip';
+import { SketchPicker } from 'react-color';
+import { Checkboard } from 'react-color/lib/components/common';
 import { Button, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List, Message, Popup, Input } from 'semantic-ui-react';
 import styles from './Settings.css';
 import stylesPop from '../components/Popup.css';
@@ -12,13 +14,21 @@ import {
   limitRange,
   } from '../utils/utils';
 import {
-  MENU_HEADER_HEIGHT,
-  MENU_FOOTER_HEIGHT,
+  CACHED_FRAMES_SIZE_OPTIONS,
+  COLOR_PALETTE_PICO_EIGHT,
   DEFAULT_MOVIE_WIDTH,
   DEFAULT_MOVIE_HEIGHT,
-  PAPER_LAYOUT_OPTIONS,
+  DEFAULT_FRAMEINFO_BACKGROUND_COLOR,
+  DEFAULT_FRAMEINFO_COLOR,
+  DEFAULT_FRAMEINFO_POSITION,
+  DEFAULT_FRAMEINFO_SCALE,
+  DEFAULT_MOVIEPRINT_BACKGROUND_COLOR,
+  FRAMEINFO_POSITION_OPTIONS,
+  MENU_HEADER_HEIGHT,
+  MENU_FOOTER_HEIGHT,
+  OUTPUT_FORMAT,
   OUTPUT_FORMAT_OPTIONS,
-  CACHED_FRAMES_SIZE_OPTIONS,
+  PAPER_LAYOUT_OPTIONS,
   SHEET_TYPE,
   SHOT_DETECTION_METHOD_OPTIONS,
 } from '../utils/constants';
@@ -115,8 +125,12 @@ class SettingsList extends Component {
     this.state = {
       changeSceneCount: false,
       showSliders: true,
+      displayColorPicker: {
+        moviePrintBackgroundColor: false,
+        frameninfoBackgroundColor: false,
+        frameinfoColor: false,
+      },
     };
-
     // this.onToggleSliders = this.onToggleSliders.bind(this);
     this.onShowSliders = this.onShowSliders.bind(this);
     this.onChangeSceneCount = this.onChangeSceneCount.bind(this);
@@ -134,6 +148,7 @@ class SettingsList extends Component {
     this.onChangeShowHiddenThumbs = this.onChangeShowHiddenThumbs.bind(this);
     this.onChangeThumbInfo = this.onChangeThumbInfo.bind(this);
     this.onChangeOutputFormat = this.onChangeOutputFormat.bind(this);
+    this.onChangeFrameinfoPosition = this.onChangeFrameinfoPosition.bind(this);
     this.onChangeCachedFramesSize = this.onChangeCachedFramesSize.bind(this);
     this.onChangeOverwrite = this.onChangeOverwrite.bind(this);
     this.onChangeIncludeIndividual = this.onChangeIncludeIndividual.bind(this);
@@ -248,6 +263,10 @@ class SettingsList extends Component {
     this.props.onOutputFormatClick(value);
   }
 
+  onChangeFrameinfoPosition = (e, { value }) => {
+    this.props.onFrameinfoPositionClick(value);
+  }
+
   onChangeCachedFramesSize = (e, { value }) => {
     this.props.onCachedFramesSizeClick(value);
   }
@@ -280,6 +299,32 @@ class SettingsList extends Component {
     this.props.onShotDetectionMethodClick(value);
   }
 
+  colorPickerHandleClick = (e, id) => {
+    e.stopPropagation();
+    this.setState({
+      displayColorPicker: {
+        ...this.state.displayColorPicker,
+        [id]: !this.state.displayColorPicker[id]
+      }
+    });
+  };
+
+  colorPickerHandleClose = (e, id) => {
+    e.stopPropagation();
+    this.setState({
+      displayColorPicker: {
+        ...this.state.displayColorPicker,
+        [id]: false
+      }
+    });
+  };
+
+  colorPickerHandleChange = (colorLocation, color) => {
+    console.log(colorLocation);
+    console.log(color);
+    this.props.onMoviePrintBackgroundColorClick(colorLocation, color.rgb);
+  };
+
   render() {
     const {
       columnCountTemp,
@@ -290,6 +335,7 @@ class SettingsList extends Component {
       onChangeColumn,
       onChangeColumnAndApply,
       onChangeMargin,
+      onChangeFrameinfoScale,
       onChangeMinDisplaySceneLength,
       onChangeOutputPathClick,
       onChangeRow,
@@ -308,11 +354,77 @@ class SettingsList extends Component {
       thumbCountTemp,
       visibilitySettings,
     } = this.props;
-    const { showSliders } = this.state;
+    const { displayColorPicker, showSliders } = this.state;
+    const {
+      defaultCachedFramesSize = 0,
+      defaultDetectInOutPoint,
+      defaultEmbedFilePath,
+      defaultEmbedFrameNumbers,
+      defaultFrameinfoBackgroundColor = DEFAULT_FRAMEINFO_BACKGROUND_COLOR,
+      defaultFrameinfoColor = DEFAULT_FRAMEINFO_COLOR,
+      defaultFrameinfoPosition = DEFAULT_FRAMEINFO_POSITION,
+      defaultFrameinfoScale = DEFAULT_FRAMEINFO_SCALE,
+      defaultMarginRatio,
+      defaultMarginSliderFactor,
+      defaultMoviePrintBackgroundColor = DEFAULT_MOVIEPRINT_BACKGROUND_COLOR,
+      defaultMoviePrintWidth,
+      defaultOutputFormat,
+      defaultOutputPath,
+      defaultOutputPathFromMovie,
+      defaultPaperAspectRatioInv,
+      defaultRoundedCorners,
+      defaultSaveOptionIncludeIndividual,
+      defaultSaveOptionOverwrite,
+      defaultSceneDetectionThreshold,
+      defaultShotDetectionMethod,
+      defaultShowDetailsInHeader,
+      defaultShowHeader,
+      defaultShowPaperPreview,
+      defaultShowPathInHeader,
+      defaultShowTimelineInHeader,
+      defaultThumbInfo,
+      defaultTimelineViewFlow,
+      defaultTimelineViewMinDisplaySceneLengthInFrames,
+      defaultTimelineViewWidthScale,
+    } = settings;
     const fileFps = file !== undefined ? file.fps : 25;
     const minutes = file !== undefined ? frameCountToMinutes(file.frameCount, fileFps) : undefined;
     const minutesRounded = Math.round(minutes);
     const cutsPerMinuteRounded = Math.round((thumbCountTemp - 1) / minutes);
+    const pico8palette = [
+    'transparent',
+    '#000000',
+    '#1D2B53',
+    '#7E2553',
+    '#008751',
+    '#AB5236',
+    '#5F574F',
+    '#C2C3C7',
+    // '#FFF1E8',
+    '#FF004D',
+    '#FFA300',
+    '#FFEC27',
+    '#00E436',
+    '#29ADFF',
+    '#83769C',
+    '#FF77A8',
+    '#FFCCAA',
+    ];
+
+    const moviePrintBackgroundColorDependentOnFormat = defaultOutputFormat === OUTPUT_FORMAT.JPG ? // set alpha only for PNG
+      {
+        r: defaultMoviePrintBackgroundColor.r,
+        g: defaultMoviePrintBackgroundColor.g,
+        b: defaultMoviePrintBackgroundColor.b,
+      } :
+      defaultMoviePrintBackgroundColor;
+    const moviePrintBackgroundColorDependentOnFormatString = defaultOutputFormat === OUTPUT_FORMAT.JPG ? // set alpha only for PNG
+      `rgb(${defaultMoviePrintBackgroundColor.r}, ${defaultMoviePrintBackgroundColor.g}, ${defaultMoviePrintBackgroundColor.b})` :
+      `rgba(${defaultMoviePrintBackgroundColor.r}, ${defaultMoviePrintBackgroundColor.g}, ${defaultMoviePrintBackgroundColor.b}, ${defaultMoviePrintBackgroundColor.a})`;
+
+    const frameninfoBackgroundColorString = `rgba(${defaultFrameinfoBackgroundColor.r}, ${defaultFrameinfoBackgroundColor.g}, ${defaultFrameinfoBackgroundColor.b}, ${defaultFrameinfoBackgroundColor.a})`;
+    const frameinfoColorString = `rgba(${defaultFrameinfoColor.r}, ${defaultFrameinfoColor.g}, ${defaultFrameinfoColor.b}, ${defaultFrameinfoColor.a})`;
+
     return (
       <Container
         style={{
@@ -496,7 +608,7 @@ class SettingsList extends Component {
                           Natural flow
                         </label>
                       }
-                      checked={settings.defaultTimelineViewFlow}
+                      checked={defaultTimelineViewFlow}
                       onChange={this.onChangeTimelineViewFlow}
                     />
                   </Grid.Column>
@@ -534,7 +646,7 @@ class SettingsList extends Component {
                       className={styles.slider}
                       min={3}
                       max={40}
-                      defaultValue={settings.defaultSceneDetectionThreshold}
+                      defaultValue={defaultSceneDetectionThreshold}
                       marks={{
                         3: '3',
                         15: '15',
@@ -557,7 +669,7 @@ class SettingsList extends Component {
                           color="orange"
                           loading={fileScanRunning}
                           disabled={fileScanRunning}
-                          onClick={() => this.props.runSceneDetection(file.id, file.path, file.useRatio, settings.defaultSceneDetectionThreshold)}
+                          onClick={() => this.props.runSceneDetection(file.id, file.path, file.useRatio, defaultSceneDetectionThreshold)}
                         >
                           Add new MoviePrint
                         </Button>
@@ -648,7 +760,7 @@ class SettingsList extends Component {
                     Show paper preview
                   </label>
                 }
-                checked={settings.defaultShowPaperPreview}
+                checked={defaultShowPaperPreview}
                 onChange={this.onChangeShowPaperPreview}
               />
             </Grid.Column>
@@ -662,9 +774,9 @@ class SettingsList extends Component {
                 data-tid='paperLayoutOptionsDropdown'
                 placeholder="Select..."
                 selection
-                disabled={!settings.defaultShowPaperPreview}
+                disabled={!defaultShowPaperPreview}
                 options={PAPER_LAYOUT_OPTIONS}
-                defaultValue={settings.defaultPaperAspectRatioInv}
+                defaultValue={defaultPaperAspectRatioInv}
                 onChange={this.onChangePaperAspectRatio}
               />
             </Grid.Column>
@@ -680,7 +792,7 @@ class SettingsList extends Component {
                 className={styles.slider}
                 min={0}
                 max={20}
-                defaultValue={settings.defaultMarginRatio * settings.defaultMarginSliderFactor}
+                defaultValue={defaultMarginRatio * defaultMarginSliderFactor}
                 marks={{
                   0: '0',
                   20: '20',
@@ -701,7 +813,7 @@ class SettingsList extends Component {
                   className={styles.slider}
                   min={0}
                   max={100}
-                  defaultValue={settings.defaultTimelineViewWidthScale}
+                  defaultValue={defaultTimelineViewWidthScale}
                   marks={{
                     0: '-10',
                     50: '0',
@@ -724,7 +836,7 @@ class SettingsList extends Component {
                   className={styles.slider}
                   min={0}
                   max={10}
-                  defaultValue={Math.round(settings.defaultTimelineViewMinDisplaySceneLengthInFrames / (fileFps * 1.0))}
+                  defaultValue={Math.round(defaultTimelineViewMinDisplaySceneLengthInFrames / (fileFps * 1.0))}
                   marks={{
                     0: '0',
                     10: '10',
@@ -751,7 +863,7 @@ class SettingsList extends Component {
                             Show header
                           </label>
                         }
-                        checked={settings.defaultShowHeader}
+                        checked={defaultShowHeader}
                         onChange={this.onChangeShowHeader}
                       />
                     </List.Item>
@@ -764,8 +876,8 @@ class SettingsList extends Component {
                             Show file path
                           </label>
                         }
-                        disabled={!settings.defaultShowHeader}
-                        checked={settings.defaultShowPathInHeader}
+                        disabled={!defaultShowHeader}
+                        checked={defaultShowPathInHeader}
                         onChange={this.onChangeShowPathInHeader}
                       />
                     </List.Item>
@@ -778,8 +890,8 @@ class SettingsList extends Component {
                             Show file details
                           </label>
                         }
-                        disabled={!settings.defaultShowHeader}
-                        checked={settings.defaultShowDetailsInHeader}
+                        disabled={!defaultShowHeader}
+                        checked={defaultShowDetailsInHeader}
                         onChange={this.onChangeShowDetailsInHeader}
                       />
                     </List.Item>
@@ -792,8 +904,8 @@ class SettingsList extends Component {
                             Show timeline
                           </label>
                         }
-                        disabled={!settings.defaultShowHeader}
-                        checked={settings.defaultShowTimelineInHeader}
+                        disabled={!defaultShowHeader}
+                        checked={defaultShowTimelineInHeader}
                         onChange={this.onChangeShowTimelineInHeader}
                       />
                     </List.Item>
@@ -805,7 +917,7 @@ class SettingsList extends Component {
                             Rounded corners
                           </label>
                         }
-                        checked={settings.defaultRoundedCorners}
+                        checked={defaultRoundedCorners}
                         onChange={this.onChangeRoundedCorners}
                       />
                     </List.Item>
@@ -834,7 +946,7 @@ class SettingsList extends Component {
                       }
                     name="radioGroup"
                     value="frames"
-                    checked={settings.defaultThumbInfo === 'frames'}
+                    checked={defaultThumbInfo === 'frames'}
                     onChange={this.onChangeThumbInfo}
                   />
                 </List.Item>
@@ -848,7 +960,7 @@ class SettingsList extends Component {
                       }
                     name="radioGroup"
                     value="timecode"
-                    checked={settings.defaultThumbInfo === 'timecode'}
+                    checked={defaultThumbInfo === 'timecode'}
                     onChange={this.onChangeThumbInfo}
                   />
                 </List.Item>
@@ -862,11 +974,125 @@ class SettingsList extends Component {
                       }
                     name="radioGroup"
                     value="hideInfo"
-                    checked={settings.defaultThumbInfo === 'hideInfo'}
+                    checked={defaultThumbInfo === 'hideInfo'}
                     onChange={this.onChangeThumbInfo}
                   />
                 </List.Item>
               </List>
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Font color
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <div>
+                <div
+                  className={styles.colorPickerSwatch}
+                  onClick={(e) => this.colorPickerHandleClick(e, 'frameinfoColor')}
+                >
+                  <Checkboard />
+                  <div
+                    className={styles.colorPickerColor}
+                    style={{
+                      backgroundColor: frameinfoColorString,
+                    }}
+                  />
+                </div>
+                {
+                  displayColorPicker.frameinfoColor ?
+                    <div
+                      className={styles.colorPickerPopover}
+                      // onMouseLeave={(e) => this.colorPickerHandleClose(e, 'frameinfoColor')}
+                    >
+                     <div
+                      className={styles.colorPickerCover}
+                      onClick={(e) => this.colorPickerHandleClose(e, 'frameinfoColor')}
+                    />
+                    <SketchPicker
+                      color={defaultFrameinfoColor}
+                      onChange={color => this.colorPickerHandleChange('frameinfoColor', color)}
+                      presetColors={COLOR_PALETTE_PICO_EIGHT}
+                    />
+                  </div>
+                  : null
+                }
+              </div>
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Background color
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <div>
+                <div
+                  className={styles.colorPickerSwatch}
+                  onClick={(e) => this.colorPickerHandleClick(e, 'frameninfoBackgroundColor')}
+                >
+                  <Checkboard />
+                  <div
+                    className={styles.colorPickerColor}
+                    style={{
+                      backgroundColor: frameninfoBackgroundColorString,
+                    }}
+                  />
+                </div>
+                {
+                  displayColorPicker.frameninfoBackgroundColor ?
+                    <div
+                      className={styles.colorPickerPopover}
+                      // onMouseLeave={(e) => this.colorPickerHandleClose(e, 'frameninfoBackgroundColor')}
+                    >
+                     <div
+                      className={styles.colorPickerCover}
+                      onClick={(e) => this.colorPickerHandleClose(e, 'frameninfoBackgroundColor')}
+                    />
+                    <SketchPicker
+                      color={defaultFrameinfoBackgroundColor}
+                      onChange={color => this.colorPickerHandleChange('frameninfoBackgroundColor', color)}
+                      presetColors={COLOR_PALETTE_PICO_EIGHT}
+                    />
+                  </div>
+                  : null
+                }
+              </div>
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Position
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <Dropdown
+                data-tid='changeFrameinfoPositionDropdown'
+                placeholder="Select..."
+                selection
+                options={FRAMEINFO_POSITION_OPTIONS}
+                defaultValue={defaultFrameinfoPosition}
+                onChange={this.onChangeFrameinfoPosition}
+              />
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Size
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <SliderWithTooltip
+                data-tid='framenumberSizeSlider'
+                className={styles.slider}
+                min={1}
+                max={100}
+                defaultValue={defaultFrameinfoScale}
+                marks={{
+                  1: '1',
+                  10: '10',
+                  100: '100',
+                }}
+                handle={handle}
+                onChange={onChangeFrameinfoScale}
+              />
             </Grid.Column>
           </Grid.Row>
           <Divider inverted />
@@ -880,17 +1106,17 @@ class SettingsList extends Component {
                   <div
                     style={{
                       wordWrap: 'break-word',
-                      opacity: settings.defaultOutputPathFromMovie ? '0.5' : '1.0'
+                      opacity: defaultOutputPathFromMovie ? '0.5' : '1.0'
                     }}
                   >
-                    {settings.defaultOutputPath}
+                    {defaultOutputPath}
                   </div>
                 </List.Item>
                 <List.Item>
                   <Button
                     data-tid='changeOutputPathBtn'
                     onClick={onChangeOutputPathClick}
-                    disabled={settings.defaultOutputPathFromMovie}
+                    disabled={defaultOutputPathFromMovie}
                   >
                     Change...
                   </Button>
@@ -906,7 +1132,7 @@ class SettingsList extends Component {
                     style={{
                       marginTop: '8px',
                     }}
-                    checked={settings.defaultOutputPathFromMovie}
+                    checked={defaultOutputPathFromMovie}
                     onChange={this.onChangeOutputPathFromMovie}
                   />
                 </List.Item>
@@ -923,7 +1149,7 @@ class SettingsList extends Component {
                 placeholder="Select..."
                 selection
                 options={outputSize(file, columnCountTemp, thumbCountTemp, settings, visibilitySettings, sceneArray, secondsPerRowTemp, isGridView)}
-                defaultValue={settings.defaultMoviePrintWidth}
+                defaultValue={defaultMoviePrintWidth}
                 onChange={this.onChangeMoviePrintWidth}
               />
             </Grid.Column>
@@ -938,9 +1164,49 @@ class SettingsList extends Component {
                 placeholder="Select..."
                 selection
                 options={OUTPUT_FORMAT_OPTIONS}
-                defaultValue={settings.defaultOutputFormat}
+                defaultValue={defaultOutputFormat}
                 onChange={this.onChangeOutputFormat}
               />
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Background color
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <div>
+                <div
+                  className={styles.colorPickerSwatch}
+                  onClick={(e) => this.colorPickerHandleClick(e, 'moviePrintBackgroundColor')}
+                >
+                  <Checkboard />
+                  <div
+                    className={styles.colorPickerColor}
+                    style={{
+                      backgroundColor: moviePrintBackgroundColorDependentOnFormatString,
+                    }}
+                  />
+                </div>
+                {
+                  displayColorPicker.moviePrintBackgroundColor ?
+                    <div
+                      className={styles.colorPickerPopover}
+                      // onMouseLeave={(e) => this.colorPickerHandleClose(e, 'moviePrintBackgroundColor')}
+                    >
+                      <div
+                        className={styles.colorPickerCover}
+                        onClick={(e) => this.colorPickerHandleClose(e, 'moviePrintBackgroundColor')}
+                      />
+                      <SketchPicker
+                        color={moviePrintBackgroundColorDependentOnFormat}
+                        onChange={color => this.colorPickerHandleChange('moviePrintBackgroundColor', color)}
+                        disableAlpha={defaultOutputFormat === OUTPUT_FORMAT.JPG}
+                        presetColors={COLOR_PALETTE_PICO_EIGHT}
+                      />
+                  </div>
+                  : null
+                }
+              </div>
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
@@ -957,7 +1223,7 @@ class SettingsList extends Component {
                         Overwrite existing
                       </label>
                     }
-                    checked={settings.defaultSaveOptionOverwrite}
+                    checked={defaultSaveOptionOverwrite}
                     onChange={this.onChangeOverwrite}
                   />
                 </List.Item>
@@ -969,7 +1235,7 @@ class SettingsList extends Component {
                         Include individual frames
                       </label>
                     }
-                    checked={settings.defaultSaveOptionIncludeIndividual}
+                    checked={defaultSaveOptionIncludeIndividual}
                     onChange={this.onChangeIncludeIndividual}
                   />
                 </List.Item>
@@ -981,7 +1247,7 @@ class SettingsList extends Component {
                         Embed frameNumbers (only PNG)
                       </label>
                     }
-                    checked={settings.defaultEmbedFrameNumbers}
+                    checked={defaultEmbedFrameNumbers}
                     onChange={this.onChangeEmbedFrameNumbers}
                   />
                 </List.Item>
@@ -993,7 +1259,7 @@ class SettingsList extends Component {
                         Embed filePath (only PNG)
                       </label>
                     }
-                    checked={settings.defaultEmbedFilePath}
+                    checked={defaultEmbedFilePath}
                     onChange={this.onChangeEmbedFilePath}
                   />
                 </List.Item>
@@ -1041,7 +1307,7 @@ class SettingsList extends Component {
                     Automatic detection of In and Outpoint
                   </label>
                 }
-                checked={settings.defaultDetectInOutPoint}
+                checked={defaultDetectInOutPoint}
                 onChange={this.onChangeDetectInOutPoint}
               />
             </Grid.Column>
@@ -1073,7 +1339,7 @@ class SettingsList extends Component {
                 placeholder="Select..."
                 selection
                 options={SHOT_DETECTION_METHOD_OPTIONS}
-                defaultValue={settings.defaultShotDetectionMethod}
+                defaultValue={defaultShotDetectionMethod}
                 onChange={this.onChangeShotDetectionMethod}
               />
             </Grid.Column>
@@ -1089,7 +1355,7 @@ class SettingsList extends Component {
               placeholder="Select..."
               selection
               options={CACHED_FRAMES_SIZE_OPTIONS}
-              defaultValue={settings.defaultCachedFramesSize || 0}
+              defaultValue={defaultCachedFramesSize}
               onChange={this.onChangeCachedFramesSize}
             />
             </Grid.Column>

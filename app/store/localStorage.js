@@ -50,6 +50,11 @@ import {
   DEFAULT_CACHED_FRAMES_SIZE,
   DEFAULT_EMBED_FRAMENUMBERS,
   DEFAULT_EMBED_FILEPATH,
+  DEFAULT_MOVIEPRINT_BACKGROUND_COLOR,
+  DEFAULT_FRAMEINFO_BACKGROUND_COLOR,
+  DEFAULT_FRAMEINFO_COLOR,
+  DEFAULT_FRAMEINFO_POSITION,
+  DEFAULT_FRAMEINFO_SCALE,
   SHOT_DETECTION_METHOD,
 } from '../utils/constants';
 import {
@@ -117,6 +122,11 @@ const initialStateJSON = {
       defaultEmbedFrameNumbers: DEFAULT_EMBED_FRAMENUMBERS,
       defaultEmbedFilePath: DEFAULT_EMBED_FILEPATH,
       defaultShotDetectionMethod: SHOT_DETECTION_METHOD.MEAN,
+      defaultMoviePrintBackgroundColor: DEFAULT_MOVIEPRINT_BACKGROUND_COLOR,
+      defaultFrameinfoBackgroundColor: DEFAULT_FRAMEINFO_BACKGROUND_COLOR,
+      defaultFrameinfoColor: DEFAULT_FRAMEINFO_COLOR,
+      defaultFrameinfoPosition: DEFAULT_FRAMEINFO_POSITION,
+      defaultFrameinfoScale: DEFAULT_FRAMEINFO_SCALE,
       emailAddress: '',
     },
     sheetsByFileId: {},

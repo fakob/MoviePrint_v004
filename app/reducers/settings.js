@@ -69,6 +69,16 @@ const settings = (state = {}, action) => {
       return { ...state, defaultOutputPathFromMovie: action.defaultOutputPathFromMovie };
     case 'SET_DEFAULT_SHOT_DETECTION_METHOD':
       return { ...state, defaultShotDetectionMethod: action.defaultShotDetectionMethod };
+    case 'SET_DEFAULT_MOVIEPRINT_BACKGROUND_COLOR':
+      return { ...state, defaultMoviePrintBackgroundColor: action.defaultMoviePrintBackgroundColor };
+    case 'SET_DEFAULT_FRAMEINFO_BACKGROUND_COLOR':
+      return { ...state, defaultFrameinfoBackgroundColor: action.defaultFrameinfoBackgroundColor };
+    case 'SET_DEFAULT_FRAMEINFO_COLOR':
+      return { ...state, defaultFrameinfoColor: action.defaultFrameinfoColor };
+    case 'SET_DEFAULT_FRAMEINFO_POSITION':
+      return { ...state, defaultFrameinfoPosition: action.defaultFrameinfoPosition };
+    case 'SET_DEFAULT_FRAMEINFO_SCALE':
+      return { ...state, defaultFrameinfoScale: action.defaultFrameinfoScale };
     default:
       return state;
   }

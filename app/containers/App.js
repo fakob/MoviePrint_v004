@@ -94,7 +94,12 @@ import {
   setDefaultDetectInOutPoint,
   setDefaultEmbedFilePath,
   setDefaultEmbedFrameNumbers,
+  setDefaultFrameinfoBackgroundColor,
+  setDefaultFrameinfoColor,
+  setDefaultFrameinfoPosition,
+  setDefaultFrameinfoScale,
   setDefaultMarginRatio,
+  setDefaultMoviePrintBackgroundColor,
   setDefaultMoviePrintWidth,
   setDefaultOutputFormat,
   setDefaultOutputPath,
@@ -320,6 +325,7 @@ class App extends Component {
     this.onCancelClick = this.onCancelClick.bind(this);
 
     this.onChangeMargin = this.onChangeMargin.bind(this);
+    this.onChangeFrameinfoScale = this.onChangeFrameinfoScale.bind(this);
     this.onChangeMinDisplaySceneLength = this.onChangeMinDisplaySceneLength.bind(this);
     this.onChangeSceneDetectionThreshold = this.onChangeSceneDetectionThreshold.bind(this);
     this.onChangeTimelineViewSecondsPerRow = this.onChangeTimelineViewSecondsPerRow.bind(this);
@@ -353,6 +359,7 @@ class App extends Component {
     this.onRemoveMovieListItem = this.onRemoveMovieListItem.bind(this);
     this.onDeleteSheetClick = this.onDeleteSheetClick.bind(this);
     this.onChangeOutputPathClick = this.onChangeOutputPathClick.bind(this);
+    this.onFrameinfoPositionClick = this.onFrameinfoPositionClick.bind(this);
     this.onOutputFormatClick = this.onOutputFormatClick.bind(this);
     this.onCachedFramesSizeClick = this.onCachedFramesSizeClick.bind(this);
     this.onOverwriteClick = this.onOverwriteClick.bind(this);
@@ -2361,6 +2368,11 @@ class App extends Component {
         store.getState().undoGroup.present.settings.defaultMarginSliderFactor));
   };
 
+  onChangeFrameinfoScale = (value) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultFrameinfoScale(value));
+  };
+
   onChangeSceneDetectionThreshold = (value) => {
     const { store } = this.context;
     store.dispatch(setDefaultSceneDetectionThreshold(value));
@@ -2430,6 +2442,23 @@ class App extends Component {
   onRoundedCornersClick = (value) => {
     const { store } = this.context;
     store.dispatch(setDefaultRoundedCorners(value));
+  };
+
+  onMoviePrintBackgroundColorClick = (colorLocation, color) => {
+    const { store } = this.context;
+    switch (colorLocation) {
+      case 'moviePrintBackgroundColor':
+        store.dispatch(setDefaultMoviePrintBackgroundColor(color));
+        break;
+      case 'frameninfoBackgroundColor':
+        store.dispatch(setDefaultFrameinfoBackgroundColor(color));
+        break;
+      case 'frameinfoColor':
+        store.dispatch(setDefaultFrameinfoColor(color));
+        break;
+      default:
+        store.dispatch(setDefaultMoviePrintBackgroundColor(color));
+    }
   };
 
   toggleZoom = () => {
@@ -2878,6 +2907,12 @@ ${exportObject}`;
     store.dispatch(setDefaultOutputFormat(value));
   };
 
+  onFrameinfoPositionClick = (value) => {
+    const { store } = this.context;
+    // log.debug(value);
+    store.dispatch(setDefaultFrameinfoPosition(value));
+  };
+
   onCachedFramesSizeClick = (value) => {
     const { store } = this.context;
     // log.debug(value);
@@ -3193,6 +3228,7 @@ ${exportObject}`;
                       onApplyNewGridClick={this.onApplyNewGridClick}
                       onCancelClick={this.onCancelClick}
                       onChangeMargin={this.onChangeMargin}
+                      onChangeFrameinfoScale={this.onChangeFrameinfoScale}
                       onChangeMinDisplaySceneLength={this.onChangeMinDisplaySceneLength}
                       sceneArray={scenes}
                       secondsPerRowTemp={secondsPerRow}
@@ -3209,6 +3245,7 @@ ${exportObject}`;
                       onShowHiddenThumbsClick={this.onShowHiddenThumbsClick}
                       onThumbInfoClick={this.onThumbInfoClick}
                       onChangeOutputPathClick={this.onChangeOutputPathClick}
+                      onFrameinfoPositionClick={this.onFrameinfoPositionClick}
                       onOutputFormatClick={this.onOutputFormatClick}
                       onCachedFramesSizeClick={this.onCachedFramesSizeClick}
                       onOverwriteClick={this.onOverwriteClick}
@@ -3218,6 +3255,7 @@ ${exportObject}`;
                       onThumbnailScaleClick={this.onThumbnailScaleClick}
                       onMoviePrintWidthClick={this.onMoviePrintWidthClick}
                       onShotDetectionMethodClick={this.onShotDetectionMethodClick}
+                      onMoviePrintBackgroundColorClick={this.onMoviePrintBackgroundColorClick}
                       scaleValueObject={scaleValueObject}
                       runSceneDetection={this.runSceneDetection}
                       fileScanRunning={this.state.fileScanRunning}
@@ -3309,6 +3347,7 @@ ${exportObject}`;
                             sheetType={sheetType}
                             view={visibilitySettings.defaultView}
                             currentSheetId={settings.currentSheetId}
+                            settings={settings}
                             file={file}
                             inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                             keyObject={this.state.keyObject}

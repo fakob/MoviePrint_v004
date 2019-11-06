@@ -24,13 +24,17 @@ import {
   roundNumber,
 } from '../utils/utils';
 import {
-  TIMELINE_SCENE_MINIMUM_WIDTH,
-  MINIMUM_WIDTH_TO_SHRINK_HOVER,
+  DEFAULT_FRAMEINFO_BACKGROUND_COLOR,
+  DEFAULT_FRAMEINFO_COLOR,
+  DEFAULT_FRAMEINFO_POSITION,
+  DEFAULT_FRAMEINFO_SCALE,
   MINIMUM_WIDTH_TO_SHOW_HOVER,
+  MINIMUM_WIDTH_TO_SHRINK_HOVER,
   SHEET_TYPE,
   SHEET_VIEW,
-  VIEW,
+  TIMELINE_SCENE_MINIMUM_WIDTH,
   VIDEOPLAYER_THUMB_MARGIN,
+  VIEW,
 } from '../utils/constants';
 
 const SortableThumb = SortableElement(Thumb);
@@ -434,6 +438,7 @@ class ThumbGrid extends Component {
       onThumbDoubleClick,
       scaleValueObject,
       selectedThumbsArray,
+      settings,
       sheetType,
       sheetView,
       showSettings,
@@ -451,6 +456,14 @@ class ThumbGrid extends Component {
     } = this.state;
 
     const isPlayerView = view !== VIEW.STANDARDVIEW;
+    const {
+      defaultFrameinfoBackgroundColor = DEFAULT_FRAMEINFO_BACKGROUND_COLOR,
+      defaultFrameinfoColor = DEFAULT_FRAMEINFO_COLOR,
+      defaultFrameinfoPosition = DEFAULT_FRAMEINFO_POSITION,
+      defaultFrameinfoScale = DEFAULT_FRAMEINFO_SCALE,
+    } = settings;
+    const frameninfoBackgroundColorString = `rgba(${defaultFrameinfoBackgroundColor.r}, ${defaultFrameinfoBackgroundColor.g}, ${defaultFrameinfoBackgroundColor.b}, ${defaultFrameinfoBackgroundColor.a})`;
+    const frameinfoColorString = `rgba(${defaultFrameinfoColor.r}, ${defaultFrameinfoColor.g}, ${defaultFrameinfoColor.b}, ${defaultFrameinfoColor.a})`;
 
 
     const fps = (file !== undefined && file.fps !== undefined ? file.fps : 25);
@@ -516,13 +529,23 @@ class ThumbGrid extends Component {
       };
     // console.log(hoverPos);
     // console.log(parentPos);
+    // console.log(hoverPos)
 
     const showBeforeController = (controllersVisible === addThumbBeforeController);
     const showAfterController = (controllersVisible === addThumbAfterController);
 
     const thumbMarginGridView = isPlayerView ? VIDEOPLAYER_THUMB_MARGIN : scaleValueObject.newThumbMargin;
 
-    // console.log(hoverPos)
+    let thumbCSSTranslate;
+    if (defaultFrameinfoPosition === 'topCenter' || defaultFrameinfoPosition === 'bottomCenter') {
+      thumbCSSTranslate = `translateX(-50%) scale(${(defaultFrameinfoScale * 0.1 * (defaultThumbInfoRatio * thumbWidth * scaleValueObject.aspectRatioInv) / 10)})`;
+    } else if (defaultFrameinfoPosition === 'centerCenter') {
+      thumbCSSTranslate = `translate(-50%, -50%) scale(${(defaultFrameinfoScale * 0.1 * (defaultThumbInfoRatio * thumbWidth * scaleValueObject.aspectRatioInv) / 10)})`;
+    } else {
+      thumbCSSTranslate = `scale(${(defaultFrameinfoScale * 0.1 * (defaultThumbInfoRatio * thumbWidth * scaleValueObject.aspectRatioInv) / 10)})`;
+    }
+
+    const margin = `${view === VIEW.STANDARDVIEW ? thumbMarginGridView : Math.max(1, thumbMarginGridView)}px`;
 
     return (
       <div
@@ -586,7 +609,7 @@ class ThumbGrid extends Component {
               aspectRatioInv={scaleValueObject.aspectRatioInv}
               thumbWidth={thumbWidth}
               borderRadius={scaleValueObject.newBorderRadius}
-              margin={thumbMarginGridView}
+              margin={margin}
               thumbInfoValue={getThumbInfoValue(defaultThumbInfo, thumb.frameNumber, fps)}
               thumbInfoRatio={defaultThumbInfoRatio}
               hidden={thumb.hidden}
@@ -624,6 +647,11 @@ class ThumbGrid extends Component {
                 null : () => {
                   onSelectClick(thumb.thumbId, thumb.frameNumber);
                 }}
+              frameninfoBackgroundColor={frameninfoBackgroundColorString}
+              frameinfoColor={frameinfoColorString}
+              frameinfoPosition={defaultFrameinfoPosition}
+              frameinfoScale={defaultFrameinfoScale}
+              thumbCSSTranslate={thumbCSSTranslate}
             />))}
         </div>
         {!isSorting && // only show when not sorting

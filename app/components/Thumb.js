@@ -49,12 +49,16 @@ const DragHandle = SortableHandle(({ width, height, thumbId }) =>
 
 const Thumb = ({
   aspectRatioInv,
+  base64,
   borderRadius,
   color,
   controllersAreVisible,
   dim,
+  frameninfoBackgroundColor,
+  frameinfoColor,
+  frameinfoPosition,
+  frameinfoScale,
   hidden,
-  thumbId,
   index,
   indexForId,
   inputRefThumb,
@@ -64,14 +68,15 @@ const Thumb = ({
   onSelect,
   onThumbDoubleClick,
   selected,
-  view,
   sheetType,
-  transparentThumb,
+  thumbCSSTranslate,
+  thumbId,
   thumbImageObjectUrl,
-  base64,
   thumbInfoRatio,
   thumbInfoValue,
   thumbWidth,
+  transparentThumb,
+  view,
 }) => {
 
   function onThumbDoubleClickWithStop(e) {
@@ -125,9 +130,9 @@ const Thumb = ({
       width={`${thumbWidth}px`}
       height={`${(thumbWidth * aspectRatioInv)}px`}
       style={{
-        width: thumbWidth,
-        margin: `${view === VIEW.STANDARDVIEW ? margin : Math.max(1, margin)}px`,
-        outlineWidth: `${view === VIEW.STANDARDVIEW ? margin : Math.max(1, margin)}px`,
+        // width: thumbWidth,
+        margin,
+        outlineWidth: margin,
         borderRadius: `${(selected && view === VIEW.PLAYERVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: transparentThumb ||
           (thumbImageObjectUrl === undefined)  ||
@@ -151,9 +156,11 @@ const Thumb = ({
       {thumbInfoValue !== undefined &&
         <div
           data-tid={`thumbInfoText_${thumbId}`}
-          className={styles.frameNumber}
+          className={`${styles.frameNumber} ${styles[frameinfoPosition]}`}
           style={{
-            transform: `scale(${(thumbInfoRatio * thumbWidth * aspectRatioInv) / 10})`,
+            transform: thumbCSSTranslate,
+            backgroundColor: frameninfoBackgroundColor,
+            color: frameinfoColor,
           }}
         >
           {thumbInfoValue}
