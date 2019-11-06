@@ -24,13 +24,17 @@ import {
   roundNumber,
 } from '../utils/utils';
 import {
-  TIMELINE_SCENE_MINIMUM_WIDTH,
-  MINIMUM_WIDTH_TO_SHRINK_HOVER,
+  DEFAULT_FRAMEINFO_BACKGROUND_COLOR,
+  DEFAULT_FRAMEINFO_COLOR,
+  DEFAULT_FRAMEINFO_POSITION,
+  DEFAULT_FRAMEINFO_SCALE,
   MINIMUM_WIDTH_TO_SHOW_HOVER,
+  MINIMUM_WIDTH_TO_SHRINK_HOVER,
   SHEET_TYPE,
   SHEET_VIEW,
-  VIEW,
+  TIMELINE_SCENE_MINIMUM_WIDTH,
   VIDEOPLAYER_THUMB_MARGIN,
+  VIEW,
 } from '../utils/constants';
 
 const SortableThumb = SortableElement(Thumb);
@@ -434,6 +438,7 @@ class ThumbGrid extends Component {
       onThumbDoubleClick,
       scaleValueObject,
       selectedThumbsArray,
+      settings,
       sheetType,
       sheetView,
       showSettings,
@@ -451,6 +456,14 @@ class ThumbGrid extends Component {
     } = this.state;
 
     const isPlayerView = view !== VIEW.STANDARDVIEW;
+    const {
+      defaultFrameinfoBackgroundColor = DEFAULT_FRAMEINFO_BACKGROUND_COLOR,
+      defaultFrameinfoColor = DEFAULT_FRAMEINFO_COLOR,
+      defaultFrameinfoPosition = DEFAULT_FRAMEINFO_POSITION,
+      defaultFrameinfoScale = DEFAULT_FRAMEINFO_SCALE,
+    } = settings;
+    const frameninfoBackgroundColorString = `rgba(${defaultFrameinfoBackgroundColor.r}, ${defaultFrameinfoBackgroundColor.g}, ${defaultFrameinfoBackgroundColor.b}, ${defaultFrameinfoBackgroundColor.a})`;
+    const frameinfoColorString = `rgba(${defaultFrameinfoColor.r}, ${defaultFrameinfoColor.g}, ${defaultFrameinfoColor.b}, ${defaultFrameinfoColor.a})`;
 
 
     const fps = (file !== undefined && file.fps !== undefined ? file.fps : 25);
@@ -624,6 +637,10 @@ class ThumbGrid extends Component {
                 null : () => {
                   onSelectClick(thumb.thumbId, thumb.frameNumber);
                 }}
+              frameninfoBackgroundColor={frameninfoBackgroundColorString}
+              frameinfoColor={frameinfoColorString}
+              frameinfoPosition={defaultFrameinfoPosition}
+              frameinfoScale={defaultFrameinfoScale}
             />))}
         </div>
         {!isSorting && // only show when not sorting

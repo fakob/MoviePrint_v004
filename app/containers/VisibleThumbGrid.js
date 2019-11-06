@@ -132,6 +132,7 @@ class SortedVisibleThumbGrid extends Component {
       onToggleClick,
       scaleValueObject,
       selectedThumbsArray,
+      settings,
       sheetType,
       sheetView,
       showMovielist,
@@ -150,6 +151,7 @@ class SortedVisibleThumbGrid extends Component {
         sheetType={sheetType}
         view={view}
         currentSheetId={currentSheetId}
+        settings={settings}
         file={file}
         inputRefThumb={this.scrollIntoViewElement} // for the thumb scrollIntoView function
         keyObject={keyObject}

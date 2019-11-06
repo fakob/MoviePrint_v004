@@ -361,6 +361,38 @@ export const setDefaultMoviePrintBackgroundColor = (defaultMoviePrintBackgroundC
   };
 };
 
+export const setDefaultFrameinfoBackgroundColor = (defaultFrameinfoBackgroundColor) => {
+  log.debug(`action: setDefaultFrameinfoBackgroundColor - ${defaultFrameinfoBackgroundColor}`);
+  return {
+    type: 'SET_DEFAULT_FRAMEINFO_BACKGROUND_COLOR',
+    defaultFrameinfoBackgroundColor
+  };
+};
+
+export const setDefaultFrameinfoColor = (defaultFrameinfoColor) => {
+  log.debug(`action: setDefaultFrameinfoColor - ${defaultFrameinfoColor}`);
+  return {
+    type: 'SET_DEFAULT_FRAMEINFO_COLOR',
+    defaultFrameinfoColor
+  };
+};
+
+export const setDefaultFrameinfoPosition = (defaultFrameinfoPosition) => {
+  log.debug(`action: setDefaultFrameinfoPosition - ${defaultFrameinfoPosition}`);
+  return {
+    type: 'SET_DEFAULT_FRAMEINFO_POSITION',
+    defaultFrameinfoPosition
+  };
+};
+
+export const setDefaultFrameinfoScale = (defaultFrameinfoScale) => {
+  log.debug(`action: setDefaultFrameinfoScale - ${defaultFrameinfoScale}`);
+  return {
+    type: 'SET_DEFAULT_FRAMEINFO_SCALE',
+    defaultFrameinfoScale
+  };
+};
+
 // sheetsByFileId
 
 export const clearScenes = (fileId, sheetId) => {

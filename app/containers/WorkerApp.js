@@ -172,6 +172,7 @@ class WorkerApp extends Component {
                     isViewForPrinting
                     inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                     showSettings={false}
+                    settings={sentData.settings}
                     file={sentData.file}
                     thumbs={visibleThumbs}
                     objectUrlObjects={thumbObjectBase64s}

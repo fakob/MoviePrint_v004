@@ -24,9 +24,27 @@ export const OUTPUT_FORMAT = {
 };
 
 export const COLOR_PALETTE_PICO_EIGHT = [
-'transparent','#000000','#1D2B53','#7E2553','#008751','#AB5236','#5F574F','#C2C3C7',
-// '#FFF1E8',
+'transparent','#000000','#FFFFFF','#0C0C0C','#1E1E1E','#FF5006','#FF9365','#B44E23','#D14003',
+'#1D2B53','#7E2553','#008751','#AB5236','#5F574F','#C2C3C7','#FFF1E8',
 '#FF004D','#FFA300','#FFEC27','#00E436','#29ADFF','#83769C','#FF77A8','#FFCCAA',
+];
+
+export const FRAMEINFO_POSITION = {
+  TOPLEFT: 'topLeft',
+  TOPCENTER: 'topCenter',
+  TOPRIGHT: 'topRight',
+  BOTTOMLEFT: 'bottomLeft',
+  BOTTOMCENTER: 'bottomCenter',
+  BOTTOMRIGHT: 'bottomRight',
+};
+
+export const FRAMEINFO_POSITION_OPTIONS = [
+  { value: FRAMEINFO_POSITION.TOPLEFT, text: 'Top Left' , 'data-tid': 'frameinfoPositionOptionTopLeft'},
+  { value: FRAMEINFO_POSITION.TOPCENTER, text: 'Top Center' , 'data-tid': 'frameinfoPositionOptionTopCenter'},
+  { value: FRAMEINFO_POSITION.TOPRIGHT, text: 'Top Right' , 'data-tid': 'frameinfoPositionOptionTopRight'},
+  { value: FRAMEINFO_POSITION.BOTTOMLEFT, text: 'Bottom Left' , 'data-tid': 'frameinfoPositionOptionBottomLeft'},
+  { value: FRAMEINFO_POSITION.BOTTOMCENTER, text: 'Bottom Center' , 'data-tid': 'frameinfoPositionOptionBottomCenter'},
+  { value: FRAMEINFO_POSITION.BOTTOMRIGHT, text: 'Bottom Right' , 'data-tid': 'frameinfoPositionOptionBottomRight'},
 ];
 
 export const SHEET_FIT = {
@@ -158,6 +176,10 @@ export const DEFAULT_EMBED_FRAMENUMBERS = true;
 export const DEFAULT_EMBED_FILEPATH = true;
 export const DEFAULT_SHOW_IMAGES = true;
 export const DEFAULT_MOVIEPRINT_BACKGROUND_COLOR = { r:0, g:0, b:0, a:0 };
+export const DEFAULT_FRAMEINFO_BACKGROUND_COLOR = { r:238, g:238, b:238, a:1 };
+export const DEFAULT_FRAMEINFO_COLOR = { r:0, g:0, b:0, a:1 };
+export const DEFAULT_FRAMEINFO_POSITION = FRAMEINFO_POSITION.TOPLEFT;
+export const DEFAULT_FRAMEINFO_SCALE = 10.0;
 // end initialStateJSON
 
 export const MENU_HEADER_HEIGHT = 35;
