@@ -529,13 +529,23 @@ class ThumbGrid extends Component {
       };
     // console.log(hoverPos);
     // console.log(parentPos);
+    // console.log(hoverPos)
 
     const showBeforeController = (controllersVisible === addThumbBeforeController);
     const showAfterController = (controllersVisible === addThumbAfterController);
 
     const thumbMarginGridView = isPlayerView ? VIDEOPLAYER_THUMB_MARGIN : scaleValueObject.newThumbMargin;
 
-    // console.log(hoverPos)
+    let thumbCSSTranslate;
+    if (defaultFrameinfoPosition === 'topCenter' || defaultFrameinfoPosition === 'bottomCenter') {
+      thumbCSSTranslate = `translateX(-50%) scale(${(defaultFrameinfoScale * 0.1 * (defaultThumbInfoRatio * thumbWidth * scaleValueObject.aspectRatioInv) / 10)})`;
+    } else if (defaultFrameinfoPosition === 'centerCenter') {
+      thumbCSSTranslate = `translate(-50%, -50%) scale(${(defaultFrameinfoScale * 0.1 * (defaultThumbInfoRatio * thumbWidth * scaleValueObject.aspectRatioInv) / 10)})`;
+    } else {
+      thumbCSSTranslate = `scale(${(defaultFrameinfoScale * 0.1 * (defaultThumbInfoRatio * thumbWidth * scaleValueObject.aspectRatioInv) / 10)})`;
+    }
+
+    const margin = `${view === VIEW.STANDARDVIEW ? thumbMarginGridView : Math.max(1, thumbMarginGridView)}px`;
 
     return (
       <div
@@ -599,7 +609,7 @@ class ThumbGrid extends Component {
               aspectRatioInv={scaleValueObject.aspectRatioInv}
               thumbWidth={thumbWidth}
               borderRadius={scaleValueObject.newBorderRadius}
-              margin={thumbMarginGridView}
+              margin={margin}
               thumbInfoValue={getThumbInfoValue(defaultThumbInfo, thumb.frameNumber, fps)}
               thumbInfoRatio={defaultThumbInfoRatio}
               hidden={thumb.hidden}
@@ -641,6 +651,7 @@ class ThumbGrid extends Component {
               frameinfoColor={frameinfoColorString}
               frameinfoPosition={defaultFrameinfoPosition}
               frameinfoScale={defaultFrameinfoScale}
+              thumbCSSTranslate={thumbCSSTranslate}
             />))}
         </div>
         {!isSorting && // only show when not sorting

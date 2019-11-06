@@ -69,6 +69,7 @@ const Thumb = ({
   onThumbDoubleClick,
   selected,
   sheetType,
+  thumbCSSTranslate,
   thumbId,
   thumbImageObjectUrl,
   thumbInfoRatio,
@@ -129,9 +130,9 @@ const Thumb = ({
       width={`${thumbWidth}px`}
       height={`${(thumbWidth * aspectRatioInv)}px`}
       style={{
-        width: thumbWidth,
-        margin: `${view === VIEW.STANDARDVIEW ? margin : Math.max(1, margin)}px`,
-        outlineWidth: `${view === VIEW.STANDARDVIEW ? margin : Math.max(1, margin)}px`,
+        // width: thumbWidth,
+        margin,
+        outlineWidth: margin,
         borderRadius: `${(selected && view === VIEW.PLAYERVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: transparentThumb ||
           (thumbImageObjectUrl === undefined)  ||
@@ -157,10 +158,7 @@ const Thumb = ({
           data-tid={`thumbInfoText_${thumbId}`}
           className={`${styles.frameNumber} ${styles[frameinfoPosition]}`}
           style={{
-            transform: `${
-              frameinfoPosition === 'topCenter' || frameinfoPosition === 'bottomCenter' ?
-              'translateX(-50%)' : ''
-              } scale(${(frameinfoScale * 0.1 * (thumbInfoRatio * thumbWidth * aspectRatioInv) / 10)})`,
+            transform: thumbCSSTranslate,
             backgroundColor: frameninfoBackgroundColor,
             color: frameinfoColor,
           }}

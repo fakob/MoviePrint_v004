@@ -1083,12 +1083,12 @@ class SettingsList extends Component {
                 data-tid='framenumberSizeSlider'
                 className={styles.slider}
                 min={1}
-                max={50}
+                max={100}
                 defaultValue={defaultFrameinfoScale}
                 marks={{
                   1: '1',
                   10: '10',
-                  50: '50',
+                  100: '100',
                 }}
                 handle={handle}
                 onChange={onChangeFrameinfoScale}
