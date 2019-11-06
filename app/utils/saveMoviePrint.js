@@ -7,6 +7,9 @@ import encode from 'png-chunks-encode';
 import text from 'png-chunk-text';
 import { getFilePathObject, getMimeType } from './utils';
 import saveThumb from './saveThumb';
+import {
+  DEFAULT_MOVIEPRINT_BACKGROUND_COLOR,
+} from './constants';
 
 const { ipcRenderer } = require('electron');
 const { app } = require('electron').remote;
@@ -66,7 +69,7 @@ const saveBlob = (blob, sheetId, fileName, dataToEmbed = undefined) => {
 
 const saveMoviePrint = (
   elementId, exportPath, file, sheetId, sheetName, scale, outputFormat, overwrite,
-    saveIndividualThumbs = false, thumbs, dataToEmbed, backgroundColor
+    saveIndividualThumbs = false, thumbs, dataToEmbed, backgroundColor = DEFAULT_MOVIEPRINT_BACKGROUND_COLOR
 ) => {
   log.debug(file);
   const node = document.getElementById(elementId);

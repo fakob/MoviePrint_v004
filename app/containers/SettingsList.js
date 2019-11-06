@@ -20,6 +20,7 @@ import {
   DEFAULT_MOVIE_HEIGHT,
   DEFAULT_FRAMEINFO_BACKGROUND_COLOR,
   DEFAULT_FRAMEINFO_COLOR,
+  DEFAULT_FRAMEINFO_MARGIN,
   DEFAULT_FRAMEINFO_POSITION,
   DEFAULT_FRAMEINFO_SCALE,
   DEFAULT_MOVIEPRINT_BACKGROUND_COLOR,
@@ -335,6 +336,7 @@ class SettingsList extends Component {
       onChangeColumn,
       onChangeColumnAndApply,
       onChangeMargin,
+      onChangeFrameinfoMargin,
       onChangeFrameinfoScale,
       onChangeMinDisplaySceneLength,
       onChangeOutputPathClick,
@@ -364,6 +366,7 @@ class SettingsList extends Component {
       defaultFrameinfoColor = DEFAULT_FRAMEINFO_COLOR,
       defaultFrameinfoPosition = DEFAULT_FRAMEINFO_POSITION,
       defaultFrameinfoScale = DEFAULT_FRAMEINFO_SCALE,
+      defaultFrameinfoMargin = DEFAULT_FRAMEINFO_MARGIN,
       defaultMarginRatio,
       defaultMarginSliderFactor,
       defaultMoviePrintBackgroundColor = DEFAULT_MOVIEPRINT_BACKGROUND_COLOR,
@@ -993,11 +996,14 @@ class SettingsList extends Component {
                 >
                   <Checkboard />
                   <div
-                    className={styles.colorPickerColor}
+                    className={`${styles.colorPickerColor} ${styles.colorPickerText}`}
                     style={{
-                      backgroundColor: frameinfoColorString,
+                      backgroundColor: frameninfoBackgroundColorString,
+                      color: frameinfoColorString,
                     }}
-                  />
+                  >
+                    00:00:00:00
+                  </div>
                 </div>
                 {
                   displayColorPicker.frameinfoColor ?
@@ -1080,7 +1086,7 @@ class SettingsList extends Component {
             </Grid.Column>
             <Grid.Column width={12}>
               <SliderWithTooltip
-                data-tid='framenumberSizeSlider'
+                data-tid='frameinfoScaleSlider'
                 className={styles.slider}
                 min={1}
                 max={100}
@@ -1092,6 +1098,26 @@ class SettingsList extends Component {
                 }}
                 handle={handle}
                 onChange={onChangeFrameinfoScale}
+              />
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4}>
+              Margin
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <SliderWithTooltip
+                data-tid='frameinfoMarginSlider'
+                className={styles.slider}
+                min={0}
+                max={50}
+                defaultValue={defaultFrameinfoMargin}
+                marks={{
+                  0: '0',
+                  50: '50',
+                }}
+                handle={handle}
+                onChange={onChangeFrameinfoMargin}
               />
             </Grid.Column>
           </Grid.Row>

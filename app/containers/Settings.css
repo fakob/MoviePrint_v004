@@ -50,3 +50,10 @@
   bottom: 0px;
   left: 0px;
 }
+
+.colorPickerText {
+  padding: 6px;
+  font-size: 20px;
+  font-family: 'Open sans';
+  text-align: center;
+}

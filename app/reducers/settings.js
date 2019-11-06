@@ -79,6 +79,8 @@ const settings = (state = {}, action) => {
       return { ...state, defaultFrameinfoPosition: action.defaultFrameinfoPosition };
     case 'SET_DEFAULT_FRAMEINFO_SCALE':
       return { ...state, defaultFrameinfoScale: action.defaultFrameinfoScale };
+    case 'SET_DEFAULT_FRAMEINFO_MARGIN':
+      return { ...state, defaultFrameinfoMargin: action.defaultFrameinfoMargin };
     default:
       return state;
   }

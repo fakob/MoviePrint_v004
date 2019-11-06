@@ -64,6 +64,7 @@ const Thumb = ({
   inputRefThumb,
   keyObject,
   margin,
+  frameinfoMargin,
   onOver,
   onSelect,
   onThumbDoubleClick,
@@ -131,7 +132,7 @@ const Thumb = ({
       height={`${(thumbWidth * aspectRatioInv)}px`}
       style={{
         // width: thumbWidth,
-        margin,
+        margin: margin,
         outlineWidth: margin,
         borderRadius: `${(selected && view === VIEW.PLAYERVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: transparentThumb ||
@@ -156,8 +157,9 @@ const Thumb = ({
       {thumbInfoValue !== undefined &&
         <div
           data-tid={`thumbInfoText_${thumbId}`}
-          className={`${styles.frameNumber} ${styles[frameinfoPosition]}`}
+          className={`${styles.frameinfo} ${styles[frameinfoPosition]}`}
           style={{
+            margin: frameinfoMargin,
             transform: thumbCSSTranslate,
             backgroundColor: frameninfoBackgroundColor,
             color: frameinfoColor,
@@ -222,7 +224,7 @@ Thumb.propTypes = {
   hidden: PropTypes.bool,
   inputRefThumb: PropTypes.object,
   keyObject: PropTypes.object,
-  margin: PropTypes.number.isRequired,
+  margin: PropTypes.string.isRequired,
   onBack: PropTypes.func,
   onForward: PropTypes.func,
   onHoverAddThumbBefore: PropTypes.func,

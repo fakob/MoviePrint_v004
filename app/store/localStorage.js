@@ -55,6 +55,7 @@ import {
   DEFAULT_FRAMEINFO_COLOR,
   DEFAULT_FRAMEINFO_POSITION,
   DEFAULT_FRAMEINFO_SCALE,
+  DEFAULT_FRAMEINFO_MARGIN,
   SHOT_DETECTION_METHOD,
 } from '../utils/constants';
 import {
@@ -127,6 +128,7 @@ const initialStateJSON = {
       defaultFrameinfoColor: DEFAULT_FRAMEINFO_COLOR,
       defaultFrameinfoPosition: DEFAULT_FRAMEINFO_POSITION,
       defaultFrameinfoScale: DEFAULT_FRAMEINFO_SCALE,
+      defaultFrameinfoMargin: DEFAULT_FRAMEINFO_MARGIN,
       emailAddress: '',
     },
     sheetsByFileId: {},

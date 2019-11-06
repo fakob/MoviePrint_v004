@@ -26,6 +26,7 @@ import {
 import {
   DEFAULT_FRAMEINFO_BACKGROUND_COLOR,
   DEFAULT_FRAMEINFO_COLOR,
+  DEFAULT_FRAMEINFO_MARGIN,
   DEFAULT_FRAMEINFO_POSITION,
   DEFAULT_FRAMEINFO_SCALE,
   MINIMUM_WIDTH_TO_SHOW_HOVER,
@@ -461,6 +462,7 @@ class ThumbGrid extends Component {
       defaultFrameinfoColor = DEFAULT_FRAMEINFO_COLOR,
       defaultFrameinfoPosition = DEFAULT_FRAMEINFO_POSITION,
       defaultFrameinfoScale = DEFAULT_FRAMEINFO_SCALE,
+      defaultFrameinfoMargin = DEFAULT_FRAMEINFO_MARGIN,
     } = settings;
     const frameninfoBackgroundColorString = `rgba(${defaultFrameinfoBackgroundColor.r}, ${defaultFrameinfoBackgroundColor.g}, ${defaultFrameinfoBackgroundColor.b}, ${defaultFrameinfoBackgroundColor.a})`;
     const frameinfoColorString = `rgba(${defaultFrameinfoColor.r}, ${defaultFrameinfoColor.g}, ${defaultFrameinfoColor.b}, ${defaultFrameinfoColor.a})`;
@@ -543,6 +545,15 @@ class ThumbGrid extends Component {
       thumbCSSTranslate = `translate(-50%, -50%) scale(${(defaultFrameinfoScale * 0.1 * (defaultThumbInfoRatio * thumbWidth * scaleValueObject.aspectRatioInv) / 10)})`;
     } else {
       thumbCSSTranslate = `scale(${(defaultFrameinfoScale * 0.1 * (defaultThumbInfoRatio * thumbWidth * scaleValueObject.aspectRatioInv) / 10)})`;
+    }
+
+    let frameinfoMargin;
+    if (defaultFrameinfoPosition === 'topCenter' || defaultFrameinfoPosition === 'bottomCenter') {
+      frameinfoMargin = `${defaultFrameinfoMargin}px 0px`;
+    } else if (defaultFrameinfoPosition === 'centerCenter') {
+      frameinfoMargin = undefined;
+    } else {
+      frameinfoMargin = `${defaultFrameinfoMargin}px`;
     }
 
     const margin = `${view === VIEW.STANDARDVIEW ? thumbMarginGridView : Math.max(1, thumbMarginGridView)}px`;
@@ -651,6 +662,7 @@ class ThumbGrid extends Component {
               frameinfoColor={frameinfoColorString}
               frameinfoPosition={defaultFrameinfoPosition}
               frameinfoScale={defaultFrameinfoScale}
+              frameinfoMargin={frameinfoMargin}
               thumbCSSTranslate={thumbCSSTranslate}
             />))}
         </div>

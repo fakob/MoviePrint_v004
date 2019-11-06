@@ -182,6 +182,7 @@ export const DEFAULT_FRAMEINFO_BACKGROUND_COLOR = { r:238, g:238, b:238, a:1 };
 export const DEFAULT_FRAMEINFO_COLOR = { r:0, g:0, b:0, a:1 };
 export const DEFAULT_FRAMEINFO_POSITION = FRAMEINFO_POSITION.TOPLEFT;
 export const DEFAULT_FRAMEINFO_SCALE = 10.0;
+export const DEFAULT_FRAMEINFO_MARGIN = 0;
 // end initialStateJSON
 
 export const MENU_HEADER_HEIGHT = 35;

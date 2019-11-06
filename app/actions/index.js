@@ -393,6 +393,14 @@ export const setDefaultFrameinfoScale = (defaultFrameinfoScale) => {
   };
 };
 
+export const setDefaultFrameinfoMargin = (defaultFrameinfoMargin) => {
+  log.debug(`action: setDefaultFrameinfoMargin - ${defaultFrameinfoMargin}`);
+  return {
+    type: 'SET_DEFAULT_FRAMEINFO_MARGIN',
+    defaultFrameinfoMargin
+  };
+};
+
 // sheetsByFileId
 
 export const clearScenes = (fileId, sheetId) => {

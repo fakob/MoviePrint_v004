@@ -96,6 +96,7 @@ import {
   setDefaultEmbedFrameNumbers,
   setDefaultFrameinfoBackgroundColor,
   setDefaultFrameinfoColor,
+  setDefaultFrameinfoMargin,
   setDefaultFrameinfoPosition,
   setDefaultFrameinfoScale,
   setDefaultMarginRatio,
@@ -326,6 +327,7 @@ class App extends Component {
 
     this.onChangeMargin = this.onChangeMargin.bind(this);
     this.onChangeFrameinfoScale = this.onChangeFrameinfoScale.bind(this);
+    this.onChangeFrameinfoMargin = this.onChangeFrameinfoMargin.bind(this);
     this.onChangeMinDisplaySceneLength = this.onChangeMinDisplaySceneLength.bind(this);
     this.onChangeSceneDetectionThreshold = this.onChangeSceneDetectionThreshold.bind(this);
     this.onChangeTimelineViewSecondsPerRow = this.onChangeTimelineViewSecondsPerRow.bind(this);
@@ -2373,6 +2375,11 @@ class App extends Component {
     store.dispatch(setDefaultFrameinfoScale(value));
   };
 
+  onChangeFrameinfoMargin = (value) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultFrameinfoMargin(value));
+  };
+
   onChangeSceneDetectionThreshold = (value) => {
     const { store } = this.context;
     store.dispatch(setDefaultSceneDetectionThreshold(value));
@@ -3229,6 +3236,7 @@ ${exportObject}`;
                       onCancelClick={this.onCancelClick}
                       onChangeMargin={this.onChangeMargin}
                       onChangeFrameinfoScale={this.onChangeFrameinfoScale}
+                      onChangeFrameinfoMargin={this.onChangeFrameinfoMargin}
                       onChangeMinDisplaySceneLength={this.onChangeMinDisplaySceneLength}
                       sceneArray={scenes}
                       secondsPerRowTemp={secondsPerRow}
