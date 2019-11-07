@@ -4,8 +4,25 @@ import {
   FRAMESDB_PATH,
 } from './constants';
 
+// latest database version
+const moviePrintDBVersion = 1;
+
 const moviePrintDB = new Database(FRAMESDB_PATH, { verbose: log.debug });
 moviePrintDB.pragma('journal_mode = WAL');
+
+// get users database version
+const moviePrintDBUserVersion = moviePrintDB.pragma('user_version', { simple: true });
+log.debug(`Users database version: ${moviePrintDBUserVersion}`);
+
+// check if migration is necessary
+if (moviePrintDBUserVersion === 0) {
+  log.info(`Database migration necessary - users database version: ${moviePrintDBUserVersion} - latest database version: ${moviePrintDBVersion}`);
+  // run migration script
+  migrationFrom0To1();
+  // set user_version to 1 after database has been migrated
+  moviePrintDB.pragma('user_version = 1');
+  log.info(`Database migration successful - users database version: ${moviePrintDB.pragma('user_version', { simple: true })}`);
+}
 
 // create redux store table
 export const createTableReduxState = () => {
@@ -91,4 +108,11 @@ export const deleteFileIdFromFrameScanList = (fileId) => {
 export const clearTableFrameScanList = () => {
   const stmt = moviePrintDB.prepare('DELETE FROM frameScanList');
   return stmt.run();
+}
+
+// migration scripts
+// from 0 to 1
+function migrationFrom0To1 () {
+  const migrationScript = 'ALTER TABLE "frameScanList" RENAME COLUMN "meanValue" TO "differenceValue"';
+  moviePrintDB.exec(migrationScript);
 }
