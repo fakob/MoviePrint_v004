@@ -157,6 +157,7 @@ import {
   SHEET_FIT,
   SHEET_TYPE,
   SHEET_VIEW,
+  SHOT_DETECTION_METHOD,
   URL_CHANGE_LOG,
   URL_FEEDBACK_FORM,
   URL_REST_API_CHECK_FOR_UPDATES,
@@ -1489,6 +1490,7 @@ class App extends Component {
   runSceneDetection(fileId, filePath, useRatio, threshold = this.props.settings.defaultSceneDetectionThreshold, sheetId = uuidV4(), transformObject = undefined) {
     const { store } = this.context;
     const { settings } = this.props;
+    const { defaultShotDetectionMethod = SHOT_DETECTION_METHOD.MEAN } = settings;
     const { fileScanRunning } = this.state;
     const timeBeforeGetFrameScanByFileId = Date.now();
     const arrayOfFrameScanData = getFrameScanByFileId(fileId);
@@ -1541,7 +1543,7 @@ class App extends Component {
           threshold,
           sheetId,
           transformObject,
-          settings.defaultShotDetectionMethod
+          defaultShotDetectionMethod
         );
       } else {
         // console.log(meanColorArray);
