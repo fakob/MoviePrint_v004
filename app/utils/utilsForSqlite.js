@@ -19,9 +19,6 @@ if (moviePrintDBUserVersion === 0) {
   log.info(`Database migration necessary - users database version: ${moviePrintDBUserVersion} - latest database version: ${moviePrintDBVersion}`);
   // run migration script
   migrationFrom0To1();
-  // set user_version to 1 after database has been migrated
-  moviePrintDB.pragma('user_version = 1');
-  log.info(`Database migration successful - users database version: ${moviePrintDB.pragma('user_version', { simple: true })}`);
 }
 
 // create redux store table
@@ -113,6 +110,29 @@ export const clearTableFrameScanList = () => {
 // migration scripts
 // from 0 to 1
 function migrationFrom0To1 () {
-  const migrationScript = 'ALTER TABLE "frameScanList" RENAME COLUMN "meanValue" TO "differenceValue"';
-  moviePrintDB.exec(migrationScript);
+  const tableName = 'frameScanList';
+  const oldColumnName = 'meanValue';
+  const newColumnName = 'differenceValue';
+  try {
+    // check if old or new column already exists
+    const tableInfo = moviePrintDB.pragma(`table_info = ${tableName}`);
+    const oldColumnExists = tableInfo.findIndex(column => column.name === oldColumnName) > -1;
+    const newColumnExists = tableInfo.findIndex(column => column.name === newColumnName) > -1;
+
+    // migrate if it is still the old column name
+    if (oldColumnExists) {
+        moviePrintDB.exec(`ALTER TABLE "${tableName}" RENAME COLUMN "${oldColumnName}" TO "${newColumnName}"`);
+        // set user_version to 1 after database has been migrated
+        moviePrintDB.pragma('user_version = 1');
+        log.info(`Database migration successful - users database version is now: ${moviePrintDB.pragma('user_version', { simple: true })}`);
+    }
+    // only update user_version if column name was already update, but user_version had not been updated
+    if (newColumnExists) {
+      // set user_version to 1 after database has been migrated
+      moviePrintDB.pragma('user_version = 1');
+      log.info(`Database was already migrated, but user_version had not been updated - users database version is now: ${moviePrintDB.pragma('user_version', { simple: true })}`);
+    }
+  } catch (err) {
+    log.error(err);
+  }
 }
