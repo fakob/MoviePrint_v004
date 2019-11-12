@@ -123,7 +123,7 @@ const Header = ({
                 <Icon
                   name="mail"
                 />
-                Share Feedback
+                Contact us
               </Menu.Item>
             }
             mouseEnterDelay={1000}
@@ -131,7 +131,7 @@ const Header = ({
             position='top center'
             offset='0,8px'
             className={stylesPop.popup}
-            content="Share Feedback"
+            content="Contact us"
           />
         </Menu.Menu>
       </Menu>
