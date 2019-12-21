@@ -81,6 +81,12 @@ const settings = (state = {}, action) => {
       return { ...state, defaultFrameinfoScale: action.defaultFrameinfoScale };
     case 'SET_DEFAULT_FRAMEINFO_MARGIN':
       return { ...state, defaultFrameinfoMargin: action.defaultFrameinfoMargin };
+    case 'SET_DEFAULT_MOVIEPRINT_NAME':
+      return { ...state, defaultMoviePrintName: action.defaultMoviePrintName };
+    case 'SET_DEFAULT_SINGLETHUMB_NAME':
+      return { ...state, defaultSingleThumbName: action.defaultSingleThumbName };
+    case 'SET_DEFAULT_ALLTHUMBS_NAME':
+      return { ...state, defaultAllThumbsName: action.defaultAllThumbsName };
     default:
       return state;
   }

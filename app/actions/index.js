@@ -401,6 +401,30 @@ export const setDefaultFrameinfoMargin = (defaultFrameinfoMargin) => {
   };
 };
 
+export const setDefaultMoviePrintName = (defaultMoviePrintName) => {
+  log.debug(`action: setDefaultMoviePrintName - ${defaultMoviePrintName}`);
+  return {
+    type: 'SET_DEFAULT_MOVIEPRINT_NAME',
+    defaultMoviePrintName
+  };
+};
+
+export const setDefaultSingleThumbName = (defaultSingleThumbName) => {
+  log.debug(`action: setDefaultSingleThumbName - ${defaultSingleThumbName}`);
+  return {
+    type: 'SET_DEFAULT_SINGLETHUMB_NAME',
+    defaultSingleThumbName
+  };
+};
+
+export const setDefaultAllThumbsName = (defaultAllThumbsName) => {
+  log.debug(`action: setDefaultAllThumbsName - ${defaultAllThumbsName}`);
+  return {
+    type: 'SET_DEFAULT_ALLTHUMBS_NAME',
+    defaultAllThumbsName
+  };
+};
+
 // sheetsByFileId
 
 export const clearScenes = (fileId, sheetId) => {

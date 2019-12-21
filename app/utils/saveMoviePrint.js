@@ -9,6 +9,8 @@ import { getFilePathObject, getMimeType } from './utils';
 import saveThumb from './saveThumb';
 import {
   DEFAULT_MOVIEPRINT_BACKGROUND_COLOR,
+  DEFAULT_MOVIEPRINT_NAME,
+  DEFAULT_ALLTHUMBS_NAME,
 } from './constants';
 
 const { ipcRenderer } = require('electron');
@@ -73,8 +75,9 @@ const saveMoviePrint = (
 ) => {
   log.debug(file);
   const node = document.getElementById(elementId);
-  const fileNameWithSheetName = `${file.name}-${sheetName}`;
-  const newFilePathObject = getFilePathObject(fileNameWithSheetName, '', outputFormat, exportPath, overwrite);
+  const fileName = file.name;
+  const frameNumber = undefined;
+  const newFilePathObject = getFilePathObject(fileName, sheetName, frameNumber, DEFAULT_MOVIEPRINT_NAME, outputFormat, exportPath, overwrite);
   const newFilePathAndName = pathR.join(
     newFilePathObject.dir,
     newFilePathObject.base
@@ -110,7 +113,7 @@ const saveMoviePrint = (
 
   if (saveIndividualThumbs) {
     thumbs.map(thumb => {
-      saveThumb(file.path, file.useRatio, newFilePathObject.name, thumb.frameNumber, thumb.frameId,
+      saveThumb(file.path, file.useRatio, newFilePathObject.name, thumb.frameNumber, DEFAULT_ALLTHUMBS_NAME, thumb.frameId,
         newFilePathAndNameWithoutExtension, overwrite, file.transformObject
       );
     });
