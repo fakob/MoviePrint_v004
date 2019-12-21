@@ -90,7 +90,7 @@ export const VIEW = {
 
 export const MOVIEPRINT_COLORS = [
   '#FF5006',
-  '#FFb709',
+  '#FFb799',
   '#FF9365',
   '#FFa883',
   '#FFd3c1',
@@ -183,6 +183,9 @@ export const DEFAULT_FRAMEINFO_COLOR = { r:0, g:0, b:0, a:1 };
 export const DEFAULT_FRAMEINFO_POSITION = FRAMEINFO_POSITION.TOPLEFT;
 export const DEFAULT_FRAMEINFO_SCALE = 10.0;
 export const DEFAULT_FRAMEINFO_MARGIN = 0;
+export const DEFAULT_MOVIEPRINT_NAME = '$movieName.$movieExtension-$moviePrintName';
+export const DEFAULT_SINGLETHUMB_NAME = '$movieName.$movieExtension-frame$frameNumber';
+export const DEFAULT_ALLTHUMBS_NAME = '$movieName.$movieExtension-$frameNumber';
 // end initialStateJSON
 
 export const MENU_HEADER_HEIGHT = 35;

@@ -6,7 +6,7 @@ import { getBase64Object } from './utilsForOpencv';
 const { ipcRenderer } = require('electron');
 const { app } = require('electron').remote;
 
-const saveThumb = (filePath, fileUseRatio, fileName, frameNumber, frameId, saveToFolder = '', overwrite = false, transformObject) => {
+const saveThumb = (filePath, fileUseRatio, movieFileName, frameNumber, fileNameTemplate, frameId, saveToFolder = '', overwrite = false, transformObject) => {
   // save thumbs in folder with the same name as moviePrint
   let newFolderName = app.getPath('desktop');
   if (saveToFolder) {
@@ -15,8 +15,9 @@ const saveThumb = (filePath, fileUseRatio, fileName, frameNumber, frameId, saveT
   }
 
   const frameSize = 0 // save frame in original size
+  const sheetName = undefined;
 
-  const newFilePathObject = getFilePathObject(fileName, `-frame${pad(frameNumber, 6)}`, 'jpg', newFolderName, overwrite);
+  const newFilePathObject = getFilePathObject(movieFileName, sheetName, frameNumber, fileNameTemplate, 'jpg', newFolderName, overwrite);
   const newFilePathAndName = pathR.join(
     newFilePathObject.dir,
     newFilePathObject.base

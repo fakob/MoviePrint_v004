@@ -262,6 +262,7 @@ class App extends Component {
       sheetsToPrint: [],
       savingAllMoviePrints: false,
       showTransformModal: false,
+      showSaveThumbModal: false,
       transformObject: {},
       objectUrlObjects: {},
       framesToFetch: [],
@@ -3618,6 +3619,25 @@ ${exportObject}`;
                           <Form.Input name='cropBottom' label='From bottom' placeholder='bottom' type='number' min='0' width={3} defaultValue={this.state.transformObject.cropBottom} />
                           <Form.Input name='cropLeft' label='From left' placeholder='left' type='number' min='0' width={3} defaultValue={this.state.transformObject.cropLeft} />
                           <Form.Input name='cropRight' label='From right' placeholder='right' type='number' min='0' width={3} defaultValue={this.state.transformObject.cropRight} />
+                        </Form.Group>
+                        <Form.Button content='Update cropping' />
+                      </Form>
+                    </Modal.Description>
+                  </Modal.Content>
+                </Modal>
+                <Modal
+                  open={this.state.showSaveThumbModal}
+                  onClose={() => this.setState({ showSaveThumbModal: false})}
+                  size='small'
+                  closeIcon
+                >
+                  <Modal.Header>Save thumb</Modal.Header>
+                  <Modal.Content image>
+                    <Modal.Description>
+                      <Form onSubmit={this.onChangeTransform}>
+                        <Form.Group>
+                          <Header as='h3'>Cropping in pixel</Header>
+                          <Form.Input name='cropTop' label='From top' placeholder='top' type='number' min='0' width={3} defaultValue={this.state.transformObject.cropTop} />
                         </Form.Group>
                         <Form.Button content='Update cropping' />
                       </Form>
