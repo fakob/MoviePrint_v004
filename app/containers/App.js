@@ -101,6 +101,9 @@ import {
   setDefaultFrameinfoScale,
   setDefaultMarginRatio,
   setDefaultMoviePrintBackgroundColor,
+  setDefaultMoviePrintName,
+  setDefaultSingleThumbName,
+  setDefaultAllThumbsName,
   setDefaultMoviePrintWidth,
   setDefaultOutputFormat,
   setDefaultOutputPath,
@@ -362,6 +365,7 @@ class App extends Component {
     this.onChangeTransform = this.onChangeTransform.bind(this);
     this.onRemoveMovieListItem = this.onRemoveMovieListItem.bind(this);
     this.onDeleteSheetClick = this.onDeleteSheetClick.bind(this);
+    this.onChangeDefaultMoviePrintName = this.onChangeDefaultMoviePrintName.bind(this);
     this.onChangeOutputPathClick = this.onChangeOutputPathClick.bind(this);
     this.onFrameinfoPositionClick = this.onFrameinfoPositionClick.bind(this);
     this.onOutputFormatClick = this.onOutputFormatClick.bind(this);
@@ -2899,6 +2903,24 @@ ${exportObject}`;
 
   };
 
+  onChangeDefaultMoviePrintName = (value) => {
+    const { store } = this.context;
+    // log.debug(value);
+    store.dispatch(setDefaultMoviePrintName(value));
+  };
+
+  onChangeDefaultSingleThumbName = (value) => {
+    const { store } = this.context;
+    // log.debug(value);
+    store.dispatch(setDefaultSingleThumbName(value));
+  };
+
+  onChangeDefaultAllThumbsName = (value) => {
+    const { store } = this.context;
+    // log.debug(value);
+    store.dispatch(setDefaultAllThumbsName(value));
+  };
+
   onChangeOutputPathClick = () => {
     const { store } = this.context;
     const newPathArray = dialog.showOpenDialog({
@@ -3255,6 +3277,9 @@ ${exportObject}`;
                       onRoundedCornersClick={this.onRoundedCornersClick}
                       onShowHiddenThumbsClick={this.onShowHiddenThumbsClick}
                       onThumbInfoClick={this.onThumbInfoClick}
+                      onChangeDefaultMoviePrintName={this.onChangeDefaultMoviePrintName}
+                      onChangeDefaultSingleThumbName={this.onChangeDefaultSingleThumbName}
+                      onChangeDefaultAllThumbsName={this.onChangeDefaultAllThumbsName}
                       onChangeOutputPathClick={this.onChangeOutputPathClick}
                       onFrameinfoPositionClick={this.onFrameinfoPositionClick}
                       onOutputFormatClick={this.onOutputFormatClick}

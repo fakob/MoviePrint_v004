@@ -294,6 +294,7 @@
     "react-toastify": "^5.3.1",
     "redux": "^4.0.0",
     "redux-undo": "^1.0.0-beta9-9-5",
+    "sanitize-filename": "^1.6.3",
     "scroll-into-view": "^1.9.3",
     "semantic-ui-css": "^2.3.3",
     "semantic-ui-react": "^0.88.0",

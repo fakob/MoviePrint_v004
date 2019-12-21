@@ -1,6 +1,8 @@
 import pathR from 'path';
 import fsR from 'fs';
 import log from 'electron-log';
+import sanitize from 'sanitize-filename';
+
 import VideoCaptureProperties from './videoCaptureProperties';
 import sheetNames from '../img/listOfNames.json'
 import {
@@ -1162,4 +1164,11 @@ export const repairFrameScanData = (arrayOfFrameScanData, frameCount) => {
     }
   }
   // no return is needed as arrayOfFrameScanData gets repaired in place
+}
+
+
+export const sanitizeString = (str) => {
+    const cleanedString = sanitize(str,'-')
+    // const cleanedString = str.replace(/[^a-z0-9áéíóúñü$. ,_-]/gim,"");
+    return cleanedString.trim();
 }

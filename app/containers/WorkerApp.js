@@ -128,6 +128,8 @@ class WorkerApp extends Component {
         visibleThumbs,
         dataToEmbed,
         sentData.settings.defaultMoviePrintBackgroundColor,
+        sentData.settings.defaultMoviePrintName,
+        sentData.settings.defaultAllThumbsName,
       );
     }
   }

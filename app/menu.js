@@ -94,11 +94,11 @@ export default class MenuBuilder {
         { label: 'Redo', accelerator: 'Shift+Command+Z', click: () => { this.mainWindow.send('redo'); } },
         // { label: 'Undo', accelerator: 'Command+Z', selector: 'undo:' },
         // { label: 'Redo', accelerator: 'Shift+Command+Z', selector: 'redo:' },
-        // { type: 'separator' },
-        // { label: 'Cut', accelerator: 'Command+X', selector: 'cut:' },
-        // { label: 'Copy', accelerator: 'Command+C', selector: 'copy:' },
-        // { label: 'Paste', accelerator: 'Command+V', selector: 'paste:' },
-        // { label: 'Select All', accelerator: 'Command+A', selector: 'selectAll:' }
+        { type: 'separator' },
+        { label: 'Cut', accelerator: 'Command+X', selector: 'cut:' },
+        { label: 'Copy', accelerator: 'Command+C', selector: 'copy:' },
+        { label: 'Paste', accelerator: 'Command+V', selector: 'paste:' },
+        { label: 'Select All', accelerator: 'Command+A', selector: 'selectAll:' }
       ]
     };
     const subMenuDev = {
@@ -246,7 +246,12 @@ export default class MenuBuilder {
       label: 'Edit',
       submenu: [
         { label: 'Undo', accelerator: 'Ctrl+Z', click: () => { this.mainWindow.send('undo'); } },
-        { label: 'Redo', accelerator: 'Shift+Ctrl+Z', click: () => { this.mainWindow.send('redo'); } }
+        { label: 'Redo', accelerator: 'Shift+Ctrl+Z', click: () => { this.mainWindow.send('redo'); } },
+        { type: 'separator' },
+        { label: 'Cut', accelerator: 'Ctrl+X', selector: 'cut:' },
+        { label: 'Copy', accelerator: 'Ctrl+C', selector: 'copy:' },
+        { label: 'Paste', accelerator: 'Ctrl+V', selector: 'paste:' },
+        { label: 'Select All', accelerator: 'Ctrl+A', selector: 'selectAll:' }
       ]
     };
     const subMenuDev = {

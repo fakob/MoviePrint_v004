@@ -71,13 +71,14 @@ const saveBlob = (blob, sheetId, fileName, dataToEmbed = undefined) => {
 
 const saveMoviePrint = (
   elementId, exportPath, file, sheetId, sheetName, scale, outputFormat, overwrite,
-    saveIndividualThumbs = false, thumbs, dataToEmbed, backgroundColor = DEFAULT_MOVIEPRINT_BACKGROUND_COLOR
+    saveIndividualThumbs = false, thumbs, dataToEmbed, backgroundColor = DEFAULT_MOVIEPRINT_BACKGROUND_COLOR,
+    moviePrintName = DEFAULT_MOVIEPRINT_NAME, allThumbsName = DEFAULT_ALLTHUMBS_NAME
 ) => {
   log.debug(file);
   const node = document.getElementById(elementId);
   const fileName = file.name;
   const frameNumber = undefined;
-  const newFilePathObject = getFilePathObject(fileName, sheetName, frameNumber, DEFAULT_MOVIEPRINT_NAME, outputFormat, exportPath, overwrite);
+  const newFilePathObject = getFilePathObject(fileName, sheetName, frameNumber, moviePrintName, outputFormat, exportPath, overwrite);
   const newFilePathAndName = pathR.join(
     newFilePathObject.dir,
     newFilePathObject.base
@@ -113,7 +114,7 @@ const saveMoviePrint = (
 
   if (saveIndividualThumbs) {
     thumbs.map(thumb => {
-      saveThumb(file.path, file.useRatio, newFilePathObject.name, thumb.frameNumber, DEFAULT_ALLTHUMBS_NAME, thumb.frameId,
+      saveThumb(file.path, file.useRatio, newFilePathObject.name, thumb.frameNumber, allThumbsName, thumb.frameId,
         newFilePathAndNameWithoutExtension, overwrite, file.transformObject
       );
     });
