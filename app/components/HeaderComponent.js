@@ -128,10 +128,10 @@ const Header = ({
             }
             mouseEnterDelay={1000}
             on={['hover']}
-            position='top center'
+            position='bottom right'
             offset='0,8px'
             className={stylesPop.popup}
-            content="Contact us"
+            content="Feedback or feature request? Click here or contact us at movieprint@fakob.com"
           />
         </Menu.Menu>
       </Menu>
