@@ -619,6 +619,11 @@ class App extends Component {
       dispatch(updateFrameNumberAndColorArray(frameNumberAndColorArray));
     });
 
+    ipcRenderer.on('update-sort-order', (event, detectionArray) => {
+
+      // store.dispatch(updateFrameNumberAndColorArray(detectionArray));
+    });
+
     ipcRenderer.on('finished-getting-thumbs', (event, fileId, sheetId) => {
       const { settings, sheetsByFileId } = this.props;
 
@@ -1133,8 +1138,10 @@ class App extends Component {
             // this.recaptureAllFrames();
             break;
           case 68: // press 'd'
-            const frameIdArray = [1234];
-            const frameNumberArray = [1511];
+            // const frameIdArray = [1234];
+            // const frameNumberArray = [1511];
+            const frameIdArray = this.props.allThumbs.map(thumb => thumb.frameId);
+            const frameNumberArray = this.props.allThumbs.map(thumb => thumb.frameNumber);
             ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs-sync', file.id, file.path, currentSheetId, frameIdArray, frameNumberArray, file.useRatio, settings.defaultCachedFramesSize, file.transformObject);
             break;
           case 70: // press 'f'
