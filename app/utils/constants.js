@@ -183,9 +183,9 @@ export const DEFAULT_FRAMEINFO_COLOR = { r:0, g:0, b:0, a:1 };
 export const DEFAULT_FRAMEINFO_POSITION = FRAMEINFO_POSITION.TOPLEFT;
 export const DEFAULT_FRAMEINFO_SCALE = 10.0;
 export const DEFAULT_FRAMEINFO_MARGIN = 0;
-export const DEFAULT_MOVIEPRINT_NAME = '$movieName.$movieExtension-$moviePrintName';
-export const DEFAULT_SINGLETHUMB_NAME = '$movieName.$movieExtension-frame$frameNumber';
-export const DEFAULT_ALLTHUMBS_NAME = '$movieName.$movieExtension-$frameNumber';
+export const DEFAULT_MOVIEPRINT_NAME = '[MN].[ME]-[MPN]';
+export const DEFAULT_SINGLETHUMB_NAME = '[MN].[ME]-frame[FN]';
+export const DEFAULT_ALLTHUMBS_NAME = '[MN].[ME]-[FN]';
 // end initialStateJSON
 
 export const MENU_HEADER_HEIGHT = 35;

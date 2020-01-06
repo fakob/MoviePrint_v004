@@ -181,8 +181,47 @@ export const getMoviePrintColor = (count) => {
 };
 
 const fillTemplate = function(templateString, templateVars){
-    return new Function("return `"+templateString +"`;").call(templateVars);
+  return new Function("return `"+templateString +"`;").call(templateVars);
 }
+
+export const getCustomFileName = (
+  fileName,
+  sheetName,
+  frameNumber,
+  fileNameTemplate,
+  ) => {
+    const paddedFrameNumber = frameNumber === undefined ? '' : pad(frameNumber, 6);
+    const movieName = pathR.parse(fileName).name;
+    const movieExtension = pathR.parse(fileName).ext.substr(1);; // remove dot from extension
+
+    try {
+      // prepare fileNameTemplate
+      const mapObj = {
+        '[MN]':"${this.movieName}",
+        '[ME]':"${this.movieExtension}",
+        '[MPN]':"${this.moviePrintName}",
+        '[FN]':"${this.paddedFrameNumber}",
+      };
+      const preparedFileNameTemplate = fileNameTemplate.replace(/\[MN\]|\[ME\]|\[MPN\]|\[FN\]/gi, function(matched){
+        return mapObj[matched];
+      });
+
+      // fill fileNameTemplate with parameters
+      const templateVars = {
+        movieName,
+        movieExtension,
+        moviePrintName: sheetName,
+        paddedFrameNumber,
+      };
+      const customFileName = fillTemplate(preparedFileNameTemplate, templateVars);
+      const validFilename = customFileName.replace(/[/\\?%*:|"<>]/g, '-');
+      return validFilename;
+
+    } catch (e) {
+      log.error(e);
+      return undefined;
+    }
+  }
 
 export const getFilePathObject = (
   fileName,
@@ -194,52 +233,31 @@ export const getFilePathObject = (
   exportPath = app.getPath('desktop'),
   overwrite = false
 ) => {
-  const paddedFrameNumber = frameNumber === undefined ? '' : pad(frameNumber, 6);
-  const movieName = pathR.parse(fileName).name;
-  const movieExtension = pathR.parse(fileName).ext.substr(1);; // remove dot from extension
+    const validFilename = getCustomFileName(
+      fileName,
+      sheetName,
+      frameNumber,
+      fileNameTemplate,
+    );
 
-  try {
-    // prepare fileNameTemplate
-    const mapObj = {
-      '$movieName':"${this.movieName}",
-      '$movieExtension':"${this.movieExtension}",
-      '$moviePrintName':"${this.moviePrintName}",
-      '$frameNumber':"${this.paddedFrameNumber}",
-    };
-    const preparedFileNameTemplate = fileNameTemplate.replace(/\$movieName|\$movieExtension|\$moviePrintName|\$frameNumber/gi, function(matched){
-      return mapObj[matched];
-    });
+    if (validFilename !== undefined) {
+      let newFilePathAndName = pathR.join(exportPath, `${validFilename}.${outputFormat}`);
 
-    // fill fileNameTemplate with parameters
-    const templateVars = {
-      movieName,
-      movieExtension,
-      moviePrintName: sheetName,
-      paddedFrameNumber,
-    };
-    const customFileName = fillTemplate(preparedFileNameTemplate, templateVars);
-    const validFilename = customFileName.replace(/[/\\?%*:|"<>]/g, '-');
-
-    let newFilePathAndName = pathR.join(exportPath, `${validFilename}.${outputFormat}`);
-
-    if (!overwrite) {
-      if (doesFileFolderExist(newFilePathAndName)) {
-        for (let i = 1; i < 1000; i += 1) {
-          newFilePathAndName = pathR.join(exportPath, `${validFilename} edit ${i}.${outputFormat}`);
-          if (doesFileFolderExist(newFilePathAndName) === false) {
-            break;
+      if (!overwrite) {
+        if (doesFileFolderExist(newFilePathAndName)) {
+          for (let i = 1; i < 1000; i += 1) {
+            newFilePathAndName = pathR.join(exportPath, `${validFilename} edit ${i}.${outputFormat}`);
+            if (doesFileFolderExist(newFilePathAndName) === false) {
+              break;
+            }
           }
         }
       }
+      return pathR.parse(newFilePathAndName);
     }
-    return pathR.parse(newFilePathAndName);
-
-  } catch (e) {
-    log.error(e);
-    // return
+    // validFilename === undefined, return default name
     const standardFilePathAndName = pathR.join(exportPath, `MoviePrint.${outputFormat}`);
     return pathR.parse(standardFilePathAndName);
-  }
 };
 
 export const getThumbInfoValue = (type, frames, framesPerSecond) => {

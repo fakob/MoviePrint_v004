@@ -3020,6 +3020,7 @@ ${exportObject}`;
     const secondsPerRow = getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings);
     const sheetView = getSheetView(sheetsByFileId, currentFileId, currentSheetId, visibilitySettings);
     const sheetType = getSheetType(sheetsByFileId, currentFileId, currentSheetId, settings);
+    const sheetName = getSheetName(sheetsByFileId, currentFileId, currentSheetId);
     const hasParent = getParentSheetId(sheetsByFileId, currentFileId, currentSheetId) !== undefined;
     const { defaultSheetView } = visibilitySettings;
 
@@ -3241,6 +3242,7 @@ ${exportObject}`;
                       visibilitySettings={visibilitySettings}
                       file={file}
                       sheetType={sheetType}
+                      sheetName={sheetName}
                       columnCountTemp={this.state.columnCountTemp}
                       thumbCountTemp={this.state.thumbCountTemp}
                       thumbCount={this.state.thumbCount}

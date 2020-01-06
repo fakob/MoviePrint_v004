@@ -6,11 +6,12 @@ import Slider, { Handle, createSliderWithTooltip } from 'rc-slider';
 import Tooltip from 'rc-tooltip';
 import { SketchPicker } from 'react-color';
 import { Checkboard } from 'react-color/lib/components/common';
-import { Button, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List, Message, Popup, Input } from 'semantic-ui-react';
+import { Button, Label, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List, Message, Popup, Input } from 'semantic-ui-react';
 import styles from './Settings.css';
 import stylesPop from '../components/Popup.css';
 import {
   frameCountToMinutes,
+  getCustomFileName,
   limitRange,
   sanitizeString,
   } from '../utils/utils';
@@ -135,8 +136,10 @@ class SettingsList extends Component {
         frameninfoBackgroundColor: false,
         frameinfoColor: false,
       },
+      previewMoviePrintName: DEFAULT_MOVIEPRINT_NAME,
     };
     // this.onToggleSliders = this.onToggleSliders.bind(this);
+    this.onGetPreviewCustomFileName = this.onGetPreviewCustomFileName.bind(this);
     this.onShowSliders = this.onShowSliders.bind(this);
     this.onChangeSceneCount = this.onChangeSceneCount.bind(this);
     this.onChangePaperAspectRatio = this.onChangePaperAspectRatio.bind(this);
@@ -177,6 +180,22 @@ class SettingsList extends Component {
   //   }));
   // }
 
+  onGetPreviewCustomFileName = (customFileName) => {
+    const { file, settings, sheetName } = this.props;
+    const {
+      defaultMoviePrintName = DEFAULT_MOVIEPRINT_NAME,
+      defaultSingleThumbName = DEFAULT_SINGLETHUMB_NAME,
+      defaultAllThumbsName = DEFAULT_ALLTHUMBS_NAME,
+    } = settings;
+    const previewMoviePrintName = getCustomFileName(
+      file !== undefined ? file.name : '',
+      sheetName,
+      `frameNumber`,
+      customFileName,
+    );
+    return previewMoviePrintName;
+  }
+
   onShowSliders = (e, { checked }) => {
     this.setState({
       showSliders: !checked
@@ -186,6 +205,10 @@ class SettingsList extends Component {
   onSubmitDefaultMoviePrintName = (e) => {
     if (e.key === 'Enter' || e.key === undefined) {
       const value = sanitizeString(e.target.value);
+      const previewMoviePrintName = this.onGetPreviewCustomFileName(value);
+      this.setState({
+        previewMoviePrintName
+      });
       this.props.onChangeDefaultMoviePrintName(value);
     }
   }
@@ -379,12 +402,13 @@ class SettingsList extends Component {
       secondsPerRowTemp,
       settings,
       sheetType,
+      sheetName,
       showChart,
       thumbCount,
       thumbCountTemp,
       visibilitySettings,
     } = this.props;
-    const { displayColorPicker, showSliders } = this.state;
+    const { displayColorPicker, previewMoviePrintName, showSliders } = this.state;
     const {
       defaultCachedFramesSize = 0,
       defaultDetectInOutPoint,
@@ -1455,8 +1479,11 @@ class SettingsList extends Component {
                 on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
-                content="$movieName = Movie name | $movieExtension = Movie extension | $moviePrintName = MoviePrint name"
+                content="Movie name = [MN], Movie extension = [ME], MoviePrint name = [MPN], Frame number = [FN]"
               />
+              <Label color='grey' pointing>
+                {previewMoviePrintName}
+              </Label>
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
@@ -1477,7 +1504,7 @@ class SettingsList extends Component {
                 on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
-                content="$movieName = Movie name | $movieExtension = Movie extension | $moviePrintName = MoviePrint name | $frameNumber = framenumber"
+                content="Movie name = [MN], Movie extension = [ME], MoviePrint name = [MPN], Frame number = [FN]"
               />
           </Grid.Column>
           </Grid.Row>
@@ -1499,7 +1526,7 @@ class SettingsList extends Component {
                 on={['hover']}
                 position='bottom center'
                 className={stylesPop.popup}
-                content="$movieName = Movie name | $movieExtension = Movie extension | $moviePrintName = MoviePrint name | $frameNumber = framenumber"
+                content="Movie name = [MN], Movie extension = [ME], MoviePrint name = [MPN], Frame number = [FN]"
               />
             </Grid.Column>
           </Grid.Row>
