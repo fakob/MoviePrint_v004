@@ -767,7 +767,6 @@ class App extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { store } = this.context;
     const { currentFileId, currentSheetId, file, settings, sheetsByFileId, visibilitySettings } = this.props;
 
     const secondsPerRow = getSecondsPerRow(nextProps.sheetsByFileId, nextProps.currentFileId, nextProps.currentSheetId, nextProps.settings);

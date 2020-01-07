@@ -57,3 +57,21 @@
   font-family: 'Open sans';
   text-align: center;
 }
+
+.smallText {
+  margin-top: 8px;
+  font-size: 0.9rem;
+}
+
+.previewCustomName {
+  background-color: rgba(0,0,0,0.8) !important;
+  color: rgba(255,255,255,0.5) !important;
+  font-style: italic !important;
+  font-weight: 200 !important;
+  letter-spacing: 0.3px;
+  line-height: 1.2rem !important;
+}
+
+.smallDivider {
+  margin: 0.4rem 0 !important;
+}

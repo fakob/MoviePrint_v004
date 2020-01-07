@@ -5,8 +5,9 @@ import PropTypes from 'prop-types';
 import Slider, { Handle, createSliderWithTooltip } from 'rc-slider';
 import Tooltip from 'rc-tooltip';
 import { SketchPicker } from 'react-color';
+import throttle from 'lodash/throttle';
 import { Checkboard } from 'react-color/lib/components/common';
-import { Button, Label, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List, Message, Popup, Input } from 'semantic-ui-react';
+import { Accordion, Button, Icon, Label, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List, Message, Popup, Input } from 'semantic-ui-react';
 import styles from './Settings.css';
 import stylesPop from '../components/Popup.css';
 import {
@@ -137,7 +138,17 @@ class SettingsList extends Component {
         frameinfoColor: false,
       },
       previewMoviePrintName: DEFAULT_MOVIEPRINT_NAME,
+      previewSingleThumbName: DEFAULT_SINGLETHUMB_NAME,
+      previewAllThumbsName: DEFAULT_ALLTHUMBS_NAME,
     };
+
+    this.onChangeDefaultMoviePrintNameThrottled = throttle((value) => this.props.onChangeDefaultMoviePrintName(value), 1000, { leading: false });
+    this.onChangeDefaultMoviePrintNameThrottled = this.onChangeDefaultMoviePrintNameThrottled.bind(this);
+    this.onChangeDefaultSingleThumbNameThrottled = throttle((value) => this.props.onChangeDefaultSingleThumbName(value), 1000, { leading: false });
+    this.onChangeDefaultSingleThumbNameThrottled = this.onChangeDefaultSingleThumbNameThrottled.bind(this);
+    this.onChangeDefaultAllThumbsNameThrottled = throttle((value) => this.props.onChangeDefaultAllThumbsName(value), 1000, { leading: false });
+    this.onChangeDefaultAllThumbsNameThrottled = this.onChangeDefaultAllThumbsNameThrottled.bind(this);
+
     // this.onToggleSliders = this.onToggleSliders.bind(this);
     this.onGetPreviewCustomFileName = this.onGetPreviewCustomFileName.bind(this);
     this.onShowSliders = this.onShowSliders.bind(this);
@@ -174,26 +185,44 @@ class SettingsList extends Component {
     this.onChangeTimelineViewSecondsPerRowViaInput = this.onChangeTimelineViewSecondsPerRowViaInput.bind(this);
   }
 
+  componentDidUpdate(prevProps) {
+    const { file, sheetName, settings } = this.props;
+    if (file !== undefined &&
+      prevProps.file !== undefined &&
+      prevProps.file.name !== undefined &&
+      file.name !== undefined) {
+      if (file.name !== prevProps.file.name ||
+        sheetName !== prevProps.sheetName
+      ) {
+        const {
+          defaultMoviePrintName = DEFAULT_MOVIEPRINT_NAME,
+          defaultSingleThumbName = DEFAULT_SINGLETHUMB_NAME,
+          defaultAllThumbsName = DEFAULT_ALLTHUMBS_NAME,
+        } = settings;
+        this.setState({
+          previewMoviePrintName: this.onGetPreviewCustomFileName(defaultMoviePrintName),
+          previewSingleThumbName: this.onGetPreviewCustomFileName(defaultSingleThumbName),
+          previewAllThumbsName: this.onGetPreviewCustomFileName(defaultAllThumbsName),
+        });
+      }
+    }
+  }
+
   // onToggleSliders = () => {
   //   this.setState(state => ({
   //     showSliders: !state.showSliders
   //   }));
   // }
 
-  onGetPreviewCustomFileName = (customFileName) => {
-    const { file, settings, sheetName } = this.props;
-    const {
-      defaultMoviePrintName = DEFAULT_MOVIEPRINT_NAME,
-      defaultSingleThumbName = DEFAULT_SINGLETHUMB_NAME,
-      defaultAllThumbsName = DEFAULT_ALLTHUMBS_NAME,
-    } = settings;
-    const previewMoviePrintName = getCustomFileName(
+  onGetPreviewCustomFileName = (customFileName, props = this.props) => {
+    const { file, settings, sheetName } = props;
+    const previewName = getCustomFileName(
       file !== undefined ? file.name : '',
       sheetName,
-      `frameNumber`,
+      `000000`,
       customFileName,
     );
-    return previewMoviePrintName;
+    return previewName;
   }
 
   onShowSliders = (e, { checked }) => {
@@ -203,28 +232,30 @@ class SettingsList extends Component {
   }
 
   onSubmitDefaultMoviePrintName = (e) => {
-    if (e.key === 'Enter' || e.key === undefined) {
-      const value = sanitizeString(e.target.value);
-      const previewMoviePrintName = this.onGetPreviewCustomFileName(value);
-      this.setState({
-        previewMoviePrintName
-      });
-      this.props.onChangeDefaultMoviePrintName(value);
-    }
+    const value = sanitizeString(e.target.value);
+    const previewMoviePrintName = this.onGetPreviewCustomFileName(value);
+    this.setState({
+      previewMoviePrintName
+    });
+    this.onChangeDefaultMoviePrintNameThrottled(value);
   }
 
   onSubmitDefaultSingleThumbName = (e) => {
-    if (e.key === 'Enter' || e.key === undefined) {
-      const value = sanitizeString(e.target.value);
-      this.props.onChangeDefaultSingleThumbName(value);
-    }
+    const value = sanitizeString(e.target.value);
+    const previewSingleThumbName = this.onGetPreviewCustomFileName(value);
+    this.setState({
+      previewSingleThumbName
+    });
+    this.onChangeDefaultSingleThumbNameThrottled(value);
   }
 
   onSubmitDefaultAllThumbsName = (e) => {
-    if (e.key === 'Enter' || e.key === undefined) {
-      const value = sanitizeString(e.target.value);
-      this.props.onChangeDefaultAllThumbsName(value);
-    }
+    const value = sanitizeString(e.target.value);
+    const previewAllThumbsName = this.onGetPreviewCustomFileName(value);
+    this.setState({
+      previewAllThumbsName
+    });
+    this.onChangeDefaultAllThumbsNameThrottled(value);
   }
 
   onChangeColumnCountViaInput = (e) => {
@@ -408,7 +439,13 @@ class SettingsList extends Component {
       thumbCountTemp,
       visibilitySettings,
     } = this.props;
-    const { displayColorPicker, previewMoviePrintName, showSliders } = this.state;
+    const {
+      displayColorPicker,
+      previewMoviePrintName,
+      previewSingleThumbName,
+      previewAllThumbsName,
+      showSliders,
+    } = this.state;
     const {
       defaultCachedFramesSize = 0,
       defaultDetectInOutPoint,
@@ -1313,7 +1350,7 @@ class SettingsList extends Component {
                     data-tid='includeIndividualFramesCheckbox'
                     label={
                       <label className={styles.label}>
-                        Include individual frames
+                        Include individual thumbs
                       </label>
                     }
                     checked={defaultSaveOptionIncludeIndividual}
@@ -1345,6 +1382,70 @@ class SettingsList extends Component {
                   />
                 </List.Item>
               </List>
+            </Grid.Column>
+          </Grid.Row>
+          <Divider inverted />
+          <Grid.Row>
+            <Grid.Column width={16}>
+              Custom file names
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={16}>
+              <label>Name of MoviePrint</label>
+              <Input
+                data-tid='defaultMoviePrintNameInput'
+                fluid
+                placeholder='MoviePrint name'
+                defaultValue={defaultMoviePrintName}
+                onBlur={this.onSubmitDefaultMoviePrintName}
+                onKeyUp={this.onSubmitDefaultMoviePrintName}
+              />
+              <Label
+                className={styles.previewCustomName}
+              >
+                {previewMoviePrintName}.{defaultOutputFormat}
+              </Label>
+              <Divider hidden className={styles.smallDivider} />
+              <label>Name of thumb when saving a single thumb</label>
+              <Input
+                data-tid='defaultSingleThumbNameInput'
+                fluid
+                placeholder='Name when saving a single thumb'
+                defaultValue={defaultSingleThumbName}
+                onBlur={this.onSubmitDefaultSingleThumbName}
+                onKeyUp={this.onSubmitDefaultSingleThumbName}
+              />
+              <Label
+                className={styles.previewCustomName}
+              >
+                {previewSingleThumbName}.jpg
+              </Label>
+              <Divider hidden className={styles.smallDivider} />
+              <label>Name of thumbs when including individual thumbs</label>
+              <Input
+                data-tid='defaultAllThumbsNameInput'
+                fluid
+                placeholder='Name when including individual thumbs'
+                defaultValue={defaultAllThumbsName}
+                onBlur={this.onSubmitDefaultAllThumbsName}
+                onKeyUp={this.onSubmitDefaultAllThumbsName}
+              />
+              <Label
+                className={styles.previewCustomName}
+              >
+                {previewAllThumbsName}.jpg
+              </Label>
+              <Divider hidden className={styles.smallDivider} />
+              <div
+                className={styles.smallText}
+              >
+                <strong>Available attributes</strong><br />
+                Movie name = [MN]<br />
+                Movie extension = [ME]<br />
+                MoviePrint name = [MPN]<br />
+                Frame number = [FN]
+              </div>
             </Grid.Column>
           </Grid.Row>
           <Divider inverted />
@@ -1458,75 +1559,6 @@ class SettingsList extends Component {
                 position='bottom center'
                 className={stylesPop.popup}
                 content="Recapture all frames and store it in the frame cache (uses max size)"
-              />
-            </Grid.Column>
-          </Grid.Row>
-          <Grid.Row>
-            <Grid.Column width={16}>
-              <label>MoviePrint name</label>
-              <Popup
-                trigger={
-                  <Input
-                    data-tid='defaultMoviePrintNameInput'
-                    fluid
-                    placeholder='MoviePrint name'
-                    defaultValue={defaultMoviePrintName}
-                    onBlur={this.onSubmitDefaultMoviePrintName}
-                    onKeyDown={this.onSubmitDefaultMoviePrintName}
-                  />
-                }
-                mouseEnterDelay={1000}
-                on={['hover']}
-                position='bottom center'
-                className={stylesPop.popup}
-                content="Movie name = [MN], Movie extension = [ME], MoviePrint name = [MPN], Frame number = [FN]"
-              />
-              <Label color='grey' pointing>
-                {previewMoviePrintName}
-              </Label>
-            </Grid.Column>
-          </Grid.Row>
-          <Grid.Row>
-            <Grid.Column width={16}>
-              <label>Name when saving a single thumb</label>
-              <Popup
-                trigger={
-                  <Input
-                    data-tid='defaultSingleThumbNameInput'
-                    fluid
-                    placeholder='Name when saving a single thumb'
-                    defaultValue={defaultSingleThumbName}
-                    onBlur={this.onSubmitDefaultSingleThumbName}
-                    onKeyDown={this.onSubmitDefaultSingleThumbName}
-                  />
-                }
-                mouseEnterDelay={1000}
-                on={['hover']}
-                position='bottom center'
-                className={stylesPop.popup}
-                content="Movie name = [MN], Movie extension = [ME], MoviePrint name = [MPN], Frame number = [FN]"
-              />
-          </Grid.Column>
-          </Grid.Row>
-          <Grid.Row>
-            <Grid.Column width={16}>
-              <label>Name when including individual frames</label>
-              <Popup
-                trigger={
-                    <Input
-                      data-tid='defaultAllThumbsNameInput'
-                      fluid
-                      placeholder='Name when including individual frames'
-                      defaultValue={defaultAllThumbsName}
-                      onBlur={this.onSubmitDefaultAllThumbsName}
-                      onKeyDown={this.onSubmitDefaultAllThumbsName}
-                    />
-                }
-                mouseEnterDelay={1000}
-                on={['hover']}
-                position='bottom center'
-                className={stylesPop.popup}
-                content="Movie name = [MN], Movie extension = [ME], MoviePrint name = [MPN], Frame number = [FN]"
               />
             </Grid.Column>
           </Grid.Row>
