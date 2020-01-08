@@ -1,8 +1,8 @@
 // @flow
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Image, Icon, Popup, Dropdown, Label } from 'semantic-ui-react';
-import { truncate, truncatePath, frameCountToTimeCode, formatBytes } from '../utils/utils';
+import { Button, Image, Input, Icon, Popup, Dropdown, Label } from 'semantic-ui-react';
+import { truncate, truncatePath, frameCountToTimeCode, formatBytes, sanitizeString } from '../utils/utils';
 import styles from './FileList.css';
 import stylesPop from './Popup.css';
 import {
@@ -25,6 +25,7 @@ const FileListElement = ({
   objectUrl,
   onAddIntervalSheetClick,
   onChangeSheetViewClick,
+  onSubmitMoviePrintNameClick,
   onDeleteSheetClick,
   onDuplicateSheetClick,
   onExportSheetClick,
@@ -39,7 +40,47 @@ const FileListElement = ({
   size,
   width,
 }) => {
+
+  const inputRef = useRef(null);
+  const [input, setInput] = useState({
+    isRenaming: false, // initial state
+    })
   const sheetsArray = Object.getOwnPropertyNames(sheetsObject);
+
+  const onSubmitMoviePrintName = (e, sheetId) => {
+    console.log(e.currentTarget.value);
+    if (e.key === 'Enter' || e.key === undefined) {
+      const value = sanitizeString(e.target.value);
+      console.log(value);
+      e.stopPropagation();
+      onSubmitMoviePrintNameClick(fileId, sheetId, value);
+      setInput({
+        ...input,
+        [e.currentTarget.name]: value,
+        'isRenaming': false, // reset isRenaming
+      })
+    }
+  }
+
+  useEffect(() => {
+    if (input.isRenaming) {
+      inputRef.current.select();
+    }
+  }, [input.isRenaming]);
+
+  const onStartRenameClickWithStop = (e, sheetId) => {
+    e.stopPropagation();
+    let valueToSet;
+    if (input.isRenaming === sheetId) {
+      valueToSet = false;
+    } else {
+      valueToSet = sheetId;
+    }
+    setInput({
+      ...input,
+      'isRenaming': valueToSet,
+    })
+  }
 
   function getSheetIcon(sheetView) {
     switch (sheetView) {
@@ -269,35 +310,52 @@ const FileListElement = ({
               >
               Selected sheet
             </Label>} */}
-            <span className={`${styles.SheetName}`}>
-                <Icon name={getSheetIcon(sheetsObject[sheetId].sheetView)} inverted />
-                &nbsp;{sheetsObject[sheetId].name}
-            </span>
-            <Label
-              size='mini'
-              horizontal
-              className={`${styles.SheetLabel} ${(sheetsObject[sheetId].type === SHEET_TYPE.SCENES) ? styles.shotBased : ''}`}
-            >
-              {`${sheetsObject[sheetId].type} based`}
-            </Label>
-            {/* <Input
-              transparent
-              fluid
-              placeholder={sheetsObject[sheetId].name}
-              onChange={(e, data) => {
-                // e.preventDefault();
-                // data.onChange.e.preventDefault();
-                console.log(data);
-                return undefined;
-              }}
-              onKeyPress={(e) => {
-                // e.preventDefault();
-                // data.onChange.e.preventDefault();
-                console.log(e.key);
-                return undefined;
-              }}
-              className={`${styles.SheetNameInput}`}
-            /> */}
+            {input.isRenaming !== sheetId &&
+              <React.Fragment>
+                <span
+                  className={`${styles.SheetName}`}
+                  title={sheetsObject[sheetId].name}
+                >
+                    <Icon
+                      name={getSheetIcon(sheetsObject[sheetId].sheetView)}
+                      inverted
+                      onClick={e => onStartRenameClickWithStop(e, sheetId)}
+                      role='button'
+                    />
+                    &nbsp;{sheetsObject[sheetId].name}
+                </span>
+                <Label
+                  size='mini'
+                  horizontal
+                  className={`${styles.SheetLabel} ${(sheetsObject[sheetId].type === SHEET_TYPE.SCENES) ? styles.shotBased : ''}`}
+                >
+                  {`${sheetsObject[sheetId].type} based`}
+                </Label>
+              </React.Fragment>
+            }
+            {input.isRenaming === sheetId &&
+              <span
+                className={`${styles.SheetNameInputContainer}`}
+              >
+                <Icon
+                  name='edit'
+                  inverted
+                  // size='small'
+                />
+                <Input
+                  data-tid='moviePrintNameInput'
+                  name='moviePrintNameInput'
+                  focus
+                  ref={inputRef}
+                  className={`${styles.SheetNameInput}`}
+                  transparent
+                  placeholder='Name this MoviePrint'
+                  defaultValue={sheetsObject[sheetId].name}
+                  onBlur={e => onSubmitMoviePrintName(e, sheetId)}
+                  onKeyUp={e => onSubmitMoviePrintName(e, sheetId)}
+                />
+              </span>
+            }
             {fileMissingStatus !== true &&
               <Dropdown
                 data-tid='sheetItemOptionsDropdown'
@@ -307,12 +365,12 @@ const FileListElement = ({
                 className={`${styles.overflow} ${styles.overflowHidden}`}
               >
                 <Dropdown.Menu>
-                    {/* <Dropdown.Item
-                      data-tid='renameSheetItemOption'
-                      icon="edit"
-                      text="Rename"
-                      onClick={e => onRenameSheetClickWithStop(e, fileId, sheetId)}
-                    /> */}
+                  <Dropdown.Item
+                    data-tid='renameSheetItemOption'
+                    icon="edit"
+                    text="Rename"
+                    onClick={e => onStartRenameClickWithStop(e, sheetId)}
+                  />
                   {sheetsObject[sheetId].sheetView === SHEET_VIEW.TIMELINEVIEW && <Dropdown.Item
                     data-tid='changeViewSheetToGridViewItemOption'
                     icon="grid layout"

@@ -354,6 +354,7 @@ class App extends Component {
     this.onImportMoviePrint = this.onImportMoviePrint.bind(this);
     this.onClearMovieList = this.onClearMovieList.bind(this);
     this.onChangeSheetViewClick = this.onChangeSheetViewClick.bind(this);
+    this.onSubmitMoviePrintNameClick = this.onSubmitMoviePrintNameClick.bind(this);
     this.toggleSheetView = this.toggleSheetView.bind(this);
     this.setOrToggleDefaultSheetView = this.setOrToggleDefaultSheetView.bind(this);
     this.onSetSheetClick = this.onSetSheetClick.bind(this);
@@ -2832,6 +2833,12 @@ ${exportObject}`;
     store.dispatch(setDefaultSheetView(sheetView));
   };
 
+  onSubmitMoviePrintNameClick = (fileId, sheetId, newName) => {
+    const { store } = this.context;
+
+    store.dispatch(updateSheetName(fileId, sheetId, newName));
+  };
+
   onChangeSheetViewClick = (fileId, sheetId, sheetView) => {
     const { store } = this.context;
     const { currentFileId, currentSheetId, sheetsByFileId, settings } = this.props;
@@ -3197,6 +3204,7 @@ ${exportObject}`;
                       posterobjectUrlObjects={filteredPosterFrameObjectUrlObjects}
                       sheetsByFileId={sheetsByFileId}
                       onChangeSheetViewClick={this.onChangeSheetViewClick}
+                      onSubmitMoviePrintNameClick={this.onSubmitMoviePrintNameClick}
                       onSetSheetClick={this.onSetSheetClick}
                       onDuplicateSheetClick={this.onDuplicateSheetClick}
                       onExportSheetClick={this.onExportSheetClick}
