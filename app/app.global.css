@@ -62,3 +62,7 @@ mark::after {
 ::-webkit-scrollbar-thumb:hover {
   background: #2c2c2c !important;
 }
+
+h6 {
+  font-size: 0.7rem;
+}

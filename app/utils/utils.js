@@ -180,6 +180,18 @@ export const getMoviePrintColor = (count) => {
   return newColorArray;
 };
 
+export const typeInTextarea = (el, textToAdd) => {
+  const start = el.selectionStart;
+  const end = el.selectionEnd;
+  const text = el.value;
+  const before = text.substring(0, start);
+  const after  = text.substring(end, text.length);
+  const newText = el.value = (before + textToAdd + after);
+  el.selectionStart = el.selectionEnd = start + textToAdd.length;
+  el.focus();
+  return newText;
+}
+
 const fillTemplate = function(templateString, templateVars){
   return new Function("return `"+templateString +"`;").call(templateVars);
 }

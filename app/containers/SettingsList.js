@@ -15,6 +15,7 @@ import {
   getCustomFileName,
   limitRange,
   sanitizeString,
+  typeInTextarea,
   } from '../utils/utils';
 import {
   CACHED_FRAMES_SIZE_OPTIONS,
@@ -129,6 +130,7 @@ const outputSize = (file = {
 class SettingsList extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       changeSceneCount: false,
       showSliders: true,
@@ -140,6 +142,7 @@ class SettingsList extends Component {
       previewMoviePrintName: DEFAULT_MOVIEPRINT_NAME,
       previewSingleThumbName: DEFAULT_SINGLETHUMB_NAME,
       previewAllThumbsName: DEFAULT_ALLTHUMBS_NAME,
+      focusReference: undefined,
     };
 
     this.onChangeDefaultMoviePrintNameThrottled = throttle((value) => this.props.onChangeDefaultMoviePrintName(value), 1000, { leading: false });
@@ -178,6 +181,8 @@ class SettingsList extends Component {
     this.onChangeShotDetectionMethod = this.onChangeShotDetectionMethod.bind(this);
     this.onSubmitDefaultMoviePrintName = this.onSubmitDefaultMoviePrintName.bind(this);
     this.onSubmitDefaultSingleThumbName = this.onSubmitDefaultSingleThumbName.bind(this);
+    this.setFocusReference = this.setFocusReference.bind(this);
+    this.addAttributeIntoInput = this.addAttributeIntoInput.bind(this);
     this.onSubmitDefaultAllThumbsName = this.onSubmitDefaultAllThumbsName.bind(this);
     this.onChangeColumnCountViaInput = this.onChangeColumnCountViaInput.bind(this);
     this.onChangeColumnCountViaInputAndApply = this.onChangeColumnCountViaInputAndApply.bind(this);
@@ -231,11 +236,45 @@ class SettingsList extends Component {
     });
   }
 
+  setFocusReference = (e) => {
+    const ref = e.target;
+    this.setState({
+      focusReference: ref
+    });
+  }
+
+  addAttributeIntoInput = (attribute) => {
+    const { focusReference } = this.state;
+    if (focusReference !== undefined) {
+      console.log(focusReference)
+      const newText = typeInTextarea(focusReference, attribute);
+      const previewName = this.onGetPreviewCustomFileName(newText);
+      switch (focusReference.name) {
+        case 'defaultMoviePrintNameInput':
+          this.setState({
+            previewMoviePrintName: previewName,
+          });
+          break;
+        case 'defaultSingleThumbNameInput':
+          this.setState({
+            previewSingleThumbName: previewName,
+          });
+          break;
+        case 'defaultAllThumbsNameInput':
+          this.setState({
+            previewAllThumbsName: previewName,
+          });
+          break;
+        default:
+      }
+    }
+  }
+
   onSubmitDefaultMoviePrintName = (e) => {
     const value = sanitizeString(e.target.value);
     const previewMoviePrintName = this.onGetPreviewCustomFileName(value);
     this.setState({
-      previewMoviePrintName
+      previewMoviePrintName,
     });
     this.onChangeDefaultMoviePrintNameThrottled(value);
   }
@@ -244,7 +283,7 @@ class SettingsList extends Component {
     const value = sanitizeString(e.target.value);
     const previewSingleThumbName = this.onGetPreviewCustomFileName(value);
     this.setState({
-      previewSingleThumbName
+      previewSingleThumbName,
     });
     this.onChangeDefaultSingleThumbNameThrottled(value);
   }
@@ -253,7 +292,7 @@ class SettingsList extends Component {
     const value = sanitizeString(e.target.value);
     const previewAllThumbsName = this.onGetPreviewCustomFileName(value);
     this.setState({
-      previewAllThumbsName
+      previewAllThumbsName,
     });
     this.onChangeDefaultAllThumbsNameThrottled(value);
   }
@@ -441,6 +480,7 @@ class SettingsList extends Component {
     } = this.props;
     const {
       displayColorPicker,
+      focusReference,
       previewMoviePrintName,
       previewSingleThumbName,
       previewAllThumbsName,
@@ -1387,17 +1427,16 @@ class SettingsList extends Component {
           <Divider inverted />
           <Grid.Row>
             <Grid.Column width={16}>
-              Custom file names
-            </Grid.Column>
-          </Grid.Row>
-          <Grid.Row>
-            <Grid.Column width={16}>
+              <h4>Custom file names</h4>
               <label>Name of MoviePrint</label>
               <Input
+                // ref={this.inputDefaultMoviePrintName}
                 data-tid='defaultMoviePrintNameInput'
+                name='defaultMoviePrintNameInput' // needed for addAttributeIntoInput
                 fluid
                 placeholder='MoviePrint name'
                 defaultValue={defaultMoviePrintName}
+                onFocus={this.setFocusReference}
                 onBlur={this.onSubmitDefaultMoviePrintName}
                 onKeyUp={this.onSubmitDefaultMoviePrintName}
               />
@@ -1409,10 +1448,13 @@ class SettingsList extends Component {
               <Divider hidden className={styles.smallDivider} />
               <label>Name of thumb when saving a single thumb</label>
               <Input
+                // ref={this.inputDefaultSingleThumbName}
                 data-tid='defaultSingleThumbNameInput'
+                name='defaultSingleThumbNameInput' // needed for addAttributeIntoInput
                 fluid
                 placeholder='Name when saving a single thumb'
                 defaultValue={defaultSingleThumbName}
+                onFocus={this.setFocusReference}
                 onBlur={this.onSubmitDefaultSingleThumbName}
                 onKeyUp={this.onSubmitDefaultSingleThumbName}
               />
@@ -1424,10 +1466,13 @@ class SettingsList extends Component {
               <Divider hidden className={styles.smallDivider} />
               <label>Name of thumbs when including individual thumbs</label>
               <Input
+                // ref={this.inputDefaultAllThumbsName}
                 data-tid='defaultAllThumbsNameInput'
+                name='defaultAllThumbsNameInput' // needed for addAttributeIntoInput
                 fluid
                 placeholder='Name when including individual thumbs'
                 defaultValue={defaultAllThumbsName}
+                onFocus={this.setFocusReference}
                 onBlur={this.onSubmitDefaultAllThumbsName}
                 onKeyUp={this.onSubmitDefaultAllThumbsName}
               />
@@ -1436,16 +1481,43 @@ class SettingsList extends Component {
               >
                 {previewAllThumbsName}.jpg
               </Label>
-              <Divider hidden className={styles.smallDivider} />
-              <div
-                className={styles.smallText}
+              <h6>Available attributes</h6>
+              <Button
+                data-tid='addAttribute[MN]IntoInputButton'
+                className={styles.attributeButton}
+                onClick={() => this.addAttributeIntoInput('[MN]')}
+                disabled={focusReference === undefined}
+                size='mini'
               >
-                <strong>Available attributes</strong><br />
-                Movie name = [MN]<br />
-                Movie extension = [ME]<br />
-                MoviePrint name = [MPN]<br />
-                Frame number = [FN]
-              </div>
+                [MN] Movie name
+              </Button>
+              <Button
+                data-tid='addAttribute[ME]IntoInputButton'
+                className={styles.attributeButton}
+                onClick={() => this.addAttributeIntoInput('[ME]')}
+                disabled={focusReference === undefined}
+                size='mini'
+              >
+                [ME] Movie extension
+              </Button>
+              <Button
+                data-tid='addAttribute[MPN]IntoInputButton'
+                className={styles.attributeButton}
+                onClick={() => this.addAttributeIntoInput('[MPN]')}
+                disabled={focusReference === undefined}
+                size='mini'
+              >
+                [MPN] MoviePrint name
+              </Button>
+              <Button
+                data-tid='addAttribute[FN]IntoInputButton'
+                className={styles.attributeButton}
+                onClick={() => this.addAttributeIntoInput('[FN]')}
+                disabled={focusReference === undefined}
+                size='mini'
+              >
+                [FN] Frame number
+              </Button>
             </Grid.Column>
           </Grid.Row>
           <Divider inverted />

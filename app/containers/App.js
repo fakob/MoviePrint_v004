@@ -3390,6 +3390,7 @@ ${exportObject}`;
                             emptyColorsArray={this.state.emptyColorsArray}
                             sheetView={sheetView}
                             sheetType={sheetType}
+                            sheetName={sheetName}
                             view={visibilitySettings.defaultView}
                             currentSheetId={settings.currentSheetId}
                             settings={settings}
