@@ -44,20 +44,22 @@ const FileListElement = ({
   const inputRef = useRef(null);
   const [input, setInput] = useState({
     isRenaming: false, // initial state
+    isHovering: false, // initial state
     })
   const sheetsArray = Object.getOwnPropertyNames(sheetsObject);
 
   const onSubmitMoviePrintName = (e, sheetId) => {
-    console.log(e.currentTarget.value);
+    // console.log(e.currentTarget.value);
     if (e.key === 'Enter' || e.key === undefined) {
       const value = sanitizeString(e.target.value);
-      console.log(value);
+      // console.log(value);
       e.stopPropagation();
       onSubmitMoviePrintNameClick(fileId, sheetId, value);
       setInput({
         ...input,
         [e.currentTarget.name]: value,
         'isRenaming': false, // reset isRenaming
+        // 'isHovering': false, // reset isHovering
       })
     }
   }
@@ -79,6 +81,34 @@ const FileListElement = ({
     setInput({
       ...input,
       'isRenaming': valueToSet,
+    })
+  }
+
+  const onMouseEnterElement = (e, sheetId) => {
+    e.stopPropagation();
+    // let valueToSet;
+    // if (input.isHovering === sheetId) {
+    //   valueToSet = false;
+    // } else {
+    //   valueToSet = sheetId;
+    // }
+    setInput({
+      ...input,
+      'isHovering': sheetId,
+    })
+  }
+
+  const onMouseLeaveElement = (e, sheetId) => {
+    e.stopPropagation();
+    // let valueToSet;
+    // if (input.isHovering === sheetId) {
+    //   valueToSet = false;
+    // } else {
+    //   valueToSet = sheetId;
+    // }
+    setInput({
+      ...input,
+      'isHovering': false,
     })
   }
 
@@ -317,7 +347,9 @@ const FileListElement = ({
                   title={sheetsObject[sheetId].name}
                 >
                     <Icon
-                      name={getSheetIcon(sheetsObject[sheetId].sheetView)}
+                      onMouseEnter={e => onMouseEnterElement(e,sheetId)}
+                      onMouseLeave={e => onMouseLeaveElement(e)}
+                      name={input.isHovering !== sheetId ? getSheetIcon(sheetsObject[sheetId].sheetView) : 'edit'}
                       inverted
                       onClick={e => onStartRenameClickWithStop(e, sheetId)}
                       role='button'

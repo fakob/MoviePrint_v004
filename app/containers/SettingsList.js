@@ -526,25 +526,9 @@ class SettingsList extends Component {
     const minutes = file !== undefined ? frameCountToMinutes(file.frameCount, fileFps) : undefined;
     const minutesRounded = Math.round(minutes);
     const cutsPerMinuteRounded = Math.round((thumbCountTemp - 1) / minutes);
-    const pico8palette = [
-    'transparent',
-    '#000000',
-    '#1D2B53',
-    '#7E2553',
-    '#008751',
-    '#AB5236',
-    '#5F574F',
-    '#C2C3C7',
-    // '#FFF1E8',
-    '#FF004D',
-    '#FFA300',
-    '#FFEC27',
-    '#00E436',
-    '#29ADFF',
-    '#83769C',
-    '#FF77A8',
-    '#FFCCAA',
-    ];
+
+    const defaultSingleThumbNameContainsFrameNumber = defaultSingleThumbName.includes('[FN]');
+    const defaultAllThumbsNameContainsFrameNumber = defaultAllThumbsName.includes('[FN]');
 
     const moviePrintBackgroundColorDependentOnFormat = defaultOutputFormat === OUTPUT_FORMAT.JPG ? // set alpha only for PNG
       {
@@ -1460,8 +1444,10 @@ class SettingsList extends Component {
               />
               <Label
                 className={styles.previewCustomName}
+                color={defaultSingleThumbNameContainsFrameNumber ? undefined : 'orange'}
+                pointing={defaultSingleThumbNameContainsFrameNumber ? undefined : true}
               >
-                {previewSingleThumbName}.jpg
+                {previewSingleThumbName}.jpg{defaultSingleThumbNameContainsFrameNumber ? undefined : ' | The framenumber attribute is missing. This can lead to the thumb being overwritten.'}
               </Label>
               <Divider hidden className={styles.smallDivider} />
               <label>Name of thumbs when including individual thumbs</label>
@@ -1478,8 +1464,10 @@ class SettingsList extends Component {
               />
               <Label
                 className={styles.previewCustomName}
+                color={defaultAllThumbsNameContainsFrameNumber ? undefined : 'orange'}
+                pointing={defaultAllThumbsNameContainsFrameNumber ? undefined : true}
               >
-                {previewAllThumbsName}.jpg
+                {previewAllThumbsName}.jpg{defaultAllThumbsNameContainsFrameNumber ? undefined : ' | The framenumber attribute is missing. This can lead to the thumb being overwritten.'}
               </Label>
               <h6>Available attributes</h6>
               <Button
