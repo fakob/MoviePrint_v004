@@ -237,6 +237,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
         frameNumber,
         getHighestFrame(thumbs),
         ownProps.frameSize,
+        true, // limitToRange -> do not get more thumbs then between in and out available
       ));
     },
     onOutPointClick: (file, thumbs, thumbId, frameNumber) => {
@@ -247,6 +248,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
         getLowestFrame(thumbs),
         frameNumber,
         ownProps.frameSize,
+        true, // limitToRange -> do not get more thumbs then between in and out available
       ));
     },
     onHideBeforeAfterClick: (fileId, sheetId, thumbIdArray) => {

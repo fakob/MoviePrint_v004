@@ -814,29 +814,33 @@ export const deleteThumbsArray = (fileId = undefined, sheetId = undefined) => {
   };
 };
 
-export const addIntervalSheet = (file, sheetId, amount = 20, start = 10, stop = file.frameCount - 1, frameSize) => {
+export const addIntervalSheet = (file, sheetId, amountOfThumbs = 20, start = 10, stop = file.frameCount - 1, frameSize, limitToRange = false) => {
   return (dispatch) => {
     log.debug('action: addIntervalSheet');
 
-    // amount should not be more than the frameCount
-    // stop - start should be at least amount
+    // amountOfThumbs should not be more than the frameCount
+    // stop - start should be at least amountOfThumbs
     let newStart = start;
     let newStop = stop;
-    const difference = stop - start;
-    let newAmount = Math.min(amount, file.frameCount - 1);
-    if (difference < amount) {
-      newStop = start + amount;
-      if (newStop > file.frameCount - 1) {
-        newStart = Math.max(0, (file.frameCount - 1) - amount);
-        newStop = newStart + amount;
+    const range = stop - start;
+    let newAmountOfThumbs = Math.min(amountOfThumbs, file.frameCount - 1);
+    if (range < newAmountOfThumbs) {
+      if (limitToRange) {
+        newAmountOfThumbs = range + 1;
+      } else {
+        newStop = start + newAmountOfThumbs;
+        if (newStop > file.frameCount - 1) {
+          newStart = Math.max(0, (file.frameCount - 1) - newAmountOfThumbs);
+          newStop = newStart + newAmountOfThumbs;
+        }
       }
     }
-    // log.debug(`${amount} : ${newAmount} : ${start} : ${newStart} : ${stop} : ${newStop} : `)
+    // log.debug(`${amountOfThumbs} : ${newAmountOfThumbs} : ${start} : ${newStart} : ${stop} : ${newStop} : `)
 
     const startWithBoundaries = limitRange(newStart, 0, file.frameCount - 1);
     const stopWithBoundaries = limitRange(newStop, 0, file.frameCount - 1);
-    const frameNumberArray = Array.from(Array(newAmount).keys())
-      .map(x => mapRange(x, 0, newAmount - 1, startWithBoundaries, stopWithBoundaries, true));
+    const frameNumberArray = Array.from(Array(newAmountOfThumbs).keys())
+      .map(x => mapRange(x, 0, newAmountOfThumbs - 1, startWithBoundaries, stopWithBoundaries, true));
     // log.debug(frameNumberArray);
     dispatch(deleteThumbsArray(file.id, sheetId));
     return dispatch(addThumbs(file, sheetId, frameNumberArray, frameSize));

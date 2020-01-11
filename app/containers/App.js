@@ -1780,7 +1780,8 @@ class App extends Component {
         DEFAULT_THUMB_COUNT, // use constant value instead of defaultThumbCount
         sceneArray[sceneIndex].start,
         sceneArray[sceneIndex].start + sceneArray[sceneIndex].length - 1,
-        settings.defaultCachedFramesSize
+        settings.defaultCachedFramesSize,
+        true, // limitToRange -> do not get more thumbs then between in and out available
       ));
       store.dispatch(updateSheetName(file.id, sheetId, getNewSheetName(getSheetCount(files, file.id)))); // set name on file
       store.dispatch(updateSheetCounter(file.id));

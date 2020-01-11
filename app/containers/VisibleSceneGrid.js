@@ -5,7 +5,7 @@ import { arrayMove } from 'react-sortable-hoc';
 import scrollIntoView from 'scroll-into-view';
 import {
   toggleThumb, updateOrder,
-  changeThumb, addIntervalSheet, toggleScene, toggleSceneArray
+  changeThumb, toggleScene, toggleSceneArray
 } from '../actions';
 import styles from '../components/ThumbGrid.css';
 import SortableSceneGrid from '../components/SceneGrid';

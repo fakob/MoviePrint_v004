@@ -963,13 +963,13 @@ export const createSceneArray = (sheetsByFileId, fileId, sheetId) => {
       // console.log(visibleThumbsArray);
       const sceneArray = [];
       let sceneStart = visibleThumbsArray[0].frameNumber; // first sceneStart value
-      let sceneLength = Math.floor((visibleThumbsArray[1].frameNumber - visibleThumbsArray[0].frameNumber) / 2); // first sceneLength value
+      let sceneLength = Math.floor((visibleThumbsArray[1].frameNumber - visibleThumbsArray[0].frameNumber) / 2) + 1; // first sceneLength value
       visibleThumbsArray.map((thumb, index, array) => {
         if (index !== 0) { // everything except the first thumb
-          sceneStart = sceneStart + sceneLength + 1;
+          sceneStart = sceneStart + sceneLength;
           if (index < array.length - 1) { // then until second to last
             const nextThumb = array[index + 1];
-            sceneLength = (Math.floor((nextThumb.frameNumber - thumb.frameNumber) / 2) + thumb.frameNumber) - sceneStart;
+            sceneLength = (Math.floor((nextThumb.frameNumber - thumb.frameNumber) / 2) + thumb.frameNumber) - sceneStart + 1;
           } else { // last thumb
             sceneLength = thumb.frameNumber - sceneStart;
           }
