@@ -59,7 +59,7 @@ const FileListElement = ({
         ...input,
         [e.currentTarget.name]: value,
         'isRenaming': false, // reset isRenaming
-        // 'isHovering': false, // reset isHovering
+        'isHovering': false, // reset isHovering
       })
     }
   }
