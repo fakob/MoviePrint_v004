@@ -1447,7 +1447,7 @@ class SettingsList extends Component {
                 color={defaultSingleThumbNameContainsFrameNumber ? undefined : 'orange'}
                 pointing={defaultSingleThumbNameContainsFrameNumber ? undefined : true}
               >
-                {previewSingleThumbName}.jpg{defaultSingleThumbNameContainsFrameNumber ? undefined : ' | The framenumber attribute is missing. This can lead to the thumb being overwritten.'}
+                {defaultSingleThumbNameContainsFrameNumber ? undefined : 'The framenumber attribute is missing. This can lead to the thumb being overwritten. | '}{previewSingleThumbName}.jpg
               </Label>
               <Divider hidden className={styles.smallDivider} />
               <label>Name of thumbs when including individual thumbs</label>
@@ -1467,7 +1467,7 @@ class SettingsList extends Component {
                 color={defaultAllThumbsNameContainsFrameNumber ? undefined : 'orange'}
                 pointing={defaultAllThumbsNameContainsFrameNumber ? undefined : true}
               >
-                {previewAllThumbsName}.jpg{defaultAllThumbsNameContainsFrameNumber ? undefined : ' | The framenumber attribute is missing. This can lead to the thumb being overwritten.'}
+                {defaultAllThumbsNameContainsFrameNumber ? undefined : 'The framenumber attribute is missing. This can lead to the thumb being overwritten. | '}{previewAllThumbsName}.jpg
               </Label>
               <h6>Available attributes</h6>
               <Button
