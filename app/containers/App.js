@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone';
 import fs from 'fs';
-import { Progress, Modal, Button, Icon, Container, Loader, Header, Divider, Form, Popup } from 'semantic-ui-react';
+import { Progress, Modal, Button, Icon, Container, Dimmer, Loader, Header, Divider, Form, Popup } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
 import {Line, defaults} from 'react-chartjs-2';
 import path from 'path';
@@ -247,6 +247,7 @@ class App extends Component {
       showMessage: false,
       progressBarPercentage: 100,
       showFeedbackForm: false,
+      feedbackFormIsLoading: false,
       intendToCloseFeedbackForm: false,
       opencvVideo: undefined,
       showScrubWindow: false,
@@ -2227,7 +2228,10 @@ class App extends Component {
   onOpenFeedbackForm() {
     log.debug('onOpenFeedbackForm');
     this.setState(
-      { showFeedbackForm: true }
+      {
+        showFeedbackForm: true,
+        feedbackFormIsLoading: true,
+      }
     )
   }
 
@@ -3017,9 +3021,26 @@ ${exportObject}`;
   }
 
   render() {
-    const { accept, dropzoneActive, objectUrlObjects, scaleValueObject } = this.state;
+    const {
+      accept,
+      dropzoneActive,
+      feedbackFormIsLoading,
+      objectUrlObjects,
+      scaleValueObject
+    } = this.state;
     const { store } = this.context;
-    const { allScenes, allThumbs, currentFileId, currentSheetId, file, files, scenes, sheetsByFileId, settings, visibilitySettings } = this.props;
+    const {
+      allScenes,
+      allThumbs,
+      currentFileId,
+      currentSheetId,
+      file,
+      files,
+      scenes,
+      sheetsByFileId,
+      settings,
+      visibilitySettings
+    } = this.props;
 
     const fileCount = files.length;
 
@@ -3521,7 +3542,13 @@ ${exportObject}`;
                           }
                           this.onCloseFeedbackForm();
                         }
-                      })
+                      });
+                      // stop showing loader when done loading
+                      this.webviewRef.current.addEventListener('did-stop-loading', () => {
+                        this.setState({
+                          feedbackFormIsLoading: false,
+                        })
+                      });
                     }, 300); // wait a tiny bit until webview is mounted
                   }}
                 >
@@ -3532,6 +3559,11 @@ ${exportObject}`;
                       // height: '80vh',
                     }}
                   >
+                    { feedbackFormIsLoading &&
+                      <Dimmer active inverted>
+                        <Loader inverted>Loading</Loader>
+                      </Dimmer>
+                    }
                     <webview
                       autosize='true'
                       // nodeintegration='true'
