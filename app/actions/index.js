@@ -890,7 +890,7 @@ export const addThumbs = (file, sheetId, frameNumberArray, frameSize = 0, thumbI
         alreadyExistingFrameNumbersArray = uniqueFrames.map((item) => item.frameNumber);
         alreadyExistingFrameIdsArray = uniqueFrames.map((item) => item.frameId);
         // if thumbIdArray then use these, else create new ids
-        if (thumbIdArray) {
+        if (thumbIdArray !== undefined) {
           alreadyExistingThumbIdsArray = thumbIdArray.filter((thumbId, index) => filterArray[index]);
         } else {
           alreadyExistingThumbIdsArray = alreadyExistingFrameIdsArray.map(() => uuidV4());

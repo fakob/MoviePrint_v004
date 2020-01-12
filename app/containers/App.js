@@ -1164,7 +1164,9 @@ class App extends Component {
             console.log(frameNumberArrayFromFaceDetection);
             const newSheetId = uuidV4();
             store.dispatch(addThumbs(file, newSheetId, frameNumberArrayFromFaceDetection))
-            .then((thumbsArrayBeforeSorting) => {
+            .then(() => {
+              const thumbsArrayBeforeSorting = store.getState().undoGroup.present
+                .sheetsByFileId[currentFileId][newSheetId].thumbsArray
               console.log(thumbsArrayBeforeSorting);
               const thumbsArrayAfterSorting = thumbsArrayBeforeSorting.slice().sort((a, b) => {
                 return frameNumberArrayFromFaceDetection.indexOf(a.frameNumber) - frameNumberArrayFromFaceDetection.indexOf(b.frameNumber);
