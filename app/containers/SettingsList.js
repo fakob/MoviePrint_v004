@@ -1411,8 +1411,8 @@ class SettingsList extends Component {
           <Divider inverted />
           <Grid.Row>
             <Grid.Column width={16}>
-              <h4>Custom file names</h4>
-              <label>Name of MoviePrint</label>
+              <h4>Naming schemes</h4>
+              <label>File name when saving a MoviePrint</label>
               <Input
                 // ref={this.inputDefaultMoviePrintName}
                 data-tid='defaultMoviePrintNameInput'
@@ -1430,7 +1430,7 @@ class SettingsList extends Component {
                 {previewMoviePrintName}.{defaultOutputFormat}
               </Label>
               <Divider hidden className={styles.smallDivider} />
-              <label>Name of thumb when saving a single thumb</label>
+              <label>File name of thumb when saving a single thumb</label>
               <Input
                 // ref={this.inputDefaultSingleThumbName}
                 data-tid='defaultSingleThumbNameInput'
@@ -1450,7 +1450,7 @@ class SettingsList extends Component {
                 {defaultSingleThumbNameContainsFrameNumber ? undefined : 'The framenumber attribute is missing. This can lead to the thumb being overwritten. | '}{previewSingleThumbName}.jpg
               </Label>
               <Divider hidden className={styles.smallDivider} />
-              <label>Name of thumbs when including individual thumbs</label>
+              <label>File name of thumbs when <em>Include individual thumbs</em> is selected</label>
               <Input
                 // ref={this.inputDefaultAllThumbsName}
                 data-tid='defaultAllThumbsNameInput'
