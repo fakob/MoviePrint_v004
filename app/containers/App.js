@@ -71,10 +71,10 @@ import {
   addIntervalSheet,
   addMoviesToList,
   addNewThumbsWithOrder,
-  addScene,
   addScenesFromSceneList,
   addScenesWithoutCapturingThumbs,
   addThumb,
+  addThumbs,
   changeThumb,
   clearMovieList,
   clearScenes,
@@ -142,6 +142,7 @@ import {
   updateFileScanStatus,
   updateFrameNumberAndColorArray,
   updateInOutPoint,
+  updateOrder,
   updateSceneArray,
   updateSheetColumnCount,
   updateSheetCounter,
@@ -168,6 +169,9 @@ import {
   VIEW,
   ZOOM_SCALE,
 } from '../utils/constants';
+import {
+  DETECTION_ARRAY,
+} from './testDetectionArray';
 import {
   deleteTableFramelist,
 } from '../utils/utilsForIndexedDB';
@@ -617,6 +621,11 @@ class App extends Component {
 
     ipcRenderer.on('update-frameNumber-and-colorArray', (event, frameNumberAndColorArray) => {
       dispatch(updateFrameNumberAndColorArray(frameNumberAndColorArray));
+    });
+
+    ipcRenderer.on('update-sort-order', (event, detectionArray) => {
+
+      // store.dispatch(updateFrameNumberAndColorArray(detectionArray));
     });
 
     ipcRenderer.on('update-sort-order', (event, detectionArray) => {
@@ -1143,6 +1152,35 @@ class App extends Component {
             const frameIdArray = this.props.allThumbs.map(thumb => thumb.frameId);
             const frameNumberArray = this.props.allThumbs.map(thumb => thumb.frameNumber);
             ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs-sync', file.id, file.path, currentSheetId, frameIdArray, frameNumberArray, file.useRatio, settings.defaultCachedFramesSize, file.transformObject);
+            break;
+          case 69: // press 'e' - test detectionArray
+            console.log(DETECTION_ARRAY);
+            const detectionArray =  DETECTION_ARRAY.filter((item) => {
+            	return item.faceCount !== 0;
+            });
+            detectionArray.sort((a, b) => (a.largestSize < b.largestSize) ? 1 : -1)
+            console.log(detectionArray);
+            const frameNumberArrayFromFaceDetection = detectionArray.map(item => item.frameNumber);
+            console.log(frameNumberArrayFromFaceDetection);
+            const newSheetId = uuidV4();
+            store.dispatch(addThumbs(file, newSheetId, frameNumberArrayFromFaceDetection))
+            .then((thumbsArrayBeforeSorting) => {
+              console.log(thumbsArrayBeforeSorting);
+              const thumbsArrayAfterSorting = thumbsArrayBeforeSorting.slice().sort((a, b) => {
+                return frameNumberArrayFromFaceDetection.indexOf(a.frameNumber) - frameNumberArrayFromFaceDetection.indexOf(b.frameNumber);
+              });
+              console.log(thumbsArrayAfterSorting);
+              store.dispatch(updateOrder(
+                currentFileId,
+                newSheetId,
+                thumbsArrayAfterSorting));
+              return undefined;
+            }).catch((err) => {
+              log.error(err);
+            });
+            store.dispatch(setCurrentSheetId(newSheetId));
+            store.dispatch(updateSheetType(currentFileId, newSheetId, SHEET_TYPE.INTERVAL));
+            store.dispatch(updateSheetView(currentFileId, newSheetId, SHEET_VIEW.GRIDVIEW));
             break;
           case 70: // press 'f'
             if (currentFileId) {
