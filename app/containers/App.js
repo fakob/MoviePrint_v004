@@ -178,7 +178,6 @@ import {
 import {
   deleteTableFrameScanList,
   deleteTableReduxState,
-  deleteFileIdFromFrameScanList,
   getFrameScanByFileId,
 } from '../utils/utilsForSqlite';
 

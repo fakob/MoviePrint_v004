@@ -686,7 +686,7 @@ ipcRenderer.on(
 
               // insert all frames into sqlite3
               const timeBeforeInsertFrameScanArray = Date.now();
-              insertFrameScanArray(frameMetrics);
+              insertFrameScanArray(fileId, frameMetrics);
               const timeAfterInsertFrameScanArray = Date.now();
               log.debug(`opencvWorkerWindow | insertFrameScanArray duration: ${timeAfterInsertFrameScanArray - timeBeforeInsertFrameScanArray}`);
 

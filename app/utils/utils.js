@@ -1206,9 +1206,17 @@ export const repairFrameScanData = (arrayOfFrameScanData, frameCount) => {
   // no return is needed as arrayOfFrameScanData gets repaired in place
 }
 
-
 export const sanitizeString = (str) => {
     const cleanedString = sanitize(str,'-')
     // const cleanedString = str.replace(/[^a-z0-9áéíóúñü$. ,_-]/gim,"");
     return cleanedString.trim();
+}
+
+// generates the frameScan table name and makes it sql compatible
+export const getFrameScanTableName = (fileId) => {
+  if (fileId === undefined) {
+    return undefined
+  }
+  const tableName = `frameScan_${fileId.replace(/-/g, '_')}`;
+  return tableName;
 }

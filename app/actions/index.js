@@ -9,15 +9,10 @@ import {
   deleteTableFramelist,
 } from '../utils/utilsForIndexedDB';
 import {
-  clearTableFrameScanList,
-  createTableFrameScanList,
-  deleteFileIdFromFrameScanList,
-  // insertMovie,
+  deleteTableFrameScanList,
 } from '../utils/utilsForSqlite';
 
 const { ipcRenderer } = require('electron');
-
-createTableFrameScanList(); // create table if not exist
 
 // visibilitySettings
 export const setVisibilityFilter = (filter) => {
@@ -1046,8 +1041,8 @@ export const removeMovieListItem = (fileId) => {
       }
     });
 
-    // remove entries from frameScanList sqlite3
-    deleteFileIdFromFrameScanList(fileId);
+    // remove frameScan table from sqlite3
+    deleteTableFrameScanList(fileId);
 
     // remove frames from indexedDB
     imageDB.frameList.where('fileId').equals(fileId).delete()
@@ -1336,8 +1331,8 @@ export const clearMovieList = () => {
     dispatch(deleteSheets());
     log.debug('dispatch: deleteSheets');
 
-    clearTableFrameScanList();
-    log.debug('clear fileId from frameScanList in sqlite3');
+    deleteTableFrameScanList();
+    log.debug('delete all frameScan tables in sqlite3');
 
     deleteTableFramelist();
     log.debug('clear frameList in indexedDB');
