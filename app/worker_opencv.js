@@ -16,6 +16,7 @@ import {
 } from './utils/constants';
 import {
   insertFrameScanArray,
+  insertFaceScanArray,
 } from './utils/utilsForSqlite';
 import Queue from './utils/queue';
 
@@ -759,13 +760,23 @@ ipcRenderer.on(
     try {
       const vid = new opencv.VideoCapture(filePath);
 
-      const detectionArray = runSyncCaptureAndFaceDetect(vid, frameNumberArray, useRatio);
-      ipcRenderer.send(
-        'message-from-opencvWorkerWindow-to-mainWindow',
-        'update-sort-order',
-        detectionArray,
-      );
-
+      runSyncCaptureAndFaceDetect(vid, frameNumberArray, useRatio)
+      .then((detectionArray) => {
+        // insert all frames into sqlite3
+        console.log(detectionArray);
+        const timeBeforeFaceScan = Date.now();
+        insertFaceScanArray(fileId, detectionArray);
+        const timeAfterFaceScan = Date.now();
+        log.debug(`opencvWorkerWindow | faceScan duration: ${timeAfterFaceScan - timeBeforeFaceScan}`);
+        ipcRenderer.send(
+          'message-from-opencvWorkerWindow-to-mainWindow',
+          'update-sort-order',
+          detectionArray,
+        );
+        return undefined;
+      }).catch((err) => {
+        log.error(err);
+      });
     } catch (e) {
       log.error(e);
     }
