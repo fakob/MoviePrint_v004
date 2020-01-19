@@ -463,9 +463,9 @@ export const getRandomSheetName = () => {
   return randomNameObject.fullName;
 };
 
-export const getNewSheetName = (sheetCount = 0) => {
+export const getNewSheetName = (sheetCount = 0, defaultName = 'MoviePrint-') => {
   // return random name from sheetNames array
-  const sheetName = `MoviePrint-${sheetCount + 1}`;
+  const sheetName = `${defaultName}${sheetCount + 1}`;
   return sheetName;
 };
 

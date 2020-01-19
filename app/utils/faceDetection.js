@@ -66,22 +66,21 @@ const detectionNet = loadNet()
   }
 );
 
-export const detectFace2 = (image) => {
-}
-
 export const detectFace = async (image, frameNumber, detectionArray) => {
   // detect expression
   // const detections = await faceapi.detectSingleFace(image);
   const face = await faceapi.detectSingleFace(image).withFaceLandmarks().withAgeAndGender().withFaceDescriptor();
   if (face !== undefined) {
-    console.log(face);
     // see DrawBoxOptions below
-    const { age, gender, detection, score } = face;
-    console.log(`Score: ${score}, Gender: ${gender}, Age: ${age}`);
+    const { age, gender, detection } = face;
+    const { relativeBox, score } = detection;
+    const size = Math.round(relativeBox.height * 100);
+    console.log(`frameNumber: ${frameNumber}, Score: ${score}, Size: ${size}, Gender: ${gender}, Age: ${age}`);
     console.log(face);
     detectionArray.push({
       frameNumber,
       score,
+      size,
       gender,
       age: Math.round(age),
     })
@@ -90,40 +89,40 @@ export const detectFace = async (image, frameNumber, detectionArray) => {
   return undefined;
 }
 
-export const detectAllFaces = async (image, frameNumber, detectionArray) => {
-  // detect expression
-  const detections = await faceapi.detectAllFaces(image).withFaceLandmarks().withAgeAndGender().withFaceDescriptors();
-  const faceCount = detections.length;
-  console.log(`Face count: ${faceCount}`);
-  // see DrawBoxOptions below
-  let largestSize = 0;
-  const ageArray = [];
-  const genderArray = [];
-  detections.forEach(face => {
-    const { age, gender, detection } = face;
-    const { box, relativeBox } = detection;
-    genderArray.push(gender);
-    ageArray.push(Math.round(age));
-    const relativeSize = Math.round(relativeBox.height * 100);
-    largestSize = relativeSize > largestSize ? relativeSize : largestSize;
-    console.log(`Size: ${relativeSize}, Age: ${age}`);
-    console.log(face);
-    // const drawBox = new faceapi.draw.DrawBox(box, {
-    //   label: Math.round(age),
-    //   lineWidth: 1,
-    //   boxColor: 'red'
-    // })
-    // drawBox.draw(image)
-  })
-  detectionArray.push({
-    frameNumber,
-    faceCount,
-    largestSize,
-    genderArray,
-    ageArray,
-  })
-  return detections;
-}
+// export const detectAllFaces = async (image, frameNumber, detectionArray) => {
+//   // detect expression
+//   const detections = await faceapi.detectAllFaces(image).withFaceLandmarks().withAgeAndGender().withFaceDescriptors();
+//   const faceCount = detections.length;
+//   console.log(`Face count: ${faceCount}`);
+//   // see DrawBoxOptions below
+//   let largestSize = 0;
+//   const ageArray = [];
+//   const genderArray = [];
+//   detections.forEach(face => {
+//     const { age, gender, detection } = face;
+//     const { box, relativeBox } = detection;
+//     genderArray.push(gender);
+//     ageArray.push(Math.round(age));
+//     const relativeSize = Math.round(relativeBox.height * 100);
+//     largestSize = relativeSize > largestSize ? relativeSize : largestSize;
+//     console.log(`Size: ${relativeSize}, Age: ${age}`);
+//     console.log(face);
+//     // const drawBox = new faceapi.draw.DrawBox(box, {
+//     //   label: Math.round(age),
+//     //   lineWidth: 1,
+//     //   boxColor: 'red'
+//     // })
+//     // drawBox.draw(image)
+//   })
+//   detectionArray.push({
+//     frameNumber,
+//     faceCount,
+//     largestSize,
+//     genderArray,
+//     ageArray,
+//   })
+//   return detections;
+// }
 
 export const runSyncCaptureAndFaceDetect = async (vid, frameNumberArray, useRatio) => {
 

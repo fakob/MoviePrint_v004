@@ -170,15 +170,13 @@ import {
   ZOOM_SCALE,
 } from '../utils/constants';
 import {
-  DETECTION_ARRAY,
-} from './testDetectionArray';
-import {
   deleteTableFramelist,
 } from '../utils/utilsForIndexedDB';
 import {
   deleteTableFrameScanList,
   deleteTableReduxState,
   getFrameScanByFileId,
+  getFrameScanCount,
 } from '../utils/utilsForSqlite';
 
 import startupImg from '../img/MoviePrint-steps.svg';
@@ -627,9 +625,47 @@ class App extends Component {
       // store.dispatch(updateFrameNumberAndColorArray(detectionArray));
     });
 
-    ipcRenderer.on('update-sort-order', (event, detectionArray) => {
+    ipcRenderer.on('finished-getting-faces', (event, fileId, sheetId, detectionArray) => {
+      const { files, sheetsByFileId } = this.props;
+      console.log(detectionArray);
 
-      // store.dispatch(updateFrameNumberAndColorArray(detectionArray));
+      // sort faces by size
+      detectionArray.sort((a, b) => (a.size < b.size) ? 1 : -1)
+
+      // extract frameNumbers
+      const frameNumberArrayFromFaceDetection = detectionArray.map(item => item.frameNumber);
+      console.log(frameNumberArrayFromFaceDetection);
+
+      // create new sheet and add face thumbs
+      const newSheetId = uuidV4();
+      const file = files.find(item => item.id === fileId);
+      store.dispatch(addThumbs(file, newSheetId, frameNumberArrayFromFaceDetection))
+      .then(() => {
+        // sort the thumbsArray to be used to update the thumbs order
+        const thumbsArrayBeforeSorting = store.getState().undoGroup.present
+          .sheetsByFileId[fileId][newSheetId].thumbsArray;
+        console.log(thumbsArrayBeforeSorting);
+        const thumbsArrayAfterSorting = thumbsArrayBeforeSorting.slice().sort((a, b) => {
+          return frameNumberArrayFromFaceDetection.indexOf(a.frameNumber) - frameNumberArrayFromFaceDetection.indexOf(b.frameNumber);
+        });
+        console.log(thumbsArrayAfterSorting);
+
+        // update the thumb order as addThumbs
+        store.dispatch(updateOrder(
+          fileId,
+          newSheetId,
+          thumbsArrayAfterSorting));
+        return undefined;
+      }).catch((err) => {
+        log.error(err);
+      });
+      store.dispatch(updateSheetType(fileId, newSheetId, SHEET_TYPE.INTERVAL));
+      store.dispatch(updateSheetView(fileId, newSheetId, SHEET_VIEW.GRIDVIEW));
+      const parentSheetName = getSheetName(sheetsByFileId, fileId, sheetId);
+      const newSheetName = `faces of ${parentSheetName}`;
+      store.dispatch(updateSheetName(fileId, newSheetId, newSheetName));
+      store.dispatch(updateSheetParent(fileId, newSheetId, sheetId));
+      store.dispatch(setCurrentSheetId(newSheetId));
     });
 
     ipcRenderer.on('finished-getting-thumbs', (event, fileId, sheetId) => {
@@ -1104,8 +1140,8 @@ class App extends Component {
 
     // only listen to key events when feedback form is not shown
     if (!this.state.showFeedbackForm && event.target.tagName !== 'INPUT') {
-  const { dispatch } = this.props;
-        const { currentFileId, currentSheetId, file, settings, sheetsByFileId, visibilitySettings } = this.props;
+      const { dispatch } = this.props;
+      const { currentFileId, currentSheetId, file, settings, sheetsByFileId, visibilitySettings } = this.props;
       const sheetType = getSheetType(sheetsByFileId, currentFileId, currentSheetId, settings);
 
 
@@ -1150,7 +1186,7 @@ class App extends Component {
             // const frameNumberArray = [1511];
             const frameIdArray = this.props.allThumbs.map(thumb => thumb.frameId);
             const frameNumberArray = this.props.allThumbs.map(thumb => thumb.frameNumber);
-            ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-thumbs-sync', file.id, file.path, currentSheetId, frameIdArray, frameNumberArray, file.useRatio, settings.defaultCachedFramesSize, file.transformObject);
+            ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-faces-sync', file.id, file.path, currentSheetId, frameIdArray, frameNumberArray, file.useRatio, settings.defaultCachedFramesSize, file.transformObject);
             break;
           case 69: // press 'e' - test detectionArray
             console.log(DETECTION_ARRAY);
@@ -1643,8 +1679,9 @@ class App extends Component {
 
     // check if frameScanData is complete
     const frameCount = getFrameCount(files, fileId);
-    const frameScanDataLength = arrayOfFrameScanData.length;
-    if (frameCount !== frameScanDataLength) {
+    const frameScanDataLength = getFrameScanCount(fileId);
+    console.log(getFrameScanCount(fileId));
+    if ((frameScanDataLength / frameCount) < 0.9) { // consider less than 90% as incomplete
       // frameScanData is not complete
       // arrayOfFrameScanData will be repaired in place
       log.error(`frameScanData is not complete: ${frameCount}:${frameScanDataLength}`);

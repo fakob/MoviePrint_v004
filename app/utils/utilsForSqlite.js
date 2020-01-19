@@ -78,7 +78,7 @@ export const insertMovie = moviePrintDB.transaction((item) => {
 // create framescan table
 export const createTableFrameScanList = (fileId) => {
   const tableName = getFrameScanTableName(fileId);
-  const stmt = moviePrintDB.prepare(`CREATE TABLE IF NOT EXISTS ${tableName}(fileId TEXT, frameNumber INTEGER, differenceValue REAL, meanColor TEXT, faceObject TEXT)`);
+  const stmt = moviePrintDB.prepare(`CREATE TABLE IF NOT EXISTS ${tableName}(frameNumber INTEGER PRIMARY KEY, differenceValue REAL, meanColor TEXT, faceObject TEXT)`);
   stmt.run();
 }
 
@@ -113,38 +113,34 @@ export const deleteTableFrameScanList = (fileId = undefined) => {
 
 // // insert frame
 // export const insertFrameScan = moviePrintDB.transaction((item) => {
-//   const insert = moviePrintDB.prepare('INSERT INTO frameScanList (fileId, frameNumber, differenceValue, meanColor) VALUES (@fileId, @frameNumber, @differenceValue, @meanColor)');
+//   const insert = moviePrintDB.prepare('INSERT INTO frameScanList (frameNumber, differenceValue, meanColor) VALUES (@frameNumber, @differenceValue, @meanColor)');
 //   insert.run(item)
 // });
 
 // insert multiple frames from frame scan
 export const insertFrameScanArray = moviePrintDB.transaction((fileId, array) => {
-  const tableName = getFrameScanTableName(fileId);
-  const stmtToCheckForTable = moviePrintDB.prepare(`SELECT count(name) FROM sqlite_master WHERE type = "table" AND name="${tableName}"`);
-  const doesTableExist = Object.values(stmtToCheckForTable.get())[0]; // turn resulting object into value
   // create table if it does not exist
-  if (doesTableExist === 0) {
+  const tableName = getFrameScanTableName(fileId);
+  if (doesTableExist(tableName) === false) {
     createTableFrameScanList(fileId);
   }
-  const insert = moviePrintDB.prepare(`INSERT INTO ${tableName} (fileId, frameNumber, differenceValue, meanColor) VALUES (@fileId, @frameNumber, @differenceValue, @meanColor)`);
-  for (const item of array) insert.run(item);
+  const upsert = moviePrintDB.prepare(`INSERT INTO ${tableName} (frameNumber, differenceValue, meanColor) VALUES (@frameNumber, @differenceValue, @meanColor) ON CONFLICT (frameNumber) DO UPDATE SET differenceValue = @differenceValue, meanColor = @meanColor`);
+  for (const item of array) upsert.run(item);
 });
 
 // insert multiple frames from face scan
 export const insertFaceScanArray = moviePrintDB.transaction((fileId, array) => {
-  const tableName = getFrameScanTableName(fileId);
-  const stmtToCheckForTable = moviePrintDB.prepare(`SELECT count(name) FROM sqlite_master WHERE type = "table" AND name="${tableName}"`);
-  const doesTableExist = Object.values(stmtToCheckForTable.get())[0]; // turn resulting object into value
   // create table if it does not exist
-  if (doesTableExist === 0) {
+  const tableName = getFrameScanTableName(fileId);
+  if (doesTableExist(tableName) === false) {
     createTableFrameScanList(fileId);
   }
-  const insert = moviePrintDB.prepare(`UPDATE ${tableName} SET faceObject = @faceObject WHERE frameNumber = @frameNumber`);
+  const upsert = moviePrintDB.prepare(`INSERT INTO ${tableName} (frameNumber, faceObject) VALUES (@frameNumber, @faceObject) ON CONFLICT (frameNumber) DO UPDATE SET faceObject = @faceObject`);
   for (const item of array) {
     const frameNumber = item.frameNumber;
-    delete item.frameNumber;
+    // delete item.frameNumber;
     const faceObject = JSON.stringify(item);
-    insert.run({
+    upsert.run({
       faceObject,
       frameNumber
     });
@@ -154,13 +150,30 @@ export const insertFaceScanArray = moviePrintDB.transaction((fileId, array) => {
 // get all frames by fileId
 export const getFrameScanByFileId = (fileId) => {
   const tableName = getFrameScanTableName(fileId);
-  const stmtToCheckForTable = moviePrintDB.prepare(`SELECT count(name) FROM sqlite_master WHERE type = "table" AND name="${tableName}"`);
-  const doesTableExist = Object.values(stmtToCheckForTable.get())[0]; // turn resulting object into value
-  if (doesTableExist === 1) {
-    const stmt = moviePrintDB.prepare(`SELECT frameNumber, differenceValue, meanColor FROM ${tableName} ORDER BY frameNumber ASC`);
+  if (doesTableExist(tableName)) {
+    const stmt = moviePrintDB.prepare(`SELECT frameNumber, differenceValue, meanColor FROM ${tableName} WHERE differenceValue IS NOT NULL ORDER BY frameNumber ASC`);
     return stmt.all();
   }
   return []; // if table does not exist, return empty array
+}
+
+// get how many frames have scan data
+export const getFrameScanCount = (fileId) => {
+  const tableName = getFrameScanTableName(fileId);
+  if (doesTableExist(tableName)) {
+    const stmt = moviePrintDB.prepare(`SELECT count(frameNumber) FROM ${tableName} WHERE differenceValue IS NOT NULL`);
+    return Object.values(stmt.get())[0];
+  }
+  return undefined;
+}
+
+// check if a table exists
+function doesTableExist (tableName) {
+  const stmtToCheckForTable = moviePrintDB.prepare(`SELECT count(name) FROM sqlite_master WHERE type = "table" AND name="${tableName}"`);
+  const result = Object.values(stmtToCheckForTable.get())[0] === 1; // turn resulting object into value and then into boolean
+  log.debug(stmtToCheckForTable.get());
+  log.debug(`doesTableExist tableName = ${doesTableExist}: ${result}`);
+  return result;
 }
 
 // migration scripts
@@ -200,10 +213,7 @@ function migrationFrom1To2 () {
   const tableName = 'frameScanList';
   try {
     // check if table exists
-    const stmtToCheckForTable = moviePrintDB.prepare(`SELECT count(name) FROM sqlite_master WHERE type = "table" AND name="${tableName}"`);
-    const doesTableExist = Object.values(stmtToCheckForTable.get())[0]; // turn resulting object into value
-    log.debug(`doesTableExist: ${doesTableExist}`);
-    if (doesTableExist === 1) {
+    if (doesTableExist(tableName)) {
       // split frameScanList into separate tables
       // get distinct fileIds
       const stmtDistinctFileIds = moviePrintDB.prepare(`SELECT DISTINCT fileid FROM ${tableName}`);
@@ -218,13 +228,13 @@ function migrationFrom1To2 () {
         // create table for fileId
         const newTableName = `frameScan_${distinctFileId.replace(/-/g, '_')}`;
         log.debug(`newTableName: ${newTableName}`);
-        const stmtToCreateTable = moviePrintDB.prepare(`CREATE TABLE IF NOT EXISTS ${newTableName}(fileId TEXT, frameNumber INTEGER, differenceValue REAL, meanColor TEXT, faceObject TEXT)`);
+        const stmtToCreateTable = moviePrintDB.prepare(`CREATE TABLE IF NOT EXISTS ${newTableName}(frameNumber INTEGER PRIMARY KEY, differenceValue REAL, meanColor TEXT, faceObject TEXT)`);
         stmtToCreateTable.run();
 
         // copy its values over
         const stmtToGetValues = moviePrintDB.prepare(`SELECT * FROM ${tableName} WHERE fileId = "${distinctFileId}" ORDER BY frameNumber ASC`);
         const arrayOfValuesForFileId = stmtToGetValues.all();
-        const insert = moviePrintDB.prepare(`INSERT INTO ${newTableName} (fileId, frameNumber, differenceValue, meanColor) VALUES (@fileId, @frameNumber, @differenceValue, @meanColor)`);
+        const insert = moviePrintDB.prepare(`INSERT INTO ${newTableName} (frameNumber, differenceValue, meanColor) VALUES (@frameNumber, @differenceValue, @meanColor)`);
         for (const item of arrayOfValuesForFileId) {
           insert.run(item);
         }

@@ -738,10 +738,9 @@ ipcRenderer.on(
   }
 );
 
-// read sync test
+// get faces
 ipcRenderer.on(
-  // 'send-get-thumbs',
-  'send-get-thumbs-sync',
+  'send-get-faces-sync',
   (
     event,
     fileId,
@@ -751,7 +750,7 @@ ipcRenderer.on(
     frameNumberArray,
     useRatio
   ) => {
-    log.debug('opencvWorkerWindow | on send-get-thumbs-sync');
+    log.debug('opencvWorkerWindow | on send-get-faces-sync');
     // log.debug(frameNumberArray);
     log.debug(`opencvWorkerWindow | ${filePath}`);
     log.debug(`opencvWorkerWindow | useRatio: ${useRatio}`);
@@ -770,7 +769,9 @@ ipcRenderer.on(
         log.debug(`opencvWorkerWindow | faceScan duration: ${timeAfterFaceScan - timeBeforeFaceScan}`);
         ipcRenderer.send(
           'message-from-opencvWorkerWindow-to-mainWindow',
-          'update-sort-order',
+          'finished-getting-faces',
+          fileId,
+          sheetId,
           detectionArray,
         );
         return undefined;
