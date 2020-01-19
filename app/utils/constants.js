@@ -233,3 +233,11 @@ export const TIMELINE_PLAYHEAD_MINIMUM_WIDTH = 2;
 export const FACE_SIZE_THRESHOLD = 20; // faces smaller than this percentage of the movie height are ignored
 export const FACE_DETECTION_CONFIDENCE_SCORE = 70; // detected faces with a lower score are ignored
 export const FACE_UNIQUENESS_THRESHOLD = 0.6; // faces with a euclideanDistance larger than this are considered unique
+export const FACE_SORT_METHOD = {
+  SIZE: 'size',
+  UNIQUE: 'unique',
+};
+export const FACE_SORT_METHOD_OPTIONS = [
+  { value: FACE_SORT_METHOD.SIZE, text: 'size of face' , 'data-tid': 'faceSortMethodOptionsSize'},
+  { value: FACE_SORT_METHOD.UNIQUE, text: 'unique faces' , 'data-tid': 'faceSortMethodOptionsUnique'},
+];

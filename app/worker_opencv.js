@@ -748,7 +748,10 @@ ipcRenderer.on(
     sheetId,
     frameIdArray,
     frameNumberArray,
-    useRatio
+    useRatio,
+    defaultCachedFramesSize,
+    transformObject,
+    faceSortMethod,
   ) => {
     log.debug('opencvWorkerWindow | on send-get-faces-sync');
     // log.debug(frameNumberArray);
@@ -773,6 +776,7 @@ ipcRenderer.on(
           fileId,
           sheetId,
           detectionArray,
+          faceSortMethod,
         );
         return undefined;
       }).catch((err) => {

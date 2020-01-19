@@ -81,34 +81,38 @@ export const detectFace = async (image, frameNumber, detectionArray, uniqueFaceA
     const size = Math.round(relativeBox.height * 100);
     const scoreInPercent = Math.round(score * 100);
 
-    console.log(face);
+    // console.log(face);
     if (size < FACE_SIZE_THRESHOLD || scoreInPercent < FACE_DETECTION_CONFIDENCE_SCORE) {
       return undefined;
     }
+    console.log(detection);
+    console.log(descriptor);
 
     // check for uniqueness
     let faceId = 0;
     const uniqueFaceArrayLength = uniqueFaceArray.length;
     if (uniqueFaceArrayLength === 0) {
-      uniqueFaceArray.push(descriptor);
+      uniqueFaceArray.push(descriptor.slice());
     } else {
       // compare descriptor value with all values in the array
       for (let i = 0; i < uniqueFaceArrayLength; i += 1) {
+        // console.log(uniqueFaceArray[i]);
         const dist = faceapi.euclideanDistance(descriptor, uniqueFaceArray[i]);
+        // console.log(`${faceId}, ${frameNumber}`);
         console.log(dist);
         if (dist < FACE_UNIQUENESS_THRESHOLD) { // the 2 faces are the same
-          console.log(`face matches face ${i}`);
+          // console.log(`face matches face ${i}`);
           faceId = i;
           break;
         } else if (i === uniqueFaceArrayLength - 1) {
-          console.log('face is unique');
-          uniqueFaceArray.push(descriptor);
+          // console.log('face is unique');
+          uniqueFaceArray.push(descriptor.slice());
           faceId = uniqueFaceArrayLength;
         }
       }
     }
 
-    console.log(`frameNumber: ${frameNumber}, Score: ${score}, Size: ${size}, Gender: ${gender}, Age: ${age}`);
+    // console.log(`frameNumber: ${frameNumber}, Score: ${score}, Size: ${size}, Gender: ${gender}, Age: ${age}`);
     detectionArray.push({
       faceId,
       frameNumber,

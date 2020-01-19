@@ -64,6 +64,7 @@ import {
   limitFrameNumberWithinMovieRange,
   repairFrameScanData,
   setPosition,
+  sortDetectionArray,
 } from '../utils/utils';
 import styles from './App.css';
 import stylesPop from '../components/Popup.css';
@@ -156,6 +157,7 @@ import {
   DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN,
   DEFAULT_THUMB_COUNT,
   EXPORT_FORMAT_OPTIONS,
+  FACE_SORT_METHOD,
   FRAMESDB_PATH,
   MENU_FOOTER_HEIGHT,
   MENU_HEADER_HEIGHT,
@@ -625,15 +627,16 @@ class App extends Component {
       // store.dispatch(updateFrameNumberAndColorArray(detectionArray));
     });
 
-    ipcRenderer.on('finished-getting-faces', (event, fileId, sheetId, detectionArray) => {
+    ipcRenderer.on('finished-getting-faces', (event, fileId, sheetId, detectionArray, faceSortMethod) => {
       const { files, sheetsByFileId } = this.props;
       console.log(detectionArray);
+      console.log(faceSortMethod);
 
-      // sort faces by size
-      detectionArray.sort((a, b) => (a.size < b.size) ? 1 : -1)
+      // sort and filter faces by faceSortMethod
+      const sortedArray = sortDetectionArray(detectionArray, faceSortMethod);
 
       // extract frameNumbers
-      const frameNumberArrayFromFaceDetection = detectionArray.map(item => item.frameNumber);
+      const frameNumberArrayFromFaceDetection = sortedArray.map(item => item.frameNumber);
       console.log(frameNumberArrayFromFaceDetection);
 
       // create new sheet and add face thumbs
@@ -641,6 +644,8 @@ class App extends Component {
       const file = files.find(item => item.id === fileId);
       store.dispatch(addThumbs(file, newSheetId, frameNumberArrayFromFaceDetection))
       .then(() => {
+
+
         // sort the thumbsArray to be used to update the thumbs order
         const thumbsArrayBeforeSorting = store.getState().undoGroup.present
           .sheetsByFileId[fileId][newSheetId].thumbsArray;
@@ -1186,38 +1191,12 @@ class App extends Component {
             // const frameNumberArray = [1511];
             const frameIdArray = this.props.allThumbs.map(thumb => thumb.frameId);
             const frameNumberArray = this.props.allThumbs.map(thumb => thumb.frameNumber);
-            ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-faces-sync', file.id, file.path, currentSheetId, frameIdArray, frameNumberArray, file.useRatio, settings.defaultCachedFramesSize, file.transformObject);
+            ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-faces-sync', file.id, file.path, currentSheetId, frameIdArray, frameNumberArray, file.useRatio, settings.defaultCachedFramesSize, file.transformObject, FACE_SORT_METHOD.SIZE);
             break;
-          case 69: // press 'e' - test detectionArray
-            console.log(DETECTION_ARRAY);
-            const detectionArray =  DETECTION_ARRAY.filter((item) => {
-            	return item.faceCount !== 0;
-            });
-            detectionArray.sort((a, b) => (a.largestSize < b.largestSize) ? 1 : -1)
-            console.log(detectionArray);
-            const frameNumberArrayFromFaceDetection = detectionArray.map(item => item.frameNumber);
-            console.log(frameNumberArrayFromFaceDetection);
-            const newSheetId = uuidV4();
-            store.dispatch(addThumbs(file, newSheetId, frameNumberArrayFromFaceDetection))
-            .then(() => {
-              const thumbsArrayBeforeSorting = store.getState().undoGroup.present
-                .sheetsByFileId[currentFileId][newSheetId].thumbsArray
-              console.log(thumbsArrayBeforeSorting);
-              const thumbsArrayAfterSorting = thumbsArrayBeforeSorting.slice().sort((a, b) => {
-                return frameNumberArrayFromFaceDetection.indexOf(a.frameNumber) - frameNumberArrayFromFaceDetection.indexOf(b.frameNumber);
-              });
-              console.log(thumbsArrayAfterSorting);
-              store.dispatch(updateOrder(
-                currentFileId,
-                newSheetId,
-                thumbsArrayAfterSorting));
-              return undefined;
-            }).catch((err) => {
-              log.error(err);
-            });
-            store.dispatch(setCurrentSheetId(newSheetId));
-            store.dispatch(updateSheetType(currentFileId, newSheetId, SHEET_TYPE.INTERVAL));
-            store.dispatch(updateSheetView(currentFileId, newSheetId, SHEET_VIEW.GRIDVIEW));
+          case 69: // press 'e'
+            const frameIdArray2 = this.props.allThumbs.map(thumb => thumb.frameId);
+            const frameNumberArray2 = this.props.allThumbs.map(thumb => thumb.frameNumber);
+            ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-faces-sync', file.id, file.path, currentSheetId, frameIdArray2, frameNumberArray2, file.useRatio, settings.defaultCachedFramesSize, file.transformObject, FACE_SORT_METHOD.UNIQUE);
             break;
           case 70: // press 'f'
             if (currentFileId) {

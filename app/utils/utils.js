@@ -6,6 +6,7 @@ import sanitize from 'sanitize-filename';
 import VideoCaptureProperties from './videoCaptureProperties';
 import sheetNames from '../img/listOfNames.json'
 import {
+  FACE_SORT_METHOD,
   SCENE_DETECTION_MIN_SCENE_LENGTH,
   SHEET_VIEW,
 } from './constants';
@@ -1219,4 +1220,39 @@ export const getFrameScanTableName = (fileId) => {
   }
   const tableName = `frameScan_${fileId.replace(/-/g, '_')}`;
   return tableName;
+}
+
+// sort detectionArray by ...
+export const sortDetectionArray = (detectionArray, sortAndFilterMethod = FACE_SORT_METHOD.SIZE) => {
+  let sortedAndFilteredArray = [];
+  switch (sortAndFilterMethod) {
+    case FACE_SORT_METHOD.SIZE:
+      sortedAndFilteredArray = detectionArray
+      .slice()
+      .sort((a, b) => (a.size < b.size) ? 1 : -1)
+      // .map(item => item.frameNumber);
+      break;
+    case FACE_SORT_METHOD.UNIQUE:
+      // return the occurence with the highest score of all unique faces
+      let filteredArray = [];
+      detectionArray.map(item => {
+        const foundIndex = filteredArray.findIndex(filteredItem => filteredItem.faceId === item.faceId);
+        if (foundIndex > -1) { // found
+          if (filteredArray[foundIndex].score < item.score) {
+            filteredArray[foundIndex] = item;
+          }
+        } else {
+          filteredArray.push(item);
+        }
+        return undefined;
+      });
+      console.log(filteredArray.slice());
+      sortedAndFilteredArray = filteredArray
+      .sort((a, b) => (a.size < b.size) ? 1 : -1)
+      // .map(item => item.frameNumber);
+      break;
+    default:
+  }
+  console.log(sortedAndFilteredArray);
+  return sortedAndFilteredArray;
 }
