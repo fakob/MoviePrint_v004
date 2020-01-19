@@ -3,10 +3,14 @@ import * as faceapi from 'face-api.js';
 import log from 'electron-log';
 
 import { setPosition } from './utils';
+import {
+  FACE_SIZE_THRESHOLD,
+  FACE_UNIQUENESS_THRESHOLD,
+  FACE_DETECTION_CONFIDENCE_SCORE,
+} from './constants';
 
 const opencv = require('opencv4nodejs');
 const { app } = require('electron').remote;
-
 const appPath = app.getAppPath();
 const weightsPath = path.join(appPath, './dist/weights');
 
@@ -66,20 +70,49 @@ const detectionNet = loadNet()
   }
 );
 
-export const detectFace = async (image, frameNumber, detectionArray) => {
+export const detectFace = async (image, frameNumber, detectionArray, uniqueFaceArray) => {
   // detect expression
   // const detections = await faceapi.detectSingleFace(image);
   const face = await faceapi.detectSingleFace(image).withFaceLandmarks().withAgeAndGender().withFaceDescriptor();
   if (face !== undefined) {
     // see DrawBoxOptions below
-    const { age, gender, detection } = face;
+    const { age, gender, descriptor, detection } = face;
     const { relativeBox, score } = detection;
     const size = Math.round(relativeBox.height * 100);
-    console.log(`frameNumber: ${frameNumber}, Score: ${score}, Size: ${size}, Gender: ${gender}, Age: ${age}`);
+    const scoreInPercent = Math.round(score * 100);
+
     console.log(face);
+    if (size < FACE_SIZE_THRESHOLD || scoreInPercent < FACE_DETECTION_CONFIDENCE_SCORE) {
+      return undefined;
+    }
+
+    // check for uniqueness
+    let faceId = 0;
+    const uniqueFaceArrayLength = uniqueFaceArray.length;
+    if (uniqueFaceArrayLength === 0) {
+      uniqueFaceArray.push(descriptor);
+    } else {
+      // compare descriptor value with all values in the array
+      for (let i = 0; i < uniqueFaceArrayLength; i += 1) {
+        const dist = faceapi.euclideanDistance(descriptor, uniqueFaceArray[i]);
+        console.log(dist);
+        if (dist < FACE_UNIQUENESS_THRESHOLD) { // the 2 faces are the same
+          console.log(`face matches face ${i}`);
+          faceId = i;
+          break;
+        } else if (i === uniqueFaceArrayLength - 1) {
+          console.log('face is unique');
+          uniqueFaceArray.push(descriptor);
+          faceId = uniqueFaceArrayLength;
+        }
+      }
+    }
+
+    console.log(`frameNumber: ${frameNumber}, Score: ${score}, Size: ${size}, Gender: ${gender}, Age: ${age}`);
     detectionArray.push({
+      faceId,
       frameNumber,
-      score,
+      score: scoreInPercent,
       size,
       gender,
       age: Math.round(age),
@@ -127,6 +160,7 @@ export const detectFace = async (image, frameNumber, detectionArray) => {
 export const runSyncCaptureAndFaceDetect = async (vid, frameNumberArray, useRatio) => {
 
   const detectionArray = [];
+  const uniqueFaceArray = [];
   for (let i = 0; i < frameNumberArray.length; i += 1) {
     const frameNumber = frameNumberArray[i];
     setPosition(vid, frameNumber, useRatio);
@@ -148,7 +182,7 @@ export const runSyncCaptureAndFaceDetect = async (vid, frameNumberArray, useRati
       const ctx = input.getContext('2d');
       ctx.putImageData(imgData, 0, 0);
 
-      const detections = await detectFace(input, frameNumber, detectionArray);
+      const detections = await detectFace(input, frameNumber, detectionArray, uniqueFaceArray);
       // console.log(detections)
       // detectFace(frame);
     }
