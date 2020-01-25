@@ -2817,12 +2817,15 @@ ${exportObject}`;
     store.dispatch(hideSettings());
   };
 
-  onDeleteSheetClick = (fileId, sheet) => {
+  onDeleteSheetClick = (fileId, sheetId) => {
     const { store } = this.context;
-    const { sheetsByFileId } = this.props;
-    store.dispatch(deleteSheets(fileId, sheet));
-    const newSheetId = getSheetId(sheetsByFileId, fileId);
-    store.dispatch(setCurrentSheetId(newSheetId));
+    const { currentSheetId, sheetsByFileId } = this.props;
+    store.dispatch(deleteSheets(fileId, sheetId));
+    // if the currentSheet is deleted then switch to the first sheet of the file
+    if (currentSheetId === sheetId) {
+      const newSheetId = getSheetId(sheetsByFileId, fileId);
+      store.dispatch(setCurrentSheetId(newSheetId));
+    }
   };
 
   onSetSheetClick = (fileId, sheetId, sheetView) => {
