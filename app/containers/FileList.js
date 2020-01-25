@@ -48,6 +48,7 @@ class SortedFileList extends Component {
               {...file}
               index={index}
               onFileListElementClick={this.props.onFileListElementClick}
+              onOpenFileExplorer={this.props.onOpenFileExplorer}
               onAddIntervalSheetClick={this.props.onAddIntervalSheetClick}
               onSetSheetClick={this.props.onSetSheetClick}
               onChangeSheetViewClick={this.props.onChangeSheetViewClick}

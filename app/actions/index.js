@@ -425,6 +425,14 @@ export const setDefaultAllThumbsName = (defaultAllThumbsName) => {
   };
 };
 
+export const setDefaultOpenFileExplorerAfterSaving = (defaultOpenFileExplorerAfterSaving) => {
+  log.debug(`action: setDefaultOpenFileExplorerAfterSaving - ${defaultOpenFileExplorerAfterSaving}`);
+  return {
+    type: 'SET_DEFAULT_OPEN_FILE_EXPLORER_AFTER_SAVING',
+    defaultOpenFileExplorerAfterSaving
+  };
+};
+
 // sheetsByFileId
 
 export const clearScenes = (fileId, sheetId) => {

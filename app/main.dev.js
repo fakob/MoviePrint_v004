@@ -10,7 +10,7 @@
  *
  * @flow
  */
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import path from 'path';
 import fs from 'fs';
 import log from 'electron-log';
@@ -356,6 +356,14 @@ ipcMain.on('send-save-file-error', (event, saveMoviePrint = false) => {
   );
   if (saveMoviePrint) {
     workerWindow.webContents.send('action-saved-MoviePrint-done');
+  }
+});
+
+ipcMain.on('open-file-explorer', (event, filePath, isFolder = false) => {
+  if (isFolder) {
+    shell.openItem(filePath);
+  } else {
+    shell.showItemInFolder(filePath);
   }
 });
 

@@ -16,25 +16,26 @@ const FileListElement = ({
   currentFileId,
   currentSheetId,
   fileId,
+  fileMissingStatus,
+  fileScanStatus,
   fps,
   frameCount,
-  fileScanStatus,
-  fileMissingStatus,
   height,
   name,
   objectUrl,
   onAddIntervalSheetClick,
   onChangeSheetViewClick,
-  onSubmitMoviePrintNameClick,
   onDeleteSheetClick,
   onDuplicateSheetClick,
+  onEditTransformListItemClick,
   onExportSheetClick,
   onFileListElementClick,
-  onScanMovieListItemClick,
-  onReplaceMovieListItemClick,
-  onEditTransformListItemClick,
+  onOpenFileExplorer,
   onRemoveMovieListItem,
+  onReplaceMovieListItemClick,
+  onScanMovieListItemClick,
   onSetSheetClick,
+  onSubmitMoviePrintNameClick,
   path,
   sheetsObject,
   size,
@@ -263,6 +264,12 @@ const FileListElement = ({
               onClick={e => onEditTransformListItemClickWithStop(e, fileId)}
             />
           }
+          <Dropdown.Item
+            data-tid='openFileExplorerItemOption'
+            icon="external alternate"
+            text="Open file location"
+            onClick={() => onOpenFileExplorer(path)}
+          />
           <Dropdown.Item
             data-tid='replaceMovieListItemOption'
             icon="exchange"

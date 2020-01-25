@@ -186,6 +186,7 @@ export const DEFAULT_FRAMEINFO_MARGIN = 0;
 export const DEFAULT_MOVIEPRINT_NAME = '[MN].[ME]-[MPN]';
 export const DEFAULT_SINGLETHUMB_NAME = '[MN].[ME]-frame[FN]';
 export const DEFAULT_ALLTHUMBS_NAME = '[MN].[ME]-[FN]';
+export const DEFAULT_OPEN_FILE_EXPLORER_AFTER_SAVING = false;
 // end initialStateJSON
 
 export const MENU_HEADER_HEIGHT = 35;

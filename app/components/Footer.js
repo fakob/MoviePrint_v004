@@ -13,6 +13,7 @@ const Footer = ({
   defaultView,
   file,
   onSaveAllMoviePrints,
+  onOpenFileExplorer,
   onSaveMoviePrint,
   savingMoviePrint,
   sheetView,
@@ -79,6 +80,12 @@ const Footer = ({
               color="orange"
             >
               <Dropdown.Menu>
+                <Dropdown.Item
+                  data-tid='openFileExplorerItemOption'
+                  icon="external alternate"
+                  text="Open output location"
+                  onClick={() => onOpenFileExplorer()}
+                />
                 <Dropdown.Item
                   data-tid='saveAllMoviePrintsOption'
                   icon="download"

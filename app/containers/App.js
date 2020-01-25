@@ -105,6 +105,7 @@ import {
   setDefaultSingleThumbName,
   setDefaultAllThumbsName,
   setDefaultMoviePrintWidth,
+  setDefaultOpenFileExplorerAfterSaving,
   setDefaultOutputFormat,
   setDefaultOutputPath,
   setDefaultOutputPathFromMovie,
@@ -353,6 +354,7 @@ class App extends Component {
     this.onThumbInfoClick = this.onThumbInfoClick.bind(this);
     this.onSetViewClick = this.onSetViewClick.bind(this);
     this.onImportMoviePrint = this.onImportMoviePrint.bind(this);
+    this.onOpenFileExplorer = this.onOpenFileExplorer.bind(this);
     this.onClearMovieList = this.onClearMovieList.bind(this);
     this.onChangeSheetViewClick = this.onChangeSheetViewClick.bind(this);
     this.onSubmitMoviePrintNameClick = this.onSubmitMoviePrintNameClick.bind(this);
@@ -376,6 +378,7 @@ class App extends Component {
     this.onIncludeIndividualClick = this.onIncludeIndividualClick.bind(this);
     this.onEmbedFrameNumbersClick = this.onEmbedFrameNumbersClick.bind(this);
     this.onEmbedFilePathClick = this.onEmbedFilePathClick.bind(this);
+    this.onOpenFileExplorerAfterSavingClick = this.onOpenFileExplorerAfterSavingClick.bind(this);
     this.onThumbnailScaleClick = this.onThumbnailScaleClick.bind(this);
     this.onMoviePrintWidthClick = this.onMoviePrintWidthClick.bind(this);
     this.onShotDetectionMethodClick = this.onShotDetectionMethodClick.bind(this);
@@ -714,11 +717,17 @@ class App extends Component {
     });
 
     ipcRenderer.on('received-saved-file', (event, id, path) => {
+      const { settings } = this.props;
+      const { defaultOpenFileExplorerAfterSaving } = settings;
       if (this.state.savingMoviePrint) {
         setTimeout(
           this.setState({ savingMoviePrint: false }),
           1000
         ); // adding timeout to prevent clicking multiple times
+        // open file explorer if checked
+        if (defaultOpenFileExplorerAfterSaving) {
+          this.onOpenFileExplorer(path);
+        }
       } else if (this.state.savingAllMoviePrints) {
         // check if the sheet which was saved has been printing, then set status to done
         if (this.state.sheetsToPrint.findIndex(item => item.status === 'printing' ) > -1) {
@@ -741,10 +750,17 @@ class App extends Component {
           // check if all files have been printed, then set savingAllMoviePrints to false
           if (this.state.sheetsToPrint.filter(item => item.status === 'done').length ===
             this.state.sheetsToPrint.filter(item => item.status !== 'undefined').length) {
-              this.setState({ savingAllMoviePrints: false });
+
+            this.setState({ savingAllMoviePrints: false });
+
+            // open file explorer if checked
+            if (defaultOpenFileExplorerAfterSaving) {
+              this.onOpenFileExplorer(path);
+            }
           }
         }
       }
+
       log.debug(`Saved file: ${path}`);
     });
 
@@ -2808,6 +2824,21 @@ ${exportObject}`;
     }
   };
 
+  onOpenFileExplorer = (value = undefined) => {
+    const { file, settings } = this.props;
+    const { defaultOutputPath, defaultOutputPathFromMovie } = settings;
+    // open default output path if undefined
+    let path;
+    let isFolder = false;
+    if (value === undefined) {
+      path = defaultOutputPathFromMovie ? file.path : defaultOutputPath;
+      isFolder = defaultOutputPathFromMovie ? false : true;
+    } else {
+      path = value;
+    }
+    ipcRenderer.send('open-file-explorer', path, isFolder);
+  };
+
   onClearMovieList = () => {
     const { store } = this.context;
     store.dispatch(setView(VIEW.STANDARDVIEW));
@@ -2982,6 +3013,11 @@ ${exportObject}`;
   onEmbedFilePathClick = (value) => {
     const { store } = this.context;
     store.dispatch(setDefaultEmbedFilePath(value));
+  };
+
+  onOpenFileExplorerAfterSavingClick = (value) => {
+    const { store } = this.context;
+    store.dispatch(setDefaultOpenFileExplorerAfterSaving(value));
   };
 
   onThumbnailScaleClick = (value) => {
@@ -3224,6 +3260,7 @@ ${exportObject}`;
                       settings={settings}
                       visibilitySettings={visibilitySettings}
                       onFileListElementClick={this.onFileListElementClick}
+                      onOpenFileExplorer={this.onOpenFileExplorer}
                       onAddIntervalSheetClick={this.onAddIntervalSheetClick}
                       posterobjectUrlObjects={filteredPosterFrameObjectUrlObjects}
                       sheetsByFileId={sheetsByFileId}
@@ -3321,6 +3358,7 @@ ${exportObject}`;
                       onIncludeIndividualClick={this.onIncludeIndividualClick}
                       onEmbedFrameNumbersClick={this.onEmbedFrameNumbersClick}
                       onEmbedFilePathClick={this.onEmbedFilePathClick}
+                      onOpenFileExplorerAfterSavingClick={this.onOpenFileExplorerAfterSavingClick}
                       onThumbnailScaleClick={this.onThumbnailScaleClick}
                       onMoviePrintWidthClick={this.onMoviePrintWidthClick}
                       onShotDetectionMethodClick={this.onShotDetectionMethodClick}
@@ -3609,6 +3647,7 @@ ${exportObject}`;
                   file={file}
                   onSaveMoviePrint={this.onSaveMoviePrint}
                   onSaveAllMoviePrints={this.onSaveAllMoviePrints}
+                  onOpenFileExplorer={this.onOpenFileExplorer}
                   savingMoviePrint={this.state.savingMoviePrint}
                   savingAllMoviePrints={this.state.savingAllMoviePrints}
                   sheetView={sheetView}

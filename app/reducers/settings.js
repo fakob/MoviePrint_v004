@@ -87,6 +87,8 @@ const settings = (state = {}, action) => {
       return { ...state, defaultSingleThumbName: action.defaultSingleThumbName };
     case 'SET_DEFAULT_ALLTHUMBS_NAME':
       return { ...state, defaultAllThumbsName: action.defaultAllThumbsName };
+    case 'SET_DEFAULT_OPEN_FILE_EXPLORER_AFTER_SAVING':
+      return { ...state, defaultOpenFileExplorerAfterSaving: action.defaultOpenFileExplorerAfterSaving };
     default:
       return state;
   }

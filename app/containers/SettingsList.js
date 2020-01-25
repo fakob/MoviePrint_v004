@@ -176,6 +176,7 @@ class SettingsList extends Component {
     this.onChangeIncludeIndividual = this.onChangeIncludeIndividual.bind(this);
     this.onChangeEmbedFrameNumbers = this.onChangeEmbedFrameNumbers.bind(this);
     this.onChangeEmbedFilePath = this.onChangeEmbedFilePath.bind(this);
+    this.onChangeOpenFileExplorerAfterSaving = this.onChangeOpenFileExplorerAfterSaving.bind(this);
     this.onChangeThumbnailScale = this.onChangeThumbnailScale.bind(this);
     this.onChangeMoviePrintWidth = this.onChangeMoviePrintWidth.bind(this);
     this.onChangeShotDetectionMethod = this.onChangeShotDetectionMethod.bind(this);
@@ -409,6 +410,10 @@ class SettingsList extends Component {
     this.props.onEmbedFilePathClick(checked);
   }
 
+  onChangeOpenFileExplorerAfterSaving = (e, { checked }) => {
+    this.props.onOpenFileExplorerAfterSavingClick(checked);
+  }
+
   onChangeThumbnailScale = (e, { value }) => {
     this.props.onThumbnailScaleClick(value);
   }
@@ -500,6 +505,7 @@ class SettingsList extends Component {
       defaultMarginSliderFactor,
       defaultMoviePrintBackgroundColor = DEFAULT_MOVIEPRINT_BACKGROUND_COLOR,
       defaultMoviePrintWidth,
+      defaultOpenFileExplorerAfterSaving,
       defaultOutputFormat,
       defaultOutputPath,
       defaultOutputPathFromMovie,
@@ -1403,6 +1409,18 @@ class SettingsList extends Component {
                     }
                     checked={defaultEmbedFilePath}
                     onChange={this.onChangeEmbedFilePath}
+                  />
+                </List.Item>
+                <List.Item>
+                  <Checkbox
+                    data-tid='embedFilePathCheckbox'
+                    label={
+                      <label className={styles.label}>
+                        Open File Explorer after saving
+                      </label>
+                    }
+                    checked={defaultOpenFileExplorerAfterSaving}
+                    onChange={this.onChangeOpenFileExplorerAfterSaving}
                   />
                 </List.Item>
               </List>
