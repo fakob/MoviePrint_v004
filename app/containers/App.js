@@ -1189,8 +1189,8 @@ class App extends Component {
           case 68: // press 'd'
             // const frameIdArray = [1234];
             // const frameNumberArray = [1511];
-            const frameIdArray = this.props.allThumbs.map(thumb => thumb.frameId);
-            const frameNumberArray = this.props.allThumbs.map(thumb => thumb.frameNumber);
+            const frameIdArray = this.props.thumbs.map(thumb => thumb.frameId);
+            const frameNumberArray = this.props.thumbs.map(thumb => thumb.frameNumber);
             ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-faces-sync', file.id, file.path, currentSheetId, frameIdArray, frameNumberArray, file.useRatio, settings.defaultCachedFramesSize, file.transformObject, FACE_SORT_METHOD.SIZE);
             break;
           case 69: // press 'e'
