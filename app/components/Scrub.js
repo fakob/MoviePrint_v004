@@ -2,7 +2,9 @@
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Popup } from 'semantic-ui-react';
 import styles from './Scrub.css';
+import stylesPop from './Popup.css';
 import {
   getObjectProperty,
   getScrubFrameNumber,
@@ -316,16 +318,37 @@ class Scrub extends Component {
         >
           {addAfter ? 'Add after' : (addBefore ? 'Add before' : 'Change')}
         </div> */}
-        <div
-          className={styles.scrubCancelBar}
-          onMouseOver={this.onScrubClickWithStop}
-          // onClick={this.onScrubClickWithStop}
-          style={{
-            height: `${MENU_FOOTER_HEIGHT}px`,
-          }}
-        >
-          Cancel
-        </div>
+        <Popup
+          trigger={
+            <div
+              className={styles.scrubCancelBar}
+              onMouseOver={this.onScrubClickWithStop}
+              // onClick={this.onScrubClickWithStop}
+              style={{
+                height: `${MENU_FOOTER_HEIGHT}px`,
+              }}
+            >
+              Cancel
+            </div>
+          }
+          open
+          basic
+          inverted
+          wide
+          position='left top'
+          offset='-50%, 8px'
+          className={stylesPop.popup}
+          content={
+            <span>
+              Choose frame: drag left and right<br/>
+              Allow dragging over whole movie: <mark>CTRL</mark><br/>
+              Add new thumb before: <mark>SHIFT</mark><br/>
+              Add new thumb after: <mark>ALT</mark><br/>
+              Confirm frame: click/release mouse<br/>
+              Cancel: Move mouse over cancel zone
+            </span>
+          }
+        />
       </div>
     );
   }

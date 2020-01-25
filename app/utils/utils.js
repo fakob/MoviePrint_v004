@@ -722,6 +722,10 @@ export const getScrubFrameNumber = (
 ) => {
   let scrubFrameNumber;
 
+  // when scrubbing all the way to the left/right sideMargin gives space
+  // when selecting the first/last frame close to the window border
+  const sideMargin = 10;
+
   // depending on if scrubbing over ScrubMovie change mapping range
   // scrubbing over ScrubMovie scrubbs over scene, with ctrl pressed scrubbing left or right of it scrubs over whole movie
   // depending on if add before (shift) or after (alt) changing the mapping range
@@ -729,15 +733,21 @@ export const getScrubFrameNumber = (
   const tempRightFrameNumber = keyObject.shiftKey ? scrubThumb.frameNumber : scrubThumbRight.frameNumber
   const leftOfScrubMovie = (scaleValueObject.scrubInnerContainerWidth - scaleValueObject.scrubMovieWidth) / 2;
   const rightOfScrubMovie = leftOfScrubMovie + scaleValueObject.scrubMovieWidth;
+
+  // check if scrubbed thumb is first/last thumb
+  // in this case take range movie start/end same as when pressing ctrl
+  const isFirstThumb = scrubThumb.frameNumber === scrubThumbLeft.frameNumber;
+  const isLastThumb = scrubThumb.frameNumber === scrubThumbRight.frameNumber;
+
   if (mouseX < leftOfScrubMovie) {
-    if (keyObject.ctrlKey) {
-      scrubFrameNumber = mapRange(mouseX, 0, leftOfScrubMovie, 0, tempLeftFrameNumber);
+    if (keyObject.ctrlKey || isFirstThumb) {
+      scrubFrameNumber = mapRange(mouseX, 0 + sideMargin, leftOfScrubMovie, 0, tempLeftFrameNumber);
     } else {
       scrubFrameNumber = tempLeftFrameNumber;
     }
   } else if (mouseX > rightOfScrubMovie) {
-    if (keyObject.ctrlKey) {
-      scrubFrameNumber = mapRange(mouseX, rightOfScrubMovie, scaleValueObject.containerWidth, tempRightFrameNumber, frameCount - 1);
+    if (keyObject.ctrlKey || isLastThumb) {
+      scrubFrameNumber = mapRange(mouseX, rightOfScrubMovie, scaleValueObject.containerWidth - sideMargin, tempRightFrameNumber, frameCount - 1);
     } else {
       scrubFrameNumber = tempRightFrameNumber;
     }

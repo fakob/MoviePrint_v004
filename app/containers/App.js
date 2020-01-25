@@ -1726,7 +1726,6 @@ class App extends Component {
   onScrubClick(file, scrubThumb, scrubWindowTriggerTime) {
     const { store } = this.context;
     const { allScenes, thumbs } = this.props;
-    const { keyObject } = this.state;
 
     store.dispatch(hideMovielist());
     store.dispatch(hideSettings());
