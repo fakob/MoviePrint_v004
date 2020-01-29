@@ -298,7 +298,7 @@
     "electron-unhandled": "^3.0.2",
     "eslint-config-erb": "^0.3.0",
     "eslint-plugin-prettier": "^3.1.2",
-    "face-api.js": "^0.21.0",
+    "face-api.js": "^0.22.0",
     "history": "^4.7.2",
     "html2canvas": "1.0.0-rc.5",
     "lodash": "^4.17.4",
@@ -329,10 +329,6 @@
     "shelljs": "^0.8.2",
     "spectron-fake-dialog": "^0.0.1",
     "stylelint-config-prettier": "^8.0.1"
-  },
-  "resolutions": {
-    "face-api.js/tfjs-image-recognition-base/@tensorflow/tfjs-core": "<=1.2.9",
-    "tfjs-image-recognition-base/@tensorflow/tfjs-core": "<=1.2.9"
   },
   "optionalDependencies": {
     "7zip-bin-mac": "^1.0.1",
