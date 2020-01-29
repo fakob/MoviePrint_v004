@@ -1223,22 +1223,29 @@ export const getFrameScanTableName = (fileId) => {
 }
 
 // sort detectionArray by ...
-export const sortDetectionArray = (detectionArray, sortAndFilterMethod = FACE_SORT_METHOD.SIZE) => {
+export const sortDetectionArray = (detectionArray, sortAndFilterMethod = FACE_SORT_METHOD.SIZE, reverseSortOrder = false) => {
   let sortedAndFilteredArray = [];
+  const sortOrderMultiplier = reverseSortOrder ? -1 : 1;
   switch (sortAndFilterMethod) {
     case FACE_SORT_METHOD.SIZE:
       sortedAndFilteredArray = detectionArray
       .slice()
-      .sort((a, b) => (a.size < b.size) ? 1 : -1)
+      .sort((a, b) => (a.largestSize < b.largestSize) ? sortOrderMultiplier * 1 : sortOrderMultiplier * -1)
+      // .map(item => item.frameNumber);
+      break;
+    case FACE_SORT_METHOD.COUNT:
+      sortedAndFilteredArray = detectionArray
+      .slice()
+      .sort((a, b) => (a.faceCount < b.faceCount) ? sortOrderMultiplier * 1 : sortOrderMultiplier * -1)
       // .map(item => item.frameNumber);
       break;
     case FACE_SORT_METHOD.UNIQUE:
-      // return the occurence with the highest score of all unique faces
+      // return the occurence with the largestSize of all unique faces
       let filteredArray = [];
       detectionArray.map(item => {
         const foundIndex = filteredArray.findIndex(filteredItem => filteredItem.faceId === item.faceId);
         if (foundIndex > -1) { // found
-          if (filteredArray[foundIndex].score < item.score) {
+          if (filteredArray[foundIndex].largestSize < item.largestSize) {
             filteredArray[foundIndex] = item;
           }
         } else {
@@ -1248,7 +1255,7 @@ export const sortDetectionArray = (detectionArray, sortAndFilterMethod = FACE_SO
       });
       console.log(filteredArray.slice());
       sortedAndFilteredArray = filteredArray
-      .sort((a, b) => (a.size < b.size) ? 1 : -1)
+      .sort((a, b) => (a.largestSize < b.largestSize) ? 1 : -1)
       // .map(item => item.frameNumber);
       break;
     default:

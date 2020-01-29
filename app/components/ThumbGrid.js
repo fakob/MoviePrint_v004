@@ -603,6 +603,7 @@ class ThumbGrid extends Component {
               thumbId={thumb.thumbId}
               index={thumb.index}
               indexForId={thumb.index}
+              facesArray={thumb.facesArray !== undefined ? thumb.facesArray : undefined}
               dim={(thumbsToDim.find((thumbToDim) => thumbToDim.thumbId === thumb.thumbId))}
               inputRefThumb={(selectedThumbsArray.length !== 0 && selectedThumbsArray[0].thumbId === thumb.thumbId) ?
                 inputRefThumb : undefined} // for the thumb scrollIntoView function

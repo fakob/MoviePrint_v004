@@ -719,7 +719,6 @@ export const toggleThumb = (currentFileId, sheetId, thumbId) => {
   };
 };
 
-
 export const toggleThumbArray = (fileId, sheetId, thumbIdArray) => {
   log.debug(`action: toggleThumbArray - ${thumbIdArray}`);
   return {
@@ -728,6 +727,18 @@ export const toggleThumbArray = (fileId, sheetId, thumbIdArray) => {
       fileId,
       sheetId,
       thumbIdArray,
+    },
+  };
+};
+
+export const changeThumbArray = (fileId, sheetId, thumbArray) => {
+  log.debug(`action: changeThumbArray - ${thumbArray}`);
+  return {
+    type: 'CHANGE_THUMB_ARRAY',
+    payload: {
+      fileId,
+      sheetId,
+      thumbArray,
     },
   };
 };

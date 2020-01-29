@@ -77,6 +77,7 @@ import {
   addThumb,
   addThumbs,
   changeThumb,
+  changeThumbArray,
   clearMovieList,
   clearScenes,
   cutScene,
@@ -177,6 +178,7 @@ import {
 import {
   deleteTableFrameScanList,
   deleteTableReduxState,
+  getFaceScanByFileId,
   getFrameScanByFileId,
   getFrameScanCount,
 } from '../utils/utilsForSqlite';
@@ -390,6 +392,7 @@ class App extends Component {
     this.cancelFileScan = this.cancelFileScan.bind(this);
     this.calculateSceneList = this.calculateSceneList.bind(this);
     this.onToggleDetectionChart = this.onToggleDetectionChart.bind(this);
+    this.onSortSheet = this.onSortSheet.bind(this);
     this.onHideDetectionChart = this.onHideDetectionChart.bind(this);
     this.checkForUpdates = this.checkForUpdates.bind(this);
 
@@ -660,6 +663,9 @@ class App extends Component {
           fileId,
           newSheetId,
           thumbsArrayAfterSorting));
+
+        // add detectin information to thumbs
+        store.dispatch(changeThumbArray(fileId, newSheetId, detectionArray));
         return undefined;
       }).catch((err) => {
         log.error(err);
@@ -836,6 +842,7 @@ class App extends Component {
     log.debug('App.js reports: componentDidMount');
     log.debug(`Operating system: ${process.platform}-${os.release()}`);
     log.debug(`App version: ${app.getName()}-${app.getVersion()}`);
+    log.debug(`Chromium version: ${process.versions['chrome']}`);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -1177,8 +1184,16 @@ class App extends Component {
           case 52: // press '4'
             break;
           case 53: // press '5'
+            this.onSortSheet(currentFileId, currentSheetId, FACE_SORT_METHOD.SIZE, true);
             break;
           case 54: // press '6'
+            this.onSortSheet(currentFileId, currentSheetId, FACE_SORT_METHOD.SIZE, false);
+            break;
+          case 55: // press '7'
+            this.onSortSheet(currentFileId, currentSheetId, FACE_SORT_METHOD.COUNT, true);
+            break;
+          case 56: // press '8'
+            this.onSortSheet(currentFileId, currentSheetId, FACE_SORT_METHOD.COUNT, false);
             break;
           case 65: // press 'a'
             this.openMoviesDialog();
@@ -1196,7 +1211,8 @@ class App extends Component {
           case 69: // press 'e'
             const frameIdArray2 = this.props.allThumbs.map(thumb => thumb.frameId);
             const frameNumberArray2 = this.props.allThumbs.map(thumb => thumb.frameNumber);
-            ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-faces-sync', file.id, file.path, currentSheetId, frameIdArray2, frameNumberArray2, file.useRatio, settings.defaultCachedFramesSize, file.transformObject, FACE_SORT_METHOD.UNIQUE);
+            ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-faces-sync', file.id, file.path, currentSheetId, frameIdArray2, frameNumberArray2, file.useRatio, settings.defaultCachedFramesSize, file.transformObject, FACE_SORT_METHOD.SIZE, true);
+            // ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-faces-sync', file.id, file.path, currentSheetId, frameIdArray2, frameNumberArray2, file.useRatio, settings.defaultCachedFramesSize, file.transformObject, FACE_SORT_METHOD.UNIQUE);
             break;
           case 70: // press 'f'
             if (currentFileId) {
@@ -1560,6 +1576,33 @@ class App extends Component {
     this.setState({
       showChart: !this.state.showChart
     });
+  }
+
+  onSortSheet(fileId, sheetId, sortMethod, reverseSortOrder) {
+    const { store } = this.context;
+
+    //
+    const faceScanArray = getFaceScanByFileId(fileId);
+    console.log(faceScanArray);
+    const sortedArray = sortDetectionArray(faceScanArray, sortMethod, reverseSortOrder);
+
+    // extract frameNumbers
+    const frameNumberArrayFromFaceDetection = sortedArray.map(item => item.frameNumber);
+    console.log(frameNumberArrayFromFaceDetection);
+
+    const thumbsArrayBeforeSorting = store.getState().undoGroup.present
+      .sheetsByFileId[fileId][sheetId].thumbsArray;
+    console.log(thumbsArrayBeforeSorting);
+    const thumbsArrayAfterSorting = thumbsArrayBeforeSorting.slice().sort((a, b) => {
+      return frameNumberArrayFromFaceDetection.indexOf(a.frameNumber) - frameNumberArrayFromFaceDetection.indexOf(b.frameNumber);
+    });
+    console.log(thumbsArrayAfterSorting);
+
+    // update the thumb order as addThumbs
+    store.dispatch(updateOrder(
+      fileId,
+      sheetId,
+      thumbsArrayAfterSorting));
   }
 
   pullObjectUrlFromIndexedDBWorkerWindow(deadline) {

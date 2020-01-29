@@ -70,6 +70,15 @@ const thumb = (state = {}, action, index) => {
       return Object.assign({}, state, {
         hidden: !state.hidden
       });
+    case 'CHANGE_THUMB_ARRAY':
+      console.log(state)
+      const foundItem = action.payload.thumbArray.find(
+        item => item.frameNumber === state.frameNumber
+      );
+      if (foundItem === undefined) {
+        return state;
+      }
+      return Object.assign({}, state, foundItem);
     // case 'UPDATE_SCENEID_OF_THUMB':
     //   if (state.thumbId !== action.payload.thumbId) {
     //     return state;
@@ -383,6 +392,7 @@ const sheetsByFileId = (state = {}, action) => {
       };
     case 'TOGGLE_THUMB':
     case 'TOGGLE_THUMB_ARRAY':
+    case 'CHANGE_THUMB_ARRAY':
       return {
         ...state,
         [action.payload.fileId]: {

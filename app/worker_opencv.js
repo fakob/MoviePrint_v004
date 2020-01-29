@@ -752,6 +752,7 @@ ipcRenderer.on(
     defaultCachedFramesSize,
     transformObject,
     faceSortMethod,
+    getAllFaces = false,
   ) => {
     log.debug('opencvWorkerWindow | on send-get-faces-sync');
     // log.debug(frameNumberArray);
@@ -762,7 +763,7 @@ ipcRenderer.on(
     try {
       const vid = new opencv.VideoCapture(filePath);
 
-      runSyncCaptureAndFaceDetect(vid, frameNumberArray, useRatio)
+      runSyncCaptureAndFaceDetect(vid, frameNumberArray, useRatio, getAllFaces)
       .then((detectionArray) => {
         // insert all frames into sqlite3
         console.log(detectionArray);

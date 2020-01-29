@@ -157,6 +157,20 @@ export const getFrameScanByFileId = (fileId) => {
   return []; // if table does not exist, return empty array
 }
 
+// get all detected faces by fileId
+export const getFaceScanByFileId = (fileId) => {
+  const tableName = getFrameScanTableName(fileId);
+  if (doesTableExist(tableName)) {
+    const stmt = moviePrintDB.prepare(`SELECT faceObject FROM ${tableName} WHERE faceObject IS NOT NULL ORDER BY frameNumber ASC`);
+    const returnArray = stmt.all();
+    console.log(returnArray);
+    const newArray = returnArray.map(item => JSON.parse(item.faceObject));
+    console.log(newArray);
+    return newArray;
+  }
+  return []; // if table does not exist, return empty array
+}
+
 // get how many frames have scan data
 export const getFrameScanCount = (fileId) => {
   const tableName = getFrameScanTableName(fileId);

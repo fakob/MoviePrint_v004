@@ -50,6 +50,7 @@ const DragHandle = SortableHandle(({ width, height, thumbId }) =>
 const Thumb = ({
   aspectRatioInv,
   base64,
+  facesArray,
   borderRadius,
   color,
   controllersAreVisible,
@@ -114,6 +115,8 @@ const Thumb = ({
     // }
   }
 
+  const thumbHeight = thumbWidth * aspectRatioInv;
+
   return (
     <div
       ref={inputRefThumb}
@@ -129,10 +132,10 @@ const Thumb = ({
       id={`thumb${indexForId}`}
       className={`${styles.gridItem} ${(view === VIEW.PLAYERVIEW && selected && !(keyObject.altKey || keyObject.shiftKey)) ? styles.gridItemSelected : ''}`}
       width={`${thumbWidth}px`}
-      height={`${(thumbWidth * aspectRatioInv)}px`}
+      height={`${(thumbHeight)}px`}
       style={{
         // width: thumbWidth,
-        margin: margin,
+        margin,
         outlineWidth: margin,
         borderRadius: `${(selected && view === VIEW.PLAYERVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor: transparentThumb ||
@@ -147,13 +150,24 @@ const Thumb = ({
         className={`${styles.image} ${dim ? styles.dim : ''}`}
         alt=""
         width={`${thumbWidth}px`}
-        height={`${(thumbWidth * aspectRatioInv)}px`}
+        height={`${(thumbHeight)}px`}
         style={{
           filter: `${controllersAreVisible ? 'brightness(80%)' : ''}`,
           opacity: hidden ? '0.2' : '1',
           borderRadius: `${(selected && view === VIEW.PLAYERVIEW) ? 0 : borderRadius}px`,
         }}
       />
+      {facesArray !== undefined &&
+        <div
+          className={styles.faceRect}
+          style={{
+            width: `${facesArray[0].box.width * thumbWidth}px`,
+            height: `${facesArray[0].box.height * thumbHeight}px`,
+            left: `${facesArray[0].box.x * thumbWidth}px`,
+            top: `${facesArray[0].box.y * thumbHeight}px`,
+          }}
+        />
+      }
       {thumbInfoValue !== undefined &&
         <div
           data-tid={`thumbInfoText_${thumbId}`}
@@ -176,7 +190,7 @@ const Thumb = ({
         {sheetType === SHEET_TYPE.INTERVAL &&
           <DragHandle
             width={thumbWidth - 1} // shrink it to prevent rounding issues
-            height={(thumbWidth * aspectRatioInv) - 1}
+            height={(thumbHeight) - 1}
             thumbId={thumbId}
           />
         }

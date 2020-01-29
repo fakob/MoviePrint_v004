@@ -115,6 +115,12 @@
   margin-left: -50px
 }
 
+.faceRect {
+  position: absolute;
+  border:2px solid #ff0000;
+  background-color: transparent;
+}
+
 .frameinfo {
   position: absolute;
   border-radius:2px;
