@@ -403,7 +403,7 @@ class App extends Component {
   }
 
   componentWillMount() {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { columnCountTemp, thumbCountTemp, containerWidth, containerHeight, zoom } = this.state;
     const { currentFileId, currentSheetId, file, files, scenes, settings, sheetsByFileId, visibilitySettings } = this.props;
     const { defaultShowPaperPreview, defaultThumbCountMax } = settings;
@@ -414,7 +414,7 @@ class App extends Component {
       files.map(item => {
         if (doesFileFolderExist(item.path) === false) {
           console.log(item.path);
-          store.dispatch(updateFileMissingStatus(item.id, true));
+          dispatch(updateFileMissingStatus(item.id, true));
         }
       })
     }
@@ -467,7 +467,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    const { store } = this.context;
+    const { dispatch, settings } = this.props;
 
     ipcRenderer.on('progress', (event, fileId, progressBarPercentage) => {
       this.setState({
@@ -505,24 +505,24 @@ class App extends Component {
     });
 
     ipcRenderer.on('receive-get-file-details', (event, fileId, filePath, posterFrameId, frameCount, width, height, fps, fourCC, onlyReplace = false, onlyImport = false) => {
-      store.dispatch(updateFileDetails(fileId, frameCount, width, height, fps, fourCC));
+      dispatch(updateFileDetails(fileId, frameCount, width, height, fps, fourCC));
       ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-poster-frame', fileId, filePath, posterFrameId, onlyReplace, onlyImport);
     });
 
     // poster frames don't have thumbId
     ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, frameNumber, useRatio, onlyReplace = false, onlyImport = false) => {
-      store.dispatch(updateFileDetailUseRatio(fileId, useRatio));
+      dispatch(updateFileDetailUseRatio(fileId, useRatio));
 
       // get all posterframes
       if (!onlyReplace || !onlyImport) {
-        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-in-and-outpoint', fileId, filePath, useRatio, store.getState().undoGroup.present.settings.defaultDetectInOutPoint);
+        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-in-and-outpoint', fileId, filePath, useRatio, settings.defaultDetectInOutPoint);
       }
     });
 
     ipcRenderer.on('receive-get-in-and-outpoint', (event, fileId, fadeInPoint, fadeOutPoint) => {
       const { filesToLoad } = this.state;
 
-      store.dispatch(updateInOutPoint(fileId, fadeInPoint, fadeOutPoint));
+      dispatch(updateInOutPoint(fileId, fadeInPoint, fadeOutPoint));
 
       // check if this was not the last file coming back from the renderer
       if (filesToLoad.length > 0) {
@@ -552,7 +552,7 @@ class App extends Component {
         this.setState({
           filesToLoad: copyOfFilesToLoad
         });
-        store.dispatch(removeMovieListItem(
+        dispatch(removeMovieListItem(
           fileId,
         ));
       }
@@ -616,7 +616,7 @@ class App extends Component {
     });
 
     ipcRenderer.on('update-frameNumber-and-colorArray', (event, frameNumberAndColorArray) => {
-      store.dispatch(updateFrameNumberAndColorArray(frameNumberAndColorArray));
+      dispatch(updateFrameNumberAndColorArray(frameNumberAndColorArray));
     });
 
     ipcRenderer.on('finished-getting-thumbs', (event, fileId, sheetId) => {
@@ -650,12 +650,12 @@ class App extends Component {
       // update artificial sceneArray if interval scene
       if (getSheetType(sheetsByFileId, fileId, sheetId, settings) === SHEET_TYPE.INTERVAL) {
         const sceneArray = createSceneArray(sheetsByFileId, fileId, sheetId);
-        store.dispatch(updateSceneArray(fileId, sheetId, sceneArray));
+        dispatch(updateSceneArray(fileId, sheetId, sceneArray));
       }
     });
 
     ipcRenderer.on('clearScenes', (event, fileId, sheetId) => {
-      store.dispatch(clearScenes(
+      dispatch(clearScenes(
         fileId,
         sheetId,
       ));
@@ -676,7 +676,7 @@ class App extends Component {
       this.setState({
         fileScanRunning: false,
       });
-      store.dispatch(updateFileScanStatus(fileId, true));
+      dispatch(updateFileScanStatus(fileId, true));
       this.runSceneDetection(fileId, filePath, useRatio, undefined, sheetId, file.transformObject);
     });
 
@@ -686,7 +686,7 @@ class App extends Component {
       // log.debug(someScenes);
       if (someScenes.length > 0) {
         // add scenes in reveres as they are stored inverse in the queue
-        store.dispatch(addScenesWithoutCapturingThumbs(someScenes.reverse()));
+        dispatch(addScenesWithoutCapturingThumbs(someScenes.reverse()));
       }
 
       // schedule the next one until scan is done and requestIdleCallback is cancelled
@@ -847,7 +847,7 @@ class App extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     // log.debug('App.js componentDidUpdate');
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { filesToLoad, sheetsToPrint } = this.state;
     const { files, file, settings, sheetsByFileId, visibilitySettings } = this.props;
     const { defaultMoviePrintWidth, defaultPaperAspectRatioInv } = settings;
@@ -888,10 +888,10 @@ class App extends Component {
         // files who could be added to the filelist, but then could not be read by opencv get removed again from the FileList
         if (tempFile !== undefined) {
           this.getThumbsForFile(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId);
-          store.dispatch(updateSheetName(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, getNewSheetName(getSheetCount(files, sheetToGetThumbsFor.fileId))));
-          store.dispatch(updateSheetCounter(sheetToGetThumbsFor.fileId));
-          store.dispatch(updateSheetType(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, SHEET_TYPE.INTERVAL));
-          store.dispatch(updateSheetView(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, SHEET_VIEW.GRIDVIEW));
+          dispatch(updateSheetName(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, getNewSheetName(getSheetCount(files, sheetToGetThumbsFor.fileId))));
+          dispatch(updateSheetCounter(sheetToGetThumbsFor.fileId));
+          dispatch(updateSheetType(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, SHEET_TYPE.INTERVAL));
+          dispatch(updateSheetView(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, SHEET_VIEW.GRIDVIEW));
           filesToUpdateStatus.push({
             fileId: sheetToGetThumbsFor.fileId,
             sheetId: sheetToGetThumbsFor.sheetId,
@@ -1068,7 +1068,7 @@ class App extends Component {
   }
 
   componentWillUnmount() {
-    const { store } = this.context;
+  const { dispatch } = this.props;
 
     document.removeEventListener('keydown', this.handleKeyPress);
     document.removeEventListener('keyup', this.handleKeyUp);
@@ -1091,8 +1091,8 @@ class App extends Component {
 
     // only listen to key events when feedback form is not shown
     if (!this.state.showFeedbackForm && event.target.tagName !== 'INPUT') {
-      const { store } = this.context;
-      const { currentFileId, currentSheetId, file, settings, sheetsByFileId, visibilitySettings } = this.props;
+  const { dispatch } = this.props;
+        const { currentFileId, currentSheetId, file, settings, sheetsByFileId, visibilitySettings } = this.props;
       const sheetType = getSheetType(sheetsByFileId, currentFileId, currentSheetId, settings);
 
 
@@ -1241,7 +1241,7 @@ class App extends Component {
   }
 
   onDrop(droppedFiles) {
-    const { files } = this.props;
+    const { dispatch, files } = this.props;
 
     // when user presses alt key on drop then clear list and add movies
     const clearList = this.state.keyObject.altKey;
@@ -1249,14 +1249,13 @@ class App extends Component {
       dropzoneActive: false,
       loadingFirstFile: true
     });
-    const { store } = this.context;
     log.debug('Files where dropped');
     log.debug(droppedFiles);
     // file match needs to be in sync with addMoviesToList() and accept !!!
     if (Array.from(droppedFiles).some(file => (file.type.match('video.*') ||
       file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
-      store.dispatch(setDefaultSheetView(SHEET_VIEW.GRIDVIEW));
-      store.dispatch(addMoviesToList(droppedFiles, clearList)).then((response) => {
+      dispatch(setDefaultSheetView(SHEET_VIEW.GRIDVIEW));
+      dispatch(addMoviesToList(droppedFiles, clearList)).then((response) => {
 
         // add a property to first movie indicating that it should be displayed when ready
         response[0].displayMe = true;
@@ -1272,7 +1271,7 @@ class App extends Component {
         log.debug(response);
         // showMovielist if more than one movie
         if (response.length > 1 || (!clearList && files !== undefined && files.length > 0)) {
-          store.dispatch(showMovielist());
+          dispatch(showMovielist());
         }
         return response;
       }).catch((error) => {
@@ -1421,13 +1420,13 @@ class App extends Component {
   }
 
   showMovielist() {
-    const { store } = this.context;
-    store.dispatch(showMovielist());
+  const { dispatch } = this.props;
+    dispatch(showMovielist());
   }
 
   hideMovielist() {
-    const { store } = this.context;
-    store.dispatch(hideMovielist());
+  const { dispatch } = this.props;
+    dispatch(hideMovielist());
   }
 
   toggleMovielist() {
@@ -1439,11 +1438,11 @@ class App extends Component {
   }
 
   showSettings() {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { currentFileId, currentSheetId, file, settings, sheetsByFileId, visibilitySettings } = this.props;
     const secondsPerRow = getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings);
 
-    store.dispatch(showSettings());
+    dispatch(showSettings());
 
     loadSheetPropertiesIntoState(
       this,
@@ -1465,8 +1464,8 @@ class App extends Component {
   }
 
   hideSettings() {
-    const { store } = this.context;
-    store.dispatch(hideSettings());
+  const { dispatch } = this.props;
+    dispatch(hideSettings());
     this.onHideDetectionChart();
   }
 
@@ -1479,11 +1478,11 @@ class App extends Component {
   }
 
   onShowThumbs() {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     if (this.props.visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') {
-      store.dispatch(setVisibilityFilter('SHOW_ALL'));
+      dispatch(setVisibilityFilter('SHOW_ALL'));
     } else {
-      store.dispatch(setVisibilityFilter('SHOW_VISIBLE'));
+      dispatch(setVisibilityFilter('SHOW_VISIBLE'));
     }
   }
 
@@ -1510,7 +1509,7 @@ class App extends Component {
   }
 
   runSceneDetection(fileId, filePath, useRatio, threshold = this.props.settings.defaultSceneDetectionThreshold, sheetId = uuidV4(), transformObject = undefined) {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { settings } = this.props;
     const { defaultShotDetectionMethod = SHOT_DETECTION_METHOD.MEAN } = settings;
     const { fileScanRunning } = this.state;
@@ -1524,10 +1523,10 @@ class App extends Component {
     // there is no fileScanRunning
     if (arrayOfFrameScanData.length !== 0 || fileScanRunning === false) {
       this.onHideDetectionChart();
-      store.dispatch(setDefaultSheetView(SHEET_VIEW.TIMELINEVIEW));
-      store.dispatch(setCurrentSheetId(sheetId));
-      store.dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.SCENES));
-      store.dispatch(updateSheetView(fileId, sheetId, SHEET_VIEW.TIMELINEVIEW));
+      dispatch(setDefaultSheetView(SHEET_VIEW.TIMELINEVIEW));
+      dispatch(setCurrentSheetId(sheetId));
+      dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.SCENES));
+      dispatch(updateSheetView(fileId, sheetId, SHEET_VIEW.TIMELINEVIEW));
       // get meanArray if it is stored else return false
       // console.log(arrayOfFrameScanData);
       // if meanArray not stored, runFileScan
@@ -1590,7 +1589,7 @@ class App extends Component {
   }
 
   calculateSceneList(fileId, arrayOfFrameScanData, threshold = this.props.settings.defaultSceneDetectionThreshold, sheetId) {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { files, settings } = this.props;
 
     // check if frameScanData is complete
@@ -1690,20 +1689,20 @@ class App extends Component {
       chartData: newChartData,
     });
 
-    // store.dispatch(clearScenes(fileId, sheetId));
+    // dispatch(clearScenes(fileId, sheetId));
 
     // check if scenes detected
     if (sceneList.length !== 0) {
       const tempFile = files.find((file) => file.id === fileId);
       const clearOldScenes = true;
-      store.dispatch(updateSheetType(tempFile.id, sheetId, SHEET_TYPE.SCENES));
-      store.dispatch(updateSheetView(tempFile.id, sheetId, SHEET_VIEW.TIMELINEVIEW));
-      store.dispatch(updateSheetName(tempFile.id, sheetId, getNewSheetName(getSheetCount(files, tempFile.id))));
-      store.dispatch(updateSheetCounter(tempFile.id));
-      store.dispatch(setCurrentSheetId(sheetId));
-      store.dispatch(updateSheetColumnCount(tempFile.id, sheetId, Math.ceil(Math.sqrt(sceneList.length))));
-      store.dispatch(setDefaultSheetView(SHEET_VIEW.TIMELINEVIEW));
-      store.dispatch(addScenesFromSceneList(tempFile, sceneList, clearOldScenes, settings.defaultCachedFramesSize, sheetId));
+      dispatch(updateSheetType(tempFile.id, sheetId, SHEET_TYPE.SCENES));
+      dispatch(updateSheetView(tempFile.id, sheetId, SHEET_VIEW.TIMELINEVIEW));
+      dispatch(updateSheetName(tempFile.id, sheetId, getNewSheetName(getSheetCount(files, tempFile.id))));
+      dispatch(updateSheetCounter(tempFile.id));
+      dispatch(setCurrentSheetId(sheetId));
+      dispatch(updateSheetColumnCount(tempFile.id, sheetId, Math.ceil(Math.sqrt(sceneList.length))));
+      dispatch(setDefaultSheetView(SHEET_VIEW.TIMELINEVIEW));
+      dispatch(addScenesFromSceneList(tempFile, sceneList, clearOldScenes, settings.defaultCachedFramesSize, sheetId));
     } else {
       this.showMessage('No scenes detected', 3000);
     }
@@ -1740,11 +1739,11 @@ class App extends Component {
 
 
   onScrubClick(file, scrubThumb, scrubWindowTriggerTime) {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { allScenes, thumbs } = this.props;
 
-    store.dispatch(hideMovielist());
-    store.dispatch(hideSettings());
+    dispatch(hideMovielist());
+    dispatch(hideSettings());
 
     let scrubScene;
     if (allScenes !== undefined) {
@@ -1764,7 +1763,7 @@ class App extends Component {
   }
 
   onExpandClick(file, sceneOrThumbId, parentSheetId) {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { files, scenes, sheetsArray, sheetsByFileId, settings } = this.props;
     // console.log(file);
     // console.log(sceneOrThumbId);
@@ -1777,7 +1776,7 @@ class App extends Component {
     let sceneArray = scenes;
     if (sceneArray === undefined || sceneArray.length === 0) {
       sceneArray = createSceneArray(sheetsByFileId, file.id, parentSheetId);
-      store.dispatch(updateSceneArray(file.id, parentSheetId, sceneArray));
+      dispatch(updateSceneArray(file.id, parentSheetId, sceneArray));
     }
     // console.log(sceneArray);
 
@@ -1789,7 +1788,7 @@ class App extends Component {
     // create new sheet if it does not already exist
     if (sheetsArray.findIndex(item => item === sheetId) === -1) {
       // log.debug(`addIntervalSheet as no thumbs were found for: ${file.name}`);
-      store.dispatch(addIntervalSheet(
+      dispatch(addIntervalSheet(
         file,
         sheetId,
         DEFAULT_THUMB_COUNT, // use constant value instead of defaultThumbCount
@@ -1798,17 +1797,17 @@ class App extends Component {
         settings.defaultCachedFramesSize,
         true, // limitToRange -> do not get more thumbs then between in and out available
       ));
-      store.dispatch(updateSheetName(file.id, sheetId, getNewSheetName(getSheetCount(files, file.id)))); // set name on file
-      store.dispatch(updateSheetCounter(file.id));
-      store.dispatch(updateSheetType(file.id, sheetId, SHEET_TYPE.INTERVAL));
-      store.dispatch(updateSheetParent(file.id, sheetId, parentSheetId));
+      dispatch(updateSheetName(file.id, sheetId, getNewSheetName(getSheetCount(files, file.id)))); // set name on file
+      dispatch(updateSheetCounter(file.id));
+      dispatch(updateSheetType(file.id, sheetId, SHEET_TYPE.INTERVAL));
+      dispatch(updateSheetParent(file.id, sheetId, parentSheetId));
     }
-    store.dispatch(updateSheetView(file.id, sheetId, SHEET_VIEW.GRIDVIEW));
-    store.dispatch(setCurrentSheetId(sheetId));
+    dispatch(updateSheetView(file.id, sheetId, SHEET_VIEW.GRIDVIEW));
+    dispatch(setCurrentSheetId(sheetId));
   }
 
   onAddThumbClick(file, existingThumb, insertWhere) {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     // get thumb left and right of existingThumb
     const indexOfAllThumbs = this.props.allThumbs.findIndex((thumb) => thumb.thumbId === existingThumb.thumbId);
     const indexOfVisibleThumbs = this.props.thumbs.findIndex((thumb) => thumb.thumbId === existingThumb.thumbId);
@@ -1820,7 +1819,7 @@ class App extends Component {
 
     const newThumbId = uuidV4();
     if (insertWhere === 'after') {
-      store.dispatch(addThumb(
+      dispatch(addThumb(
         this.props.file,
         this.props.settings.currentSheetId,
         newFrameNumberAfter,
@@ -1829,7 +1828,7 @@ class App extends Component {
         this.props.settings.defaultCachedFramesSize
       ));
     } else if (insertWhere === 'before') { // if shiftKey
-      store.dispatch(addThumb(
+      dispatch(addThumb(
         this.props.file,
         this.props.settings.currentSheetId,
         newFrameNumberBefore,
@@ -1847,10 +1846,10 @@ class App extends Component {
   }
 
   onJumpToCutSceneClick(file, thumbId, otherSceneIs) {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { allScenes, currentSheetId, sheetsByFileId, visibilitySettings } = this.props;
 
-    store.dispatch(setView(VIEW.PLAYERVIEW));
+    dispatch(setView(VIEW.PLAYERVIEW));
 
     // get all scenes
     let otherScene;
@@ -1885,14 +1884,14 @@ class App extends Component {
   }
 
   onCutSceneClick(frameToCut) {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { allScenes, currentSheetId, file, thumbs } = this.props;
 
     const scene = getSceneFromFrameNumber(allScenes, frameToCut);
 
     // only cut if there isn't already a cut
     if (frameToCut !== scene.start) {
-      store.dispatch(cutScene(thumbs, allScenes, file, currentSheetId, scene, frameToCut));
+      dispatch(cutScene(thumbs, allScenes, file, currentSheetId, scene, frameToCut));
     } else {
       const message = 'There is already a cut';
       log.debug(message);
@@ -1901,13 +1900,13 @@ class App extends Component {
   }
 
   onMergeSceneClick(frameToCut) {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { allScenes, currentSheetId, file, thumbs } = this.props;
 
     const adjacentSceneIndicesArray = getAdjacentSceneIndicesFromCut(allScenes, frameToCut);
     // console.log(adjacentSceneIndicesArray);
     if (adjacentSceneIndicesArray.length === 2) {
-      store.dispatch(mergeScenes(thumbs, allScenes, file, currentSheetId, adjacentSceneIndicesArray));
+      dispatch(mergeScenes(thumbs, allScenes, file, currentSheetId, adjacentSceneIndicesArray));
     }
     const firstSceneId = allScenes[adjacentSceneIndicesArray[0]].sceneId;
     // console.log(firstSceneId);
@@ -1952,7 +1951,7 @@ class App extends Component {
   }
 
   onScrubWindowClick(e, sheetType) {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { file, settings, thumbs } = this.props;
     const { state } = this;
 
@@ -1980,7 +1979,7 @@ class App extends Component {
         if (state.keyObject.altKey || state.keyObject.shiftKey) {
           const newThumbId = uuidV4();
           if (state.keyObject.altKey) {
-            store.dispatch(addThumb(
+            dispatch(addThumb(
               file,
               settings.currentSheetId,
               scrubFrameNumber,
@@ -1989,7 +1988,7 @@ class App extends Component {
               settings.defaultCachedFramesSize,
             ));
           } else { // if shiftKey
-            store.dispatch(addThumb(
+            dispatch(addThumb(
               file,
               settings.currentSheetId,
               scrubFrameNumber,
@@ -2010,13 +2009,13 @@ class App extends Component {
   }
 
   onChangeThumb(file, sheetId, thumbId, frameNumber, defaultCachedFramesSize) {
-    const { store } = this.context;
-    store.dispatch(changeThumb(sheetId, file, thumbId, frameNumber, defaultCachedFramesSize));
+  const { dispatch } = this.props;
+    dispatch(changeThumb(sheetId, file, thumbId, frameNumber, defaultCachedFramesSize));
   }
 
   onAddThumb(file, sheetId, newThumbId, frameNumber, index, defaultCachedFramesSize) {
-    const { store } = this.context;
-    store.dispatch(addThumb(
+  const { dispatch } = this.props;
+    dispatch(addThumb(
       file,
       sheetId,
       frameNumber,
@@ -2027,13 +2026,13 @@ class App extends Component {
   }
 
   onViewToggle() {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     if (this.props.visibilitySettings.defaultView === VIEW.STANDARDVIEW) {
       this.hideSettings();
       this.hideMovielist();
-      store.dispatch(setView(VIEW.PLAYERVIEW));
+      dispatch(setView(VIEW.PLAYERVIEW));
     } else {
-      store.dispatch(setView(VIEW.STANDARDVIEW));
+      dispatch(setView(VIEW.STANDARDVIEW));
     }
   }
 
@@ -2136,30 +2135,30 @@ class App extends Component {
   }
 
   onAddIntervalSheet(sheetsByFileId, fileId, settings, thumbCount = undefined, columnCount = undefined) {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { files } = this.props;
 
     const newSheetId = uuidV4();
     // set columnCount as it is not defined yet
     this.getThumbsForFile(fileId, newSheetId, thumbCount);
     const newColumnCount = columnCount || getColumnCount(sheetsByFileId, fileId, newSheetId, settings);
-    store.dispatch(updateSheetColumnCount(fileId, newSheetId, newColumnCount));
-    store.dispatch(updateSheetName(fileId, newSheetId, getNewSheetName(getSheetCount(files, fileId))));
-    store.dispatch(updateSheetCounter(fileId));
-    store.dispatch(updateSheetType(fileId, newSheetId, SHEET_TYPE.INTERVAL));
-    store.dispatch(updateSheetView(fileId, newSheetId, SHEET_VIEW.GRIDVIEW));
+    dispatch(updateSheetColumnCount(fileId, newSheetId, newColumnCount));
+    dispatch(updateSheetName(fileId, newSheetId, getNewSheetName(getSheetCount(files, fileId))));
+    dispatch(updateSheetCounter(fileId));
+    dispatch(updateSheetType(fileId, newSheetId, SHEET_TYPE.INTERVAL));
+    dispatch(updateSheetView(fileId, newSheetId, SHEET_VIEW.GRIDVIEW));
     return newSheetId;
   }
 
   onAddIntervalSheetClick(fileId = undefined, thumbCount = undefined, columnCount = undefined) {
     // log.debug(`FileListElement clicked: ${file.name}`);
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { currentFileId, sheetsByFileId, settings, visibilitySettings } = this.props;
 
     // if fileId is undefined then use currentFileId
     const theFileId = fileId || currentFileId;
 
-    store.dispatch(setCurrentFileId(theFileId));
+    dispatch(setCurrentFileId(theFileId));
 
     const newSheetId = this.onAddIntervalSheet(sheetsByFileId, theFileId, settings, thumbCount, columnCount);
 
@@ -2170,10 +2169,10 @@ class App extends Component {
 
   onFileListElementClick(fileId) {
     // log.debug(`FileListElement clicked: ${file.name}`);
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { sheetsByFileId, settings, visibilitySettings } = this.props;
 
-    store.dispatch(setCurrentFileId(fileId));
+    dispatch(setCurrentFileId(fileId));
 
     let newSheetId = getSheetId(sheetsByFileId, fileId);
 
@@ -2208,20 +2207,20 @@ class App extends Component {
   }
 
   onErrorPosterFrame(file) {
-    const { store } = this.context;
-    // store.dispatch(updateThumbObjectUrlFromDB(file.id, undefined, undefined, file.posterFrameId, true));
+  const { dispatch } = this.props;
+    // dispatch(updateThumbObjectUrlFromDB(file.id, undefined, undefined, file.posterFrameId, true));
   }
 
   getThumbsForFile(fileId, newSheetId = uuidV4(), thumbCount = this.props.settings.defaultThumbCount) {
     log.debug(`inside getThumbsForFileId: ${fileId}`);
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { files, sheetsByFileId, settings } = this.props;
     const file = files.find(file2 =>file2.id === fileId);
     if (sheetsByFileId[fileId] === undefined ||
     sheetsByFileId[fileId][newSheetId] === undefined ||
     sheetsByFileId[fileId][newSheetId].thumbsArray === undefined) {
       log.debug(`addIntervalSheet as no thumbs were found for: ${file.name}`);
-      store.dispatch(addIntervalSheet(
+      dispatch(addIntervalSheet(
           file,
           newSheetId,
           thumbCount,
@@ -2264,58 +2263,58 @@ class App extends Component {
   };
 
   onChangeColumn = (value) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const tempRowCount = Math.ceil(this.state.thumbCountTemp / this.state.columnCountTemp);
     this.setState({ columnCountTemp: value });
     if (this.state.reCapture) {
       this.setState({ thumbCountTemp: tempRowCount * value });
     }
     if (this.props.file !== undefined) {
-      store.dispatch(updateSheetColumnCount(
+      dispatch(updateSheetColumnCount(
         this.props.file.id,
         this.props.currentSheetId,
         value,
       ));
-      store.dispatch(setDefaultColumnCount(value));
+      dispatch(setDefaultColumnCount(value));
     }
     this.updateScaleValue();
   };
 
   onChangeColumnAndApply = (value) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     this.setState({
       columnCountTemp: value,
       columnCount: value
     });
     if (this.props.file !== undefined) {
-      store.dispatch(updateSheetColumnCount(
+      dispatch(updateSheetColumnCount(
         this.props.file.id,
         this.props.currentSheetId,
         value,
       ));
-      store.dispatch(setDefaultColumnCount(value));
+      dispatch(setDefaultColumnCount(value));
     }
     this.updateScaleValue();
   };
 
   onShowPaperPreviewClick = (checked) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultShowPaperPreview(checked));
+  const { dispatch } = this.props;
+    dispatch(setDefaultShowPaperPreview(checked));
   };
 
   onOutputPathFromMovieClick = (checked) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultOutputPathFromMovie(checked));
+  const { dispatch } = this.props;
+    dispatch(setDefaultOutputPathFromMovie(checked));
   };
 
   onPaperAspectRatioClick = (value) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultPaperAspectRatioInv(value));
+  const { dispatch } = this.props;
+    dispatch(setDefaultPaperAspectRatioInv(value));
   };
 
   onDetectInOutPointClick = (value) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultDetectInOutPoint(value));
+  const { dispatch } = this.props;
+    dispatch(setDefaultDetectInOutPoint(value));
   };
 
   onReCaptureClick = (checked) => {
@@ -2331,7 +2330,7 @@ class App extends Component {
   };
 
   onApplyNewGridClick = () => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     // log.debug(`${this.state.columnCount} : ${this.state.columnCountTemp} || ${this.state.thumbCount} : ${this.state.thumbCountTemp}`);
     this.setState({ columnCount: this.state.columnCountTemp });
     if (this.state.reCapture) {
@@ -2339,7 +2338,7 @@ class App extends Component {
       this.onThumbCountChange(this.state.columnCountTemp, this.state.thumbCountTemp);
     }
     if (this.props.file !== undefined) {
-      store.dispatch(updateSheetColumnCount(
+      dispatch(updateSheetColumnCount(
         this.props.file.id,
         this.props.currentSheetId,
         this.state.columnCountTemp,
@@ -2357,11 +2356,11 @@ class App extends Component {
   };
 
   onThumbCountChange = (columnCount, thumbCount) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultColumnCount(columnCount));
-    store.dispatch(setDefaultThumbCount(thumbCount));
+  const { dispatch } = this.props;
+    dispatch(setDefaultColumnCount(columnCount));
+    dispatch(setDefaultThumbCount(thumbCount));
     if (this.props.currentFileId !== undefined) {
-      store.dispatch(addIntervalSheet(
+      dispatch(addIntervalSheet(
         this.props.file,
         this.props.settings.currentSheetId,
         thumbCount,
@@ -2381,8 +2380,8 @@ class App extends Component {
   };
 
   onChangeMinDisplaySceneLength = (value) => {
-    const { store } = this.context;
-    store.dispatch(
+  const { dispatch } = this.props;
+    dispatch(
       setDefaultTimelineViewMinDisplaySceneLengthInFrames(
         Math.round(
           value * this.props.file.fps
@@ -2392,106 +2391,106 @@ class App extends Component {
   };
 
   onChangeMargin = (value) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultMarginRatio(value /
-        store.getState().undoGroup.present.settings.defaultMarginSliderFactor));
+  const { dispatch, settings } = this.props;
+    dispatch(setDefaultMarginRatio(value /
+        settings.defaultMarginSliderFactor));
   };
 
   onChangeFrameinfoScale = (value) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultFrameinfoScale(value));
+  const { dispatch } = this.props;
+    dispatch(setDefaultFrameinfoScale(value));
   };
 
   onChangeFrameinfoMargin = (value) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultFrameinfoMargin(value));
+  const { dispatch } = this.props;
+    dispatch(setDefaultFrameinfoMargin(value));
   };
 
   onChangeSceneDetectionThreshold = (value) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultSceneDetectionThreshold(value));
+  const { dispatch } = this.props;
+    dispatch(setDefaultSceneDetectionThreshold(value));
   };
 
   onChangeTimelineViewSecondsPerRow = (value) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { file, currentSheetId } = this.props;
 
     if (file !== undefined) {
-      store.dispatch(updateSheetSecondsPerRow(
+      dispatch(updateSheetSecondsPerRow(
         file.id,
         currentSheetId,
         value,
       ));
     }
-    store.dispatch(setDefaultTimelineViewSecondsPerRow(value));
+    dispatch(setDefaultTimelineViewSecondsPerRow(value));
   };
 
   onChangeTimelineViewWidthScale = (value) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultTimelineViewWidthScale(value));
+  const { dispatch } = this.props;
+    dispatch(setDefaultTimelineViewWidthScale(value));
   };
 
   onTimelineViewFlowClick = (value) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultTimelineViewFlow(value));
+  const { dispatch } = this.props;
+    dispatch(setDefaultTimelineViewFlow(value));
   };
 
   onToggleHeaderClick = (value) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     if (value === undefined) {
       const { settings } = this.props;
       const { defaultShowHeader } = settings;
-      store.dispatch(setDefaultShowHeader(!defaultShowHeader));
+      dispatch(setDefaultShowHeader(!defaultShowHeader));
     } else {
-      store.dispatch(setDefaultShowHeader(value));
+      dispatch(setDefaultShowHeader(value));
     }
   };
 
   onToggleImagesClick = (value) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     if (value === undefined) {
       const { settings } = this.props;
       const { defaultShowImages } = settings;
-      store.dispatch(setDefaultShowImages(!defaultShowImages));
+      dispatch(setDefaultShowImages(!defaultShowImages));
     } else {
-      store.dispatch(setDefaultShowImages(value));
+      dispatch(setDefaultShowImages(value));
     }
   };
 
   onShowPathInHeaderClick = (value) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultShowPathInHeader(value));
+  const { dispatch } = this.props;
+    dispatch(setDefaultShowPathInHeader(value));
   };
 
   onShowDetailsInHeaderClick = (value) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultShowDetailsInHeader(value));
+  const { dispatch } = this.props;
+    dispatch(setDefaultShowDetailsInHeader(value));
   };
 
   onShowTimelineInHeaderClick = (value) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultShowTimelineInHeader(value));
+  const { dispatch } = this.props;
+    dispatch(setDefaultShowTimelineInHeader(value));
   };
 
   onRoundedCornersClick = (value) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultRoundedCorners(value));
+  const { dispatch } = this.props;
+    dispatch(setDefaultRoundedCorners(value));
   };
 
   onMoviePrintBackgroundColorClick = (colorLocation, color) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     switch (colorLocation) {
       case 'moviePrintBackgroundColor':
-        store.dispatch(setDefaultMoviePrintBackgroundColor(color));
+        dispatch(setDefaultMoviePrintBackgroundColor(color));
         break;
       case 'frameninfoBackgroundColor':
-        store.dispatch(setDefaultFrameinfoBackgroundColor(color));
+        dispatch(setDefaultFrameinfoBackgroundColor(color));
         break;
       case 'frameinfoColor':
-        store.dispatch(setDefaultFrameinfoColor(color));
+        dispatch(setDefaultFrameinfoColor(color));
         break;
       default:
-        store.dispatch(setDefaultMoviePrintBackgroundColor(color));
+        dispatch(setDefaultMoviePrintBackgroundColor(color));
     }
   };
 
@@ -2508,47 +2507,47 @@ class App extends Component {
   };
 
   onToggleShowHiddenThumbsClick = () => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     if (this.props.visibilitySettings.visibilityFilter === 'SHOW_ALL') {
-      store.dispatch(setVisibilityFilter('SHOW_VISIBLE'));
+      dispatch(setVisibilityFilter('SHOW_VISIBLE'));
     } else {
-      store.dispatch(setVisibilityFilter('SHOW_ALL'));
+      dispatch(setVisibilityFilter('SHOW_ALL'));
     }
   };
 
   onSetSheetFitClick = (value) => {
-    const { store } = this.context;
-    store.dispatch(setSheetFit(value));
+  const { dispatch } = this.props;
+    dispatch(setSheetFit(value));
     // disable zoom
     this.disableZoom();
   };
 
   onShowHiddenThumbsClick = (value) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     if (value) {
-      store.dispatch(setVisibilityFilter('SHOW_ALL'));
+      dispatch(setVisibilityFilter('SHOW_ALL'));
     } else {
-      store.dispatch(setVisibilityFilter('SHOW_VISIBLE'));
+      dispatch(setVisibilityFilter('SHOW_VISIBLE'));
     }
   };
 
   onThumbInfoClick = (value) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultThumbInfo(value));
+  const { dispatch } = this.props;
+    dispatch(setDefaultThumbInfo(value));
   };
 
   onRemoveMovieListItem = (fileId) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { files } = this.props;
     if (files.length === 1) {
-      store.dispatch(hideMovielist());
+      dispatch(hideMovielist());
     }
-    store.dispatch(removeMovieListItem(fileId));
-    // store.dispatch(setCurrentSheetId(newSheetId));
+    dispatch(removeMovieListItem(fileId));
+    // dispatch(setCurrentSheetId(newSheetId));
   };
 
   onEditTransformListItemClick = (fileId) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { files } = this.props;
     const file = files.find(file2 => file2.id === fileId);
     const { transformObject = {cropTop: 0, cropBottom: 0, cropLeft: 0, cropRight: 0} } = file; // initialise if undefined
@@ -2559,11 +2558,11 @@ class App extends Component {
   };
 
   onChangeTransform = (e) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { transformObject } = this.state;
     const { cropTop, cropBottom, cropLeft, cropRight } = e.target;
     // console.log(typeof cropTop.value);
-    store.dispatch(
+    dispatch(
       updateCropping(
         transformObject.fileId,
         parseInt(cropTop.value, 10),
@@ -2589,7 +2588,7 @@ class App extends Component {
   };
 
   onReplaceMovieListItemClick = (fileId) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { files, settings, sheetsByFileId } = this.props;
     const file = files.find((file1) => file1.id === fileId);
     const { path: originalFilePath, lastModified: lastModifiedOfPrevious} = file;
@@ -2607,7 +2606,7 @@ class App extends Component {
       log.debug(newFilePath);
       const fileName = path.basename(newFilePath);
       const { lastModified, size}  = getFileStatsObject(newFilePath);
-      store.dispatch(replaceFileDetails(fileId, newFilePath, fileName, size, lastModified));
+      dispatch(replaceFileDetails(fileId, newFilePath, fileName, size, lastModified));
 
       // change video for videoPlayer to the new one
       try {
@@ -2619,11 +2618,11 @@ class App extends Component {
       }
 
       // // change fileScanStatus
-      // store.dispatch(updateFileScanStatus(fileId, false));
+      // dispatch(updateFileScanStatus(fileId, false));
       // // remove entries from frameScanList sqlite3
       // deleteFileIdFromFrameScanList(fileId);
 
-      store.dispatch(updateFileMissingStatus(fileId, false));
+      dispatch(updateFileMissingStatus(fileId, false));
 
 
       // use lastModified as indicator if the movie which will be replaced existed
@@ -2648,7 +2647,7 @@ class App extends Component {
   };
 
   onDuplicateSheetClick = (fileId, sheetId) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { currentFileId, currentSheetId, files, settings, sheetsByFileId } = this.props;
 
     // if fileId  and or sheetId are undefined then use currentFileId and or currentSheetId
@@ -2656,15 +2655,15 @@ class App extends Component {
     const theSheetId = sheetId || currentSheetId;
 
     const newSheetId = uuidV4();
-    store.dispatch(duplicateSheet(theFileId, theSheetId, newSheetId));
-    store.dispatch(updateSheetName(theFileId, newSheetId, getNewSheetName(getSheetCount(files, theFileId)))); // set name on firstFile
-    store.dispatch(updateSheetCounter(theFileId));
-    store.dispatch(setCurrentSheetId(newSheetId));
+    dispatch(duplicateSheet(theFileId, theSheetId, newSheetId));
+    dispatch(updateSheetName(theFileId, newSheetId, getNewSheetName(getSheetCount(files, theFileId)))); // set name on firstFile
+    dispatch(updateSheetCounter(theFileId));
+    dispatch(setCurrentSheetId(newSheetId));
 
     // if interval scene then create artificial sceneArray
     if (getSheetType(sheetsByFileId, theFileId, newSheetId, settings) === SHEET_TYPE.INTERVAL) {
       const sceneArray = createSceneArray(sheetsByFileId, theFileId, newSheetId);
-      store.dispatch(updateSceneArray(theFileId, newSheetId, sceneArray));
+      dispatch(updateSceneArray(theFileId, newSheetId, sceneArray));
     }
   };
 
@@ -2717,7 +2716,7 @@ ${exportObject}`;
   };
 
   onImportMoviePrint = (filePath = undefined) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { files, settings } = this.props;
     log.debug('onImportMoviePrint');
 
@@ -2801,21 +2800,21 @@ ${exportObject}`;
             fileMissingStatus: lastModified === undefined, // if lastModified is undefined than file missing
             posterFrameId,
           };
-          store.dispatch({
+          dispatch({
             type: 'ADD_MOVIE_LIST_ITEMS',
             payload: [fileToAdd],
           });
           if (transformObject !== undefined) {
-            store.dispatch(setCropping(fileId, transformObject.cropTop, transformObject.cropBottom, transformObject.cropLeft, transformObject.cropRight));
+            dispatch(setCropping(fileId, transformObject.cropTop, transformObject.cropBottom, transformObject.cropLeft, transformObject.cropRight));
           }
-          store.dispatch(addNewThumbsWithOrder(fileToAdd, sheetId, frameNumberArray, settings.defaultCachedFramesSize));
-          store.dispatch(updateSheetName(fileId, sheetId, getNewSheetName(getSheetCount(files, fileId)))); // set name on file
-          store.dispatch(updateSheetCounter(fileId));
-          store.dispatch(updateSheetColumnCount(fileId, sheetId, columnCount));
-          store.dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.INTERVAL));
-          store.dispatch(updateSheetView(fileId, sheetId, SHEET_VIEW.GRIDVIEW));
-          store.dispatch(setCurrentSheetId(sheetId));
-          store.dispatch(setCurrentFileId(fileId));
+          dispatch(addNewThumbsWithOrder(fileToAdd, sheetId, frameNumberArray, settings.defaultCachedFramesSize));
+          dispatch(updateSheetName(fileId, sheetId, getNewSheetName(getSheetCount(files, fileId)))); // set name on file
+          dispatch(updateSheetCounter(fileId));
+          dispatch(updateSheetColumnCount(fileId, sheetId, columnCount));
+          dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.INTERVAL));
+          dispatch(updateSheetView(fileId, sheetId, SHEET_VIEW.GRIDVIEW));
+          dispatch(setCurrentSheetId(sheetId));
+          dispatch(setCurrentFileId(fileId));
           ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', fileId, newFilePath, posterFrameId, false, true);
         } else {
           this.showMessage('No fitting data found or embedded', 3000, 'error');
@@ -2840,45 +2839,45 @@ ${exportObject}`;
   };
 
   onClearMovieList = () => {
-    const { store } = this.context;
-    store.dispatch(setView(VIEW.STANDARDVIEW));
-    store.dispatch(clearMovieList());
-    store.dispatch(hideMovielist());
-    store.dispatch(hideSettings());
+  const { dispatch } = this.props;
+    dispatch(setView(VIEW.STANDARDVIEW));
+    dispatch(clearMovieList());
+    dispatch(hideMovielist());
+    dispatch(hideSettings());
   };
 
   onDeleteSheetClick = (fileId, sheetId) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { currentSheetId, sheetsByFileId } = this.props;
-    store.dispatch(deleteSheets(fileId, sheetId));
+    dispatch(deleteSheets(fileId, sheetId));
     // if the currentSheet is deleted then switch to the first sheet of the file
     if (currentSheetId === sheetId) {
       const newSheetId = getSheetId(sheetsByFileId, fileId);
-      store.dispatch(setCurrentSheetId(newSheetId));
+      dispatch(setCurrentSheetId(newSheetId));
     }
   };
 
   onSetSheetClick = (fileId, sheetId, sheetView) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { currentFileId } = this.props;
     if (fileId !== currentFileId) {
-      store.dispatch(setCurrentFileId(fileId));
+      dispatch(setCurrentFileId(fileId));
     }
-    store.dispatch(setCurrentSheetId(sheetId));
+    dispatch(setCurrentSheetId(sheetId));
     if (sheetView === SHEET_VIEW.TIMELINEVIEW) {
       this.onReCaptureClick(false);
     }
-    store.dispatch(setDefaultSheetView(sheetView));
+    dispatch(setDefaultSheetView(sheetView));
   };
 
   onSubmitMoviePrintNameClick = (fileId, sheetId, newName) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
 
-    store.dispatch(updateSheetName(fileId, sheetId, newName));
+    dispatch(updateSheetName(fileId, sheetId, newName));
   };
 
   onChangeSheetViewClick = (fileId, sheetId, sheetView) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { currentFileId, currentSheetId, sheetsByFileId, settings } = this.props;
 
     // if fileId  and or sheetId are undefined then use currentFileId and or currentSheetId
@@ -2889,9 +2888,9 @@ ${exportObject}`;
     const sheetType = getSheetType(sheetsByFileId, theFileId, theSheetId, settings);
     if (sheetType === SHEET_TYPE.INTERVAL) {
       const sceneArray = createSceneArray(sheetsByFileId, theFileId, theSheetId);
-      store.dispatch(updateSceneArray(theFileId, theSheetId, sceneArray));
+      dispatch(updateSceneArray(theFileId, theSheetId, sceneArray));
     }
-    store.dispatch(updateSheetView(theFileId, theSheetId, sheetView));
+    dispatch(updateSheetView(theFileId, theSheetId, sheetView));
 
     if (sheetView === SHEET_VIEW.TIMELINEVIEW) {
       this.onReCaptureClick(false);
@@ -2911,7 +2910,7 @@ ${exportObject}`;
   };
 
   setOrToggleDefaultSheetView = (sheetView = undefined) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { visibilitySettings } = this.props;
     let newSheetView = sheetView;
     if (newSheetView === undefined) {
@@ -2921,11 +2920,11 @@ ${exportObject}`;
         newSheetView = SHEET_VIEW.GRIDVIEW;
       }
     }
-    store.dispatch(setDefaultSheetView(newSheetView));
+    dispatch(setDefaultSheetView(newSheetView));
   };
 
   onSetViewClick = (value) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const { currentFileId, currentSheetId, scenes, sheetsByFileId, settings } = this.props;
 
     if (value === VIEW.PLAYERVIEW) {
@@ -2937,102 +2936,102 @@ ${exportObject}`;
     // a cut mode (timelineview) in playerview
     const sheetType = getSheetType(sheetsByFileId, currentFileId, currentSheetId, settings);
     if (sheetType === SHEET_TYPE.INTERVAL) {
-      store.dispatch(setDefaultSheetView(SHEET_VIEW.GRIDVIEW));
+      dispatch(setDefaultSheetView(SHEET_VIEW.GRIDVIEW));
     }
     // remove selection when switching back to standard view
     if (value === VIEW.STANDARDVIEW) {
       this.onDeselectThumbMethod();
     }
-    store.dispatch(setView(value));
+    dispatch(setView(value));
 
   };
 
   onChangeDefaultMoviePrintName = (value) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     // log.debug(value);
-    store.dispatch(setDefaultMoviePrintName(value));
+    dispatch(setDefaultMoviePrintName(value));
   };
 
   onChangeDefaultSingleThumbName = (value) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     // log.debug(value);
-    store.dispatch(setDefaultSingleThumbName(value));
+    dispatch(setDefaultSingleThumbName(value));
   };
 
   onChangeDefaultAllThumbsName = (value) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     // log.debug(value);
-    store.dispatch(setDefaultAllThumbsName(value));
+    dispatch(setDefaultAllThumbsName(value));
   };
 
   onChangeOutputPathClick = () => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const newPathArray = dialog.showOpenDialog({
       properties: ['openDirectory']
     });
     const newPath = (newPathArray !== undefined ? newPathArray[0] : undefined);
     if (newPath) {
       // log.debug(newPath);
-      store.dispatch(setDefaultOutputPath(newPath));
+      dispatch(setDefaultOutputPath(newPath));
     }
   };
 
   onOutputFormatClick = (value) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     // log.debug(value);
-    store.dispatch(setDefaultOutputFormat(value));
+    dispatch(setDefaultOutputFormat(value));
   };
 
   onFrameinfoPositionClick = (value) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     // log.debug(value);
-    store.dispatch(setDefaultFrameinfoPosition(value));
+    dispatch(setDefaultFrameinfoPosition(value));
   };
 
   onCachedFramesSizeClick = (value) => {
-    const { store } = this.context;
+  const { dispatch } = this.props;
     // log.debug(value);
-    store.dispatch(setDefaultCachedFramesSize(value));
+    dispatch(setDefaultCachedFramesSize(value));
   };
 
   onOverwriteClick = (value) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultSaveOptionOverwrite(value));
+  const { dispatch } = this.props;
+    dispatch(setDefaultSaveOptionOverwrite(value));
   };
 
   onIncludeIndividualClick = (value) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultSaveOptionIncludeIndividual(value));
+  const { dispatch } = this.props;
+    dispatch(setDefaultSaveOptionIncludeIndividual(value));
   };
 
   onEmbedFrameNumbersClick = (value) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultEmbedFrameNumbers(value));
+  const { dispatch } = this.props;
+    dispatch(setDefaultEmbedFrameNumbers(value));
   };
 
   onEmbedFilePathClick = (value) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultEmbedFilePath(value));
+  const { dispatch } = this.props;
+    dispatch(setDefaultEmbedFilePath(value));
   };
 
   onOpenFileExplorerAfterSavingClick = (value) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultOpenFileExplorerAfterSaving(value));
+  const { dispatch } = this.props;
+    dispatch(setDefaultOpenFileExplorerAfterSaving(value));
   };
 
   onThumbnailScaleClick = (value) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultThumbnailScale(value));
+  const { dispatch } = this.props;
+    dispatch(setDefaultThumbnailScale(value));
   };
 
   onMoviePrintWidthClick = (value) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultMoviePrintWidth(value));
+  const { dispatch } = this.props;
+    dispatch(setDefaultMoviePrintWidth(value));
   };
 
   onShotDetectionMethodClick = (value) => {
-    const { store } = this.context;
-    store.dispatch(setDefaultShotDetectionMethod(value));
+  const { dispatch } = this.props;
+    dispatch(setDefaultShotDetectionMethod(value));
   };
 
   updateOpencvVideoCanvas(currentFrame) {
@@ -3067,7 +3066,7 @@ ${exportObject}`;
       objectUrlObjects,
       scaleValueObject
     } = this.state;
-    const { store } = this.context;
+  const { dispatch } = this.props;
     const {
       allScenes,
       allThumbs,
@@ -3456,6 +3455,7 @@ ${exportObject}`;
                             view={visibilitySettings.defaultView}
                             currentSheetId={settings.currentSheetId}
                             settings={settings}
+                            sheetsByFileId={sheetsByFileId}
                             file={file}
                             inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
                             keyObject={this.state.keyObject}
@@ -3498,6 +3498,7 @@ ${exportObject}`;
                             sheetType={sheetType}
                             view={visibilitySettings.defaultView}
                             file={file}
+                            sheetsByFileId={sheetsByFileId}
                             currentSheetId={settings.currentSheetId}
                             frameCount={file ? file.frameCount : undefined}
                             inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
@@ -3579,7 +3580,7 @@ ${exportObject}`;
                           const rememberEmail = event.args[0].findIndex((argument) => argument.name === 'checkbox-remember-email[]') >= 0;
                           if (rememberEmail) {
                             const emailAddressFromForm = event.args[0].find((argument) => argument.name === 'your-email').value;
-                            store.dispatch(setEmailAddress(emailAddressFromForm));
+                            dispatch(setEmailAddress(emailAddressFromForm));
                           }
                           this.onCloseFeedbackForm();
                         }
@@ -3879,6 +3880,7 @@ App.defaultProps = {
 };
 
 App.propTypes = {
+  dispatch: PropTypes.func.isRequired,
   currentFileId: PropTypes.string,
   currentSheetId: PropTypes.string,
   file: PropTypes.shape({

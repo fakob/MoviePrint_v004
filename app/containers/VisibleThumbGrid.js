@@ -30,11 +30,6 @@ class SortedVisibleThumbGrid extends Component {
     this.onSelectClick = this.onSelectClick.bind(this);
   }
 
-  componentWillMount() {
-    const { store } = this.context;
-    this.unsubscribe = store.subscribe(() => this.forceUpdate());
-  }
-
   componentDidMount() {
     setTimeout(() => {
       this.scrollThumbIntoView();
@@ -58,31 +53,10 @@ class SortedVisibleThumbGrid extends Component {
     }
   }
 
-  componentWillUnmount() {
-    this.unsubscribe();
-  }
-
   onSortStart = () => {
     this.setState({
       isSorting: true,
     });
-  };
-
-  onSortEnd = ({ oldIndex, newIndex }) => {
-    const { store } = this.context;
-    const { currentSheetId } = this.props;
-
-    this.setState({
-      isSorting: false,
-    });
-    const newOrderedThumbs = arrayMove(store.getState().undoGroup.present
-      .sheetsByFileId[store.getState().undoGroup.present.settings.currentFileId][currentSheetId].thumbsArray,
-      oldIndex,
-      newIndex);
-    store.dispatch(updateOrder(
-      store.getState().undoGroup.present.settings.currentFileId,
-      currentSheetId,
-      newOrderedThumbs));
   };
 
   onSelectClick = (thumbId, frameNumber) => {
@@ -131,6 +105,7 @@ class SortedVisibleThumbGrid extends Component {
       onOutPointClick,
       onSaveThumbClick,
       onScrubClick,
+      onSortEnd,
       onThumbDoubleClick,
       onToggleClick,
       scaleValueObject,
@@ -198,34 +173,35 @@ class SortedVisibleThumbGrid extends Component {
         onSortStart={
           this.onSortStart.bind(this)
         }
-        onSortEnd={
-          this.onSortEnd.bind(this)
-        }
+        onSortEnd={(sort) => {
+          this.setState({
+            isSorting: false,
+          });
+          onSortEnd(sort);
+        }}
       />
     );
   }
 }
 
 const mapStateToProps = (state) => {
-  // const tempThumbs = (state.undoGroup.present
-  //   .sheetsByFileId[state.undoGroup.present.settings.currentFileId] === undefined)
-  //   ? undefined : state.undoGroup.present
-  //     .sheetsByFileId[state.undoGroup.present.settings.currentFileId].thumbs;
-  return {
-    // thumbs: getVisibleThumbs(
-    //   tempThumbs,
-    //   state.visibilitySettings.visibilityFilter
-    // ),
-    // files: state.undoGroup.present.files,
-    // file: state.undoGroup.present.files.find((file) =>
-    //   file.id === state.undoGroup.present.settings.currentFileId),
-    // settings: state.undoGroup.present.settings,
-    // visibilitySettings: state.visibilitySettings
-  };
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
+    onSortEnd: ({ oldIndex, newIndex }) => {
+      const { currentSheetId, settings, sheetsByFileId } = ownProps;
+      console.log(ownProps)
+      console.log(sheetsByFileId)
+      console.log(settings)
+      const newOrderedThumbs = arrayMove(sheetsByFileId[settings.currentFileId][currentSheetId].thumbsArray,
+        oldIndex,
+        newIndex);
+      dispatch(updateOrder(
+        settings.currentFileId,
+        currentSheetId,
+        newOrderedThumbs));
+    },
     onToggleClick: (fileId, thumbId) => {
       dispatch(toggleThumb(fileId, ownProps.currentSheetId, thumbId));
     },

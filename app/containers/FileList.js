@@ -9,14 +9,6 @@ import {
 import { MENU_HEADER_HEIGHT, MENU_FOOTER_HEIGHT } from '../utils/constants';
 
 class SortedFileList extends Component {
-  componentDidMount() {
-    const { store } = this.context;
-    this.unsubscribe = store.subscribe(() => this.forceUpdate());
-  }
-
-  componentWillUnmount() {
-    this.unsubscribe();
-  }
 
   render() {
     const { files, settings, posterobjectUrlObjects, visibilitySettings } = this.props;
@@ -75,9 +67,5 @@ class SortedFileList extends Component {
     );
   }
 }
-
-SortedFileList.contextTypes = {
-  store: PropTypes.object
-};
 
 export default SortedFileList;

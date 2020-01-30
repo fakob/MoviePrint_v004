@@ -25,11 +25,6 @@ class SortedVisibleSceneGrid extends Component {
     this.onDeselectClick = this.onDeselectClick.bind(this);
   }
 
-  componentWillMount() {
-    const { store } = this.context;
-    this.unsubscribe = store.subscribe(() => this.forceUpdate());
-  }
-
   componentDidMount() {
     setTimeout(() => {
       this.scrollThumbIntoView();
@@ -50,22 +45,6 @@ class SortedVisibleSceneGrid extends Component {
       }, 500);
     }
   }
-
-  componentWillUnmount() {
-    this.unsubscribe();
-  }
-
-  onSortEnd = ({ oldIndex, newIndex }) => {
-    const { store } = this.context;
-    const newOrderedThumbs = arrayMove(store.getState().undoGroup.present
-      .sheetsByFileId[store.getState().undoGroup.present.settings.currentFileId][store.getState().settings.currentSheetId].thumbsArray,
-      oldIndex,
-      newIndex);
-    store.dispatch(updateOrder(
-      store.getState().undoGroup.present.settings.currentFileId,
-      store.getState().settings.currentSheetId,
-      newOrderedThumbs));
-  };
 
   onSelectClick = (sceneId, frameNumber) => {
     this.props.onSelectThumbMethod(sceneId, frameNumber);
@@ -88,8 +67,6 @@ class SortedVisibleSceneGrid extends Component {
   };
 
   render() {
-    // const { store } = this.context;
-    // const state = store.getState();
     return (
       <SortableSceneGrid
         useBase64={this.props.useBase64}
@@ -130,21 +107,27 @@ class SortedVisibleSceneGrid extends Component {
         axis="xy"
         distance={1}
         helperClass={styles.whileDragging}
-        onSortEnd={
-          this.onSortEnd.bind(this)
-        }
+        onSortEnd={this.props.onSortEnd}
       />
     );
   }
 }
 
-const mapStateToProps = state => {
-  return {
-  };
+const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
+    onSortEnd: ({ oldIndex, newIndex }) => {
+      const { settings, sheetsByFileId } = ownProps;
+      const newOrderedThumbs = arrayMove(sheetsByFileId[settings.currentFileId][settings.currentSheetId].thumbsArray,
+        oldIndex,
+        newIndex);
+      dispatch(updateOrder(
+        settings.currentFileId,
+        settings.currentSheetId,
+        newOrderedThumbs));
+    },
     onToggleClick: (fileId, sceneId) => {
       dispatch(toggleScene(fileId, ownProps.settings.currentSheetId, sceneId));
     },
@@ -159,7 +142,6 @@ const mapDispatchToProps = (dispatch, ownProps) => {
 };
 
 SortedVisibleSceneGrid.contextTypes = {
-  store: PropTypes.object,
 };
 
 SortedVisibleSceneGrid.defaultProps = {
