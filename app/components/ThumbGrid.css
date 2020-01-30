@@ -121,6 +121,14 @@
   background-color: transparent;
 }
 
+.faceRectTag {
+  position: absolute;
+  /* border:2px solid #ff0000; */
+  margin-left: 4px;
+  font-size: 10px;
+  color: red;
+}
+
 .frameinfo {
   position: absolute;
   border-radius:2px;

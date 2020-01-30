@@ -47,6 +47,41 @@ const DragHandle = SortableHandle(({ width, height, thumbId }) =>
     />
   ));
 
+const AllFaces = ({facesArray, thumbWidth, thumbHeight}) =>
+  (
+    facesArray.map(face => (
+      <FaceRect
+        face={face}
+        thumbWidth={thumbWidth}
+        thumbHeight={thumbHeight}
+      />
+    ))
+  );
+
+const FaceRect = ({face, thumbWidth, thumbHeight}) =>
+  (
+    <React.Fragment>
+      <div
+        className={styles.faceRect}
+        style={{
+          width: `${face.box.width * thumbWidth}px`,
+          height: `${face.box.height * thumbHeight}px`,
+          left: `${face.box.x * thumbWidth}px`,
+          top: `${face.box.y * thumbHeight}px`,
+        }}
+      />
+      <div
+        className={styles.faceRectTag}
+        style={{
+          left: `${face.box.x * thumbWidth}px`,
+          top: `${face.box.y * thumbHeight}px`,
+        }}
+      >
+        {face.faceId}
+      </div>
+    </React.Fragment>
+  );
+
 const Thumb = ({
   aspectRatioInv,
   base64,
@@ -158,15 +193,11 @@ const Thumb = ({
         }}
       />
       {facesArray !== undefined &&
-        <div
-          className={styles.faceRect}
-          style={{
-            width: `${facesArray[0].box.width * thumbWidth}px`,
-            height: `${facesArray[0].box.height * thumbHeight}px`,
-            left: `${facesArray[0].box.x * thumbWidth}px`,
-            top: `${facesArray[0].box.y * thumbHeight}px`,
-          }}
-        />
+        <AllFaces
+          facesArray={facesArray}
+          thumbWidth={thumbWidth}
+          thumbHeight={thumbHeight}
+      />
       }
       {thumbInfoValue !== undefined &&
         <div

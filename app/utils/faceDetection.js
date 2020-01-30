@@ -1,6 +1,7 @@
 import path from 'path';
 import * as faceapi from 'face-api.js';
 import log from 'electron-log';
+// import * as tf from '@tensorflow/tfjs-node';
 
 import { setPosition } from './utils';
 import {
@@ -276,13 +277,16 @@ export const runSyncCaptureAndFaceDetect = async (vid, frameNumberArray, useRati
       if (true) { // false stands for keep original size
         matRescaled = matRGBA.resizeToMax(640);
       }
+      // const input = tf.node.decodeJpeg(matRescaled.getData());
+
       const input = document.getElementById('myCanvas');
       // console.log(input)
 
       input.height = matRescaled.rows;
       input.width = matRescaled.cols;
-      console.log(matRescaled.rows)
-      console.log(matRescaled.cols)
+      console.log(matRescaled.rows);
+      console.log(matRescaled.cols);
+
       const imgData = new ImageData(
         new Uint8ClampedArray(matRescaled.getData()),
         matRescaled.cols,
