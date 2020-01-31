@@ -1,7 +1,7 @@
 {
   "name": "MoviePrint_v004",
   "productName": "MoviePrint_v004",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "description": "A tool which lets you create screenshots of entire movies in an instant.",
   "main": "./main.prod.js",
   "author": {
@@ -20,7 +20,7 @@
   ],
   "homepage": "https://github.com/fakob/MoviePrint_v004#readme",
   "scripts": {
-    "electron-rebuild": "node -r babel-register ../internals/scripts/ElectronRebuild.js",
+    "electron-rebuild": "node -r ../internals/scripts/BabelRegister.js ../internals/scripts/ElectronRebuild.js",
     "postinstall": "yarn electron-rebuild -w opencv4nodejs,better-sqlite3"
   },
   "dependencies": {

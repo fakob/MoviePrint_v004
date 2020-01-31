@@ -1,4 +1,4 @@
-/* eslint global-require: 0, import/no-dynamic-require: 0 */
+/* eslint global-require: off, import/no-dynamic-require: off */
 
 /**
  * Builds the DLL for development electron renderer process
@@ -8,15 +8,15 @@ import webpack from 'webpack';
 import path from 'path';
 import merge from 'webpack-merge';
 import baseConfig from './webpack.config.base';
-import { dependencies } from './package.json';
-import CheckNodeEnv from './internals/scripts/CheckNodeEnv';
+import { dependencies } from '../package.json';
+import CheckNodeEnv from '../internals/scripts/CheckNodeEnv';
 
 CheckNodeEnv('development');
 
-const dist = path.resolve(process.cwd(), 'dll');
+const dist = path.join(__dirname, '..', 'dll');
 
 export default merge.smart(baseConfig, {
-  context: process.cwd(),
+  context: path.join(__dirname, '..'),
 
   devtool: 'eval',
 
@@ -27,9 +27,9 @@ export default merge.smart(baseConfig, {
   externals: ['fsevents', 'crypto-browserify'],
 
   /**
-   * Use `module` from `webpack.config.renderer.dev.js`
+   * Use `module` from `webpack.config.renderer.dev.babel.js`
    */
-  module: require('./webpack.config.renderer.dev').module,
+  module: require('./webpack.config.renderer.dev.babel').default.module,
 
   entry: {
     renderer: Object.keys(dependencies || {}).filter(
@@ -66,9 +66,9 @@ export default merge.smart(baseConfig, {
     new webpack.LoaderOptionsPlugin({
       debug: true,
       options: {
-        context: path.resolve(process.cwd(), 'app'),
+        context: path.join(__dirname, '..', 'app'),
         output: {
-          path: path.resolve(process.cwd(), 'dll')
+          path: path.join(__dirname, '..', 'dll')
         }
       }
     })

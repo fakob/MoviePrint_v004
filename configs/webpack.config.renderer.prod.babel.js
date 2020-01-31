@@ -8,9 +8,9 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import merge from 'webpack-merge';
-import UglifyJSPlugin from 'uglifyjs-webpack-plugin';
+import TerserPlugin from 'terser-webpack-plugin';
 import baseConfig from './webpack.config.base';
-import CheckNodeEnv from './internals/scripts/CheckNodeEnv';
+import CheckNodeEnv from '../internals/scripts/CheckNodeEnv';
 
 CheckNodeEnv('production');
 
@@ -70,8 +70,9 @@ export default merge.smart(baseConfig, {
           {
             loader: 'css-loader',
             options: {
-              modules: true,
-              localIdentName: '[name]__[local]__[hash:base64:5]',
+              modules: {
+                localIdentName: '[name]__[local]__[hash:base64:5]'
+              },
               sourceMap: true
             }
           }
@@ -109,9 +110,10 @@ export default merge.smart(baseConfig, {
           {
             loader: 'css-loader',
             options: {
-              modules: true,
+              modules: {
+                localIdentName: '[name]__[local]__[hash:base64:5]'
+              },
               importLoaders: 1,
-              localIdentName: '[name]__[local]__[hash:base64:5]',
               sourceMap: true
             }
           },
@@ -181,20 +183,23 @@ export default merge.smart(baseConfig, {
   },
 
   optimization: {
-    minimizer: [
-      new UglifyJSPlugin({
-        parallel: true,
-        sourceMap: true
-      }),
-      new OptimizeCSSAssetsPlugin({
-        cssProcessorOptions: {
-          map: {
-            inline: false,
-            annotation: true
+    minimizer: process.env.E2E_BUILD
+      ? []
+      : [
+        new TerserPlugin({
+          parallel: true,
+          sourceMap: true,
+          cache: true
+        }),
+        new OptimizeCSSAssetsPlugin({
+          cssProcessorOptions: {
+            map: {
+              inline: false,
+              annotation: true
+            }
           }
-        }
-      })
-    ]
+        })
+      ]
   },
 
   plugins: [

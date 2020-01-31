@@ -74,7 +74,9 @@ const configureStore = (initialState) => {
   if (module.hot) {
     module.hot.accept(
       '../reducers',
-      () => store.replaceReducer(require('../reducers')) // eslint-disable-line global-require
+      // eslint-disable-line global-require
+
+      () => store.replaceReducer(require('../reducers').default)
     );
   }
 
