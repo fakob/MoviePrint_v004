@@ -2592,7 +2592,7 @@ class App extends Component {
     const { files, settings, sheetsByFileId } = this.props;
     const file = files.find((file1) => file1.id === fileId);
     const { path: originalFilePath, lastModified: lastModifiedOfPrevious} = file;
-    const newPathArray = dialog.showOpenDialog({
+    const newPathArray = dialog.showOpenDialogSync({
       title: 'Replace movie',
       defaultPath: originalFilePath,
       buttonLabel: 'Replace with',
@@ -2704,7 +2704,7 @@ ${exportObject}`;
       outputPath,
       `${fileName}-${sheetName}.${exportType}`
     );
-    const newFilePathAndName = dialog.showSaveDialog({
+    const newFilePathAndName = dialog.showSaveDialogSync({
       defaultPath: filePathAndName,
       buttonLabel: 'Export',
       showsTagField: false,
@@ -2724,7 +2724,7 @@ ${exportObject}`;
 
     // skip dialog if filePath already available
     if (filePath === undefined) {
-      const newPathArray = dialog.showOpenDialog({
+      const newPathArray = dialog.showOpenDialogSync({
         filters: [
           { name: 'PNG or JSON', extensions: ['png', 'json'] },
         ],
@@ -2966,7 +2966,7 @@ ${exportObject}`;
 
   onChangeOutputPathClick = () => {
   const { dispatch } = this.props;
-    const newPathArray = dialog.showOpenDialog({
+    const newPathArray = dialog.showOpenDialogSync({
       properties: ['openDirectory']
     });
     const newPath = (newPathArray !== undefined ? newPathArray[0] : undefined);

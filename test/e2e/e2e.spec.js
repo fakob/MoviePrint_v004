@@ -117,7 +117,7 @@ describe('main window', function spec() {
 
   // it('should open a dialog', async () => {
   //   const { client } = this.app;
-  //   fakeDialog.mock([ { method: 'showOpenDialog', value: ['faked.txt'] } ])
+  //   fakeDialog.mock([ { method: 'showOpenDialogSync', value: ['faked.txt'] } ])
   //
   //   await client.click('[data-tid=openMoviesBtn]');
   //   const pathOfMovie = await client.getText('#return-value');

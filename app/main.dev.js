@@ -33,6 +33,8 @@ let indexedDBWorkerWindow = null;
 
 let appAboutToQuit = false;
 
+log.info(process.versions);
+
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
@@ -189,7 +191,8 @@ app.on('ready', async () => {
 
   workerWindow = new BrowserWindow({
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      webviewTag: true,
     }
   });
   workerWindow.hide();
