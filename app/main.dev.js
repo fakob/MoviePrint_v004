@@ -108,7 +108,7 @@ app.on('ready', async () => {
     width: 1366,
     height: 768,
     webPreferences: {
-      nodeintegration: 'true'
+      nodeIntegration: true
     }
   });
 
@@ -187,7 +187,11 @@ app.on('ready', async () => {
     }
   });
 
-  workerWindow = new BrowserWindow();
+  workerWindow = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true
+    }
+  });
   workerWindow.hide();
   // workerWindow.webContents.openDevTools();
   workerWindow.loadURL(`file://${__dirname}/worker.html`);
@@ -216,7 +220,11 @@ app.on('ready', async () => {
     log.warn(event);
   });
 
-  opencvWorkerWindow = new BrowserWindow();
+  opencvWorkerWindow = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true
+    }
+  });
   opencvWorkerWindow.hide();
   // opencvWorkerWindow.webContents.openDevTools();
   opencvWorkerWindow.loadURL(`file://${__dirname}/worker_opencv.html`);
@@ -245,7 +253,11 @@ app.on('ready', async () => {
     log.warn(event);
   });
 
-  indexedDBWorkerWindow = new BrowserWindow();
+  indexedDBWorkerWindow = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true
+    }
+  });
   indexedDBWorkerWindow.hide();
   // indexedDBWorkerWindow.webContents.openDevTools();
   indexedDBWorkerWindow.loadURL(`file://${__dirname}/worker_indexedDB.html`);
