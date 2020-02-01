@@ -23,12 +23,12 @@
     "package-all": "yarn build && electron-builder build -mwl",
     "package-linux": "yarn build && electron-builder build --linux",
     "package-win": "yarn build && electron-builder build --win --x64",
-    "postinstall": "node -r @babel/register internals/scripts/CheckNativeDep.js && yarn flow-typed && electron-builder install-app-deps package.json && yarn build-dll",
+    "postinstall": "node -r @babel/register internals/scripts/CheckNativeDep.js && yarn flow-typed && electron-builder install-app-deps && yarn build-dll",
     "postlint-fix": "prettier --ignore-path .eslintignore --single-quote --write '**/*.js'",
     "precommit": "lint-staged",
     "prestart": "yarn build",
     "start": "cross-env NODE_ENV=production electron ./app/main.prod.js",
-    "start-main-dev": "cross-env HOT=1 NODE_ENV=development LOG_LEVEL=debug electron --inspect=5858 -r @babel/register ./app/main.dev",
+    "start-main-dev": "cross-env START_HOT=1 NODE_ENV=development LOG_LEVEL=debug electron --inspect=5858 -r @babel/register ./app/main.dev",
     "start-renderer-dev": "cross-env NODE_ENV=development DEV_OPENCV_SCENE_DETECTION=true webpack-dev-server --config configs/webpack.config.renderer.dev.babel.js",
     "test": "cross-env NODE_ENV=test BABEL_DISABLE_CACHE=1 node -r @babel/register ./internals/scripts/RunTests.js",
     "test-all": "yarn lint && yarn flow && yarn build && yarn test && yarn test-e2e",
@@ -188,7 +188,7 @@
       "^.+\\.js$": "babel-jest"
     },
     "setupFiles": [
-      "./internals/scripts/CheckBuiltsExist.js"
+      "./internals/scripts/CheckBuildsExist.js"
     ]
   },
   "devDependencies": {
@@ -227,8 +227,8 @@
     "cross-spawn": "^7.0.1",
     "css-loader": "3.4.2",
     "detect-port": "^1.2.3",
-    "electron": "4.2.10",
-    "electron-builder": "^20.28.2",
+    "electron": "7.1.11",
+    "electron-builder": "^22.3.2",
     "electron-devtools-installer": "^2.2.4",
     "electron-rebuild": "^1.8.2",
     "enzyme": "^3.4.4",
@@ -269,7 +269,7 @@
     "rimraf": "^3.0.1",
     "sass-loader": "^8.0.2",
     "sinon": "^8.1.1",
-    "spectron": "6.0.0",
+    "spectron": "10.0.0",
     "style-loader": "^1.1.3",
     "stylefmt": "^6.0.2",
     "stylelint": "^13.0.0",
@@ -286,7 +286,7 @@
   "dependencies": {
     "@hot-loader/react-dom": "^16.11.0",
     "ajv": "^6.5.3",
-    "axios": "^0.18.0",
+    "axios": "^0.19.2",
     "chart.js": "^2.7.2",
     "compare-versions": "^3.4.0",
     "connected-react-router": "^6.6.1",
@@ -294,10 +294,12 @@
     "devtron": "^1.4.0",
     "dexie": "^2.0.1",
     "electron-chartjs": "^1.0.0",
-    "electron-debug": "^2.0.0",
-    "electron-log": "^3.0.6",
-    "electron-process-manager": "^0.6.0",
-    "electron-unhandled": "^1.1.0",
+    "electron-debug": "^3.0.1",
+    "electron-log": "^4.0.4",
+    "electron-process-manager": "^1.0.0",
+    "electron-unhandled": "^3.0.2",
+    "eslint-config-erb": "^0.3.0",
+    "eslint-plugin-prettier": "^3.1.2",
     "history": "^4.7.2",
     "html2canvas": "1.0.0-rc.5",
     "lodash": "^4.17.4",
@@ -326,7 +328,8 @@
     "semantic-ui-css": "^2.3.3",
     "semantic-ui-react": "^0.88.2",
     "shelljs": "^0.8.2",
-    "spectron-fake-dialog": "^0.0.1"
+    "spectron-fake-dialog": "^0.0.1",
+    "stylelint-config-prettier": "^8.0.1"
   },
   "optionalDependencies": {
     "7zip-bin-mac": "^1.0.1",

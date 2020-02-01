@@ -51,25 +51,25 @@ export default merge.smart(baseConfig, {
 
   entry: {
     renderer: [
-      'react-hot-loader/patch',
+      ...(process.env.PLAIN_HMR ? [] : ['react-hot-loader/patch']),
       `webpack-dev-server/client?http://localhost:${port}/`,
       'webpack/hot/only-dev-server',
       path.join(__dirname, '../app/index.js')
     ],
     worker: [
-      'react-hot-loader/patch',
+      ...(process.env.PLAIN_HMR ? [] : ['react-hot-loader/patch']),
       `webpack-dev-server/client?http://localhost:${port}/`,
       'webpack/hot/only-dev-server',
       path.join(__dirname, '../app/worker.js'),
     ],
     worker_opencv: [
-      'react-hot-loader/patch',
+      ...(process.env.PLAIN_HMR ? [] : ['react-hot-loader/patch']),
       `webpack-dev-server/client?http://localhost:${port}/`,
       'webpack/hot/only-dev-server',
       path.join(__dirname, '../app/worker_opencv.js'),
     ],
     worker_indexedDB: [
-      'react-hot-loader/patch',
+      ...(process.env.PLAIN_HMR ? [] : ['react-hot-loader/patch']),
       `webpack-dev-server/client?http://localhost:${port}/`,
       'webpack/hot/only-dev-server',
       path.join(__dirname, '../app/worker_indexedDB.js'),

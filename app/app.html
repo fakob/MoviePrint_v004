@@ -4,15 +4,15 @@
     <meta charset="utf-8">
     <title>MoviePrint</title>
     <script>
-      (function() {
-        if (!process.env.HOT) {
+      (() => {
+        if (!process.env.START_HOT) {
           const link = document.createElement('link');
           link.rel = 'stylesheet';
           link.href = './dist/renderer.css';
           // HACK: Writing the script path should be done with webpack
           document.getElementsByTagName('head')[0].appendChild(link);
         }
-      }());
+      })();
     </script>
   </head>
   <body>
@@ -30,8 +30,8 @@
         // Dynamically insert the bundled app script in the renderer process
         const port = process.env.PORT || 1212;
         scripts.push(
-          (process.env.HOT)
-            ? 'http://localhost:' + port + '/dist/renderer.dev.js'
+          process.env.START_HOT
+            ? `http://localhost:${port}/dist/renderer.dev.js`
             : './dist/renderer.prod.js'
         );
 

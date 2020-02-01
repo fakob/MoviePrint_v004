@@ -5,7 +5,7 @@ import electronPath from 'electron';
 import fakeDialog from 'spectron-fake-dialog';
 import path from 'path';
 import fs from 'fs';
-import '../../internals/scripts/CheckBuiltsExist';
+import '../../internals/scripts/CheckBuildsExist';
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
 
