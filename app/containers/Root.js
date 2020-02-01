@@ -1,6 +1,7 @@
 // @flow
-import React, { Component } from 'react';
+import React from 'react';
 import { Provider } from 'react-redux';
+import { hot } from 'react-hot-loader/root';
 import App from './App';
 import ErrorBoundary from '../components/ErrorBoundary';
 
@@ -9,15 +10,12 @@ type Props = {
   history: {}
 };
 
-export default class Root extends Component<Props> {
-  render() {
-    const { store, history } = this.props;
-    return (
-      <Provider store={store}>
-        <ErrorBoundary>
-          <App history={history} />
-        </ErrorBoundary>
-      </Provider>
-    );
-  }
-}
+const Root = ({ store, history }: Props) => (
+  <Provider store={store}>
+    <ErrorBoundary>
+      <App history={history} />
+    </ErrorBoundary>
+  </Provider>
+);
+
+export default hot(Root);

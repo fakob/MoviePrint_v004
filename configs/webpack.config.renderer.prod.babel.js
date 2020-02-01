@@ -22,23 +22,17 @@ export default merge.smart(baseConfig, {
   target: 'electron-renderer',
 
   entry: {
-    renderer: './app/index',
-    worker: './app/worker',
-    worker_opencv: './app/worker_opencv',
-    worker_indexedDB: './app/worker_indexedDB',
+    renderer: path.join(__dirname, '..', 'app/index'),
+    worker: path.join(__dirname, '..', 'app/worker'),
+    worker_opencv: path.join(__dirname, '..', 'app/worker_opencv'),
+    worker_indexedDB: path.join(__dirname, '..', 'app/worker_indexedDB')
   },
 
   output: {
-    filename: '[name].prod.js',
-    path: path.join(__dirname, 'app/dist'),
-    publicPath: './dist/'
+    path: path.join(__dirname, '..', 'app/dist'),
+    publicPath: './dist/',
+    filename: '[name].prod.js'
   },
-
-  // output: {
-  //   path: path.join(__dirname, 'app/dist'),
-  //   publicPath: './dist/',
-  //   filename: 'renderer.prod.js'
-  // },
 
   module: {
     rules: [

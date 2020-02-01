@@ -30,7 +30,7 @@ import { dependencies as externals } from '../app/package.json';
 
 export default {
   externals: [
-    ...Object.keys(externals || {}),
+    ...Object.keys(externals || {})
     // ...Object.keys(possibleExternals || {}).filter(filterDepWithoutEntryPoints)
   ],
 

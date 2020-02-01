@@ -26,11 +26,12 @@ import MenuBuilder from './menu';
 const { openProcessManager } = require('electron-process-manager');
 
 let mainWindow = null;
-let appAboutToQuit = false;
 let creditsWindow = null;
 let workerWindow = null;
 let opencvWorkerWindow = null;
 let indexedDBWorkerWindow = null;
+
+let appAboutToQuit = false;
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
