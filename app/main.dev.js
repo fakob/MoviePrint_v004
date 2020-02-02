@@ -110,7 +110,8 @@ app.on('ready', async () => {
     width: 1366,
     height: 768,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      webviewTag: true
     }
   });
 
@@ -192,7 +193,6 @@ app.on('ready', async () => {
   workerWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
-      webviewTag: true,
     }
   });
   workerWindow.hide();
