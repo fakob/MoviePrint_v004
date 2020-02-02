@@ -1459,10 +1459,10 @@
   dependencies:
     defer-to-connect "^1.0.1"
 
-"@tensorflow/tfjs-core@1.2.9", "@tensorflow/tfjs-core@<=1.2.9", "@tensorflow/tfjs-core@^1.2.9":
-  version "1.2.9"
-  resolved "https://registry.yarnpkg.com/@tensorflow/tfjs-core/-/tfjs-core-1.2.9.tgz#125830270a0bdd0e856914778a300c4ad6f51e21"
-  integrity sha512-s0hHZSx6rGTlkkB8u8gs5n7sIPv1GXDNHmISRy+kqGzmlpkfI2kr6WXqOWQy6wFgjzopRD8cJQjBZ9USPZnYTQ==
+"@tensorflow/tfjs-core@1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@tensorflow/tfjs-core/-/tfjs-core-1.4.0.tgz#045c91f93cb3ea77473b664c0d1dbad675d7f046"
+  integrity sha512-a7dHhSsBbtaxp8/1UAeYKrjY1bQxsDy/Uhj57+mTuGLAcL8CDrTOXXZzucCgs5nvQErdscp7Gp/2VCcA1xp6XQ==
   dependencies:
     "@types/offscreencanvas" "~2019.3.0"
     "@types/seedrandom" "2.4.27"
@@ -5912,13 +5912,12 @@ extsprintf@^1.2.0:
   resolved "https://registry.yarnpkg.com/extsprintf/-/extsprintf-1.4.0.tgz#e2689f8f356fad62cca65a3a91c5df5f9551692f"
   integrity sha1-4mifjzVvrWLMplo6kcXfX5VRaS8=
 
-face-api.js@^0.21.0:
-  version "0.21.0"
-  resolved "https://registry.yarnpkg.com/face-api.js/-/face-api.js-0.21.0.tgz#c4d3ab17a61ebc504081747d9bded6cff1d80a41"
-  integrity sha512-qgpT4sUo4Qj23+ceLUrsbZvVFbdt1wKaNK/3W4Zxpmmu0Buqukx9Zien9+IaFwAO72dgc+ltiY3O1HMY/0BTQw==
+face-api.js@^0.22.0:
+  version "0.22.0"
+  resolved "https://registry.yarnpkg.com/face-api.js/-/face-api.js-0.22.0.tgz#a7234942a59c4899cd3c43d4764cbb6a035672c9"
+  integrity sha512-vX9tehq+dT53CkJrkA0LUTBcw4ORX6OlnkoUi683ju9Ha2RBduIJQ5dsdBLL2sqpLzV2r/zlOTm/JaMDQPDU0A==
   dependencies:
-    "@tensorflow/tfjs-core" "1.2.9"
-    tfjs-image-recognition-base "^0.6.2"
+    "@tensorflow/tfjs-core" "1.4.0"
     tslib "^1.10.0"
 
 fancy-log@^1.3.2:
@@ -13889,14 +13888,6 @@ text-table@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
   integrity sha1-f17oI66AUgfACvLfSoTsP8+lcLQ=
-
-tfjs-image-recognition-base@^0.6.2:
-  version "0.6.2"
-  resolved "https://registry.yarnpkg.com/tfjs-image-recognition-base/-/tfjs-image-recognition-base-0.6.2.tgz#5614ea447470e262054bb2a7b29f8259f8409b23"
-  integrity sha512-ukxViVfAPw7s0KiGhwr3zrwsm+EVa2Z+4aEwKBWO43Rt48nbPyVvrHdL+WbxRynZYjklEE69ft66C8zzea7vFw==
-  dependencies:
-    "@tensorflow/tfjs-core" "^1.2.9"
-    tslib "^1.10.0"
 
 throat@^5.0.0:
   version "5.0.0"
