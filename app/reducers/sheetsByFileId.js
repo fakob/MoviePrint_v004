@@ -71,8 +71,7 @@ const thumb = (state = {}, action, index) => {
         hidden: !state.hidden
       });
     case 'CHANGE_THUMB_ARRAY':
-      console.log(state)
-      const foundItem = action.payload.thumbArray.find(
+      const foundItem = action.payload.dataToUpdateArray.find(
         item => item.frameNumber === state.frameNumber
       );
       if (foundItem === undefined) {

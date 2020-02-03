@@ -11,6 +11,9 @@ import {
 import {
   deleteTableFrameScanList,
 } from '../utils/utilsForSqlite';
+import {
+  sortDetectionArray,
+} from '../utils/utils';
 
 const { ipcRenderer } = require('electron');
 
@@ -731,14 +734,36 @@ export const toggleThumbArray = (fileId, sheetId, thumbIdArray) => {
   };
 };
 
-export const changeThumbArray = (fileId, sheetId, thumbArray) => {
-  log.debug(`action: changeThumbArray - ${thumbArray}`);
+export const changeAndSortThumbArray = (fileId, sheetId, faceScanArray, sortMethod) => {
+  log.debug(`action: changeAndSortThumbArray - ${faceScanArray}`);
+  return (dispatch, getState) => {
+    dispatch(changeThumbArray(fileId, sheetId, faceScanArray));
+    const sortedArray = sortDetectionArray(faceScanArray, sortMethod);
+    // extract frameNumbers
+    const frameNumberArrayFromFaceDetection = sortedArray.map(item => item.frameNumber);
+
+    const thumbsArrayBeforeSorting = getState().undoGroup.present.sheetsByFileId[fileId][sheetId].thumbsArray;
+    console.log(thumbsArrayBeforeSorting);
+    const thumbsArrayAfterSorting = thumbsArrayBeforeSorting.slice().sort((a, b) => {
+      return frameNumberArrayFromFaceDetection.indexOf(a.frameNumber) - frameNumberArrayFromFaceDetection.indexOf(b.frameNumber);
+    });
+    console.log(thumbsArrayAfterSorting);
+    return dispatch(updateOrder(
+      fileId,
+      sheetId,
+      thumbsArrayAfterSorting)
+    );
+  }
+};
+
+export const changeThumbArray = (fileId, sheetId, dataToUpdateArray) => {
+  log.debug(`action: changeThumbArray - ${dataToUpdateArray}`);
   return {
     type: 'CHANGE_THUMB_ARRAY',
     payload: {
       fileId,
       sheetId,
-      thumbArray,
+      dataToUpdateArray,
     },
   };
 };

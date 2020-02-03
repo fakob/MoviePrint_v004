@@ -77,7 +77,7 @@ import {
   addThumb,
   addThumbs,
   changeThumb,
-  changeThumbArray,
+  changeAndSortThumbArray,
   clearMovieList,
   clearScenes,
   cutScene,
@@ -270,6 +270,7 @@ class App extends Component {
       },
       fileScanRunning: false,
       sheetsToPrint: [],
+      sheetsToUpdate: [],
       savingAllMoviePrints: false,
       showTransformModal: false,
       showSaveThumbModal: false,
@@ -393,6 +394,7 @@ class App extends Component {
     this.calculateSceneList = this.calculateSceneList.bind(this);
     this.onToggleDetectionChart = this.onToggleDetectionChart.bind(this);
     this.onSortSheet = this.onSortSheet.bind(this);
+    this.addFaceData = this.addFaceData.bind(this);
     this.onHideDetectionChart = this.onHideDetectionChart.bind(this);
     this.checkForUpdates = this.checkForUpdates.bind(this);
 
@@ -437,8 +439,9 @@ class App extends Component {
       this,
       getColumnCount(sheetsByFileId, undefined, undefined, settings),
       getThumbsCount(
-        file,
         sheetsByFileId,
+        currentFileId,
+        currentSheetId,
         settings,
         visibilitySettings
       ),
@@ -627,56 +630,47 @@ class App extends Component {
 
     ipcRenderer.on('update-sort-order', (event, detectionArray) => {
 
-      // store.dispatch(updateFrameNumberAndColorArray(detectionArray));
+      // dispatch(updateFrameNumberAndColorArray(detectionArray));
     });
 
     ipcRenderer.on('finished-getting-faces', (event, fileId, sheetId, detectionArray, faceSortMethod) => {
+      const { sheetsToUpdate } = this.state;
       const { files, sheetsByFileId } = this.props;
       console.log(detectionArray);
       console.log(faceSortMethod);
 
-      // sort and filter faces by faceSortMethod
-      const sortedArray = sortDetectionArray(detectionArray, faceSortMethod);
+      // only create new faceSheet if there is at least 1 face
+      if (detectionArray !== 0) {
+        // sort and filter faces by faceSortMethod
+        const sortedArray = sortDetectionArray(detectionArray, faceSortMethod);
 
-      // extract frameNumbers
-      const frameNumberArrayFromFaceDetection = sortedArray.map(item => item.frameNumber);
-      console.log(frameNumberArrayFromFaceDetection);
+        // extract frameNumbers
+        const frameNumberArrayFromFaceDetection = sortedArray.map(item => item.frameNumber);
+        console.log(frameNumberArrayFromFaceDetection);
 
-      // create new sheet and add face thumbs
-      const newSheetId = uuidV4();
-      const file = files.find(item => item.id === fileId);
-      store.dispatch(addThumbs(file, newSheetId, frameNumberArrayFromFaceDetection))
-      .then(() => {
-
-
-        // sort the thumbsArray to be used to update the thumbs order
-        const thumbsArrayBeforeSorting = store.getState().undoGroup.present
-          .sheetsByFileId[fileId][newSheetId].thumbsArray;
-        console.log(thumbsArrayBeforeSorting);
-        const thumbsArrayAfterSorting = thumbsArrayBeforeSorting.slice().sort((a, b) => {
-          return frameNumberArrayFromFaceDetection.indexOf(a.frameNumber) - frameNumberArrayFromFaceDetection.indexOf(b.frameNumber);
+        // create new sheet and add face thumbs
+        const newSheetId = uuidV4();
+        const file = files.find(item => item.id === fileId);
+        dispatch(addThumbs(file, newSheetId, frameNumberArrayFromFaceDetection))
+        .then(() => {
+          sheetsToUpdate.push({
+            fileId,
+            sheetId: newSheetId,
+            status: 'addFaceData',
+            sortMethod: faceSortMethod,
+          });
+          dispatch(updateSheetType(fileId, newSheetId, SHEET_TYPE.INTERVAL));
+          dispatch(updateSheetView(fileId, newSheetId, SHEET_VIEW.GRIDVIEW));
+          const parentSheetName = getSheetName(sheetsByFileId, fileId, sheetId);
+          const newSheetName = `faces of ${parentSheetName}`;
+          dispatch(updateSheetName(fileId, newSheetId, newSheetName));
+          dispatch(updateSheetParent(fileId, newSheetId, sheetId));
+          dispatch(setCurrentSheetId(newSheetId));
+          return undefined;
+        }).catch((err) => {
+          log.error(err);
         });
-        console.log(thumbsArrayAfterSorting);
-
-        // update the thumb order as addThumbs
-        store.dispatch(updateOrder(
-          fileId,
-          newSheetId,
-          thumbsArrayAfterSorting));
-
-        // add detectin information to thumbs
-        store.dispatch(changeThumbArray(fileId, newSheetId, detectionArray));
-        return undefined;
-      }).catch((err) => {
-        log.error(err);
-      });
-      store.dispatch(updateSheetType(fileId, newSheetId, SHEET_TYPE.INTERVAL));
-      store.dispatch(updateSheetView(fileId, newSheetId, SHEET_VIEW.GRIDVIEW));
-      const parentSheetName = getSheetName(sheetsByFileId, fileId, sheetId);
-      const newSheetName = `faces of ${parentSheetName}`;
-      store.dispatch(updateSheetName(fileId, newSheetId, newSheetName));
-      store.dispatch(updateSheetParent(fileId, newSheetId, sheetId));
-      store.dispatch(setCurrentSheetId(newSheetId));
+      }
     });
 
     ipcRenderer.on('finished-getting-thumbs', (event, fileId, sheetId) => {
@@ -866,8 +860,9 @@ class App extends Component {
         currentSheetId !== nextProps.currentSheetId
       ) {
         const newThumbCount = getThumbsCount(
-          nextProps.file,
           nextProps.sheetsByFileId,
+          nextProps.file.id,
+          nextProps.currentSheetId,
           nextProps.settings,
           nextProps.visibilitySettings
         );
@@ -883,14 +878,16 @@ class App extends Component {
 
       // check if visibleThumbCount changed
       const oldThumbCount = getThumbsCount(
-        file,
         sheetsByFileId,
+        file.id,
+        currentSheetId,
         settings,
         visibilitySettings
       );
       const newThumbCount = getThumbsCount(
-        nextProps.file,
         nextProps.sheetsByFileId,
+        nextProps.file.id,
+        nextProps.currentSheetId,
         nextProps.settings,
         nextProps.visibilitySettings
       );
@@ -909,7 +906,7 @@ class App extends Component {
   componentDidUpdate(prevProps, prevState) {
     // log.debug('App.js componentDidUpdate');
   const { dispatch } = this.props;
-    const { filesToLoad, sheetsToPrint } = this.state;
+    const { filesToLoad, sheetsToPrint, sheetsToUpdate } = this.state;
     const { files, file, settings, sheetsByFileId, visibilitySettings } = this.props;
     const { defaultMoviePrintWidth, defaultPaperAspectRatioInv } = settings;
     const { visibilityFilter } = visibilitySettings;
@@ -1048,6 +1045,31 @@ class App extends Component {
         this.setState({
           sheetsToPrint: newSheetsToPrint,
         });
+      }
+    }
+
+    // run if there was a change in the sheetsToUpdate array
+    if (sheetsToUpdate.length !== 0) {
+      const copyOfSheetsToUpdate = sheetsToUpdate.slice();
+      // read the first item
+      const { fileId: myFileId, sheetId: mySheetId, sortMethod: mySortMethod = undefined, status: myStatus} = copyOfSheetsToUpdate[0];
+      const thumbCount = getThumbsCount(
+        sheetsByFileId,
+        myFileId,
+        mySheetId,
+        settings,
+        visibilitySettings,
+        true
+      );
+      if (thumbCount !== 0) {
+        if (myStatus === 'addFaceData') {
+          this.addFaceData(myFileId, mySheetId, mySortMethod);
+          // remove the first item
+          copyOfSheetsToUpdate.shift();
+          this.setState({
+            sheetsToUpdate: copyOfSheetsToUpdate,
+          });
+        }
       }
     }
 
@@ -1533,8 +1555,9 @@ class App extends Component {
         settings
       ),
       getThumbsCount(
-        file,
         sheetsByFileId,
+        currentFileId,
+        currentSheetId,
         settings,
         visibilitySettings
       ),
@@ -1579,7 +1602,7 @@ class App extends Component {
   }
 
   onSortSheet(fileId, sheetId, sortMethod, reverseSortOrder) {
-    const { store } = this.context;
+    const { dispatch, sheetsByFileId } = this.props;
 
     //
     const faceScanArray = getFaceScanByFileId(fileId);
@@ -1589,9 +1612,9 @@ class App extends Component {
     // extract frameNumbers
     const frameNumberArrayFromFaceDetection = sortedArray.map(item => item.frameNumber);
     console.log(frameNumberArrayFromFaceDetection);
+    console.log(sheetsByFileId[fileId]);
 
-    const thumbsArrayBeforeSorting = store.getState().undoGroup.present
-      .sheetsByFileId[fileId][sheetId].thumbsArray;
+    const thumbsArrayBeforeSorting = sheetsByFileId[fileId][sheetId].thumbsArray;
     console.log(thumbsArrayBeforeSorting);
     const thumbsArrayAfterSorting = thumbsArrayBeforeSorting.slice().sort((a, b) => {
       return frameNumberArrayFromFaceDetection.indexOf(a.frameNumber) - frameNumberArrayFromFaceDetection.indexOf(b.frameNumber);
@@ -1599,10 +1622,23 @@ class App extends Component {
     console.log(thumbsArrayAfterSorting);
 
     // update the thumb order as addThumbs
-    store.dispatch(updateOrder(
+    dispatch(updateOrder(
       fileId,
       sheetId,
-      thumbsArrayAfterSorting));
+      thumbsArrayAfterSorting)
+    );
+  }
+
+  addFaceData(fileId, sheetId, sortMethod = undefined) {
+    const { dispatch, sheetsByFileId, visibilitySettings } = this.props;
+
+    const arrayOfFrameNumbers = getFramenumbersOfSheet(sheetsByFileId, fileId, sheetId, visibilitySettings);
+    console.log(arrayOfFrameNumbers)
+    const faceScanArray = getFaceScanByFileId(fileId, arrayOfFrameNumbers);
+    console.log(faceScanArray)
+    // add detection information to thumbs
+    dispatch(changeAndSortThumbArray(fileId, sheetId, faceScanArray, sortMethod));
+    // this.onSortSheet(fileId, sheetId, sortMethod);
   }
 
   pullObjectUrlFromIndexedDBWorkerWindow(deadline) {
@@ -2881,7 +2917,7 @@ ${exportObject}`;
 
           newFilePath = jsonData.filePath;
           transformObject = jsonData.transformObject;
-          columnCount = jsonData.columnCount;
+          columnCount = Number(jsonData.columnCount);
           frameNumberArray = jsonData.frameNumberArray;
           if (newFilePath !== undefined &&
             columnCount !== undefined &&

@@ -667,20 +667,19 @@ export const getSecondsPerRow = (sheetsByFileId, fileId, sheetId, settings) => {
   return sheetsByFileId[fileId][sheetId].secondsPerRow;
 };
 
-export const getThumbsCount = (file, sheetsByFileId, settings, visibilitySettings) => {
-  if (file === undefined ||
-    file.id === undefined ||
-    sheetsByFileId[file.id] === undefined ||
-    settings.currentSheetId === undefined ||
-    sheetsByFileId[file.id][settings.currentSheetId] === undefined ||
-    sheetsByFileId[file.id][settings.currentSheetId].thumbsArray === undefined) {
-    return settings.defaultThumbCount;
+export const getThumbsCount = (sheetsByFileId, fileId, sheetId, settings, visibilitySettings, noDefault = false) => {
+  if (fileId === undefined ||
+    sheetsByFileId[fileId] === undefined ||
+    sheetId === undefined ||
+    sheetsByFileId[fileId][sheetId] === undefined ||
+    sheetsByFileId[fileId][sheetId].thumbsArray === undefined) {
+    return noDefault ? 0 : settings.defaultThumbCount;
   }
   if (visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') {
-    return sheetsByFileId[file.id][settings.currentSheetId].thumbsArray
+    return sheetsByFileId[fileId][sheetId].thumbsArray
       .filter(thumb => thumb.hidden === false).length;
   }
-  return sheetsByFileId[file.id][settings.currentSheetId].thumbsArray.length;
+  return sheetsByFileId[fileId][sheetId].thumbsArray.length;
 };
 
 export const setPosition = (vid, frameNumberToCapture, useRatio) => {

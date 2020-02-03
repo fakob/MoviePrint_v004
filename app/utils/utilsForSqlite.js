@@ -158,10 +158,16 @@ export const getFrameScanByFileId = (fileId) => {
 }
 
 // get all detected faces by fileId
-export const getFaceScanByFileId = (fileId) => {
+export const getFaceScanByFileId = (fileId, arrayOfFrameNumbers = undefined) => {
   const tableName = getFrameScanTableName(fileId);
   if (doesTableExist(tableName)) {
-    const stmt = moviePrintDB.prepare(`SELECT faceObject FROM ${tableName} WHERE faceObject IS NOT NULL ORDER BY frameNumber ASC`);
+    let stmt;
+    if (arrayOfFrameNumbers === undefined) {
+      stmt = moviePrintDB.prepare(`SELECT faceObject FROM ${tableName} WHERE faceObject IS NOT NULL ORDER BY frameNumber ASC`);
+    } else {
+      const implodedArrayString = arrayOfFrameNumbers.join();
+      stmt = moviePrintDB.prepare(`SELECT faceObject FROM ${tableName} WHERE frameNumber IN (${implodedArrayString}) AND faceObject IS NOT NULL ORDER BY frameNumber ASC`);
+    }
     const returnArray = stmt.all();
     console.log(returnArray);
     const newArray = returnArray.map(item => JSON.parse(item.faceObject));
