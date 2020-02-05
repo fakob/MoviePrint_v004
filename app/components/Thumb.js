@@ -49,8 +49,9 @@ const DragHandle = SortableHandle(({ width, height, thumbId }) =>
 
 const AllFaces = ({facesArray, thumbWidth, thumbHeight}) =>
   (
-    facesArray.map(face => (
+    facesArray.map((face, index) => (
       <FaceRect
+        key={index}
         face={face}
         thumbWidth={thumbWidth}
         thumbHeight={thumbHeight}
