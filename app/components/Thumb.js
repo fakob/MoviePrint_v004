@@ -1,87 +1,82 @@
 /* eslint no-param-reassign: ["error"] */
+/* eslint no-nested-ternary: "off" */
+
 // @flow
 import React from 'react';
 import PropTypes from 'prop-types';
 import { SortableHandle } from 'react-sortable-hoc';
 import { Popup } from 'semantic-ui-react';
-import {
-  SHEET_TYPE,
-  VIEW,
-} from '../utils/constants';
+import { SHEET_TYPE, VIEW } from '../utils/constants';
 import styles from './ThumbGrid.css';
 import stylesPop from './Popup.css';
 
 import transparent from '../img/Thumb_TRANSPARENT.png';
 
-const DragHandle = SortableHandle(({ width, height, thumbId }) =>
-  (
-    <Popup
-      trigger={
-        <button
-          type='button'
-          data-tid={`thumbDragHandleBtn_${thumbId}`}
-          className={`${styles.dragHandleButton}`}
+const DragHandle = SortableHandle(({ width, height, thumbId }) => (
+  <Popup
+    trigger={
+      <button
+        type="button"
+        data-tid={`thumbDragHandleBtn_${thumbId}`}
+        className={`${styles.dragHandleButton}`}
+        style={{
+          width,
+          height: Math.floor(height),
+        }}
+      >
+        <img
+          src={transparent}
           style={{
             width,
             height: Math.floor(height),
           }}
-        >
-          <img
-            src={transparent}
-            style={{
-              width,
-              height: Math.floor(height),
-            }}
-            alt=""
-          />
-        </button>
-      }
-      mouseEnterDelay={2000}
-      on={['hover']}
-      pinned
-      offset='-50%r, -50%r'
-      position='top right'
-      basic
-      className={stylesPop.popupSmall}
-      content="Drag thumb"
+          alt=""
+        />
+      </button>
+    }
+    mouseEnterDelay={2000}
+    on={['hover']}
+    pinned
+    offset="-50%r, -50%r"
+    position="top right"
+    basic
+    className={stylesPop.popupSmall}
+    content="Drag thumb"
+  />
+));
+
+const AllFaces = ({ facesArray, thumbWidth, thumbHeight }) =>
+  facesArray.map((face, index) => (
+    <FaceRect
+      key={index}
+      face={face}
+      thumbWidth={thumbWidth}
+      thumbHeight={thumbHeight}
     />
   ));
 
-const AllFaces = ({facesArray, thumbWidth, thumbHeight}) =>
-  (
-    facesArray.map((face, index) => (
-      <FaceRect
-        key={index}
-        face={face}
-        thumbWidth={thumbWidth}
-        thumbHeight={thumbHeight}
-      />
-    ))
-  );
-
-const FaceRect = ({face, thumbWidth, thumbHeight}) =>
-  (
-    <React.Fragment>
-      <div
-        className={styles.faceRect}
-        style={{
-          width: `${face.box.width * thumbWidth}px`,
-          height: `${face.box.height * thumbHeight}px`,
-          left: `${face.box.x * thumbWidth}px`,
-          top: `${face.box.y * thumbHeight}px`,
-        }}
-      />
-      <div
-        className={styles.faceRectTag}
-        style={{
-          left: `${face.box.x * thumbWidth}px`,
-          top: `${face.box.y * thumbHeight}px`,
-        }}
-      >
-        {face.faceId}
-      </div>
-    </React.Fragment>
-  );
+const FaceRect = ({ face, thumbWidth, thumbHeight }) => (
+  <>
+    <div
+      className={styles.faceRect}
+      style={{
+        width: `${face.box.width * thumbWidth}px`,
+        height: `${face.box.height * thumbHeight}px`,
+        left: `${face.box.x * thumbWidth}px`,
+        top: `${face.box.y * thumbHeight}px`,
+      }}
+    />
+    <div
+      className={styles.faceRectTag}
+      style={{
+        left: `${face.box.x * thumbWidth}px`,
+        top: `${face.box.y * thumbHeight}px`,
+      }}
+    >
+      {face.faceId}
+    </div>
+  </>
+);
 
 const Thumb = ({
   aspectRatioInv,
@@ -94,7 +89,6 @@ const Thumb = ({
   frameninfoBackgroundColor,
   frameinfoColor,
   frameinfoPosition,
-  frameinfoScale,
   hidden,
   index,
   indexForId,
@@ -110,13 +104,11 @@ const Thumb = ({
   thumbCSSTranslate,
   thumbId,
   thumbImageObjectUrl,
-  thumbInfoRatio,
   thumbInfoValue,
   thumbWidth,
   transparentThumb,
   view,
 }) => {
-
   function onThumbDoubleClickWithStop(e) {
     e.stopPropagation();
     if (controllersAreVisible) {
@@ -166,41 +158,60 @@ const Thumb = ({
       onKeyPress={onSelectWithStop}
       onDoubleClick={onThumbDoubleClickWithStop}
       id={`thumb${indexForId}`}
-      className={`${styles.gridItem} ${(view === VIEW.PLAYERVIEW && selected && !(keyObject.altKey || keyObject.shiftKey)) ? styles.gridItemSelected : ''}`}
+      className={`${styles.gridItem} ${
+        view === VIEW.PLAYERVIEW &&
+        selected &&
+        !(keyObject.altKey || keyObject.shiftKey)
+          ? styles.gridItemSelected
+          : ''
+      }`}
       width={`${thumbWidth}px`}
-      height={`${(thumbHeight)}px`}
+      height={`${thumbHeight}px`}
       style={{
         // width: thumbWidth,
         margin,
         outlineWidth: margin,
-        borderRadius: `${(selected && view === VIEW.PLAYERVIEW) ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
-        backgroundColor: transparentThumb ||
-          (thumbImageObjectUrl === undefined)  ||
-          (thumbImageObjectUrl === 'blob:file:///fakeURL')? color : undefined,
+        borderRadius: `${
+          selected && view === VIEW.PLAYERVIEW ? 0 : Math.ceil(borderRadius)
+        }px`, // Math.ceil so the edge is not visible underneath the image
+        backgroundColor:
+          transparentThumb ||
+          thumbImageObjectUrl === undefined ||
+          thumbImageObjectUrl === 'blob:file:///fakeURL'
+            ? color
+            : undefined,
       }}
     >
       <img
         data-tid={`thumbImg_${thumbId}`}
-        src={transparentThumb ? transparent : thumbImageObjectUrl === undefined ? `data:image/jpeg;base64, ${base64}` : thumbImageObjectUrl}
+        src={
+          transparentThumb
+            ? transparent
+            : thumbImageObjectUrl === undefined
+            ? `data:image/jpeg;base64, ${base64}`
+            : thumbImageObjectUrl
+        }
         id={`thumbImage${indexForId}`}
         className={`${styles.image} ${dim ? styles.dim : ''}`}
         alt=""
         width={`${thumbWidth}px`}
-        height={`${(thumbHeight)}px`}
+        height={`${thumbHeight}px`}
         style={{
           filter: `${controllersAreVisible ? 'brightness(80%)' : ''}`,
           opacity: hidden ? '0.2' : '1',
-          borderRadius: `${(selected && view === VIEW.PLAYERVIEW) ? 0 : borderRadius}px`,
+          borderRadius: `${
+            selected && view === VIEW.PLAYERVIEW ? 0 : borderRadius
+          }px`,
         }}
       />
-      {facesArray !== undefined &&
+      {facesArray !== undefined && (
         <AllFaces
           facesArray={facesArray}
           thumbWidth={thumbWidth}
           thumbHeight={thumbHeight}
-      />
-      }
-      {thumbInfoValue !== undefined &&
+        />
+      )}
+      {thumbInfoValue !== undefined && (
         <div
           data-tid={`thumbInfoText_${thumbId}`}
           className={`${styles.frameinfo} ${styles[frameinfoPosition]}`}
@@ -213,19 +224,19 @@ const Thumb = ({
         >
           {thumbInfoValue}
         </div>
-      }
+      )}
       <div
         style={{
-          display: controllersAreVisible ? 'block' : 'none'
+          display: controllersAreVisible ? 'block' : 'none',
         }}
       >
-        {sheetType === SHEET_TYPE.INTERVAL &&
+        {sheetType === SHEET_TYPE.INTERVAL && (
           <DragHandle
             width={thumbWidth - 1} // shrink it to prevent rounding issues
-            height={(thumbHeight) - 1}
+            height={thumbHeight - 1}
             thumbId={thumbId}
           />
-        }
+        )}
       </div>
     </div>
   );
@@ -238,23 +249,8 @@ Thumb.defaultProps = {
   index: undefined,
   indexForId: undefined,
   keyObject: {},
-  onBack: null,
-  onForward: null,
-  onHoverAddThumbBefore: null,
-  onHoverAddThumbAfter: null,
-  onHoverInPoint: null,
-  onHoverOutPoint: null,
-  onScrub: null,
-  onAddBefore: null,
-  onAddAfter: null,
-  onInPoint: null,
-  onLeaveInOut: null,
-  onOut: null,
-  onOutPoint: null,
   onOver: null,
   onSelect: null,
-  onExit: null,
-  onToggle: null,
   selected: false,
   thumbImageObjectUrl: undefined,
   thumbInfoValue: undefined,
@@ -270,30 +266,14 @@ Thumb.propTypes = {
   inputRefThumb: PropTypes.object,
   keyObject: PropTypes.object,
   margin: PropTypes.string.isRequired,
-  onBack: PropTypes.func,
-  onForward: PropTypes.func,
-  onHoverAddThumbBefore: PropTypes.func,
-  onHoverAddThumbAfter: PropTypes.func,
-  onHoverInPoint: PropTypes.func,
-  onHoverOutPoint: PropTypes.func,
-  onScrub: PropTypes.func,
-  onAddBefore: PropTypes.func,
-  onAddAfter: PropTypes.func,
-  onInPoint: PropTypes.func,
-  onLeaveInOut: PropTypes.func,
-  onOut: PropTypes.func,
-  onOutPoint: PropTypes.func,
   onOver: PropTypes.func,
   onSelect: PropTypes.func,
-  onExit: PropTypes.func,
   onThumbDoubleClick: PropTypes.func,
-  onToggle: PropTypes.func,
   selected: PropTypes.bool,
   sheetType: PropTypes.string.isRequired,
   index: PropTypes.number,
   indexForId: PropTypes.number,
   thumbImageObjectUrl: PropTypes.string,
-  thumbInfoRatio: PropTypes.number.isRequired,
   thumbInfoValue: PropTypes.string,
   thumbWidth: PropTypes.number.isRequired,
 };
