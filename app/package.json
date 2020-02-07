@@ -21,10 +21,12 @@
   "homepage": "https://github.com/fakob/MoviePrint_v004#readme",
   "scripts": {
     "electron-rebuild": "node -r ../internals/scripts/BabelRegister.js ../internals/scripts/ElectronRebuild.js",
-    "postinstall": "yarn electron-rebuild -w opencv4nodejs,better-sqlite3"
+    "postinstall": "yarn electron-rebuild -w opencv4nodejs,better-sqlite3,@tensorflow/tfjs-node"
   },
   "dependencies": {
+    "@tensorflow/tfjs-node": "^1.5.2",
     "better-sqlite3": "^5.4.0",
+    "face-api.js": "^0.22.1",
     "opencv4nodejs": "^4.9.1",
     "typeface-open-sans": "^0.0.54",
     "typeface-roboto-condensed": "^0.0.54",

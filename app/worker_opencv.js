@@ -746,7 +746,6 @@ ipcRenderer.on(
     fileId,
     filePath,
     sheetId,
-    frameIdArray,
     frameNumberArray,
     useRatio,
     defaultCachedFramesSize,

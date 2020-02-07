@@ -1,7 +1,7 @@
 import path from 'path';
 import * as faceapi from 'face-api.js';
 import log from 'electron-log';
-// import * as tf from '@tensorflow/tfjs-node';
+import * as tf from '@tensorflow/tfjs-node';
 
 import { setPosition } from './utils';
 import {
@@ -238,13 +238,13 @@ export const detectAllFaces = async (image, frameNumber, detectionArray, uniqueF
       age: Math.round(age),
     })
 
-    const drawBox = new faceapi.draw.DrawBox(box, {
-      // label: Math.round(age),
-      label: faceId,
-      lineWidth: 1,
-      boxColor: 'red'
-    })
-    drawBox.draw(image);
+    // const drawBox = new faceapi.draw.DrawBox(box, {
+    //   // label: Math.round(age),
+    //   label: faceId,
+    //   lineWidth: 1,
+    //   boxColor: 'red'
+    // })
+    // drawBox.draw(image);
   })
 
   // sort faces by size with the largest one first
@@ -274,28 +274,14 @@ export const runSyncCaptureAndFaceDetect = async (vid, frameNumberArray, useRati
       const matRGBA = frame.channels === 1 ? frame.cvtColor(opencv.COLOR_GRAY2RGBA) : frame.cvtColor(opencv.COLOR_BGR2RGBA);
       // optional rescale
       let matRescaled = matRGBA;
-      if (true) { // false stands for keep original size
-        matRescaled = matRGBA.resizeToMax(640);
-      }
-      // const input = tf.node.decodeJpeg(matRescaled.getData());
+      // if (true) { // false stands for keep original size
+      //   matRescaled = matRGBA.resizeToMax(640);
+      // }
 
-      const input = document.getElementById('myCanvas');
-      // console.log(input)
+      const outJpg =  opencv.imencode('.jpg', matRescaled);
+      const input = tf.node.decodeJpeg(outJpg);
 
-      input.height = matRescaled.rows;
-      input.width = matRescaled.cols;
-      console.log(matRescaled.rows);
-      console.log(matRescaled.cols);
-
-      const imgData = new ImageData(
-        new Uint8ClampedArray(matRescaled.getData()),
-        matRescaled.cols,
-        matRescaled.rows
-      );
-      const ctx = input.getContext('2d');
-      ctx.putImageData(imgData, 0, 0);
-
-      if (getAllFaces) {
+    if (getAllFaces) {
         const detections = await detectAllFaces(input, frameNumber, detectionArray, uniqueFaceArray);
       } else {
         const detections = await detectFace(input, frameNumber, detectionArray, uniqueFaceArray);

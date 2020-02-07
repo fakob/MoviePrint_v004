@@ -554,7 +554,7 @@ export const getEDLscenes = (sheetsByFileId, fileId, sheetId, visibilitySettings
 };
 
 export const getSheetCount = (files, fileId) => {
-  const file = files.find(file2 => file2.id === fileId);
+  const file = getFile(files, fileId);
   // console.log(file);
   if (file === undefined) {
     // there is no file yet, so return undefined
@@ -563,8 +563,18 @@ export const getSheetCount = (files, fileId) => {
   return file.sheetCounter;
 };
 
-export const getFileName = (files, fileId) => {
+export const getFile = (files, fileId) => {
   const file = files.find(file2 => file2.id === fileId);
+  // console.log(file);
+  if (file === undefined) {
+    // there is no file yet, so return undefined
+    return undefined;
+  }
+  return file;
+};
+
+export const getFileName = (files, fileId) => {
+  const file = getFile(files, fileId);
   // console.log(file);
   if (file === undefined) {
     // there is no file yet, so return undefined
@@ -574,7 +584,7 @@ export const getFileName = (files, fileId) => {
 };
 
 export const getFilePath = (files, fileId) => {
-  const file = files.find(file2 => file2.id === fileId);
+  const file = getFile(files, fileId);
   // console.log(file);
   if (file === undefined) {
     // there is no file yet, so return undefined
@@ -584,7 +594,7 @@ export const getFilePath = (files, fileId) => {
 };
 
 export const getFrameCount = (files, fileId) => {
-  const file = files.find(file2 => file2.id === fileId);
+  const file = getFile(files, fileId);
   // console.log(file);
   if (file === undefined) {
     // there is no file yet, so return undefined
@@ -594,7 +604,7 @@ export const getFrameCount = (files, fileId) => {
 };
 
 export const getFileTransformObject = (files, fileId) => {
-  const file = files.find(file2 => file2.id === fileId);
+  const file = getFile(files, fileId);
   // console.log(file);
   if (file === undefined) {
     // there is no file yet, so return undefined
@@ -1262,3 +1272,45 @@ export const sortDetectionArray = (detectionArray, sortAndFilterMethod = FACE_SO
   console.log(sortedAndFilteredArray);
   return sortedAndFilteredArray;
 }
+
+export const getIntervalArray = (
+  amount,
+  start,
+  stop,
+  maxValue,
+  limitToMaxValue = false, // in some cases it can be allowed to go over
+) => {
+  // amount should not be more than the maxValue
+  // stop - start should be at least amount
+  let newStart = start;
+  let newStop = stop;
+  const range = stop - start;
+
+  let newAmount = Math.min(amount, maxValue - 1);
+  if (range < newAmount) {
+    if (limitToMaxValue) {
+      newAmount = range + 1;
+    } else {
+      newStop = start + newAmount;
+      if (newStop > maxValue - 1) {
+        newStart = Math.max(0, maxValue - 1 - newAmount);
+        newStop = newStart + newAmount;
+      }
+    }
+  }
+  // log.debug(`${amount} : ${newAmount} : ${start} : ${newStart} : ${stop} : ${newStop} : `)
+
+  const startWithBoundaries = limitRange(newStart, 0, maxValue - 1);
+  const stopWithBoundaries = limitRange(newStop, 0, maxValue - 1);
+  const frameNumberArray = Array.from(Array(newAmount).keys()).map(x =>
+    mapRange(
+      x,
+      0,
+      newAmount - 1,
+      startWithBoundaries,
+      stopWithBoundaries,
+      true,
+    )
+  );
+  return frameNumberArray;
+};

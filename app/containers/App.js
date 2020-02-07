@@ -35,6 +35,7 @@ import {
   getAdjacentSceneIndicesFromCut,
   getColumnCount,
   getEDLscenes,
+  getFile,
   getFileName,
   getFilePath,
   getFileStatsObject,
@@ -42,6 +43,7 @@ import {
   getFrameCount,
   getFramenumbersOfSheet,
   getHighestFrame,
+  getIntervalArray,
   getLeftAndRightThumb,
   getLowestFrame,
   getMoviePrintColor,
@@ -324,6 +326,7 @@ class App extends Component {
     this.onBackToParentClick = this.onBackToParentClick.bind(this);
     this.onAddIntervalSheet = this.onAddIntervalSheet.bind(this);
     this.onAddIntervalSheetClick = this.onAddIntervalSheetClick.bind(this);
+    this.onAddFaceSheetClick = this.onAddFaceSheetClick.bind(this);
     this.onErrorPosterFrame = this.onErrorPosterFrame.bind(this);
     this.getThumbsForFile = this.getThumbsForFile.bind(this);
 
@@ -650,7 +653,7 @@ class App extends Component {
 
         // create new sheet and add face thumbs
         const newSheetId = uuidV4();
-        const file = files.find(item => item.id === fileId);
+        const file = getFile(files, fileId);
         dispatch(addThumbs(file, newSheetId, frameNumberArrayFromFaceDetection))
         .then(() => {
           sheetsToUpdate.push({
@@ -718,7 +721,7 @@ class App extends Component {
     ipcRenderer.on('received-get-file-scan', (event, fileId, filePath, useRatio, sheetId) => {
       const { files } = this.props;
       const { requestIdleCallbackForScenesHandle } = this.state;
-      const file = files.find(file2 => file2.id === fileId);
+      const file = getFile(files, fileId);
 
       // cancel pullScenesFromOpencvWorker
       window.cancelIdleCallback(requestIdleCallbackForScenesHandle);
@@ -939,7 +942,7 @@ class App extends Component {
         // log.debug(sheetsToPrint);
         const sheetToGetThumbsFor = sheetsToPrint.find(item => item.status === 'needsThumbs' );
         // log.debug(sheetToGetThumbsFor);
-        const tempFile = files.find(file1 => file1.id === sheetToGetThumbsFor.fileId);
+        const tempFile = getFile(files, sheetToGetThumbsFor.fileId);
         // log.debug(tempFile);
 
         // check if file could be found within files to cover the following case
@@ -980,7 +983,7 @@ class App extends Component {
         const sheetView = sheet.sheetView;
 
         // get file to print
-        const tempFile = files.find(file2 => file2.id === sheetToPrint.fileId);
+        const tempFile = getFile(files, sheetToPrint.fileId);
 
         // get scenes to print
         let tempScenes;
@@ -1226,14 +1229,12 @@ class App extends Component {
           case 68: // press 'd'
             // const frameIdArray = [1234];
             // const frameNumberArray = [1511];
-            const frameIdArray = this.props.thumbs.map(thumb => thumb.frameId);
             const frameNumberArray = this.props.thumbs.map(thumb => thumb.frameNumber);
-            ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-faces-sync', file.id, file.path, currentSheetId, frameIdArray, frameNumberArray, file.useRatio, settings.defaultCachedFramesSize, file.transformObject, FACE_SORT_METHOD.SIZE);
+            ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-faces-sync', file.id, file.path, currentSheetId, frameNumberArray, file.useRatio, settings.defaultCachedFramesSize, file.transformObject, FACE_SORT_METHOD.SIZE);
             break;
           case 69: // press 'e'
-            const frameIdArray2 = this.props.allThumbs.map(thumb => thumb.frameId);
-            const frameNumberArray2 = this.props.allThumbs.map(thumb => thumb.frameNumber);
-            ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-faces-sync', file.id, file.path, currentSheetId, frameIdArray2, frameNumberArray2, file.useRatio, settings.defaultCachedFramesSize, file.transformObject, FACE_SORT_METHOD.SIZE, true);
+            const frameNumberArray2 = this.props.thumbs.map(thumb => thumb.frameNumber);
+            ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-faces-sync', file.id, file.path, currentSheetId, frameNumberArray2, file.useRatio, settings.defaultCachedFramesSize, file.transformObject, FACE_SORT_METHOD.SIZE, true);
             // ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-faces-sync', file.id, file.path, currentSheetId, frameIdArray2, frameNumberArray2, file.useRatio, settings.defaultCachedFramesSize, file.transformObject, FACE_SORT_METHOD.UNIQUE);
             break;
           case 70: // press 'f'
@@ -1837,7 +1838,7 @@ class App extends Component {
 
     // check if scenes detected
     if (sceneList.length !== 0) {
-      const tempFile = files.find((file) => file.id === fileId);
+      const tempFile = getFile(files, fileId);
       const clearOldScenes = true;
       dispatch(updateSheetType(tempFile.id, sheetId, SHEET_TYPE.SCENES));
       dispatch(updateSheetView(tempFile.id, sheetId, SHEET_VIEW.TIMELINEVIEW));
@@ -2311,6 +2312,32 @@ class App extends Component {
 
   }
 
+  onAddFaceSheetClick(fileId = undefined) {
+    // log.debug(`FileListElement clicked: ${file.name}`);
+    const { dispatch } = this.props;
+    const { currentFileId, files, sheetsByFileId, settings, visibilitySettings } = this.props;
+
+    // if fileId is undefined then use currentFileId
+    const theFileId = fileId || currentFileId;
+    const file = getFile(files, theFileId);
+    const { frameCount, path, useRatio, transformObject } = file;
+    const frameNumberArray = getIntervalArray(amount, 0, frameCount, frameCount);
+
+    ipcRenderer.send(
+      'message-from-mainWindow-to-opencvWorkerWindow',
+      'send-get-faces-sync',
+      theFileId,
+      path,
+      currentSheetId,
+      frameNumberArray,
+      useRatio,
+      settings.defaultCachedFramesSize,
+      transformObject,
+      FACE_SORT_METHOD.SIZE,
+      true
+    );
+  }
+
   onFileListElementClick(fileId) {
     // log.debug(`FileListElement clicked: ${file.name}`);
   const { dispatch } = this.props;
@@ -2359,7 +2386,8 @@ class App extends Component {
     log.debug(`inside getThumbsForFileId: ${fileId}`);
   const { dispatch } = this.props;
     const { files, sheetsByFileId, settings } = this.props;
-    const file = files.find(file2 =>file2.id === fileId);
+    const file = getFile(files, fileId);
+
     if (sheetsByFileId[fileId] === undefined ||
     sheetsByFileId[fileId][newSheetId] === undefined ||
     sheetsByFileId[fileId][newSheetId].thumbsArray === undefined) {
@@ -2693,7 +2721,8 @@ class App extends Component {
   onEditTransformListItemClick = (fileId) => {
   const { dispatch } = this.props;
     const { files } = this.props;
-    const file = files.find(file2 => file2.id === fileId);
+    const file = getFile(files, fileId);
+
     const { transformObject = {cropTop: 0, cropBottom: 0, cropLeft: 0, cropRight: 0} } = file; // initialise if undefined
     this.setState({
       showTransformModal: true,
@@ -2726,15 +2755,15 @@ class App extends Component {
 
     // if fileId is undefined then use currentFileId
     const theFileId = fileId || currentFileId;
+    const file = getFile(files, theFileId);
 
-    const file = files.find(file2 => file2.id === theFileId);
     this.runSceneDetection(theFileId, file.path, file.useRatio, undefined, undefined, file.transformObject);
   };
 
   onReplaceMovieListItemClick = (fileId) => {
   const { dispatch } = this.props;
     const { files, settings, sheetsByFileId } = this.props;
-    const file = files.find((file1) => file1.id === fileId);
+    const file = getFile(files, fileId);
     const { path: originalFilePath, lastModified: lastModifiedOfPrevious} = file;
     const newPathArray = dialog.showOpenDialogSync({
       title: 'Replace movie',
@@ -3347,6 +3376,7 @@ ${exportObject}`;
                     fileMissingStatus={file.fileMissingStatus}
                     toggleMovielist={this.toggleMovielist}
                     onAddIntervalSheetClick={this.onAddIntervalSheetClick}
+                    onAddFaceSheetClick={this.onAddFaceSheetClick}
                     onScanMovieListItemClick={this.onScanMovieListItemClick}
                     onDuplicateSheetClick={this.onDuplicateSheetClick}
                     onChangeSheetViewClick={this.onChangeSheetViewClick}
