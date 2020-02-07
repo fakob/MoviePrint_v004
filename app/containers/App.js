@@ -2312,23 +2312,22 @@ class App extends Component {
 
   }
 
-  onAddFaceSheetClick(fileId = undefined) {
+  onAddFaceSheetClick(scanResolution) {
     // log.debug(`FileListElement clicked: ${file.name}`);
     const { dispatch } = this.props;
-    const { currentFileId, files, sheetsByFileId, settings, visibilitySettings } = this.props;
+    const { currentFileId, file, sheetsByFileId, settings, visibilitySettings } = this.props;
 
-    // if fileId is undefined then use currentFileId
-    const theFileId = fileId || currentFileId;
-    const file = getFile(files, theFileId);
-    const { frameCount, path, useRatio, transformObject } = file;
-    const frameNumberArray = getIntervalArray(amount, 0, frameCount, frameCount);
+    console.log(currentFileId);
+    console.log(file);
+    const { frameCount, path: filePath, useRatio, transformObject } = file;
+    const frameNumberArray = getIntervalArray(Math.round(frameCount * scanResolution), 0, frameCount, frameCount);
 
     ipcRenderer.send(
       'message-from-mainWindow-to-opencvWorkerWindow',
       'send-get-faces-sync',
-      theFileId,
-      path,
-      currentSheetId,
+      currentFileId,
+      filePath,
+      uuidV4(),
       frameNumberArray,
       useRatio,
       settings.defaultCachedFramesSize,
