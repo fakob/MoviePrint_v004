@@ -59,11 +59,13 @@ export const SHEET_FIT = {
 export const SHEET_TYPE = {
   INTERVAL: 'interval',
   SCENES: 'shot',
+  FACES: 'faces',
 };
 
 export const SHEET_TYPE_OPTIONS = [
   { value: SHEET_TYPE.INTERVAL, text: 'Interval', 'data-tid': 'sheetTypeOptionsInterval'},
   { value: SHEET_TYPE.SCENES, text: 'Scenes', 'data-tid': 'sheetTypeOptionsScenes'},
+  { value: SHEET_TYPE.FACES, text: 'Faces', 'data-tid': 'sheetTypeOptionsFaces'},
 ];
 
 export const THUMB_INFO = {

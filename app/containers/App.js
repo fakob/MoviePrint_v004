@@ -674,12 +674,11 @@ class App extends Component {
             status: 'addFaceData',
             sortMethod: faceSortMethod,
           });
-          dispatch(updateSheetType(fileId, newSheetId, SHEET_TYPE.INTERVAL));
-          dispatch(updateSheetView(fileId, newSheetId, SHEET_VIEW.GRIDVIEW));
-          const parentSheetName = getSheetName(sheetsByFileId, fileId, sheetId);
-          const newSheetName = `faces of ${parentSheetName}`;
+          const newSheetName = getNewSheetName(getSheetCount(files, fileId));
           dispatch(updateSheetName(fileId, newSheetId, newSheetName));
-          dispatch(updateSheetParent(fileId, newSheetId, sheetId));
+          dispatch(updateSheetName(fileId, newSheetId, newSheetName));
+          dispatch(updateSheetType(fileId, newSheetId, SHEET_TYPE.FACES));
+          dispatch(updateSheetView(fileId, newSheetId, SHEET_VIEW.GRIDVIEW));
           dispatch(setCurrentSheetId(newSheetId));
           return undefined;
         }).catch((err) => {
@@ -1606,15 +1605,21 @@ class App extends Component {
   }
 
   onSortSheet(sortMethod, reverseSortOrder, fileId = undefined, sheetId = undefined) {
-    const { currentFileId, currentSheetId, dispatch, sheetsByFileId } = this.props;
+    const { currentFileId, currentSheetId, dispatch, sheetsByFileId, visibilitySettings } = this.props;
 
     const theFileId = fileId || currentFileId;
     const theSheetId = sheetId || currentSheetId;
     const { thumbsArray } = sheetsByFileId[theFileId][theSheetId];
 
-    //
-    const faceScanArray = getFaceScanByFileId(theFileId);
+    // get visible thumbs and only request faces scan data for them
+    const visibleThumbs = getVisibleThumbs(
+      thumbsArray,
+      visibilitySettings.visibilityFilter
+    );
+    const visibleThumbsFrameNumbers = visibleThumbs.map(thumb => thumb.frameNumber);
+    const faceScanArray = getFaceScanByFileId(theFileId, visibleThumbsFrameNumbers);
     console.log(faceScanArray);
+
     const sortOrderArray = sortDetectionArray(
       faceScanArray,
       sortMethod,

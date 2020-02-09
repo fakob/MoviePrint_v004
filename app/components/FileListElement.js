@@ -5,12 +5,7 @@ import { Button, Image, Input, Icon, Popup, Dropdown, Label } from 'semantic-ui-
 import { truncate, truncatePath, frameCountToTimeCode, formatBytes, sanitizeString } from '../utils/utils';
 import styles from './FileList.css';
 import stylesPop from './Popup.css';
-import {
-  EXPORT_FORMAT_OPTIONS,
-  SHEET_TYPE,
-  SHEET_VIEW,
-} from '../utils/constants';
-
+import { EXPORT_FORMAT_OPTIONS, SHEET_TYPE, SHEET_VIEW } from '../utils/constants';
 
 const FileListElement = ({
   currentFileId,
@@ -41,12 +36,11 @@ const FileListElement = ({
   size,
   width,
 }) => {
-
   const inputRef = useRef(null);
   const [input, setInput] = useState({
     isRenaming: false, // initial state
     isHovering: false, // initial state
-    })
+  });
   const sheetsArray = Object.getOwnPropertyNames(sheetsObject);
 
   const onSubmitMoviePrintName = (e, sheetId) => {
@@ -59,11 +53,11 @@ const FileListElement = ({
       setInput({
         ...input,
         [e.currentTarget.name]: value,
-        'isRenaming': false, // reset isRenaming
-        'isHovering': false, // reset isHovering
-      })
+        isRenaming: false, // reset isRenaming
+        isHovering: false, // reset isHovering
+      });
     }
-  }
+  };
 
   useEffect(() => {
     if (input.isRenaming) {
@@ -81,9 +75,9 @@ const FileListElement = ({
     }
     setInput({
       ...input,
-      'isRenaming': valueToSet,
-    })
-  }
+      isRenaming: valueToSet,
+    });
+  };
 
   const onMouseEnterElement = (e, sheetId) => {
     e.stopPropagation();
@@ -95,9 +89,9 @@ const FileListElement = ({
     // }
     setInput({
       ...input,
-      'isHovering': sheetId,
-    })
-  }
+      isHovering: sheetId,
+    });
+  };
 
   const onMouseLeaveElement = (e, sheetId) => {
     e.stopPropagation();
@@ -109,9 +103,9 @@ const FileListElement = ({
     // }
     setInput({
       ...input,
-      'isHovering': false,
-    })
-  }
+      isHovering: false,
+    });
+  };
 
   function getSheetIcon(sheetView) {
     switch (sheetView) {
@@ -182,23 +176,19 @@ const FileListElement = ({
   return (
     <li
       data-tid={`fileListItem_${fileId}`}
-      onClick={e => (fileMissingStatus === true) ? null : onFileListElementClickWithStop(e, fileId)}
-      className={`${styles.FileListItem} ${(currentFileId === fileId) ? styles.Highlight : ''} ${(fileMissingStatus === true) ? styles.Missing : ''}`}
+      onClick={e => (fileMissingStatus === true ? null : onFileListElementClickWithStop(e, fileId))}
+      className={`${styles.FileListItem} ${currentFileId === fileId ? styles.Highlight : ''} ${
+        fileMissingStatus === true ? styles.Missing : ''
+      }`}
     >
-      {(fileMissingStatus === true) &&
-        <div
-          className={`${styles.fileMissingContainer}`}
-        >
-          <div
-            className={`${styles.fileMissing}`}
-          >
-            Movie is missing
-          </div>
+      {fileMissingStatus === true && (
+        <div className={`${styles.fileMissingContainer}`}>
+          <div className={`${styles.fileMissing}`}>Movie is missing</div>
           <Popup
             trigger={
               <Button
-                data-tid='findfileBtn'
-                size='mini'
+                data-tid="findfileBtn"
+                size="mini"
                 inverted
                 className={`${styles.fileMissingButton}`}
                 onClick={e => onReplaceMovieListItemClickWithStop(e, fileId)}
@@ -208,15 +198,15 @@ const FileListElement = ({
             }
             mouseEnterDelay={1000}
             on={['hover']}
-            position='bottom center'
+            position="bottom center"
             className={stylesPop.popup}
             content="Locate the missing movie"
           />
           <Popup
             trigger={
               <Button
-                data-tid='removeFileBtn'
-                size='mini'
+                data-tid="removeFileBtn"
+                size="mini"
                 inverted
                 className={`${styles.fileMissingButton}`}
                 onClick={e => onRemoveMovieListItemClickWithStop(e, fileId)}
@@ -226,58 +216,58 @@ const FileListElement = ({
             }
             mouseEnterDelay={1000}
             on={['hover']}
-            position='bottom center'
+            position="bottom center"
             className={stylesPop.popup}
             content="Remove movie from list"
           />
         </div>
-      }
+      )}
       <Dropdown
-        data-tid='movieListItemOptionsDropdown'
+        data-tid="movieListItemOptionsDropdown"
         item
         direction="left"
         icon="ellipsis vertical"
         className={`${styles.overflow} ${styles.overflowHidden}`}
       >
         <Dropdown.Menu>
-          {fileMissingStatus !== true &&
-              <Dropdown.Item
-              data-tid='addShotDetectionMovieListItemOption'
+          {fileMissingStatus !== true && (
+            <Dropdown.Item
+              data-tid="addShotDetectionMovieListItemOption"
               icon="add"
               text="Add MoviePrint (shot detection based)"
               onClick={e => onScanMovieListItemClickWithStop(e, fileId)}
             />
-          }
-          {fileMissingStatus !== true &&
+          )}
+          {fileMissingStatus !== true && (
             <Dropdown.Item
-              data-tid='addIntervalMovieListItemOption'
+              data-tid="addIntervalMovieListItemOption"
               icon="add"
               text="Add MoviePrint (interval based)"
               onClick={e => onAddIntervalSheetClickWithStop(e, fileId)}
             />
-          }
-          {fileMissingStatus !== true &&
+          )}
+          {fileMissingStatus !== true && (
             <Dropdown.Item
-              data-tid='changeCroppingListItemOption'
+              data-tid="changeCroppingListItemOption"
               icon="crop"
               text="Edit cropping"
               onClick={e => onEditTransformListItemClickWithStop(e, fileId)}
             />
-          }
+          )}
           <Dropdown.Item
-            data-tid='openFileExplorerItemOption'
+            data-tid="openFileExplorerItemOption"
             icon="external alternate"
             text="Open file location"
             onClick={() => onOpenFileExplorer(path)}
           />
           <Dropdown.Item
-            data-tid='replaceMovieListItemOption'
+            data-tid="replaceMovieListItemOption"
             icon="exchange"
             text="Replace movie"
             onClick={e => onReplaceMovieListItemClickWithStop(e, fileId)}
           />
           <Dropdown.Item
-            data-tid='removeMovieListItemOption'
+            data-tid="removeMovieListItemOption"
             icon="delete"
             text="Remove from list"
             onClick={e => onRemoveMovieListItemClickWithStop(e, fileId)}
@@ -285,58 +275,51 @@ const FileListElement = ({
         </Dropdown.Menu>
       </Dropdown>
       <Image
-         as='div'
-         floated='left'
-         className={`${styles.croppedThumb}`}
-         style={{
-           backgroundColor: '#1e1e1e',
-           backgroundImage: `url(${objectUrl})`
-         }}
-       >
-         {fileScanStatus && <Label
-           as='a'
-           color='orange'
-           size='mini'
-           circular
-           alt='Movie has been scanned'
-           className={`${styles.ThumbLabel}`}
-         >
-          S
-        </Label>}
-      </Image>
-      <div
-        className={`${styles.Title}`}
-        title={`${(fileMissingStatus === true) ? 'MISSING: ' : ''}${name}`}
+        as="div"
+        floated="left"
+        className={`${styles.croppedThumb}`}
+        style={{
+          backgroundColor: '#1e1e1e',
+          backgroundImage: `url(${objectUrl})`,
+        }}
       >
+        {fileScanStatus && (
+          <Label
+            as="a"
+            color="orange"
+            size="mini"
+            circular
+            alt="Movie has been scanned"
+            className={`${styles.ThumbLabel}`}
+          >
+            S
+          </Label>
+        )}
+      </Image>
+      <div className={`${styles.Title}`} title={`${fileMissingStatus === true ? 'MISSING: ' : ''}${name}`}>
         {truncate(name, 48)}
       </div>
       <div
         className={`${styles.Path}`}
-        title={`${(fileMissingStatus === true) ? 'MISSING: ' : ''}${path.slice(0, path.lastIndexOf('/'))}`}
+        title={`${fileMissingStatus === true ? 'MISSING: ' : ''}${path.slice(0, path.lastIndexOf('/'))}`}
       >
         {truncatePath(path.slice(0, path.lastIndexOf('/')), 40)}
       </div>
       <div className={`${styles.Detail}`}>
-        <div className={`${styles.DetailLeft}`}>
-          {frameCountToTimeCode(frameCount, fps)}
-        </div>
-        <div className={`${styles.DetailRight}`}>
-          {formatBytes(size, 1)}
-        </div>
+        <div className={`${styles.DetailLeft}`}>{frameCountToTimeCode(frameCount, fps)}</div>
+        <div className={`${styles.DetailRight}`}>{formatBytes(size, 1)}</div>
         <div className={`${styles.DetailCenter}`}>
           {width} x {height}
         </div>
       </div>
-      <ul
-        className={`${styles.SheetList}`}
-      >
+      <ul className={`${styles.SheetList}`}>
         {sheetsArray.map((sheetId, index) => (
           <li
             key={sheetId}
             index={index}
             data-tid={`sheetListItem_${fileId}`}
             onClick={e => onSheetClickWithStop(e, fileId, sheetId, sheetsObject[sheetId].sheetView)}
-            className={`${styles.SheetListItem} ${(currentSheetId === sheetId) ? styles.SheetHighlight : ''}`}
+            className={`${styles.SheetListItem} ${currentSheetId === sheetId ? styles.SheetHighlight : ''}`}
             title={`${sheetsObject[sheetId].type} based`}
           >
             {/* {(currentSheetId === sheetId) &&
@@ -347,57 +330,55 @@ const FileListElement = ({
               >
               Selected sheet
             </Label>} */}
-            {input.isRenaming !== sheetId &&
-              <React.Fragment>
-                <span
-                  className={`${styles.SheetName}`}
-                  title={sheetsObject[sheetId].name}
-                >
-                    <Icon
-                      onMouseEnter={e => onMouseEnterElement(e,sheetId)}
-                      onMouseLeave={e => onMouseLeaveElement(e)}
-                      name={input.isHovering !== sheetId ? getSheetIcon(sheetsObject[sheetId].sheetView) : 'edit'}
-                      inverted
-                      onClick={e => onStartRenameClickWithStop(e, sheetId)}
-                      role='button'
-                    />
-                    &nbsp;{sheetsObject[sheetId].name}
+            {input.isRenaming !== sheetId && (
+              <>
+                <span className={`${styles.SheetName}`} title={sheetsObject[sheetId].name}>
+                  <Icon
+                    onMouseEnter={e => onMouseEnterElement(e, sheetId)}
+                    onMouseLeave={e => onMouseLeaveElement(e)}
+                    name={input.isHovering !== sheetId ? getSheetIcon(sheetsObject[sheetId].sheetView) : 'edit'}
+                    inverted
+                    onClick={e => onStartRenameClickWithStop(e, sheetId)}
+                    role="button"
+                  />
+                  &nbsp;{sheetsObject[sheetId].name}
                 </span>
                 <Label
-                  size='mini'
+                  size="mini"
                   horizontal
-                  className={`${styles.SheetLabel} ${(sheetsObject[sheetId].type === SHEET_TYPE.SCENES) ? styles.shotBased : ''}`}
+                  className={`${styles.SheetLabel} ${
+                    sheetsObject[sheetId].type === SHEET_TYPE.SCENES ? styles.shotBased :
+                      sheetsObject[sheetId].type === SHEET_TYPE.FACES ? styles.facesBased : ''
+                  }`}
                 >
                   {`${sheetsObject[sheetId].type} based`}
                 </Label>
-              </React.Fragment>
-            }
-            {input.isRenaming === sheetId &&
-              <span
-                className={`${styles.SheetNameInputContainer}`}
-              >
+              </>
+            )}
+            {input.isRenaming === sheetId && (
+              <span className={`${styles.SheetNameInputContainer}`}>
                 <Icon
-                  name='edit'
+                  name="edit"
                   inverted
                   // size='small'
                 />
                 <Input
-                  data-tid='moviePrintNameInput'
-                  name='moviePrintNameInput'
+                  data-tid="moviePrintNameInput"
+                  name="moviePrintNameInput"
                   focus
                   ref={inputRef}
                   className={`${styles.SheetNameInput}`}
                   transparent
-                  placeholder='Name this MoviePrint'
+                  placeholder="Name this MoviePrint"
                   defaultValue={sheetsObject[sheetId].name}
                   onBlur={e => onSubmitMoviePrintName(e, sheetId)}
                   onKeyUp={e => onSubmitMoviePrintName(e, sheetId)}
                 />
               </span>
-            }
-            {fileMissingStatus !== true &&
+            )}
+            {fileMissingStatus !== true && (
               <Dropdown
-                data-tid='sheetItemOptionsDropdown'
+                data-tid="sheetItemOptionsDropdown"
                 item
                 direction="left"
                 icon="ellipsis vertical"
@@ -405,55 +386,61 @@ const FileListElement = ({
               >
                 <Dropdown.Menu>
                   <Dropdown.Item
-                    data-tid='renameSheetItemOption'
+                    data-tid="renameSheetItemOption"
                     icon="edit"
                     text="Rename"
                     onClick={e => onStartRenameClickWithStop(e, sheetId)}
                   />
-                  {sheetsObject[sheetId].sheetView === SHEET_VIEW.TIMELINEVIEW && <Dropdown.Item
-                    data-tid='changeViewSheetToGridViewItemOption'
-                    icon="grid layout"
-                    text="Switch to grid view"
-                    onClick={e => onChangeSheetViewClickWithStop(e, fileId, sheetId, SHEET_VIEW.GRIDVIEW)}
-                  />}
-                  {sheetsObject[sheetId].sheetView === SHEET_VIEW.GRIDVIEW && <Dropdown.Item
-                    data-tid='changeViewSheetToTimelineViewItemOption'
-                    icon="barcode"
-                    text="Switch to timeline view"
-                    onClick={e => onChangeSheetViewClickWithStop(e, fileId, sheetId, SHEET_VIEW.TIMELINEVIEW)}
-                  />}
+                  {sheetsObject[sheetId].sheetView === SHEET_VIEW.TIMELINEVIEW && (
+                    <Dropdown.Item
+                      data-tid="changeViewSheetToGridViewItemOption"
+                      icon="grid layout"
+                      text="Switch to grid view"
+                      onClick={e => onChangeSheetViewClickWithStop(e, fileId, sheetId, SHEET_VIEW.GRIDVIEW)}
+                    />
+                  )}
+                  {sheetsObject[sheetId].sheetView === SHEET_VIEW.GRIDVIEW && (
+                    <Dropdown.Item
+                      data-tid="changeViewSheetToTimelineViewItemOption"
+                      icon="barcode"
+                      text="Switch to timeline view"
+                      onClick={e => onChangeSheetViewClickWithStop(e, fileId, sheetId, SHEET_VIEW.TIMELINEVIEW)}
+                    />
+                  )}
                   <Dropdown.Item
-                    data-tid='duplicateSheetItemOption'
+                    data-tid="duplicateSheetItemOption"
                     icon="copy"
                     text="Duplicate"
                     onClick={e => onDuplicateSheetClickWithStop(e, fileId, sheetId)}
                   />
                   <Dropdown.Item
-                    data-tid='exportSheetItemOption'
+                    data-tid="exportSheetItemOption"
                     icon="download"
                     text="Export JSON"
                     onClick={e => onExportSheetClickWithStop(e, fileId, sheetId, EXPORT_FORMAT_OPTIONS.JSON)}
                   />
-                  {sheetsObject[sheetId].type === SHEET_TYPE.SCENES && <Dropdown.Item
-                    data-tid='exportSheetItemOption'
-                    icon="download"
-                    text="Export EDL"
-                    onClick={e => onExportSheetClickWithStop(e, fileId, sheetId, EXPORT_FORMAT_OPTIONS.EDL)}
-                  />}
+                  {sheetsObject[sheetId].type === SHEET_TYPE.SCENES && (
+                    <Dropdown.Item
+                      data-tid="exportSheetItemOption"
+                      icon="download"
+                      text="Export EDL"
+                      onClick={e => onExportSheetClickWithStop(e, fileId, sheetId, EXPORT_FORMAT_OPTIONS.EDL)}
+                    />
+                  )}
                   <Dropdown.Item
-                    data-tid='deleteSheetItemOption'
+                    data-tid="deleteSheetItemOption"
                     icon="delete"
                     text="Delete"
                     onClick={e => onDeleteSheetClickWithStop(e, fileId, sheetId)}
                   />
                 </Dropdown.Menu>
               </Dropdown>
-            }
+            )}
           </li>
         ))}
       </ul>
     </li>
-  )
+  );
 };
 
 FileListElement.propTypes = {
@@ -467,7 +454,7 @@ FileListElement.propTypes = {
   name: PropTypes.string.isRequired,
   path: PropTypes.string.isRequired,
   size: PropTypes.number.isRequired,
-  onFileListElementClick: PropTypes.func.isRequired
+  onFileListElementClick: PropTypes.func.isRequired,
 };
 
 export default FileListElement;
