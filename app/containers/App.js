@@ -489,7 +489,7 @@ class App extends Component {
         toast.update(fileId, {
           className: `${stylesPop.toast} ${stylesPop.toastSuccess}`,
           progress: null,
-          render: 'Shot detection finished',
+          render: 'Detection finished',
           hideProgressBar: true,
           autoClose: 3000,
           closeButton: true,
@@ -641,6 +641,10 @@ class App extends Component {
       const { files, sheetsByFileId } = this.props;
       console.log(detectionArray);
       console.log(faceSortMethod);
+
+      this.setState({
+        fileScanRunning: false,
+      });
 
       // only create new faceSheet if there is at least 1 face
       if (detectionArray !== 0) {
@@ -1863,7 +1867,9 @@ class App extends Component {
     });
     log.debug('now I cancelIdleCallback');
 
-    ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'cancelFileScan', fileId);
+    ipcRenderer.send(
+      'message-from-mainWindow-to-opencvWorkerWindow', 'cancelFileScan', fileId
+    );
 
     this.setState({
       fileScanRunning: false,
@@ -1871,7 +1877,7 @@ class App extends Component {
     toast.update(fileId, {
       className: `${stylesPop.toast} ${stylesPop.toastError}`,
       // hideProgressBar: false,
-      render: 'Shot detection was cancelled !',
+      render: 'Detection was cancelled !',
       autoClose: 3000,
       closeButton: true,
       closeOnClick: true,
@@ -2321,6 +2327,31 @@ class App extends Component {
     console.log(file);
     const { frameCount, path: filePath, useRatio, transformObject } = file;
     const frameNumberArray = getIntervalArray(Math.round(frameCount * scanResolution), 0, frameCount, frameCount);
+
+    this.setState({ fileScanRunning: true });
+    // display toast and set toastId to fileId
+    toast(({ closeToast }) => (
+      <div>
+        Face detection in progress
+        <Button
+          compact
+          floated='right'
+          content='Cancel'
+          onClick={() => {
+            console.error('click');
+            this.cancelFileScan(currentFileId);
+            closeToast();
+          }}
+        />
+      </div>
+    ), {
+      toastId: currentFileId,
+      className: `${stylesPop.toast} ${stylesPop.toastInfo}`,
+      hideProgressBar: false,
+      autoClose: false,
+      closeButton: false,
+      closeOnClick: false,
+    });
 
     ipcRenderer.send(
       'message-from-mainWindow-to-opencvWorkerWindow',

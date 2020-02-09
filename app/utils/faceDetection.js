@@ -11,13 +11,14 @@ import {
 } from './constants';
 
 const opencv = require('opencv4nodejs');
+const { ipcRenderer } = require('electron');
 const { app } = require('electron').remote;
+
 const appPath = app.getAppPath();
 const weightsPath = path.join(appPath, './dist/weights');
 
-// init detection options
-const minConfidenceFace = 0.5;
-const faceapiOptions = new faceapi.SsdMobilenetv1Options({ minConfidenceFace });
+// to cancel file scan
+let fileScanRunning = false;
 
 // configure face API
 faceapi.env.monkeyPatch({
@@ -31,7 +32,7 @@ faceapi.env.monkeyPatch({
 
 const loadNet = async () => {
   console.log(weightsPath);
-  console.log(faceapi.nets)
+  console.log(faceapi.nets);
   const detectionNet = faceapi.nets.ssdMobilenetv1;
   console.log(detectionNet);
   await detectionNet.loadFromDisk(weightsPath);
@@ -43,33 +44,15 @@ const loadNet = async () => {
   return detectionNet;
 };
 
-// let cam;
-// let initCamera = async (width, height) => {
-//   cam = document.getElementById('cam');
-//   cam.width = width;
-//   cam.height = height;
-//   const stream = await navigator.mediaDevices.getUserMedia({
-//     audio: false,
-//     video: {
-//       facingMode: "user",
-//       width: width,
-//       height: height
-//     }
-//   });
-//   cam.srcObject = stream;
-//   return new Promise((resolve) => {
-//     cam.onloadedmetadata = () => {
-//       resolve(cam);
-//     };
-//   });
-// };
+const detectionNet = loadNet().then(() => {
+  console.log(detectionNet);
+  return undefined;
+});
 
-const detectionNet = loadNet()
-  .then(() => {
-    console.log(detectionNet);
-    return undefined;
-  }
-);
+ipcRenderer.on('cancelFileScan', () => {
+  log.debug('cancelling fileScan');
+  fileScanRunning = false;
+});
 
 export const detectFace = async (image, frameNumber, detectionArray, uniqueFaceArray) => {
   // detect expression
@@ -260,11 +243,34 @@ export const detectAllFaces = async (image, frameNumber, detectionArray, uniqueF
   return detections;
 }
 
-export const runSyncCaptureAndFaceDetect = async (vid, frameNumberArray, useRatio, getAllFaces) => {
+export const runSyncCaptureAndFaceDetect = async (vid, fileId, frameNumberArray, useRatio, getAllFaces) => {
+  fileScanRunning = true;
 
   const detectionArray = [];
   const uniqueFaceArray = [];
-  for (let i = 0; i < frameNumberArray.length; i += 1) {
+  const arrayLength = frameNumberArray.length;
+  for (let i = 0; i < arrayLength; i += 1) {
+    if (!fileScanRunning) {
+      const messageToSend = `opencvWorkerWindow | Face scanning cancelled at frame ${frame}`;
+      log.debug(messageToSend);
+
+      ipcRenderer.send(
+        'message-from-opencvWorkerWindow-to-mainWindow',
+        'progressMessage',
+        'error',
+        messageToSend,
+        6000,
+      );
+      break;
+    }
+    const progressBarPercentage = (i / arrayLength) * 100;
+    ipcRenderer.send(
+      'message-from-opencvWorkerWindow-to-mainWindow',
+      'progress',
+      fileId,
+      progressBarPercentage,
+    ); // first half of progress
+
     const frameNumber = frameNumberArray[i];
     setPosition(vid, frameNumber, useRatio);
     const frame = vid.read();
@@ -274,9 +280,9 @@ export const runSyncCaptureAndFaceDetect = async (vid, frameNumberArray, useRati
       const matRGBA = frame.channels === 1 ? frame.cvtColor(opencv.COLOR_GRAY2RGBA) : frame.cvtColor(opencv.COLOR_BGR2RGBA);
       // optional rescale
       let matRescaled = matRGBA;
-      // if (true) { // false stands for keep original size
-      //   matRescaled = matRGBA.resizeToMax(640);
-      // }
+      if (true) { // false stands for keep original size
+        matRescaled = matRGBA.resizeToMax(720);
+      }
 
       const outJpg =  opencv.imencode('.jpg', matRescaled);
       const input = tf.node.decodeJpeg(outJpg);

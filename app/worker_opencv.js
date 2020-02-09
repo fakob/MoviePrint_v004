@@ -822,25 +822,33 @@ ipcRenderer.on(
     getAllFaces = false,
   ) => {
     log.debug('opencvWorkerWindow | on send-get-faces-sync');
-    // log.debug(frameNumberArray);
     log.debug(`opencvWorkerWindow | ${filePath}`);
-    log.debug(`opencvWorkerWindow | useRatio: ${useRatio}`);
-    // opencv.utils.setLogLevel('LOG_LEVEL_DEBUG');
 
     try {
+      const timeBeforeFaceDetection = Date.now();
+      console.time(`${fileId}-faceScanning`);
+
       const vid = new opencv.VideoCapture(filePath);
 
-      runSyncCaptureAndFaceDetect(vid, frameNumberArray, useRatio, getAllFaces)
+      runSyncCaptureAndFaceDetect(vid, fileId, frameNumberArray, useRatio, getAllFaces)
         .then(detectionArray => {
           // insert all frames into sqlite3
-          console.log(detectionArray);
-          const timeBeforeFaceScan = Date.now();
           insertFaceScanArray(fileId, detectionArray);
-          const timeAfterFaceScan = Date.now();
-          log.debug(
-            `opencvWorkerWindow | faceScan duration: ${timeAfterFaceScan -
-              timeBeforeFaceScan}`,
-          );
+
+          const timeAfterFaceDetection = Date.now();
+          const scanDurationInSeconds =
+            (timeAfterFaceDetection - timeBeforeFaceDetection) / 1000;
+          const scanDurationString =
+            scanDurationInSeconds > 180
+              ? `${Math.floor(scanDurationInSeconds / 60)} minutes`
+              : `${Math.floor(scanDurationInSeconds)} seconds`;
+          const messageToSend = `Face scanning took ${scanDurationString} (${Math.floor(
+            vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) /
+              scanDurationInSeconds,
+          )} fps)`;
+          log.info(`opencvWorkerWindow | ${filePath} - ${messageToSend}`);
+          console.timeEnd(`${fileId}-fileScanning`);
+
           ipcRenderer.send(
             'message-from-opencvWorkerWindow-to-mainWindow',
             'finished-getting-faces',
@@ -849,6 +857,20 @@ ipcRenderer.on(
             detectionArray,
             faceSortMethod,
           );
+          ipcRenderer.send(
+            'message-from-opencvWorkerWindow-to-mainWindow',
+            'progress',
+            fileId,
+            100,
+          ); // set to full
+          ipcRenderer.send(
+            'message-from-opencvWorkerWindow-to-mainWindow',
+            'progressMessage',
+            'info',
+            messageToSend,
+            5000,
+          );
+
           return undefined;
         })
         .catch(err => {
@@ -857,6 +879,7 @@ ipcRenderer.on(
     } catch (e) {
       log.error(e);
     }
+
   },
 );
 
