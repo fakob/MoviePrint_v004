@@ -5,17 +5,9 @@ import PropTypes from 'prop-types';
 import { Popup } from 'semantic-ui-react';
 import styles from './Scrub.css';
 import stylesPop from './Popup.css';
-import {
-  getObjectProperty,
-  getScrubFrameNumber,
-  mapRange,
-  getThumbInfoValue,
-} from '../utils/utils';
+import { getObjectProperty, getScrubFrameNumber, mapRange, getThumbInfoValue } from '../utils/utils';
 import transparent from '../img/Thumb_TRANSPARENT.png';
-import {
-  MENU_FOOTER_HEIGHT,
-  SHEET_TYPE,
-} from '../utils/constants';
+import { MENU_FOOTER_HEIGHT, SHEET_TYPE } from '../utils/constants';
 
 class Scrub extends Component {
   constructor(props) {
@@ -44,35 +36,36 @@ class Scrub extends Component {
       0,
       this.props.file.frameCount,
       0,
-      this.props.scaleValueObject.scrubInnerContainerWidth
+      this.props.scaleValueObject.scrubInnerContainerWidth,
     );
     const timeLineScrubThumb = mapRange(
       this.props.scrubThumb.frameNumber,
       0,
       this.props.file.frameCount,
       0,
-      this.props.scaleValueObject.scrubInnerContainerWidth
+      this.props.scaleValueObject.scrubInnerContainerWidth,
     );
     const timeLineCutOut = mapRange(
       this.props.scrubThumbRight.frameNumber,
       0,
       this.props.file.frameCount,
       0,
-      this.props.scaleValueObject.scrubInnerContainerWidth
+      this.props.scaleValueObject.scrubInnerContainerWidth,
     );
-    const leftOfScrubMovie = (this.props.scaleValueObject.scrubInnerContainerWidth - this.props.scaleValueObject.scrubMovieWidth) / 2;
+    const leftOfScrubMovie =
+      (this.props.scaleValueObject.scrubInnerContainerWidth - this.props.scaleValueObject.scrubMovieWidth) / 2;
     const rightOfScrubMovie = leftOfScrubMovie + this.props.scaleValueObject.scrubMovieWidth;
     const scrubThumbLineValue = mapRange(
       this.props.scrubThumb.frameNumber,
       this.props.scrubThumbLeft.frameNumber,
       this.props.scrubThumbRight.frameNumber,
       leftOfScrubMovie,
-      rightOfScrubMovie
+      rightOfScrubMovie,
     );
 
     // show timecode if hideInfo
-    const scrubInfo = this.props.settings.defaultThumbInfo === 'hideInfo' ?
-      'timecode' : this.props.settings.defaultThumbInfo;
+    const scrubInfo =
+      this.props.settings.defaultThumbInfo === 'hideInfo' ? 'timecode' : this.props.settings.defaultThumbInfo;
 
     this.setState({
       scrubFrameNumber: this.props.scrubThumb.frameNumber,
@@ -86,14 +79,11 @@ class Scrub extends Component {
     });
   }
 
-  componentDidMount() {
-  }
+  componentDidMount() {}
 
-  componentWillReceiveProps(nextProps) {
-  }
+  componentWillReceiveProps(nextProps) {}
 
-  componentDidUpdate(prevProps) {
-  }
+  componentDidUpdate(prevProps) {}
 
   onScrubMouseMoveWithStop(e) {
     const scrubFrameNumber = getScrubFrameNumber(
@@ -110,13 +100,13 @@ class Scrub extends Component {
       0,
       this.props.file.frameCount,
       0,
-      this.props.scaleValueObject.scrubInnerContainerWidth
+      this.props.scaleValueObject.scrubInnerContainerWidth,
     );
     this.setState({
       scrubLineValue: e.clientX,
       scrubFrameNumber,
       scrubLineOnTimelineValue,
-    })
+    });
     e.stopPropagation();
     this.props.onScrubWindowMouseOver(e, this.props.sheetType);
   }
@@ -132,8 +122,19 @@ class Scrub extends Component {
   }
 
   render() {
-    const { containerHeight, containerWidth, file, keyObject, objectUrlObjects,
-      scaleValueObject, scrubThumb, scrubThumbLeft, scrubThumbRight, settings, sheetType } = this.props;
+    const {
+      containerHeight,
+      containerWidth,
+      file,
+      keyObject,
+      objectUrlObjects,
+      scaleValueObject,
+      scrubThumb,
+      scrubThumbLeft,
+      scrubThumbRight,
+      settings,
+      sheetType,
+    } = this.props;
 
     let addBefore = false;
     let addAfter = false;
@@ -151,9 +152,7 @@ class Scrub extends Component {
         onMouseUp={this.onScrubClickWithStop}
         // onClick={this.onScrubClickWithStop}
       >
-        <div
-          className={styles.scrubInfo}
-        >
+        <div className={styles.scrubInfo}>
           {addBefore && 'ADD BEFORE'}
           {addAfter && 'ADD AFTER'}
           {!addBefore && !addAfter && 'CHANGE TO'}
@@ -174,9 +173,11 @@ class Scrub extends Component {
             <span
               className={styles.scrubThumbLeft}
               style={{
-                backgroundImage: `url(${addAfter ?
-                  objectUrlObjects[scrubThumb.frameId] :
-                  objectUrlObjects[scrubThumbLeft.frameId] || transparent})`,
+                backgroundImage: `url(${
+                  addAfter
+                    ? objectUrlObjects[scrubThumb.frameId]
+                    : objectUrlObjects[scrubThumbLeft.frameId] || transparent
+                })`,
                 height: scaleValueObject.scrubInOutMovieHeight,
                 width: scaleValueObject.scrubInOutMovieWidth,
                 margin: settings.defaultScrubWindowMargin,
@@ -206,16 +207,16 @@ class Scrub extends Component {
                 width: scaleValueObject.scrubMovieWidth,
               }}
             >
-              <canvas
-                ref={this.props.opencvVideoCanvasRef}
-              />
+              <canvas ref={this.props.opencvVideoCanvasRef} />
             </span>
             <span
               className={styles.scrubThumbRight}
               style={{
-                backgroundImage: `url(${addBefore ?
-                  objectUrlObjects[scrubThumb.frameId] :
-                  objectUrlObjects[scrubThumbRight.frameId] || transparent})`,
+                backgroundImage: `url(${
+                  addBefore
+                    ? objectUrlObjects[scrubThumb.frameId]
+                    : objectUrlObjects[scrubThumbRight.frameId] || transparent
+                })`,
                 height: scaleValueObject.scrubInOutMovieHeight,
                 width: scaleValueObject.scrubInOutMovieWidth,
                 margin: settings.defaultScrubWindowMargin,
@@ -229,11 +230,7 @@ class Scrub extends Component {
               left: `${this.state.scrubLineValue}px`,
             }}
           >
-            {getThumbInfoValue(
-              this.state.scrubInfo,
-              this.state.scrubFrameNumber,
-              file.fps
-            )}
+            {getThumbInfoValue(this.state.scrubInfo, this.state.scrubFrameNumber, file.fps)}
           </span>
           <div
             className={styles.scrubLine}
@@ -250,23 +247,19 @@ class Scrub extends Component {
             {getThumbInfoValue(
               this.state.scrubInfo,
               addAfter ? scrubThumb.frameNumber : scrubThumbLeft.frameNumber,
-              file.fps
+              file.fps,
             )}
           </span>
-          {!addBefore && !addAfter &&
+          {!addBefore && !addAfter && (
             <span
               className={styles.scrubThumbframeNumberOrTimeCode}
               style={{
                 left: `${this.state.scrubThumbLineValue}px`,
               }}
             >
-              {getThumbInfoValue(
-                this.state.scrubInfo,
-                scrubThumb.frameNumber,
-                file.fps
-              )}
+              {getThumbInfoValue(this.state.scrubInfo, scrubThumb.frameNumber, file.fps)}
             </span>
-          }
+          )}
           <span
             className={styles.scrubThumbframeNumberOrTimeCode}
             style={{
@@ -276,7 +269,7 @@ class Scrub extends Component {
             {getThumbInfoValue(
               this.state.scrubInfo,
               addBefore ? scrubThumb.frameNumber : scrubThumbRight.frameNumber,
-              file.fps
+              file.fps,
             )}
           </span>
           <div
@@ -285,10 +278,7 @@ class Scrub extends Component {
               left: `${this.state.scrubThumbLineValue}px`,
             }}
           />
-          <div
-            id="timeLine"
-            className={`${styles.timelineWrapper}`}
-          >
+          <div id="timeLine" className={`${styles.timelineWrapper}`}>
             <div
               className={`${styles.timelinePlayhead}`}
               style={{
@@ -335,18 +325,33 @@ class Scrub extends Component {
           basic
           inverted
           wide
-          position='left top'
-          offset='-50%, 8px'
+          position="top left"
+          offset="-50%, 8px"
           className={stylesPop.popup}
           content={
-            <span>
-              Choose frame: drag left and right<br/>
-              Allow dragging over whole movie: <mark>CTRL</mark><br/>
-              Add new thumb before: <mark>SHIFT</mark><br/>
-              Add new thumb after: <mark>ALT</mark><br/>
-              Confirm frame: click/release mouse<br/>
-              Cancel: Move mouse over cancel zone
-            </span>
+            sheetType === SHEET_TYPE.INTERVAL ? (
+              <span>
+                Choose frame: drag left and right
+                <br />
+                Allow dragging over whole movie: <mark>CTRL</mark>
+                <br />
+                Add new thumb before: <mark>SHIFT</mark>
+                <br />
+                Add new thumb after: <mark>ALT</mark>
+                <br />
+                Confirm frame: click/release mouse
+                <br />
+                Cancel: Move mouse over cancel zone
+              </span>
+            ) : (
+              <span>
+                Choose frame: drag left and right
+                <br />
+                Confirm frame: click/release mouse
+                <br />
+                Cancel: Move mouse over cancel zone
+              </span>
+            )
           }
         />
       </div>
