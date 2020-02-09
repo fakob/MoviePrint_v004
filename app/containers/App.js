@@ -140,7 +140,7 @@ import {
   setVisibilityFilter,
   showMovielist,
   showSettings,
-  toggleThumbsByFrameNumberArray,
+  showThumbsByFrameNumberArray,
   updateCropping,
   updateFileDetails,
   updateFileDetailUseRatio,
@@ -1632,7 +1632,7 @@ class App extends Component {
     console.log(sortedThumbsArray);
     console.log(sortOrderArray);
     const frameNumberArray = sortOrderArray.map(item => item.frameNumber);
-    dispatch(toggleThumbsByFrameNumberArray(
+    dispatch(showThumbsByFrameNumberArray(
       theFileId,
       theSheetId,
       frameNumberArray,

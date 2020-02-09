@@ -865,10 +865,10 @@ export const toggleThumbsByThumbIdArray = (fileId, sheetId, thumbIdArray) => {
   };
 };
 
-export const toggleThumbsByFrameNumberArray = (fileId, sheetId, frameNumberArray) => {
-  log.debug(`action: toggleThumbsByframeNumberArray - ${frameNumberArray}`);
+export const showThumbsByFrameNumberArray = (fileId, sheetId, frameNumberArray) => {
+  log.debug(`action: showThumbsByFrameNumberArray - ${frameNumberArray}`);
   return {
-    type: 'TOGGLE_THUMBS_BY_FRAMENUMBERARRAY',
+    type: 'SHOW_THUMBS_BY_FRAMENUMBERARRAY',
     payload: {
       fileId,
       sheetId,
