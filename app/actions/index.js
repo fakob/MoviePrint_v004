@@ -487,6 +487,14 @@ export const setDefaultFaceUniquenessThreshold = defaultFaceUniquenessThreshold 
   };
 };
 
+export const setDefaultShowFaceRect = defaultShowFaceRect => {
+  log.debug(`action: setDefaultShowFaceRect - ${defaultShowFaceRect}`);
+  return {
+    type: 'SET_DEFAULT_SHOW_FACERECT',
+    defaultShowFaceRect,
+  };
+};
+
 // sheetsByFileId
 
 export const clearScenes = (fileId, sheetId) => {

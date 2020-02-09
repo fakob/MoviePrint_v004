@@ -85,6 +85,7 @@ const Thumb = ({
   borderRadius,
   color,
   controllersAreVisible,
+  defaultShowFaceRect,
   dim,
   frameninfoBackgroundColor,
   frameinfoColor,
@@ -204,7 +205,7 @@ const Thumb = ({
           }px`,
         }}
       />
-      {facesArray !== undefined && (
+      {defaultShowFaceRect && facesArray !== undefined &&(
         <AllFaces
           facesArray={facesArray}
           thumbWidth={thumbWidth}

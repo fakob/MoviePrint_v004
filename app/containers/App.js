@@ -127,6 +127,7 @@ import {
   setDefaultShowDetailsInHeader,
   setDefaultShowHeader,
   setDefaultShowImages,
+  setDefaultShowFaceRect,
   setDefaultShowPaperPreview,
   setDefaultShowPathInHeader,
   setDefaultShowTimelineInHeader,
@@ -338,6 +339,7 @@ class App extends Component {
     this.onChangeRow = this.onChangeRow.bind(this);
     this.onChangeColumn = this.onChangeColumn.bind(this);
     this.onChangeColumnAndApply = this.onChangeColumnAndApply.bind(this);
+    this.onChangeShowFaceRectClick = this.onChangeShowFaceRectClick.bind(this);
     this.onShowPaperPreviewClick = this.onShowPaperPreviewClick.bind(this);
     this.onOutputPathFromMovieClick = this.onOutputPathFromMovieClick.bind(this);
     this.onPaperAspectRatioClick = this.onPaperAspectRatioClick.bind(this);
@@ -2512,6 +2514,11 @@ class App extends Component {
     this.updateScaleValue();
   };
 
+  onChangeShowFaceRectClick = (checked) => {
+  const { dispatch } = this.props;
+    dispatch(setDefaultShowFaceRect(checked));
+  };
+
   onShowPaperPreviewClick = (checked) => {
   const { dispatch } = this.props;
     dispatch(setDefaultShowPaperPreview(checked));
@@ -3554,6 +3561,7 @@ ${exportObject}`;
                       onChangeColumn={this.onChangeColumn}
                       onChangeColumnAndApply={this.onChangeColumnAndApply}
                       onChangeRow={this.onChangeRow}
+                      onChangeShowFaceRectClick={this.onChangeShowFaceRectClick}
                       onShowPaperPreviewClick={this.onShowPaperPreviewClick}
                       onOutputPathFromMovieClick={this.onOutputPathFromMovieClick}
                       onPaperAspectRatioClick={this.onPaperAspectRatioClick}

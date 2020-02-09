@@ -29,6 +29,7 @@ import {
   DEFAULT_FRAMEINFO_MARGIN,
   DEFAULT_FRAMEINFO_POSITION,
   DEFAULT_FRAMEINFO_SCALE,
+  DEFAULT_SHOW_FACERECT,
   MINIMUM_WIDTH_TO_SHOW_HOVER,
   MINIMUM_WIDTH_TO_SHRINK_HOVER,
   SHEET_TYPE,
@@ -463,6 +464,7 @@ class ThumbGrid extends Component {
       defaultFrameinfoPosition = DEFAULT_FRAMEINFO_POSITION,
       defaultFrameinfoScale = DEFAULT_FRAMEINFO_SCALE,
       defaultFrameinfoMargin = DEFAULT_FRAMEINFO_MARGIN,
+      defaultShowFaceRect = DEFAULT_SHOW_FACERECT,
     } = settings;
     const frameninfoBackgroundColorString = `rgba(${defaultFrameinfoBackgroundColor.r}, ${defaultFrameinfoBackgroundColor.g}, ${defaultFrameinfoBackgroundColor.b}, ${defaultFrameinfoBackgroundColor.a})`;
     const frameinfoColorString = `rgba(${defaultFrameinfoColor.r}, ${defaultFrameinfoColor.g}, ${defaultFrameinfoColor.b}, ${defaultFrameinfoColor.a})`;
@@ -603,6 +605,7 @@ class ThumbGrid extends Component {
               thumbId={thumb.thumbId}
               index={thumb.index}
               indexForId={thumb.index}
+              defaultShowFaceRect={defaultShowFaceRect}
               facesArray={thumb.facesArray !== undefined ? thumb.facesArray : undefined}
               dim={(thumbsToDim.find((thumbToDim) => thumbToDim.thumbId === thumb.thumbId))}
               inputRefThumb={(selectedThumbsArray.length !== 0 && selectedThumbsArray[0].thumbId === thumb.thumbId) ?

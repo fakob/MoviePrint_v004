@@ -95,6 +95,8 @@ const settings = (state = {}, action) => {
       return { ...state, defaultFaceConfidenceThreshold: action.defaultFaceConfidenceThreshold };
     case 'SET_DEFAULT_FACE_UNIQUENESS_THRESHOLD':
       return { ...state, defaultFaceUniquenessThreshold: action.defaultFaceUniquenessThreshold };
+    case 'SET_DEFAULT_SHOW_FACERECT':
+      return { ...state, defaultShowFaceRect: action.defaultShowFaceRect };
     default:
       return state;
   }

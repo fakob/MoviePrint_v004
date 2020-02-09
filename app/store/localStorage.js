@@ -35,6 +35,7 @@ import {
   DEFAULT_SHEET_TYPE,
   DEFAULT_SHEETVIEW,
   DEFAULT_SHOW_DETAILS_IN_HEADER,
+  DEFAULT_SHOW_FACERECT,
   DEFAULT_SHOW_HEADER,
   DEFAULT_SHOW_IMAGES,
   DEFAULT_SHOW_PAPER_PREVIEW,
@@ -60,11 +61,7 @@ import {
   STATEID,
   VISIBILITY_FILTER,
 } from '../utils/constants';
-import {
-  createTableReduxState,
-  updateReduxState,
-  getReduxState,
-} from '../utils/utilsForSqlite';
+import { createTableReduxState, updateReduxState, getReduxState } from '../utils/utilsForSqlite';
 
 const { app } = require('electron').remote;
 
@@ -134,11 +131,12 @@ const initialStateJSON = {
       defaultMoviePrintName: DEFAULT_MOVIEPRINT_NAME,
       defaultSingleThumbName: DEFAULT_SINGLETHUMB_NAME,
       defaultAllThumbsName: DEFAULT_ALLTHUMBS_NAME,
+      defaultShowFaceRect: DEFAULT_SHOW_FACERECT,
       emailAddress: '',
     },
     sheetsByFileId: {},
-    files: []
-  }
+    files: [],
+  },
 };
 
 export const loadState = () => {
@@ -148,7 +146,7 @@ export const loadState = () => {
       // return undefined;
       return initialStateJSON;
     }
-    log.debug(`load state from ${row.timeStamp}`)
+    log.debug(`load state from ${row.timeStamp}`);
     const serializedState = row.state;
     // console.log(row);
     // console.log(row.timeStamp);
@@ -156,12 +154,12 @@ export const loadState = () => {
     // console.log(serializedState);
     return JSON.parse(serializedState);
   } catch (err) {
-    log.error('localStorage.js - error in loadState')
+    log.error('localStorage.js - error in loadState');
     log.error(err);
   }
 };
 
-export const saveState = (state) => {
+export const saveState = state => {
   try {
     const serializedState = JSON.stringify(state);
     const timeStamp = Date();
@@ -173,10 +171,10 @@ export const saveState = (state) => {
     const timeBeforeUnix = new Date(timeStamp);
     const timeAfter = new Date;
     const timeAfterUnix = timeAfter.getTime();
-    console.log(`saving state in sqlite3 took ${timeAfterUnix - timeBeforeUnix} milliseconds`)
+    console.log(`saving state in sqlite3 took ${timeAfterUnix - timeBeforeUnix} milliseconds`);
     // localStorage.setItem('state', serializedState);
   } catch (err) {
-    log.error('localStorage.js - error in saveState')
+    log.error('localStorage.js - error in saveState');
     log.error(err);
     // Ignore write errors
   }

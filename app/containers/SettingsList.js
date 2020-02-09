@@ -20,25 +20,26 @@ import {
 import {
   CACHED_FRAMES_SIZE_OPTIONS,
   COLOR_PALETTE_PICO_EIGHT,
-  DEFAULT_MOVIE_WIDTH,
-  DEFAULT_MOVIE_HEIGHT,
+  DEFAULT_ALLTHUMBS_NAME,
   DEFAULT_FRAMEINFO_BACKGROUND_COLOR,
   DEFAULT_FRAMEINFO_COLOR,
   DEFAULT_FRAMEINFO_MARGIN,
   DEFAULT_FRAMEINFO_POSITION,
   DEFAULT_FRAMEINFO_SCALE,
+  DEFAULT_MOVIE_HEIGHT,
+  DEFAULT_MOVIE_WIDTH,
   DEFAULT_MOVIEPRINT_BACKGROUND_COLOR,
   DEFAULT_MOVIEPRINT_NAME,
+  DEFAULT_SHOW_FACERECT,
   DEFAULT_SINGLETHUMB_NAME,
-  DEFAULT_ALLTHUMBS_NAME,
-  FACE_SIZE_THRESHOLD,
   FACE_CONFIDENCE_THRESHOLD,
+  FACE_SIZE_THRESHOLD,
   FACE_UNIQUENESS_THRESHOLD,
   FRAMEINFO_POSITION_OPTIONS,
-  MENU_HEADER_HEIGHT,
   MENU_FOOTER_HEIGHT,
-  OUTPUT_FORMAT,
+  MENU_HEADER_HEIGHT,
   OUTPUT_FORMAT_OPTIONS,
+  OUTPUT_FORMAT,
   PAPER_LAYOUT_OPTIONS,
   SHEET_TYPE,
   SHOT_DETECTION_METHOD_OPTIONS,
@@ -365,6 +366,10 @@ class SettingsList extends Component {
     this.props.onShowPathInHeaderClick(checked);
   }
 
+  onChangeShowFaceRect = (e, { checked }) => {
+    this.props.onChangeShowFaceRectClick(checked);
+  }
+
   onChangeShowDetailsInHeader = (e, { checked }) => {
     this.props.onShowDetailsInHeaderClick(checked);
   }
@@ -502,6 +507,7 @@ class SettingsList extends Component {
       defaultDetectInOutPoint,
       defaultEmbedFilePath,
       defaultEmbedFrameNumbers,
+      defaultShowFaceRect = DEFAULT_SHOW_FACERECT,
       defaultFaceSizeThreshold = FACE_SIZE_THRESHOLD,
       defaultFaceConfidenceThreshold = FACE_CONFIDENCE_THRESHOLD,
       defaultFaceUniquenessThreshold = FACE_UNIQUENESS_THRESHOLD,
@@ -1668,6 +1674,22 @@ class SettingsList extends Component {
                 }}
                 handle={handle}
                 onChange={value => onChangeFaceUniquenessThreshold(value / 100.0)}
+              />
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4}>
+            </Grid.Column>
+            <Grid.Column width={12}>
+              <Checkbox
+                data-tid='showFaceRectangleCheckbox'
+                label={
+                  <label className={styles.label}>
+                    Show face rectangle
+                  </label>
+                }
+                checked={defaultShowFaceRect}
+                onChange={this.onChangeShowFaceRect}
               />
             </Grid.Column>
           </Grid.Row>

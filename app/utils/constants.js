@@ -179,9 +179,9 @@ export const DEFAULT_CACHED_FRAMES_SIZE = 640; // 0 stands for original size
 export const DEFAULT_EMBED_FRAMENUMBERS = true;
 export const DEFAULT_EMBED_FILEPATH = true;
 export const DEFAULT_SHOW_IMAGES = true;
-export const DEFAULT_MOVIEPRINT_BACKGROUND_COLOR = { r:0, g:0, b:0, a:0 };
-export const DEFAULT_FRAMEINFO_BACKGROUND_COLOR = { r:238, g:238, b:238, a:1 };
-export const DEFAULT_FRAMEINFO_COLOR = { r:0, g:0, b:0, a:1 };
+export const DEFAULT_MOVIEPRINT_BACKGROUND_COLOR = { r: 0, g: 0, b: 0, a: 0 };
+export const DEFAULT_FRAMEINFO_BACKGROUND_COLOR = { r: 238, g: 238, b: 238, a: 1 };
+export const DEFAULT_FRAMEINFO_COLOR = { r: 0, g: 0, b: 0, a: 1 };
 export const DEFAULT_FRAMEINFO_POSITION = FRAMEINFO_POSITION.TOPLEFT;
 export const DEFAULT_FRAMEINFO_SCALE = 10.0;
 export const DEFAULT_FRAMEINFO_MARGIN = 0;
@@ -189,6 +189,7 @@ export const DEFAULT_MOVIEPRINT_NAME = '[MN].[ME]-[MPN]';
 export const DEFAULT_SINGLETHUMB_NAME = '[MN].[ME]-frame[FN]';
 export const DEFAULT_ALLTHUMBS_NAME = '[MN].[ME]-[FN]';
 export const DEFAULT_OPEN_FILE_EXPLORER_AFTER_SAVING = false;
+export const DEFAULT_SHOW_FACERECT = true;
 // end initialStateJSON
 
 export const MENU_HEADER_HEIGHT = 35;
