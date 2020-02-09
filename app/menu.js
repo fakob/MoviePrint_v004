@@ -183,12 +183,6 @@ export default class MenuBuilder {
             shell.openExternal('https://movieprint.fakob.com/movieprint-help/');
           }
         },
-        {
-          label: 'Home',
-          click() {
-            shell.openExternal('https://movieprint.fakob.com');
-          }
-        },
         { type: 'separator' },
         {
           label: 'Development',
@@ -205,6 +199,10 @@ export default class MenuBuilder {
           }
         },
         { type: 'separator' },
+        {
+          label: `MoviePrint version: ${app.getVersion()}`,
+          enabled: false,
+        },
         {
           label: 'Changelog',
           click() {
@@ -343,12 +341,6 @@ export default class MenuBuilder {
             shell.openExternal('https://movieprint.fakob.com/movieprint-help/');
           }
         },
-        {
-          label: 'Home',
-          click() {
-            shell.openExternal('https://movieprint.fakob.com');
-          }
-        },
         { type: 'separator' },
         {
           label: 'Development',
@@ -363,6 +355,10 @@ export default class MenuBuilder {
           }
         },
         { type: 'separator' },
+        {
+          label: `MoviePrint version: ${app.getVersion()}`,
+          enabled: false,
+        },
         {
           label: 'Changelog',
           click() {
