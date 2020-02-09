@@ -457,6 +457,36 @@ export const setDefaultOpenFileExplorerAfterSaving = defaultOpenFileExplorerAfte
   };
 };
 
+export const setDefaultFaceSizeThreshold = defaultFaceSizeThreshold => {
+  log.debug(
+    `action: setDefaultFaceSizeThreshold - ${defaultFaceSizeThreshold}`,
+  );
+  return {
+    type: 'SET_DEFAULT_FACE_SIZE_THRESHOLD',
+    defaultFaceSizeThreshold,
+  };
+};
+
+export const setDefaultFaceConfidenceThreshold = defaultFaceConfidenceThreshold => {
+  log.debug(
+    `action: setDefaultFaceConfidenceThreshold - ${defaultFaceConfidenceThreshold}`,
+  );
+  return {
+    type: 'SET_DEFAULT_FACE_CONFIDENCE_THRESHOLD',
+    defaultFaceConfidenceThreshold,
+  };
+};
+
+export const setDefaultFaceUniquenessThreshold = defaultFaceUniquenessThreshold => {
+  log.debug(
+    `action: setDefaultFaceUniquenessThreshold - ${defaultFaceUniquenessThreshold}`,
+  );
+  return {
+    type: 'SET_DEFAULT_FACE_UNIQUENESS_THRESHOLD',
+    defaultFaceUniquenessThreshold,
+  };
+};
+
 // sheetsByFileId
 
 export const clearScenes = (fileId, sheetId) => {

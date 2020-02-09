@@ -31,6 +31,9 @@ import {
   DEFAULT_MOVIEPRINT_NAME,
   DEFAULT_SINGLETHUMB_NAME,
   DEFAULT_ALLTHUMBS_NAME,
+  FACE_SIZE_THRESHOLD,
+  FACE_CONFIDENCE_THRESHOLD,
+  FACE_UNIQUENESS_THRESHOLD,
   FRAMEINFO_POSITION_OPTIONS,
   MENU_HEADER_HEIGHT,
   MENU_FOOTER_HEIGHT,
@@ -462,6 +465,9 @@ class SettingsList extends Component {
       onChangeColumn,
       onChangeColumnAndApply,
       onChangeMargin,
+      onChangeFaceSizeThreshold,
+      onChangeFaceConfidenceThreshold,
+      onChangeFaceUniquenessThreshold,
       onChangeFrameinfoMargin,
       onChangeFrameinfoScale,
       onChangeMinDisplaySceneLength,
@@ -496,6 +502,9 @@ class SettingsList extends Component {
       defaultDetectInOutPoint,
       defaultEmbedFilePath,
       defaultEmbedFrameNumbers,
+      defaultFaceSizeThreshold = FACE_SIZE_THRESHOLD,
+      defaultFaceConfidenceThreshold = FACE_CONFIDENCE_THRESHOLD,
+      defaultFaceUniquenessThreshold = FACE_UNIQUENESS_THRESHOLD,
       defaultFrameinfoBackgroundColor = DEFAULT_FRAMEINFO_BACKGROUND_COLOR,
       defaultFrameinfoColor = DEFAULT_FRAMEINFO_COLOR,
       defaultFrameinfoPosition = DEFAULT_FRAMEINFO_POSITION,
@@ -1601,6 +1610,64 @@ class SettingsList extends Component {
                 options={SHOT_DETECTION_METHOD_OPTIONS}
                 defaultValue={defaultShotDetectionMethod}
                 onChange={this.onChangeShotDetectionMethod}
+              />
+            </Grid.Column>
+          </Grid.Row>
+          <Divider inverted />
+          <Grid.Row>
+            <Grid.Column width={4}>Face confidence threshold</Grid.Column>
+            <Grid.Column width={12}>
+              <SliderWithTooltip
+                data-tid='faceConfidenceThresholdSlider'
+                className={styles.slider}
+                min={0}
+                max={100}
+                defaultValue={defaultFaceConfidenceThreshold}
+                marks={{
+                  0: '0',
+                  50: '50',
+                  100: '100',
+                }}
+                handle={handle}
+                onChange={onChangeFaceConfidenceThreshold}
+              />
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4}>Face size threshold</Grid.Column>
+            <Grid.Column width={12}>
+              <SliderWithTooltip
+                data-tid='faceSizeThresholdSlider'
+                className={styles.slider}
+                min={0}
+                max={100}
+                defaultValue={defaultFaceSizeThreshold}
+                marks={{
+                  0: '0',
+                  50: '50',
+                  100: '100',
+                }}
+                handle={handle}
+                onChange={onChangeFaceSizeThreshold}
+              />
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column width={4}>Face uniqueness threshold</Grid.Column>
+            <Grid.Column width={12}>
+              <SliderWithTooltip
+                data-tid='faceUniquenessThresholdSlider'
+                className={styles.slider}
+                min={0}
+                max={100}
+                defaultValue={defaultFaceUniquenessThreshold * 100}
+                marks={{
+                  0: '0',
+                  50: '50',
+                  100: '100',
+                }}
+                handle={handle}
+                onChange={value => onChangeFaceUniquenessThreshold(value / 100.0)}
               />
             </Grid.Column>
           </Grid.Row>

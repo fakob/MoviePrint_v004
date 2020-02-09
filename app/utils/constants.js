@@ -14,8 +14,8 @@ export const SHOT_DETECTION_METHOD = {
 }
 
 export const SHOT_DETECTION_METHOD_OPTIONS = [
-  { value: SHOT_DETECTION_METHOD.MEAN, text: 'Mean average' , 'data-tid': 'shotDetectionMethodOptionsMean'},
-  { value: SHOT_DETECTION_METHOD.HIST, text: 'Histogram' , 'data-tid': 'shotDetectionMethodOptionsHist'},
+  { value: SHOT_DETECTION_METHOD.MEAN, text: 'Mean average', 'data-tid': 'shotDetectionMethodOptionsMean'},
+  { value: SHOT_DETECTION_METHOD.HIST, text: 'Histogram', 'data-tid': 'shotDetectionMethodOptionsHist'},
 ];
 
 export const OUTPUT_FORMAT = {
@@ -40,13 +40,13 @@ export const FRAMEINFO_POSITION = {
 };
 
 export const FRAMEINFO_POSITION_OPTIONS = [
-  { value: FRAMEINFO_POSITION.TOPLEFT, text: 'Top Left' , 'data-tid': 'frameinfoPositionOptionTopLeft'},
-  { value: FRAMEINFO_POSITION.TOPCENTER, text: 'Top Center' , 'data-tid': 'frameinfoPositionOptionTopCenter'},
-  { value: FRAMEINFO_POSITION.TOPRIGHT, text: 'Top Right' , 'data-tid': 'frameinfoPositionOptionTopRight'},
-  { value: FRAMEINFO_POSITION.CENTERCENTER, text: 'Center Center' , 'data-tid': 'frameinfoPositionOptionCenterCenter'},
-  { value: FRAMEINFO_POSITION.BOTTOMLEFT, text: 'Bottom Left' , 'data-tid': 'frameinfoPositionOptionBottomLeft'},
-  { value: FRAMEINFO_POSITION.BOTTOMCENTER, text: 'Bottom Center' , 'data-tid': 'frameinfoPositionOptionBottomCenter'},
-  { value: FRAMEINFO_POSITION.BOTTOMRIGHT, text: 'Bottom Right' , 'data-tid': 'frameinfoPositionOptionBottomRight'},
+  { value: FRAMEINFO_POSITION.TOPLEFT, text: 'Top Left', 'data-tid': 'frameinfoPositionOptionTopLeft'},
+  { value: FRAMEINFO_POSITION.TOPCENTER, text: 'Top Center', 'data-tid': 'frameinfoPositionOptionTopCenter'},
+  { value: FRAMEINFO_POSITION.TOPRIGHT, text: 'Top Right', 'data-tid': 'frameinfoPositionOptionTopRight'},
+  { value: FRAMEINFO_POSITION.CENTERCENTER, text: 'Center Center', 'data-tid': 'frameinfoPositionOptionCenterCenter'},
+  { value: FRAMEINFO_POSITION.BOTTOMLEFT, text: 'Bottom Left', 'data-tid': 'frameinfoPositionOptionBottomLeft'},
+  { value: FRAMEINFO_POSITION.BOTTOMCENTER, text: 'Bottom Center', 'data-tid': 'frameinfoPositionOptionBottomCenter'},
+  { value: FRAMEINFO_POSITION.BOTTOMRIGHT, text: 'Bottom Right', 'data-tid': 'frameinfoPositionOptionBottomRight'},
 ];
 
 export const SHEET_FIT = {
@@ -62,8 +62,8 @@ export const SHEET_TYPE = {
 };
 
 export const SHEET_TYPE_OPTIONS = [
-  { value: SHEET_TYPE.INTERVAL, text: 'Interval' , 'data-tid': 'sheetTypeOptionsInterval'},
-  { value: SHEET_TYPE.SCENES, text: 'Scenes' , 'data-tid': 'sheetTypeOptionsScenes'},
+  { value: SHEET_TYPE.INTERVAL, text: 'Interval', 'data-tid': 'sheetTypeOptionsInterval'},
+  { value: SHEET_TYPE.SCENES, text: 'Scenes', 'data-tid': 'sheetTypeOptionsScenes'},
 ];
 
 export const THUMB_INFO = {
@@ -97,15 +97,15 @@ export const MOVIEPRINT_COLORS = [
 ];
 
 export const PAPER_LAYOUT_OPTIONS = [
-  { value: 0.71, text: 'A0-A5 (Landscape)' , 'data-tid': 'A0-A5-L'},
-  { value: 1.41, text: 'A0-A5 (Portrait)' , 'data-tid': 'A0-A5-P'},
-  { value: 0.77, text: 'Letter (Landscape)' , 'data-tid': 'Letter-L'},
-  { value: 1.29, text: 'Letter (Portrait)' , 'data-tid': 'Letter-P'},
-  { value: 0.61, text: 'Legal (Landscape)' , 'data-tid': 'Legal-L'},
-  { value: 1.65, text: 'Legal (Portrait)' , 'data-tid': 'Legal-P'},
-  { value: 0.65, text: 'Tabloid (Landscape)' , 'data-tid': 'Tabloid-L'},
-  { value: 1.55, text: 'Tabloid (Portrait)' , 'data-tid': 'Tabloid-P'},
-  { value: 1.00, text: 'Square' , 'data-tid': 'Square'},
+  { value: 0.71, text: 'A0-A5 (Landscape)', 'data-tid': 'A0-A5-L'},
+  { value: 1.41, text: 'A0-A5 (Portrait)', 'data-tid': 'A0-A5-P'},
+  { value: 0.77, text: 'Letter (Landscape)', 'data-tid': 'Letter-L'},
+  { value: 1.29, text: 'Letter (Portrait)', 'data-tid': 'Letter-P'},
+  { value: 0.61, text: 'Legal (Landscape)', 'data-tid': 'Legal-L'},
+  { value: 1.65, text: 'Legal (Portrait)', 'data-tid': 'Legal-P'},
+  { value: 0.65, text: 'Tabloid (Landscape)', 'data-tid': 'Tabloid-L'},
+  { value: 1.55, text: 'Tabloid (Portrait)', 'data-tid': 'Tabloid-P'},
+  { value: 1.00, text: 'Square', 'data-tid': 'Square'},
 ];
 
 export const OUTPUT_FORMAT_OPTIONS = [
@@ -231,7 +231,7 @@ export const TIMELINE_PLAYHEAD_MINIMUM_WIDTH = 2;
 
 // face detection
 export const FACE_SIZE_THRESHOLD = 20; // faces smaller than this percentage of the movie height are ignored
-export const FACE_DETECTION_CONFIDENCE_SCORE = 70; // detected faces with a lower score are ignored
+export const FACE_CONFIDENCE_THRESHOLD = 70; // detected faces with a lower score are ignored
 export const FACE_UNIQUENESS_THRESHOLD = 0.5; // faces with a euclideanDistance larger than this are considered unique
 export const SORT_METHOD = {
   FRAMENUMBER: 'frameNumber',

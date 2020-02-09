@@ -89,6 +89,12 @@ const settings = (state = {}, action) => {
       return { ...state, defaultAllThumbsName: action.defaultAllThumbsName };
     case 'SET_DEFAULT_OPEN_FILE_EXPLORER_AFTER_SAVING':
       return { ...state, defaultOpenFileExplorerAfterSaving: action.defaultOpenFileExplorerAfterSaving };
+    case 'SET_DEFAULT_FACE_SIZE_THRESHOLD':
+      return { ...state, defaultFaceSizeThreshold: action.defaultFaceSizeThreshold };
+    case 'SET_DEFAULT_FACE_CONFIDENCE_THRESHOLD':
+      return { ...state, defaultFaceConfidenceThreshold: action.defaultFaceConfidenceThreshold };
+    case 'SET_DEFAULT_FACE_UNIQUENESS_THRESHOLD':
+      return { ...state, defaultFaceUniquenessThreshold: action.defaultFaceUniquenessThreshold };
     default:
       return state;
   }

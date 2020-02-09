@@ -106,6 +106,7 @@ const thumb = (state = {}, action, index) => {
       return Object.assign({}, state, {
         frameNumber: action.payload.frameNumberAndColorArray[indexOfArray].frameNumber,
         colorArray: action.payload.frameNumberAndColorArray[indexOfArray].colorArray,
+        facesArray: undefined,
       });
     case 'UPDATE_ORDER':
       // log.debug(state);

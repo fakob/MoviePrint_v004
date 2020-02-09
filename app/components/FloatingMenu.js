@@ -167,18 +167,10 @@ const ButtonExampleCircularSocial = ({
               icon={<img src={iconAddFace} height="18px" alt="" />}
             >
               <Dropdown.Menu className={styles.dropDownMenu}>
-                <Dropdown.Item
-                  className={styles.dropDownItem}
-                  onClick={() => onAddFaceSheetClick(0.01)}
-                >
-                  <img src={icon2x2} height="18px" alt="" />
+                <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick(0.01)}>
                   Rough scan for faces (check 1% of frames)
                 </Dropdown.Item>
-                <Dropdown.Item
-                  className={styles.dropDownItem}
-                  onClick={() => onAddFaceSheetClick(0.1)}
-                >
-                  <img src={icon6x6} height="18px" alt="" />
+                <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick(0.1)}>
                   Detailed scan for faces (check 10% of frames)
                 </Dropdown.Item>
               </Dropdown.Menu>

@@ -5,9 +5,9 @@ import * as tf from '@tensorflow/tfjs-node';
 
 import { setPosition } from './utils';
 import {
+  FACE_CONFIDENCE_THRESHOLD,
   FACE_SIZE_THRESHOLD,
   FACE_UNIQUENESS_THRESHOLD,
-  FACE_DETECTION_CONFIDENCE_SCORE,
 } from './constants';
 
 const opencv = require('opencv4nodejs');
@@ -39,7 +39,15 @@ const detectionNet = loadNet().then(() => {
   return undefined;
 });
 
-export const detectFace = async (image, frameNumber, detectionArray, uniqueFaceArray) => {
+export const detectFace = async (
+  image,
+  frameNumber,
+  detectionArray,
+  uniqueFaceArray,
+  defaultFaceConfidenceThreshold = FACE_CONFIDENCE_THRESHOLD,
+  defaultFaceSizeThreshold = FACE_SIZE_THRESHOLD,
+  defaultFaceUniquenessThreshold = FACE_UNIQUENESS_THRESHOLD,
+) => {
 
   // detect expression
   const face = await faceapi.detectSingleFace(image).withFaceLandmarks().withAgeAndGender().withFaceDescriptor();
@@ -52,11 +60,11 @@ export const detectFace = async (image, frameNumber, detectionArray, uniqueFaceA
     const size = Math.round(relativeBox.height * 100);
     const scoreInPercent = Math.round(score * 100);
 
-    // // console.log(face);
-    // if (size < FACE_SIZE_THRESHOLD || scoreInPercent < FACE_DETECTION_CONFIDENCE_SCORE) {
-    //   console.log('detected face below size or confidence threshold!');
-    //   return undefined;
-    // }
+    // console.log(face);
+    if (size < defaultFaceSizeThreshold || scoreInPercent < defaultFaceConfidenceThreshold) {
+      console.log('detected face below size or confidence threshold!');
+      return undefined;
+    }
 
     // create full copy of array to be pushed later
     const copyOfDescriptor = descriptor.slice();
@@ -81,7 +89,7 @@ export const detectFace = async (image, frameNumber, detectionArray, uniqueFaceA
         console.log(`${faceId}, ${frameNumber}`);
         console.log(dist);
         // if no match was found add the current descriptor to the array marking a unique face
-        if (dist < FACE_UNIQUENESS_THRESHOLD) {
+        if (dist < defaultFaceUniquenessThreshold) {
           // console.log(`face matches face ${i}`);
           faceId = i;
           break;
@@ -128,7 +136,15 @@ export const detectFace = async (image, frameNumber, detectionArray, uniqueFaceA
   return undefined;
 }
 
-export const detectAllFaces = async (image, frameNumber, detectionArray, uniqueFaceArray) => {
+export const detectAllFaces = async (
+  image,
+  frameNumber,
+  detectionArray,
+  uniqueFaceArray,
+  defaultFaceConfidenceThreshold = FACE_SIZE_THRESHOLD,
+  defaultFaceSizeThreshold = FACE_CONFIDENCE_THRESHOLD,
+  defaultFaceUniquenessThreshold = FACE_UNIQUENESS_THRESHOLD,
+) => {
   // detect expression
   const detections = await faceapi.detectAllFaces(image).withFaceLandmarks().withAgeAndGender().withFaceDescriptors();
   console.log(frameNumber);
@@ -158,11 +174,11 @@ export const detectAllFaces = async (image, frameNumber, detectionArray, uniqueF
     // console.log(copyOfDescriptor);
 
 
-    // // console.log(face);
-    // if (size < FACE_SIZE_THRESHOLD || scoreInPercent < FACE_DETECTION_CONFIDENCE_SCORE) {
-    //   console.log('detected face below size or confidence threshold!');
-    //   return undefined;
-    // }
+    // console.log(face);
+    if (size < defaultFaceSizeThreshold || scoreInPercent < defaultFaceConfidenceThreshold) {
+      console.log('detected face below size or confidence threshold!');
+      return undefined;
+    }
 
     // check for uniqueness
     // if the uniqueFaceArray is empty just push the current descriptor
@@ -178,7 +194,7 @@ export const detectAllFaces = async (image, frameNumber, detectionArray, uniqueF
       for (let i = 0; i < uniqueFaceArrayLength; i += 1) {
         const dist = faceapi.euclideanDistance(copyOfDescriptor, uniqueFaceArray[i]);
         // if no match was found add the current descriptor to the array marking a unique face
-        if (dist < FACE_UNIQUENESS_THRESHOLD) {
+        if (dist < defaultFaceUniquenessThreshold) {
           console.log(dist === 0 ? `this and face ${i} are identical: ${dist}` : `this and face ${i} are probably the same: ${dist}`);
           faceId = i;
           break;
@@ -214,7 +230,12 @@ export const detectAllFaces = async (image, frameNumber, detectionArray, uniqueF
     //   boxColor: 'red'
     // })
     // drawBox.draw(image);
-  })
+  });
+
+  if (facesArray.length === 0) {
+    // no faces below thresholds
+    return undefined;
+  }
 
   // sort faces by size with the largest one first
   facesArray.sort((face1,face2) => face2.size - face1.size);
@@ -229,7 +250,16 @@ export const detectAllFaces = async (image, frameNumber, detectionArray, uniqueF
   return detections;
 }
 
-export const runSyncCaptureAndFaceDetect = async (vid, fileId, frameNumberArray, useRatio, getAllFaces) => {
+export const runSyncCaptureAndFaceDetect = async (
+  vid,
+  fileId,
+  frameNumberArray,
+  useRatio,
+  defaultFaceConfidenceThreshold,
+  defaultFaceSizeThreshold,
+  defaultFaceUniquenessThreshold,
+  getAllFaces,
+) => {
   fileScanRunning = true;
 
   // initiate cancel option
@@ -280,9 +310,25 @@ export const runSyncCaptureAndFaceDetect = async (vid, fileId, frameNumberArray,
       const input = tf.node.decodeJpeg(outJpg);
 
     if (getAllFaces) {
-        const detections = await detectAllFaces(input, frameNumber, detectionArray, uniqueFaceArray);
+        const detections = await detectAllFaces(
+          input,
+          frameNumber,
+          detectionArray,
+          uniqueFaceArray,
+          defaultFaceConfidenceThreshold,
+          defaultFaceSizeThreshold,
+          defaultFaceUniquenessThreshold,
+        );
       } else {
-        const detections = await detectFace(input, frameNumber, detectionArray, uniqueFaceArray);
+        const detections = await detectFace(
+          input,
+          frameNumber,
+          detectionArray,
+          uniqueFaceArray,
+          defaultFaceConfidenceThreshold,
+          defaultFaceSizeThreshold,
+          defaultFaceUniquenessThreshold,
+        );
       }
 
       // console.log(detections)

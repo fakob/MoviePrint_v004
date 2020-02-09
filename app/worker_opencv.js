@@ -818,6 +818,9 @@ ipcRenderer.on(
     useRatio,
     defaultCachedFramesSize,
     transformObject,
+    defaultFaceConfidenceThreshold,
+    defaultFaceSizeThreshold,
+    defaultFaceUniquenessThreshold,
     faceSortMethod,
     getAllFaces = false,
   ) => {
@@ -830,7 +833,16 @@ ipcRenderer.on(
 
       const vid = new opencv.VideoCapture(filePath);
 
-      runSyncCaptureAndFaceDetect(vid, fileId, frameNumberArray, useRatio, getAllFaces)
+      runSyncCaptureAndFaceDetect(
+        vid,
+        fileId,
+        frameNumberArray,
+        useRatio,
+        defaultFaceConfidenceThreshold,
+        defaultFaceSizeThreshold,
+        defaultFaceUniquenessThreshold,
+        getAllFaces,
+      )
         .then(detectionArray => {
           // insert all frames into sqlite3
           insertFaceScanArray(fileId, detectionArray);

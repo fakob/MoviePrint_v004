@@ -99,6 +99,9 @@ import {
   setDefaultDetectInOutPoint,
   setDefaultEmbedFilePath,
   setDefaultEmbedFrameNumbers,
+  setDefaultFaceSizeThreshold,
+  setDefaultFaceConfidenceThreshold,
+  setDefaultFaceUniquenessThreshold,
   setDefaultFrameinfoBackgroundColor,
   setDefaultFrameinfoColor,
   setDefaultFrameinfoMargin,
@@ -344,6 +347,9 @@ class App extends Component {
     this.onCancelClick = this.onCancelClick.bind(this);
 
     this.onChangeMargin = this.onChangeMargin.bind(this);
+    this.onChangeFaceSizeThreshold = this.onChangeFaceSizeThreshold.bind(this);
+    this.onChangeFaceConfidenceThreshold = this.onChangeFaceConfidenceThreshold.bind(this);
+    this.onChangeFaceUniquenessThreshold = this.onChangeFaceUniquenessThreshold.bind(this);
     this.onChangeFrameinfoScale = this.onChangeFrameinfoScale.bind(this);
     this.onChangeFrameinfoMargin = this.onChangeFrameinfoMargin.bind(this);
     this.onChangeMinDisplaySceneLength = this.onChangeMinDisplaySceneLength.bind(this);
@@ -2330,6 +2336,7 @@ class App extends Component {
     // log.debug(`FileListElement clicked: ${file.name}`);
     const { dispatch } = this.props;
     const { currentFileId, file, sheetsByFileId, settings, visibilitySettings } = this.props;
+    const { defaultFaceConfidenceThreshold, defaultFaceSizeThreshold, defaultFaceUniquenessThreshold } = settings;
 
     console.log(currentFileId);
     console.log(file);
@@ -2361,6 +2368,9 @@ class App extends Component {
       useRatio,
       settings.defaultCachedFramesSize,
       transformObject,
+      defaultFaceConfidenceThreshold,
+      defaultFaceSizeThreshold,
+      defaultFaceUniquenessThreshold,
       SORT_METHOD.FACESIZE,
       true
     );
@@ -2594,6 +2604,21 @@ class App extends Component {
   const { dispatch, settings } = this.props;
     dispatch(setDefaultMarginRatio(value /
         settings.defaultMarginSliderFactor));
+  };
+
+  onChangeFaceSizeThreshold = (value) => {
+  const { dispatch } = this.props;
+    dispatch(setDefaultFaceSizeThreshold(value));
+  };
+
+  onChangeFaceConfidenceThreshold = (value) => {
+  const { dispatch } = this.props;
+    dispatch(setDefaultFaceConfidenceThreshold(value));
+  };
+
+  onChangeFaceUniquenessThreshold = (value) => {
+  const { dispatch } = this.props;
+    dispatch(setDefaultFaceUniquenessThreshold(value));
   };
 
   onChangeFrameinfoScale = (value) => {
@@ -3532,6 +3557,9 @@ ${exportObject}`;
                       onApplyNewGridClick={this.onApplyNewGridClick}
                       onCancelClick={this.onCancelClick}
                       onChangeMargin={this.onChangeMargin}
+                      onChangeFaceSizeThreshold={this.onChangeFaceSizeThreshold}
+                      onChangeFaceConfidenceThreshold={this.onChangeFaceConfidenceThreshold}
+                      onChangeFaceUniquenessThreshold={this.onChangeFaceUniquenessThreshold}
                       onChangeFrameinfoScale={this.onChangeFrameinfoScale}
                       onChangeFrameinfoMargin={this.onChangeFrameinfoMargin}
                       onChangeMinDisplaySceneLength={this.onChangeMinDisplaySceneLength}
