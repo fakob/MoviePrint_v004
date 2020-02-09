@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, Dropdown, Popup } from 'semantic-ui-react';
 import {
+  SORT_METHOD,
   VIEW,
   SHEET_VIEW,
   SHEET_FIT,
@@ -34,6 +35,7 @@ const ButtonExampleCircularSocial = ({
   onScanMovieListItemClick,
   onSetSheetFitClick,
   onSetViewClick,
+  onSortSheet,
   onThumbInfoClick,
   onToggleHeaderClick,
   onToggleImagesClick,
@@ -170,14 +172,14 @@ const ButtonExampleCircularSocial = ({
                   onClick={() => onAddFaceSheetClick(0.01)}
                 >
                   <img src={icon2x2} height="18px" alt="" />
-                  Rough scan for faces
+                  Rough scan for faces (check 1% of frames)
                 </Dropdown.Item>
                 <Dropdown.Item
                   className={styles.dropDownItem}
                   onClick={() => onAddFaceSheetClick(0.1)}
                 >
                   <img src={icon6x6} height="18px" alt="" />
-                  Detailed scan for faces
+                  Detailed scan for faces (check 10% of frames)
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
@@ -186,7 +188,77 @@ const ButtonExampleCircularSocial = ({
           on={['hover']}
           position="right center"
           className={stylesPop.popup}
-          content="Add FacePrint"
+          content="BETA: Add FacePrint"
+        />
+      </Button.Group>{' '}
+      <Button.Group
+        className={`${
+          visibilitySettings.defaultView === VIEW.STANDARDVIEW
+            ? ''
+            : styles.hidden
+        }`}
+      >
+        <Popup
+          trigger={
+            <Dropdown
+              button
+              className={styles.dropDownButton}
+              floating
+              disabled={fileMissingStatus}
+              icon="sort amount down"
+            >
+              <Dropdown.Menu className={styles.dropDownMenu}>
+                <Dropdown.Item
+                  className={styles.dropDownItem}
+                  onClick={() => onSortSheet(SORT_METHOD.FRAMENUMBER, false)}
+                >
+                  Sort by framenumber
+                </Dropdown.Item>
+                {/* <Dropdown.Item
+                  className={styles.dropDownItem}
+                  onClick={() => onSortSheet(SORT_METHOD.FRAMENUMBER, true)}
+                >
+                  // <img src={icon2x2} height="18px" alt="" />
+                  Sort by framenumber - ascending
+                </Dropdown.Item> */}
+                <Dropdown.Item
+                  className={styles.dropDownItem}
+                  onClick={() => onSortSheet(SORT_METHOD.FACESIZE, false)}
+                >
+                  Sort by size
+                </Dropdown.Item>
+                <Dropdown.Item
+                  className={styles.dropDownItem}
+                  onClick={() => onSortSheet(SORT_METHOD.FACECOUNT, false)}
+                >
+                  Sort by face count
+                </Dropdown.Item>
+                <Dropdown.Item
+                  className={styles.dropDownItem}
+                  onClick={() => onSortSheet(SORT_METHOD.FACEOCCURRENCE, false)}
+                >
+                  Sort by occurrence
+                </Dropdown.Item>
+                <Dropdown.Item
+                  className={styles.dropDownItem}
+                  onClick={() => onSortSheet(SORT_METHOD.FACECONFIDENCE, false)}
+                >
+                  Sort by confidence
+                </Dropdown.Item>
+                <Dropdown.Item
+                  className={styles.dropDownItem}
+                  onClick={() => onSortSheet(SORT_METHOD.UNIQUE, false)}
+                >
+                  Unique faces, sorted by occurrence and size
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          }
+          mouseEnterDelay={1000}
+          on={['hover']}
+          position="right center"
+          className={stylesPop.popup}
+          content="BETA: Filter and Sort"
         />
         <Popup
           trigger={

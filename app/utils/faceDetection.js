@@ -20,16 +20,6 @@ const weightsPath = path.join(appPath, './dist/weights');
 // to cancel file scan
 let fileScanRunning = false;
 
-// configure face API
-faceapi.env.monkeyPatch({
-  Canvas: HTMLCanvasElement,
-  Image: HTMLImageElement,
-  ImageData,
-  Video: HTMLVideoElement,
-  createCanvasElement: () => document.createElement('canvas'),
-  createImageElement: () => document.createElement('img')
-});
-
 const loadNet = async () => {
   console.log(weightsPath);
   console.log(faceapi.nets);
@@ -49,12 +39,8 @@ const detectionNet = loadNet().then(() => {
   return undefined;
 });
 
-ipcRenderer.on('cancelFileScan', () => {
-  log.debug('cancelling fileScan');
-  fileScanRunning = false;
-});
-
 export const detectFace = async (image, frameNumber, detectionArray, uniqueFaceArray) => {
+
   // detect expression
   const face = await faceapi.detectSingleFace(image).withFaceLandmarks().withAgeAndGender().withFaceDescriptor();
 
@@ -245,6 +231,12 @@ export const detectAllFaces = async (image, frameNumber, detectionArray, uniqueF
 
 export const runSyncCaptureAndFaceDetect = async (vid, fileId, frameNumberArray, useRatio, getAllFaces) => {
   fileScanRunning = true;
+
+  // initiate cancel option
+  ipcRenderer.on('cancelFileScan', () => {
+    log.debug('cancelling fileScan');
+    fileScanRunning = false;
+  });
 
   const detectionArray = [];
   const uniqueFaceArray = [];

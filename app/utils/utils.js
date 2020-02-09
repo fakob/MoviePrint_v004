@@ -4,21 +4,17 @@ import log from 'electron-log';
 import sanitize from 'sanitize-filename';
 
 import VideoCaptureProperties from './videoCaptureProperties';
-import sheetNames from '../img/listOfNames.json'
-import {
-  FACE_SORT_METHOD,
-  SCENE_DETECTION_MIN_SCENE_LENGTH,
-  SHEET_VIEW,
-} from './constants';
+import sheetNames from '../img/listOfNames.json';
+import { SORT_METHOD, SCENE_DETECTION_MIN_SCENE_LENGTH, SHEET_VIEW } from './constants';
 
 const randomColor = require('randomcolor');
 const { app } = require('electron').remote;
 
-export const doesFileFolderExist = (fileName) => {
+export const doesFileFolderExist = fileName => {
   return fsR.existsSync(fileName);
-}
+};
 
-export const getFileStatsObject = (filename) => {
+export const getFileStatsObject = filename => {
   if (doesFileFolderExist(filename) === false) {
     return undefined;
   }
@@ -28,7 +24,7 @@ export const getFileStatsObject = (filename) => {
     size,
     lastModified: Date.parse(mtime),
   };
-}
+};
 
 export const ensureDirectoryExistence = (filePath, isDirectory = true) => {
   let dirname;
@@ -47,7 +43,7 @@ export const ensureDirectoryExistence = (filePath, isDirectory = true) => {
 
 // prevent typeerrors when accessing nested props of a none-existing object
 // usage getObjectProperty(() => objectA.propertyB)
-export const getObjectProperty = (fn) => {
+export const getObjectProperty = fn => {
   let value;
   try {
     value = fn();
@@ -60,12 +56,12 @@ export const getObjectProperty = (fn) => {
 
 export const mapRange = (value, low1, high1, low2, high2, returnInt = true) => {
   // special case, prevent division by 0
-  if ((high1 - low1) === 0) {
+  if (high1 - low1 === 0) {
     return 0;
   }
   // * 1.0 added to force float division
-  let newValue = low2 + ((high2 - low2) * (((value - low1) * 1.0) / (high1 - low1)));
-  newValue = Math.round((newValue * 1000) + Number.EPSILON) / 1000; // rounds the number with 3 decimals
+  let newValue = low2 + (high2 - low2) * (((value - low1) * 1.0) / (high1 - low1));
+  newValue = Math.round(newValue * 1000 + Number.EPSILON) / 1000; // rounds the number with 3 decimals
   let limitedNewValue = Math.min(Math.max(newValue, low2), high2);
   if (returnInt) {
     limitedNewValue = Math.round(limitedNewValue);
@@ -91,19 +87,18 @@ export const truncatePath = (n, len) => {
   // check if length of string is actually longer than truncate length
   // if not return the original string without truncation
   // value of 3 compensates for ... (the 3 dots)
-  if ((n.length - 3) > len) {
-    const front = n.slice(0, (len / 2) - 1); // compensate for dots
-    const back = n.slice((-len / 2) - 2); // compensate for dots
+  if (n.length - 3 > len) {
+    const front = n.slice(0, len / 2 - 1); // compensate for dots
+    const back = n.slice(-len / 2 - 2); // compensate for dots
     return `${front}...${back}`;
   }
   return n;
 };
 
-
 export const pad = (num, size) => {
   if (size !== undefined) {
-    let s = (num !== undefined) ? num.toString() : '';
-    while (s.length < size) s = `${(num !== undefined) ? '0' : '–'}${s}`;
+    let s = num !== undefined ? num.toString() : '';
+    while (s.length < size) s = `${num !== undefined ? '0' : '–'}${s}`;
     return s;
   }
   return undefined;
@@ -115,38 +110,38 @@ export const secondsToFrameCount = (seconds = 0, fps = 25) => {
 };
 
 export const frameCountToSeconds = (frames, fps = 25) => {
-  const seconds = (frames !== undefined ? ((frames * 1.0) / fps) : 0);
+  const seconds = frames !== undefined ? (frames * 1.0) / fps : 0;
   return seconds;
 };
 
 export const frameCountToMinutes = (frames, fps = 25) => {
-  const seconds = (frames !== undefined ? ((frames * 1.0) / (fps * 60)) : 0);
+  const seconds = frames !== undefined ? (frames * 1.0) / (fps * 60) : 0;
   return seconds;
 };
 
 export const frameCountToTimeCode = (frames, fps = 25) => {
   // fps = (fps !== undefined ? fps : 30);
   if (frames !== undefined) {
-    const paddedValue = (input) => ((input < 10) ? `0${input}` : input);
-    const seconds = (frames !== undefined ? frames / fps : 0);
+    const paddedValue = input => (input < 10 ? `0${input}` : input);
+    const seconds = frames !== undefined ? frames / fps : 0;
     return [
       paddedValue(Math.floor(seconds / 3600)),
       paddedValue(Math.floor((seconds % 3600) / 60)),
       paddedValue(Math.floor(seconds % 60)),
-      paddedValue(Math.floor(frames % fps))
+      paddedValue(Math.floor(frames % fps)),
     ].join(':');
   }
   return '––:––:––:––';
 };
 
 export const secondsToTimeCode = (seconds = 0, fps = 25) => {
-  const pad = (input) => ((input < 10) ? `0${input}` : input);
+  const pad = input => (input < 10 ? `0${input}` : input);
 
   return [
     pad(Math.floor(seconds / 3600)),
     pad(Math.floor((seconds % 3600) / 60)),
     pad(Math.floor(seconds % 60)),
-    pad(Math.floor((seconds * fps) % fps))
+    pad(Math.floor((seconds * fps) % fps)),
     // pad(Math.floor((seconds - Math.floor(seconds)) * 1000), 3, '0')
   ].join(':');
 };
@@ -158,10 +153,10 @@ export const formatBytes = (bytes, decimals = 1) => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   // return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-  return `${parseFloat((bytes / (k ** i)).toFixed(dm))} ${sizes[i]}`;
+  return `${parseFloat((bytes / k ** i).toFixed(dm))} ${sizes[i]}`;
 };
 
-export const getMimeType = (outputFormat) => {
+export const getMimeType = outputFormat => {
   switch (outputFormat) {
     case 'png':
       return 'image/png';
@@ -172,7 +167,7 @@ export const getMimeType = (outputFormat) => {
   }
 };
 
-export const getMoviePrintColor = (count) => {
+export const getMoviePrintColor = count => {
   // log.debug(`creating new newColorArray[${count}]`);
   const newColorArray = randomColor({
     count,
@@ -186,55 +181,49 @@ export const typeInTextarea = (el, textToAdd) => {
   const end = el.selectionEnd;
   const text = el.value;
   const before = text.substring(0, start);
-  const after  = text.substring(end, text.length);
-  const newText = el.value = (before + textToAdd + after);
+  const after = text.substring(end, text.length);
+  const newText = (el.value = before + textToAdd + after);
   el.selectionStart = el.selectionEnd = start + textToAdd.length;
   el.focus();
   return newText;
-}
+};
 
-const fillTemplate = function(templateString, templateVars){
-  return new Function("return `"+templateString +"`;").call(templateVars);
-}
+const fillTemplate = function(templateString, templateVars) {
+  return new Function('return `' + templateString + '`;').call(templateVars);
+};
 
-export const getCustomFileName = (
-  fileName,
-  sheetName,
-  frameNumber,
-  fileNameTemplate,
-  ) => {
-    const paddedFrameNumber = frameNumber === undefined ? '' : pad(frameNumber, 6);
-    const movieName = pathR.parse(fileName).name;
-    const movieExtension = pathR.parse(fileName).ext.substr(1);; // remove dot from extension
+export const getCustomFileName = (fileName, sheetName, frameNumber, fileNameTemplate) => {
+  const paddedFrameNumber = frameNumber === undefined ? '' : pad(frameNumber, 6);
+  const movieName = pathR.parse(fileName).name;
+  const movieExtension = pathR.parse(fileName).ext.substr(1); // remove dot from extension
 
-    try {
-      // prepare fileNameTemplate
-      const mapObj = {
-        '[MN]':"${this.movieName}",
-        '[ME]':"${this.movieExtension}",
-        '[MPN]':"${this.moviePrintName}",
-        '[FN]':"${this.paddedFrameNumber}",
-      };
-      const preparedFileNameTemplate = fileNameTemplate.replace(/\[MN\]|\[ME\]|\[MPN\]|\[FN\]/gi, function(matched){
-        return mapObj[matched];
-      });
+  try {
+    // prepare fileNameTemplate
+    const mapObj = {
+      '[MN]': '${this.movieName}',
+      '[ME]': '${this.movieExtension}',
+      '[MPN]': '${this.moviePrintName}',
+      '[FN]': '${this.paddedFrameNumber}',
+    };
+    const preparedFileNameTemplate = fileNameTemplate.replace(/\[MN\]|\[ME\]|\[MPN\]|\[FN\]/gi, function(matched) {
+      return mapObj[matched];
+    });
 
-      // fill fileNameTemplate with parameters
-      const templateVars = {
-        movieName,
-        movieExtension,
-        moviePrintName: sheetName,
-        paddedFrameNumber,
-      };
-      const customFileName = fillTemplate(preparedFileNameTemplate, templateVars);
-      const validFilename = customFileName.replace(/[/\\?%*:|"<>]/g, '-');
-      return validFilename;
-
-    } catch (e) {
-      log.error(e);
-      return undefined;
-    }
+    // fill fileNameTemplate with parameters
+    const templateVars = {
+      movieName,
+      movieExtension,
+      moviePrintName: sheetName,
+      paddedFrameNumber,
+    };
+    const customFileName = fillTemplate(preparedFileNameTemplate, templateVars);
+    const validFilename = customFileName.replace(/[/\\?%*:|"<>]/g, '-');
+    return validFilename;
+  } catch (e) {
+    log.error(e);
+    return undefined;
   }
+};
 
 export const getFilePathObject = (
   fileName,
@@ -244,33 +233,28 @@ export const getFilePathObject = (
   outputFormat,
   // exportPath = '',
   exportPath = app.getPath('desktop'),
-  overwrite = false
+  overwrite = false,
 ) => {
-    const validFilename = getCustomFileName(
-      fileName,
-      sheetName,
-      frameNumber,
-      fileNameTemplate,
-    );
+  const validFilename = getCustomFileName(fileName, sheetName, frameNumber, fileNameTemplate);
 
-    if (validFilename !== undefined) {
-      let newFilePathAndName = pathR.join(exportPath, `${validFilename}.${outputFormat}`);
+  if (validFilename !== undefined) {
+    let newFilePathAndName = pathR.join(exportPath, `${validFilename}.${outputFormat}`);
 
-      if (!overwrite) {
-        if (doesFileFolderExist(newFilePathAndName)) {
-          for (let i = 1; i < 1000; i += 1) {
-            newFilePathAndName = pathR.join(exportPath, `${validFilename} edit ${i}.${outputFormat}`);
-            if (doesFileFolderExist(newFilePathAndName) === false) {
-              break;
-            }
+    if (!overwrite) {
+      if (doesFileFolderExist(newFilePathAndName)) {
+        for (let i = 1; i < 1000; i += 1) {
+          newFilePathAndName = pathR.join(exportPath, `${validFilename} edit ${i}.${outputFormat}`);
+          if (doesFileFolderExist(newFilePathAndName) === false) {
+            break;
           }
         }
       }
-      return pathR.parse(newFilePathAndName);
     }
-    // validFilename === undefined, return default name
-    const standardFilePathAndName = pathR.join(exportPath, `MoviePrint.${outputFormat}`);
-    return pathR.parse(standardFilePathAndName);
+    return pathR.parse(newFilePathAndName);
+  }
+  // validFilename === undefined, return default name
+  const standardFilePathAndName = pathR.join(exportPath, `MoviePrint.${outputFormat}`);
+  return pathR.parse(standardFilePathAndName);
 };
 
 export const getThumbInfoValue = (type, frames, framesPerSecond) => {
@@ -286,50 +270,39 @@ export const getThumbInfoValue = (type, frames, framesPerSecond) => {
   }
 };
 
-export const getLowestFrame = (thumbs) => {
-  if (thumbs && (thumbs.length > 0)) {
-    return thumbs.reduce(
-      (min, p) => (p.frameNumber < min ? p.frameNumber : min),
-      thumbs[0].frameNumber
-    );
+export const getLowestFrame = thumbs => {
+  if (thumbs && thumbs.length > 0) {
+    return thumbs.reduce((min, p) => (p.frameNumber < min ? p.frameNumber : min), thumbs[0].frameNumber);
   }
   return undefined;
 };
 
-export const getHighestFrame = (thumbs) => {
-  if (thumbs && (thumbs.length > 0)) {
-    return thumbs.reduce(
-      (max, p) => (p.frameNumber > max ? p.frameNumber : max),
-      thumbs[0].frameNumber
-    );
+export const getHighestFrame = thumbs => {
+  if (thumbs && thumbs.length > 0) {
+    return thumbs.reduce((max, p) => (p.frameNumber > max ? p.frameNumber : max), thumbs[0].frameNumber);
   }
   return undefined;
 };
 
-export const getAllFrameNumbers = (thumbs) => {
-  if (thumbs && (thumbs.length > 0)) {
-    return thumbs.map(
-      thumb => thumb.frameNumber
-    );
+export const getAllFrameNumbers = thumbs => {
+  if (thumbs && thumbs.length > 0) {
+    return thumbs.map(thumb => thumb.frameNumber);
   }
   return [];
 };
 
-export const getLowestFrameFromScenes = (scenes) => {
-  if (scenes && (scenes.length > 0)) {
-    return scenes.reduce(
-      (min, p) => (p.start < min ? p.start : min),
-      scenes[0].start
-    );
+export const getLowestFrameFromScenes = scenes => {
+  if (scenes && scenes.length > 0) {
+    return scenes.reduce((min, p) => (p.start < min ? p.start : min), scenes[0].start);
   }
   return undefined;
 };
 
-export const getHighestFrameFromScenes = (scenes) => {
-  if (scenes && (scenes.length > 0)) {
+export const getHighestFrameFromScenes = scenes => {
+  if (scenes && scenes.length > 0) {
     return scenes.reduce(
-      (max, p) => ((p.start + p.length - 1) > max ? (p.start + p.length - 1) : max),
-      (scenes[0].start + scenes[0].length - 1)
+      (max, p) => (p.start + p.length - 1 > max ? p.start + p.length - 1 : max),
+      scenes[0].start + scenes[0].length - 1,
     );
   }
   return undefined;
@@ -339,9 +312,10 @@ export const getPreviousScenes = (scenes, sceneId) => {
   if (scenes) {
     if (sceneId) {
       // get index of array as scene does not have an own index
-      const currentIndex = scenes.findIndex((scene) => scene.sceneId === sceneId);
-      return scenes.filter((scene, index) => (((scene.hidden === false) || (scene.hidden === undefined)) &&
-        (index < currentIndex)));
+      const currentIndex = scenes.findIndex(scene => scene.sceneId === sceneId);
+      return scenes.filter(
+        (scene, index) => (scene.hidden === false || scene.hidden === undefined) && index < currentIndex,
+      );
     }
     return scenes; // return last item if no sceneId provided
   }
@@ -352,9 +326,10 @@ export const getNextScenes = (scenes, sceneId) => {
   if (scenes) {
     if (sceneId) {
       // get index of array as scene does not have an own index
-      const currentIndex = scenes.findIndex((scene) => scene.sceneId === sceneId);
-      return scenes.filter((scene, index) => (((scene.hidden === false) || (scene.hidden === undefined)) &&
-        (index > currentIndex)));
+      const currentIndex = scenes.findIndex(scene => scene.sceneId === sceneId);
+      return scenes.filter(
+        (scene, index) => (scene.hidden === false || scene.hidden === undefined) && index > currentIndex,
+      );
     }
     return scenes; // return last item if no sceneId provided
   }
@@ -365,8 +340,9 @@ export const getInvertedThumbs = (thumbs, thumbId) => {
   if (thumbs) {
     if (thumbId) {
       // get index of thumb
-      return thumbs.filter((thumb) => (((thumb.hidden === false) || (thumb.hidden === undefined)) &&
-        (thumb.thumbId !== thumbId)));
+      return thumbs.filter(
+        thumb => (thumb.hidden === false || thumb.hidden === undefined) && thumb.thumbId !== thumbId,
+      );
     }
     return thumbs; // return last item if no thumbId provided
   }
@@ -377,9 +353,10 @@ export const getPreviousThumbs = (thumbs, thumbId) => {
   if (thumbs) {
     if (thumbId) {
       // get index of thumb
-      const currentIndex = thumbs.find((thumb) => thumb.thumbId === thumbId).index;
-      return thumbs.filter((thumb) => (((thumb.hidden === false) || (thumb.hidden === undefined)) &&
-        (thumb.index < currentIndex)));
+      const currentIndex = thumbs.find(thumb => thumb.thumbId === thumbId).index;
+      return thumbs.filter(
+        thumb => (thumb.hidden === false || thumb.hidden === undefined) && thumb.index < currentIndex,
+      );
     }
     return thumbs; // return last item if no thumbId provided
   }
@@ -390,9 +367,10 @@ export const getNextThumbs = (thumbs, thumbId) => {
   if (thumbs) {
     if (thumbId) {
       // get index of thumb
-      const currentIndex = thumbs.find((thumb) => thumb.thumbId === thumbId).index;
-      return thumbs.filter((thumb) => (((thumb.hidden === false) || (thumb.hidden === undefined)) &&
-        (thumb.index > currentIndex)));
+      const currentIndex = thumbs.find(thumb => thumb.thumbId === thumbId).index;
+      return thumbs.filter(
+        thumb => (thumb.hidden === false || thumb.hidden === undefined) && thumb.index > currentIndex,
+      );
     }
     return thumbs; // return last item if no thumbId provided
   }
@@ -403,12 +381,12 @@ export const getPreviousThumb = (thumbs, thumbId) => {
   if (thumbs) {
     if (thumbId) {
       // get index of thumb
-      const foundThumb = thumbs.find((thumb) => thumb.thumbId === thumbId);
+      const foundThumb = thumbs.find(thumb => thumb.thumbId === thumbId);
       if (foundThumb === undefined) {
         return thumbs[thumbs.length - 1]; // return last item if no thumb found
       }
       const currentIndex = foundThumb.index;
-      const newIndex = ((currentIndex - 1) >= 0) ? (currentIndex - 1) : (thumbs.length - 1);
+      const newIndex = currentIndex - 1 >= 0 ? currentIndex - 1 : thumbs.length - 1;
       // log.debug(thumbs[newIndex]);
       return thumbs[newIndex];
     }
@@ -421,12 +399,12 @@ export const getNextThumb = (thumbs, thumbId) => {
   if (thumbs) {
     if (thumbId) {
       // get index of thumb
-      const foundThumb = thumbs.find((thumb) => thumb.thumbId === thumbId);
+      const foundThumb = thumbs.find(thumb => thumb.thumbId === thumbId);
       if (foundThumb === undefined) {
         return thumbs[0]; // return first item if no thumb found
       }
       const currentIndex = foundThumb.index;
-      const newIndex = ((currentIndex + 1) < thumbs.length) ? (currentIndex + 1) : 0;
+      const newIndex = currentIndex + 1 < thumbs.length ? currentIndex + 1 : 0;
       // log.debug(thumbs[newIndex]);
       return thumbs[newIndex];
     }
@@ -451,16 +429,16 @@ export const getVisibleThumbs = (thumbs, filter) => {
   }
 };
 
-export const getAspectRatio = (file) => {
+export const getAspectRatio = file => {
   if (file === undefined || file.width === undefined || file.height === undefined) {
     return (16 * 1.0) / 9; // default 16:9
   }
-  return ((file.width * 1.0) / file.height);
+  return (file.width * 1.0) / file.height;
 };
 
 export const getRandomSheetName = () => {
   // return random name from sheetNames array
-  const randomNameObject = sheetNames[Math.floor(Math.random()*sheetNames.length)];
+  const randomNameObject = sheetNames[Math.floor(Math.random() * sheetNames.length)];
   return randomNameObject.fullName;
 };
 
@@ -485,19 +463,23 @@ export const getSheetId = (sheetsByFileId, fileId) => {
 };
 
 export const getParentSheetId = (sheetsByFileId, fileId, sheetId) => {
-  if (sheetsByFileId === undefined ||
+  if (
+    sheetsByFileId === undefined ||
     sheetsByFileId[fileId] === undefined ||
     sheetsByFileId[fileId][sheetId] === undefined ||
-    sheetsByFileId[fileId][sheetId].parentSheetId === undefined) {
+    sheetsByFileId[fileId][sheetId].parentSheetId === undefined
+  ) {
     return undefined;
   }
   return sheetsByFileId[fileId][sheetId].parentSheetId;
 };
 
 export const doesSheetExist = (sheetsByFileId, fileId, sheetId) => {
-  if (sheetsByFileId === undefined ||
+  if (
+    sheetsByFileId === undefined ||
     sheetsByFileId[fileId] === undefined ||
-    sheetsByFileId[fileId][sheetId] === undefined) {
+    sheetsByFileId[fileId][sheetId] === undefined
+  ) {
     return false;
   }
   return true;
@@ -509,48 +491,66 @@ export const getFramenumbers = (sheet, visibilityFilter) => {
   }
   const { thumbsArray } = sheet;
   if (visibilityFilter === 'SHOW_VISIBLE') {
-    const frameNumberArray = thumbsArray
-      .filter(thumb => thumb.hidden === false)
-      .map(thumb => thumb.frameNumber);
+    const frameNumberArray = thumbsArray.filter(thumb => thumb.hidden === false).map(thumb => thumb.frameNumber);
     return frameNumberArray;
   }
   return thumbsArray.map(thumb => thumb.frameNumber);
 };
 
 export const getFramenumbersOfSheet = (sheetsByFileId, fileId, sheetId, visibilitySettings) => {
-  if (sheetsByFileId[fileId] === undefined ||
+  if (
+    sheetsByFileId[fileId] === undefined ||
     fileId === undefined ||
     sheetId === undefined ||
     sheetsByFileId[fileId][sheetId] === undefined ||
-    sheetsByFileId[fileId][sheetId].thumbsArray === undefined) {
+    sheetsByFileId[fileId][sheetId].thumbsArray === undefined
+  ) {
     return undefined;
   }
   const { thumbsArray } = sheetsByFileId[fileId][sheetId];
   if (visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') {
-    const frameNumberArray = thumbsArray
-      .filter(thumb => thumb.hidden === false)
-      .map(thumb => thumb.frameNumber);
+    const frameNumberArray = thumbsArray.filter(thumb => thumb.hidden === false).map(thumb => thumb.frameNumber);
     return frameNumberArray;
   }
   return thumbsArray.map(thumb => thumb.frameNumber);
 };
 
 export const getEDLscenes = (sheetsByFileId, fileId, sheetId, visibilitySettings, fps) => {
-  if (sheetsByFileId[fileId] === undefined ||
+  if (
+    sheetsByFileId[fileId] === undefined ||
     fileId === undefined ||
     sheetId === undefined ||
     sheetsByFileId[fileId][sheetId] === undefined ||
-    sheetsByFileId[fileId][sheetId].sceneArray === undefined) {
+    sheetsByFileId[fileId][sheetId].sceneArray === undefined
+  ) {
     return undefined;
   }
   const { sceneArray } = sheetsByFileId[fileId][sheetId];
   if (visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') {
     const frameNumberArray = sceneArray
       .filter(scene => scene.hidden === false)
-      .map((scene, index) => `${pad(index + 1, 3)}  ${pad(index % 2, 3)}       V     C        ${frameCountToTimeCode(scene.start, fps)} ${frameCountToTimeCode(scene.start + scene.length, fps)} ${frameCountToTimeCode(scene.start, fps)} ${frameCountToTimeCode(scene.start + scene.length, fps)}`);
+      .map(
+        (scene, index) =>
+          `${pad(index + 1, 3)}  ${pad(index % 2, 3)}       V     C        ${frameCountToTimeCode(
+            scene.start,
+            fps,
+          )} ${frameCountToTimeCode(scene.start + scene.length, fps)} ${frameCountToTimeCode(
+            scene.start,
+            fps,
+          )} ${frameCountToTimeCode(scene.start + scene.length, fps)}`,
+      );
     return frameNumberArray;
   }
-  return sceneArray.map((scene, index) => `${pad(index + 1, 3)}  ${pad(index % 2, 3)}       V     C        ${frameCountToTimeCode(scene.start, fps)} ${frameCountToTimeCode(scene.start + scene.length, fps)} ${frameCountToTimeCode(scene.start, fps)} ${frameCountToTimeCode(scene.start + scene.length, fps)}`);
+  return sceneArray.map(
+    (scene, index) =>
+      `${pad(index + 1, 3)}  ${pad(index % 2, 3)}       V     C        ${frameCountToTimeCode(
+        scene.start,
+        fps,
+      )} ${frameCountToTimeCode(scene.start + scene.length, fps)} ${frameCountToTimeCode(
+        scene.start,
+        fps,
+      )} ${frameCountToTimeCode(scene.start + scene.length, fps)}`,
+  );
 };
 
 export const getSheetCount = (files, fileId) => {
@@ -628,66 +628,77 @@ export const getSheetIdArray = (sheetsByFileId, fileId) => {
 };
 
 export const getSheetName = (sheetsByFileId, fileId, sheetId) => {
-  if (sheetsByFileId === undefined ||
+  if (
+    sheetsByFileId === undefined ||
     sheetsByFileId[fileId] === undefined ||
     sheetsByFileId[fileId][sheetId] === undefined ||
-    sheetsByFileId[fileId][sheetId].name === undefined) {
+    sheetsByFileId[fileId][sheetId].name === undefined
+  ) {
     return 'MoviePrint';
   }
   return sheetsByFileId[fileId][sheetId].name;
 };
 
 export const getSheetView = (sheetsByFileId, fileId, sheetId, visibilitySettings) => {
-  if (sheetsByFileId === undefined ||
+  if (
+    sheetsByFileId === undefined ||
     sheetsByFileId[fileId] === undefined ||
     sheetsByFileId[fileId][sheetId] === undefined ||
-    sheetsByFileId[fileId][sheetId].sheetView === undefined) {
+    sheetsByFileId[fileId][sheetId].sheetView === undefined
+  ) {
     return SHEET_VIEW.GRIDVIEW;
   }
   return sheetsByFileId[fileId][sheetId].sheetView;
 };
 
 export const getSheetType = (sheetsByFileId, fileId, sheetId, settings) => {
-  if (sheetsByFileId === undefined ||
+  if (
+    sheetsByFileId === undefined ||
     sheetsByFileId[fileId] === undefined ||
     sheetsByFileId[fileId][sheetId] === undefined ||
-    sheetsByFileId[fileId][sheetId].type === undefined) {
+    sheetsByFileId[fileId][sheetId].type === undefined
+  ) {
     return settings.defaultSheetType;
   }
   return sheetsByFileId[fileId][sheetId].type;
 };
 
 export const getColumnCount = (sheetsByFileId, fileId, sheetId, settings) => {
-  if (sheetsByFileId === undefined ||
+  if (
+    sheetsByFileId === undefined ||
     sheetsByFileId[fileId] === undefined ||
     sheetsByFileId[fileId][sheetId] === undefined ||
-    sheetsByFileId[fileId][sheetId].columnCount === undefined) {
+    sheetsByFileId[fileId][sheetId].columnCount === undefined
+  ) {
     return settings.defaultColumnCount;
   }
   return sheetsByFileId[fileId][sheetId].columnCount;
 };
 
 export const getSecondsPerRow = (sheetsByFileId, fileId, sheetId, settings) => {
-  if (sheetsByFileId === undefined ||
+  if (
+    sheetsByFileId === undefined ||
     sheetsByFileId[fileId] === undefined ||
     sheetsByFileId[fileId][sheetId] === undefined ||
-    sheetsByFileId[fileId][sheetId].secondsPerRow === undefined) {
+    sheetsByFileId[fileId][sheetId].secondsPerRow === undefined
+  ) {
     return settings.defaultTimelineViewSecondsPerRow;
   }
   return sheetsByFileId[fileId][sheetId].secondsPerRow;
 };
 
 export const getThumbsCount = (sheetsByFileId, fileId, sheetId, settings, visibilitySettings, noDefault = false) => {
-  if (fileId === undefined ||
+  if (
+    fileId === undefined ||
     sheetsByFileId[fileId] === undefined ||
     sheetId === undefined ||
     sheetsByFileId[fileId][sheetId] === undefined ||
-    sheetsByFileId[fileId][sheetId].thumbsArray === undefined) {
+    sheetsByFileId[fileId][sheetId].thumbsArray === undefined
+  ) {
     return noDefault ? 0 : settings.defaultThumbCount;
   }
   if (visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') {
-    return sheetsByFileId[fileId][sheetId].thumbsArray
-      .filter(thumb => thumb.hidden === false).length;
+    return sheetsByFileId[fileId][sheetId].thumbsArray.filter(thumb => thumb.hidden === false).length;
   }
   return sheetsByFileId[fileId][sheetId].thumbsArray.length;
 };
@@ -695,10 +706,7 @@ export const getThumbsCount = (sheetsByFileId, fileId, sheetId, settings, visibi
 export const setPosition = (vid, frameNumberToCapture, useRatio) => {
   if (vid !== undefined) {
     if (useRatio) {
-      const positionRatio =
-      frameNumberToCapture *
-      1.0 /
-      (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1);
+      const positionRatio = (frameNumberToCapture * 1.0) / (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1);
       // log.debug(`using positionRatio: ${positionRatio}`);
       vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, positionRatio);
     } else {
@@ -712,14 +720,10 @@ export const renderImage = (img, canvas, cv) => {
 
   canvas.height = img.rows;
   canvas.width = img.cols;
-  const imgData = new ImageData(
-    new Uint8ClampedArray(matRGBA.getData()),
-    img.cols,
-    img.rows
-  );
+  const imgData = new ImageData(new Uint8ClampedArray(matRGBA.getData()), img.cols, img.rows);
   const ctx = canvas.getContext('2d');
   ctx.putImageData(imgData, 0, 0);
-}
+};
 
 export const getScrubFrameNumber = (
   mouseX,
@@ -728,7 +732,7 @@ export const getScrubFrameNumber = (
   frameCount,
   scrubThumb,
   scrubThumbLeft,
-  scrubThumbRight
+  scrubThumbRight,
 ) => {
   let scrubFrameNumber;
 
@@ -739,8 +743,8 @@ export const getScrubFrameNumber = (
   // depending on if scrubbing over ScrubMovie change mapping range
   // scrubbing over ScrubMovie scrubbs over scene, with ctrl pressed scrubbing left or right of it scrubs over whole movie
   // depending on if add before (shift) or after (alt) changing the mapping range
-  const tempLeftFrameNumber = keyObject.altKey ? scrubThumb.frameNumber : scrubThumbLeft.frameNumber
-  const tempRightFrameNumber = keyObject.shiftKey ? scrubThumb.frameNumber : scrubThumbRight.frameNumber
+  const tempLeftFrameNumber = keyObject.altKey ? scrubThumb.frameNumber : scrubThumbLeft.frameNumber;
+  const tempRightFrameNumber = keyObject.shiftKey ? scrubThumb.frameNumber : scrubThumbRight.frameNumber;
   const leftOfScrubMovie = (scaleValueObject.scrubInnerContainerWidth - scaleValueObject.scrubMovieWidth) / 2;
   const rightOfScrubMovie = leftOfScrubMovie + scaleValueObject.scrubMovieWidth;
 
@@ -757,7 +761,13 @@ export const getScrubFrameNumber = (
     }
   } else if (mouseX > rightOfScrubMovie) {
     if (keyObject.ctrlKey || isLastThumb) {
-      scrubFrameNumber = mapRange(mouseX, rightOfScrubMovie, scaleValueObject.containerWidth - sideMargin, tempRightFrameNumber, frameCount - 1);
+      scrubFrameNumber = mapRange(
+        mouseX,
+        rightOfScrubMovie,
+        scaleValueObject.containerWidth - sideMargin,
+        tempRightFrameNumber,
+        frameCount - 1,
+      );
     } else {
       scrubFrameNumber = tempRightFrameNumber;
     }
@@ -765,19 +775,14 @@ export const getScrubFrameNumber = (
     scrubFrameNumber = mapRange(mouseX, leftOfScrubMovie, rightOfScrubMovie, tempLeftFrameNumber, tempRightFrameNumber);
   }
   return scrubFrameNumber;
-}
+};
 
-export const getSceneScrubFrameNumber = (
-  mouseX,
-  scaleValueObject,
-  scrubThumb,
-  scrubScene,
-) => {
+export const getSceneScrubFrameNumber = (mouseX, scaleValueObject, scrubThumb, scrubScene) => {
   let scrubFrameNumber;
 
   const leftOfScrubMovie = (scaleValueObject.scrubInnerContainerWidth - scaleValueObject.scrubMovieWidth) / 2;
   const rightOfScrubMovie = leftOfScrubMovie + scaleValueObject.scrubMovieWidth;
-  const tempLeftFrameNumber = scrubScene.start
+  const tempLeftFrameNumber = scrubScene.start;
   const tempRightFrameNumber = scrubScene.start + scrubScene.length - 1;
   if (mouseX < leftOfScrubMovie) {
     scrubFrameNumber = tempLeftFrameNumber;
@@ -787,65 +792,67 @@ export const getSceneScrubFrameNumber = (
     scrubFrameNumber = mapRange(mouseX, leftOfScrubMovie, rightOfScrubMovie, tempLeftFrameNumber, tempRightFrameNumber);
   }
   return scrubFrameNumber;
-}
+};
 
-export const deleteProperty = ({[key]: _, ...newObj}, key) => newObj;
+export const deleteProperty = ({ [key]: _, ...newObj }, key) => newObj;
 
 export const isEquivalent = (a, b) => {
-    // Create arrays of property names
-    const aProps = Object.getOwnPropertyNames(a);
-    const bProps = Object.getOwnPropertyNames(b);
+  // Create arrays of property names
+  const aProps = Object.getOwnPropertyNames(a);
+  const bProps = Object.getOwnPropertyNames(b);
 
-    // If number of properties is different,
+  // If number of properties is different,
+  // objects are not equivalent
+  if (aProps.length !== bProps.length) {
+    return false;
+  }
+
+  for (let i = 0; i < aProps.length; i += 1) {
+    const propName = aProps[i];
+
+    // If values of same property are not equal,
     // objects are not equivalent
-    if (aProps.length !== bProps.length) {
-        return false;
+    if (a[propName] !== b[propName]) {
+      return false;
     }
+  }
 
-    for (let i = 0; i < aProps.length; i += 1) {
-        const propName = aProps[i];
+  // If we made it this far, objects
+  // are considered equivalent
+  return true;
+};
 
-        // If values of same property are not equal,
-        // objects are not equivalent
-        if (a[propName] !== b[propName]) {
-            return false;
-        }
-    }
-
-    // If we made it this far, objects
-    // are considered equivalent
-    return true;
-}
-
-export const fourccToString = (fourcc) =>
-  `${String.fromCharCode(fourcc & 0XFF)}${String.fromCharCode((fourcc & 0XFF00) >> 8)}${String.fromCharCode((fourcc & 0XFF0000) >> 16)}${String.fromCharCode((fourcc & 0XFF000000) >> 24)}`
+export const fourccToString = fourcc =>
+  `${String.fromCharCode(fourcc & 0xff)}${String.fromCharCode((fourcc & 0xff00) >> 8)}${String.fromCharCode(
+    (fourcc & 0xff0000) >> 16,
+  )}${String.fromCharCode((fourcc & 0xff000000) >> 24)}`;
 
 export const roundNumber = (number, decimals = 2) =>
-  Math.round((number * (10 ** decimals)) + Number.EPSILON) / (10 ** decimals); // rounds the number with 3 decimals
+  Math.round(number * 10 ** decimals + Number.EPSILON) / 10 ** decimals; // rounds the number with 3 decimals
 
 export const getTextWidth = (text, font) => {
-    // re-use canvas object for better performance
-    const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
-    const context = canvas.getContext("2d");
-    context.font = font;
-    const metrics = context.measureText(text);
-    return metrics.width;
-}
+  // re-use canvas object for better performance
+  const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement('canvas'));
+  const context = canvas.getContext('2d');
+  context.font = font;
+  const metrics = context.measureText(text);
+  return metrics.width;
+};
 
 export const limitFrameNumberWithinMovieRange = (file, frameNumber) => {
-    const limitedFrameNumber = Math.min((file.frameCount - 1), Math.max(0, frameNumber)); // limit it on lower and on upper end
-    return limitedFrameNumber;
-}
+  const limitedFrameNumber = Math.min(file.frameCount - 1, Math.max(0, frameNumber)); // limit it on lower and on upper end
+  return limitedFrameNumber;
+};
 
 export const arrayToObject = (array, keyField) => {
   if (array === undefined) {
-    return {}
+    return {};
   }
   return array.reduce((obj, item) => {
-     obj[item[keyField]] = item
-     return obj
-   }, {})
- }
+    obj[item[keyField]] = item;
+    return obj;
+  }, {});
+};
 
 export const getScenesInRows = (sceneArray, secondsPerRow) => {
   // get scenes in rows
@@ -864,7 +871,8 @@ export const getScenesInRows = (sceneArray, secondsPerRow) => {
     const sceneOutPoint = previousSceneOutPoint + scene.length;
     sceneLengthsInRowArray.push(scene.length);
     if (sceneLengthsInRowArray.reduce((a, b) => a + b, 0) > framesPerRow) {
-      if (sceneLengthsInRowArray.length === 1) { // if only 1 scene
+      if (sceneLengthsInRowArray.length === 1) {
+        // if only 1 scene
         rowArray.push({
           index,
           sceneOutPoint,
@@ -873,18 +881,20 @@ export const getScenesInRows = (sceneArray, secondsPerRow) => {
           sceneLengthsInRow: sceneLengthsInRowArray.slice(), // pass copy of array
         });
         sceneLengthsInRowArray.length = 0; // clear array
-      } else { // if more than 1 scene
+      } else {
+        // if more than 1 scene
         rowArray.push({
           index: index - 1,
           sceneOutPoint: previousSceneOutPoint,
-          rowItemCount: sceneLengthsInRowArray.slice(0,-1).length, // remove last and get length
-          rowLength: sceneLengthsInRowArray.slice(0,-1).reduce((a, b) => a + b, 0), // remove last and get sum of all lengths
-          sceneLengthsInRow: sceneLengthsInRowArray.slice(0,-1), // remove last and pass copy of array
+          rowItemCount: sceneLengthsInRowArray.slice(0, -1).length, // remove last and get length
+          rowLength: sceneLengthsInRowArray.slice(0, -1).reduce((a, b) => a + b, 0), // remove last and get sum of all lengths
+          sceneLengthsInRow: sceneLengthsInRowArray.slice(0, -1), // remove last and pass copy of array
         });
-        sceneLengthsInRowArray.splice(0,sceneLengthsInRowArray.length - 1); // only keep last
+        sceneLengthsInRowArray.splice(0, sceneLengthsInRowArray.length - 1); // only keep last
       }
     }
-    if (sceneArray.length === index + 1) { // last scene
+    if (sceneArray.length === index + 1) {
+      // last scene
       rowArray.push({
         index,
         sceneOutPoint,
@@ -895,10 +905,10 @@ export const getScenesInRows = (sceneArray, secondsPerRow) => {
     }
     previousSceneOutPoint = sceneOutPoint;
     return undefined;
-  })
+  });
   // console.log(rowArray);
   return rowArray;
-}
+};
 
 export const getWidthOfSingleRow = (scenes, thumbMargin, pixelPerFrameRatio, minSceneLength) => {
   if (scenes === undefined) {
@@ -908,7 +918,7 @@ export const getWidthOfSingleRow = (scenes, thumbMargin, pixelPerFrameRatio, min
   const sumSceneLengths = sceneLengthArray.reduce((a, b) => a + b, 0);
   const widthOfSingleRow = sumSceneLengths * pixelPerFrameRatio + scenes.length * thumbMargin * 2;
   return widthOfSingleRow;
-}
+};
 
 // export const getWidthOfLongestRow = (rowArray, thumbMargin, pixelPerFrameRatio, minSceneLengthInFrames) => {
 //   // calculate width through getting longest row
@@ -948,9 +958,9 @@ export const getPixelPerFrameRatio = (rowArray, thumbMargin, width, minSceneLeng
     return undefined;
   }
   const pixelPerFrameRatioArray = [];
-  rowArray.map((row) => {
+  rowArray.map(row => {
     const numOfScenesInRow = row.sceneLengthsInRow.length;
-    const minScenesArray = row.sceneLengthsInRow.filter(item => item <=  minSceneLengthInFrames);
+    const minScenesArray = row.sceneLengthsInRow.filter(item => item <= minSceneLengthInFrames);
     const numOfMinScenes = minScenesArray.length;
     const lengthOfMinScenes = minScenesArray.reduce((a, b) => a + b, 0);
     const lengthOfAllScenes = row.rowLength;
@@ -960,37 +970,43 @@ export const getPixelPerFrameRatio = (rowArray, thumbMargin, width, minSceneLeng
     // console.log(lengthOfOtherScenes);
     // console.log(lengthOfAllScenes);
     // calculate pixelPerFrameRatio
-    const pixelPerFrameRatio = (width - numOfScenesInRow * thumbMargin * 2) /
-      ( + numOfMinScenes * minSceneLengthInFrames + lengthOfOtherScenes);
+    const pixelPerFrameRatio =
+      (width - numOfScenesInRow * thumbMargin * 2) / (+numOfMinScenes * minSceneLengthInFrames + lengthOfOtherScenes);
     // console.log(pixelPerFrameRatio);
     pixelPerFrameRatioArray.push(pixelPerFrameRatio);
     return undefined;
-  })
+  });
   const minPixelPerFrameRatio = Math.min(...pixelPerFrameRatioArray);
   // console.log(pixelPerFrameRatioArray);
   // console.log(minPixelPerFrameRatio);
   return minPixelPerFrameRatio;
-}
+};
 
 export const createSceneArray = (sheetsByFileId, fileId, sheetId) => {
-  if (sheetsByFileId[fileId] !== undefined &&
+  if (
+    sheetsByFileId[fileId] !== undefined &&
     sheetsByFileId[fileId][sheetId] !== undefined &&
-    sheetsByFileId[fileId][sheetId].thumbsArray !== undefined) {
+    sheetsByFileId[fileId][sheetId].thumbsArray !== undefined
+  ) {
     const { thumbsArray } = sheetsByFileId[fileId][sheetId];
     if (thumbsArray.length > 0) {
       const visibleThumbsArray = getVisibleThumbs(thumbsArray, 'SHOW_VISIBLE');
-      visibleThumbsArray.sort((t1,t2) => t1.frameNumber - t2.frameNumber);
+      visibleThumbsArray.sort((t1, t2) => t1.frameNumber - t2.frameNumber);
       // console.log(visibleThumbsArray);
       const sceneArray = [];
       let sceneStart = visibleThumbsArray[0].frameNumber; // first sceneStart value
       let sceneLength = Math.floor((visibleThumbsArray[1].frameNumber - visibleThumbsArray[0].frameNumber) / 2) + 1; // first sceneLength value
       visibleThumbsArray.map((thumb, index, array) => {
-        if (index !== 0) { // everything except the first thumb
+        if (index !== 0) {
+          // everything except the first thumb
           sceneStart = sceneStart + sceneLength;
-          if (index < array.length - 1) { // then until second to last
+          if (index < array.length - 1) {
+            // then until second to last
             const nextThumb = array[index + 1];
-            sceneLength = (Math.floor((nextThumb.frameNumber - thumb.frameNumber) / 2) + thumb.frameNumber) - sceneStart + 1;
-          } else { // last thumb
+            sceneLength =
+              Math.floor((nextThumb.frameNumber - thumb.frameNumber) / 2) + thumb.frameNumber - sceneStart + 1;
+          } else {
+            // last thumb
             sceneLength = thumb.frameNumber - sceneStart;
           }
         }
@@ -1000,8 +1016,8 @@ export const createSceneArray = (sheetsByFileId, fileId, sheetId) => {
           sheetId,
           start: sceneStart,
           length: sceneLength,
-          colorArray: [40,40,40],
-        })
+          colorArray: [40, 40, 40],
+        });
         return undefined;
       });
       // console.log(sceneArray);
@@ -1010,7 +1026,7 @@ export const createSceneArray = (sheetsByFileId, fileId, sheetId) => {
     return [];
   }
   return [];
-}
+};
 
 export const getSliceWidthArrayForScrub = (vid, sliceArraySize = 19, sliceWidthOutsideMin = 20) => {
   const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
@@ -1019,8 +1035,8 @@ export const getSliceWidthArrayForScrub = (vid, sliceArraySize = 19, sliceWidthO
   const sliceWidthArray = [];
   const halfArraySize = Math.ceil(sliceArraySize / 2);
   for (let i = 0; i < sliceArraySize; i += 1) {
-    const factor = i < halfArraySize ? halfArraySize - (i + 1) : (i + 1) - halfArraySize
-    const sliceWidth = Math.floor(sliceWidthInMiddle / (2 ** factor));
+    const factor = i < halfArraySize ? halfArraySize - (i + 1) : i + 1 - halfArraySize;
+    const sliceWidth = Math.floor(sliceWidthInMiddle / 2 ** factor);
     sliceWidthArray.push(Math.max(sliceWidth, sliceWidthOutsideMin));
   }
   return sliceWidthArray;
@@ -1035,11 +1051,11 @@ export const getSliceWidthArrayForCut = (canvasWidth, sliceArraySize = 20, slice
   let factor;
   for (let i = 0; i < sliceArraySize; i += 1) {
     if (isAsymmetrical) {
-      factor = i < halfArraySize ? halfArraySize - (i + 1) : (i + 1) - halfArraySize;
+      factor = i < halfArraySize ? halfArraySize - (i + 1) : i + 1 - halfArraySize;
     } else {
       factor = i < halfArraySize ? halfArraySize - (i + 1) : i - halfArraySize;
     }
-    const sliceWidth = Math.floor(sliceWidthInMiddle / (2 ** factor));
+    const sliceWidth = Math.floor(sliceWidthInMiddle / 2 ** factor);
     sliceWidthArray.push(Math.max(sliceWidth, 1)); // keep minimum of 1px
   }
   return sliceWidthArray;
@@ -1049,25 +1065,29 @@ export const getSceneFromFrameNumber = (scenes, frameNumber) => {
   if (scenes === undefined) {
     return undefined;
   }
-  const scene = scenes.find(scene1 => (scene1.start <= frameNumber && (scene1.start + scene1.length) > frameNumber));
+  const scene = scenes.find(scene1 => scene1.start <= frameNumber && scene1.start + scene1.length > frameNumber);
   if (scene !== undefined || scenes.length < 1) {
     return scene;
   }
-  const maxFrameNumberScene = scenes.reduce((prev, current) => ((prev.start + prev.length) > (current.start + current.length)) ? prev : current);
-  const minFrameNumberScene = scenes.reduce((prev, current) => (prev.start < current.start) ? prev : current);
+  const maxFrameNumberScene = scenes.reduce((prev, current) =>
+    prev.start + prev.length > current.start + current.length ? prev : current,
+  );
+  const minFrameNumberScene = scenes.reduce((prev, current) => (prev.start < current.start ? prev : current));
   const maxFrameNumber = maxFrameNumberScene.start + maxFrameNumberScene.length - 1;
   const minFrameNumber = minFrameNumberScene.start;
   const newFrameNumberToSearch = Math.min(maxFrameNumber, Math.max(minFrameNumber, frameNumber));
-  const closestScene = scenes.find(scene1 => (scene1.start <= newFrameNumberToSearch && (scene1.start + scene1.length) > newFrameNumberToSearch));
+  const closestScene = scenes.find(
+    scene1 => scene1.start <= newFrameNumberToSearch && scene1.start + scene1.length > newFrameNumberToSearch,
+  );
   return closestScene;
-}
+};
 
 export const getLeftAndRightThumb = (thumbs, thumbCenterId) => {
   if (thumbs === undefined || thumbCenterId === undefined) {
     return undefined;
   }
   // get thumb left and right of scrubThumb
-  const indexOfThumb = thumbs.findIndex((thumb) => thumb.thumbId === thumbCenterId);
+  const indexOfThumb = thumbs.findIndex(thumb => thumb.thumbId === thumbCenterId);
   const thumbCenter = thumbs[indexOfThumb];
   const tempLeftThumb = thumbs[Math.max(0, indexOfThumb - 1)];
   const tempRightThumb = thumbs[Math.min(thumbs.length - 1, indexOfThumb + 1)];
@@ -1077,43 +1097,44 @@ export const getLeftAndRightThumb = (thumbs, thumbCenterId) => {
   const arrayToCompare = [tempLeftThumb, tempRightThumb, thumbCenter];
 
   // copy the first array with slice so I can run it a second time (reduce mutates the array)
-  const thumbLeft = arrayToCompare.slice().reduce((prev, current) => prev.frameNumber < current.frameNumber ? prev : current);
-  const thumbRight = arrayToCompare.reduce((prev, current) => prev.frameNumber > current.frameNumber ? prev : current);
+  const thumbLeft = arrayToCompare
+    .slice()
+    .reduce((prev, current) => (prev.frameNumber < current.frameNumber ? prev : current));
+  const thumbRight = arrayToCompare.reduce((prev, current) =>
+    prev.frameNumber > current.frameNumber ? prev : current,
+  );
   return {
     thumbCenter,
     thumbLeft,
     thumbRight,
-  }
-}
+  };
+};
 
 export const getAdjacentSceneIndicesFromCut = (scenes, frameNumber) => {
   // return an array of 2 adjacent scenes if the frameNumber is the cut in between
   // else return undefined
-  const sceneIndex = scenes.findIndex(scene1 => (scene1.start === frameNumber));
+  const sceneIndex = scenes.findIndex(scene1 => scene1.start === frameNumber);
   console.log(frameNumber);
   console.log(scenes);
   if (sceneIndex <= 0) {
     return undefined;
   }
-  const adjacentSceneIndicesArray = [
-    sceneIndex - 1,
-    sceneIndex
-  ];
+  const adjacentSceneIndicesArray = [sceneIndex - 1, sceneIndex];
   console.log(adjacentSceneIndicesArray);
   return adjacentSceneIndicesArray;
-}
+};
 
 export const getBucketValueOfPercentage = (percentage, amountOfBuckets) => {
   // take percentage and return bucketed percentage value, like a histogram value or bin
-  return Math.floor(percentage * 100.0 / (100.0 / (amountOfBuckets - 1))) * (100.0 / (amountOfBuckets - 1)) / 100.0;
-}
+  return (Math.floor((percentage * 100.0) / (100.0 / (amountOfBuckets - 1))) * (100.0 / (amountOfBuckets - 1))) / 100.0;
+};
 
 export const getFrameInPercentage = (frameNumber, frameCount) => {
   if (frameCount > 1) {
     return (frameNumber / ((frameCount - 1) * 1.0)) * 100.0;
   }
   return 0;
-}
+};
 
 export const calculateSceneListFromDifferenceArray = (fileId, differenceArray, meanColorArray, threshold) => {
   let lastSceneCut = null;
@@ -1125,7 +1146,7 @@ export const calculateSceneListFromDifferenceArray = (fileId, differenceArray, m
       lastSceneCut = index;
     }
     if (differenceValue >= threshold) {
-      if ((index - lastSceneCut) >= SCENE_DETECTION_MIN_SCENE_LENGTH) {
+      if (index - lastSceneCut >= SCENE_DETECTION_MIN_SCENE_LENGTH) {
         // check if differenceValue is not within SCENE_DETECTION_MIN_SCENE_LENGTH
         const start = lastSceneCut; // start
         const length = index - start; // length
@@ -1171,8 +1192,7 @@ export const calculateSceneListFromDifferenceArray = (fileId, differenceArray, m
     differenceValueFromLastSceneCut = differenceValue;
     // console.log(`${index} - ${lastSceneCut} = ${index - lastSceneCut} - ${differenceValue >= threshold}`);
     return true;
-    }
-  );
+  });
   // add last scene
   const length = differenceArray.length - lastSceneCut; // meanArray.length should be frameCount
   sceneList.push({
@@ -1184,7 +1204,7 @@ export const calculateSceneListFromDifferenceArray = (fileId, differenceArray, m
   });
   // console.log(sceneList);
   return sceneList;
-}
+};
 
 // repairs missing frames in frameScanData in place
 export const repairFrameScanData = (arrayOfFrameScanData, frameCount) => {
@@ -1199,13 +1219,16 @@ export const repairFrameScanData = (arrayOfFrameScanData, frameCount) => {
       // if first frame missing fill it with default object
       let correctedDuplicate;
       if (i === 0) {
-        correctedDuplicate = Object.assign({}, {
-          frameNumber: 0,
-          meanColor: "[0,0,0]",
-          differenceValue: 0,
-        });
+        correctedDuplicate = Object.assign(
+          {},
+          {
+            frameNumber: 0,
+            meanColor: '[0,0,0]',
+            differenceValue: 0,
+          },
+        );
       } else {
-        correctedDuplicate = Object.assign({}, arrayOfFrameScanData[i-1]);
+        correctedDuplicate = Object.assign({}, arrayOfFrameScanData[i - 1]);
         correctedDuplicate.frameNumber = i;
       }
       log.info(`repaired frameScanData at: ${i}`);
@@ -1214,64 +1237,173 @@ export const repairFrameScanData = (arrayOfFrameScanData, frameCount) => {
     }
   }
   // no return is needed as arrayOfFrameScanData gets repaired in place
-}
+};
 
-export const sanitizeString = (str) => {
-    const cleanedString = sanitize(str,'-')
-    // const cleanedString = str.replace(/[^a-z0-9áéíóúñü$. ,_-]/gim,"");
-    return cleanedString.trim();
-}
+export const sanitizeString = str => {
+  const cleanedString = sanitize(str, '-');
+  // const cleanedString = str.replace(/[^a-z0-9áéíóúñü$. ,_-]/gim,"");
+  return cleanedString.trim();
+};
 
 // generates the frameScan table name and makes it sql compatible
-export const getFrameScanTableName = (fileId) => {
+export const getFrameScanTableName = fileId => {
   if (fileId === undefined) {
-    return undefined
+    return undefined;
   }
   const tableName = `frameScan_${fileId.replace(/-/g, '_')}`;
   return tableName;
-}
+};
 
 // sort detectionArray by ...
-export const sortDetectionArray = (detectionArray, sortAndFilterMethod = FACE_SORT_METHOD.SIZE, reverseSortOrder = false) => {
+export const sortDetectionArray = (
+  detectionArray,
+  sortAndFilterMethod = SORT_METHOD.FACESIZE,
+  reverseSortOrder = false,
+) => {
   let sortedAndFilteredArray = [];
   const sortOrderMultiplier = reverseSortOrder ? -1 : 1;
   switch (sortAndFilterMethod) {
-    case FACE_SORT_METHOD.SIZE:
+    case SORT_METHOD.FRAMENUMBER:
       sortedAndFilteredArray = detectionArray
-      .slice()
-      .sort((a, b) => (a.largestSize < b.largestSize) ? sortOrderMultiplier * 1 : sortOrderMultiplier * -1)
+        .slice()
+        .sort((a, b) => (a.frameNumber < b.frameNumber ? sortOrderMultiplier * 1 : sortOrderMultiplier * -1));
       // .map(item => item.frameNumber);
       break;
-    case FACE_SORT_METHOD.COUNT:
+    case SORT_METHOD.FACESIZE:
       sortedAndFilteredArray = detectionArray
-      .slice()
-      .sort((a, b) => (a.faceCount < b.faceCount) ? sortOrderMultiplier * 1 : sortOrderMultiplier * -1)
+        .slice()
+        .sort((a, b) => (a.largestSize < b.largestSize ? sortOrderMultiplier * 1 : sortOrderMultiplier * -1));
       // .map(item => item.frameNumber);
       break;
-    case FACE_SORT_METHOD.UNIQUE:
-      // return the occurence with the largestSize of all unique faces
-      let filteredArray = [];
+    case SORT_METHOD.FACECOUNT:
+      sortedAndFilteredArray = detectionArray
+        .slice()
+        .sort((a, b) => (a.faceCount < b.faceCount ? sortOrderMultiplier * 1 : sortOrderMultiplier * -1));
+      // .map(item => item.frameNumber);
+      break;
+    case SORT_METHOD.FACECONFIDENCE: {
+      // flatten the detectionArray
+      const flattenedArray = [];
       detectionArray.map(item => {
-        const foundIndex = filteredArray.findIndex(filteredItem => filteredItem.faceId === item.faceId);
-        if (foundIndex > -1) { // found
-          if (filteredArray[foundIndex].largestSize < item.largestSize) {
-            filteredArray[foundIndex] = item;
-          }
-        } else {
-          filteredArray.push(item);
+        const { facesArray, ...rest } = item;
+        if (facesArray !== undefined) {
+          facesArray.map(face => {
+            flattenedArray.push({ ...face, ...rest });
+            return undefined;
+          });
         }
         return undefined;
       });
-      console.log(filteredArray.slice());
-      sortedAndFilteredArray = filteredArray
-      .sort((a, b) => (a.largestSize < b.largestSize) ? 1 : -1)
-      // .map(item => item.frameNumber);
+      console.log(flattenedArray);
+      // sort
+      flattenedArray.sort((a, b) => (a.score < b.score ? sortOrderMultiplier * 1 : sortOrderMultiplier * -1));
+
+      // only keep first occurrence of frameNumber
+      sortedAndFilteredArray = flattenedArray.filter((item, index, self) =>
+        index === self.findIndex((t) => (
+          t.frameNumber === item.frameNumber
+        )),
+      );
+      // sortedAndFilteredArray =
+      break;
+    }
+    case SORT_METHOD.FACEOCCURRENCE: {
+      // flatten the detectionArray
+      const flattenedArray = getFlattenedArrayWithOccurrences(detectionArray);
+      // console.log(flattenedArray.map(item => ({ faceId: item.faceId, size: item.size, occurrence: item.occurrence })));
+
+      // sort by count, size and then score
+      flattenedArray.sort((a, b) => {
+        // Sort by count number
+        if (a.occurrence < b.occurrence) return sortOrderMultiplier * 1;
+        if (a.occurrence > b.occurrence) return sortOrderMultiplier * -1;
+
+        // If the count number is the same between both items, sort by size
+        if (a.size < b.size) return sortOrderMultiplier * 1;
+        if (a.size > b.size) return sortOrderMultiplier * -1;
+
+        // If the count number is the same between both items, sort by size
+        if (a.score < b.score) return sortOrderMultiplier * 1;
+        if (a.score > b.score) return sortOrderMultiplier * -1;
+        return -1
+      });
+
+      // only keep first occurrence of frameNumber
+      sortedAndFilteredArray = flattenedArray.filter((item, index, self) =>
+        index === self.findIndex((t) => (
+          t.frameNumber === item.frameNumber
+        )),
+      );
+      break;
+    }
+    case SORT_METHOD.UNIQUE:
+      // flatten the detectionArray
+      const flattenedArray = getFlattenedArrayWithOccurrences(detectionArray);
+      // console.log(flattenedArray.map(item => ({ faceId: item.faceId, size: item.size, occurrence: item.occurrence })));
+
+      // sort by count, size and then score
+      flattenedArray.sort((a, b) => {
+        // Sort by count number
+        if (a.occurrence < b.occurrence) return sortOrderMultiplier * 1;
+        if (a.occurrence > b.occurrence) return sortOrderMultiplier * -1;
+
+        // If the count number is the same between both items, sort by size
+        if (a.size < b.size) return sortOrderMultiplier * 1;
+        if (a.size > b.size) return sortOrderMultiplier * -1;
+
+        // If the count number is the same between both items, sort by size
+        if (a.score < b.score) return sortOrderMultiplier * 1;
+        if (a.score > b.score) return sortOrderMultiplier * -1;
+        return -1
+      });
+
+      // only keep first occurrence of faceId
+      sortedAndFilteredArray = flattenedArray.filter((item, index, self) =>
+        index === self.findIndex((t) => (
+          t.faceId === item.faceId
+        )),
+      );
       break;
     default:
   }
   console.log(sortedAndFilteredArray);
   return sortedAndFilteredArray;
-}
+};
+
+export const getFlattenedArrayWithOccurrences = detectionArray => {
+  // flatten the detectionArray
+  const flattenedArray = [];
+  detectionArray.map(item => {
+    const { facesArray, ...rest } = item;
+    if (facesArray !== undefined) {
+      facesArray.map(face => {
+        flattenedArray.push({ ...face, ...rest });
+        return undefined;
+      });
+    }
+    return undefined;
+  });
+  console.log(flattenedArray.slice());
+
+  //
+  const arrayOfOccurrences = flattenedArray.reduce((acc, curr) => {
+    if (acc[curr.faceId] === undefined) {
+      acc[curr.faceId] = { count: 1, faceId: curr.faceId };
+    } else {
+      acc[curr.faceId].count += 1;
+    }
+    return acc;
+  }, {});
+  console.log(arrayOfOccurrences);
+  console.log(typeof arrayOfOccurrences);
+
+  flattenedArray.forEach(item => {
+    // convert object to array and find occurrence and add to item
+    const { count } = Object.values(arrayOfOccurrences).find(item2 => item2.faceId === item.faceId);
+    item.occurrence = count;
+  });
+  return flattenedArray;
+};
 
 export const getIntervalArray = (
   amount,
@@ -1303,14 +1435,32 @@ export const getIntervalArray = (
   const startWithBoundaries = limitRange(newStart, 0, maxValue - 1);
   const stopWithBoundaries = limitRange(newStop, 0, maxValue - 1);
   const frameNumberArray = Array.from(Array(newAmount).keys()).map(x =>
-    mapRange(
-      x,
-      0,
-      newAmount - 1,
-      startWithBoundaries,
-      stopWithBoundaries,
-      true,
-    )
+    mapRange(x, 0, newAmount - 1, startWithBoundaries, stopWithBoundaries, true),
   );
   return frameNumberArray;
+};
+
+export const sortThumbsArray = (
+  thumbsArray,
+  sortOrderArray,
+) => {
+  // extract frameNumbers
+  const frameNumberArrayFromFaceDetection = sortOrderArray.map(item => item.frameNumber);
+  console.log(frameNumberArrayFromFaceDetection);
+  console.log(thumbsArray);
+
+  // let filteredArray = thumbsArray;
+  // if (hideOthers) {
+  //   // filter thumbsArray by frameNumberArrayFromFaceDetection
+  //   filteredArray = thumbsArray.filter(item => frameNumberArrayFromFaceDetection.includes(item.frameNumber));
+  // }
+
+  const thumbsArrayAfterSorting = thumbsArray.slice().sort((a, b) => {
+    return (
+      frameNumberArrayFromFaceDetection.indexOf(a.frameNumber) -
+      frameNumberArrayFromFaceDetection.indexOf(b.frameNumber)
+    );
+  });
+  console.log(thumbsArrayAfterSorting);
+  return thumbsArrayAfterSorting;
 };

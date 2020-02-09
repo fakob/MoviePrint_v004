@@ -6,7 +6,7 @@ import { arrayMove } from 'react-sortable-hoc';
 import scrollIntoView from 'scroll-into-view';
 import {
   toggleThumb, updateOrder,
-  changeThumb, addIntervalSheet, toggleThumbArray
+  changeThumb, addIntervalSheet, toggleThumbsByThumbIdArray
 } from '../actions';
 import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
@@ -227,7 +227,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       ));
     },
     onHideBeforeAfterClick: (fileId, sheetId, thumbIdArray) => {
-      dispatch(toggleThumbArray(
+      dispatch(toggleThumbsByThumbIdArray(
         fileId,
         sheetId,
         thumbIdArray

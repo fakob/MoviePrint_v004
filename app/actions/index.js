@@ -853,14 +853,26 @@ export const toggleThumb = (currentFileId, sheetId, thumbId) => {
   };
 };
 
-export const toggleThumbArray = (fileId, sheetId, thumbIdArray) => {
-  log.debug(`action: toggleThumbArray - ${thumbIdArray}`);
+export const toggleThumbsByThumbIdArray = (fileId, sheetId, thumbIdArray) => {
+  log.debug(`action: toggleThumbsByThumbIdArray - ${thumbIdArray}`);
   return {
-    type: 'TOGGLE_THUMB_ARRAY',
+    type: 'TOGGLE_THUMBS_BY_THUMBIDARRAY',
     payload: {
       fileId,
       sheetId,
       thumbIdArray,
+    },
+  };
+};
+
+export const toggleThumbsByFrameNumberArray = (fileId, sheetId, frameNumberArray) => {
+  log.debug(`action: toggleThumbsByframeNumberArray - ${frameNumberArray}`);
+  return {
+    type: 'TOGGLE_THUMBS_BY_FRAMENUMBERARRAY',
+    payload: {
+      fileId,
+      sheetId,
+      frameNumberArray,
     },
   };
 };

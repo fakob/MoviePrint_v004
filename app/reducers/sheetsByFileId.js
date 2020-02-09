@@ -63,7 +63,16 @@ const thumb = (state = {}, action, index) => {
       return Object.assign({}, state, {
         hidden: !state.hidden
       });
-    case 'TOGGLE_THUMB_ARRAY':
+    case 'TOGGLE_THUMBS_BY_FRAMENUMBERARRAY':
+      // hide thumbs not included in the frameNumberArray
+      if (action.payload.frameNumberArray.includes(state.frameNumber)) {
+        return state;
+      }
+      return Object.assign({}, state, {
+        hidden: !state.hidden
+      });
+    case 'TOGGLE_THUMBS_BY_THUMBIDARRAY':
+      // hide thumbs included in the thumbIdArray
       if (!action.payload.thumbIdArray.includes(state.thumbId)) {
         return state;
       }
@@ -390,7 +399,8 @@ const sheetsByFileId = (state = {}, action) => {
         }
       };
     case 'TOGGLE_THUMB':
-    case 'TOGGLE_THUMB_ARRAY':
+    case 'TOGGLE_THUMBS_BY_FRAMENUMBERARRAY':
+    case 'TOGGLE_THUMBS_BY_THUMBIDARRAY':
     case 'CHANGE_THUMB_ARRAY':
       return {
         ...state,

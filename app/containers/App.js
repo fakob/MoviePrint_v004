@@ -67,6 +67,7 @@ import {
   repairFrameScanData,
   setPosition,
   sortDetectionArray,
+  sortThumbsArray,
 } from '../utils/utils';
 import styles from './App.css';
 import stylesPop from '../components/Popup.css';
@@ -139,6 +140,7 @@ import {
   setVisibilityFilter,
   showMovielist,
   showSettings,
+  toggleThumbsByFrameNumberArray,
   updateCropping,
   updateFileDetails,
   updateFileDetailUseRatio,
@@ -160,7 +162,7 @@ import {
   DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN,
   DEFAULT_THUMB_COUNT,
   EXPORT_FORMAT_OPTIONS,
-  FACE_SORT_METHOD,
+  SORT_METHOD,
   FRAMESDB_PATH,
   MENU_FOOTER_HEIGHT,
   MENU_HEADER_HEIGHT,
@@ -212,7 +214,7 @@ const loadSheetPropertiesIntoState = (
     thumbCountTemp: thumbCount,
     columnCount,
     thumbCount,
-    secondsPerRowTemp
+    secondsPerRowTemp,
   });
 };
 
@@ -1213,16 +1215,15 @@ class App extends Component {
           case 52: // press '4'
             break;
           case 53: // press '5'
-            this.onSortSheet(currentFileId, currentSheetId, FACE_SORT_METHOD.SIZE, true);
+            this.onSortSheet(SORT_METHOD.FACECONFIDENCE);
             break;
           case 54: // press '6'
-            this.onSortSheet(currentFileId, currentSheetId, FACE_SORT_METHOD.SIZE, false);
+            this.onSortSheet(SORT_METHOD.FACEOCCURRENCE);
             break;
           case 55: // press '7'
-            this.onSortSheet(currentFileId, currentSheetId, FACE_SORT_METHOD.COUNT, true);
+            this.onSortSheet(SORT_METHOD.UNIQUE);
             break;
           case 56: // press '8'
-            this.onSortSheet(currentFileId, currentSheetId, FACE_SORT_METHOD.COUNT, false);
             break;
           case 65: // press 'a'
             this.openMoviesDialog();
@@ -1231,15 +1232,8 @@ class App extends Component {
             // this.recaptureAllFrames();
             break;
           case 68: // press 'd'
-            // const frameIdArray = [1234];
-            // const frameNumberArray = [1511];
-            const frameNumberArray = this.props.thumbs.map(thumb => thumb.frameNumber);
-            ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-faces-sync', file.id, file.path, currentSheetId, frameNumberArray, file.useRatio, settings.defaultCachedFramesSize, file.transformObject, FACE_SORT_METHOD.SIZE);
             break;
           case 69: // press 'e'
-            const frameNumberArray2 = this.props.thumbs.map(thumb => thumb.frameNumber);
-            ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-faces-sync', file.id, file.path, currentSheetId, frameNumberArray2, file.useRatio, settings.defaultCachedFramesSize, file.transformObject, FACE_SORT_METHOD.SIZE, true);
-            // ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-faces-sync', file.id, file.path, currentSheetId, frameIdArray2, frameNumberArray2, file.useRatio, settings.defaultCachedFramesSize, file.transformObject, FACE_SORT_METHOD.UNIQUE);
             break;
           case 70: // press 'f'
             if (currentFileId) {
@@ -1264,7 +1258,6 @@ class App extends Component {
             //         floated='right'
             //         content='Cancel'
             //         onClick={() => {
-            //           console.error('click');
             //           closeToast();
             //         }}
             //       />
@@ -1606,32 +1599,44 @@ class App extends Component {
     });
   }
 
-  onSortSheet(fileId, sheetId, sortMethod, reverseSortOrder) {
-    const { dispatch, sheetsByFileId } = this.props;
+  onSortSheet(sortMethod, reverseSortOrder, fileId = undefined, sheetId = undefined) {
+    const { currentFileId, currentSheetId, dispatch, sheetsByFileId } = this.props;
+
+    const theFileId = fileId || currentFileId;
+    const theSheetId = sheetId || currentSheetId;
+    const { thumbsArray } = sheetsByFileId[theFileId][theSheetId];
 
     //
-    const faceScanArray = getFaceScanByFileId(fileId);
+    const faceScanArray = getFaceScanByFileId(theFileId);
     console.log(faceScanArray);
-    const sortedArray = sortDetectionArray(faceScanArray, sortMethod, reverseSortOrder);
-
-    // extract frameNumbers
-    const frameNumberArrayFromFaceDetection = sortedArray.map(item => item.frameNumber);
-    console.log(frameNumberArrayFromFaceDetection);
-    console.log(sheetsByFileId[fileId]);
-
-    const thumbsArrayBeforeSorting = sheetsByFileId[fileId][sheetId].thumbsArray;
-    console.log(thumbsArrayBeforeSorting);
-    const thumbsArrayAfterSorting = thumbsArrayBeforeSorting.slice().sort((a, b) => {
-      return frameNumberArrayFromFaceDetection.indexOf(a.frameNumber) - frameNumberArrayFromFaceDetection.indexOf(b.frameNumber);
-    });
-    console.log(thumbsArrayAfterSorting);
-
-    // update the thumb order as addThumbs
-    dispatch(updateOrder(
-      fileId,
-      sheetId,
-      thumbsArrayAfterSorting)
+    const sortOrderArray = sortDetectionArray(
+      faceScanArray,
+      sortMethod,
+      reverseSortOrder
     );
+
+    // sort thumbs array
+    const sortedThumbsArray = sortThumbsArray(
+      thumbsArray,
+      sortOrderArray,
+    );
+
+    // update the thumb order
+    dispatch(updateOrder(
+      theFileId,
+      theSheetId,
+      sortedThumbsArray,
+    ));
+
+    // hide other thumbs
+    console.log(sortedThumbsArray);
+    console.log(sortOrderArray);
+    const frameNumberArray = sortOrderArray.map(item => item.frameNumber);
+    dispatch(toggleThumbsByFrameNumberArray(
+      theFileId,
+      theSheetId,
+      frameNumberArray,
+    ));
   }
 
   addFaceData(fileId, sheetId, sortMethod = undefined) {
@@ -1689,7 +1694,6 @@ class App extends Component {
               floated='right'
               content='Cancel'
               onClick={() => {
-                console.error('click');
                 this.cancelFileScan(fileId);
                 closeToast();
               }}
@@ -1860,6 +1864,8 @@ class App extends Component {
   cancelFileScan(fileId) {
     const { requestIdleCallbackForScenesHandle } = this.state;
 
+    console.error(`Cancel file scan for: ${fileId}`);
+
     // cancel pullScenesFromOpencvWorker
     window.cancelIdleCallback(requestIdleCallbackForScenesHandle);
     this.setState({
@@ -1868,7 +1874,9 @@ class App extends Component {
     log.debug('now I cancelIdleCallback');
 
     ipcRenderer.send(
-      'message-from-mainWindow-to-opencvWorkerWindow', 'cancelFileScan', fileId
+      'message-from-mainWindow-to-opencvWorkerWindow',
+      'cancelFileScan',
+      fileId,
     );
 
     this.setState({
@@ -2333,24 +2341,14 @@ class App extends Component {
     toast(({ closeToast }) => (
       <div>
         Face detection in progress
-        <Button
-          compact
-          floated='right'
-          content='Cancel'
-          onClick={() => {
-            console.error('click');
-            this.cancelFileScan(currentFileId);
-            closeToast();
-          }}
-        />
       </div>
-    ), {
-      toastId: currentFileId,
-      className: `${stylesPop.toast} ${stylesPop.toastInfo}`,
-      hideProgressBar: false,
-      autoClose: false,
-      closeButton: false,
-      closeOnClick: false,
+      ), {
+        toastId: currentFileId,
+        className: `${stylesPop.toast} ${stylesPop.toastInfo}`,
+        hideProgressBar: false,
+        autoClose: false,
+        closeButton: false,
+        closeOnClick: false,
     });
 
     ipcRenderer.send(
@@ -2363,7 +2361,7 @@ class App extends Component {
       useRatio,
       settings.defaultCachedFramesSize,
       transformObject,
-      FACE_SORT_METHOD.SIZE,
+      SORT_METHOD.FACESIZE,
       true
     );
   }
@@ -3408,6 +3406,7 @@ ${exportObject}`;
                     onAddIntervalSheetClick={this.onAddIntervalSheetClick}
                     onAddFaceSheetClick={this.onAddFaceSheetClick}
                     onScanMovieListItemClick={this.onScanMovieListItemClick}
+                    onSortSheet={this.onSortSheet}
                     onDuplicateSheetClick={this.onDuplicateSheetClick}
                     onChangeSheetViewClick={this.onChangeSheetViewClick}
                     hasParent={hasParent}

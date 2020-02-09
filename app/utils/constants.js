@@ -233,13 +233,21 @@ export const TIMELINE_PLAYHEAD_MINIMUM_WIDTH = 2;
 export const FACE_SIZE_THRESHOLD = 20; // faces smaller than this percentage of the movie height are ignored
 export const FACE_DETECTION_CONFIDENCE_SCORE = 70; // detected faces with a lower score are ignored
 export const FACE_UNIQUENESS_THRESHOLD = 0.5; // faces with a euclideanDistance larger than this are considered unique
-export const FACE_SORT_METHOD = {
-  SIZE: 'size',
-  COUNT: 'count',
+export const SORT_METHOD = {
+  FRAMENUMBER: 'frameNumber',
+  FACECONFIDENCE: 'faceConfidence',
+  FACECOUNT: 'faceCount',
+  FACEOCCURRENCE: 'faceOccurrence',
+  FACESIZE: 'faceSize',
   UNIQUE: 'unique',
+  REVERSE: 'reverse',
 };
-export const FACE_SORT_METHOD_OPTIONS = [
-  { value: FACE_SORT_METHOD.SIZE, text: 'size of face' , 'data-tid': 'faceSortMethodOptionsSize'},
-  { value: FACE_SORT_METHOD.COUNT, text: 'number of faces' , 'data-tid': 'faceSortMethodOptionsCount'},
-  { value: FACE_SORT_METHOD.UNIQUE, text: 'unique faces' , 'data-tid': 'faceSortMethodOptionsUnique'},
+export const SORT_METHOD_OPTIONS = [
+  { value: SORT_METHOD.FRAMENUMBER, text: 'framenumber', 'data-tid': 'sortMethodOptionsFrameNumber'},
+  { value: SORT_METHOD.FACESIZE, text: 'size of face', 'data-tid': 'sortMethodOptionsFaceSize'},
+  { value: SORT_METHOD.FACECOUNT, text: 'number of faces', 'data-tid': 'sortMethodOptionsFaceCount'},
+  { value: SORT_METHOD.FACEOCCURRENCE, text: 'occurrence of face', 'data-tid': 'sortMethodOptionsFaceOccurrence'},
+  { value: SORT_METHOD.FACECONFIDENCE, text: 'confidence of face', 'data-tid': 'sortMethodOptionsFaceConfidence'},
+  { value: SORT_METHOD.UNIQUE, text: 'unique faces', 'data-tid': 'sortMethodOptionsUnique'},
+  { value: SORT_METHOD.REVERSE, text: 'reverse order', 'data-tid': 'sortMethodOptionsReverse'},
 ];
