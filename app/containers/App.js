@@ -66,7 +66,7 @@ import {
   limitFrameNumberWithinMovieRange,
   repairFrameScanData,
   setPosition,
-  sortDetectionArray,
+  sortArray,
   sortThumbsArray,
 } from '../utils/utils';
 import styles from './App.css';
@@ -659,7 +659,7 @@ class App extends Component {
       // only create new faceSheet if there is at least 1 face
       if (detectionArray !== 0) {
         // sort and filter faces by faceSortMethod
-        const sortedArray = sortDetectionArray(detectionArray, faceSortMethod);
+        const sortedArray = sortArray(detectionArray, faceSortMethod);
 
         // extract frameNumbers
         const frameNumberArrayFromFaceDetection = sortedArray.map(item => item.frameNumber);
@@ -1607,32 +1607,44 @@ class App extends Component {
   }
 
   onSortSheet(sortMethod, reverseSortOrder, fileId = undefined, sheetId = undefined) {
-    const { currentFileId, currentSheetId, dispatch, sheetsByFileId, visibilitySettings } = this.props;
+    const { currentFileId, currentSheetId, dispatch, settings, sheetsByFileId, visibilitySettings } = this.props;
 
     const theFileId = fileId || currentFileId;
     const theSheetId = sheetId || currentSheetId;
     const { thumbsArray } = sheetsByFileId[theFileId][theSheetId];
+    const sheetType = getSheetType(sheetsByFileId, currentFileId, currentSheetId, settings);
+    const isFaceType = sheetType === SHEET_TYPE.FACES;
 
     // get visible thumbs and only request faces scan data for them
     const visibleThumbs = getVisibleThumbs(
       thumbsArray,
       visibilitySettings.visibilityFilter
     );
-    const visibleThumbsFrameNumbers = visibleThumbs.map(thumb => thumb.frameNumber);
-    const faceScanArray = getFaceScanByFileId(theFileId, visibleThumbsFrameNumbers);
-    console.log(faceScanArray);
 
-    const sortOrderArray = sortDetectionArray(
-      faceScanArray,
-      sortMethod,
-      reverseSortOrder
-    );
+    let baseArray = visibleThumbs;
+    let sortedThumbsArray;
 
-    // sort thumbs array
-    const sortedThumbsArray = sortThumbsArray(
-      thumbsArray,
-      sortOrderArray,
-    );
+    if (sortMethod !== SORT_METHOD.REVERSE) {
+      if (isFaceType) {
+        const visibleThumbsFrameNumbers = visibleThumbs.map(thumb => thumb.frameNumber);
+        baseArray = getFaceScanByFileId(theFileId, visibleThumbsFrameNumbers);
+        // console.log(faceScanArray);
+      }
+
+      const sortOrderArray = sortArray(
+        baseArray,
+        sortMethod,
+        reverseSortOrder
+      );
+
+      // sort thumbs array
+      sortedThumbsArray = sortThumbsArray(
+        thumbsArray,
+        sortOrderArray,
+      );
+    } else {
+      sortedThumbsArray = baseArray.slice().reverse();
+    }
 
     // update the thumb order
     dispatch(updateOrder(
@@ -3437,6 +3449,7 @@ ${exportObject}`;
                     visibilitySettings={visibilitySettings}
                     settings={settings}
                     scaleValueObject={scaleValueObject}
+                    sheetType={sheetType}
                     sheetView={sheetView}
                     fileMissingStatus={file.fileMissingStatus}
                     toggleMovielist={this.toggleMovielist}

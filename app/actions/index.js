@@ -3,11 +3,7 @@ import log from 'electron-log';
 import imageDB from '../utils/db';
 import { deleteTableFramelist } from '../utils/utilsForIndexedDB';
 import { deleteTableFrameScanList } from '../utils/utilsForSqlite';
-import {
-  getIntervalArray,
-  limitRange,
-  sortDetectionArray,
-} from '../utils/utils';
+import { getIntervalArray, limitRange, sortArray } from '../utils/utils';
 
 const { ipcRenderer } = require('electron');
 
@@ -170,9 +166,7 @@ export const setDefaultShowPathInHeader = defaultShowPathInHeader => {
 };
 
 export const setDefaultShowDetailsInHeader = defaultShowDetailsInHeader => {
-  log.debug(
-    `action: setDefaultShowDetailsInHeader - ${defaultShowDetailsInHeader}`,
-  );
+  log.debug(`action: setDefaultShowDetailsInHeader - ${defaultShowDetailsInHeader}`);
   return {
     type: 'SET_DEFAULT_DETAILS_IN_HEADER',
     defaultShowDetailsInHeader,
@@ -180,9 +174,7 @@ export const setDefaultShowDetailsInHeader = defaultShowDetailsInHeader => {
 };
 
 export const setDefaultShowTimelineInHeader = defaultShowTimelineInHeader => {
-  log.debug(
-    `action: setDefaultShowTimelineInHeader - ${defaultShowTimelineInHeader}`,
-  );
+  log.debug(`action: setDefaultShowTimelineInHeader - ${defaultShowTimelineInHeader}`);
   return {
     type: 'SET_DEFAULT_TIMELINE_IN_HEADER',
     defaultShowTimelineInHeader,
@@ -230,9 +222,7 @@ export const setDefaultCachedFramesSize = defaultCachedFramesSize => {
 };
 
 export const setDefaultSaveOptionOverwrite = defaultSaveOptionOverwrite => {
-  log.debug(
-    `action: setDefaultSaveOptionOverwrite - ${defaultSaveOptionOverwrite}`,
-  );
+  log.debug(`action: setDefaultSaveOptionOverwrite - ${defaultSaveOptionOverwrite}`);
   return {
     type: 'SET_DEFAULT_SAVE_OPTION_OVERWRITE',
     defaultSaveOptionOverwrite,
@@ -240,9 +230,7 @@ export const setDefaultSaveOptionOverwrite = defaultSaveOptionOverwrite => {
 };
 
 export const setDefaultSaveOptionIncludeIndividual = defaultSaveOptionIncludeIndividual => {
-  log.debug(
-    `action: setDefaultSaveOptionIncludeIndividual - ${defaultSaveOptionIncludeIndividual}`,
-  );
+  log.debug(`action: setDefaultSaveOptionIncludeIndividual - ${defaultSaveOptionIncludeIndividual}`);
   return {
     type: 'SET_DEFAULT_SAVE_OPTION_INCLUDE_INDIVIDUAL',
     defaultSaveOptionIncludeIndividual,
@@ -250,9 +238,7 @@ export const setDefaultSaveOptionIncludeIndividual = defaultSaveOptionIncludeInd
 };
 
 export const setDefaultEmbedFrameNumbers = defaultEmbedFrameNumbers => {
-  log.debug(
-    `action: setDefaultEmbedFrameNumbers - ${defaultEmbedFrameNumbers}`,
-  );
+  log.debug(`action: setDefaultEmbedFrameNumbers - ${defaultEmbedFrameNumbers}`);
   return {
     type: 'SET_DEFAULT_EMBED_FRAMENUMBERS',
     defaultEmbedFrameNumbers,
@@ -276,9 +262,7 @@ export const setDefaultShowPaperPreview = defaultShowPaperPreview => {
 };
 
 export const setDefaultPaperAspectRatioInv = defaultPaperAspectRatioInv => {
-  log.debug(
-    `action: setDefaultPaperAspectRatioInv - ${defaultPaperAspectRatioInv}`,
-  );
+  log.debug(`action: setDefaultPaperAspectRatioInv - ${defaultPaperAspectRatioInv}`);
   return {
     type: 'SET_DEFAULT_PAPER_ASPECT_RATIO_INV',
     defaultPaperAspectRatioInv,
@@ -302,9 +286,7 @@ export const setEmailAddress = emailAddress => {
 };
 
 export const setDefaultSceneDetectionThreshold = defaultSceneDetectionThreshold => {
-  log.debug(
-    `action: setDefaultSceneDetectionThreshold - ${defaultSceneDetectionThreshold}`,
-  );
+  log.debug(`action: setDefaultSceneDetectionThreshold - ${defaultSceneDetectionThreshold}`);
   return {
     type: 'SET_DEFAULT_SCENE_DETECTION_THRESHOLD',
     defaultSceneDetectionThreshold,
@@ -312,9 +294,7 @@ export const setDefaultSceneDetectionThreshold = defaultSceneDetectionThreshold 
 };
 
 export const setDefaultTimelineViewSecondsPerRow = defaultTimelineViewSecondsPerRow => {
-  log.debug(
-    `action: setDefaultTimelineViewSecondsPerRow - ${defaultTimelineViewSecondsPerRow}`,
-  );
+  log.debug(`action: setDefaultTimelineViewSecondsPerRow - ${defaultTimelineViewSecondsPerRow}`);
   return {
     type: 'SET_DEFAULT_TIMELINEVIEW_SECONDS_PER_ROW',
     defaultTimelineViewSecondsPerRow,
@@ -332,9 +312,7 @@ export const setDefaultTimelineViewMinDisplaySceneLengthInFrames = defaultTimeli
 };
 
 export const setDefaultTimelineViewWidthScale = defaultTimelineViewWidthScale => {
-  log.debug(
-    `action: setDefaultTimelineViewWidthScale - ${defaultTimelineViewWidthScale}`,
-  );
+  log.debug(`action: setDefaultTimelineViewWidthScale - ${defaultTimelineViewWidthScale}`);
   return {
     type: 'SET_DEFAULT_TIMELINEVIEW_PIXEL_PER_FRAME_RATIO',
     defaultTimelineViewWidthScale,
@@ -350,9 +328,7 @@ export const setDefaultTimelineViewFlow = defaultTimelineViewFlow => {
 };
 
 export const setDefaultOutputPathFromMovie = defaultOutputPathFromMovie => {
-  log.debug(
-    `action: setDefaultOutputPathFromMovie - ${defaultOutputPathFromMovie}`,
-  );
+  log.debug(`action: setDefaultOutputPathFromMovie - ${defaultOutputPathFromMovie}`);
   return {
     type: 'SET_DEFAULT_OUTPUT_PATH_FROM_MOVIE',
     defaultOutputPathFromMovie,
@@ -360,9 +336,7 @@ export const setDefaultOutputPathFromMovie = defaultOutputPathFromMovie => {
 };
 
 export const setDefaultShotDetectionMethod = defaultShotDetectionMethod => {
-  log.debug(
-    `action: setDefaultShotDetectionMethod - ${defaultShotDetectionMethod}`,
-  );
+  log.debug(`action: setDefaultShotDetectionMethod - ${defaultShotDetectionMethod}`);
   return {
     type: 'SET_DEFAULT_SHOT_DETECTION_METHOD',
     defaultShotDetectionMethod,
@@ -370,9 +344,7 @@ export const setDefaultShotDetectionMethod = defaultShotDetectionMethod => {
 };
 
 export const setDefaultMoviePrintBackgroundColor = defaultMoviePrintBackgroundColor => {
-  log.debug(
-    `action: setDefaultMoviePrintBackgroundColor - ${defaultMoviePrintBackgroundColor}`,
-  );
+  log.debug(`action: setDefaultMoviePrintBackgroundColor - ${defaultMoviePrintBackgroundColor}`);
   return {
     type: 'SET_DEFAULT_MOVIEPRINT_BACKGROUND_COLOR',
     defaultMoviePrintBackgroundColor,
@@ -380,9 +352,7 @@ export const setDefaultMoviePrintBackgroundColor = defaultMoviePrintBackgroundCo
 };
 
 export const setDefaultFrameinfoBackgroundColor = defaultFrameinfoBackgroundColor => {
-  log.debug(
-    `action: setDefaultFrameinfoBackgroundColor - ${defaultFrameinfoBackgroundColor}`,
-  );
+  log.debug(`action: setDefaultFrameinfoBackgroundColor - ${defaultFrameinfoBackgroundColor}`);
   return {
     type: 'SET_DEFAULT_FRAMEINFO_BACKGROUND_COLOR',
     defaultFrameinfoBackgroundColor,
@@ -398,9 +368,7 @@ export const setDefaultFrameinfoColor = defaultFrameinfoColor => {
 };
 
 export const setDefaultFrameinfoPosition = defaultFrameinfoPosition => {
-  log.debug(
-    `action: setDefaultFrameinfoPosition - ${defaultFrameinfoPosition}`,
-  );
+  log.debug(`action: setDefaultFrameinfoPosition - ${defaultFrameinfoPosition}`);
   return {
     type: 'SET_DEFAULT_FRAMEINFO_POSITION',
     defaultFrameinfoPosition,
@@ -448,9 +416,7 @@ export const setDefaultAllThumbsName = defaultAllThumbsName => {
 };
 
 export const setDefaultOpenFileExplorerAfterSaving = defaultOpenFileExplorerAfterSaving => {
-  log.debug(
-    `action: setDefaultOpenFileExplorerAfterSaving - ${defaultOpenFileExplorerAfterSaving}`,
-  );
+  log.debug(`action: setDefaultOpenFileExplorerAfterSaving - ${defaultOpenFileExplorerAfterSaving}`);
   return {
     type: 'SET_DEFAULT_OPEN_FILE_EXPLORER_AFTER_SAVING',
     defaultOpenFileExplorerAfterSaving,
@@ -458,9 +424,7 @@ export const setDefaultOpenFileExplorerAfterSaving = defaultOpenFileExplorerAfte
 };
 
 export const setDefaultFaceSizeThreshold = defaultFaceSizeThreshold => {
-  log.debug(
-    `action: setDefaultFaceSizeThreshold - ${defaultFaceSizeThreshold}`,
-  );
+  log.debug(`action: setDefaultFaceSizeThreshold - ${defaultFaceSizeThreshold}`);
   return {
     type: 'SET_DEFAULT_FACE_SIZE_THRESHOLD',
     defaultFaceSizeThreshold,
@@ -468,9 +432,7 @@ export const setDefaultFaceSizeThreshold = defaultFaceSizeThreshold => {
 };
 
 export const setDefaultFaceConfidenceThreshold = defaultFaceConfidenceThreshold => {
-  log.debug(
-    `action: setDefaultFaceConfidenceThreshold - ${defaultFaceConfidenceThreshold}`,
-  );
+  log.debug(`action: setDefaultFaceConfidenceThreshold - ${defaultFaceConfidenceThreshold}`);
   return {
     type: 'SET_DEFAULT_FACE_CONFIDENCE_THRESHOLD',
     defaultFaceConfidenceThreshold,
@@ -478,9 +440,7 @@ export const setDefaultFaceConfidenceThreshold = defaultFaceConfidenceThreshold 
 };
 
 export const setDefaultFaceUniquenessThreshold = defaultFaceUniquenessThreshold => {
-  log.debug(
-    `action: setDefaultFaceUniquenessThreshold - ${defaultFaceUniquenessThreshold}`,
-  );
+  log.debug(`action: setDefaultFaceUniquenessThreshold - ${defaultFaceUniquenessThreshold}`);
   return {
     type: 'SET_DEFAULT_FACE_UNIQUENESS_THRESHOLD',
     defaultFaceUniquenessThreshold,
@@ -508,14 +468,7 @@ export const clearScenes = (fileId, sheetId) => {
   };
 };
 
-export const addScene = (
-  fileId,
-  sheetId,
-  start,
-  length,
-  colorArray,
-  sceneId = uuidV4(),
-) => {
+export const addScene = (fileId, sheetId, start, length, colorArray, sceneId = uuidV4()) => {
   return dispatch => {
     log.debug('action: addScene');
     log.debug('dispatch: ADD_SCENE');
@@ -534,10 +487,7 @@ export const addScene = (
   };
 };
 
-export const addScenesWithoutCapturingThumbs = (
-  sceneArray,
-  clearOldScenes = false,
-) => {
+export const addScenesWithoutCapturingThumbs = (sceneArray, clearOldScenes = false) => {
   return dispatch => {
     log.debug('action: addScenesWithoutCapturingThumbs');
 
@@ -555,13 +505,7 @@ export const addScenesWithoutCapturingThumbs = (
   };
 };
 
-export const addScenesFromSceneList = (
-  file,
-  sceneList,
-  clearOldScenes = false,
-  frameSize,
-  newSheetId,
-) => {
+export const addScenesFromSceneList = (file, sceneList, clearOldScenes = false, frameSize, newSheetId) => {
   return dispatch => {
     log.debug('action: addScenesFromSceneList');
 
@@ -587,12 +531,8 @@ export const addScenesFromSceneList = (
     const thumbIdArray = sceneArray.map(scene => scene.sceneId);
 
     // add thumbs
-    const frameNumberArray = sceneList.map(
-      scene => scene.start + Math.floor(scene.length / 2),
-    );
-    dispatch(
-      addThumbs(file, newSheetId, frameNumberArray, frameSize, thumbIdArray),
-    );
+    const frameNumberArray = sceneList.map(scene => scene.start + Math.floor(scene.length / 2));
+    dispatch(addThumbs(file, newSheetId, frameNumberArray, frameSize, thumbIdArray));
     // dispatch(addThumbs(file, newSheetId, frameNumberArray, frameSize, thumbIdArray)).then(() => {
     //   // console.log(resolve);
     //   // add sceneId to thumbs after addThumbs returned
@@ -649,15 +589,7 @@ export const updateSceneArray = (fileId, sheetId, sceneArray) => {
   };
 };
 
-export const insertScene = (
-  fileId,
-  sheetId,
-  index,
-  start,
-  length,
-  colorArray,
-  newSceneId,
-) => {
+export const insertScene = (fileId, sheetId, index, start, length, colorArray, newSceneId) => {
   log.debug(`action: insertScene - ${newSceneId}`);
   return {
     type: 'INSERT_SCENE',
@@ -699,32 +631,18 @@ export const updateSceneLength = (fileId, sheetId, sceneId, length) => {
   };
 };
 
-export const cutScene = (
-  thumbs,
-  allScenes,
-  file,
-  sheetId,
-  scene,
-  frameToCut,
-) => {
+export const cutScene = (thumbs, allScenes, file, sheetId, scene, frameToCut) => {
   log.debug(`action: cutScene - ${scene.sceneId} - ${frameToCut}`);
   return dispatch => {
     // split one scene in 2
     const firstSceneSceneLength = frameToCut - scene.start;
-    const firstSceneNewFrameNumber =
-      scene.start + Math.floor(firstSceneSceneLength / 2);
-    const firstSceneIndex = allScenes.findIndex(
-      scene2 => scene2.sceneId === scene.sceneId,
-    );
+    const firstSceneNewFrameNumber = scene.start + Math.floor(firstSceneSceneLength / 2);
+    const firstSceneIndex = allScenes.findIndex(scene2 => scene2.sceneId === scene.sceneId);
     const nextSceneId = uuidV4();
     const nextSceneSceneStart = frameToCut;
-    const nextSceneSceneLength =
-      scene.start + scene.length - nextSceneSceneStart;
-    const nextSceneNewFrameNumber =
-      nextSceneSceneStart + Math.floor(nextSceneSceneLength / 2);
-    dispatch(
-      updateSceneLength(file.id, sheetId, scene.sceneId, firstSceneSceneLength),
-    );
+    const nextSceneSceneLength = scene.start + scene.length - nextSceneSceneStart;
+    const nextSceneNewFrameNumber = nextSceneSceneStart + Math.floor(nextSceneSceneLength / 2);
+    dispatch(updateSceneLength(file.id, sheetId, scene.sceneId, firstSceneSceneLength));
     dispatch(
       insertScene(
         file.id,
@@ -736,34 +654,14 @@ export const cutScene = (
         nextSceneId,
       ),
     );
-    dispatch(
-      changeThumb(sheetId, file, scene.sceneId, firstSceneNewFrameNumber),
-    );
-    const firstThumbIndex = thumbs.findIndex(
-      thumb => thumb.thumbId === scene.sceneId,
-    );
-    dispatch(
-      addThumb(
-        file,
-        sheetId,
-        nextSceneNewFrameNumber,
-        firstThumbIndex + 1,
-        nextSceneId,
-      ),
-    );
+    dispatch(changeThumb(sheetId, file, scene.sceneId, firstSceneNewFrameNumber));
+    const firstThumbIndex = thumbs.findIndex(thumb => thumb.thumbId === scene.sceneId);
+    dispatch(addThumb(file, sheetId, nextSceneNewFrameNumber, firstThumbIndex + 1, nextSceneId));
   };
 };
 
-export const mergeScenes = (
-  thumbs,
-  allScenes,
-  file,
-  sheetId,
-  adjacentSceneIndicesArray,
-) => {
-  log.debug(
-    `action: mergeScenes - ${adjacentSceneIndicesArray[0]} - ${adjacentSceneIndicesArray[1]}`,
-  );
+export const mergeScenes = (thumbs, allScenes, file, sheetId, adjacentSceneIndicesArray) => {
+  log.debug(`action: mergeScenes - ${adjacentSceneIndicesArray[0]} - ${adjacentSceneIndicesArray[1]}`);
   return dispatch => {
     // merge 2 scenes into 1
     const firstScene = allScenes[adjacentSceneIndicesArray[0]];
@@ -771,41 +669,25 @@ export const mergeScenes = (
     const secondScene = allScenes[adjacentSceneIndicesArray[1]];
     const secondSceneId = secondScene.sceneId;
     const newSceneSceneLength = firstScene.length + secondScene.length;
-    const newSceneNewFrameNumber =
-      firstScene.start + Math.floor(newSceneSceneLength / 2);
+    const newSceneNewFrameNumber = firstScene.start + Math.floor(newSceneSceneLength / 2);
     // change length of first scene
-    dispatch(
-      updateSceneLength(file.id, sheetId, firstSceneId, newSceneSceneLength),
-    );
+    dispatch(updateSceneLength(file.id, sheetId, firstSceneId, newSceneSceneLength));
     // delete second scene
     dispatch(deleteScene(file.id, sheetId, adjacentSceneIndicesArray[1]));
     // delete second thumb
-    const secondThumbIndex = thumbs.findIndex(
-      thumb => thumb.thumbId === secondSceneId,
-    );
+    const secondThumbIndex = thumbs.findIndex(thumb => thumb.thumbId === secondSceneId);
     dispatch(deleteThumb(file.id, sheetId, secondThumbIndex));
     // change first thumb
     dispatch(changeThumb(sheetId, file, firstSceneId, newSceneNewFrameNumber));
   };
 };
 
-export const addThumb = (
-  file,
-  sheetId,
-  frameNumber,
-  index,
-  thumbId = uuidV4(),
-  frameSize = 0,
-) => {
+export const addThumb = (file, sheetId, frameNumber, index, thumbId = uuidV4(), frameSize = 0) => {
   return dispatch => {
     log.debug('action: addThumb');
     const frameId = uuidV4();
 
-    const newFrameNumberWithinBoundaries = limitRange(
-      frameNumber,
-      0,
-      file.frameCount - 1,
-    );
+    const newFrameNumberWithinBoundaries = limitRange(frameNumber, 0, file.frameCount - 1);
 
     imageDB.frameList
       .where('[fileId+frameNumber]')
@@ -814,9 +696,7 @@ export const addThumb = (
       .then(frames => {
         log.debug(frames.length);
         if (frames.length === 0) {
-          log.debug(
-            `frame number: ${frameNumber} not yet in database - need(s) to be captured`,
-          );
+          log.debug(`frame number: ${frameNumber} not yet in database - need(s) to be captured`);
           ipcRenderer.send(
             'message-from-mainWindow-to-opencvWorkerWindow',
             'send-get-thumbs',
@@ -860,9 +740,7 @@ export const addThumb = (
         });
       })
       .catch(error => {
-        log.error(
-          `There has been a problem with your fetch operation: ${error.message}`,
-        );
+        log.error(`There has been a problem with your fetch operation: ${error.message}`);
       });
   };
 };
@@ -915,32 +793,22 @@ export const showThumbsByFrameNumberArray = (fileId, sheetId, frameNumberArray) 
   };
 };
 
-export const changeAndSortThumbArray = (
-  fileId,
-  sheetId,
-  faceScanArray,
-  sortMethod,
-) => {
+export const changeAndSortThumbArray = (fileId, sheetId, faceScanArray, sortMethod) => {
   log.debug(`action: changeAndSortThumbArray - ${faceScanArray}`);
   return (dispatch, getState) => {
     dispatch(changeThumbArray(fileId, sheetId, faceScanArray));
-    const sortedArray = sortDetectionArray(faceScanArray, sortMethod);
+    const sortedArray = sortArray(faceScanArray, sortMethod);
     // extract frameNumbers
-    const frameNumberArrayFromFaceDetection = sortedArray.map(
-      item => item.frameNumber,
-    );
+    const frameNumberArrayFromFaceDetection = sortedArray.map(item => item.frameNumber);
 
-    const thumbsArrayBeforeSorting = getState().undoGroup.present
-      .sheetsByFileId[fileId][sheetId].thumbsArray;
+    const thumbsArrayBeforeSorting = getState().undoGroup.present.sheetsByFileId[fileId][sheetId].thumbsArray;
     console.log(thumbsArrayBeforeSorting);
-    const thumbsArrayAfterSorting = thumbsArrayBeforeSorting
-      .slice()
-      .sort((a, b) => {
-        return (
-          frameNumberArrayFromFaceDetection.indexOf(a.frameNumber) -
-          frameNumberArrayFromFaceDetection.indexOf(b.frameNumber)
-        );
-      });
+    const thumbsArrayAfterSorting = thumbsArrayBeforeSorting.slice().sort((a, b) => {
+      return (
+        frameNumberArrayFromFaceDetection.indexOf(a.frameNumber) -
+        frameNumberArrayFromFaceDetection.indexOf(b.frameNumber)
+      );
+    });
     console.log(thumbsArrayAfterSorting);
     return dispatch(updateOrder(fileId, sheetId, thumbsArrayAfterSorting));
   };
@@ -1068,22 +936,13 @@ export const addIntervalSheet = (
   };
 };
 
-export const addThumbs = (
-  file,
-  sheetId,
-  frameNumberArray,
-  frameSize = 0,
-  thumbIdArray = undefined,
-) => {
+export const addThumbs = (file, sheetId, frameNumberArray, frameSize = 0, thumbIdArray = undefined) => {
   return dispatch => {
     log.debug('action: addThumbs');
 
     // create compound array to search for both fileId and frameNumber
     // log.debug(frameNumberArray);
-    const fileIdAndFrameNumberArray = frameNumberArray.map(item => [
-      file.id,
-      item,
-    ]);
+    const fileIdAndFrameNumberArray = frameNumberArray.map(item => [file.id, item]);
 
     return imageDB.frameList
       .where('[fileId+frameNumber]')
@@ -1108,58 +967,39 @@ export const addThumbs = (
         if (frames.length !== 0) {
           // remove duplicates in case there are already some in imageDB
           const uniqueFrames = frames.filter(
-            (item, index, self) =>
-              index === self.findIndex(t => t.frameNumber === item.frameNumber),
+            (item, index, self) => index === self.findIndex(t => t.frameNumber === item.frameNumber),
           );
 
           // extract frameNumbers and frameIds into separate arrays
-          alreadyExistingFrameNumbersArray = uniqueFrames.map(
-            item => item.frameNumber,
-          );
+          alreadyExistingFrameNumbersArray = uniqueFrames.map(item => item.frameNumber);
           alreadyExistingFrameIdsArray = uniqueFrames.map(item => item.frameId);
           // if thumbIdArray then use these, else create new ids
           if (thumbIdArray !== undefined) {
-            alreadyExistingThumbIdsArray = thumbIdArray.filter(
-              (thumbId, index) => filterArray[index],
-            );
+            alreadyExistingThumbIdsArray = thumbIdArray.filter((thumbId, index) => filterArray[index]);
           } else {
-            alreadyExistingThumbIdsArray = alreadyExistingFrameIdsArray.map(
-              () => uuidV4(),
-            );
+            alreadyExistingThumbIdsArray = alreadyExistingFrameIdsArray.map(() => uuidV4());
           }
-          log.debug(
-            `${alreadyExistingFrameIdsArray.length} frame(s) are already in database`,
-          );
+          log.debug(`${alreadyExistingFrameIdsArray.length} frame(s) are already in database`);
         }
 
         // remove the already existing frameNumbers
         // log.debug(frameNumberArray);
         // log.debug(alreadyExistingFrameNumbersArray);
-        notExistingFrameNumberArray = frameNumberArray.filter(
-          (frameNumber, index) => !filterArray[index],
-        );
+        notExistingFrameNumberArray = frameNumberArray.filter((frameNumber, index) => !filterArray[index]);
         // log.debug(notExistingFrameNumberArray);
 
         // if all thumbs already exist skip capturing
         if (notExistingFrameNumberArray.length !== 0) {
-          log.debug(
-            `${notExistingFrameNumberArray.length} frame(s) are not yet in database - need(s) to be captured`,
-          );
+          log.debug(`${notExistingFrameNumberArray.length} frame(s) are not yet in database - need(s) to be captured`);
           // add new thumbs
 
-          notExistingFrameIdArray = notExistingFrameNumberArray.map(() =>
-            uuidV4(),
-          );
+          notExistingFrameIdArray = notExistingFrameNumberArray.map(() => uuidV4());
 
           // if thumbIdArray then use these, else create new ids
           if (thumbIdArray) {
-            notExistingThumbIdsArray = thumbIdArray.filter(
-              (thumbId, index) => !filterArray[index],
-            );
+            notExistingThumbIdsArray = thumbIdArray.filter((thumbId, index) => !filterArray[index]);
           } else {
-            notExistingThumbIdsArray = notExistingFrameIdArray.map(() =>
-              uuidV4(),
-            );
+            notExistingThumbIdsArray = notExistingFrameIdArray.map(() => uuidV4());
           }
 
           // call worker_opencv to get missing thumbs
@@ -1179,23 +1019,12 @@ export const addThumbs = (
         } else {
           // send finished-getting-thumbs if no thumbs have to be captured
           // otherwise this is sent from worker_opencv after last thumb was captured
-          ipcRenderer.send(
-            'message-from-mainWindow-to-mainWindow',
-            'finished-getting-thumbs',
-            file.id,
-            sheetId,
-          );
+          ipcRenderer.send('message-from-mainWindow-to-mainWindow', 'finished-getting-thumbs', file.id, sheetId);
         }
 
-        const concatenatedFrameIdArray = notExistingFrameIdArray.concat(
-          alreadyExistingFrameIdsArray,
-        );
-        const concatenatedThumbIdArray = notExistingThumbIdsArray.concat(
-          alreadyExistingThumbIdsArray,
-        );
-        const concatenatedFrameNumberArray = notExistingFrameNumberArray.concat(
-          alreadyExistingFrameNumbersArray,
-        );
+        const concatenatedFrameIdArray = notExistingFrameIdArray.concat(alreadyExistingFrameIdsArray);
+        const concatenatedThumbIdArray = notExistingThumbIdsArray.concat(alreadyExistingThumbIdsArray);
+        const concatenatedFrameNumberArray = notExistingFrameNumberArray.concat(alreadyExistingFrameNumbersArray);
 
         log.debug('dispatch: ADD_THUMBS');
         dispatch({
@@ -1220,29 +1049,20 @@ export const addThumbs = (
 };
 
 // adding new thumbs keeping the order, but not checking if frames already exist in indexedDB
-export const addNewThumbsWithOrder = (
-  file,
-  sheetId,
-  frameNumberArray,
-  frameSize = 0,
-) => {
+export const addNewThumbsWithOrder = (file, sheetId, frameNumberArray, frameSize = 0) => {
   return dispatch => {
     log.debug('action: addNewThumbsWithOrder');
 
     // remove duplicates in case there are already some in imageDB
-    const uniqueFrameNumberArray = frameNumberArray.filter(
-      (item, index, array) => array.indexOf(item) === index,
-    );
+    const uniqueFrameNumberArray = frameNumberArray.filter((item, index, array) => array.indexOf(item) === index);
 
     const thumbIdArray = frameNumberArray.map(() => uuidV4());
-    const uniqueFrameNumberAndFrameIdArray = uniqueFrameNumberArray.map(
-      frameNumber => ({ frameNumber, frameId: uuidV4() }),
-    );
+    const uniqueFrameNumberAndFrameIdArray = uniqueFrameNumberArray.map(frameNumber => ({
+      frameNumber,
+      frameId: uuidV4(),
+    }));
     const frameIdArray = frameNumberArray.map(
-      frameNumber =>
-        uniqueFrameNumberAndFrameIdArray.find(
-          item => item.frameNumber === frameNumber,
-        ).frameId,
+      frameNumber => uniqueFrameNumberAndFrameIdArray.find(item => item.frameNumber === frameNumber).frameId,
     );
 
     ipcRenderer.send(
@@ -1276,21 +1096,11 @@ export const addNewThumbsWithOrder = (
   };
 };
 
-export const changeThumb = (
-  sheetId,
-  file,
-  thumbId,
-  newFrameNumber,
-  frameSize = 0,
-) => {
+export const changeThumb = (sheetId, file, thumbId, newFrameNumber, frameSize = 0) => {
   return dispatch => {
     log.debug(`action: changeThumb - ${newFrameNumber}`);
     const newFrameId = uuidV4();
-    const newFrameNumberWithinBoundaries = limitRange(
-      newFrameNumber,
-      0,
-      file.frameCount - 1,
-    );
+    const newFrameNumberWithinBoundaries = limitRange(newFrameNumber, 0, file.frameCount - 1);
 
     imageDB.frameList
       .where('[fileId+frameNumber]')
@@ -1298,9 +1108,7 @@ export const changeThumb = (
       .toArray()
       .then(frames => {
         if (frames.length === 0) {
-          log.debug(
-            `frame number: ${newFrameNumber} not yet in database - need(s) to be captured`,
-          );
+          log.debug(`frame number: ${newFrameNumber} not yet in database - need(s) to be captured`);
           ipcRenderer.send(
             'message-from-mainWindow-to-opencvWorkerWindow',
             'send-get-thumbs',
@@ -1520,14 +1328,7 @@ export const updateFileDetailUseRatio = (fileId, useRatio) => {
   };
 };
 
-export const updateFileDetails = (
-  fileId,
-  frameCount,
-  width,
-  height,
-  fps,
-  fourCC,
-) => {
+export const updateFileDetails = (fileId, frameCount, width, height, fps, fourCC) => {
   return dispatch => {
     log.debug('action: updateFileDetails');
     dispatch({
@@ -1560,13 +1361,7 @@ export const replaceFileDetails = (fileId, path, name, size, lastModified) => {
   };
 };
 
-export const setCropping = (
-  fileId,
-  cropTop,
-  cropBottom,
-  cropLeft,
-  cropRight,
-) => {
+export const setCropping = (fileId, cropTop, cropBottom, cropLeft, cropRight) => {
   return dispatch => {
     log.debug('action: setCropping');
     dispatch({
@@ -1584,13 +1379,7 @@ export const setCropping = (
   };
 };
 
-export const updateCropping = (
-  fileId,
-  cropTop,
-  cropBottom,
-  cropLeft,
-  cropRight,
-) => {
+export const updateCropping = (fileId, cropTop, cropBottom, cropLeft, cropRight) => {
   return dispatch => {
     log.debug('action: updateCropping');
     dispatch({
@@ -1630,10 +1419,7 @@ export const addMoviesToList = (files, clearList) => {
     const newFiles = [];
     Object.keys(files).map(key => {
       // file match need(s) to be in sync with onDrop() and accept in App.js !!!
-      if (
-        files[key].type.match('video.*') ||
-        files[key].name.match(/.divx|.mkv|.ogg|.VOB/i)
-      ) {
+      if (files[key].type.match('video.*') || files[key].name.match(/.divx|.mkv|.ogg|.VOB/i)) {
         const id = uuidV4();
         const posterFrameId = uuidV4();
         const fileToAdd = {

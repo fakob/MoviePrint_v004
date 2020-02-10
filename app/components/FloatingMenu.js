@@ -1,12 +1,6 @@
 import React from 'react';
 import { Button, Dropdown, Popup } from 'semantic-ui-react';
-import {
-  SORT_METHOD,
-  VIEW,
-  SHEET_VIEW,
-  SHEET_FIT,
-  THUMB_INFO_OPTIONS,
-} from '../utils/constants';
+import { SORT_METHOD, VIEW, SHEET_VIEW, SHEET_TYPE, SHEET_FIT, THUMB_INFO_OPTIONS } from '../utils/constants';
 import styles from './FloatingMenu.css';
 import stylesPop from './Popup.css';
 import iconCutView from '../img/icon-cut-view.svg';
@@ -42,14 +36,18 @@ const ButtonExampleCircularSocial = ({
   onToggleShowHiddenThumbsClick,
   scaleValueObject,
   settings,
+  sheetType,
   sheetView,
   toggleZoom,
   visibilitySettings,
   zoom,
 }) => {
-  const isGridViewAndDefault =
-    sheetView === SHEET_VIEW.GRIDVIEW &&
-    visibilitySettings.defaultView === VIEW.STANDARDVIEW;
+  const { defaultThumbInfo, defaultShowImages } = settings;
+  const { defaultView, defaultSheetFit, visibilityFilter } = visibilitySettings;
+  const { moviePrintAspectRatioInv, containerAspectRatioInv } = scaleValueObject;
+  const isGridViewAndDefault = sheetView === SHEET_VIEW.GRIDVIEW && defaultView === VIEW.STANDARDVIEW;
+  const isFaceType = sheetType === SHEET_TYPE.FACES;
+  const isShotType = sheetType === SHEET_TYPE.SCENES;
 
   return (
     <div className={`${styles.floatingMenu}`}>
@@ -57,9 +55,7 @@ const ButtonExampleCircularSocial = ({
         trigger={
           <Button
             className={`${styles.normalButton} ${styles.selected} ${
-              hasParent && visibilitySettings.defaultView === VIEW.STANDARDVIEW
-                ? ''
-                : styles.hidden
+              hasParent && defaultView === VIEW.STANDARDVIEW ? '' : styles.hidden
             }`}
             style={{
               marginRight: '8px',
@@ -78,13 +74,7 @@ const ButtonExampleCircularSocial = ({
         className={stylesPop.popup}
         content={<span>Back to parent MoviePrint</span>}
       />{' '}
-      <Button.Group
-        className={`${
-          visibilitySettings.defaultView === VIEW.STANDARDVIEW
-            ? ''
-            : styles.hidden
-        }`}
-      >
+      <Button.Group className={`${defaultView === VIEW.STANDARDVIEW ? '' : styles.hidden}`}>
         <Popup
           trigger={
             <Button
@@ -113,17 +103,11 @@ const ButtonExampleCircularSocial = ({
               icon={<img src={iconAddInterval} height="18px" alt="" />}
             >
               <Dropdown.Menu className={styles.dropDownMenu}>
-                <Dropdown.Item
-                  className={styles.dropDownItem}
-                  onClick={() => onAddIntervalSheetClick(undefined, 4, 2)}
-                >
+                <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddIntervalSheetClick(undefined, 4, 2)}>
                   <img src={icon2x2} height="18px" alt="" />
                   2x2
                 </Dropdown.Item>
-                <Dropdown.Item
-                  className={styles.dropDownItem}
-                  onClick={() => onAddIntervalSheetClick(undefined, 9, 3)}
-                >
+                <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddIntervalSheetClick(undefined, 9, 3)}>
                   <img src={icon3x3} height="18px" alt="" />
                   3x3
                 </Dropdown.Item>
@@ -183,65 +167,60 @@ const ButtonExampleCircularSocial = ({
           content="BETA: Add FacePrint"
         />
       </Button.Group>{' '}
-      <Button.Group
-        className={`${
-          visibilitySettings.defaultView === VIEW.STANDARDVIEW
-            ? ''
-            : styles.hidden
-        }`}
-      >
+      <Button.Group className={`${defaultView === VIEW.STANDARDVIEW ? '' : styles.hidden}`}>
         <Popup
           trigger={
             <Dropdown
               button
               className={styles.dropDownButton}
               floating
-              disabled={fileMissingStatus}
+              disabled={fileMissingStatus || isShotType}
               icon="sort amount down"
             >
               <Dropdown.Menu className={styles.dropDownMenu}>
+                <Dropdown.Item className={styles.dropDownItem} onClick={() => onSortSheet(SORT_METHOD.REVERSE, false)}>
+                  Reverse sort
+                </Dropdown.Item>
                 <Dropdown.Item
                   className={styles.dropDownItem}
                   onClick={() => onSortSheet(SORT_METHOD.FRAMENUMBER, false)}
                 >
                   Sort by framenumber
                 </Dropdown.Item>
-                {/* <Dropdown.Item
-                  className={styles.dropDownItem}
-                  onClick={() => onSortSheet(SORT_METHOD.FRAMENUMBER, true)}
-                >
-                  // <img src={icon2x2} height="18px" alt="" />
-                  Sort by framenumber - ascending
-                </Dropdown.Item> */}
                 <Dropdown.Item
+                  disabled={!isFaceType}
                   className={styles.dropDownItem}
                   onClick={() => onSortSheet(SORT_METHOD.FACESIZE, false)}
                 >
-                  Sort by size
+                  Sort by face size
                 </Dropdown.Item>
                 <Dropdown.Item
+                  disabled={!isFaceType}
                   className={styles.dropDownItem}
                   onClick={() => onSortSheet(SORT_METHOD.FACECOUNT, false)}
                 >
-                  Sort by face count
+                  Sort by face count in image
                 </Dropdown.Item>
                 <Dropdown.Item
+                  disabled={!isFaceType}
                   className={styles.dropDownItem}
                   onClick={() => onSortSheet(SORT_METHOD.FACEOCCURRENCE, false)}
                 >
-                  Sort by occurrence
+                  Sort by occurrence of face
                 </Dropdown.Item>
                 <Dropdown.Item
+                  disabled={!isFaceType}
                   className={styles.dropDownItem}
                   onClick={() => onSortSheet(SORT_METHOD.FACECONFIDENCE, false)}
                 >
-                  Sort by confidence
+                  Sort by confidence value of face
                 </Dropdown.Item>
                 <Dropdown.Item
+                  disabled={!isFaceType}
                   className={styles.dropDownItem}
                   onClick={() => onSortSheet(SORT_METHOD.UNIQUE, false)}
                 >
-                  Unique faces, sorted by occurrence and size
+                  Filter by unique faces and sort by occurrence and size
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
@@ -269,7 +248,7 @@ const ButtonExampleCircularSocial = ({
           className={stylesPop.popup}
           content="Duplicate MoviePrint"
         />
-        {visibilitySettings.defaultView === VIEW.STANDARDVIEW && (
+        {defaultView === VIEW.STANDARDVIEW && (
           <Popup
             trigger={
               <Button
@@ -284,34 +263,26 @@ const ButtonExampleCircularSocial = ({
                   onChangeSheetViewClick(
                     undefined,
                     undefined,
-                    sheetView === SHEET_VIEW.GRIDVIEW
-                      ? SHEET_VIEW.TIMELINEVIEW
-                      : SHEET_VIEW.GRIDVIEW
+                    sheetView === SHEET_VIEW.GRIDVIEW ? SHEET_VIEW.TIMELINEVIEW : SHEET_VIEW.GRIDVIEW,
                   )
                 }
-                icon={
-                  sheetView === SHEET_VIEW.GRIDVIEW ? 'barcode' : 'grid layout'
-                }
+                icon={sheetView === SHEET_VIEW.GRIDVIEW ? 'barcode' : 'grid layout'}
               />
             }
             mouseEnterDelay={1000}
             on={['hover']}
             position="bottom center"
             className={stylesPop.popup}
-            content={
-              sheetView === SHEET_VIEW.GRIDVIEW
-                ? 'Switch to timeline view'
-                : 'Switch to grid view'
-            }
+            content={sheetView === SHEET_VIEW.GRIDVIEW ? 'Switch to timeline view' : 'Switch to grid view'}
           />
         )}
-        {visibilitySettings.defaultView !== VIEW.STANDARDVIEW && (
+        {defaultView !== VIEW.STANDARDVIEW && (
           <Popup
             trigger={
               <Button
                 className={styles.imageButton}
                 size="large"
-                disabled={visibilitySettings.defaultView === VIEW.STANDARDVIEW}
+                disabled={defaultView === VIEW.STANDARDVIEW}
                 data-tid={
                   sheetView === SHEET_VIEW.GRIDVIEW
                     ? 'changeViewSheetToTimelineViewBtn'
@@ -321,68 +292,42 @@ const ButtonExampleCircularSocial = ({
                   onChangeSheetViewClick(
                     undefined,
                     undefined,
-                    sheetView === SHEET_VIEW.GRIDVIEW
-                      ? SHEET_VIEW.TIMELINEVIEW
-                      : SHEET_VIEW.GRIDVIEW
+                    sheetView === SHEET_VIEW.GRIDVIEW ? SHEET_VIEW.TIMELINEVIEW : SHEET_VIEW.GRIDVIEW,
                   )
                 }
               >
-                <img
-                  src={
-                    sheetView === SHEET_VIEW.GRIDVIEW
-                      ? iconCutView
-                      : iconThumbView
-                  }
-                  height="18px"
-                  alt=""
-                />
+                <img src={sheetView === SHEET_VIEW.GRIDVIEW ? iconCutView : iconThumbView} height="18px" alt="" />
               </Button>
             }
             mouseEnterDelay={1000}
             on={['hover']}
             position="bottom center"
             className={stylesPop.popup}
-            content={
-              sheetView === SHEET_VIEW.GRIDVIEW
-                ? 'Switch to cut view'
-                : 'Switch to thumb view'
-            }
+            content={sheetView === SHEET_VIEW.GRIDVIEW ? 'Switch to cut view' : 'Switch to thumb view'}
           />
         )}
       </Button.Group>{' '}
       <Popup
         trigger={
           <Button
-            className={`${styles.normalButton} ${
-              visibilitySettings.defaultView === VIEW.STANDARDVIEW
-                ? ''
-                : styles.selected
-            }`}
+            className={`${styles.normalButton} ${defaultView === VIEW.STANDARDVIEW ? '' : styles.selected}`}
             style={{
               marginRight: '8px',
               marginLeft: '8px',
             }}
             size="large"
             circular
-            data-tid={
-              visibilitySettings.defaultView === VIEW.STANDARDVIEW
-                ? 'showPlayerBtn'
-                : 'hidePlayerBtn'
-            }
+            data-tid={defaultView === VIEW.STANDARDVIEW ? 'showPlayerBtn' : 'hidePlayerBtn'}
             disabled={fileMissingStatus}
             onClick={() => {
-              if (visibilitySettings.defaultView === VIEW.STANDARDVIEW) {
+              if (defaultView === VIEW.STANDARDVIEW) {
                 onSetViewClick(VIEW.PLAYERVIEW);
               } else {
                 onSetViewClick(VIEW.STANDARDVIEW);
               }
               return undefined;
             }}
-            icon={
-              visibilitySettings.defaultView === VIEW.STANDARDVIEW
-                ? 'video'
-                : 'close'
-            }
+            icon={defaultView === VIEW.STANDARDVIEW ? 'video' : 'close'}
           />
         }
         mouseEnterDelay={1000}
@@ -390,7 +335,7 @@ const ButtonExampleCircularSocial = ({
         position="bottom center"
         className={stylesPop.popup}
         content={
-          visibilitySettings.defaultView === VIEW.STANDARDVIEW ? (
+          defaultView === VIEW.STANDARDVIEW ? (
             <span>
               Show player view <mark>2</mark>
             </span>
@@ -401,56 +346,46 @@ const ButtonExampleCircularSocial = ({
           )
         }
       />{' '}
-      <Button.Group
-        className={`${
-          visibilitySettings.defaultView === VIEW.STANDARDVIEW
-            ? ''
-            : styles.hidden
-        }`}
-      >
-        {visibilitySettings.defaultSheetFit !== SHEET_FIT.HEIGHT &&
-          scaleValueObject.moviePrintAspectRatioInv <
-            scaleValueObject.containerAspectRatioInv && (
-            <Popup
-              trigger={
-                <Button
-                  className={styles.normalButton}
-                  size="large"
-                  disabled={!isGridViewAndDefault}
-                  data-tid="fitHeightBtn"
-                  onClick={() => onSetSheetFitClick(SHEET_FIT.HEIGHT)}
-                  icon="resize vertical"
-                />
-              }
-              mouseEnterDelay={1000}
-              on={['hover']}
-              position="bottom center"
-              className={stylesPop.popup}
-              content="Fit height"
-            />
-          )}
-        {visibilitySettings.defaultSheetFit !== SHEET_FIT.WIDTH &&
-          scaleValueObject.moviePrintAspectRatioInv >
-            scaleValueObject.containerAspectRatioInv && (
-            <Popup
-              trigger={
-                <Button
-                  className={styles.normalButton}
-                  size="large"
-                  disabled={!isGridViewAndDefault}
-                  data-tid="fitWidthBtn"
-                  onClick={() => onSetSheetFitClick(SHEET_FIT.WIDTH)}
-                  icon="resize horizontal"
-                />
-              }
-              mouseEnterDelay={1000}
-              on={['hover']}
-              position="bottom center"
-              className={stylesPop.popup}
-              content="Fit width"
-            />
-          )}
-        {visibilitySettings.defaultSheetFit !== SHEET_FIT.BOTH && (
+      <Button.Group className={`${defaultView === VIEW.STANDARDVIEW ? '' : styles.hidden}`}>
+        {defaultSheetFit !== SHEET_FIT.HEIGHT && moviePrintAspectRatioInv < containerAspectRatioInv && (
+          <Popup
+            trigger={
+              <Button
+                className={styles.normalButton}
+                size="large"
+                disabled={!isGridViewAndDefault}
+                data-tid="fitHeightBtn"
+                onClick={() => onSetSheetFitClick(SHEET_FIT.HEIGHT)}
+                icon="resize vertical"
+              />
+            }
+            mouseEnterDelay={1000}
+            on={['hover']}
+            position="bottom center"
+            className={stylesPop.popup}
+            content="Fit height"
+          />
+        )}
+        {defaultSheetFit !== SHEET_FIT.WIDTH && moviePrintAspectRatioInv > containerAspectRatioInv && (
+          <Popup
+            trigger={
+              <Button
+                className={styles.normalButton}
+                size="large"
+                disabled={!isGridViewAndDefault}
+                data-tid="fitWidthBtn"
+                onClick={() => onSetSheetFitClick(SHEET_FIT.WIDTH)}
+                icon="resize horizontal"
+              />
+            }
+            mouseEnterDelay={1000}
+            on={['hover']}
+            position="bottom center"
+            className={stylesPop.popup}
+            content="Fit width"
+          />
+        )}
+        {defaultSheetFit !== SHEET_FIT.BOTH && (
           <Popup
             trigger={
               <Button
@@ -487,41 +422,23 @@ const ButtonExampleCircularSocial = ({
           content={zoom ? 'Zoom out' : 'Zoom in'}
         />
       </Button.Group>{' '}
-      <Button.Group
-        className={`${
-          visibilitySettings.defaultView === VIEW.STANDARDVIEW
-            ? ''
-            : styles.hidden
-        }`}
-      >
+      <Button.Group className={`${defaultView === VIEW.STANDARDVIEW ? '' : styles.hidden}`}>
         <Popup
           trigger={
             <Button
               className={styles.normalButton}
               size="large"
               circular
-              data-tid={
-                visibilitySettings.visibilityFilter === 'SHOW_ALL'
-                  ? 'showOnlyVisibleBtn'
-                  : 'showHiddenBtn'
-              }
+              data-tid={visibilityFilter === 'SHOW_ALL' ? 'showOnlyVisibleBtn' : 'showHiddenBtn'}
               onClick={onToggleShowHiddenThumbsClick}
-              icon={
-                visibilitySettings.visibilityFilter === 'SHOW_ALL'
-                  ? 'hide'
-                  : 'unhide'
-              }
+              icon={visibilityFilter === 'SHOW_ALL' ? 'hide' : 'unhide'}
             />
           }
           mouseEnterDelay={1000}
           on={['hover']}
           position="bottom center"
           className={stylesPop.popup}
-          content={
-            visibilitySettings.visibilityFilter === 'SHOW_ALL'
-              ? 'Show visible thumbs only'
-              : 'Show hidden thumbs'
-          }
+          content={visibilityFilter === 'SHOW_ALL' ? 'Show visible thumbs only' : 'Show hidden thumbs'}
         />
         <Popup
           trigger={
@@ -549,14 +466,9 @@ const ButtonExampleCircularSocial = ({
               disabled={!isGridViewAndDefault}
               data-tid="showThumbInfoBtn"
               onClick={() => {
-                const current = settings.defaultThumbInfo;
-                const currentIndex = THUMB_INFO_OPTIONS.findIndex(
-                  item => item.value === current
-                );
-                const nextIndex =
-                  currentIndex < THUMB_INFO_OPTIONS.length - 1
-                    ? currentIndex + 1
-                    : 0;
+                const current = defaultThumbInfo;
+                const currentIndex = THUMB_INFO_OPTIONS.findIndex(item => item.value === current);
+                const nextIndex = currentIndex < THUMB_INFO_OPTIONS.length - 1 ? currentIndex + 1 : 0;
                 onThumbInfoClick(THUMB_INFO_OPTIONS[nextIndex].value);
               }}
             >
@@ -577,11 +489,7 @@ const ButtonExampleCircularSocial = ({
               data-tid="toggleImageBtn"
               onClick={() => onToggleImagesClick()}
             >
-              <img
-                src={settings.defaultShowImages ? iconNoImage : iconImage}
-                height="18px"
-                alt=""
-              />
+              <img src={defaultShowImages ? iconNoImage : iconImage} height="18px" alt="" />
             </Button>
           }
           mouseEnterDelay={1000}

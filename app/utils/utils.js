@@ -1255,7 +1255,7 @@ export const getFrameScanTableName = fileId => {
 };
 
 // sort detectionArray by ...
-export const sortDetectionArray = (
+export const sortArray = (
   detectionArray,
   sortAndFilterMethod = SORT_METHOD.FACESIZE,
   reverseSortOrder = false,
@@ -1266,7 +1266,7 @@ export const sortDetectionArray = (
     case SORT_METHOD.FRAMENUMBER:
       sortedAndFilteredArray = detectionArray
         .slice()
-        .sort((a, b) => (a.frameNumber < b.frameNumber ? sortOrderMultiplier * 1 : sortOrderMultiplier * -1));
+        .sort((a, b) => (a.frameNumber > b.frameNumber ? sortOrderMultiplier * 1 : sortOrderMultiplier * -1));
       // .map(item => item.frameNumber);
       break;
     case SORT_METHOD.FACESIZE:
@@ -1299,10 +1299,8 @@ export const sortDetectionArray = (
       flattenedArray.sort((a, b) => (a.score < b.score ? sortOrderMultiplier * 1 : sortOrderMultiplier * -1));
 
       // only keep first occurrence of frameNumber
-      sortedAndFilteredArray = flattenedArray.filter((item, index, self) =>
-        index === self.findIndex((t) => (
-          t.frameNumber === item.frameNumber
-        )),
+      sortedAndFilteredArray = flattenedArray.filter(
+        (item, index, self) => index === self.findIndex(t => t.frameNumber === item.frameNumber),
       );
       // sortedAndFilteredArray =
       break;
@@ -1325,14 +1323,12 @@ export const sortDetectionArray = (
         // If the count number is the same between both items, sort by size
         if (a.score < b.score) return sortOrderMultiplier * 1;
         if (a.score > b.score) return sortOrderMultiplier * -1;
-        return -1
+        return -1;
       });
 
       // only keep first occurrence of frameNumber
-      sortedAndFilteredArray = flattenedArray.filter((item, index, self) =>
-        index === self.findIndex((t) => (
-          t.frameNumber === item.frameNumber
-        )),
+      sortedAndFilteredArray = flattenedArray.filter(
+        (item, index, self) => index === self.findIndex(t => t.frameNumber === item.frameNumber),
       );
       break;
     }
@@ -1354,14 +1350,12 @@ export const sortDetectionArray = (
         // If the count number is the same between both items, sort by size
         if (a.score < b.score) return sortOrderMultiplier * 1;
         if (a.score > b.score) return sortOrderMultiplier * -1;
-        return -1
+        return -1;
       });
 
       // only keep first occurrence of faceId
-      sortedAndFilteredArray = flattenedArray.filter((item, index, self) =>
-        index === self.findIndex((t) => (
-          t.faceId === item.faceId
-        )),
+      sortedAndFilteredArray = flattenedArray.filter(
+        (item, index, self) => index === self.findIndex(t => t.faceId === item.faceId),
       );
       break;
     default:
@@ -1440,10 +1434,7 @@ export const getIntervalArray = (
   return frameNumberArray;
 };
 
-export const sortThumbsArray = (
-  thumbsArray,
-  sortOrderArray,
-) => {
+export const sortThumbsArray = (thumbsArray, sortOrderArray) => {
   // extract frameNumbers
   const frameNumberArrayFromFaceDetection = sortOrderArray.map(item => item.frameNumber);
   console.log(frameNumberArrayFromFaceDetection);
