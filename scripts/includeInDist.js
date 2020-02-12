@@ -18,3 +18,4 @@ const resourcesDir = path.resolve(moviePrintDir, 'resources/');
 shell.set('-v'); // verbose
 shell.mkdir('-p', distDir); // create folder if it does not exist yet
 shell.cp('-nf', path.resolve(resourcesDir, 'font/Franchise-Bold.woff'), distDir);
+shell.cp('-nfr', path.resolve(resourcesDir, 'weights/'), distDir);
