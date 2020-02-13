@@ -1424,7 +1424,7 @@ export const getIntervalArray = (
       }
     }
   }
-  // log.debug(`${amount} : ${newAmount} : ${start} : ${newStart} : ${stop} : ${newStop} : `)
+  // log.debug(`${amount} : ${newAmount} : ${start} : ${newStart} : ${stop} : ${newStop} : `);
 
   const startWithBoundaries = limitRange(newStart, 0, maxValue - 1);
   const stopWithBoundaries = limitRange(newStop, 0, maxValue - 1);

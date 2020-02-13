@@ -2351,16 +2351,34 @@ class App extends Component {
 
   }
 
-  onAddFaceSheetClick(scanResolution) {
+  onAddFaceSheetClick(scanResolution, scanWholeMovie = false) {
     // log.debug(`FileListElement clicked: ${file.name}`);
-    const { dispatch } = this.props;
-    const { currentFileId, file, sheetsByFileId, settings, visibilitySettings } = this.props;
+    const { currentFileId, currentSheetId, dispatch, file, sheetsByFileId, settings, visibilitySettings } = this.props;
     const { defaultFaceConfidenceThreshold, defaultFaceSizeThreshold, defaultFaceUniquenessThreshold } = settings;
 
     console.log(currentFileId);
     console.log(file);
     const { frameCount, path: filePath, useRatio, transformObject } = file;
-    const frameNumberArray = getIntervalArray(Math.round(frameCount * scanResolution), 0, frameCount, frameCount);
+
+    let frameNumberArray;
+    if (scanWholeMovie) {
+      frameNumberArray = getIntervalArray(Math.round(frameCount * scanResolution), 0, frameCount, frameCount);
+    } else {
+      const lowestFrame = getLowestFrame(getVisibleThumbs(
+        (sheetsByFileId[currentFileId] === undefined)
+          ? undefined : sheetsByFileId[currentFileId][currentSheetId].thumbsArray,
+        visibilitySettings.visibilityFilter
+      ));
+      const highestFrame = getHighestFrame(getVisibleThumbs(
+        (sheetsByFileId[currentFileId] === undefined)
+          ? undefined : sheetsByFileId[currentFileId][currentSheetId].thumbsArray,
+        visibilitySettings.visibilityFilter
+      ));
+      const frameCountOfSelection = Math.abs(highestFrame - lowestFrame);
+      console.log(`${lowestFrame} | ${highestFrame} | ${frameCountOfSelection}`)
+      frameNumberArray = getIntervalArray(Math.round(frameCountOfSelection * scanResolution), lowestFrame, highestFrame, frameCount);
+    }
+
 
     this.setState({ fileScanRunning: true });
     // display toast and set toastId to fileId
