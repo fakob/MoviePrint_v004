@@ -3,9 +3,21 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone';
 import fs from 'fs';
-import { Progress, Modal, Button, Icon, Container, Dimmer, Loader, Header, Divider, Form, Popup } from 'semantic-ui-react';
+import {
+  Progress,
+  Modal,
+  Button,
+  Icon,
+  Container,
+  Dimmer,
+  Loader,
+  Header,
+  Divider,
+  Form,
+  Popup,
+} from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
-import {Line, defaults} from 'react-chartjs-2';
+import { Line, defaults } from 'react-chartjs-2';
 import path from 'path';
 import log from 'electron-log';
 import os from 'os';
@@ -180,9 +192,7 @@ import {
   VIEW,
   ZOOM_SCALE,
 } from '../utils/constants';
-import {
-  deleteTableFramelist,
-} from '../utils/utilsForIndexedDB';
+import { deleteTableFramelist } from '../utils/utilsForIndexedDB';
 import {
   deleteTableFrameScanList,
   deleteTableReduxState,
@@ -207,12 +217,7 @@ moviePrintDB.pragma('journal_mode = WAL');
 // Disable animating charts by default.
 defaults.global.animation = false;
 
-const loadSheetPropertiesIntoState = (
-  that,
-  columnCount,
-  thumbCount,
-  secondsPerRowTemp = undefined,
-) => {
+const loadSheetPropertiesIntoState = (that, columnCount, thumbCount, secondsPerRowTemp = undefined) => {
   that.setState({
     columnCountTemp: columnCount,
     thumbCountTemp: thumbCount,
@@ -254,7 +259,7 @@ class App extends Component {
         altKey: false,
         ctrlKey: false,
         metaKey: false,
-        which: undefined
+        which: undefined,
       },
       zoom: false,
       filesToLoad: [],
@@ -269,12 +274,14 @@ class App extends Component {
       scrubScene: undefined,
       showChart: false,
       chartData: {
-        labels: ["Inpoint", "Outpoint"],
-        datasets: [{
-          label: "Empty dataset",
-          backgroundColor: 'rgb(0, 99, 132)',
-          data: [0, 0],
-        }]
+        labels: ['Inpoint', 'Outpoint'],
+        datasets: [
+          {
+            label: 'Empty dataset',
+            backgroundColor: 'rgb(0, 99, 132)',
+            data: [0, 0],
+          },
+        ],
       },
       fileScanRunning: false,
       sheetsToPrint: [],
@@ -415,7 +422,7 @@ class App extends Component {
 
     // moving ipcRenderer into constructor so it gets executed even when
     // the component can not mount and the ErrorBoundary kicks in
-    ipcRenderer.on('delete-all-tables', (event) => {
+    ipcRenderer.on('delete-all-tables', event => {
       log.debug('delete-all-tables');
       deleteTableFrameScanList();
       deleteTableReduxState();
@@ -424,9 +431,18 @@ class App extends Component {
   }
 
   componentWillMount() {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     const { columnCountTemp, thumbCountTemp, containerWidth, containerHeight, zoom } = this.state;
-    const { currentFileId, currentSheetId, file, files, scenes, settings, sheetsByFileId, visibilitySettings } = this.props;
+    const {
+      currentFileId,
+      currentSheetId,
+      file,
+      files,
+      scenes,
+      settings,
+      sheetsByFileId,
+      visibilitySettings,
+    } = this.props;
     const { defaultShowPaperPreview, defaultThumbCountMax } = settings;
 
     // check if all movies exist
@@ -437,27 +453,18 @@ class App extends Component {
           console.log(item.path);
           dispatch(updateFileMissingStatus(item.id, true));
         }
-      })
+      });
     }
 
     // get objecturls from all frames in imagedb
-    ipcRenderer.send(
-      'message-from-mainWindow-to-indexedDBWorkerWindow',
-      'get-arrayOfObjectUrls'
-    );
+    ipcRenderer.send('message-from-mainWindow-to-indexedDBWorkerWindow', 'get-arrayOfObjectUrls');
 
     const secondsPerRow = getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings);
 
     loadSheetPropertiesIntoState(
       this,
       getColumnCount(sheetsByFileId, undefined, undefined, settings),
-      getThumbsCount(
-        sheetsByFileId,
-        currentFileId,
-        currentSheetId,
-        settings,
-        visibilitySettings
-      ),
+      getThumbsCount(sheetsByFileId, currentFileId, currentSheetId, settings, visibilitySettings),
       secondsPerRow,
     );
     this.setState({
@@ -475,7 +482,7 @@ class App extends Component {
         undefined,
         scenes,
         secondsPerRow,
-      )
+      ),
     });
     if (getObjectProperty(() => file.id)) {
       try {
@@ -493,7 +500,7 @@ class App extends Component {
 
     ipcRenderer.on('progress', (event, fileId, progressBarPercentage) => {
       this.setState({
-        progressBarPercentage: Math.ceil(progressBarPercentage)
+        progressBarPercentage: Math.ceil(progressBarPercentage),
       });
       if (progressBarPercentage === 100) {
         toast.update(fileId, {
@@ -504,11 +511,11 @@ class App extends Component {
           autoClose: 3000,
           closeButton: true,
           closeOnClick: true,
-        })
+        });
       } else {
         toast.update(fileId, {
-          progress: (progressBarPercentage/100.0),
-        })
+          progress: progressBarPercentage / 100.0,
+        });
       }
     });
 
@@ -518,28 +525,58 @@ class App extends Component {
 
     ipcRenderer.on('error-savingMoviePrint', () => {
       if (this.state.savingMoviePrint) {
-        setTimeout(
-          this.setState({ savingMoviePrint: false }),
-          1000
-        ); // adding timeout to prevent clicking multiple times
+        setTimeout(this.setState({ savingMoviePrint: false }), 1000); // adding timeout to prevent clicking multiple times
       }
       ipcRenderer.send('reload-workerWindow');
     });
 
-    ipcRenderer.on('receive-get-file-details', (event, fileId, filePath, posterFrameId, frameCount, width, height, fps, fourCC, onlyReplace = false, onlyImport = false) => {
-      dispatch(updateFileDetails(fileId, frameCount, width, height, fps, fourCC));
-      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-poster-frame', fileId, filePath, posterFrameId, onlyReplace, onlyImport);
-    });
+    ipcRenderer.on(
+      'receive-get-file-details',
+      (
+        event,
+        fileId,
+        filePath,
+        posterFrameId,
+        frameCount,
+        width,
+        height,
+        fps,
+        fourCC,
+        onlyReplace = false,
+        onlyImport = false,
+      ) => {
+        dispatch(updateFileDetails(fileId, frameCount, width, height, fps, fourCC));
+        ipcRenderer.send(
+          'message-from-mainWindow-to-opencvWorkerWindow',
+          'send-get-poster-frame',
+          fileId,
+          filePath,
+          posterFrameId,
+          onlyReplace,
+          onlyImport,
+        );
+      },
+    );
 
     // poster frames don't have thumbId
-    ipcRenderer.on('receive-get-poster-frame', (event, fileId, filePath, posterFrameId, frameNumber, useRatio, onlyReplace = false, onlyImport = false) => {
-      dispatch(updateFileDetailUseRatio(fileId, useRatio));
+    ipcRenderer.on(
+      'receive-get-poster-frame',
+      (event, fileId, filePath, posterFrameId, frameNumber, useRatio, onlyReplace = false, onlyImport = false) => {
+        dispatch(updateFileDetailUseRatio(fileId, useRatio));
 
-      // get all posterframes
-      if (!onlyReplace || !onlyImport) {
-        ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-in-and-outpoint', fileId, filePath, useRatio, settings.defaultDetectInOutPoint);
-      }
-    });
+        // get all posterframes
+        if (!onlyReplace || !onlyImport) {
+          ipcRenderer.send(
+            'message-from-mainWindow-to-opencvWorkerWindow',
+            'send-get-in-and-outpoint',
+            fileId,
+            filePath,
+            useRatio,
+            settings.defaultDetectInOutPoint,
+          );
+        }
+      },
+    );
 
     ipcRenderer.on('receive-get-in-and-outpoint', (event, fileId, fadeInPoint, fadeOutPoint) => {
       const { filesToLoad } = this.state;
@@ -572,11 +609,9 @@ class App extends Component {
         const copyOfFilesToLoad = this.state.filesToLoad.slice();
         copyOfFilesToLoad.shift();
         this.setState({
-          filesToLoad: copyOfFilesToLoad
+          filesToLoad: copyOfFilesToLoad,
         });
-        dispatch(removeMovieListItem(
-          fileId,
-        ));
+        dispatch(removeMovieListItem(fileId));
       }
     });
 
@@ -622,7 +657,7 @@ class App extends Component {
       }
     });
 
-    ipcRenderer.on('start-requestIdleCallback-for-objectUrlQueue', (event) => {
+    ipcRenderer.on('start-requestIdleCallback-for-objectUrlQueue', event => {
       const { requestIdleCallbackForObjectUrlHandle } = this.state;
 
       // start requestIdleCallback until it is cancelled
@@ -633,7 +668,9 @@ class App extends Component {
         });
         log.debug('now I requestIdleCallbackForObjectUrl');
       } else {
-        log.debug('requestIdleCallbackForObjectUrl already running. no new requestIdleCallbackForObjectUrl will be started.');
+        log.debug(
+          'requestIdleCallbackForObjectUrl already running. no new requestIdleCallbackForObjectUrl will be started.',
+        );
       }
     });
 
@@ -642,7 +679,6 @@ class App extends Component {
     });
 
     ipcRenderer.on('update-sort-order', (event, detectionArray) => {
-
       // dispatch(updateFrameNumberAndColorArray(detectionArray));
     });
 
@@ -669,24 +705,31 @@ class App extends Component {
         const newSheetId = uuidV4();
         const file = getFile(files, fileId);
         dispatch(addThumbs(file, newSheetId, frameNumberArrayFromFaceDetection))
-        .then(() => {
-          sheetsToUpdate.push({
-            fileId,
-            sheetId: newSheetId,
-            status: 'addFaceData',
-            sortMethod: faceSortMethod,
+          .then(() => {
+            sheetsToUpdate.push({
+              fileId,
+              sheetId: newSheetId,
+              status: 'addFaceData',
+              sortMethod: faceSortMethod,
+            });
+            const newSheetName = getNewSheetName(getSheetCount(files, fileId));
+            dispatch(updateSheetName(fileId, newSheetId, newSheetName));
+            dispatch(updateSheetName(fileId, newSheetId, newSheetName));
+            dispatch(updateSheetType(fileId, newSheetId, SHEET_TYPE.FACES));
+            dispatch(updateSheetView(fileId, newSheetId, SHEET_VIEW.GRIDVIEW));
+            dispatch(
+              updateSheetColumnCount(
+                fileId,
+                newSheetId,
+                Math.ceil(Math.sqrt(frameNumberArrayFromFaceDetection.length)),
+              ),
+            );
+            dispatch(setCurrentSheetId(newSheetId));
+            return undefined;
+          })
+          .catch(err => {
+            log.error(err);
           });
-          const newSheetName = getNewSheetName(getSheetCount(files, fileId));
-          dispatch(updateSheetName(fileId, newSheetId, newSheetName));
-          dispatch(updateSheetName(fileId, newSheetId, newSheetName));
-          dispatch(updateSheetType(fileId, newSheetId, SHEET_TYPE.FACES));
-          dispatch(updateSheetView(fileId, newSheetId, SHEET_VIEW.GRIDVIEW));
-          dispatch(updateSheetColumnCount(fileId, newSheetId, Math.ceil(Math.sqrt(frameNumberArrayFromFaceDetection.length))));
-          dispatch(setCurrentSheetId(newSheetId));
-          return undefined;
-        }).catch((err) => {
-          log.error(err);
-        });
       }
     });
 
@@ -695,28 +738,29 @@ class App extends Component {
 
       // check if this is savingAllMoviePrints
       // if so change its status from gettingThumbs to readyForPrinting
-      if (this.state.savingAllMoviePrints
-        && this.state.sheetsToPrint.length > 0) {
-          if (this.state.sheetsToPrint.findIndex(item => item.fileId === fileId && item.status === 'gettingThumbs' ) > -1) {
-            // log.debug(this.state.sheetsToPrint);
-            // state should be immutable, therefor
-            const sheetsToPrint = this.state.sheetsToPrint.map((item) => {
-              if(item.fileId !== fileId) {
-                // This isn't the item we care about - keep it as-is
-                return item;
-              }
-              // Otherwise, this is the one we want - return an updated value
-              return {
-                ...item,
-                status: 'readyForPrinting'
-              };
-            });
-            // log.debug(sheetsToPrint);
-            this.setState({
-              sheetsToPrint,
-            });
-          }
+      if (this.state.savingAllMoviePrints && this.state.sheetsToPrint.length > 0) {
+        if (
+          this.state.sheetsToPrint.findIndex(item => item.fileId === fileId && item.status === 'gettingThumbs') > -1
+        ) {
+          // log.debug(this.state.sheetsToPrint);
+          // state should be immutable, therefor
+          const sheetsToPrint = this.state.sheetsToPrint.map(item => {
+            if (item.fileId !== fileId) {
+              // This isn't the item we care about - keep it as-is
+              return item;
+            }
+            // Otherwise, this is the one we want - return an updated value
+            return {
+              ...item,
+              status: 'readyForPrinting',
+            };
+          });
+          // log.debug(sheetsToPrint);
+          this.setState({
+            sheetsToPrint,
+          });
         }
+      }
 
       // update artificial sceneArray if interval scene
       if (getSheetType(sheetsByFileId, fileId, sheetId, settings) === SHEET_TYPE.INTERVAL) {
@@ -726,10 +770,7 @@ class App extends Component {
     });
 
     ipcRenderer.on('clearScenes', (event, fileId, sheetId) => {
-      dispatch(clearScenes(
-        fileId,
-        sheetId,
-      ));
+      dispatch(clearScenes(fileId, sheetId));
     });
 
     ipcRenderer.on('received-get-file-scan', (event, fileId, filePath, useRatio, sheetId) => {
@@ -772,7 +813,7 @@ class App extends Component {
       }
     });
 
-    ipcRenderer.on('start-requestIdleCallback-for-sceneQueue', (event) => {
+    ipcRenderer.on('start-requestIdleCallback-for-sceneQueue', event => {
       const { requestIdleCallbackForScenesHandle } = this.state;
 
       // start requestIdleCallback until it is cancelled
@@ -791,27 +832,24 @@ class App extends Component {
       const { settings } = this.props;
       const { defaultOpenFileExplorerAfterSaving } = settings;
       if (this.state.savingMoviePrint) {
-        setTimeout(
-          this.setState({ savingMoviePrint: false }),
-          1000
-        ); // adding timeout to prevent clicking multiple times
+        setTimeout(this.setState({ savingMoviePrint: false }), 1000); // adding timeout to prevent clicking multiple times
         // open file explorer if checked
         if (defaultOpenFileExplorerAfterSaving) {
           this.onOpenFileExplorer(path);
         }
       } else if (this.state.savingAllMoviePrints) {
         // check if the sheet which was saved has been printing, then set status to done
-        if (this.state.sheetsToPrint.findIndex(item => item.status === 'printing' ) > -1) {
+        if (this.state.sheetsToPrint.findIndex(item => item.status === 'printing') > -1) {
           // state should be immutable, therefor
-          const sheetsToPrint = this.state.sheetsToPrint.map((item) => {
-            if(item.status !== 'printing') {
+          const sheetsToPrint = this.state.sheetsToPrint.map(item => {
+            if (item.status !== 'printing') {
               // This isn't the item we care about - keep it as-is
               return item;
             }
             // Otherwise, this is the one we want - return an updated value
             return {
               ...item,
-              status: 'done'
+              status: 'done',
             };
           });
           // log.debug(sheetsToPrint);
@@ -819,9 +857,10 @@ class App extends Component {
             sheetsToPrint,
           });
           // check if all files have been printed, then set savingAllMoviePrints to false
-          if (this.state.sheetsToPrint.filter(item => item.status === 'done').length ===
-            this.state.sheetsToPrint.filter(item => item.status !== 'undefined').length) {
-
+          if (
+            this.state.sheetsToPrint.filter(item => item.status === 'done').length ===
+            this.state.sheetsToPrint.filter(item => item.status !== 'undefined').length
+          ) {
             this.setState({ savingAllMoviePrints: false });
 
             // open file explorer if checked
@@ -837,10 +876,7 @@ class App extends Component {
 
     ipcRenderer.on('received-saved-file-error', (event, message) => {
       this.showMessage(message, 5000, 'error');
-      setTimeout(
-        this.setState({ savingMoviePrint: false }),
-        1000
-      ); // adding timeout to prevent clicking multiple times
+      setTimeout(this.setState({ savingMoviePrint: false }), 1000); // adding timeout to prevent clicking multiple times
       log.error(`Saved file error: ${message}`);
     });
 
@@ -859,62 +895,46 @@ class App extends Component {
   componentWillReceiveProps(nextProps) {
     const { currentFileId, currentSheetId, file, settings, sheetsByFileId, visibilitySettings } = this.props;
 
-    const secondsPerRow = getSecondsPerRow(nextProps.sheetsByFileId, nextProps.currentFileId, nextProps.currentSheetId, nextProps.settings);
+    const secondsPerRow = getSecondsPerRow(
+      nextProps.sheetsByFileId,
+      nextProps.currentFileId,
+      nextProps.currentSheetId,
+      nextProps.settings,
+    );
 
-    if (file !== undefined &&
-      nextProps.file !== undefined &&
-      file.id !== undefined) {
-
+    if (file !== undefined && nextProps.file !== undefined && file.id !== undefined) {
       const columnCount = getColumnCount(
         nextProps.sheetsByFileId,
         nextProps.file.id,
         nextProps.currentSheetId,
-        nextProps.settings
+        nextProps.settings,
       );
 
       // check if currentFileId or currentSheetId changed
-      if (currentFileId !== nextProps.currentFileId ||
-        currentSheetId !== nextProps.currentSheetId
-      ) {
+      if (currentFileId !== nextProps.currentFileId || currentSheetId !== nextProps.currentSheetId) {
         const newThumbCount = getThumbsCount(
           nextProps.sheetsByFileId,
           nextProps.file.id,
           nextProps.currentSheetId,
           nextProps.settings,
-          nextProps.visibilitySettings
+          nextProps.visibilitySettings,
         );
 
-        loadSheetPropertiesIntoState(
-          this,
-          columnCount,
-          newThumbCount,
-          secondsPerRow,
-        );
+        loadSheetPropertiesIntoState(this, columnCount, newThumbCount, secondsPerRow);
         log.debug('currentFileId or currentSheetId changed');
       }
 
       // check if visibleThumbCount changed
-      const oldThumbCount = getThumbsCount(
-        sheetsByFileId,
-        file.id,
-        currentSheetId,
-        settings,
-        visibilitySettings
-      );
+      const oldThumbCount = getThumbsCount(sheetsByFileId, file.id, currentSheetId, settings, visibilitySettings);
       const newThumbCount = getThumbsCount(
         nextProps.sheetsByFileId,
         nextProps.file.id,
         nextProps.currentSheetId,
         nextProps.settings,
-        nextProps.visibilitySettings
+        nextProps.visibilitySettings,
       );
       if (oldThumbCount !== newThumbCount) {
-        loadSheetPropertiesIntoState(
-          this,
-          columnCount,
-          newThumbCount,
-          secondsPerRow,
-        );
+        loadSheetPropertiesIntoState(this, columnCount, newThumbCount, secondsPerRow);
         log.debug(`visibleThumbCount changed to ${newThumbCount}`);
       }
     }
@@ -922,14 +942,13 @@ class App extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     // log.debug('App.js componentDidUpdate');
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     const { filesToLoad, sheetsToPrint, sheetsToUpdate } = this.state;
     const { files, file, settings, sheetsByFileId, visibilitySettings } = this.props;
     const { defaultMoviePrintWidth, defaultPaperAspectRatioInv } = settings;
     const { visibilityFilter } = visibilitySettings;
 
-    if (file !== undefined &&
-      (getObjectProperty(() => prevProps.file.id) !== file.id)) {
+    if (file !== undefined && getObjectProperty(() => prevProps.file.id) !== file.id) {
       try {
         this.setState({
           opencvVideo: new opencv.VideoCapture(file.path),
@@ -939,22 +958,26 @@ class App extends Component {
       }
     }
 
-    if ((filesToLoad.length !== 0) &&
-    (prevState.filesToLoad.length !== filesToLoad.length)) {
-      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', filesToLoad[0].id, filesToLoad[0].path, filesToLoad[0].posterFrameId);
+    if (filesToLoad.length !== 0 && prevState.filesToLoad.length !== filesToLoad.length) {
+      ipcRenderer.send(
+        'message-from-mainWindow-to-opencvWorkerWindow',
+        'send-get-file-details',
+        filesToLoad[0].id,
+        filesToLoad[0].path,
+        filesToLoad[0].posterFrameId,
+      );
     }
 
     // run if there was a change in the sheetsToPrint array
-    if (sheetsToPrint.length !== 0 &&
-      !isEquivalent(sheetsToPrint, prevState.sheetsToPrint)
-    ) {
-
+    if (sheetsToPrint.length !== 0 && !isEquivalent(sheetsToPrint, prevState.sheetsToPrint)) {
       const filesToUpdateStatus = [];
       // run if there is a sheet which needsThumbs, but not if there is one already gettingThumbs
-      if ((sheetsToPrint.findIndex(item => item.status === 'gettingThumbs' ) === -1) &&
-        (sheetsToPrint.findIndex(item => item.status === 'needsThumbs' ) > -1)) {
+      if (
+        sheetsToPrint.findIndex(item => item.status === 'gettingThumbs') === -1 &&
+        sheetsToPrint.findIndex(item => item.status === 'needsThumbs') > -1
+      ) {
         // log.debug(sheetsToPrint);
-        const sheetToGetThumbsFor = sheetsToPrint.find(item => item.status === 'needsThumbs' );
+        const sheetToGetThumbsFor = sheetsToPrint.find(item => item.status === 'needsThumbs');
         // log.debug(sheetToGetThumbsFor);
         const tempFile = getFile(files, sheetToGetThumbsFor.fileId);
         // log.debug(tempFile);
@@ -963,32 +986,39 @@ class App extends Component {
         // files who could be added to the filelist, but then could not be read by opencv get removed again from the FileList
         if (tempFile !== undefined) {
           this.getThumbsForFile(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId);
-          dispatch(updateSheetName(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, getNewSheetName(getSheetCount(files, sheetToGetThumbsFor.fileId))));
+          dispatch(
+            updateSheetName(
+              sheetToGetThumbsFor.fileId,
+              sheetToGetThumbsFor.sheetId,
+              getNewSheetName(getSheetCount(files, sheetToGetThumbsFor.fileId)),
+            ),
+          );
           dispatch(updateSheetCounter(sheetToGetThumbsFor.fileId));
           dispatch(updateSheetType(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, SHEET_TYPE.INTERVAL));
           dispatch(updateSheetView(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, SHEET_VIEW.GRIDVIEW));
           filesToUpdateStatus.push({
             fileId: sheetToGetThumbsFor.fileId,
             sheetId: sheetToGetThumbsFor.sheetId,
-            status: 'gettingThumbs'
+            status: 'gettingThumbs',
           });
         } else {
           // status of file which could not be found gets set to undefined
           filesToUpdateStatus.push({
             fileId: sheetToGetThumbsFor.fileId,
             sheetId: sheetToGetThumbsFor.sheetId,
-            status: 'undefined'
+            status: 'undefined',
           });
         }
         // log.debug(filesToUpdateStatus);
       }
 
       // run if there is a file readyForPrinting, but not if there is one already printing
-      if ((sheetsToPrint.findIndex(item => item.status === 'printing' ) === -1) &&
-        (sheetsToPrint.findIndex(item => item.status === 'readyForPrinting' ) > -1)) {
-
+      if (
+        sheetsToPrint.findIndex(item => item.status === 'printing') === -1 &&
+        sheetsToPrint.findIndex(item => item.status === 'readyForPrinting') > -1
+      ) {
         // log.debug(sheetsToPrint);
-        const sheetToPrint = sheetsToPrint.find(item => item.status === 'readyForPrinting' );
+        const sheetToPrint = sheetsToPrint.find(item => item.status === 'readyForPrinting');
 
         // get sheet to print
         const sheet = sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId];
@@ -1001,12 +1031,14 @@ class App extends Component {
 
         // get scenes to print
         let tempScenes;
-        if (sheetView === SHEET_VIEW.TIMELINEVIEW &&
+        if (
+          sheetView === SHEET_VIEW.TIMELINEVIEW &&
           sheetsByFileId[sheetToPrint.fileId] !== undefined &&
-          sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId] !== undefined) {
+          sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId] !== undefined
+        ) {
           tempScenes = getVisibleThumbs(
             sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId].sceneArray,
-            visibilitySettings.visibilityFilter
+            visibilitySettings.visibilityFilter,
           );
         }
 
@@ -1043,7 +1075,7 @@ class App extends Component {
         filesToUpdateStatus.push({
           fileId: sheetToPrint.fileId,
           sheetId: sheetToPrint.sheetId,
-          status: 'printing'
+          status: 'printing',
         });
         // console.log(filesToUpdateStatus);
         // console.log(dataToSend);
@@ -1069,15 +1101,13 @@ class App extends Component {
     if (sheetsToUpdate.length !== 0) {
       const copyOfSheetsToUpdate = sheetsToUpdate.slice();
       // read the first item
-      const { fileId: myFileId, sheetId: mySheetId, sortMethod: mySortMethod = undefined, status: myStatus} = copyOfSheetsToUpdate[0];
-      const thumbCount = getThumbsCount(
-        sheetsByFileId,
-        myFileId,
-        mySheetId,
-        settings,
-        visibilitySettings,
-        true
-      );
+      const {
+        fileId: myFileId,
+        sheetId: mySheetId,
+        sortMethod: mySortMethod = undefined,
+        status: myStatus,
+      } = copyOfSheetsToUpdate[0];
+      const thumbCount = getThumbsCount(sheetsByFileId, myFileId, mySheetId, settings, visibilitySettings, true);
       if (thumbCount !== 0) {
         if (myStatus === 'addFaceData') {
           this.addFaceData(myFileId, mySheetId, mySortMethod);
@@ -1095,17 +1125,21 @@ class App extends Component {
     this.updatecontainerWidthAndHeight();
 
     // update scaleValue when these parameters change
-    if (((prevProps.file === undefined || this.props.file === undefined) ?
-      false : (prevProps.file.width !== this.props.file.width)) ||
-      ((prevProps.file === undefined || this.props.file === undefined) ?
-        false : (prevProps.file.height !== this.props.file.height)) ||
+    if (
+      (prevProps.file === undefined || this.props.file === undefined
+        ? false
+        : prevProps.file.width !== this.props.file.width) ||
+      (prevProps.file === undefined || this.props.file === undefined
+        ? false
+        : prevProps.file.height !== this.props.file.height) ||
       prevProps.settings.defaultThumbnailScale !== this.props.settings.defaultThumbnailScale ||
       prevProps.settings.defaultMoviePrintWidth !== this.props.settings.defaultMoviePrintWidth ||
       prevProps.settings.defaultMarginRatio !== this.props.settings.defaultMarginRatio ||
       prevProps.settings.defaultTimelineViewSecondsPerRow !== this.props.settings.defaultTimelineViewSecondsPerRow ||
-      prevProps.settings.defaultTimelineViewMinDisplaySceneLengthInFrames !== this.props.settings.defaultTimelineViewMinDisplaySceneLengthInFrames ||
+      prevProps.settings.defaultTimelineViewMinDisplaySceneLengthInFrames !==
+        this.props.settings.defaultTimelineViewMinDisplaySceneLengthInFrames ||
       prevProps.settings.defaultTimelineViewWidthScale !== this.props.settings.defaultTimelineViewWidthScale ||
-      (prevProps.scenes ? (prevProps.scenes.length !== this.props.scenes.length) : false) ||
+      (prevProps.scenes ? prevProps.scenes.length !== this.props.scenes.length : false) ||
       prevProps.settings.defaultShowHeader !== this.props.settings.defaultShowHeader ||
       prevProps.settings.defaultShowPathInHeader !== this.props.settings.defaultShowPathInHeader ||
       prevProps.settings.defaultShowDetailsInHeader !== this.props.settings.defaultShowDetailsInHeader ||
@@ -1114,12 +1148,9 @@ class App extends Component {
       prevProps.settings.defaultShowPaperPreview !== this.props.settings.defaultShowPaperPreview ||
       prevProps.settings.defaultPaperAspectRatioInv !== this.props.settings.defaultPaperAspectRatioInv ||
       prevState.zoom !== this.state.zoom ||
-      prevProps.visibilitySettings.defaultView !==
-        this.props.visibilitySettings.defaultView ||
-      prevProps.visibilitySettings.defaultSheetView !==
-        this.props.visibilitySettings.defaultSheetView ||
-      prevProps.visibilitySettings.defaultSheetFit !==
-        this.props.visibilitySettings.defaultSheetFit ||
+      prevProps.visibilitySettings.defaultView !== this.props.visibilitySettings.defaultView ||
+      prevProps.visibilitySettings.defaultSheetView !== this.props.visibilitySettings.defaultSheetView ||
+      prevProps.visibilitySettings.defaultSheetFit !== this.props.visibilitySettings.defaultSheetFit ||
       prevState.secondsPerRowTemp !== this.state.secondsPerRowTemp ||
       prevState.columnCountTemp !== this.state.columnCountTemp ||
       prevState.thumbCountTemp !== this.state.thumbCountTemp ||
@@ -1134,24 +1165,25 @@ class App extends Component {
     }
 
     // replace all frames for this fileId -> fileIdToBeRecaptured
-    if (this.state.fileIdToBeRecaptured !== undefined &&
-      prevState.fileIdToBeRecaptured !== this.state.fileIdToBeRecaptured) {
+    if (
+      this.state.fileIdToBeRecaptured !== undefined &&
+      prevState.fileIdToBeRecaptured !== this.state.fileIdToBeRecaptured
+    ) {
       ipcRenderer.send(
         'message-from-mainWindow-to-opencvWorkerWindow',
         'recapture-frames',
         files,
         sheetsByFileId,
         settings.defaultCachedFramesSize,
-        this.state.fileIdToBeRecaptured
+        this.state.fileIdToBeRecaptured,
       );
       this.setState({
         fileIdToBeRecaptured: undefined,
-      })
+      });
     }
 
     // capture all frames for this fileId -> fileIdToBeCaptured
-    if (this.state.fileIdToBeCaptured !== undefined &&
-      prevState.fileIdToBeCaptured !== this.state.fileIdToBeCaptured) {
+    if (this.state.fileIdToBeCaptured !== undefined && prevState.fileIdToBeCaptured !== this.state.fileIdToBeCaptured) {
       ipcRenderer.send(
         'message-from-mainWindow-to-opencvWorkerWindow',
         'recapture-frames',
@@ -1163,12 +1195,12 @@ class App extends Component {
       );
       this.setState({
         fileIdToBeCaptured: undefined,
-      })
+      });
     }
   }
 
   componentWillUnmount() {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
 
     document.removeEventListener('keydown', this.handleKeyPress);
     document.removeEventListener('keyup', this.handleKeyUp);
@@ -1176,13 +1208,12 @@ class App extends Component {
     window.removeEventListener('resize', this.updatecontainerWidthAndHeight);
 
     // close the database connection
-    moviePrintDB.close((err) => {
+    moviePrintDB.close(err => {
       if (err) {
         return console.error(err.message);
       }
       console.log('Close the database connection.');
     });
-
   }
 
   handleKeyPress(event) {
@@ -1194,7 +1225,6 @@ class App extends Component {
       const { dispatch } = this.props;
       const { currentFileId, currentSheetId, file, settings, sheetsByFileId, visibilitySettings } = this.props;
       const sheetType = getSheetType(sheetsByFileId, currentFileId, currentSheetId, settings);
-
 
       if (event) {
         switch (event.which) {
@@ -1280,7 +1310,7 @@ class App extends Component {
             break;
           case 83: // press 's'
             if (currentFileId) {
-              this.runSceneDetection(file.id, file.path, file.useRatio, undefined, undefined, file.transformObject)
+              this.runSceneDetection(file.id, file.path, file.useRatio, undefined, undefined, file.transformObject);
             }
             break;
           default:
@@ -1291,8 +1321,8 @@ class App extends Component {
             altKey: event.altKey,
             ctrlKey: event.ctrlKey,
             metaKey: event.metaKey,
-            which: event.which
-          }
+            which: event.which,
+          },
         });
       }
     }
@@ -1300,7 +1330,9 @@ class App extends Component {
 
   showMessage(message, time, status = 'info') {
     toast(message, {
-      className: `${stylesPop.toast} ${(status === 'info') ? stylesPop.toastInfo : ''}  ${(status === 'error') ? stylesPop.toastError : ''}  ${(status === 'success') ? stylesPop.toastSuccess : ''}`,
+      className: `${stylesPop.toast} ${status === 'info' ? stylesPop.toastInfo : ''}  ${
+        status === 'error' ? stylesPop.toastError : ''
+      }  ${status === 'success' ? stylesPop.toastSuccess : ''}`,
       autoClose: time,
     });
   }
@@ -1318,7 +1350,7 @@ class App extends Component {
       'recapture-frames',
       files,
       sheetsByFileId,
-      settings.defaultCachedFramesSize
+      settings.defaultCachedFramesSize,
     );
   }
 
@@ -1330,21 +1362,21 @@ class App extends Component {
           altKey: false,
           ctrlKey: false,
           metaKey: false,
-          which: undefined
-        }
+          which: undefined,
+        },
       });
     }
   }
 
   onDragEnter() {
     this.setState({
-      dropzoneActive: true
+      dropzoneActive: true,
     });
   }
 
   onDragLeave() {
     this.setState({
-      dropzoneActive: false
+      dropzoneActive: false,
     });
   }
 
@@ -1355,36 +1387,36 @@ class App extends Component {
     const clearList = this.state.keyObject.altKey;
     this.setState({
       dropzoneActive: false,
-      loadingFirstFile: true
+      loadingFirstFile: true,
     });
     log.debug('Files where dropped');
     log.debug(droppedFiles);
     // file match needs to be in sync with addMoviesToList() and accept !!!
-    if (Array.from(droppedFiles).some(file => (file.type.match('video.*') ||
-      file.name.match(/.divx|.mkv|.ogg|.VOB/i)))) {
+    if (Array.from(droppedFiles).some(file => file.type.match('video.*') || file.name.match(/.divx|.mkv|.ogg|.VOB/i))) {
       dispatch(setDefaultSheetView(SHEET_VIEW.GRIDVIEW));
-      dispatch(addMoviesToList(droppedFiles, clearList)).then((response) => {
+      dispatch(addMoviesToList(droppedFiles, clearList))
+        .then(response => {
+          // add a property to first movie indicating that it should be displayed when ready
+          response[0].displayMe = true;
 
-        // add a property to first movie indicating that it should be displayed when ready
-        response[0].displayMe = true;
-
-        this.setState({
-          filesToLoad: response,
-        });
-        if (clearList) {
           this.setState({
-            objectUrlObjects: {}, // clear objectUrlObjects
+            filesToLoad: response,
           });
-        }
-        log.debug(response);
-        // showMovielist if more than one movie
-        if (response.length > 1 || (!clearList && files !== undefined && files.length > 0)) {
-          dispatch(showMovielist());
-        }
-        return response;
-      }).catch((error) => {
-        log.error(error);
-      });
+          if (clearList) {
+            this.setState({
+              objectUrlObjects: {}, // clear objectUrlObjects
+            });
+          }
+          log.debug(response);
+          // showMovielist if more than one movie
+          if (response.length > 1 || (!clearList && files !== undefined && files.length > 0)) {
+            dispatch(showMovielist());
+          }
+          return response;
+        })
+        .catch(error => {
+          log.error(error);
+        });
     }
     return false;
   }
@@ -1396,63 +1428,73 @@ class App extends Component {
     });
     let latestVersion = null;
     const { platform } = process;
-    axios.get(URL_REST_API_CHECK_FOR_UPDATES,
-      {
-        timeout: 30000
-      }
-    )
-    .then(response => {
-      log.debug(response.data.acf);
-      if (platform === 'darwin') {
-        latestVersion = response.data.acf.mac_version_number;
-      } else if (platform === 'win32') {
-        latestVersion = response.data.acf.windows_version_number;
-      }
-      const thisVersion = app.getVersion();
-      const updateAvailable = compareVersions(latestVersion, thisVersion);
-      log.debug(`this version: ${thisVersion}, latest version: ${latestVersion}, update available: ${updateAvailable}`);
-      if (updateAvailable > 0) {
-        toast(({ closeToast }) => (
-          <div>
-            An update is available: {latestVersion} <br/>
-            Your version is: {thisVersion} <br/><br/>
-            <Button
-              compact
-              fluid
-              content="See what's new"
-              onClick={() => {
-                shell.openExternal(URL_CHANGE_LOG);
-                closeToast();
-              }}
-            />
-          </div>
-        ), {
-          className: `${stylesPop.toast} ${stylesPop.toastSuccess}`,
-          autoClose: false,
+    axios
+      .get(URL_REST_API_CHECK_FOR_UPDATES, {
+        timeout: 30000,
+      })
+      .then(response => {
+        log.debug(response.data.acf);
+        if (platform === 'darwin') {
+          latestVersion = response.data.acf.mac_version_number;
+        } else if (platform === 'win32') {
+          latestVersion = response.data.acf.windows_version_number;
+        }
+        const thisVersion = app.getVersion();
+        const updateAvailable = compareVersions(latestVersion, thisVersion);
+        log.debug(
+          `this version: ${thisVersion}, latest version: ${latestVersion}, update available: ${updateAvailable}`,
+        );
+        if (updateAvailable > 0) {
+          toast(
+            ({ closeToast }) => (
+              <div>
+                An update is available: {latestVersion} <br />
+                Your version is: {thisVersion} <br />
+                <br />
+                <Button
+                  compact
+                  fluid
+                  content="See what's new"
+                  onClick={() => {
+                    shell.openExternal(URL_CHANGE_LOG);
+                    closeToast();
+                  }}
+                />
+              </div>
+            ),
+            {
+              className: `${stylesPop.toast} ${stylesPop.toastSuccess}`,
+              autoClose: false,
+            },
+          );
+        } else {
+          this.showMessage(`Your version is up to date: ${thisVersion}`, 3000, 'info');
+        }
+
+        this.setState({
+          isCheckingForUpdates: undefined,
         });
-      } else {
-        this.showMessage(`Your version is up to date: ${thisVersion}`, 3000, 'info');
-      }
 
-      this.setState({
-        isCheckingForUpdates: undefined,
+        return undefined;
+      })
+      .catch(error => {
+        this.showMessage(
+          `There has been an error while checking for updates:
+        ${error}`,
+          3000,
+          'error',
+        );
+        log.error(error);
+
+        this.setState({
+          isCheckingForUpdates: undefined,
+        });
       });
-
-      return undefined;
-    }).catch((error) => {
-      this.showMessage(`There has been an error while checking for updates:
-        ${error}`, 3000, 'error');
-      log.error(error);
-
-      this.setState({
-        isCheckingForUpdates: undefined,
-      });
-    });
   }
 
   applyMimeTypes(event) {
     this.setState({
-      accept: event.target.value
+      accept: event.target.value,
     });
   }
 
@@ -1475,11 +1517,9 @@ class App extends Component {
       scenes,
       getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings),
     );
-    this.setState(
-      {
-        scaleValueObject
-      }
-    );
+    this.setState({
+      scaleValueObject,
+    });
   }
 
   updatecontainerWidthAndHeight() {
@@ -1495,15 +1535,19 @@ class App extends Component {
         (visibilitySettings.showMovielist ? 350 : 0) -
         (visibilitySettings.showSettings ? 350 : 0) -
         (file ? 0 : 300); // for startup
-      const containerHeightInner = clientHeight -
-        (file ? 0 : 100); // for startup
-      if ((Math.abs(containerHeight - containerHeightInner) > 10) ||
-      (Math.abs(containerWidth - containerWidthInner) > 10)) {
+      const containerHeightInner = clientHeight - (file ? 0 : 100); // for startup
+      if (
+        Math.abs(containerHeight - containerHeightInner) > 10 ||
+        Math.abs(containerWidth - containerWidthInner) > 10
+      ) {
         log.debug(`new container size: ${containerWidthInner}x${containerHeightInner}`);
-        this.setState({
-          containerHeight: containerHeightInner,
-          containerWidth: containerWidthInner
-        }, () => this.updateScaleValue());
+        this.setState(
+          {
+            containerHeight: containerHeightInner,
+            containerWidth: containerWidthInner,
+          },
+          () => this.updateScaleValue(),
+        );
       }
       return true;
     } catch (e) {
@@ -1514,26 +1558,28 @@ class App extends Component {
 
   onDeselectThumbMethod() {
     this.setState({
-      selectedThumbsArray: []
+      selectedThumbsArray: [],
     });
   }
 
   onSelectThumbMethod(thumbId, frameNumber = undefined) {
     this.setState({
-      selectedThumbsArray: [{
-        thumbId,
-      }],
+      selectedThumbsArray: [
+        {
+          thumbId,
+        },
+      ],
       jumpToFrameNumber: frameNumber,
     });
   }
 
   showMovielist() {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     dispatch(showMovielist());
   }
 
   hideMovielist() {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     dispatch(hideMovielist());
   }
 
@@ -1546,7 +1592,7 @@ class App extends Component {
   }
 
   showSettings() {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     const { currentFileId, currentSheetId, file, settings, sheetsByFileId, visibilitySettings } = this.props;
     const secondsPerRow = getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings);
 
@@ -1554,26 +1600,15 @@ class App extends Component {
 
     loadSheetPropertiesIntoState(
       this,
-      getColumnCount(
-        sheetsByFileId,
-        currentFileId,
-        currentSheetId,
-        settings
-      ),
-      getThumbsCount(
-        sheetsByFileId,
-        currentFileId,
-        currentSheetId,
-        settings,
-        visibilitySettings
-      ),
+      getColumnCount(sheetsByFileId, currentFileId, currentSheetId, settings),
+      getThumbsCount(sheetsByFileId, currentFileId, currentSheetId, settings, visibilitySettings),
       secondsPerRow,
     );
     this.disableZoom();
   }
 
   hideSettings() {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     dispatch(hideSettings());
     this.onHideDetectionChart();
   }
@@ -1587,7 +1622,7 @@ class App extends Component {
   }
 
   onShowThumbs() {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     if (this.props.visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') {
       dispatch(setVisibilityFilter('SHOW_ALL'));
     } else {
@@ -1597,13 +1632,13 @@ class App extends Component {
 
   onHideDetectionChart() {
     this.setState({
-      showChart: false
+      showChart: false,
     });
   }
 
   onToggleDetectionChart() {
     this.setState({
-      showChart: !this.state.showChart
+      showChart: !this.state.showChart,
     });
   }
 
@@ -1617,10 +1652,7 @@ class App extends Component {
     const isFaceType = sheetType === SHEET_TYPE.FACES;
 
     // get visible thumbs and only request faces scan data for them
-    const visibleThumbs = getVisibleThumbs(
-      thumbsArray,
-      visibilitySettings.visibilityFilter
-    );
+    const visibleThumbs = getVisibleThumbs(thumbsArray, visibilitySettings.visibilityFilter);
 
     let baseArray = visibleThumbs;
     let sortedThumbsArray;
@@ -1632,46 +1664,32 @@ class App extends Component {
         // console.log(faceScanArray);
       }
 
-      const sortOrderArray = sortArray(
-        baseArray,
-        sortMethod,
-        reverseSortOrder
-      );
+      const sortOrderArray = sortArray(baseArray, sortMethod, reverseSortOrder);
 
       // sort thumbs array
-      sortedThumbsArray = sortThumbsArray(
-        thumbsArray,
-        sortOrderArray,
-      );
+      sortedThumbsArray = sortThumbsArray(thumbsArray, sortOrderArray);
+
+      // update the thumb order
+      dispatch(updateOrder(theFileId, theSheetId, sortedThumbsArray));
+
+      // hide other thumbs as filtering could happen
+      const frameNumberArray = sortOrderArray.map(item => item.frameNumber);
+      dispatch(showThumbsByFrameNumberArray(theFileId, theSheetId, frameNumberArray));
     } else {
       sortedThumbsArray = baseArray.slice().reverse();
+
+      // update the thumb order
+      dispatch(updateOrder(theFileId, theSheetId, sortedThumbsArray));
     }
-
-    // update the thumb order
-    dispatch(updateOrder(
-      theFileId,
-      theSheetId,
-      sortedThumbsArray,
-    ));
-
-    // hide other thumbs
-    console.log(sortedThumbsArray);
-    console.log(sortOrderArray);
-    const frameNumberArray = sortOrderArray.map(item => item.frameNumber);
-    dispatch(showThumbsByFrameNumberArray(
-      theFileId,
-      theSheetId,
-      frameNumberArray,
-    ));
   }
 
   addFaceData(fileId, sheetId, sortMethod = undefined) {
     const { dispatch, sheetsByFileId, visibilitySettings } = this.props;
 
     const arrayOfFrameNumbers = getFramenumbersOfSheet(sheetsByFileId, fileId, sheetId, visibilitySettings);
-    console.log(arrayOfFrameNumbers)
+    console.log(arrayOfFrameNumbers);
     const faceScanArray = getFaceScanByFileId(fileId, arrayOfFrameNumbers);
-    console.log(faceScanArray)
+    console.log(faceScanArray);
     // add detection information to thumbs
     dispatch(changeAndSortThumbArray(fileId, sheetId, faceScanArray, sortMethod));
     // this.onSortSheet(fileId, sheetId, sortMethod);
@@ -1687,8 +1705,15 @@ class App extends Component {
     );
   }
 
-  runSceneDetection(fileId, filePath, useRatio, threshold = this.props.settings.defaultSceneDetectionThreshold, sheetId = uuidV4(), transformObject = undefined) {
-  const { dispatch } = this.props;
+  runSceneDetection(
+    fileId,
+    filePath,
+    useRatio,
+    threshold = this.props.settings.defaultSceneDetectionThreshold,
+    sheetId = uuidV4(),
+    transformObject = undefined,
+  ) {
+    const { dispatch } = this.props;
     const { settings } = this.props;
     const { defaultShotDetectionMethod = SHOT_DETECTION_METHOD.MEAN } = settings;
     const { fileScanRunning } = this.state;
@@ -1712,27 +1737,30 @@ class App extends Component {
       if (arrayOfFrameScanData.length === 0) {
         this.setState({ fileScanRunning: true });
         // display toast and set toastId to fileId
-        toast(({ closeToast }) => (
-          <div>
-            Shot detection in progress
-            <Button
-              compact
-              floated='right'
-              content='Cancel'
-              onClick={() => {
-                this.cancelFileScan(fileId);
-                closeToast();
-              }}
-            />
-          </div>
-        ), {
-          toastId: fileId,
-          className: `${stylesPop.toast} ${stylesPop.toastInfo}`,
-          hideProgressBar: false,
-          autoClose: false,
-          closeButton: false,
-          closeOnClick: false,
-        });
+        toast(
+          ({ closeToast }) => (
+            <div>
+              Shot detection in progress
+              <Button
+                compact
+                floated="right"
+                content="Cancel"
+                onClick={() => {
+                  this.cancelFileScan(fileId);
+                  closeToast();
+                }}
+              />
+            </div>
+          ),
+          {
+            toastId: fileId,
+            className: `${stylesPop.toast} ${stylesPop.toastInfo}`,
+            hideProgressBar: false,
+            autoClose: false,
+            closeButton: false,
+            closeOnClick: false,
+          },
+        );
         ipcRenderer.send(
           'message-from-mainWindow-to-opencvWorkerWindow',
           'send-get-file-scan',
@@ -1742,7 +1770,7 @@ class App extends Component {
           threshold,
           sheetId,
           transformObject,
-          defaultShotDetectionMethod
+          defaultShotDetectionMethod,
         );
       } else {
         // console.log(meanColorArray);
@@ -1766,15 +1794,21 @@ class App extends Component {
     );
   }
 
-  calculateSceneList(fileId, arrayOfFrameScanData, threshold = this.props.settings.defaultSceneDetectionThreshold, sheetId) {
-  const { dispatch } = this.props;
+  calculateSceneList(
+    fileId,
+    arrayOfFrameScanData,
+    threshold = this.props.settings.defaultSceneDetectionThreshold,
+    sheetId,
+  ) {
+    const { dispatch } = this.props;
     const { files, settings } = this.props;
 
     // check if frameScanData is complete
     const frameCount = getFrameCount(files, fileId);
     const frameScanDataLength = getFrameScanCount(fileId);
     console.log(getFrameScanCount(fileId));
-    if ((frameScanDataLength / frameCount) < 0.9) { // consider less than 90% as incomplete
+    if (frameScanDataLength / frameCount < 0.9) {
+      // consider less than 90% as incomplete
       // frameScanData is not complete
       // arrayOfFrameScanData will be repaired in place
       log.error(`frameScanData is not complete: ${frameCount}:${frameScanDataLength}`);
@@ -1787,16 +1821,15 @@ class App extends Component {
     // calculate threshold with kmeans
     // convert differenceValueArray into histogram
     const matFromArray = new opencv.Mat([differenceValueArray], opencv.CV_8UC1);
-    const vHist = opencv.calcHist(
-      matFromArray,
-      [
+    const vHist = opencv
+      .calcHist(matFromArray, [
         {
           channel: 0,
           bins: 256,
-          ranges: [0, 256]
-        }
-      ]
-    ).convertTo(opencv.CV_32F);
+          ranges: [0, 256],
+        },
+      ])
+      .convertTo(opencv.CV_32F);
 
     // convert histogram to array of points
     const histAsArray = vHist.getDataAsArray();
@@ -1808,7 +1841,7 @@ class App extends Component {
       3, // k
       new opencv.TermCriteria(opencv.termCriteria.EPS || opencv.termCriteria.MAX_ITER, 10, 0.1), // termCriteria
       5, // attempts
-      opencv.KMEANS_RANDOM_CENTERS // flags
+      opencv.KMEANS_RANDOM_CENTERS, // flags
     );
 
     // get mainCenter
@@ -1822,47 +1855,51 @@ class App extends Component {
     const sceneList = calculateSceneListFromDifferenceArray(fileId, differenceValueArray, meanColorArray, threshold);
     console.log(sceneList.map(shot => shot.start));
 
-    const labels = [...Array(differenceValueArray.length).keys()].map((x) => String(x));
+    const labels = [...Array(differenceValueArray.length).keys()].map(x => String(x));
     const thresholdLine = [
       {
         x: String(0),
-        y: String(threshold)
-      }, {
+        y: String(threshold),
+      },
+      {
         x: String(differenceValueArray.length - 1),
-        y: String(threshold)
+        y: String(threshold),
       },
     ];
     const calcThresholdLine = [
       {
         x: String(0),
-        y: String(calcThreshold)
-      }, {
+        y: String(calcThreshold),
+      },
+      {
         x: String(differenceValueArray.length - 1),
-        y: String(calcThreshold)
+        y: String(calcThreshold),
       },
     ];
     const newChartData = {
       labels,
       datasets: [
-          {
-          label: "Difference",
+        {
+          label: 'Difference',
           backgroundColor: 'rgb(255, 80, 6)',
           pointRadius: 2,
           data: differenceValueArray,
-        },{
-          label: "Threshold",
+        },
+        {
+          label: 'Threshold',
           borderColor: 'rgba(255, 0, 0, 1)',
           borderWidth: 1,
           pointRadius: 0,
           data: thresholdLine,
-        },{
-          label: "Calculated Threshold",
+        },
+        {
+          label: 'Calculated Threshold',
           borderColor: 'rgba(0, 255, 0, 1)',
           borderWidth: 1,
           pointRadius: 0,
           data: calcThresholdLine,
-        }
-      ]
+        },
+      ],
     };
     this.setState({
       chartData: newChartData,
@@ -1899,11 +1936,7 @@ class App extends Component {
     });
     log.debug('now I cancelIdleCallback');
 
-    ipcRenderer.send(
-      'message-from-mainWindow-to-opencvWorkerWindow',
-      'cancelFileScan',
-      fileId,
-    );
+    ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'cancelFileScan', fileId);
 
     this.setState({
       fileScanRunning: false,
@@ -1915,16 +1948,15 @@ class App extends Component {
       autoClose: 3000,
       closeButton: true,
       closeOnClick: true,
-    })
+    });
     // toast.error("Shot detection was cancelled !", {
     //   toastId: `${fileId}-fileScanCancelled`,
     //   autoClose: 3000,
     // });
   }
 
-
   onScrubClick(file, scrubThumb, scrubWindowTriggerTime) {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     const { allScenes, thumbs } = this.props;
 
     dispatch(hideMovielist());
@@ -1948,7 +1980,7 @@ class App extends Component {
   }
 
   onExpandClick(file, sceneOrThumbId, parentSheetId) {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     const { files, scenes, sheetsArray, sheetsByFileId, settings } = this.props;
     // console.log(file);
     // console.log(sceneOrThumbId);
@@ -1973,15 +2005,17 @@ class App extends Component {
     // create new sheet if it does not already exist
     if (sheetsArray.findIndex(item => item === sheetId) === -1) {
       // log.debug(`addIntervalSheet as no thumbs were found for: ${file.name}`);
-      dispatch(addIntervalSheet(
-        file,
-        sheetId,
-        DEFAULT_THUMB_COUNT, // use constant value instead of defaultThumbCount
-        sceneArray[sceneIndex].start,
-        sceneArray[sceneIndex].start + sceneArray[sceneIndex].length - 1,
-        settings.defaultCachedFramesSize,
-        true, // limitToRange -> do not get more thumbs then between in and out available
-      ));
+      dispatch(
+        addIntervalSheet(
+          file,
+          sheetId,
+          DEFAULT_THUMB_COUNT, // use constant value instead of defaultThumbCount
+          sceneArray[sceneIndex].start,
+          sceneArray[sceneIndex].start + sceneArray[sceneIndex].length - 1,
+          settings.defaultCachedFramesSize,
+          true, // limitToRange -> do not get more thumbs then between in and out available
+        ),
+      );
       dispatch(updateSheetName(file.id, sheetId, getNewSheetName(getSheetCount(files, file.id)))); // set name on file
       dispatch(updateSheetCounter(file.id));
       dispatch(updateSheetType(file.id, sheetId, SHEET_TYPE.INTERVAL));
@@ -1992,35 +2026,47 @@ class App extends Component {
   }
 
   onAddThumbClick(file, existingThumb, insertWhere) {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     // get thumb left and right of existingThumb
-    const indexOfAllThumbs = this.props.allThumbs.findIndex((thumb) => thumb.thumbId === existingThumb.thumbId);
-    const indexOfVisibleThumbs = this.props.thumbs.findIndex((thumb) => thumb.thumbId === existingThumb.thumbId);
+    const indexOfAllThumbs = this.props.allThumbs.findIndex(thumb => thumb.thumbId === existingThumb.thumbId);
+    const indexOfVisibleThumbs = this.props.thumbs.findIndex(thumb => thumb.thumbId === existingThumb.thumbId);
     const existingThumbFrameNumber = existingThumb.frameNumber;
     const leftThumbFrameNumber = this.props.thumbs[Math.max(0, indexOfVisibleThumbs - 1)].frameNumber;
-    const rightThumbFrameNumber = this.props.thumbs[Math.min(this.props.thumbs.length - 1, indexOfVisibleThumbs + 1)].frameNumber;
-    const newFrameNumberAfter = limitFrameNumberWithinMovieRange(file, existingThumbFrameNumber + Math.round((rightThumbFrameNumber - existingThumbFrameNumber) / 2));
-    const newFrameNumberBefore = limitFrameNumberWithinMovieRange(file, leftThumbFrameNumber + Math.round((existingThumbFrameNumber - leftThumbFrameNumber) / 2));
+    const rightThumbFrameNumber = this.props.thumbs[Math.min(this.props.thumbs.length - 1, indexOfVisibleThumbs + 1)]
+      .frameNumber;
+    const newFrameNumberAfter = limitFrameNumberWithinMovieRange(
+      file,
+      existingThumbFrameNumber + Math.round((rightThumbFrameNumber - existingThumbFrameNumber) / 2),
+    );
+    const newFrameNumberBefore = limitFrameNumberWithinMovieRange(
+      file,
+      leftThumbFrameNumber + Math.round((existingThumbFrameNumber - leftThumbFrameNumber) / 2),
+    );
 
     const newThumbId = uuidV4();
     if (insertWhere === 'after') {
-      dispatch(addThumb(
-        this.props.file,
-        this.props.settings.currentSheetId,
-        newFrameNumberAfter,
-        indexOfAllThumbs + 1,
-        newThumbId,
-        this.props.settings.defaultCachedFramesSize
-      ));
-    } else if (insertWhere === 'before') { // if shiftKey
-      dispatch(addThumb(
-        this.props.file,
-        this.props.settings.currentSheetId,
-        newFrameNumberBefore,
-        indexOfAllThumbs,
-        newThumbId,
-        this.props.settings.defaultCachedFramesSize,
-      ));
+      dispatch(
+        addThumb(
+          this.props.file,
+          this.props.settings.currentSheetId,
+          newFrameNumberAfter,
+          indexOfAllThumbs + 1,
+          newThumbId,
+          this.props.settings.defaultCachedFramesSize,
+        ),
+      );
+    } else if (insertWhere === 'before') {
+      // if shiftKey
+      dispatch(
+        addThumb(
+          this.props.file,
+          this.props.settings.currentSheetId,
+          newFrameNumberBefore,
+          indexOfAllThumbs,
+          newThumbId,
+          this.props.settings.defaultCachedFramesSize,
+        ),
+      );
     }
   }
 
@@ -2031,7 +2077,7 @@ class App extends Component {
   }
 
   onJumpToCutSceneClick(file, thumbId, otherSceneIs) {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     const { allScenes, currentSheetId, sheetsByFileId, visibilitySettings } = this.props;
 
     dispatch(setView(VIEW.PLAYERVIEW));
@@ -2039,14 +2085,14 @@ class App extends Component {
     // get all scenes
     let otherScene;
     let cutFrameNumber;
-    const selectedThumbsArray = []
+    const selectedThumbsArray = [];
     const clickedScene = allScenes.find(scene => scene.sceneId === thumbId);
     const indexOfVisibleScenes = allScenes.findIndex(scene => scene.sceneId === thumbId);
 
     // get scene before or after
     if (otherSceneIs === 'after') {
       // only set if before last scene
-      if (indexOfVisibleScenes < (allScenes.length - 1)) {
+      if (indexOfVisibleScenes < allScenes.length - 1) {
         otherScene = allScenes[indexOfVisibleScenes + 1];
         cutFrameNumber = otherScene.start;
         selectedThumbsArray.push({
@@ -2069,7 +2115,7 @@ class App extends Component {
   }
 
   onCutSceneClick(frameToCut) {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     const { allScenes, currentSheetId, file, thumbs } = this.props;
 
     const scene = getSceneFromFrameNumber(allScenes, frameToCut);
@@ -2085,7 +2131,7 @@ class App extends Component {
   }
 
   onMergeSceneClick(frameToCut) {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     const { allScenes, currentSheetId, file, thumbs } = this.props;
 
     const adjacentSceneIndicesArray = getAdjacentSceneIndicesFromCut(allScenes, frameToCut);
@@ -2098,12 +2144,11 @@ class App extends Component {
     this.onSelectThumbMethod(firstSceneId); // select first scene
   }
 
-
   onScrubWindowMouseOver(e, sheetType) {
     const { file } = this.props;
     const { state } = this;
 
-    if (e.clientY < (MENU_HEADER_HEIGHT + state.containerHeight)) {
+    if (e.clientY < MENU_HEADER_HEIGHT + state.containerHeight) {
       // const { sheetsByFileId, settings } = this.props;
       // // if sheet type interval then create 'artificial' scene Array
       // const sheetType = getSheetType(sheetsByFileId, fileId, sheetId, settings);
@@ -2136,12 +2181,11 @@ class App extends Component {
   }
 
   onScrubWindowClick(e, sheetType) {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     const { file, settings, thumbs } = this.props;
     const { state } = this;
 
-    if (e.clientY < (MENU_HEADER_HEIGHT + state.containerHeight)) {
-
+    if (e.clientY < MENU_HEADER_HEIGHT + state.containerHeight) {
       let scrubFrameNumber;
       if (sheetType === SHEET_TYPE.SCENES) {
         scrubFrameNumber = getSceneScrubFrameNumber(
@@ -2150,7 +2194,13 @@ class App extends Component {
           state.scrubThumb,
           state.scrubScene,
         );
-        this.onChangeThumb(file, settings.currentSheetId, state.scrubThumb.thumbId, scrubFrameNumber, settings.defaultCachedFramesSize)
+        this.onChangeThumb(
+          file,
+          settings.currentSheetId,
+          state.scrubThumb.thumbId,
+          scrubFrameNumber,
+          settings.defaultCachedFramesSize,
+        );
       } else {
         scrubFrameNumber = getScrubFrameNumber(
           e.clientX,
@@ -2164,26 +2214,38 @@ class App extends Component {
         if (state.keyObject.altKey || state.keyObject.shiftKey) {
           const newThumbId = uuidV4();
           if (state.keyObject.altKey) {
-            dispatch(addThumb(
-              file,
-              settings.currentSheetId,
-              scrubFrameNumber,
-              thumbs.find((thumb) => thumb.thumbId === state.scrubThumb.thumbId).index + 1,
-              newThumbId,
-              settings.defaultCachedFramesSize,
-            ));
-          } else { // if shiftKey
-            dispatch(addThumb(
-              file,
-              settings.currentSheetId,
-              scrubFrameNumber,
-              thumbs.find((thumb) => thumb.thumbId === state.scrubThumb.thumbId).index,
-              newThumbId,
-              settings.defaultCachedFramesSize,
-            ));
+            dispatch(
+              addThumb(
+                file,
+                settings.currentSheetId,
+                scrubFrameNumber,
+                thumbs.find(thumb => thumb.thumbId === state.scrubThumb.thumbId).index + 1,
+                newThumbId,
+                settings.defaultCachedFramesSize,
+              ),
+            );
+          } else {
+            // if shiftKey
+            dispatch(
+              addThumb(
+                file,
+                settings.currentSheetId,
+                scrubFrameNumber,
+                thumbs.find(thumb => thumb.thumbId === state.scrubThumb.thumbId).index,
+                newThumbId,
+                settings.defaultCachedFramesSize,
+              ),
+            );
           }
-        } else { // if normal set new thumb
-          this.onChangeThumb(file, settings.currentSheetId, state.scrubThumb.thumbId, scrubFrameNumber, settings.defaultCachedFramesSize)
+        } else {
+          // if normal set new thumb
+          this.onChangeThumb(
+            file,
+            settings.currentSheetId,
+            state.scrubThumb.thumbId,
+            scrubFrameNumber,
+            settings.defaultCachedFramesSize,
+          );
         }
       }
     }
@@ -2194,24 +2256,17 @@ class App extends Component {
   }
 
   onChangeThumb(file, sheetId, thumbId, frameNumber, defaultCachedFramesSize) {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     dispatch(changeThumb(sheetId, file, thumbId, frameNumber, defaultCachedFramesSize));
   }
 
   onAddThumb(file, sheetId, newThumbId, frameNumber, index, defaultCachedFramesSize) {
-  const { dispatch } = this.props;
-    dispatch(addThumb(
-      file,
-      sheetId,
-      frameNumber,
-      index,
-      newThumbId,
-      defaultCachedFramesSize
-    ));
+    const { dispatch } = this.props;
+    dispatch(addThumb(file, sheetId, frameNumber, index, newThumbId, defaultCachedFramesSize));
   }
 
   onViewToggle() {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     if (this.props.visibilitySettings.defaultView === VIEW.STANDARDVIEW) {
       this.hideSettings();
       this.hideMovielist();
@@ -2259,10 +2314,7 @@ class App extends Component {
       secondsPerRow,
     };
     // log.debug(dataToSend);
-    this.setState(
-      { savingMoviePrint: true },
-      ipcRenderer.send('request-save-MoviePrint', dataToSend)
-    );
+    this.setState({ savingMoviePrint: true }, ipcRenderer.send('request-save-MoviePrint', dataToSend));
   }
 
   onSaveAllMoviePrints() {
@@ -2295,9 +2347,11 @@ class App extends Component {
 
     const sheetsToPrint = [];
     tempSheetObjects.forEach(sheet => {
-      if (sheetsByFileId[sheet.fileId] === undefined ||
-      sheetsByFileId[sheet.fileId][sheet.sheetId] === undefined ||
-      sheetsByFileId[sheet.fileId][sheet.sheetId].thumbsArray === undefined) {
+      if (
+        sheetsByFileId[sheet.fileId] === undefined ||
+        sheetsByFileId[sheet.fileId][sheet.sheetId] === undefined ||
+        sheetsByFileId[sheet.fileId][sheet.sheetId].thumbsArray === undefined
+      ) {
         // if no thumbs were found then initiate to getThumbsForFile
         sheetsToPrint.push({
           fileId: sheet.fileId,
@@ -2312,15 +2366,15 @@ class App extends Component {
           status: 'readyForPrinting',
         });
       }
-    })
+    });
     this.setState({
       sheetsToPrint,
-      savingAllMoviePrints: true
+      savingAllMoviePrints: true,
     });
   }
 
   onAddIntervalSheet(sheetsByFileId, fileId, settings, thumbCount = undefined, columnCount = undefined) {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     const { files } = this.props;
 
     const newSheetId = uuidV4();
@@ -2337,7 +2391,7 @@ class App extends Component {
 
   onAddIntervalSheetClick(fileId = undefined, thumbCount = undefined, columnCount = undefined) {
     // log.debug(`FileListElement clicked: ${file.name}`);
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     const { currentFileId, sheetsByFileId, settings, visibilitySettings } = this.props;
 
     // if fileId is undefined then use currentFileId
@@ -2349,7 +2403,6 @@ class App extends Component {
 
     const sheetView = getSheetView(sheetsByFileId, theFileId, newSheetId, visibilitySettings);
     this.onSetSheetClick(theFileId, newSheetId, sheetView);
-
   }
 
   onAddFaceSheetClick(scanResolution, scanWholeMovie = false) {
@@ -2365,35 +2418,41 @@ class App extends Component {
     if (scanWholeMovie) {
       frameNumberArray = getIntervalArray(Math.round(frameCount * scanResolution), 0, frameCount, frameCount);
     } else {
-      const lowestFrame = getLowestFrame(getVisibleThumbs(
-        (sheetsByFileId[currentFileId] === undefined)
-          ? undefined : sheetsByFileId[currentFileId][currentSheetId].thumbsArray,
-        visibilitySettings.visibilityFilter
-      ));
-      const highestFrame = getHighestFrame(getVisibleThumbs(
-        (sheetsByFileId[currentFileId] === undefined)
-          ? undefined : sheetsByFileId[currentFileId][currentSheetId].thumbsArray,
-        visibilitySettings.visibilityFilter
-      ));
+      const lowestFrame = getLowestFrame(
+        getVisibleThumbs(
+          sheetsByFileId[currentFileId] === undefined
+            ? undefined
+            : sheetsByFileId[currentFileId][currentSheetId].thumbsArray,
+          visibilitySettings.visibilityFilter,
+        ),
+      );
+      const highestFrame = getHighestFrame(
+        getVisibleThumbs(
+          sheetsByFileId[currentFileId] === undefined
+            ? undefined
+            : sheetsByFileId[currentFileId][currentSheetId].thumbsArray,
+          visibilitySettings.visibilityFilter,
+        ),
+      );
       const frameCountOfSelection = Math.abs(highestFrame - lowestFrame);
-      console.log(`${lowestFrame} | ${highestFrame} | ${frameCountOfSelection}`)
-      frameNumberArray = getIntervalArray(Math.round(frameCountOfSelection * scanResolution), lowestFrame, highestFrame, frameCount);
+      console.log(`${lowestFrame} | ${highestFrame} | ${frameCountOfSelection}`);
+      frameNumberArray = getIntervalArray(
+        Math.round(frameCountOfSelection * scanResolution),
+        lowestFrame,
+        highestFrame,
+        frameCount,
+      );
     }
-
 
     this.setState({ fileScanRunning: true });
     // display toast and set toastId to fileId
-    toast(({ closeToast }) => (
-      <div>
-        Face detection in progress
-      </div>
-      ), {
-        toastId: currentFileId,
-        className: `${stylesPop.toast} ${stylesPop.toastInfo}`,
-        hideProgressBar: false,
-        autoClose: false,
-        closeButton: false,
-        closeOnClick: false,
+    toast(({ closeToast }) => <div>Face detection in progress</div>, {
+      toastId: currentFileId,
+      className: `${stylesPop.toast} ${stylesPop.toastInfo}`,
+      hideProgressBar: false,
+      autoClose: false,
+      closeButton: false,
+      closeOnClick: false,
     });
 
     ipcRenderer.send(
@@ -2410,13 +2469,13 @@ class App extends Component {
       defaultFaceSizeThreshold,
       defaultFaceUniquenessThreshold,
       SORT_METHOD.FACESIZE,
-      true
+      true,
     );
   }
 
   onFileListElementClick(fileId) {
     // log.debug(`FileListElement clicked: ${file.name}`);
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     const { sheetsByFileId, settings, visibilitySettings } = this.props;
 
     dispatch(setCurrentFileId(fileId));
@@ -2431,7 +2490,6 @@ class App extends Component {
     // console.log(sheetView);
 
     this.onSetSheetClick(fileId, newSheetId, sheetView);
-
   }
 
   onBackToParentClick() {
@@ -2449,35 +2507,39 @@ class App extends Component {
         autoClose: 3000,
         closeButton: true,
         closeOnClick: true,
-      })
+      });
     }
   }
 
   onErrorPosterFrame(file) {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     // dispatch(updateThumbObjectUrlFromDB(file.id, undefined, undefined, file.posterFrameId, true));
   }
 
   getThumbsForFile(fileId, newSheetId = uuidV4(), thumbCount = this.props.settings.defaultThumbCount) {
     log.debug(`inside getThumbsForFileId: ${fileId}`);
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     const { files, sheetsByFileId, settings } = this.props;
     const file = getFile(files, fileId);
 
-    if (sheetsByFileId[fileId] === undefined ||
-    sheetsByFileId[fileId][newSheetId] === undefined ||
-    sheetsByFileId[fileId][newSheetId].thumbsArray === undefined) {
+    if (
+      sheetsByFileId[fileId] === undefined ||
+      sheetsByFileId[fileId][newSheetId] === undefined ||
+      sheetsByFileId[fileId][newSheetId].thumbsArray === undefined
+    ) {
       log.debug(`addIntervalSheet as no thumbs were found for: ${file.name}`);
-      dispatch(addIntervalSheet(
+      dispatch(
+        addIntervalSheet(
           file,
           newSheetId,
           thumbCount,
           file.fadeInPoint,
           file.fadeOutPoint,
           settings.defaultCachedFramesSize,
-        )).catch(error => {
-          console.log(error)
-        });
+        ),
+      ).catch(error => {
+        console.log(error);
+      });
     }
   }
 
@@ -2490,100 +2552,88 @@ class App extends Component {
 
   onOpenFeedbackForm() {
     log.debug('onOpenFeedbackForm');
-    this.setState(
-      {
-        showFeedbackForm: true,
-        feedbackFormIsLoading: true,
-      }
-    )
+    this.setState({
+      showFeedbackForm: true,
+      feedbackFormIsLoading: true,
+    });
   }
 
   onCloseFeedbackForm() {
     log.debug('onCloseFeedbackForm');
-    this.setState(
-      { showFeedbackForm: false }
-    )
+    this.setState({ showFeedbackForm: false });
   }
 
-  onChangeRow = (value) => {
+  onChangeRow = value => {
     this.setState({ thumbCountTemp: this.state.columnCountTemp * value });
     this.updateScaleValue();
   };
 
-  onChangeColumn = (value) => {
-  const { dispatch } = this.props;
+  onChangeColumn = value => {
+    const { dispatch } = this.props;
     const tempRowCount = Math.ceil(this.state.thumbCountTemp / this.state.columnCountTemp);
     this.setState({ columnCountTemp: value });
     if (this.state.reCapture) {
       this.setState({ thumbCountTemp: tempRowCount * value });
     }
     if (this.props.file !== undefined) {
-      dispatch(updateSheetColumnCount(
-        this.props.file.id,
-        this.props.currentSheetId,
-        value,
-      ));
+      dispatch(updateSheetColumnCount(this.props.file.id, this.props.currentSheetId, value));
       dispatch(setDefaultColumnCount(value));
     }
     this.updateScaleValue();
   };
 
-  onChangeColumnAndApply = (value) => {
-  const { dispatch } = this.props;
+  onChangeColumnAndApply = value => {
+    const { dispatch } = this.props;
     this.setState({
       columnCountTemp: value,
-      columnCount: value
+      columnCount: value,
     });
     if (this.props.file !== undefined) {
-      dispatch(updateSheetColumnCount(
-        this.props.file.id,
-        this.props.currentSheetId,
-        value,
-      ));
+      dispatch(updateSheetColumnCount(this.props.file.id, this.props.currentSheetId, value));
       dispatch(setDefaultColumnCount(value));
     }
     this.updateScaleValue();
   };
 
-  onChangeShowFaceRectClick = (checked) => {
-  const { dispatch } = this.props;
+  onChangeShowFaceRectClick = checked => {
+    const { dispatch } = this.props;
     dispatch(setDefaultShowFaceRect(checked));
   };
 
-  onShowPaperPreviewClick = (checked) => {
-  const { dispatch } = this.props;
+  onShowPaperPreviewClick = checked => {
+    const { dispatch } = this.props;
     dispatch(setDefaultShowPaperPreview(checked));
   };
 
-  onOutputPathFromMovieClick = (checked) => {
-  const { dispatch } = this.props;
+  onOutputPathFromMovieClick = checked => {
+    const { dispatch } = this.props;
     dispatch(setDefaultOutputPathFromMovie(checked));
   };
 
-  onPaperAspectRatioClick = (value) => {
-  const { dispatch } = this.props;
+  onPaperAspectRatioClick = value => {
+    const { dispatch } = this.props;
     dispatch(setDefaultPaperAspectRatioInv(value));
   };
 
-  onDetectInOutPointClick = (value) => {
-  const { dispatch } = this.props;
+  onDetectInOutPointClick = value => {
+    const { dispatch } = this.props;
     dispatch(setDefaultDetectInOutPoint(value));
   };
 
-  onReCaptureClick = (checked) => {
+  onReCaptureClick = checked => {
     // log.debug(`${this.state.columnCount} : ${this.state.columnCountTemp} || ${this.state.thumbCount} : ${this.state.thumbCountTemp}`);
     if (!checked) {
       this.setState({ thumbCountTemp: this.state.thumbCount });
     } else {
-      const newThumbCount = this.state.columnCountTemp *
-        Math.ceil(this.state.thumbCountTemp / this.state.columnCountTemp);
+      const newThumbCount =
+        this.state.columnCountTemp * Math.ceil(this.state.thumbCountTemp / this.state.columnCountTemp);
       this.setState({ thumbCountTemp: newThumbCount });
     }
     this.setState({ reCapture: checked });
   };
 
   onApplyNewGridClick = () => {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     // log.debug(`${this.state.columnCount} : ${this.state.columnCountTemp} || ${this.state.thumbCount} : ${this.state.thumbCountTemp}`);
     this.setState({ columnCount: this.state.columnCountTemp });
     if (this.state.reCapture) {
@@ -2591,11 +2641,7 @@ class App extends Component {
       this.onThumbCountChange(this.state.columnCountTemp, this.state.thumbCountTemp);
     }
     if (this.props.file !== undefined) {
-      dispatch(updateSheetColumnCount(
-        this.props.file.id,
-        this.props.currentSheetId,
-        this.state.columnCountTemp,
-      ));
+      dispatch(updateSheetColumnCount(this.props.file.id, this.props.currentSheetId, this.state.columnCountTemp));
     }
     // this.hideSettings();
   };
@@ -2609,102 +2655,99 @@ class App extends Component {
   };
 
   onThumbCountChange = (columnCount, thumbCount) => {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     dispatch(setDefaultColumnCount(columnCount));
     dispatch(setDefaultThumbCount(thumbCount));
     if (this.props.currentFileId !== undefined) {
-      dispatch(addIntervalSheet(
-        this.props.file,
-        this.props.settings.currentSheetId,
-        thumbCount,
-        getLowestFrame(getVisibleThumbs(
-          (this.props.sheetsByFileId[this.props.currentFileId] === undefined)
-            ? undefined : this.props.sheetsByFileId[this.props.currentFileId][this.props.settings.currentSheetId].thumbsArray,
-          this.props.visibilitySettings.visibilityFilter
-        )),
-        getHighestFrame(getVisibleThumbs(
-          (this.props.sheetsByFileId[this.props.currentFileId] === undefined)
-            ? undefined : this.props.sheetsByFileId[this.props.currentFileId][this.props.settings.currentSheetId].thumbsArray,
-          this.props.visibilitySettings.visibilityFilter
-        )),
-        this.props.settings.defaultCachedFramesSize,
-      ));
+      dispatch(
+        addIntervalSheet(
+          this.props.file,
+          this.props.settings.currentSheetId,
+          thumbCount,
+          getLowestFrame(
+            getVisibleThumbs(
+              this.props.sheetsByFileId[this.props.currentFileId] === undefined
+                ? undefined
+                : this.props.sheetsByFileId[this.props.currentFileId][this.props.settings.currentSheetId].thumbsArray,
+              this.props.visibilitySettings.visibilityFilter,
+            ),
+          ),
+          getHighestFrame(
+            getVisibleThumbs(
+              this.props.sheetsByFileId[this.props.currentFileId] === undefined
+                ? undefined
+                : this.props.sheetsByFileId[this.props.currentFileId][this.props.settings.currentSheetId].thumbsArray,
+              this.props.visibilitySettings.visibilityFilter,
+            ),
+          ),
+          this.props.settings.defaultCachedFramesSize,
+        ),
+      );
     }
   };
 
-  onChangeMinDisplaySceneLength = (value) => {
-  const { dispatch } = this.props;
-    dispatch(
-      setDefaultTimelineViewMinDisplaySceneLengthInFrames(
-        Math.round(
-          value * this.props.file.fps
-        )
-      )
-    );
+  onChangeMinDisplaySceneLength = value => {
+    const { dispatch } = this.props;
+    dispatch(setDefaultTimelineViewMinDisplaySceneLengthInFrames(Math.round(value * this.props.file.fps)));
   };
 
-  onChangeMargin = (value) => {
-  const { dispatch, settings } = this.props;
-    dispatch(setDefaultMarginRatio(value /
-        settings.defaultMarginSliderFactor));
+  onChangeMargin = value => {
+    const { dispatch, settings } = this.props;
+    dispatch(setDefaultMarginRatio(value / settings.defaultMarginSliderFactor));
   };
 
-  onChangeFaceSizeThreshold = (value) => {
-  const { dispatch } = this.props;
+  onChangeFaceSizeThreshold = value => {
+    const { dispatch } = this.props;
     dispatch(setDefaultFaceSizeThreshold(value));
   };
 
-  onChangeFaceConfidenceThreshold = (value) => {
-  const { dispatch } = this.props;
+  onChangeFaceConfidenceThreshold = value => {
+    const { dispatch } = this.props;
     dispatch(setDefaultFaceConfidenceThreshold(value));
   };
 
-  onChangeFaceUniquenessThreshold = (value) => {
-  const { dispatch } = this.props;
+  onChangeFaceUniquenessThreshold = value => {
+    const { dispatch } = this.props;
     dispatch(setDefaultFaceUniquenessThreshold(value));
   };
 
-  onChangeFrameinfoScale = (value) => {
-  const { dispatch } = this.props;
+  onChangeFrameinfoScale = value => {
+    const { dispatch } = this.props;
     dispatch(setDefaultFrameinfoScale(value));
   };
 
-  onChangeFrameinfoMargin = (value) => {
-  const { dispatch } = this.props;
+  onChangeFrameinfoMargin = value => {
+    const { dispatch } = this.props;
     dispatch(setDefaultFrameinfoMargin(value));
   };
 
-  onChangeSceneDetectionThreshold = (value) => {
-  const { dispatch } = this.props;
+  onChangeSceneDetectionThreshold = value => {
+    const { dispatch } = this.props;
     dispatch(setDefaultSceneDetectionThreshold(value));
   };
 
-  onChangeTimelineViewSecondsPerRow = (value) => {
-  const { dispatch } = this.props;
+  onChangeTimelineViewSecondsPerRow = value => {
+    const { dispatch } = this.props;
     const { file, currentSheetId } = this.props;
 
     if (file !== undefined) {
-      dispatch(updateSheetSecondsPerRow(
-        file.id,
-        currentSheetId,
-        value,
-      ));
+      dispatch(updateSheetSecondsPerRow(file.id, currentSheetId, value));
     }
     dispatch(setDefaultTimelineViewSecondsPerRow(value));
   };
 
-  onChangeTimelineViewWidthScale = (value) => {
-  const { dispatch } = this.props;
+  onChangeTimelineViewWidthScale = value => {
+    const { dispatch } = this.props;
     dispatch(setDefaultTimelineViewWidthScale(value));
   };
 
-  onTimelineViewFlowClick = (value) => {
-  const { dispatch } = this.props;
+  onTimelineViewFlowClick = value => {
+    const { dispatch } = this.props;
     dispatch(setDefaultTimelineViewFlow(value));
   };
 
-  onToggleHeaderClick = (value) => {
-  const { dispatch } = this.props;
+  onToggleHeaderClick = value => {
+    const { dispatch } = this.props;
     if (value === undefined) {
       const { settings } = this.props;
       const { defaultShowHeader } = settings;
@@ -2714,8 +2757,8 @@ class App extends Component {
     }
   };
 
-  onToggleImagesClick = (value) => {
-  const { dispatch } = this.props;
+  onToggleImagesClick = value => {
+    const { dispatch } = this.props;
     if (value === undefined) {
       const { settings } = this.props;
       const { defaultShowImages } = settings;
@@ -2725,28 +2768,28 @@ class App extends Component {
     }
   };
 
-  onShowPathInHeaderClick = (value) => {
-  const { dispatch } = this.props;
+  onShowPathInHeaderClick = value => {
+    const { dispatch } = this.props;
     dispatch(setDefaultShowPathInHeader(value));
   };
 
-  onShowDetailsInHeaderClick = (value) => {
-  const { dispatch } = this.props;
+  onShowDetailsInHeaderClick = value => {
+    const { dispatch } = this.props;
     dispatch(setDefaultShowDetailsInHeader(value));
   };
 
-  onShowTimelineInHeaderClick = (value) => {
-  const { dispatch } = this.props;
+  onShowTimelineInHeaderClick = value => {
+    const { dispatch } = this.props;
     dispatch(setDefaultShowTimelineInHeader(value));
   };
 
-  onRoundedCornersClick = (value) => {
-  const { dispatch } = this.props;
+  onRoundedCornersClick = value => {
+    const { dispatch } = this.props;
     dispatch(setDefaultRoundedCorners(value));
   };
 
   onMoviePrintBackgroundColorClick = (colorLocation, color) => {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     switch (colorLocation) {
       case 'moviePrintBackgroundColor':
         dispatch(setDefaultMoviePrintBackgroundColor(color));
@@ -2764,18 +2807,18 @@ class App extends Component {
 
   toggleZoom = () => {
     this.setState({
-      zoom: !this.state.zoom
+      zoom: !this.state.zoom,
     });
   };
 
   disableZoom = () => {
     this.setState({
-      zoom: false
+      zoom: false,
     });
   };
 
   onToggleShowHiddenThumbsClick = () => {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     if (this.props.visibilitySettings.visibilityFilter === 'SHOW_ALL') {
       dispatch(setVisibilityFilter('SHOW_VISIBLE'));
     } else {
@@ -2783,15 +2826,15 @@ class App extends Component {
     }
   };
 
-  onSetSheetFitClick = (value) => {
-  const { dispatch } = this.props;
+  onSetSheetFitClick = value => {
+    const { dispatch } = this.props;
     dispatch(setSheetFit(value));
     // disable zoom
     this.disableZoom();
   };
 
-  onShowHiddenThumbsClick = (value) => {
-  const { dispatch } = this.props;
+  onShowHiddenThumbsClick = value => {
+    const { dispatch } = this.props;
     if (value) {
       dispatch(setVisibilityFilter('SHOW_ALL'));
     } else {
@@ -2799,13 +2842,13 @@ class App extends Component {
     }
   };
 
-  onThumbInfoClick = (value) => {
-  const { dispatch } = this.props;
+  onThumbInfoClick = value => {
+    const { dispatch } = this.props;
     dispatch(setDefaultThumbInfo(value));
   };
 
-  onRemoveMovieListItem = (fileId) => {
-  const { dispatch } = this.props;
+  onRemoveMovieListItem = fileId => {
+    const { dispatch } = this.props;
     const { files } = this.props;
     if (files.length === 1) {
       dispatch(hideMovielist());
@@ -2814,20 +2857,20 @@ class App extends Component {
     // dispatch(setCurrentSheetId(newSheetId));
   };
 
-  onEditTransformListItemClick = (fileId) => {
-  const { dispatch } = this.props;
+  onEditTransformListItemClick = fileId => {
+    const { dispatch } = this.props;
     const { files } = this.props;
     const file = getFile(files, fileId);
 
-    const { transformObject = {cropTop: 0, cropBottom: 0, cropLeft: 0, cropRight: 0} } = file; // initialise if undefined
+    const { transformObject = { cropTop: 0, cropBottom: 0, cropLeft: 0, cropRight: 0 } } = file; // initialise if undefined
     this.setState({
       showTransformModal: true,
-      transformObject: Object.assign({fileId}, transformObject) // adding fileId
-    })
+      transformObject: Object.assign({ fileId }, transformObject), // adding fileId
+    });
   };
 
-  onChangeTransform = (e) => {
-  const { dispatch } = this.props;
+  onChangeTransform = e => {
+    const { dispatch } = this.props;
     const { transformObject } = this.state;
     const { cropTop, cropBottom, cropLeft, cropRight } = e.target;
     // console.log(typeof cropTop.value);
@@ -2837,16 +2880,16 @@ class App extends Component {
         parseInt(cropTop.value, 10),
         parseInt(cropBottom.value, 10),
         parseInt(cropLeft.value, 10),
-        parseInt(cropRight.value, 10)
-        )
-      );
+        parseInt(cropRight.value, 10),
+      ),
+    );
     this.setState({
       showTransformModal: false,
       fileIdToBeRecaptured: transformObject.fileId,
     });
   };
 
-  onScanMovieListItemClick = (fileId) => {
+  onScanMovieListItemClick = fileId => {
     const { currentFileId, files } = this.props;
 
     // if fileId is undefined then use currentFileId
@@ -2856,25 +2899,23 @@ class App extends Component {
     this.runSceneDetection(theFileId, file.path, file.useRatio, undefined, undefined, file.transformObject);
   };
 
-  onReplaceMovieListItemClick = (fileId) => {
-  const { dispatch } = this.props;
+  onReplaceMovieListItemClick = fileId => {
+    const { dispatch } = this.props;
     const { files, settings, sheetsByFileId } = this.props;
     const file = getFile(files, fileId);
-    const { path: originalFilePath, lastModified: lastModifiedOfPrevious} = file;
+    const { path: originalFilePath, lastModified: lastModifiedOfPrevious } = file;
     const newPathArray = dialog.showOpenDialogSync({
       title: 'Replace movie',
       defaultPath: originalFilePath,
       buttonLabel: 'Replace with',
-      filters: [
-        { name: "All Files", extensions: ["*"] },
-      ],
-      properties: ['openFile']
+      filters: [{ name: 'All Files', extensions: ['*'] }],
+      properties: ['openFile'],
     });
-    const newFilePath = (newPathArray !== undefined ? newPathArray[0] : undefined);
+    const newFilePath = newPathArray !== undefined ? newPathArray[0] : undefined;
     if (newFilePath) {
       log.debug(newFilePath);
       const fileName = path.basename(newFilePath);
-      const { lastModified, size}  = getFileStatsObject(newFilePath);
+      const { lastModified, size } = getFileStatsObject(newFilePath);
       dispatch(replaceFileDetails(fileId, newFilePath, fileName, size, lastModified));
 
       // change video for videoPlayer to the new one
@@ -2893,7 +2934,6 @@ class App extends Component {
 
       dispatch(updateFileMissingStatus(fileId, false));
 
-
       // use lastModified as indicator if the movie which will be replaced existed
       // if lastModified is undefined, then do not onlyReplace
       let onlyReplace = true;
@@ -2902,21 +2942,28 @@ class App extends Component {
         onlyReplace = false;
       }
 
-      ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', fileId, newFilePath, file.posterFrameId, onlyReplace);
+      ipcRenderer.send(
+        'message-from-mainWindow-to-opencvWorkerWindow',
+        'send-get-file-details',
+        fileId,
+        newFilePath,
+        file.posterFrameId,
+        onlyReplace,
+      );
       if (onlyReplace) {
         this.setState({
           fileIdToBeRecaptured: fileId,
-        })
+        });
       } else {
         this.setState({
           fileIdToBeCaptured: fileId,
-        })
+        });
       }
     }
   };
 
   onDuplicateSheetClick = (fileId, sheetId) => {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     const { currentFileId, currentSheetId, files, settings, sheetsByFileId } = this.props;
 
     // if fileId  and or sheetId are undefined then use currentFileId and or currentSheetId
@@ -2950,12 +2997,16 @@ class App extends Component {
       const frameNumberArray = getFramenumbersOfSheet(sheetsByFileId, fileId, sheetId, visibilitySettings);
       const transformObject = getFileTransformObject(files, fileId);
       const columnCount = getColumnCount(sheetsByFileId, fileId, sheetId, settings);
-      exportObject = JSON.stringify({
-        filePath,
-        transformObject,
-        columnCount,
-        frameNumberArray,
-      }, null, '\t'); // for pretty print with tab
+      exportObject = JSON.stringify(
+        {
+          filePath,
+          transformObject,
+          columnCount,
+          frameNumberArray,
+        },
+        null,
+        '\t',
+      ); // for pretty print with tab
     } else if (exportType === EXPORT_FORMAT_OPTIONS.EDL) {
       const sceneArray = getEDLscenes(sheetsByFileId, fileId, sheetId, visibilitySettings, fps);
       exportObject = sceneArray.join(`
@@ -2969,10 +3020,7 @@ ${exportObject}`;
     }
     const filePathDirectory = path.dirname(filePath);
     const outputPath = settings.defaultOutputPathFromMovie ? filePathDirectory : settings.defaultOutputPath;
-    const filePathAndName = path.join(
-      outputPath,
-      `${fileName}-${sheetName}.${exportType}`
-    );
+    const filePathAndName = path.join(outputPath, `${fileName}-${sheetName}.${exportType}`);
     const newFilePathAndName = dialog.showSaveDialogSync({
       defaultPath: filePathAndName,
       buttonLabel: 'Export',
@@ -2985,7 +3033,7 @@ ${exportObject}`;
   };
 
   onImportMoviePrint = (filePath = undefined) => {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     const { files, settings } = this.props;
     log.debug('onImportMoviePrint');
 
@@ -2994,12 +3042,10 @@ ${exportObject}`;
     // skip dialog if filePath already available
     if (filePath === undefined) {
       const newPathArray = dialog.showOpenDialogSync({
-        filters: [
-          { name: 'PNG or JSON', extensions: ['png', 'json'] },
-        ],
-        properties: ['openFile']
+        filters: [{ name: 'PNG or JSON', extensions: ['png', 'json'] }],
+        properties: ['openFile'],
       });
-      newPath = (newPathArray !== undefined ? newPathArray[0] : undefined);
+      newPath = newPathArray !== undefined ? newPathArray[0] : undefined;
     }
 
     if (newPath) {
@@ -3018,23 +3064,21 @@ ${exportObject}`;
 
         if (fileExtension === '.png') {
           const chunks = extract(data);
-          const textChunks = chunks.filter(chunk => chunk.name === 'tEXt')
-            .map(chunk => text.decode(chunk.data));
+          const textChunks = chunks.filter(chunk => chunk.name === 'tEXt').map(chunk => text.decode(chunk.data));
           log.debug(`The png file ${newPath} has the following data embedded:`);
           log.debug(textChunks);
 
           if (textChunks.length !== 0) {
             newFilePath = decodeURIComponent(textChunks.find(chunk => chunk.keyword === 'filePath').text);
             const transformObjectString = textChunks.find(chunk => chunk.keyword === 'transformObject').text;
-            transformObject = (transformObjectString !== 'undefined') ? JSON.parse(transformObjectString) : undefined;
+            transformObject = transformObjectString !== 'undefined' ? JSON.parse(transformObjectString) : undefined;
             columnCount = textChunks.find(chunk => chunk.keyword === 'columnCount').text;
             const frameNumberArrayString = textChunks.find(chunk => chunk.keyword === 'frameNumberArray').text;
-            frameNumberArray = (frameNumberArrayString !== 'undefined') ? JSON.parse(frameNumberArrayString) : undefined;
+            frameNumberArray = frameNumberArrayString !== 'undefined' ? JSON.parse(frameNumberArrayString) : undefined;
             if (frameNumberArray !== undefined && frameNumberArray.length > 0) {
               dataAvailable = true;
             }
           }
-
         } else {
           const jsonData = JSON.parse(data);
           log.debug(`The json file ${newPath} has the following data:`);
@@ -3044,10 +3088,12 @@ ${exportObject}`;
           transformObject = jsonData.transformObject;
           columnCount = Number(jsonData.columnCount);
           frameNumberArray = jsonData.frameNumberArray;
-          if (newFilePath !== undefined &&
+          if (
+            newFilePath !== undefined &&
             columnCount !== undefined &&
             frameNumberArray !== undefined &&
-            frameNumberArray.length > 0) {
+            frameNumberArray.length > 0
+          ) {
             dataAvailable = true;
           }
         }
@@ -3055,7 +3101,7 @@ ${exportObject}`;
         if (dataAvailable) {
           this.showMessage('Data was found! Loading...', 3000, 'success');
           const fileName = path.basename(newFilePath);
-          const { lastModified, size}  = getFileStatsObject(newFilePath) || {};
+          const { lastModified, size } = getFileStatsObject(newFilePath) || {};
 
           const fileId = uuidV4();
           const posterFrameId = uuidV4();
@@ -3074,7 +3120,15 @@ ${exportObject}`;
             payload: [fileToAdd],
           });
           if (transformObject !== undefined) {
-            dispatch(setCropping(fileId, transformObject.cropTop, transformObject.cropBottom, transformObject.cropLeft, transformObject.cropRight));
+            dispatch(
+              setCropping(
+                fileId,
+                transformObject.cropTop,
+                transformObject.cropBottom,
+                transformObject.cropLeft,
+                transformObject.cropRight,
+              ),
+            );
           }
           dispatch(addNewThumbsWithOrder(fileToAdd, sheetId, frameNumberArray, settings.defaultCachedFramesSize));
           dispatch(updateSheetName(fileId, sheetId, getNewSheetName(getSheetCount(files, fileId)))); // set name on file
@@ -3084,7 +3138,15 @@ ${exportObject}`;
           dispatch(updateSheetView(fileId, sheetId, SHEET_VIEW.GRIDVIEW));
           dispatch(setCurrentSheetId(sheetId));
           dispatch(setCurrentFileId(fileId));
-          ipcRenderer.send('message-from-mainWindow-to-opencvWorkerWindow', 'send-get-file-details', fileId, newFilePath, posterFrameId, false, true);
+          ipcRenderer.send(
+            'message-from-mainWindow-to-opencvWorkerWindow',
+            'send-get-file-details',
+            fileId,
+            newFilePath,
+            posterFrameId,
+            false,
+            true,
+          );
         } else {
           this.showMessage('No fitting data found or embedded', 3000, 'error');
         }
@@ -3108,7 +3170,7 @@ ${exportObject}`;
   };
 
   onClearMovieList = () => {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     dispatch(setView(VIEW.STANDARDVIEW));
     dispatch(clearMovieList());
     dispatch(hideMovielist());
@@ -3116,7 +3178,7 @@ ${exportObject}`;
   };
 
   onDeleteSheetClick = (fileId, sheetId) => {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     const { currentSheetId, sheetsByFileId } = this.props;
     dispatch(deleteSheets(fileId, sheetId));
     // if the currentSheet is deleted then switch to the first sheet of the file
@@ -3127,7 +3189,7 @@ ${exportObject}`;
   };
 
   onSetSheetClick = (fileId, sheetId, sheetView) => {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     const { currentFileId } = this.props;
     if (fileId !== currentFileId) {
       dispatch(setCurrentFileId(fileId));
@@ -3140,13 +3202,13 @@ ${exportObject}`;
   };
 
   onSubmitMoviePrintNameClick = (fileId, sheetId, newName) => {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
 
     dispatch(updateSheetName(fileId, sheetId, newName));
   };
 
   onChangeSheetViewClick = (fileId, sheetId, sheetView) => {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     const { currentFileId, currentSheetId, sheetsByFileId, settings } = this.props;
 
     // if fileId  and or sheetId are undefined then use currentFileId and or currentSheetId
@@ -3179,7 +3241,7 @@ ${exportObject}`;
   };
 
   setOrToggleDefaultSheetView = (sheetView = undefined) => {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     const { visibilitySettings } = this.props;
     let newSheetView = sheetView;
     if (newSheetView === undefined) {
@@ -3192,8 +3254,8 @@ ${exportObject}`;
     dispatch(setDefaultSheetView(newSheetView));
   };
 
-  onSetViewClick = (value) => {
-  const { dispatch } = this.props;
+  onSetViewClick = value => {
+    const { dispatch } = this.props;
     const { currentFileId, currentSheetId, scenes, sheetsByFileId, settings } = this.props;
 
     if (value === VIEW.PLAYERVIEW) {
@@ -3212,94 +3274,93 @@ ${exportObject}`;
       this.onDeselectThumbMethod();
     }
     dispatch(setView(value));
-
   };
 
-  onChangeDefaultMoviePrintName = (value) => {
-  const { dispatch } = this.props;
+  onChangeDefaultMoviePrintName = value => {
+    const { dispatch } = this.props;
     // log.debug(value);
     dispatch(setDefaultMoviePrintName(value));
   };
 
-  onChangeDefaultSingleThumbName = (value) => {
-  const { dispatch } = this.props;
+  onChangeDefaultSingleThumbName = value => {
+    const { dispatch } = this.props;
     // log.debug(value);
     dispatch(setDefaultSingleThumbName(value));
   };
 
-  onChangeDefaultAllThumbsName = (value) => {
-  const { dispatch } = this.props;
+  onChangeDefaultAllThumbsName = value => {
+    const { dispatch } = this.props;
     // log.debug(value);
     dispatch(setDefaultAllThumbsName(value));
   };
 
   onChangeOutputPathClick = () => {
-  const { dispatch } = this.props;
+    const { dispatch } = this.props;
     const newPathArray = dialog.showOpenDialogSync({
-      properties: ['openDirectory']
+      properties: ['openDirectory'],
     });
-    const newPath = (newPathArray !== undefined ? newPathArray[0] : undefined);
+    const newPath = newPathArray !== undefined ? newPathArray[0] : undefined;
     if (newPath) {
       // log.debug(newPath);
       dispatch(setDefaultOutputPath(newPath));
     }
   };
 
-  onOutputFormatClick = (value) => {
-  const { dispatch } = this.props;
+  onOutputFormatClick = value => {
+    const { dispatch } = this.props;
     // log.debug(value);
     dispatch(setDefaultOutputFormat(value));
   };
 
-  onFrameinfoPositionClick = (value) => {
-  const { dispatch } = this.props;
+  onFrameinfoPositionClick = value => {
+    const { dispatch } = this.props;
     // log.debug(value);
     dispatch(setDefaultFrameinfoPosition(value));
   };
 
-  onCachedFramesSizeClick = (value) => {
-  const { dispatch } = this.props;
+  onCachedFramesSizeClick = value => {
+    const { dispatch } = this.props;
     // log.debug(value);
     dispatch(setDefaultCachedFramesSize(value));
   };
 
-  onOverwriteClick = (value) => {
-  const { dispatch } = this.props;
+  onOverwriteClick = value => {
+    const { dispatch } = this.props;
     dispatch(setDefaultSaveOptionOverwrite(value));
   };
 
-  onIncludeIndividualClick = (value) => {
-  const { dispatch } = this.props;
+  onIncludeIndividualClick = value => {
+    const { dispatch } = this.props;
     dispatch(setDefaultSaveOptionIncludeIndividual(value));
   };
 
-  onEmbedFrameNumbersClick = (value) => {
-  const { dispatch } = this.props;
+  onEmbedFrameNumbersClick = value => {
+    const { dispatch } = this.props;
     dispatch(setDefaultEmbedFrameNumbers(value));
   };
 
-  onEmbedFilePathClick = (value) => {
-  const { dispatch } = this.props;
+  onEmbedFilePathClick = value => {
+    const { dispatch } = this.props;
     dispatch(setDefaultEmbedFilePath(value));
   };
 
-  onOpenFileExplorerAfterSavingClick = (value) => {
-  const { dispatch } = this.props;
+  onOpenFileExplorerAfterSavingClick = value => {
+    const { dispatch } = this.props;
     dispatch(setDefaultOpenFileExplorerAfterSaving(value));
   };
 
-  onThumbnailScaleClick = (value) => {
-  const { dispatch } = this.props;
+  onThumbnailScaleClick = value => {
+    const { dispatch } = this.props;
     dispatch(setDefaultThumbnailScale(value));
   };
 
-  onMoviePrintWidthClick = (value) => {
-  const { dispatch } = this.props;
+  onMoviePrintWidthClick = value => {
+    const { dispatch } = this.props;
     dispatch(setDefaultMoviePrintWidth(value));
   };
 
-  onShotDetectionMethodClick = (value) => {
-  const { dispatch } = this.props;
+  onShotDetectionMethodClick = value => {
+    const { dispatch } = this.props;
     dispatch(setDefaultShotDetectionMethod(value));
   };
 
@@ -3308,34 +3369,24 @@ ${exportObject}`;
     const frame = this.state.opencvVideo.read();
     if (!frame.empty) {
       const img = frame.resizeToMax(
-        this.state.scaleValueObject.aspectRatioInv < 1 ?
-        parseInt(this.state.scaleValueObject.scrubMovieWidth, 10) :
-        parseInt(this.state.scaleValueObject.scrubMovieHeight, 10)
+        this.state.scaleValueObject.aspectRatioInv < 1
+          ? parseInt(this.state.scaleValueObject.scrubMovieWidth, 10)
+          : parseInt(this.state.scaleValueObject.scrubMovieHeight, 10),
       );
       // renderImage(matResized, this.opencvVideoCanvasRef, opencv);
       const matRGBA = img.channels === 1 ? img.cvtColor(opencv.COLOR_GRAY2RGBA) : img.cvtColor(opencv.COLOR_BGR2RGBA);
 
       this.opencvVideoCanvasRef.current.height = img.rows;
       this.opencvVideoCanvasRef.current.width = img.cols;
-      const imgData = new ImageData(
-        new Uint8ClampedArray(matRGBA.getData()),
-        img.cols,
-        img.rows
-      );
+      const imgData = new ImageData(new Uint8ClampedArray(matRGBA.getData()), img.cols, img.rows);
       const ctx = this.opencvVideoCanvasRef.current.getContext('2d');
       ctx.putImageData(imgData, 0, 0);
     }
   }
 
   render() {
-    const {
-      accept,
-      dropzoneActive,
-      feedbackFormIsLoading,
-      objectUrlObjects,
-      scaleValueObject
-    } = this.state;
-  const { dispatch } = this.props;
+    const { accept, dropzoneActive, feedbackFormIsLoading, objectUrlObjects, scaleValueObject } = this.state;
+    const { dispatch } = this.props;
     const {
       allScenes,
       allThumbs,
@@ -3346,7 +3397,7 @@ ${exportObject}`;
       scenes,
       sheetsByFileId,
       settings,
-      visibilitySettings
+      visibilitySettings,
     } = this.props;
 
     const fileCount = files.length;
@@ -3358,7 +3409,6 @@ ${exportObject}`;
     const hasParent = getParentSheetId(sheetsByFileId, currentFileId, currentSheetId) !== undefined;
     const { defaultSheetView } = visibilitySettings;
 
-
     let isGridView = true;
     if (sheetView === SHEET_VIEW.TIMELINEVIEW) {
       isGridView = false;
@@ -3367,7 +3417,6 @@ ${exportObject}`;
     // get objectUrls by reading all currently visible thumbs and get the corresponding objectUrls from the objectUrlObjects
     let filteredObjectUrlObjects;
     if (allThumbs !== undefined && objectUrlObjects.length !== 0) {
-
       // create array of all currently visible frameIds
       const arrayOfFrameIds = allThumbs.map(thumb => thumb.frameId);
 
@@ -3377,7 +3426,7 @@ ${exportObject}`;
         .reduce((obj, key) => {
           return {
             ...obj,
-            [key]: objectUrlObjects[key]
+            [key]: objectUrlObjects[key],
           };
         }, {});
 
@@ -3386,7 +3435,6 @@ ${exportObject}`;
 
     let filteredPosterFrameObjectUrlObjects;
     if (files !== undefined && objectUrlObjects.length !== 0) {
-
       // get objectUrls by reading all files and get the corresponding objectUrls from the objectUrlObjects
       // create array of all currently visible frameIds
       const arrayOfPosterFrameIds = files.map(file => file.posterFrameId);
@@ -3397,7 +3445,7 @@ ${exportObject}`;
         .reduce((obj, key) => {
           return {
             ...obj,
-            [key]: objectUrlObjects[key]
+            [key]: objectUrlObjects[key],
           };
         }, {});
 
@@ -3412,13 +3460,12 @@ ${exportObject}`;
     let fileToPrint;
     if (this.state.savingAllMoviePrints) {
       fileToPrint = getObjectProperty(
-        () => this.props.files.find(
-          file => file.id === getObjectProperty(
-            () => this.state.sheetsToPrint.find(
-              item => item.status === 'printing'
-            ).fileId
-          )
-        ).name
+        () =>
+          this.props.files.find(
+            file =>
+              file.id ===
+              getObjectProperty(() => this.state.sheetsToPrint.find(item => item.status === 'printing').fileId),
+          ).name,
       );
     }
 
@@ -3463,7 +3510,7 @@ ${exportObject}`;
                   scaleValueObject={scaleValueObject}
                   isGridView
                 />
-                {file &&
+                {file && (
                   <FloatingMenu
                     visibilitySettings={visibilitySettings}
                     settings={settings}
@@ -3490,41 +3537,59 @@ ${exportObject}`;
                     onToggleImagesClick={this.onToggleImagesClick}
                     toggleSettings={this.toggleSettings}
                   />
-                }
+                )}
                 <div
                   className={`${styles.SiteContent}`}
-                  ref={(el) => { this.siteContent = el; }}
+                  ref={el => {
+                    this.siteContent = el;
+                  }}
                   style={{
-                    height: `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)`,
+                    height: `calc(100vh - ${MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT}px)`,
                   }}
                 >
                   <Popup
                     trigger={
                       <div
-                        className={`${styles.openCloseMovieList} ${styles.ItemMovielist} ${visibilitySettings.showMovielist ? styles.ItemMovielistAnim : ''}`}
+                        className={`${styles.openCloseMovieList} ${styles.ItemMovielist} ${
+                          visibilitySettings.showMovielist ? styles.ItemMovielistAnim : ''
+                        }`}
                         onClick={this.toggleMovielist}
-                        data-tid={(visibilitySettings.showMovielist === false) ? 'showMovieListBtn' : 'hideMovieListBtn'}
+                        data-tid={visibilitySettings.showMovielist === false ? 'showMovieListBtn' : 'hideMovieListBtn'}
                       >
                         <Icon
-                          className={`${styles.normalButton} ${visibilitySettings.showMovielist === false ? '' : styles.selected}`}
+                          className={`${styles.normalButton} ${
+                            visibilitySettings.showMovielist === false ? '' : styles.selected
+                          }`}
                           style={{
                             marginRight: '16px',
                             marginTop: '18px',
                             marginLeft: '50px',
                           }}
-                          size='large'
+                          size="large"
                           name={visibilitySettings.showMovielist ? 'angle left' : 'angle right'}
                         />
                       </div>
                     }
                     mouseEnterDelay={1000}
                     on={['hover']}
-                    position='right center'
+                    position="right center"
                     className={stylesPop.popup}
-                    content={(visibilitySettings.showMovielist === false) ? <span>Show Movie and Sheets list <mark>1</mark></span> : <span>Hide Movie list <mark>1</mark></span>}
+                    content={
+                      visibilitySettings.showMovielist === false ? (
+                        <span>
+                          Show Movie and Sheets list <mark>1</mark>
+                        </span>
+                      ) : (
+                        <span>
+                          Hide Movie list <mark>1</mark>
+                        </span>
+                      )
+                    }
                   />
                   <div
-                    className={`${styles.ItemSideBar} ${styles.ItemMovielist} ${visibilitySettings.showMovielist ? styles.ItemMovielistAnim : ''}`}
+                    className={`${styles.ItemSideBar} ${styles.ItemMovielist} ${
+                      visibilitySettings.showMovielist ? styles.ItemMovielistAnim : ''
+                    }`}
                   >
                     <FileList
                       files={files}
@@ -3551,30 +3616,46 @@ ${exportObject}`;
                   <Popup
                     trigger={
                       <div
-                        className={`${styles.openCloseSettings} ${styles.ItemSettings} ${visibilitySettings.showSettings ? styles.ItemSettingsAnim : ''}`}
+                        className={`${styles.openCloseSettings} ${styles.ItemSettings} ${
+                          visibilitySettings.showSettings ? styles.ItemSettingsAnim : ''
+                        }`}
                         onClick={this.toggleSettings}
-                        data-tid={(visibilitySettings.showSettings === false) ? 'moreSettingsBtn' : 'hideSettingsBtn'}
+                        data-tid={visibilitySettings.showSettings === false ? 'moreSettingsBtn' : 'hideSettingsBtn'}
                       >
                         <Icon
-                          className={`${styles.normalButton} ${visibilitySettings.showSettings === false ? '' : styles.selected}`}
+                          className={`${styles.normalButton} ${
+                            visibilitySettings.showSettings === false ? '' : styles.selected
+                          }`}
                           style={{
                             // marginRight: '16px',
                             marginTop: '18px',
                             marginLeft: '6px',
                           }}
-                          size='large'
+                          size="large"
                           name={visibilitySettings.showSettings ? 'angle right' : 'angle left'}
                         />
                       </div>
                     }
                     mouseEnterDelay={1000}
                     on={['hover']}
-                    position='left center'
+                    position="left center"
                     className={stylesPop.popup}
-                    content={(visibilitySettings.showSettings === false) ? <span>Show settings <mark>3</mark></span> : <span>Hide settings <mark>3</mark></span>}
+                    content={
+                      visibilitySettings.showSettings === false ? (
+                        <span>
+                          Show settings <mark>3</mark>
+                        </span>
+                      ) : (
+                        <span>
+                          Hide settings <mark>3</mark>
+                        </span>
+                      )
+                    }
                   />
                   <div
-                    className={`${styles.ItemSideBar} ${styles.ItemSettings} ${visibilitySettings.showSettings ? styles.ItemSettingsAnim : ''}`}
+                    className={`${styles.ItemSideBar} ${styles.ItemSettings} ${
+                      visibilitySettings.showSettings ? styles.ItemSettingsAnim : ''
+                    }`}
                   >
                     <SettingsList
                       settings={settings}
@@ -3585,8 +3666,7 @@ ${exportObject}`;
                       columnCountTemp={this.state.columnCountTemp}
                       thumbCountTemp={this.state.thumbCountTemp}
                       thumbCount={this.state.thumbCount}
-                      rowCountTemp={Math.ceil(this.state.thumbCountTemp /
-                        this.state.columnCountTemp)}
+                      rowCountTemp={Math.ceil(this.state.thumbCountTemp / this.state.columnCountTemp)}
                       columnCount={this.state.columnCount}
                       rowCount={Math.ceil(this.state.thumbCount / this.state.columnCount)}
                       reCapture={this.state.reCapture}
@@ -3648,14 +3728,21 @@ ${exportObject}`;
                     />
                   </div>
                   <div
-                    className={`${styles.ItemVideoPlayer} ${visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''}`}
+                    className={`${styles.ItemVideoPlayer} ${
+                      visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''
+                    }`}
                     style={{
                       top: `${MENU_HEADER_HEIGHT + settings.defaultBorderMargin}px`,
-                      transform: visibilitySettings.defaultView === VIEW.PLAYERVIEW ? `translate(0px, 0px)` : `translate(0, ${(scaleValueObject.videoPlayerHeight + settings.defaultVideoPlayerControllerHeight) * -1}px)`,
-                      overflow: visibilitySettings.defaultView === VIEW.PLAYERVIEW ? 'visible' : 'hidden'
+                      transform:
+                        visibilitySettings.defaultView === VIEW.PLAYERVIEW
+                          ? `translate(0px, 0px)`
+                          : `translate(0, ${(scaleValueObject.videoPlayerHeight +
+                              settings.defaultVideoPlayerControllerHeight) *
+                              -1}px)`,
+                      overflow: visibilitySettings.defaultView === VIEW.PLAYERVIEW ? 'visible' : 'hidden',
                     }}
                   >
-                    { file &&
+                    {file && (
                       <VideoPlayer
                         ref={this.videoPlayer}
                         file={file}
@@ -3674,8 +3761,9 @@ ${exportObject}`;
                         allScenes={allScenes}
                         scenes={scenes}
                         thumbs={allThumbs}
-                        selectedThumb={this.state.selectedThumbsArray.length !== 0 ?
-                          this.state.selectedThumbsArray[0] : undefined}
+                        selectedThumb={
+                          this.state.selectedThumbsArray.length !== 0 ? this.state.selectedThumbsArray[0] : undefined
+                        }
                         jumpToFrameNumber={this.state.jumpToFrameNumber}
                         setOrToggleDefaultSheetView={this.setOrToggleDefaultSheetView}
                         onThumbDoubleClick={this.onViewToggle}
@@ -3687,42 +3775,66 @@ ${exportObject}`;
                         opencvVideo={this.state.opencvVideo}
                         frameSize={settings.defaultCachedFramesSize}
                       />
-                    }
+                    )}
                   </div>
                   <div
-                    ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
-                    className={`${styles.ItemMain} ${visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''} ${visibilitySettings.showSettings ? styles.ItemMainRightAnim : ''} ${visibilitySettings.showSettings ? styles.ItemMainEdit : ''} ${visibilitySettings.defaultView === VIEW.PLAYERVIEW ? styles.ItemMainTopAnim : ''}`}
+                    ref={r => {
+                      this.divOfSortedVisibleThumbGridRef = r;
+                    }}
+                    className={`${styles.ItemMain} ${visibilitySettings.showMovielist ? styles.ItemMainLeftAnim : ''} ${
+                      visibilitySettings.showSettings ? styles.ItemMainRightAnim : ''
+                    } ${visibilitySettings.showSettings ? styles.ItemMainEdit : ''} ${
+                      visibilitySettings.defaultView === VIEW.PLAYERVIEW ? styles.ItemMainTopAnim : ''
+                    }`}
                     style={{
-                      width: ( // use window width if any of these are true
+                      width:
+                        // use window width if any of these are true
                         defaultSheetView === SHEET_VIEW.TIMELINEVIEW ||
                         // sheetView === SHEET_VIEW.TIMELINEVIEW ||
                         (visibilitySettings.defaultView !== VIEW.PLAYERVIEW &&
                           visibilitySettings.defaultSheetFit !== SHEET_FIT.HEIGHT &&
-                          !this.state.zoom
-                        ) ||
+                          !this.state.zoom) ||
                         scaleValueObject.newMoviePrintWidth < this.state.containerWidth // if smaller, width has to be undefined otherwise the center align does not work
-                      )
-                        ? undefined : scaleValueObject.newMoviePrintWidth,
-                      marginTop: visibilitySettings.defaultView !== VIEW.PLAYERVIEW ? undefined :
-                        `${scaleValueObject.videoPlayerHeight +
-                          (settings.defaultBorderMargin * 2)}px`,
-                      minHeight: visibilitySettings.defaultView !== VIEW.PLAYERVIEW ? `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)` : undefined,
+                          ? undefined
+                          : scaleValueObject.newMoviePrintWidth,
+                      marginTop:
+                        visibilitySettings.defaultView !== VIEW.PLAYERVIEW
+                          ? undefined
+                          : `${scaleValueObject.videoPlayerHeight + settings.defaultBorderMargin * 2}px`,
+                      minHeight:
+                        visibilitySettings.defaultView !== VIEW.PLAYERVIEW
+                          ? `calc(100vh - ${MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT}px)`
+                          : undefined,
                       // backgroundImage: `url(${paperBorderPortrait})`,
-                      backgroundImage: ((visibilitySettings.showSettings && settings.defaultShowPaperPreview) ||
-                        (file && visibilitySettings.defaultView !== VIEW.PLAYERVIEW && settings.defaultShowPaperPreview)) ?
-                        `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${(settings.defaultPaperAspectRatioInv < scaleValueObject.moviePrintAspectRatioInv) ? (scaleValueObject.newMoviePrintHeight / settings.defaultPaperAspectRatioInv) : scaleValueObject.newMoviePrintWidth}' height='${(settings.defaultPaperAspectRatioInv < scaleValueObject.moviePrintAspectRatioInv) ? scaleValueObject.newMoviePrintHeight : (scaleValueObject.newMoviePrintWidth * settings.defaultPaperAspectRatioInv)}' style='background-color: rgba(245,245,245,${visibilitySettings.showSettings ? 1 : 0.02});'></svg>")` : undefined,
+                      backgroundImage:
+                        (visibilitySettings.showSettings && settings.defaultShowPaperPreview) ||
+                        (file && visibilitySettings.defaultView !== VIEW.PLAYERVIEW && settings.defaultShowPaperPreview)
+                          ? `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${
+                              settings.defaultPaperAspectRatioInv < scaleValueObject.moviePrintAspectRatioInv
+                                ? scaleValueObject.newMoviePrintHeight / settings.defaultPaperAspectRatioInv
+                                : scaleValueObject.newMoviePrintWidth
+                            }' height='${
+                              settings.defaultPaperAspectRatioInv < scaleValueObject.moviePrintAspectRatioInv
+                                ? scaleValueObject.newMoviePrintHeight
+                                : scaleValueObject.newMoviePrintWidth * settings.defaultPaperAspectRatioInv
+                            }' style='background-color: rgba(245,245,245,${
+                              visibilitySettings.showSettings ? 1 : 0.02
+                            });'></svg>")`
+                          : undefined,
                       backgroundRepeat: 'no-repeat',
                       backgroundPosition: `calc(50% - ${DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN / 2}px) 50%`,
                     }}
                   >
-                    { (file || visibilitySettings.showSettings || this.state.loadingFirstFile) ? (
+                    {file || visibilitySettings.showSettings || this.state.loadingFirstFile ? (
                       <Fragment>
                         <Conditional
                           // when in playerview use defaultSheetview which is used as cut and change modes, else use sheetView from sheet
-                          if={visibilitySettings.defaultView === VIEW.PLAYERVIEW ?
-                          defaultSheetView !== SHEET_VIEW.TIMELINEVIEW :
-                          sheetView !== SHEET_VIEW.TIMELINEVIEW
-                        }>
+                          if={
+                            visibilitySettings.defaultView === VIEW.PLAYERVIEW
+                              ? defaultSheetView !== SHEET_VIEW.TIMELINEVIEW
+                              : sheetView !== SHEET_VIEW.TIMELINEVIEW
+                          }
+                        >
                           <SortedVisibleThumbGrid
                             emptyColorsArray={this.state.emptyColorsArray}
                             sheetView={sheetView}
@@ -3733,7 +3845,9 @@ ${exportObject}`;
                             settings={settings}
                             sheetsByFileId={sheetsByFileId}
                             file={file}
-                            inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
+                            inputRef={r => {
+                              this.sortedVisibleThumbGridRef = r;
+                            }}
                             keyObject={this.state.keyObject}
                             onAddThumbClick={this.onAddThumbClick}
                             onJumpToCutThumbClick={this.onJumpToCutThumbClick}
@@ -3765,10 +3879,12 @@ ${exportObject}`;
                         </Conditional>
                         <Conditional
                           // when in playerview use defaultSheetview which is used as cut and change modes, else use sheetView from sheet
-                          if={visibilitySettings.defaultView === VIEW.PLAYERVIEW ?
-                          defaultSheetView === SHEET_VIEW.TIMELINEVIEW :
-                          sheetView === SHEET_VIEW.TIMELINEVIEW
-                        }>
+                          if={
+                            visibilitySettings.defaultView === VIEW.PLAYERVIEW
+                              ? defaultSheetView === SHEET_VIEW.TIMELINEVIEW
+                              : sheetView === SHEET_VIEW.TIMELINEVIEW
+                          }
+                        >
                           <SortedVisibleSceneGrid
                             sheetView={sheetView}
                             sheetType={sheetType}
@@ -3777,7 +3893,9 @@ ${exportObject}`;
                             sheetsByFileId={sheetsByFileId}
                             currentSheetId={settings.currentSheetId}
                             frameCount={file ? file.frameCount : undefined}
-                            inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
+                            inputRef={r => {
+                              this.sortedVisibleThumbGridRef = r;
+                            }}
                             keyObject={this.state.keyObject}
                             selectedThumbsArray={this.state.selectedThumbsArray}
                             onSelectThumbMethod={this.onSelectThumbMethod}
@@ -3797,46 +3915,46 @@ ${exportObject}`;
                             currentSheetId={settings.currentSheetId}
                           />
                         </Conditional>
-                        {false && <div
-                          style={{
-                            // background: 'green',
-                            pointerEvents: 'none',
-                            border: '5px solid green',
-                            width: scaleValueObject.newMoviePrintTimelineWidth,
-                            height: scaleValueObject.newMoviePrintTimelineHeight,
-                            position: 'absolute',
-                            left: visibilitySettings.showSettings ? '' : '50%',
-                            top: '50%',
-                            marginLeft: visibilitySettings.showSettings ? '' : scaleValueObject.newMoviePrintTimelineWidth/-2,
-                            marginTop: scaleValueObject.newMoviePrintTimelineHeight/-2,
-                          }}
-                        />}
+                        {false && (
+                          <div
+                            style={{
+                              // background: 'green',
+                              pointerEvents: 'none',
+                              border: '5px solid green',
+                              width: scaleValueObject.newMoviePrintTimelineWidth,
+                              height: scaleValueObject.newMoviePrintTimelineHeight,
+                              position: 'absolute',
+                              left: visibilitySettings.showSettings ? '' : '50%',
+                              top: '50%',
+                              marginLeft: visibilitySettings.showSettings
+                                ? ''
+                                : scaleValueObject.newMoviePrintTimelineWidth / -2,
+                              marginTop: scaleValueObject.newMoviePrintTimelineHeight / -2,
+                            }}
+                          />
+                        )}
                       </Fragment>
-                    ) :
-                    (
-                      <div
-                        className={styles.ItemMainStartupContainer}
-                      >
+                    ) : (
+                      <div className={styles.ItemMainStartupContainer}>
                         <img
-                          data-tid='startupImg'
+                          data-tid="startupImg"
                           src={startupImg}
                           style={{
-                            width: `calc(100vw - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)`,
-                            height: `calc(100vh - ${(MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT)}px)`,
+                            width: `calc(100vw - ${MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT}px)`,
+                            height: `calc(100vh - ${MENU_HEADER_HEIGHT + MENU_FOOTER_HEIGHT}px)`,
                             maxWidth: 1000,
                             maxHeight: 500,
-                            margin: 'auto'
+                            margin: 'auto',
                           }}
                           alt=""
                         />
                       </div>
-                    )
-                    }
+                    )}
                   </div>
                 </div>
                 <Modal
                   open={this.state.showFeedbackForm}
-                  onClose={() => this.setState({ intendToCloseFeedbackForm: true})}
+                  onClose={() => this.setState({ intendToCloseFeedbackForm: true })}
                   closeIcon
                   // closeOnEscape={false}
                   // closeOnRootNodeClick={false}
@@ -3853,9 +3971,11 @@ ${exportObject}`;
                         // log.debug(event);
                         log.debug(event.channel);
                         if (event.channel === 'wpcf7mailsent') {
-                          const rememberEmail = event.args[0].findIndex((argument) => argument.name === 'checkbox-remember-email[]') >= 0;
+                          const rememberEmail =
+                            event.args[0].findIndex(argument => argument.name === 'checkbox-remember-email[]') >= 0;
                           if (rememberEmail) {
-                            const emailAddressFromForm = event.args[0].find((argument) => argument.name === 'your-email').value;
+                            const emailAddressFromForm = event.args[0].find(argument => argument.name === 'your-email')
+                              .value;
                             dispatch(setEmailAddress(emailAddressFromForm));
                           }
                           this.onCloseFeedbackForm();
@@ -3865,55 +3985,66 @@ ${exportObject}`;
                       this.webviewRef.current.addEventListener('did-stop-loading', () => {
                         this.setState({
                           feedbackFormIsLoading: false,
-                        })
+                        });
                       });
                     }, 300); // wait a tiny bit until webview is mounted
                   }}
                 >
                   <Modal.Content
                     // scrolling
-                    style={{
-                      // overflow: 'auto',
-                      // height: '80vh',
-                    }}
+                    style={
+                      {
+                        // overflow: 'auto',
+                        // height: '80vh',
+                      }
+                    }
                   >
-                    { feedbackFormIsLoading &&
+                    {feedbackFormIsLoading && (
                       <Dimmer active inverted>
                         <Loader inverted>Loading</Loader>
                       </Dimmer>
-                    }
+                    )}
                     <webview
-                      autosize='true'
+                      autosize="true"
                       // nodeintegration='true'
                       // disablewebsecurity='true'
                       className={styles.feedbackFormWebView}
-                      preload='./webViewPreload.js'
+                      preload="./webViewPreload.js"
                       ref={this.webviewRef}
-                      src={`${URL_FEEDBACK_FORM}?app-version=${process.platform}-${os.release()}-${app.getName()}-${app.getVersion()}&your-email=${settings.emailAddress}`}
+                      src={`${URL_FEEDBACK_FORM}?app-version=${
+                        process.platform
+                      }-${os.release()}-${app.getName()}-${app.getVersion()}&your-email=${settings.emailAddress}`}
                     />
                     <Modal
                       open={this.state.intendToCloseFeedbackForm}
                       basic
-                      size='mini'
+                      size="mini"
                       style={{
                         position: 'absolute',
                         left: '50%',
                         top: '50%',
                         transform: 'translate(-50%, -50%)',
-                        margin: 'auto !important'
+                        margin: 'auto !important',
                       }}
                     >
                       <Modal.Content>
-                        <p>
-                          Close the feedback form?
-                        </p>
+                        <p>Close the feedback form?</p>
                       </Modal.Content>
                       <Modal.Actions>
-                        <Button basic color='red' inverted onClick={() => this.setState({ intendToCloseFeedbackForm: false})}>
-                          <Icon name='remove' /> Cancel
+                        <Button
+                          basic
+                          color="red"
+                          inverted
+                          onClick={() => this.setState({ intendToCloseFeedbackForm: false })}
+                        >
+                          <Icon name="remove" /> Cancel
                         </Button>
-                        <Button color='green' inverted onClick={() => this.setState({ showFeedbackForm: false, intendToCloseFeedbackForm: false})}>
-                          <Icon name='checkmark' /> Close
+                        <Button
+                          color="green"
+                          inverted
+                          onClick={() => this.setState({ showFeedbackForm: false, intendToCloseFeedbackForm: false })}
+                        >
+                          <Icon name="checkmark" /> Close
                         </Button>
                       </Modal.Actions>
                     </Modal>
@@ -3931,7 +4062,7 @@ ${exportObject}`;
                   defaultView={visibilitySettings.defaultView}
                 />
               </div>
-              { this.state.showScrubWindow &&
+              {this.state.showScrubWindow && (
                 <Scrub
                   opencvVideoCanvasRef={this.opencvVideoCanvasRef}
                   file={file}
@@ -3949,8 +4080,8 @@ ${exportObject}`;
                   onScrubWindowMouseOver={this.onScrubWindowMouseOver}
                   onScrubWindowClick={this.onScrubWindowClick}
                 />
-              }
-              { this.state.showChart &&
+              )}
+              {this.state.showChart && (
                 <div
                   className={styles.chart}
                   style={{
@@ -3970,7 +4101,7 @@ ${exportObject}`;
                       elements: {
                         line: {
                           tension: 0, // disables bezier curves
-                        }
+                        },
                       },
                       animation: {
                         duration: 0, // general animation time
@@ -3982,7 +4113,7 @@ ${exportObject}`;
                     }}
                   />
                 </div>
-              }
+              )}
               <div
                 onKeyDown={e => e.stopPropagation()}
                 onClick={e => e.stopPropagation()}
@@ -3991,8 +4122,8 @@ ${exportObject}`;
               >
                 <Modal
                   open={this.state.showTransformModal}
-                  onClose={() => this.setState({ showTransformModal: false})}
-                  size='small'
+                  onClose={() => this.setState({ showTransformModal: false })}
+                  size="small"
                   closeIcon
                 >
                   <Modal.Header>Set transform</Modal.Header>
@@ -4000,21 +4131,53 @@ ${exportObject}`;
                     <Modal.Description>
                       <Form onSubmit={this.onChangeTransform}>
                         <Form.Group>
-                          <Header as='h3'>Cropping in pixel</Header>
-                          <Form.Input name='cropTop' label='From top' placeholder='top' type='number' min='0' width={3} defaultValue={this.state.transformObject.cropTop} />
-                          <Form.Input name='cropBottom' label='From bottom' placeholder='bottom' type='number' min='0' width={3} defaultValue={this.state.transformObject.cropBottom} />
-                          <Form.Input name='cropLeft' label='From left' placeholder='left' type='number' min='0' width={3} defaultValue={this.state.transformObject.cropLeft} />
-                          <Form.Input name='cropRight' label='From right' placeholder='right' type='number' min='0' width={3} defaultValue={this.state.transformObject.cropRight} />
+                          <Header as="h3">Cropping in pixel</Header>
+                          <Form.Input
+                            name="cropTop"
+                            label="From top"
+                            placeholder="top"
+                            type="number"
+                            min="0"
+                            width={3}
+                            defaultValue={this.state.transformObject.cropTop}
+                          />
+                          <Form.Input
+                            name="cropBottom"
+                            label="From bottom"
+                            placeholder="bottom"
+                            type="number"
+                            min="0"
+                            width={3}
+                            defaultValue={this.state.transformObject.cropBottom}
+                          />
+                          <Form.Input
+                            name="cropLeft"
+                            label="From left"
+                            placeholder="left"
+                            type="number"
+                            min="0"
+                            width={3}
+                            defaultValue={this.state.transformObject.cropLeft}
+                          />
+                          <Form.Input
+                            name="cropRight"
+                            label="From right"
+                            placeholder="right"
+                            type="number"
+                            min="0"
+                            width={3}
+                            defaultValue={this.state.transformObject.cropRight}
+                          />
                         </Form.Group>
-                        <Form.Button content='Update cropping' />
+                        <Form.Button content="Update cropping" />
                       </Form>
                     </Modal.Description>
                   </Modal.Content>
                 </Modal>
                 <Modal
                   open={this.state.showSaveThumbModal}
-                  onClose={() => this.setState({ showSaveThumbModal: false})}
-                  size='small'
+                  onClose={() => this.setState({ showSaveThumbModal: false })}
+                  size="small"
                   closeIcon
                 >
                   <Modal.Header>Save thumb</Modal.Header>
@@ -4022,10 +4185,18 @@ ${exportObject}`;
                     <Modal.Description>
                       <Form onSubmit={this.onChangeTransform}>
                         <Form.Group>
-                          <Header as='h3'>Cropping in pixel</Header>
-                          <Form.Input name='cropTop' label='From top' placeholder='top' type='number' min='0' width={3} defaultValue={this.state.transformObject.cropTop} />
+                          <Header as="h3">Cropping in pixel</Header>
+                          <Form.Input
+                            name="cropTop"
+                            label="From top"
+                            placeholder="top"
+                            type="number"
+                            min="0"
+                            width={3}
+                            defaultValue={this.state.transformObject.cropTop}
+                          />
                         </Form.Group>
-                        <Form.Button content='Update cropping' />
+                        <Form.Button content="Update cropping" />
                       </Form>
                     </Modal.Description>
                   </Modal.Content>
@@ -4034,42 +4205,36 @@ ${exportObject}`;
               <Modal
                 open={this.state.savingAllMoviePrints}
                 basic
-                size='tiny'
+                size="tiny"
                 style={{
                   position: 'absolute',
                   left: '50%',
                   top: '50%',
                   transform: 'translate(-50%, -50%)',
-                  margin: 'auto !important'
+                  margin: 'auto !important',
                 }}
               >
-                <Container
-                  textAlign='center'
-                >
-                  <Header as='h2' inverted>
-                    {`Saving ${this.state.sheetsToPrint.filter(item => item.status === 'done').length + 1} of ${this.state.sheetsToPrint.filter(item => item.status !== 'undefined').length} MoviePrints`}
+                <Container textAlign="center">
+                  <Header as="h2" inverted>
+                    {`Saving ${this.state.sheetsToPrint.filter(item => item.status === 'done').length + 1} of ${
+                      this.state.sheetsToPrint.filter(item => item.status !== 'undefined').length
+                    } MoviePrints`}
                   </Header>
-                  {!fileToPrint && <Loader
-                    active
-                    size='mini'
-                    inline
-                  />}
+                  {!fileToPrint && <Loader active size="mini" inline />}
                   {fileToPrint || ' '}
                   <Progress
                     percent={
                       ((this.state.sheetsToPrint.filter(item => item.status === 'done').length + 1.0) /
-                      this.state.sheetsToPrint.filter(item => item.status !== 'undefined').length) * 100
+                        this.state.sheetsToPrint.filter(item => item.status !== 'undefined').length) *
+                      100
                     }
-                    size='tiny'
+                    size="tiny"
                     indicating
                     inverted
                   />
                   <Divider hidden />
-                  <Button
-                    color='red'
-                    onClick={() => this.setState({ savingAllMoviePrints: false})}
-                  >
-                    <Icon name='remove' /> Cancel
+                  <Button color="red" onClick={() => this.setState({ savingAllMoviePrints: false })}>
+                    <Icon name="remove" /> Cancel
                   </Button>
                 </Container>
               </Modal>
@@ -4079,22 +4244,32 @@ ${exportObject}`;
                 hideProgressBar
                 progressClassName={stylesPop.toastProgress}
               />
-              { dropzoneActive &&
+              {dropzoneActive && (
                 <div
-                  className={`${styles.dropzoneshow} ${isDragAccept ? styles.dropzoneshowAccept : ''} ${isDragReject ? styles.dropzoneshowReject : ''}`}
+                  className={`${styles.dropzoneshow} ${isDragAccept ? styles.dropzoneshowAccept : ''} ${
+                    isDragReject ? styles.dropzoneshowReject : ''
+                  }`}
                 >
-                  <div
-                    className={styles.dropzoneshowContent}
-                  >
-                    {`${isDragAccept ? (this.state.keyObject.altKey ? 'CLEAR LIST AND ADD MOVIES' : 'ADD MOVIES TO LIST') : ''} ${isDragReject ? 'NOT ALLOWED' : ''}`}
-                    <div
-                      className={styles.dropZoneSubline}
-                    >
-                      {`${isDragAccept ? (this.state.keyObject.altKey ? '' : 'PRESS ALT TO CLEAR LIST AND ADD MOVIES') : ''}`}
+                  <div className={styles.dropzoneshowContent}>
+                    {`${
+                      isDragAccept
+                        ? this.state.keyObject.altKey
+                          ? 'CLEAR LIST AND ADD MOVIES'
+                          : 'ADD MOVIES TO LIST'
+                        : ''
+                    } ${isDragReject ? 'NOT ALLOWED' : ''}`}
+                    <div className={styles.dropZoneSubline}>
+                      {`${
+                        isDragAccept
+                          ? this.state.keyObject.altKey
+                            ? ''
+                            : 'PRESS ALT TO CLEAR LIST AND ADD MOVIES'
+                          : ''
+                      }`}
                     </div>
                   </div>
                 </div>
-              }
+              )}
             </div>
           );
         }}
@@ -4107,33 +4282,28 @@ const mapStateToProps = state => {
   const { visibilitySettings } = state;
   const { settings, sheetsByFileId, files } = state.undoGroup.present;
   const { currentFileId, currentSheetId } = settings;
-  const sheetsArray = (sheetsByFileId[currentFileId] === undefined)
-    ? [] : Object.getOwnPropertyNames(sheetsByFileId[currentFileId]);
-  const allThumbs = (sheetsByFileId[currentFileId] === undefined ||
-    sheetsByFileId[currentFileId][settings.currentSheetId] === undefined)
-    ? undefined : sheetsByFileId[currentFileId][settings.currentSheetId].thumbsArray;
-  const allScenes = (sheetsByFileId[currentFileId] === undefined ||
-    sheetsByFileId[currentFileId][settings.currentSheetId] === undefined)
-    ? undefined : sheetsByFileId[currentFileId][settings.currentSheetId].sceneArray;
+  const sheetsArray =
+    sheetsByFileId[currentFileId] === undefined ? [] : Object.getOwnPropertyNames(sheetsByFileId[currentFileId]);
+  const allThumbs =
+    sheetsByFileId[currentFileId] === undefined || sheetsByFileId[currentFileId][settings.currentSheetId] === undefined
+      ? undefined
+      : sheetsByFileId[currentFileId][settings.currentSheetId].thumbsArray;
+  const allScenes =
+    sheetsByFileId[currentFileId] === undefined || sheetsByFileId[currentFileId][settings.currentSheetId] === undefined
+      ? undefined
+      : sheetsByFileId[currentFileId][settings.currentSheetId].sceneArray;
   const arrayOfCuts = allScenes === undefined ? [] : allScenes.map(scene => scene.start);
   return {
     sheetsArray,
     sheetsByFileId,
-    thumbs: getVisibleThumbs(
-      allThumbs,
-      visibilitySettings.visibilityFilter
-    ),
+    thumbs: getVisibleThumbs(allThumbs, visibilitySettings.visibilityFilter),
     allThumbs,
     currentFileId,
     currentSheetId,
     files,
-    file: files
-      .find((file) => file.id === currentFileId),
+    file: files.find(file => file.id === currentFileId),
     allScenes,
-    scenes: getVisibleThumbs(
-      allScenes,
-      visibilitySettings.visibilityFilter
-    ),
+    scenes: getVisibleThumbs(allScenes, visibilitySettings.visibilityFilter),
     arrayOfCuts,
     settings,
     visibilitySettings,
@@ -4143,7 +4313,7 @@ const mapStateToProps = state => {
 };
 
 App.contextTypes = {
-  store: PropTypes.object
+  store: PropTypes.object,
 };
 
 App.defaultProps = {
