@@ -1659,7 +1659,7 @@ class SettingsList extends Component {
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
-            <Grid.Column width={4}>Face uniqueness threshold</Grid.Column>
+            <Grid.Column width={4} title='A smaller distance results in more unique faces'>Face uniqueness distance</Grid.Column>
             <Grid.Column width={12}>
               <SliderWithTooltip
                 data-tid='faceUniquenessThresholdSlider'
