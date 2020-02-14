@@ -681,6 +681,7 @@ class App extends Component {
           dispatch(updateSheetName(fileId, newSheetId, newSheetName));
           dispatch(updateSheetType(fileId, newSheetId, SHEET_TYPE.FACES));
           dispatch(updateSheetView(fileId, newSheetId, SHEET_VIEW.GRIDVIEW));
+          dispatch(updateSheetColumnCount(fileId, newSheetId, Math.ceil(Math.sqrt(frameNumberArrayFromFaceDetection.length))));
           dispatch(setCurrentSheetId(newSheetId));
           return undefined;
         }).catch((err) => {
