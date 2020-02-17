@@ -47,33 +47,31 @@ const DragHandle = SortableHandle(({ width, height, thumbId }) => (
 
 const AllFaces = ({ facesArray, thumbWidth, thumbHeight }) =>
   facesArray.map((face, index) => (
-    <FaceRect
-      key={index}
-      face={face}
-      thumbWidth={thumbWidth}
-      thumbHeight={thumbHeight}
-    />
+    <FaceRect key={index} face={face} thumbWidth={thumbWidth} thumbHeight={thumbHeight} />
   ));
 
-const FaceRect = ({ face, thumbWidth, thumbHeight }) => (
+const FaceRect = ({ face: { box, ...faceExceptForBox }, thumbWidth, thumbHeight }) => (
   <>
     <div
       className={styles.faceRect}
+      title={JSON.stringify(faceExceptForBox)}
       style={{
-        width: `${face.box.width * thumbWidth}px`,
-        height: `${face.box.height * thumbHeight}px`,
-        left: `${face.box.x * thumbWidth}px`,
-        top: `${face.box.y * thumbHeight}px`,
+        width: `${box.width * thumbWidth}px`,
+        height: `${box.height * thumbHeight}px`,
+        left: `${box.x * thumbWidth}px`,
+        top: `${box.y * thumbHeight}px`,
       }}
     />
     <div
       className={styles.faceRectTag}
       style={{
-        left: `${face.box.x * thumbWidth}px`,
-        top: `${face.box.y * thumbHeight}px`,
+        left: `${box.x * thumbWidth + box.width * thumbWidth}px`,
+        top: `${box.y * thumbHeight}px`,
       }}
     >
-      {face.faceId}
+      id: {faceExceptForBox.faceId}<br />
+      age: {faceExceptForBox.age}<br />
+      {faceExceptForBox.gender}<br />
     </div>
   </>
 );
@@ -160,11 +158,7 @@ const Thumb = ({
       onDoubleClick={onThumbDoubleClickWithStop}
       id={`thumb${indexForId}`}
       className={`${styles.gridItem} ${
-        view === VIEW.PLAYERVIEW &&
-        selected &&
-        !(keyObject.altKey || keyObject.shiftKey)
-          ? styles.gridItemSelected
-          : ''
+        view === VIEW.PLAYERVIEW && selected && !(keyObject.altKey || keyObject.shiftKey) ? styles.gridItemSelected : ''
       }`}
       width={`${thumbWidth}px`}
       height={`${thumbHeight}px`}
@@ -172,13 +166,9 @@ const Thumb = ({
         // width: thumbWidth,
         margin,
         outlineWidth: margin,
-        borderRadius: `${
-          selected && view === VIEW.PLAYERVIEW ? 0 : Math.ceil(borderRadius)
-        }px`, // Math.ceil so the edge is not visible underneath the image
+        borderRadius: `${selected && view === VIEW.PLAYERVIEW ? 0 : Math.ceil(borderRadius)}px`, // Math.ceil so the edge is not visible underneath the image
         backgroundColor:
-          transparentThumb ||
-          thumbImageObjectUrl === undefined ||
-          thumbImageObjectUrl === 'blob:file:///fakeURL'
+          transparentThumb || thumbImageObjectUrl === undefined || thumbImageObjectUrl === 'blob:file:///fakeURL'
             ? color
             : undefined,
       }}
@@ -200,17 +190,11 @@ const Thumb = ({
         style={{
           filter: `${controllersAreVisible ? 'brightness(80%)' : ''}`,
           opacity: hidden ? '0.2' : '1',
-          borderRadius: `${
-            selected && view === VIEW.PLAYERVIEW ? 0 : borderRadius
-          }px`,
+          borderRadius: `${selected && view === VIEW.PLAYERVIEW ? 0 : borderRadius}px`,
         }}
       />
-      {defaultShowFaceRect && facesArray !== undefined &&(
-        <AllFaces
-          facesArray={facesArray}
-          thumbWidth={thumbWidth}
-          thumbHeight={thumbHeight}
-        />
+      {defaultShowFaceRect && facesArray !== undefined && (
+        <AllFaces facesArray={facesArray} thumbWidth={thumbWidth} thumbHeight={thumbHeight} />
       )}
       {thumbInfoValue !== undefined && (
         <div

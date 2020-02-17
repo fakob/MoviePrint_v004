@@ -23,6 +23,7 @@ const ButtonExampleCircularSocial = ({
   hasParent,
   onAddIntervalSheetClick,
   onAddFaceSheetClick,
+  onRescanFaceSheet,
   onBackToParentClick,
   onChangeSheetViewClick,
   onDuplicateSheetClick,
@@ -156,6 +157,10 @@ const ButtonExampleCircularSocial = ({
                 </Dropdown.Item>
                 <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick(0.1)}>
                   Scan for faces - detailed (check 10% of frames)
+                </Dropdown.Item>
+                <Dropdown.Divider />
+                <Dropdown.Item className={styles.dropDownItem} onClick={onRescanFaceSheet}>
+                  Re-scan selected thumbs
                 </Dropdown.Item>
                 <Dropdown.Divider />
                 <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick(0.01, true)}>

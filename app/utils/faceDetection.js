@@ -268,7 +268,6 @@ export const runSyncCaptureAndFaceDetect = async (
   defaultFaceConfidenceThreshold,
   defaultFaceSizeThreshold,
   defaultFaceUniquenessThreshold,
-  getAllFaces,
 ) => {
   fileScanRunning = true;
 
@@ -316,28 +315,15 @@ export const runSyncCaptureAndFaceDetect = async (
       const outJpg = opencv.imencode('.jpg', matRescaled);
       const input = tf.node.decodeJpeg(outJpg);
 
-      if (getAllFaces) {
-        const detections = await detectAllFaces(
-          input,
-          frameNumber,
-          detectionArray,
-          uniqueFaceArray,
-          defaultFaceConfidenceThreshold,
-          defaultFaceSizeThreshold,
-          defaultFaceUniquenessThreshold,
-        );
-      } else {
-        const detections = await detectFace(
-          input,
-          frameNumber,
-          detectionArray,
-          uniqueFaceArray,
-          defaultFaceConfidenceThreshold,
-          defaultFaceSizeThreshold,
-          defaultFaceUniquenessThreshold,
-        );
-      }
-
+      const detections = await detectAllFaces(
+        input,
+        frameNumber,
+        detectionArray,
+        uniqueFaceArray,
+        defaultFaceConfidenceThreshold,
+        defaultFaceSizeThreshold,
+        defaultFaceUniquenessThreshold,
+      );
       // console.log(detections)
       // detectFace(frame);
     }
