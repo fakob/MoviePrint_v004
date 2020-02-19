@@ -70,7 +70,7 @@ const FaceRect = ({ face: { box, ...faceExceptForBox }, thumbWidth, thumbHeight 
       }}
     >
       id: {faceExceptForBox.faceId}<br />
-      age: {faceExceptForBox.age}<br />
+      seen: {faceExceptForBox.occurrence}x<br />
       {faceExceptForBox.gender}<br />
     </div>
   </>

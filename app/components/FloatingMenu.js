@@ -9,6 +9,19 @@ import iconHeader from '../img/icon-header.svg';
 import iconImage from '../img/icon-image.svg';
 import iconNoImage from '../img/icon-no-image.svg';
 import iconFrameInfo from '../img/icon-frame-info.svg';
+import iconShowFaceRect from '../img/icon-show-face-rect.svg';
+import iconArrowUp from '../img/icon-arrow-up.svg';
+import iconHide from '../img/icon-hide.svg';
+import iconUnhide from '../img/icon-unhide.svg';
+import iconExpand from '../img/icon-expand.svg';
+import iconZoomIn from '../img/icon-zoom-in.svg';
+import iconZoomOut from '../img/icon-zoom-out.svg';
+import iconResizeVertical from '../img/icon-resize-vertical.svg';
+import iconResizeHorizontal from '../img/icon-resize-horizontal.svg';
+import iconSort from '../img/icon-sort.svg';
+import iconCopy from '../img/icon-copy.svg';
+import iconGrid from '../img/icon-grid.svg';
+import iconBarcode from '../img/icon-barcode.svg';
 import iconAddInterval from '../img/icon-add-interval.svg';
 import iconAddScene from '../img/icon-add-scene.svg';
 import iconAddFace from '../img/icon-add-face.svg';
@@ -34,6 +47,7 @@ const ButtonExampleCircularSocial = ({
   onThumbInfoClick,
   onToggleHeaderClick,
   onToggleImagesClick,
+  onToggleFaceRectClick,
   onToggleShowHiddenThumbsClick,
   scaleValueObject,
   settings,
@@ -66,7 +80,7 @@ const ButtonExampleCircularSocial = ({
             circular
             data-tid="backToParentBtn"
             onClick={onBackToParentClick}
-            icon="arrow up"
+            icon={<img src={iconArrowUp} height="18px" alt="" />}
           />
         }
         mouseEnterDelay={1000}
@@ -84,9 +98,8 @@ const ButtonExampleCircularSocial = ({
               data-tid="addShotDetectionMovieListItemBtn"
               onClick={() => onScanMovieListItemClick(undefined)}
               disabled={fileMissingStatus}
-            >
-              <img src={iconAddScene} height="18px" alt="" />
-            </Button>
+              icon={<img src={iconAddScene} height="18px" alt="" />}
+            />
           }
           mouseEnterDelay={1000}
           on={['hover']}
@@ -153,21 +166,21 @@ const ButtonExampleCircularSocial = ({
             >
               <Dropdown.Menu className={styles.dropDownMenu}>
                 <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick(0.01)}>
-                  Scan for faces (check 1% of frames)
+                  Current range - scan 1% of frames
                 </Dropdown.Item>
                 <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick(0.1)}>
-                  Scan for faces - detailed (check 10% of frames)
+                  Current range - scan 10% of frames
+                </Dropdown.Item>
+                <Dropdown.Divider />
+                <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick(0.01, true)}>
+                  Whole movie - scan 1% of frames
+                </Dropdown.Item>
+                <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick(0.1, true)}>
+                  Whole movie - scan 10% of frames
                 </Dropdown.Item>
                 <Dropdown.Divider />
                 <Dropdown.Item className={styles.dropDownItem} onClick={onRescanFaceSheet}>
                   Re-scan selected thumbs
-                </Dropdown.Item>
-                <Dropdown.Divider />
-                <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick(0.01, true)}>
-                  Scan for faces - whole movie (check 1% of frames)
-                </Dropdown.Item>
-                <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick(0.1, true)}>
-                  Scan for faces - whole movie - detailed (check 10% of frames)
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
@@ -176,7 +189,7 @@ const ButtonExampleCircularSocial = ({
           on={['hover']}
           position="right center"
           className={stylesPop.popup}
-          content="BETA: Add FacePrint"
+          content="Add MoviePrint (faces based)"
         />
       </Button.Group>{' '}
       <Button.Group className={`${defaultView === VIEW.STANDARDVIEW ? '' : styles.hidden}`}>
@@ -187,7 +200,7 @@ const ButtonExampleCircularSocial = ({
               className={styles.dropDownButton}
               floating
               disabled={fileMissingStatus || isShotType}
-              icon="sort amount down"
+              icon={<img src={iconSort} height="18px" alt="" />}
             >
               <Dropdown.Menu className={styles.dropDownMenu}>
                 <Dropdown.Item className={styles.dropDownItem} onClick={() => onSortSheet(SORT_METHOD.REVERSE, false)}>
@@ -227,6 +240,7 @@ const ButtonExampleCircularSocial = ({
                 >
                   Sort by confidence value of face
                 </Dropdown.Item>
+                <Dropdown.Divider />
                 <Dropdown.Item
                   disabled={!isFaceType}
                   className={styles.dropDownItem}
@@ -241,17 +255,17 @@ const ButtonExampleCircularSocial = ({
           on={['hover']}
           position="right center"
           className={stylesPop.popup}
-          content="BETA: Filter and Sort"
+          content="Sort and Filter"
         />
         <Popup
           trigger={
             <Button
-              className={styles.normalButton}
+              className={styles.imageButton}
               size="large"
               data-tid="duplicateSheetItemBtn"
               onClick={() => onDuplicateSheetClick(undefined, undefined)}
               disabled={fileMissingStatus}
-              icon="copy"
+              icon={<img src={iconCopy} height="18px" alt="" />}
             />
           }
           mouseEnterDelay={1000}
@@ -278,7 +292,7 @@ const ButtonExampleCircularSocial = ({
                     sheetView === SHEET_VIEW.GRIDVIEW ? SHEET_VIEW.TIMELINEVIEW : SHEET_VIEW.GRIDVIEW,
                   )
                 }
-                icon={sheetView === SHEET_VIEW.GRIDVIEW ? 'barcode' : 'grid layout'}
+                icon={<img src={sheetView === SHEET_VIEW.GRIDVIEW ? iconBarcode : iconGrid} height="18px" alt="" />}
               />
             }
             mouseEnterDelay={1000}
@@ -307,9 +321,10 @@ const ButtonExampleCircularSocial = ({
                     sheetView === SHEET_VIEW.GRIDVIEW ? SHEET_VIEW.TIMELINEVIEW : SHEET_VIEW.GRIDVIEW,
                   )
                 }
-              >
-                <img src={sheetView === SHEET_VIEW.GRIDVIEW ? iconCutView : iconThumbView} height="18px" alt="" />
-              </Button>
+                icon={
+                  <img src={sheetView === SHEET_VIEW.GRIDVIEW ? iconCutView : iconThumbView} height="18px" alt="" />
+                }
+              />
             }
             mouseEnterDelay={1000}
             on={['hover']}
@@ -368,7 +383,7 @@ const ButtonExampleCircularSocial = ({
                 disabled={!isGridViewAndDefault}
                 data-tid="fitHeightBtn"
                 onClick={() => onSetSheetFitClick(SHEET_FIT.HEIGHT)}
-                icon="resize vertical"
+                icon={<img src={iconResizeVertical} height="18px" alt="" />}
               />
             }
             mouseEnterDelay={1000}
@@ -387,7 +402,7 @@ const ButtonExampleCircularSocial = ({
                 disabled={!isGridViewAndDefault}
                 data-tid="fitWidthBtn"
                 onClick={() => onSetSheetFitClick(SHEET_FIT.WIDTH)}
-                icon="resize horizontal"
+                icon={<img src={iconResizeHorizontal} height="18px" alt="" />}
               />
             }
             mouseEnterDelay={1000}
@@ -406,7 +421,7 @@ const ButtonExampleCircularSocial = ({
                 disabled={!isGridViewAndDefault}
                 data-tid="fitAllBtn"
                 onClick={() => onSetSheetFitClick(SHEET_FIT.BOTH)}
-                icon="expand"
+                icon={<img src={iconExpand} height="18px" alt="" />}
               />
             }
             mouseEnterDelay={1000}
@@ -424,7 +439,7 @@ const ButtonExampleCircularSocial = ({
               disabled={!isGridViewAndDefault}
               data-tid={zoom ? 'zoomOutBtn' : 'zoomInBtn'}
               onClick={toggleZoom}
-              icon={zoom ? 'zoom out' : 'zoom in'}
+              icon={<img src={zoom ? iconZoomOut : iconZoomIn} height="18px" alt="" />}
             />
           }
           mouseEnterDelay={1000}
@@ -443,7 +458,7 @@ const ButtonExampleCircularSocial = ({
               circular
               data-tid={visibilityFilter === 'SHOW_ALL' ? 'showOnlyVisibleBtn' : 'showHiddenBtn'}
               onClick={onToggleShowHiddenThumbsClick}
-              icon={visibilityFilter === 'SHOW_ALL' ? 'hide' : 'unhide'}
+              icon={<img src={visibilityFilter === 'SHOW_ALL' ? iconHide : iconUnhide} height="18px" alt="" />}
             />
           }
           mouseEnterDelay={1000}
@@ -498,11 +513,27 @@ const ButtonExampleCircularSocial = ({
             <Button
               className={styles.imageButton}
               size="large"
+              data-tid="toggleFaceRectBtn"
+              disabled={!isFaceType}
+              onClick={() => onToggleFaceRectClick()}
+              icon={<img src={iconShowFaceRect} height="18px" alt="" />}
+            />
+          }
+          mouseEnterDelay={1000}
+          on={['hover']}
+          position="bottom center"
+          className={stylesPop.popup}
+          content="Toggle face rectangle"
+        />
+        <Popup
+          trigger={
+            <Button
+              className={styles.imageButton}
+              size="large"
               data-tid="toggleImageBtn"
               onClick={() => onToggleImagesClick()}
-            >
-              <img src={defaultShowImages ? iconNoImage : iconImage} height="18px" alt="" />
-            </Button>
+              icon={<img src={defaultShowImages ? iconNoImage : iconImage} height="18px" alt="" />}
+            />
           }
           mouseEnterDelay={1000}
           on={['hover']}

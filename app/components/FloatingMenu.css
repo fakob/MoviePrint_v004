@@ -6,6 +6,7 @@
   top: 8px;
   left: calc(50% + 10px);
   z-index: 990;
+  width: 680px;
   /* background-color: rgba(255, 0, 0, 0.5); */
 }
 
@@ -16,8 +17,8 @@
   /* box-shadow: none !important; */
   padding-left: 11px !important;
   padding-right: 11px !important;
-  padding-top: 8px !important;
-  padding-bottom: 8px !important;
+  /* padding-top: 10px !important; */
+  /* padding-bottom: 9px !important; */
 }
 
 .imageButton:hover {
@@ -32,8 +33,8 @@
   /* box-shadow: none !important; */
   padding-left: 15px !important;
   padding-right: 11px !important;
-  padding-top: 11px !important;
-  padding-bottom: 8px !important;
+  /* padding-top: 11px !important; */
+  /* padding-bottom: 10px !important; */
   font-size: 16px !important;
 }
 

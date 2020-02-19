@@ -369,6 +369,7 @@ class App extends Component {
     this.onTimelineViewFlowClick = this.onTimelineViewFlowClick.bind(this);
     this.onToggleHeaderClick = this.onToggleHeaderClick.bind(this);
     this.onToggleImagesClick = this.onToggleImagesClick.bind(this);
+    this.onToggleFaceRectClick = this.onToggleFaceRectClick.bind(this);
     this.onShowPathInHeaderClick = this.onShowPathInHeaderClick.bind(this);
     this.onShowDetailsInHeaderClick = this.onShowDetailsInHeaderClick.bind(this);
     this.onShowTimelineInHeaderClick = this.onShowTimelineInHeaderClick.bind(this);
@@ -2661,6 +2662,17 @@ class App extends Component {
     this.updateScaleValue();
   };
 
+  onToggleFaceRectClick = value => {
+    const { dispatch } = this.props;
+    if (value === undefined) {
+      const { settings } = this.props;
+      const { defaultShowFaceRect } = settings;
+      dispatch(setDefaultShowFaceRect(!defaultShowFaceRect));
+    } else {
+      dispatch(setDefaultShowFaceRect(value));
+    }
+  };
+
   onChangeShowFaceRectClick = checked => {
     const { dispatch } = this.props;
     dispatch(setDefaultShowFaceRect(checked));
@@ -3602,6 +3614,7 @@ ${exportObject}`;
                     onThumbInfoClick={this.onThumbInfoClick}
                     onToggleHeaderClick={this.onToggleHeaderClick}
                     onToggleImagesClick={this.onToggleImagesClick}
+                    onToggleFaceRectClick={this.onToggleFaceRectClick}
                     toggleSettings={this.toggleSettings}
                   />
                 )}

@@ -1364,8 +1364,7 @@ export const sortArray = (
   return sortedAndFilteredArray;
 };
 
-export const getFlattenedArrayWithOccurrences = detectionArray => {
-  // flatten the detectionArray
+export const getFlattenedArray = detectionArray => {
   const flattenedArray = [];
   detectionArray.map(item => {
     const { facesArray, ...rest } = item;
@@ -1377,9 +1376,23 @@ export const getFlattenedArrayWithOccurrences = detectionArray => {
     }
     return undefined;
   });
-  console.log(flattenedArray.slice());
+  return flattenedArray;
+};
 
-  //
+export const getFlattenedArrayWithOccurrences = detectionArray => {
+  const arrayOfOccurrences = getArrayOfOccurrences(detectionArray);
+  const flattenedArray = getFlattenedArray(detectionArray);
+  flattenedArray.forEach(item => {
+    // convert object to array and find occurrence and add to item
+    const { count } = Object.values(arrayOfOccurrences).find(item2 => item2.faceId === item.faceId);
+    item.occurrence = count;
+  });
+  return flattenedArray;
+};
+
+export const getArrayOfOccurrences = detectionArray => {
+  // flatten the detectionArray
+  const flattenedArray = getFlattenedArray(detectionArray);
   const arrayOfOccurrences = flattenedArray.reduce((acc, curr) => {
     if (acc[curr.faceId] === undefined) {
       acc[curr.faceId] = { count: 1, faceId: curr.faceId };
@@ -1388,15 +1401,10 @@ export const getFlattenedArrayWithOccurrences = detectionArray => {
     }
     return acc;
   }, {});
-  console.log(arrayOfOccurrences);
-  console.log(typeof arrayOfOccurrences);
+  // console.log(arrayOfOccurrences);
+  // console.log(typeof arrayOfOccurrences);
 
-  flattenedArray.forEach(item => {
-    // convert object to array and find occurrence and add to item
-    const { count } = Object.values(arrayOfOccurrences).find(item2 => item2.faceId === item.faceId);
-    item.occurrence = count;
-  });
-  return flattenedArray;
+  return arrayOfOccurrences;
 };
 
 export const getIntervalArray = (

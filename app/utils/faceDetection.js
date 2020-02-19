@@ -3,7 +3,7 @@ import * as faceapi from 'face-api.js';
 import log from 'electron-log';
 import * as tf from '@tensorflow/tfjs-node';
 
-import { setPosition } from './utils';
+import { getArrayOfOccurrences, roundNumber, setPosition } from './utils';
 import { FACE_CONFIDENCE_THRESHOLD, FACE_SIZE_THRESHOLD, FACE_UNIQUENESS_THRESHOLD } from './constants';
 
 const opencv = require('opencv4nodejs');
@@ -113,11 +113,12 @@ export const detectFace = async (
     //   age: Math.round(age),
     // });
     const simpleBox = {
-      x: relativeBox.x,
-      y: relativeBox.y,
-      width: relativeBox.width,
-      height: relativeBox.height,
+      x: roundNumber(relativeBox.x, 4),
+      y: roundNumber(relativeBox.y, 4),
+      width: roundNumber(relativeBox.width, 4),
+      height: roundNumber(relativeBox.height, 4),
     };
+
     const facesArray = [
       {
         faceId,
@@ -218,10 +219,10 @@ export const detectAllFaces = async (
     }
 
     const simpleBox = {
-      x: relativeBox.x,
-      y: relativeBox.y,
-      width: relativeBox.width,
-      height: relativeBox.height,
+      x: roundNumber(relativeBox.x, 4),
+      y: roundNumber(relativeBox.y, 4),
+      width: roundNumber(relativeBox.width, 4),
+      height: roundNumber(relativeBox.height, 4),
     };
 
     facesArray.push({
@@ -282,6 +283,7 @@ export const runSyncCaptureAndFaceDetect = async (
   const arrayLength = frameNumberArray.length;
   for (let i = 0; i < arrayLength; i += 1) {
     if (!fileScanRunning) {
+      // CANCELLING IS NOT WORKING YET
       const messageToSend = `opencvWorkerWindow | Face scanning cancelled at frame ${frame}`;
       log.debug(messageToSend);
 
@@ -328,6 +330,17 @@ export const runSyncCaptureAndFaceDetect = async (
       // detectFace(frame);
     }
   }
+
+  const arrayOfOccurrences = getArrayOfOccurrences(detectionArray);
+  detectionArray.forEach(frame => {
+    frame.facesArray.forEach(face => {
+      // convert object to array and find occurrence and add to item
+      const { count } = Object.values(arrayOfOccurrences).find(item => item.faceId === face.faceId);
+      face.occurrence = count;
+    })
+  });
+
+
   console.log(detectionArray);
   return detectionArray;
 };
