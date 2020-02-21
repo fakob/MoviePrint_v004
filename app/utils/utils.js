@@ -1463,3 +1463,38 @@ export const sortThumbsArray = (thumbsArray, sortOrderArray) => {
   console.log(thumbsArrayAfterSorting);
   return thumbsArrayAfterSorting;
 };
+
+export const getFaceIdOfThumb = (sheetsByFileId, fileId, sheetId, thumbId) => {
+  if (
+    thumbId === undefined ||
+    fileId === undefined ||
+    sheetId === undefined ||
+    sheetsByFileId === undefined ||
+    sheetsByFileId[fileId] === undefined ||
+    sheetsByFileId[fileId][sheetId] === undefined ||
+    sheetsByFileId[fileId][sheetId].thumbsArray === undefined
+  ) {
+    return undefined;
+  }
+  const { thumbsArray } = sheetsByFileId[fileId][sheetId];
+  const thumb = thumbsArray.find(item => item.thumbId === thumbId);
+  const { facesArray } = thumb;
+  const faceIdOfFirstFace = facesArray[0].faceId;
+  return faceIdOfFirstFace;
+};
+
+export const getFrameNumberArrayOfOccurrences = (detectionArray, faceId) => {
+  // flatten the detectionArray
+  const flattenedArray = getFlattenedArray(detectionArray);
+  const frameNumberArray = [];
+  flattenedArray.map(face => {
+    if (face.faceId === faceId) {
+      frameNumberArray.push(face.frameNumber);
+    }
+    return undefined;
+  });
+  console.log(flattenedArray);
+  console.log(frameNumberArray);
+
+  return frameNumberArray;
+};

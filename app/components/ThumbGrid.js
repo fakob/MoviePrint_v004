@@ -193,12 +193,13 @@ class ThumbGrid extends Component {
 
   onExpand(e) {
     // console.log('onExpand');
-    const { currentSheetId, file, onExpandClick, thumbs } = this.props;
+    const { currentSheetId, file, onExpandClick, sheetType, thumbs } = this.props;
     const { controllersVisible } = this.state;
+    const isFaceType = sheetType === SHEET_TYPE.FACES;
 
     e.stopPropagation();
     const thumb = thumbs.find(item => item.thumbId === controllersVisible);
-    onExpandClick(file, thumb.thumbId, currentSheetId);
+    onExpandClick(file, thumb.thumbId, currentSheetId, isFaceType);
     this.resetDim();
   }
 

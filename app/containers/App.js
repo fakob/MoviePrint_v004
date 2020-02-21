@@ -47,12 +47,14 @@ import {
   getAdjacentSceneIndicesFromCut,
   getColumnCount,
   getEDLscenes,
+  getFaceIdOfThumb,
   getFile,
   getFileName,
   getFilePath,
   getFileStatsObject,
   getFileTransformObject,
   getFrameCount,
+  getFrameNumberArrayOfOccurrences,
   getFramenumbersOfSheet,
   getHighestFrame,
   getIntervalArray,
@@ -1998,7 +2000,7 @@ class App extends Component {
     });
   }
 
-  onExpandClick(file, sceneOrThumbId, parentSheetId) {
+  onExpandClick(file, sceneOrThumbId, parentSheetId, isFaceType = false) {
     const { dispatch } = this.props;
     const { files, scenes, sheetsArray, sheetsByFileId, settings } = this.props;
     // console.log(file);
@@ -2023,21 +2025,37 @@ class App extends Component {
 
     // create new sheet if it does not already exist
     if (sheetsArray.findIndex(item => item === sheetId) === -1) {
-      // log.debug(`addIntervalSheet as no thumbs were found for: ${file.name}`);
-      dispatch(
-        addIntervalSheet(
-          file,
-          sheetId,
-          DEFAULT_THUMB_COUNT, // use constant value instead of defaultThumbCount
-          sceneArray[sceneIndex].start,
-          sceneArray[sceneIndex].start + sceneArray[sceneIndex].length - 1,
-          settings.defaultCachedFramesSize,
-          true, // limitToRange -> do not get more thumbs then between in and out available
-        ),
-      );
-      dispatch(updateSheetName(file.id, sheetId, getNewSheetName(getSheetCount(files, file.id)))); // set name on file
-      dispatch(updateSheetCounter(file.id));
-      dispatch(updateSheetType(file.id, sheetId, SHEET_TYPE.INTERVAL));
+      if (isFaceType) {
+        // get faceId
+        const faceIdOfThumb = getFaceIdOfThumb(sheetsByFileId, file.id, parentSheetId, sceneOrThumbId);
+        console.log(faceIdOfThumb);
+        // get frameNumbers of occurrences of faceId
+        const detectionArray = getFaceScanByFileId(file.id);
+        const frameNumberArray = getFrameNumberArrayOfOccurrences(detectionArray, faceIdOfThumb);
+
+        // get thumbs
+        dispatch(addNewThumbsWithOrder(file, sheetId, frameNumberArray, settings.defaultCachedFramesSize));
+
+        dispatch(updateSheetName(file.id, sheetId, `Occurrences of #${faceIdOfThumb}`)); // set name on file
+        // dispatch(updateSheetCounter(file.id));
+        dispatch(updateSheetType(file.id, sheetId, SHEET_TYPE.FACES));
+      } else {
+        // log.debug(`addIntervalSheet as no thumbs were found for: ${file.name}`);
+        dispatch(
+          addIntervalSheet(
+            file,
+            sheetId,
+            DEFAULT_THUMB_COUNT, // use constant value instead of defaultThumbCount
+            sceneArray[sceneIndex].start,
+            sceneArray[sceneIndex].start + sceneArray[sceneIndex].length - 1,
+            settings.defaultCachedFramesSize,
+            true, // limitToRange -> do not get more thumbs then between in and out available
+          ),
+        );
+        dispatch(updateSheetName(file.id, sheetId, getNewSheetName(getSheetCount(files, file.id)))); // set name on file
+        dispatch(updateSheetCounter(file.id));
+        dispatch(updateSheetType(file.id, sheetId, SHEET_TYPE.INTERVAL));
+      }
       dispatch(updateSheetParent(file.id, sheetId, parentSheetId));
     }
     dispatch(updateSheetView(file.id, sheetId, SHEET_VIEW.GRIDVIEW));
