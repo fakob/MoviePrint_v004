@@ -280,6 +280,7 @@ const ButtonExampleCircularSocial = ({
               <Button
                 className={styles.normalButton}
                 size="large"
+                disabled={isFaceType}
                 data-tid={
                   sheetView === SHEET_VIEW.GRIDVIEW
                     ? 'changeViewSheetToTimelineViewBtn'

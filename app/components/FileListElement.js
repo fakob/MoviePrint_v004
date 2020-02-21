@@ -21,6 +21,7 @@ const FileListElement = ({
   onAddIntervalSheetClick,
   onChangeSheetViewClick,
   onDeleteSheetClick,
+  onConvertToIntervalBasedClick,
   onDuplicateSheetClick,
   onEditTransformListItemClick,
   onExportSheetClick,
@@ -131,6 +132,11 @@ const FileListElement = ({
   function onChangeSheetViewClickWithStop(e, fileId, sheetId, sheetView) {
     e.stopPropagation();
     onChangeSheetViewClick(fileId, sheetId, sheetView);
+  }
+
+  function onConvertToIntervalBasedClickWithStop(e, fileId, sheetId) {
+    e.stopPropagation();
+    onConvertToIntervalBasedClick(fileId, sheetId);
   }
 
   function onDuplicateSheetClickWithStop(e, fileId, sheetId) {
@@ -388,9 +394,17 @@ const FileListElement = ({
                       data-tid="changeViewSheetToTimelineViewItemOption"
                       icon="barcode"
                       text="Switch to timeline view"
+                      disabled={sheetsObject[sheetId].type === SHEET_TYPE.FACES}
                       onClick={e => onChangeSheetViewClickWithStop(e, fileId, sheetId, SHEET_VIEW.TIMELINEVIEW)}
                     />
                   )}
+                  <Dropdown.Item
+                    data-tid="convertToIntervalBasedItemOption"
+                    icon="copy"
+                    text="Convert to interval based"
+                    disabled={sheetsObject[sheetId].type === SHEET_TYPE.INTERVAL}
+                    onClick={e => onConvertToIntervalBasedClickWithStop(e, fileId, sheetId)}
+                  />
                   <Dropdown.Item
                     data-tid="duplicateSheetItemOption"
                     icon="copy"

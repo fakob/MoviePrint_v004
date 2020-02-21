@@ -46,6 +46,7 @@ class SortedFileList extends Component {
               onChangeSheetViewClick={this.props.onChangeSheetViewClick}
               onSubmitMoviePrintNameClick={this.props.onSubmitMoviePrintNameClick}
               onDuplicateSheetClick={this.props.onDuplicateSheetClick}
+              onConvertToIntervalBasedClick={this.props.onConvertToIntervalBasedClick}
               onExportSheetClick={this.props.onExportSheetClick}
               onScanMovieListItemClick={this.props.onScanMovieListItemClick}
               onReplaceMovieListItemClick={this.props.onReplaceMovieListItemClick}

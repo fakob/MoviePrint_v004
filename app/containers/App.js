@@ -392,6 +392,7 @@ class App extends Component {
     this.setOrToggleDefaultSheetView = this.setOrToggleDefaultSheetView.bind(this);
     this.onSetSheetClick = this.onSetSheetClick.bind(this);
     this.onDuplicateSheetClick = this.onDuplicateSheetClick.bind(this);
+    this.onConvertToIntervalBasedClick = this.onConvertToIntervalBasedClick.bind(this);
     this.onExportSheetClick = this.onExportSheetClick.bind(this);
     this.onScanMovieListItemClick = this.onScanMovieListItemClick.bind(this);
     this.onReplaceMovieListItemClick = this.onReplaceMovieListItemClick.bind(this);
@@ -3081,6 +3082,12 @@ class App extends Component {
     }
   };
 
+  onConvertToIntervalBasedClick = (fileId, sheetId) => {
+    const { dispatch } = this.props;
+
+    dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.INTERVAL));
+  };
+
   onExportSheetClick = (fileId, sheetId, exportType, fps) => {
     const { files, settings, sheetsByFileId, visibilitySettings } = this.props;
     log.debug(`onExportSheetClick: ${exportType}`);
@@ -3704,6 +3711,7 @@ ${exportObject}`;
                       onSubmitMoviePrintNameClick={this.onSubmitMoviePrintNameClick}
                       onSetSheetClick={this.onSetSheetClick}
                       onDuplicateSheetClick={this.onDuplicateSheetClick}
+                      onConvertToIntervalBasedClick={this.onConvertToIntervalBasedClick}
                       onExportSheetClick={this.onExportSheetClick}
                       onScanMovieListItemClick={this.onScanMovieListItemClick}
                       onReplaceMovieListItemClick={this.onReplaceMovieListItemClick}
