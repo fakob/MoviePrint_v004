@@ -232,22 +232,6 @@ const FileListElement = ({
         <Dropdown.Menu>
           {fileMissingStatus !== true && (
             <Dropdown.Item
-              data-tid="addShotDetectionMovieListItemOption"
-              icon="add"
-              text="Add MoviePrint (shot detection based)"
-              onClick={e => onScanMovieListItemClickWithStop(e, fileId)}
-            />
-          )}
-          {fileMissingStatus !== true && (
-            <Dropdown.Item
-              data-tid="addIntervalMovieListItemOption"
-              icon="add"
-              text="Add MoviePrint (interval based)"
-              onClick={e => onAddIntervalSheetClickWithStop(e, fileId)}
-            />
-          )}
-          {fileMissingStatus !== true && (
-            <Dropdown.Item
               data-tid="changeCroppingListItemOption"
               icon="crop"
               text="Edit cropping"
