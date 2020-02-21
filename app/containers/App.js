@@ -728,8 +728,10 @@ class App extends Component {
                   status: 'addFaceData',
                   sortMethod: faceSortMethod,
                 });
-                const newSheetName = getNewSheetName(getSheetCount(files, fileId));
+                const sheetCount = getSheetCount(files, fileId);
+                const newSheetName = getNewSheetName(sheetCount);
                 dispatch(updateSheetName(fileId, newSheetId, newSheetName));
+                dispatch(updateSheetCounter(fileId));
                 dispatch(updateSheetType(fileId, newSheetId, SHEET_TYPE.FACES));
                 dispatch(updateSheetView(fileId, newSheetId, SHEET_VIEW.GRIDVIEW));
                 dispatch(

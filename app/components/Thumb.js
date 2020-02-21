@@ -69,9 +69,9 @@ const FaceRect = ({ face: { box, ...faceExceptForBox }, thumbWidth, thumbHeight 
         top: `${box.y * thumbHeight}px`,
       }}
     >
-      id: {faceExceptForBox.faceId}<br />
+      {faceExceptForBox.gender === 'female' ? '\u2640' : '\u2642'}<br />
+      #<em>{faceExceptForBox.faceId}</em><br />
       {faceExceptForBox.occurrence} x<br />
-      {faceExceptForBox.gender}<br />
     </div>
   </>
 );
