@@ -235,7 +235,7 @@ export const TIMELINE_PLAYHEAD_MINIMUM_WIDTH = 2;
 // face detection
 export const FACE_SIZE_THRESHOLD = 20; // faces smaller than this percentage of the movie height are ignored
 export const FACE_CONFIDENCE_THRESHOLD = 70; // detected faces with a lower score are ignored
-export const FACE_UNIQUENESS_THRESHOLD = 0.6; // faces with a euclideanDistance larger than this are considered unique
+export const FACE_UNIQUENESS_THRESHOLD = 0.61; // faces with a euclideanDistance larger than this are considered unique
 export const SORT_METHOD = {
   FRAMENUMBER: 'frameNumber',
   FACECONFIDENCE: 'faceConfidence',
