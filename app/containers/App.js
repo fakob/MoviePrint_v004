@@ -701,7 +701,7 @@ class App extends Component {
         });
 
         // only run if there is at least 1 face
-        if (detectionArray !== 0) {
+        if (detectionArray.length !== 0) {
           // sort and filter faces by faceSortMethod
           const sortedArray = sortArray(detectionArray, faceSortMethod);
 
@@ -751,6 +751,14 @@ class App extends Component {
                 log.error(err);
               });
           }
+        } else {
+          log.info('No faces detected!');
+          toast('No faces detected!', {
+            className: `${stylesPop.toast}`,
+            autoClose: 10000,
+            closeButton: true,
+            closeOnClick: true,
+          });
         }
       },
     );
