@@ -453,6 +453,8 @@ class ThumbGrid extends Component {
     const isIntervalType = sheetType === SHEET_TYPE.INTERVAL;
     const isShotType = sheetType === SHEET_TYPE.SCENES;
 
+    const isAltKey = keyObject.altKey;
+
     const {
       defaultFrameinfoBackgroundColor = DEFAULT_FRAMEINFO_BACKGROUND_COLOR,
       defaultFrameinfoColor = DEFAULT_FRAMEINFO_COLOR,
@@ -793,7 +795,7 @@ class ThumbGrid extends Component {
                           className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayIn} ${
                             thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER ? styles.overlayShrink : ''
                           }`}
-                          onClick={isIntervalType ? this.onInPoint : this.onHideBefore}
+                          onClick={isIntervalType && !isAltKey ? this.onInPoint : this.onHideBefore}
                           onMouseOver={this.onHoverInPoint}
                           onMouseOut={this.onLeaveInOut}
                           onFocus={over}
@@ -807,9 +809,11 @@ class ThumbGrid extends Component {
                       position="bottom center"
                       className={stylesPop.popup}
                       content={
-                        isIntervalType ? (
+                        isIntervalType && !isAltKey ? (
                           <span>
-                            Set this thumb as new <mark>IN-point</mark>
+                            Set this thumb as new <mark>IN-point</mark> and re-capture in-between thumbs
+                            <br />
+                            With <mark>ALT</mark> hide all thumbs before
                           </span>
                         ) : (
                           <span>Hide all thumbs before</span>
@@ -899,7 +903,7 @@ class ThumbGrid extends Component {
                           className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayOut} ${
                             thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER ? styles.overlayShrink : ''
                           }`}
-                          onClick={isIntervalType ? this.onOutPoint : this.onHideAfter}
+                          onClick={isIntervalType && !isAltKey ? this.onOutPoint : this.onHideAfter}
                           onMouseOver={this.onHoverOutPoint}
                           onMouseOut={this.onLeaveInOut}
                           onFocus={over}
@@ -913,9 +917,11 @@ class ThumbGrid extends Component {
                       position="bottom center"
                       className={stylesPop.popup}
                       content={
-                        isIntervalType ? (
+                        isIntervalType && !isAltKey ? (
                           <span>
-                            Set this thumb as new <mark>OUT-point</mark>
+                            Set this thumb as new <mark>OUT-point</mark> and re-capture in-between thumbs
+                            <br />
+                            With <mark>ALT</mark> hide all thumbs after
                           </span>
                         ) : (
                           <span>Hide all thumbs after</span>
