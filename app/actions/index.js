@@ -797,6 +797,10 @@ export const changeAndSortThumbArray = (fileId, sheetId, faceScanArray, sortMeth
   log.debug(`action: changeAndSortThumbArray - ${faceScanArray}`);
   return (dispatch, getState) => {
     dispatch(changeThumbArray(fileId, sheetId, faceScanArray));
+    // return immediately if no sorting is needed
+    if (sortMethod === undefined) {
+      return undefined;
+    }
     const sortedArray = sortArray(faceScanArray, sortMethod);
     // extract frameNumbers
     const frameNumberArrayFromFaceDetection = sortedArray.map(item => item.frameNumber);

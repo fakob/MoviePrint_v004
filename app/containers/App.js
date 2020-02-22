@@ -2034,6 +2034,7 @@ class App extends Component {
 
     // create new sheet if it does not already exist
     if (sheetsArray.findIndex(item => item === sheetId) === -1) {
+      // expand face type
       if (isFaceType) {
         // get faceId
         const faceIdOfThumb = getFaceIdOfThumb(sheetsByFileId, file.id, parentSheetId, sceneOrThumbId);
@@ -2044,6 +2045,7 @@ class App extends Component {
 
         // get thumbs
         dispatch(addNewThumbsWithOrder(file, sheetId, frameNumberArray, settings.defaultCachedFramesSize));
+        this.addFaceData(file.id, sheetId);
 
         dispatch(updateSheetName(file.id, sheetId, `Occurrences of #${faceIdOfThumb}`)); // set name on file
         // dispatch(updateSheetCounter(file.id));
