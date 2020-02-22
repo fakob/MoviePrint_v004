@@ -2046,8 +2046,8 @@ class App extends Component {
         // get thumbs
         dispatch(addNewThumbsWithOrder(file, sheetId, frameNumberArray, settings.defaultCachedFramesSize));
         this.addFaceData(file.id, sheetId);
-
-        dispatch(updateSheetName(file.id, sheetId, `Occurrences of #${faceIdOfThumb}`)); // set name on file
+        const parentSheetName = getSheetName(sheetsByFileId, file.id, parentSheetId);
+        dispatch(updateSheetName(file.id, sheetId, `${parentSheetName} #${faceIdOfThumb}`)); // set name on file
         // dispatch(updateSheetCounter(file.id));
         dispatch(updateSheetType(file.id, sheetId, SHEET_TYPE.FACES));
       } else {
