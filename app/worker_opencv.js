@@ -835,7 +835,7 @@ ipcRenderer.on(
 
               const detections = detectAllFaces(
                 input,
-                frameNumber,
+                frameNumberToCapture,
                 detectionArray,
                 uniqueFaceArray,
                 defaultFaceConfidenceThreshold,
@@ -844,8 +844,6 @@ ipcRenderer.on(
               );
               // console.log(detections)
 
-              const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
-              const frameId = frameIdArray[iterator];
               const isLastThumb = iterator === frameNumberArray.length - 1;
 
               if (isLastThumb) {
