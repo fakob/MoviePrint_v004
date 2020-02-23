@@ -484,8 +484,6 @@ ipcRenderer.on(
       const timeBeforeSceneDetection = Date.now();
       console.time(`${fileId}-fileScanning`);
       const vid = new opencv.VideoCapture(filePath);
-      const videoLength = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1;
-      // log.debug(videoLength);
 
       const minSceneLength = 15;
 
@@ -772,12 +770,7 @@ ipcRenderer.on(
 
     try {
       fileScanRunning = true;
-
-      // initiate cancel option
-      ipcRenderer.on('cancelFileScan', () => {
-        log.debug('cancelling fileScan');
-        fileScanRunning = false;
-      });
+      const frameNumberArrayLength = frameNumberArray.length;
 
       const timeBeforeFaceDetection = Date.now();
       console.time(`${fileId}-faceScanning`);
@@ -808,7 +801,13 @@ ipcRenderer.on(
           setPosition(vid, frameNumberToCapture, useRatio);
 
           vid.readAsync((err, mat) => {
-            // debugger;
+            const progressBarPercentage = (iterator / frameNumberArrayLength) * 100;
+            ipcRenderer.send(
+              'message-from-opencvWorkerWindow-to-mainWindow',
+              'progress',
+              fileId,
+              progressBarPercentage,
+            );
             log.debug(
               `opencvWorkerWindow | readAsync: ${iterator}, frameOffset: ${frameOffset}, ${frameNumberToCapture}/${vid.get(
                 VideoCaptureProperties.CAP_PROP_POS_FRAMES,
@@ -843,91 +842,60 @@ ipcRenderer.on(
                 defaultFaceUniquenessThreshold,
               );
               // console.log(detections)
-
-              const isLastThumb = iterator === frameNumberArray.length - 1;
-
-              if (isLastThumb) {
-                log.debug('lastThumb');
-
-                // insert all frames into sqlite3
-                insertFaceScanArray(fileId, detectionArray);
-
-                const timeAfterFaceDetection = Date.now();
-                const scanDurationInSeconds = (timeAfterFaceDetection - timeBeforeFaceDetection) / 1000;
-                const scanDurationString =
-                  scanDurationInSeconds > 180
-                    ? `${Math.floor(scanDurationInSeconds / 60)} minutes`
-                    : `${Math.floor(scanDurationInSeconds)} seconds`;
-                const messageToSend = `Face scanning took ${scanDurationString} (${Math.floor(
-                  vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) / scanDurationInSeconds,
-                )} fps)`;
-                log.info(`opencvWorkerWindow | ${filePath} - ${messageToSend}`);
-                console.timeEnd(`${fileId}-fileScanning`);
-
-                ipcRenderer.send(
-                  'message-from-opencvWorkerWindow-to-mainWindow',
-                  'finished-getting-faces',
-                  fileId,
-                  sheetId,
-                  detectionArray,
-                  faceSortMethod,
-                  updateSheet,
-                );
-                ipcRenderer.send('message-from-opencvWorkerWindow-to-mainWindow', 'progress', fileId, 100); // set to full
-                ipcRenderer.send(
-                  'message-from-opencvWorkerWindow-to-mainWindow',
-                  'progressMessage',
-                  'info',
-                  messageToSend,
-                  5000,
-                );
-              }
-
-              iterator += 1;
-              if (iterator < frameNumberArray.length) {
-                read();
-              }
             } else {
               log.debug('opencvWorkerWindow | frame is empty');
-              if (isLastThumb) {
-                // insert all frames into sqlite3
-                insertFaceScanArray(fileId, detectionArray);
+            }
+            iterator += 1;
 
-                const timeAfterFaceDetection = Date.now();
-                const scanDurationInSeconds = (timeAfterFaceDetection - timeBeforeFaceDetection) / 1000;
-                const scanDurationString =
-                  scanDurationInSeconds > 180
-                    ? `${Math.floor(scanDurationInSeconds / 60)} minutes`
-                    : `${Math.floor(scanDurationInSeconds)} seconds`;
-                const messageToSend = `Face scanning took ${scanDurationString} (${Math.floor(
-                  vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) / scanDurationInSeconds,
-                )} fps)`;
-                log.info(`opencvWorkerWindow | ${filePath} - ${messageToSend}`);
-                console.timeEnd(`${fileId}-fileScanning`);
+            if (!fileScanRunning) {
+              const messageToSend = `opencvWorkerWindow | File scanning cancelled at frame ${frameNumberToCapture}`;
+              log.debug(messageToSend);
+              console.timeEnd(`${fileId}-fileScanning`);
 
-                ipcRenderer.send(
-                  'message-from-opencvWorkerWindow-to-mainWindow',
-                  'finished-getting-faces',
-                  fileId,
-                  sheetId,
-                  detectionArray,
-                  faceSortMethod,
-                  updateSheet,
-                );
-                ipcRenderer.send('message-from-opencvWorkerWindow-to-mainWindow', 'progress', fileId, 100); // set to full
-                ipcRenderer.send(
-                  'message-from-opencvWorkerWindow-to-mainWindow',
-                  'progressMessage',
-                  'info',
-                  messageToSend,
-                  5000,
-                );
-              }
+              ipcRenderer.send(
+                'message-from-opencvWorkerWindow-to-mainWindow',
+                'progressMessage',
+                'error',
+                messageToSend,
+                6000,
+              );
+            } else if (iterator < frameNumberArrayLength) {
+              read();
+            } else {
+              log.debug('lastThumb');
 
-              iterator += 1;
-              if (iterator < frameNumberArray.length) {
-                read();
-              }
+              // insert all frames into sqlite3
+              insertFaceScanArray(fileId, detectionArray);
+
+              const timeAfterFaceDetection = Date.now();
+              const scanDurationInSeconds = (timeAfterFaceDetection - timeBeforeFaceDetection) / 1000;
+              const scanDurationString =
+                scanDurationInSeconds > 180
+                  ? `${Math.floor(scanDurationInSeconds / 60)} minutes`
+                  : `${Math.floor(scanDurationInSeconds)} seconds`;
+              const messageToSend = `Face scanning took ${scanDurationString} (${Math.floor(
+                vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) / scanDurationInSeconds,
+              )} fps)`;
+              log.info(`opencvWorkerWindow | ${filePath} - ${messageToSend}`);
+              console.timeEnd(`${fileId}-fileScanning`);
+
+              ipcRenderer.send(
+                'message-from-opencvWorkerWindow-to-mainWindow',
+                'finished-getting-faces',
+                fileId,
+                sheetId,
+                detectionArray,
+                faceSortMethod,
+                updateSheet,
+              );
+              ipcRenderer.send('message-from-opencvWorkerWindow-to-mainWindow', 'progress', fileId, 100); // set to full
+              ipcRenderer.send(
+                'message-from-opencvWorkerWindow-to-mainWindow',
+                'progressMessage',
+                'info',
+                messageToSend,
+                5000,
+              );
             }
           });
         };
@@ -967,6 +935,8 @@ ipcRenderer.on(
     log.debug(`opencvWorkerWindow | imageQueue size: ${imageQueue.size()}`);
 
     try {
+      const frameNumberArrayLength = frameNumberArray.length;
+
       const vid = new opencv.VideoCapture(filePath);
       const timeBefore = Date.now();
       const frameNumberAndColorArray = [];
@@ -1022,7 +992,6 @@ ipcRenderer.on(
               const outBase64 = opencv.imencode('.jpg', matResult).toString('base64'); // maybe change to .png?
               const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
               const frameId = frameIdArray[iterator];
-              const isLastThumb = iterator === frameNumberArray.length - 1;
               // get color
               const frameMean = matResult
                 .resizeToMax(240)
@@ -1044,36 +1013,6 @@ ipcRenderer.on(
                 frameNumber,
                 colorArray,
               });
-
-              if (isLastThumb) {
-                const duration = Date.now() - timeBefore;
-                log.debug('lastThumb');
-
-                ipcRenderer.send(
-                  'message-from-opencvWorkerWindow-to-mainWindow',
-                  'update-frameNumber-and-colorArray',
-                  frameNumberAndColorArray,
-                );
-
-                ipcRenderer.send(
-                  'message-from-opencvWorkerWindow-to-mainWindow',
-                  'finished-getting-thumbs',
-                  fileId,
-                  sheetId,
-                );
-                ipcRenderer.send(
-                  'message-from-opencvWorkerWindow-to-mainWindow',
-                  'progressMessage',
-                  'info',
-                  `Loading of frames took ${duration / 1000.0}s`,
-                  3000,
-                );
-              }
-
-              iterator += 1;
-              if (iterator < frameNumberArray.length) {
-                read();
-              }
             } else {
               log.debug('opencvWorkerWindow | frame is empty');
               // assumption is that the we might find frames forward or backward which work
@@ -1090,7 +1029,6 @@ ipcRenderer.on(
                 log.debug('opencvWorkerWindow | still empty, will stop and send an empty frame back');
                 const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
                 const frameId = frameIdArray[iterator];
-                const isLastThumb = iterator === frameNumberArray.length - 1;
 
                 imageQueue.add({
                   frameId,
@@ -1106,39 +1044,36 @@ ipcRenderer.on(
                   frameNumber,
                   colorArray: [0, 0, 0],
                 });
-
-                // duplicated from above
-                // clean up so it is only once there
-                if (isLastThumb) {
-                  const duration = Date.now() - timeBefore;
-                  log.debug('lastThumb');
-
-                  ipcRenderer.send(
-                    'message-from-opencvWorkerWindow-to-mainWindow',
-                    'update-frameNumber-and-colorArray',
-                    frameNumberAndColorArray,
-                  );
-
-                  ipcRenderer.send(
-                    'message-from-opencvWorkerWindow-to-mainWindow',
-                    'finished-getting-thumbs',
-                    fileId,
-                    sheetId,
-                  );
-                  ipcRenderer.send(
-                    'message-from-opencvWorkerWindow-to-mainWindow',
-                    'progressMessage',
-                    'info',
-                    `Loading of frames took ${duration / 1000.0}s`,
-                    3000,
-                  );
-                }
-
-                iterator += 1;
-                if (iterator < frameNumberArray.length) {
-                  read();
-                }
               }
+            }
+            iterator += 1;
+
+            if (iterator < frameNumberArrayLength) {
+              read();
+            } else {
+              log.debug('lastThumb');
+              const duration = Date.now() - timeBefore;
+              log.debug('lastThumb');
+
+              ipcRenderer.send(
+                'message-from-opencvWorkerWindow-to-mainWindow',
+                'update-frameNumber-and-colorArray',
+                frameNumberAndColorArray,
+              );
+
+              ipcRenderer.send(
+                'message-from-opencvWorkerWindow-to-mainWindow',
+                'finished-getting-thumbs',
+                fileId,
+                sheetId,
+              );
+              ipcRenderer.send(
+                'message-from-opencvWorkerWindow-to-mainWindow',
+                'progressMessage',
+                'info',
+                `Loading of frames took ${duration / 1000.0}s`,
+                3000,
+              );
             }
           });
         };
@@ -1154,7 +1089,7 @@ ipcRenderer.on(
   },
 );
 
-ipcRenderer.on('clear-sceneQueue', event => {
+ipcRenderer.on('clear-sceneQueue', () => {
   log.debug(`opencvWorkerWindow | on clear-sceneQueue ${sceneQueue.size()}`);
   sceneQueue.clear();
 });

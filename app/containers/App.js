@@ -2497,18 +2497,34 @@ class App extends Component {
 
     this.setState({ fileScanRunning: true });
     // display toast and set toastId to fileId
-    toast(({ closeToast }) => <div>Face detection in progress</div>, {
-      toastId: currentFileId,
-      className: `${stylesPop.toast} ${stylesPop.toastInfo}`,
-      hideProgressBar: false,
-      autoClose: false,
-      closeButton: false,
-      closeOnClick: false,
-    });
+    toast(
+      ({ closeToast }) => (
+        <div>
+          Face detection in progress
+          <Button
+            compact
+            floated="right"
+            content="Cancel"
+            onClick={() => {
+              this.cancelFileScan(currentFileId);
+              closeToast();
+            }}
+          />
+        </div>
+      ),
+      {
+        toastId: currentFileId,
+        className: `${stylesPop.toast} ${stylesPop.toastInfo}`,
+        hideProgressBar: false,
+        autoClose: false,
+        closeButton: false,
+        closeOnClick: false,
+      },
+    );
 
     ipcRenderer.send(
       'message-from-mainWindow-to-opencvWorkerWindow',
-      'send-get-faces-sync',
+      'send-get-faces',
       currentFileId,
       filePath,
       newSheetId,
@@ -2544,18 +2560,34 @@ class App extends Component {
 
     this.setState({ fileScanRunning: true });
     // display toast and set toastId to fileId
-    toast(({ closeToast }) => <div>Face detection in progress</div>, {
-      toastId: currentFileId,
-      className: `${stylesPop.toast} ${stylesPop.toastInfo}`,
-      hideProgressBar: false,
-      autoClose: false,
-      closeButton: false,
-      closeOnClick: false,
-    });
+    toast(
+      ({ closeToast }) => (
+        <div>
+          Face detection in progress
+          <Button
+            compact
+            floated="right"
+            content="Cancel"
+            onClick={() => {
+              this.cancelFileScan(currentFileId);
+              closeToast();
+            }}
+          />
+        </div>
+      ),
+      {
+        toastId: currentFileId,
+        className: `${stylesPop.toast} ${stylesPop.toastInfo}`,
+        hideProgressBar: false,
+        autoClose: false,
+        closeButton: false,
+        closeOnClick: false,
+      },
+    );
 
     ipcRenderer.send(
       'message-from-mainWindow-to-opencvWorkerWindow',
-      'send-get-faces-sync',
+      'send-get-faces',
       currentFileId,
       filePath,
       currentSheetId,
