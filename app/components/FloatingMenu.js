@@ -166,17 +166,17 @@ const ButtonExampleCircularSocial = ({
             >
               <Dropdown.Menu className={styles.dropDownMenu}>
                 <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick(0.01)}>
-                  Current range - scan every 100th frame
+                  Scan every 100th frame - current range
                 </Dropdown.Item>
                 <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick(0.1)}>
-                  Current range - scan every 10th frame
+                  Scan every 10th frame - current range
                 </Dropdown.Item>
                 <Dropdown.Divider />
                 <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick(0.01, true)}>
-                  Whole movie - scan every 100th frame
+                  Scan every 100th frame - whole movie
                 </Dropdown.Item>
                 <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick(0.1, true)}>
-                  Whole movie - scan every 10th frame
+                  Scan every 10th frame - whole movie
                 </Dropdown.Item>
                 <Dropdown.Divider />
                 <Dropdown.Item className={styles.dropDownItem} onClick={onRescanFaceSheet}>
