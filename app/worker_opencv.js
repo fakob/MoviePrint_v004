@@ -1,10 +1,11 @@
 import React from 'react';
 import { render } from 'react-dom';
 import log from 'electron-log';
-// import FileObject from './utils/fileObject';
+import * as tf from '@tensorflow/tfjs-node';
+
 import VideoCaptureProperties from './utils/videoCaptureProperties';
-import { limitRange, setPosition, fourccToString } from './utils/utils';
-import { detectFace, runSyncCaptureAndFaceDetect } from './utils/faceDetection';
+import { limitRange, setPosition, fourccToString, getCropWidthAndHeight } from './utils/utils';
+import { detectAllFaces, runSyncCaptureAndFaceDetect } from './utils/faceDetection';
 import { HSVtoRGB, detectCut, recaptureThumbs } from './utils/utilsForOpencv';
 import { IN_OUT_POINT_SEARCH_LENGTH, IN_OUT_POINT_SEARCH_THRESHOLD } from './utils/constants';
 import { insertFrameScanArray, insertFaceScanArray } from './utils/utilsForSqlite';
@@ -492,22 +493,14 @@ ipcRenderer.on(
       let previousData = {};
       let lastSceneCut = null;
 
-      // transform
-      const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
-      const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
-      let cropTop = 0;
-      let cropBottom = 0;
-      let cropLeft = 0;
-      let cropRight = 0;
-      if (transformObject !== undefined && transformObject !== null) {
-        log.debug(transformObject);
-        cropTop = transformObject.cropTop;
-        cropBottom = transformObject.cropBottom;
-        cropLeft = transformObject.cropLeft;
-        cropRight = transformObject.cropRight;
-      }
-      const cropWidth = width - cropLeft - cropRight;
-      const cropHeight = height - cropTop - cropBottom;
+      // getCropWidthAndHeight
+      const videoWidth = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
+      const videoHeight = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
+      const { cropTop, cropLeft, cropWidth, cropHeight } = getCropWidthAndHeight(
+        transformObject,
+        videoWidth,
+        videoHeight,
+      );
 
       vid.readAsync(err1 => {
         const read = () => {
@@ -705,6 +698,7 @@ ipcRenderer.on(
         fileId,
         frameNumberArray,
         useRatio,
+        transformObject,
         defaultFaceConfidenceThreshold,
         defaultFaceSizeThreshold,
         defaultFaceUniquenessThreshold,
@@ -754,6 +748,203 @@ ipcRenderer.on(
   },
 );
 
+// get faces async
+ipcRenderer.on(
+  // 'send-get-thumbs-async',
+  'send-get-faces',
+  (
+    event,
+    fileId,
+    filePath,
+    sheetId,
+    frameNumberArray,
+    useRatio,
+    defaultCachedFramesSize,
+    transformObject,
+    defaultFaceConfidenceThreshold,
+    defaultFaceSizeThreshold,
+    defaultFaceUniquenessThreshold,
+    faceSortMethod,
+    updateSheet = false,
+  ) => {
+    log.debug('opencvWorkerWindow | on send-get-faces');
+    log.debug(`opencvWorkerWindow | ${filePath}`);
+
+    try {
+      fileScanRunning = true;
+
+      // initiate cancel option
+      ipcRenderer.on('cancelFileScan', () => {
+        log.debug('cancelling fileScan');
+        fileScanRunning = false;
+      });
+
+      const timeBeforeFaceDetection = Date.now();
+      console.time(`${fileId}-faceScanning`);
+
+      const vid = new opencv.VideoCapture(filePath);
+
+      const detectionArray = [];
+      const uniqueFaceArray = [];
+
+      // getCropWidthAndHeight
+      const videoWidth = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
+      const videoHeight = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
+      const { cropTop, cropLeft, cropWidth, cropHeight } = getCropWidthAndHeight(
+        transformObject,
+        videoWidth,
+        videoHeight,
+      );
+
+      vid.readAsync(err1 => {
+        const read = (frameOffset = 0) => {
+          // limit frameNumberToCapture between 0 and movie length
+          const frameNumberToCapture = limitRange(
+            frameNumberArray[iterator] + frameOffset,
+            0,
+            vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1,
+          );
+
+          setPosition(vid, frameNumberToCapture, useRatio);
+
+          vid.readAsync((err, mat) => {
+            // debugger;
+            log.debug(
+              `opencvWorkerWindow | readAsync: ${iterator}, frameOffset: ${frameOffset}, ${frameNumberToCapture}/${vid.get(
+                VideoCaptureProperties.CAP_PROP_POS_FRAMES,
+              ) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(
+                VideoCaptureProperties.CAP_PROP_FRAME_COUNT,
+              )}`,
+            );
+
+            if (mat.empty === false) {
+              // opencv.imshow('mat', mat);
+              // optional cropping
+              let matCropped;
+              if (transformObject !== undefined && transformObject !== null) {
+                matCropped = mat.getRegion(new opencv.Rect(cropLeft, cropTop, cropWidth, cropHeight));
+                // matCropped = mat.copy().copyMakeBorder(transformObject.cropTop, transformObject.cropBottom, transformObject.cropLeft, transformObject.cropRight);
+                // opencv.imshow('matCropped', matCropped);
+              }
+
+              // rescale
+              const matRescaled = matCropped === undefined ? mat.resizeToMax(720) : matCropped.resizeToMax(720);
+
+              const outJpg = opencv.imencode('.jpg', matRescaled);
+              const input = tf.node.decodeJpeg(outJpg);
+
+              const detections = detectAllFaces(
+                input,
+                frameNumber,
+                detectionArray,
+                uniqueFaceArray,
+                defaultFaceConfidenceThreshold,
+                defaultFaceSizeThreshold,
+                defaultFaceUniquenessThreshold,
+              );
+              // console.log(detections)
+
+              const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
+              const frameId = frameIdArray[iterator];
+              const isLastThumb = iterator === frameNumberArray.length - 1;
+
+              if (isLastThumb) {
+                log.debug('lastThumb');
+
+                // insert all frames into sqlite3
+                insertFaceScanArray(fileId, detectionArray);
+
+                const timeAfterFaceDetection = Date.now();
+                const scanDurationInSeconds = (timeAfterFaceDetection - timeBeforeFaceDetection) / 1000;
+                const scanDurationString =
+                  scanDurationInSeconds > 180
+                    ? `${Math.floor(scanDurationInSeconds / 60)} minutes`
+                    : `${Math.floor(scanDurationInSeconds)} seconds`;
+                const messageToSend = `Face scanning took ${scanDurationString} (${Math.floor(
+                  vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) / scanDurationInSeconds,
+                )} fps)`;
+                log.info(`opencvWorkerWindow | ${filePath} - ${messageToSend}`);
+                console.timeEnd(`${fileId}-fileScanning`);
+
+                ipcRenderer.send(
+                  'message-from-opencvWorkerWindow-to-mainWindow',
+                  'finished-getting-faces',
+                  fileId,
+                  sheetId,
+                  detectionArray,
+                  faceSortMethod,
+                  updateSheet,
+                );
+                ipcRenderer.send('message-from-opencvWorkerWindow-to-mainWindow', 'progress', fileId, 100); // set to full
+                ipcRenderer.send(
+                  'message-from-opencvWorkerWindow-to-mainWindow',
+                  'progressMessage',
+                  'info',
+                  messageToSend,
+                  5000,
+                );
+              }
+
+              iterator += 1;
+              if (iterator < frameNumberArray.length) {
+                read();
+              }
+            } else {
+              log.debug('opencvWorkerWindow | frame is empty');
+              if (isLastThumb) {
+                // insert all frames into sqlite3
+                insertFaceScanArray(fileId, detectionArray);
+
+                const timeAfterFaceDetection = Date.now();
+                const scanDurationInSeconds = (timeAfterFaceDetection - timeBeforeFaceDetection) / 1000;
+                const scanDurationString =
+                  scanDurationInSeconds > 180
+                    ? `${Math.floor(scanDurationInSeconds / 60)} minutes`
+                    : `${Math.floor(scanDurationInSeconds)} seconds`;
+                const messageToSend = `Face scanning took ${scanDurationString} (${Math.floor(
+                  vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) / scanDurationInSeconds,
+                )} fps)`;
+                log.info(`opencvWorkerWindow | ${filePath} - ${messageToSend}`);
+                console.timeEnd(`${fileId}-fileScanning`);
+
+                ipcRenderer.send(
+                  'message-from-opencvWorkerWindow-to-mainWindow',
+                  'finished-getting-faces',
+                  fileId,
+                  sheetId,
+                  detectionArray,
+                  faceSortMethod,
+                  updateSheet,
+                );
+                ipcRenderer.send('message-from-opencvWorkerWindow-to-mainWindow', 'progress', fileId, 100); // set to full
+                ipcRenderer.send(
+                  'message-from-opencvWorkerWindow-to-mainWindow',
+                  'progressMessage',
+                  'info',
+                  messageToSend,
+                  5000,
+                );
+              }
+
+              iterator += 1;
+              if (iterator < frameNumberArray.length) {
+                read();
+              }
+            }
+          });
+        };
+
+        if (err1) throw err1;
+        let iterator = 0;
+        setPosition(vid, frameNumberArray[iterator], useRatio);
+        read();
+      });
+    } catch (e) {
+      log.error(e);
+    }
+  },
+);
+
 // read async
 ipcRenderer.on(
   // 'send-get-thumbs-async',
@@ -782,22 +973,14 @@ ipcRenderer.on(
       const timeBefore = Date.now();
       const frameNumberAndColorArray = [];
 
-      // transform
-      const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
-      const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
-      let cropTop = 0;
-      let cropBottom = 0;
-      let cropLeft = 0;
-      let cropRight = 0;
-      if (transformObject !== undefined && transformObject !== null) {
-        log.debug(transformObject);
-        cropTop = transformObject.cropTop;
-        cropBottom = transformObject.cropBottom;
-        cropLeft = transformObject.cropLeft;
-        cropRight = transformObject.cropRight;
-      }
-      const cropWidth = width - cropLeft - cropRight;
-      const cropHeight = height - cropTop - cropBottom;
+      // getCropWidthAndHeight
+      const videoWidth = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
+      const videoHeight = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
+      const { cropTop, cropLeft, cropWidth, cropHeight } = getCropWidthAndHeight(
+        transformObject,
+        videoWidth,
+        videoHeight,
+      );
 
       vid.readAsync(err1 => {
         const read = (frameOffset = 0) => {

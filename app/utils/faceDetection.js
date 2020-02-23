@@ -3,7 +3,8 @@ import * as faceapi from 'face-api.js';
 import log from 'electron-log';
 import * as tf from '@tensorflow/tfjs-node';
 
-import { getArrayOfOccurrences, roundNumber, setPosition } from './utils';
+import VideoCaptureProperties from './videoCaptureProperties';
+import { getArrayOfOccurrences, roundNumber, setPosition, getCropWidthAndHeight } from './utils';
 import { FACE_CONFIDENCE_THRESHOLD, FACE_SIZE_THRESHOLD, FACE_UNIQUENESS_THRESHOLD } from './constants';
 
 const opencv = require('opencv4nodejs');
@@ -266,6 +267,7 @@ export const runSyncCaptureAndFaceDetect = async (
   fileId,
   frameNumberArray,
   useRatio,
+  transformObject,
   defaultFaceConfidenceThreshold,
   defaultFaceSizeThreshold,
   defaultFaceUniquenessThreshold,
@@ -281,10 +283,18 @@ export const runSyncCaptureAndFaceDetect = async (
   const detectionArray = [];
   const uniqueFaceArray = [];
   const arrayLength = frameNumberArray.length;
+
+  // getCropWidthAndHeight
+  const videoWidth = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
+  const videoHeight = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
+  const { cropTop, cropLeft, cropWidth, cropHeight } = getCropWidthAndHeight(transformObject, videoWidth, videoHeight);
+
   for (let i = 0; i < arrayLength; i += 1) {
+    const frameNumber = frameNumberArray[i];
+
     if (!fileScanRunning) {
       // CANCELLING IS NOT WORKING YET
-      const messageToSend = `opencvWorkerWindow | Face scanning cancelled at frame ${frame}`;
+      const messageToSend = `opencvWorkerWindow | Face scanning cancelled at frame ${frameNumber}`;
       log.debug(messageToSend);
 
       ipcRenderer.send(
@@ -299,20 +309,22 @@ export const runSyncCaptureAndFaceDetect = async (
     const progressBarPercentage = (i / arrayLength) * 100;
     ipcRenderer.send('message-from-opencvWorkerWindow-to-mainWindow', 'progress', fileId, progressBarPercentage); // first half of progress
 
-    const frameNumber = frameNumberArray[i];
     setPosition(vid, frameNumber, useRatio);
-    const frame = vid.read();
-    if (frame.empty) {
-      log.debug('opencvWorkerWindow | frame is empty');
+    const mat = vid.read();
+    if (mat.empty) {
+      log.debug('opencvWorkerWindow | mat is empty');
     } else {
-      const matRGBA =
-        frame.channels === 1 ? frame.cvtColor(opencv.COLOR_GRAY2RGBA) : frame.cvtColor(opencv.COLOR_BGR2RGBA);
-      // optional rescale
-      let matRescaled = matRGBA;
-      if (true) {
-        // false stands for keep original size
-        matRescaled = matRGBA.resizeToMax(720);
+      // opencv.imshow('mat', mat);
+      // optional cropping
+      let matCropped;
+      if (transformObject !== undefined && transformObject !== null) {
+        matCropped = mat.getRegion(new opencv.Rect(cropLeft, cropTop, cropWidth, cropHeight));
+        // matCropped = mat.copy().copyMakeBorder(transformObject.cropTop, transformObject.cropBottom, transformObject.cropLeft, transformObject.cropRight);
+        // opencv.imshow('matCropped', matCropped);
       }
+
+      // rescale
+      const matRescaled = matCropped === undefined ? mat.resizeToMax(720) : matCropped.resizeToMax(720);
 
       const outJpg = opencv.imencode('.jpg', matRescaled);
       const input = tf.node.decodeJpeg(outJpg);

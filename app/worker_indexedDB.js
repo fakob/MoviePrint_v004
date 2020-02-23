@@ -71,10 +71,7 @@ setInterval(() => {
   if (size !== 0) {
     log.debug(`the objectUrlQueue size is: ${size}`);
     // start requestIdleCallback in mainWindow for objectUrlQueue
-    ipcRenderer.send(
-      'message-from-opencvWorkerWindow-to-mainWindow',
-      'start-requestIdleCallback-for-objectUrlQueue',
-    );
+    ipcRenderer.send('message-from-opencvWorkerWindow-to-mainWindow', 'start-requestIdleCallback-for-objectUrlQueue');
   }
 }, 1000);
 
@@ -93,26 +90,22 @@ ipcRenderer.on('update-base64-frame', (event, frameId, outBase64) => {
   updateFrameInIndexedDB(frameId, outBase64, objectUrlQueue);
 });
 
-ipcRenderer.on('get-arrayOfObjectUrls', (event) => {
+ipcRenderer.on('get-arrayOfObjectUrls', () => {
   log.debug('indexedDBWorkerWindow | on get-arrayOfObjectUrls');
   getObjectUrlsFromFramelist(objectUrlQueue);
 });
 
-ipcRenderer.on('get-some-objectUrls-from-objectUrlQueue', (event) => {
+ipcRenderer.on('get-some-objectUrls-from-objectUrlQueue', () => {
   log.debug('indexedDBWorkerWindow | on get-some-objectUrls-from-objectUrlQueue');
 
   const arrayOfObjectUrls = objectUrlQueue.data;
   log.debug(arrayOfObjectUrls);
   // start requestIdleCallback in mainWindow for objectUrlQueue
-  ipcRenderer.send(
-    'message-from-indexedDBWorkerWindow-to-mainWindow',
-    'send-arrayOfObjectUrls',
-    arrayOfObjectUrls
-  );
+  ipcRenderer.send('message-from-indexedDBWorkerWindow-to-mainWindow', 'send-arrayOfObjectUrls', arrayOfObjectUrls);
   objectUrlQueue.clear();
 });
 
-ipcRenderer.on('start-setIntervalForImages-for-imageQueue', (event) => {
+ipcRenderer.on('start-setIntervalForImages-for-imageQueue', () => {
   log.debug('indexedDBWorkerWindow | on start-setIntervalForImages-for-imageQueue');
 
   // start setIntervalForImages until it is cancelled
@@ -131,9 +124,9 @@ ipcRenderer.on('receive-some-images-from-imageQueue', (event, someImages) => {
   log.debug(`indexedDBWorkerWindow | on receive-some-images-from-imageQueue: ${someImages.length}`);
   if (someImages.length > 0) {
     // add images in reveres as they are stored inverse in the queue
-    someImages.reverse().map(async (image) => {
+    someImages.reverse().map(async image => {
       // log.debug(image.frameNumber);
-      return addFrameToIndexedDB(image.frameId, image.fileId, image.frameNumber,image.outBase64, objectUrlQueue)
+      return addFrameToIndexedDB(image.frameId, image.fileId, image.frameNumber, image.outBase64, objectUrlQueue);
     });
   }
   log.debug('now I cancel setIntervalForImages');
@@ -144,5 +137,5 @@ render(
   <div>
     <h1>I am the IndexedDB worker window.</h1>
   </div>,
-  document.getElementById('worker_indexedDB')
+  document.getElementById('worker_indexedDB'),
 );
