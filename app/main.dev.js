@@ -14,12 +14,7 @@ import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import path from 'path';
 import fs from 'fs';
 import log from 'electron-log';
-import {
-  clearCache,
-  resetApplication,
-  reloadApplication,
-  softResetApplication,
-} from './utils/utilsForMain';
+import { clearCache, resetApplication, reloadApplication, softResetApplication } from './utils/utilsForMain';
 
 import MenuBuilder from './menu';
 
@@ -73,9 +68,7 @@ const installExtensions = async () => {
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
   const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
 
-  return Promise.all(
-    extensions.map(name => installer.default(installer[name], forceDownload))
-  ).catch(console.log);
+  return Promise.all(extensions.map(name => installer.default(installer[name], forceDownload))).catch(console.log);
 };
 
 /**
@@ -97,10 +90,7 @@ app.on('window-all-closed', () => {
 });
 
 app.on('ready', async () => {
-  if (
-    process.env.NODE_ENV === 'development' ||
-    process.env.DEBUG_PROD === 'true'
-  ) {
+  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
     await installExtensions();
   }
 
@@ -111,8 +101,8 @@ app.on('ready', async () => {
     height: 768,
     webPreferences: {
       nodeIntegration: true,
-      webviewTag: true
-    }
+      webviewTag: true,
+    },
   });
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);
@@ -128,13 +118,10 @@ app.on('ready', async () => {
 
     // clear cache if started with --reset arg
     if (process.argv.findIndex(value => value === '--reset') > -1) {
-      setTimeout(
-        () => {
-          log.info('resetApplication via --reset');
-          resetApplication(mainWindow, workerWindow, opencvWorkerWindow, indexedDBWorkerWindow);
-        },
-        1000
-      );
+      setTimeout(() => {
+        log.info('resetApplication via --reset');
+        resetApplication(mainWindow, workerWindow, opencvWorkerWindow, indexedDBWorkerWindow);
+      }, 1000);
     }
 
     // clear cache if started with --softreset arg
@@ -177,7 +164,7 @@ app.on('ready', async () => {
     resizable: true,
     title: 'Credits',
     minimizable: false,
-    fullscreenable: false
+    fullscreenable: false,
   });
   creditsWindow.hide();
   creditsWindow.loadURL(`file://${__dirname}/credits.html`);
@@ -193,7 +180,7 @@ app.on('ready', async () => {
   workerWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
-    }
+    },
   });
   workerWindow.hide();
   // workerWindow.webContents.openDevTools();
@@ -225,8 +212,8 @@ app.on('ready', async () => {
 
   opencvWorkerWindow = new BrowserWindow({
     webPreferences: {
-      nodeIntegration: true
-    }
+      nodeIntegration: true,
+    },
   });
   opencvWorkerWindow.hide();
   // opencvWorkerWindow.webContents.openDevTools();
@@ -258,8 +245,8 @@ app.on('ready', async () => {
 
   indexedDBWorkerWindow = new BrowserWindow({
     webPreferences: {
-      nodeIntegration: true
-    }
+      nodeIntegration: true,
+    },
   });
   indexedDBWorkerWindow.hide();
   // indexedDBWorkerWindow.webContents.openDevTools();
@@ -294,35 +281,35 @@ app.on('ready', async () => {
     creditsWindow,
     workerWindow,
     opencvWorkerWindow,
-    indexedDBWorkerWindow
+    indexedDBWorkerWindow,
   );
   menuBuilder.buildMenu();
 });
 
-ipcMain.on('reset-application', (event) => {
+ipcMain.on('reset-application', event => {
   log.info('resetApplication');
-  resetApplication(mainWindow, workerWindow, opencvWorkerWindow, indexedDBWorkerWindow)
+  resetApplication(mainWindow, workerWindow, opencvWorkerWindow, indexedDBWorkerWindow);
 });
 
-ipcMain.on('soft-reset-application', (event) => {
+ipcMain.on('soft-reset-application', event => {
   log.info('softResetApplication');
-  softResetApplication(mainWindow, workerWindow, opencvWorkerWindow, indexedDBWorkerWindow)
+  softResetApplication(mainWindow, workerWindow, opencvWorkerWindow, indexedDBWorkerWindow);
 });
 
-ipcMain.on('reload-application', (event) => {
+ipcMain.on('reload-application', event => {
   log.info('reloadApplication');
-  reloadApplication(mainWindow, workerWindow, opencvWorkerWindow, indexedDBWorkerWindow)
+  reloadApplication(mainWindow, workerWindow, opencvWorkerWindow, indexedDBWorkerWindow);
 });
 
-ipcMain.on('reload-workerWindow', (event) => {
+ipcMain.on('reload-workerWindow', event => {
   workerWindow.webContents.reload();
 });
 
-ipcMain.on('reload-opencvWorkerWindow', (event) => {
+ipcMain.on('reload-opencvWorkerWindow', event => {
   opencvWorkerWindow.webContents.reload();
 });
 
-ipcMain.on('reload-indexedDBWorkerWindow', (event) => {
+ipcMain.on('reload-indexedDBWorkerWindow', event => {
   indexedDBWorkerWindow.webContents.reload();
 });
 
@@ -330,45 +317,39 @@ ipcMain.on('request-save-MoviePrint', (event, arg) => {
   workerWindow.webContents.send('action-save-MoviePrint', arg);
 });
 
-ipcMain.on(
-  'send-save-json-to-file',
-  (event, id, filePath, json) => {
-    fs.writeFile(filePath, json, err => {
-      if (err) {
-        mainWindow.webContents.send('received-saved-file-error', err.message);
-      } else {
-        // mainWindow.webContents.send('received-saved-file', id, filePath);
-        log.debug(`MoviePrint JSON exported successfully: ${filePath}`);
-        mainWindow.webContents.send(
-          'progressMessage',
-          'info',
-          `MoviePrint JSON exported successfully: ${filePath}`,
-          3000
-        );
-      }
-    });
-  }
-);
+ipcMain.on('send-save-json-to-file', (event, id, filePath, json) => {
+  fs.writeFile(filePath, json, err => {
+    if (err) {
+      mainWindow.webContents.send('received-saved-file-error', err.message);
+    } else {
+      // mainWindow.webContents.send('received-saved-file', id, filePath);
+      log.debug(`MoviePrint JSON exported successfully: ${filePath}`);
+      mainWindow.webContents.send(
+        'progressMessage',
+        'info',
+        `MoviePrint JSON exported successfully: ${filePath}`,
+        3000,
+      );
+    }
+  });
+});
 
-ipcMain.on(
-  'send-save-file',
-  (event, id, filePath, buffer) => {
-    // only used when saving thumbs. writeFile for moviePrint is done in saveMoviePrint (workerWindow)
-    fs.writeFile(filePath, buffer, err => {
-      if (err) {
-        console.log(err);
-        mainWindow.webContents.send('received-saved-file-error', err.message);
-      } else {
-        mainWindow.webContents.send('received-saved-file', id, filePath);
-      }
-    });
-  }
-);
+ipcMain.on('send-save-file', (event, id, filePath, buffer) => {
+  // only used when saving thumbs. writeFile for moviePrint is done in saveMoviePrint (workerWindow)
+  fs.writeFile(filePath, buffer, err => {
+    if (err) {
+      console.log(err);
+      mainWindow.webContents.send('received-saved-file-error', err.message);
+    } else {
+      mainWindow.webContents.send('received-saved-file', id, filePath);
+    }
+  });
+});
 
 ipcMain.on('send-save-file-error', (event, saveMoviePrint = false) => {
   mainWindow.webContents.send(
     'received-saved-file-error',
-    'MoviePrint could not be saved due to sizelimit (width + size > 32767)'
+    'MoviePrint could not be saved due to sizelimit (width + size > 32767)',
   );
   if (saveMoviePrint) {
     workerWindow.webContents.send('action-saved-MoviePrint-done');
@@ -383,138 +364,93 @@ ipcMain.on('open-file-explorer', (event, filePath, isFolder = false) => {
   }
 });
 
-ipcMain.on(
-  'message-from-mainWindow-to-workerWindow',
-  (e, ipcName, ...args) => {
-    log.debug(
-      `mainThread | passing ${ipcName} from mainWindow to workerWindow`
-    );
-    log.debug(
-      `mainThread | passing ${ipcName} from mainWindow to workerWindow`
-    );
-    // log.debug(...args);
-    workerWindow.webContents.send(ipcName, ...args);
-  }
-);
+ipcMain.on('message-from-mainWindow-to-workerWindow', (e, ipcName, ...args) => {
+  log.debug(`mainThread | passing ${ipcName} from mainWindow to workerWindow`);
+  log.debug(`mainThread | passing ${ipcName} from mainWindow to workerWindow`);
+  // log.debug(...args);
+  workerWindow.webContents.send(ipcName, ...args);
+});
 
-ipcMain.on(
-  'message-from-workerWindow-to-mainWindow',
-  (e, ipcName, ...args) => {
-    log.debug(
-      `mainThread | passing ${ipcName} from workerWindow to mainWindow`
-    );
-    // log.debug(...args);
-    mainWindow.webContents.send(ipcName, ...args);
-  }
-);
+ipcMain.on('message-from-workerWindow-to-mainWindow', (e, ipcName, ...args) => {
+  log.debug(`mainThread | passing ${ipcName} from workerWindow to mainWindow`);
+  // log.debug(...args);
+  mainWindow.webContents.send(ipcName, ...args);
+});
 
-ipcMain.on(
-  'message-from-workerWindow-to-workerWindow',
-  (e, ipcName, ...args) => {
-    log.debug(
-      `mainThread | passing ${ipcName} from workerWindow to workerWindow`
-    );
-    // log.debug(...args);
-    workerWindow.webContents.send(ipcName, ...args);
-  }
-);
+ipcMain.on('message-from-workerWindow-to-workerWindow', (e, ipcName, ...args) => {
+  log.debug(`mainThread | passing ${ipcName} from workerWindow to workerWindow`);
+  // log.debug(...args);
+  workerWindow.webContents.send(ipcName, ...args);
+});
 
-ipcMain.on(
-  'message-from-mainWindow-to-opencvWorkerWindow',
-  (e, ipcName, ...args) => {
-    log.debug(
-      `mainThread | passing ${ipcName} from mainWindow to opencvWorkerWindow`
-    );
-    // log.debug(...args);
-    opencvWorkerWindow.webContents.send(ipcName, ...args);
-  }
-);
+ipcMain.on('message-from-mainWindow-to-opencvWorkerWindow', (e, ipcName, ...args) => {
+  log.debug(`mainThread | passing ${ipcName} from mainWindow to opencvWorkerWindow`);
+  // log.debug(...args);
+  opencvWorkerWindow.webContents.send(ipcName, ...args);
+});
 
-ipcMain.on(
-  'message-from-indexedDBWorkerWindow-to-opencvWorkerWindow',
-  (e, ipcName, ...args) => {
-    log.debug(
-      `mainThread | passing ${ipcName} from indexedDBWorkerWindow to opencvWorkerWindow`
-    );
-    // log.debug(...args);
-    opencvWorkerWindow.webContents.send(ipcName, ...args);
-  }
-);
+ipcMain.on('message-from-indexedDBWorkerWindow-to-opencvWorkerWindow', (e, ipcName, ...args) => {
+  log.debug(`mainThread | passing ${ipcName} from indexedDBWorkerWindow to opencvWorkerWindow`);
+  // log.debug(...args);
+  opencvWorkerWindow.webContents.send(ipcName, ...args);
+});
 
-ipcMain.on(
-  'message-from-mainWindow-to-indexedDBWorkerWindow',
-  (e, ipcName, ...args) => {
-    log.debug(
-      `mainThread | passing ${ipcName} from mainWindow to indexedDBWorkerWindow`
-    );
-    // log.debug(...args);
-    indexedDBWorkerWindow.webContents.send(ipcName, ...args);
-  }
-);
+ipcMain.on('message-from-mainWindow-to-indexedDBWorkerWindow', (e, ipcName, ...args) => {
+  log.debug(`mainThread | passing ${ipcName} from mainWindow to indexedDBWorkerWindow`);
+  // log.debug(...args);
+  indexedDBWorkerWindow.webContents.send(ipcName, ...args);
+});
 
-ipcMain.on(
-  'message-from-opencvWorkerWindow-to-mainWindow',
-  (e, ipcName, ...args) => {
-    log.debug(
-      `mainThread | passing ${ipcName} from opencvWorkerWindow to mainWindow`
-    );
-    // log.debug(...args);
-    mainWindow.webContents.send(ipcName, ...args);
-  }
-);
+ipcMain.on('message-from-opencvWorkerWindow-to-mainWindow', (e, ipcName, ...args) => {
+  log.debug(`mainThread | passing ${ipcName} from opencvWorkerWindow to mainWindow`);
+  // log.debug(...args);
+  mainWindow.webContents.send(ipcName, ...args);
+});
 
-ipcMain.on(
-  'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
-  (e, ipcName, ...args) => {
-    log.debug(
-      `mainThread | passing ${ipcName} from opencvWorkerWindow to indexedDBWorkerWindow`
-    );
-    // log.debug(...args);
-    indexedDBWorkerWindow.webContents.send(ipcName, ...args);
-  }
-);
+ipcMain.on('message-from-opencvWorkerWindow-to-indexedDBWorkerWindow', (e, ipcName, ...args) => {
+  log.debug(`mainThread | passing ${ipcName} from opencvWorkerWindow to indexedDBWorkerWindow`);
+  // log.debug(...args);
+  indexedDBWorkerWindow.webContents.send(ipcName, ...args);
+});
 
-ipcMain.on(
-  'message-from-indexedDBWorkerWindow-to-mainWindow',
-  (e, ipcName, ...args) => {
-    log.debug(
-      `mainThread | passing ${ipcName} from indexedDBWorkerWindow to mainWindow`
-    );
-    // log.debug(...args);
-    mainWindow.webContents.send(ipcName, ...args);
-  }
-);
+ipcMain.on('message-from-indexedDBWorkerWindow-to-mainWindow', (e, ipcName, ...args) => {
+  log.debug(`mainThread | passing ${ipcName} from indexedDBWorkerWindow to mainWindow`);
+  // log.debug(...args);
+  mainWindow.webContents.send(ipcName, ...args);
+});
 
-ipcMain.on(
-  'message-from-mainWindow-to-mainWindow',
-  (e, ipcName, ...args) => {
-    log.debug(
-      `mainThread | passing ${ipcName} from mainWindow to mainWindow`
-    );
-    // log.debug(...args);
-    mainWindow.webContents.send(ipcName, ...args);
-  }
-);
+ipcMain.on('message-from-mainWindow-to-mainWindow', (e, ipcName, ...args) => {
+  log.debug(`mainThread | passing ${ipcName} from mainWindow to mainWindow`);
+  // log.debug(...args);
+  mainWindow.webContents.send(ipcName, ...args);
+});
 
 // // retransmit it to workerWindow
 // ipcMain.on('printPDF', (event: any, content: any) => {
 //   workerWindow.webContents.send('printPDF', content);
 // });
 // // when worker window is ready
-// ipcMain.on('readyToPrintPDF', (event) => {
+// ipcMain.on('readyToPrintPDF', event => {
 //   const pdfPath = path.join(os.tmpdir(), 'print.pdf');
 //   // Use default printing options
 //   setTimeout(() => {
-//     workerWindow.webContents.printToPDF({}, (error, data) => {
-//       if (error) throw error;
-//       fs.writeFile(pdfPath, data, (err) => {
-//         if (err) {
-//           throw err;
-//         }
-//         shell.openItem(pdfPath);
-//         event.sender.send('wrote-pdf', pdfPath);
-//         // workerWindow.webContents.print();
-//       });
-//     });
+//     workerWindow.webContents.printToPDF(
+//       {
+//         marginsType: 0,
+//         printBackground: false,
+//         printSelectionOnly: false,
+//       },
+//       (error, data) => {
+//         if (error) throw error;
+//         fs.writeFile(pdfPath, data, err => {
+//           if (err) {
+//             throw err;
+//           }
+//           shell.openItem(pdfPath);
+//           event.sender.send('wrote-pdf', pdfPath);
+//           // workerWindow.webContents.print();
+//         });
+//       },
+//     );
 //   }, 1000);
 // });

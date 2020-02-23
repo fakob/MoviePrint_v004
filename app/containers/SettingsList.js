@@ -7,16 +7,26 @@ import Tooltip from 'rc-tooltip';
 import { SketchPicker } from 'react-color';
 import throttle from 'lodash/throttle';
 import { Checkboard } from 'react-color/lib/components/common';
-import { Accordion, Button, Icon, Label, Radio, Dropdown, Container, Statistic, Divider, Checkbox, Grid, List, Message, Popup, Input } from 'semantic-ui-react';
+import {
+  Accordion,
+  Button,
+  Icon,
+  Label,
+  Radio,
+  Dropdown,
+  Container,
+  Statistic,
+  Divider,
+  Checkbox,
+  Grid,
+  List,
+  Message,
+  Popup,
+  Input,
+} from 'semantic-ui-react';
 import styles from './Settings.css';
 import stylesPop from '../components/Popup.css';
-import {
-  frameCountToMinutes,
-  getCustomFileName,
-  limitRange,
-  sanitizeString,
-  typeInTextarea,
-  } from '../utils/utils';
+import { frameCountToMinutes, getCustomFileName, limitRange, sanitizeString, typeInTextarea } from '../utils/utils';
 import {
   CACHED_FRAMES_SIZE_OPTIONS,
   COLOR_PALETTE_PICO_EIGHT,
@@ -48,27 +58,28 @@ import getScaleValueObject from '../utils/getScaleValueObject';
 
 const SliderWithTooltip = createSliderWithTooltip(Slider);
 
-const handle = (props) => {
-  const {
-    value, dragging, index, ...restProps
-  } = props;
+const handle = props => {
+  const { value, dragging, index, ...restProps } = props;
   return (
-    <Tooltip
-      prefixCls="rc-slider-tooltip"
-      overlay={value}
-      visible
-      placement="top"
-      key={index}
-    >
+    <Tooltip prefixCls="rc-slider-tooltip" overlay={value} visible placement="top" key={index}>
       <Handle value={value} {...restProps} />
     </Tooltip>
   );
 };
 
-const outputSize = (file = {
-  width: DEFAULT_MOVIE_WIDTH,
-  height: DEFAULT_MOVIE_HEIGHT,
-}, columnCountTemp, thumbCountTemp, settings, visibilitySettings, sceneArray, secondsPerRowTemp, isGridView) => {
+const outputSize = (
+  file = {
+    width: DEFAULT_MOVIE_WIDTH,
+    height: DEFAULT_MOVIE_HEIGHT,
+  },
+  columnCountTemp,
+  thumbCountTemp,
+  settings,
+  visibilitySettings,
+  sceneArray,
+  secondsPerRowTemp,
+  isGridView,
+) => {
   const newScaleValueObject = getScaleValueObject(
     file,
     settings,
@@ -87,47 +98,49 @@ const outputSize = (file = {
   let moviePrintSize;
   if (isGridView) {
     moviePrintSize = [
-    { width: 1024, height: Math.round(1024 * newScaleValueObject.moviePrintAspectRatioInv) },
-    { width: 2048, height: Math.round(2048 * newScaleValueObject.moviePrintAspectRatioInv) },
-    { width: 3072, height: Math.round(3072 * newScaleValueObject.moviePrintAspectRatioInv) },
-    { width: 4096, height: Math.round(4096 * newScaleValueObject.moviePrintAspectRatioInv) },
-    { width: 8192, height: Math.round(8192 * newScaleValueObject.moviePrintAspectRatioInv) },
-    { width: 16384, height: Math.round(16384 * newScaleValueObject.moviePrintAspectRatioInv) },
+      { width: 1024, height: Math.round(1024 * newScaleValueObject.moviePrintAspectRatioInv) },
+      { width: 2048, height: Math.round(2048 * newScaleValueObject.moviePrintAspectRatioInv) },
+      { width: 3072, height: Math.round(3072 * newScaleValueObject.moviePrintAspectRatioInv) },
+      { width: 4096, height: Math.round(4096 * newScaleValueObject.moviePrintAspectRatioInv) },
+      { width: 8192, height: Math.round(8192 * newScaleValueObject.moviePrintAspectRatioInv) },
+      { width: 16384, height: Math.round(16384 * newScaleValueObject.moviePrintAspectRatioInv) },
     ];
     if (newScaleValueObject.moviePrintAspectRatioInv > 1) {
       const maxWidth = Math.round(sizeLimit / newScaleValueObject.moviePrintAspectRatioInv);
       // to avoid duplicates due to rounding
       if (maxWidth !== sizeLimit) {
-        moviePrintSize.push(
-          { width: maxWidth, height: sizeLimit}
-        )
+        moviePrintSize.push({ width: maxWidth, height: sizeLimit });
       }
     }
   } else {
     moviePrintSize = [
-    { height: 1024, width: Math.round(1024 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
-    { height: 2048, width: Math.round(2048 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
-    { height: 3072, width: Math.round(3072 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
-    { height: 4096, width: Math.round(4096 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
-    { height: 8192, width: Math.round(8192 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
-    { height: 16384, width: Math.round(16384 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
+      { height: 1024, width: Math.round(1024 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
+      { height: 2048, width: Math.round(2048 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
+      { height: 3072, width: Math.round(3072 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
+      { height: 4096, width: Math.round(4096 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
+      { height: 8192, width: Math.round(8192 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
+      { height: 16384, width: Math.round(16384 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
     ];
     if (newScaleValueObject.timelineMoviePrintAspectRatioInv < 1) {
       const maxHeight = Math.round(sizeLimit * newScaleValueObject.timelineMoviePrintAspectRatioInv);
       // to avoid duplicates due to rounding
       if (maxHeight !== sizeLimit) {
-        moviePrintSize.push(
-          { height: maxHeight, width: sizeLimit}
-        )
+        moviePrintSize.push({ height: maxHeight, width: sizeLimit });
       }
     }
   }
-  const moviePrintSizeArray = moviePrintSize.reduce((newFilteredArray, item) => {
-    if ((item.width <= sizeLimit) && (item.height <= sizeLimit)) {
-      newFilteredArray.push({ value: isGridView ? item.width : item.height, text: `${item.width}px (×${item.height}px)`, 'data-tid': `${item.width}-widthOption` });
-    }
-    return newFilteredArray;
-  }, []).sort((a, b) => b.value < a.value);
+  const moviePrintSizeArray = moviePrintSize
+    .reduce((newFilteredArray, item) => {
+      if (item.width <= sizeLimit && item.height <= sizeLimit) {
+        newFilteredArray.push({
+          value: isGridView ? item.width : item.height,
+          text: `${item.width}px (×${item.height}px)`,
+          'data-tid': `${item.width}-widthOption`,
+        });
+      }
+      return newFilteredArray;
+    }, [])
+    .sort((a, b) => b.value < a.value);
   return moviePrintSizeArray;
 };
 
@@ -149,11 +162,23 @@ class SettingsList extends Component {
       focusReference: undefined,
     };
 
-    this.onChangeDefaultMoviePrintNameThrottled = throttle((value) => this.props.onChangeDefaultMoviePrintName(value), 1000, { leading: false });
+    this.onChangeDefaultMoviePrintNameThrottled = throttle(
+      value => this.props.onChangeDefaultMoviePrintName(value),
+      1000,
+      { leading: false },
+    );
     this.onChangeDefaultMoviePrintNameThrottled = this.onChangeDefaultMoviePrintNameThrottled.bind(this);
-    this.onChangeDefaultSingleThumbNameThrottled = throttle((value) => this.props.onChangeDefaultSingleThumbName(value), 1000, { leading: false });
+    this.onChangeDefaultSingleThumbNameThrottled = throttle(
+      value => this.props.onChangeDefaultSingleThumbName(value),
+      1000,
+      { leading: false },
+    );
     this.onChangeDefaultSingleThumbNameThrottled = this.onChangeDefaultSingleThumbNameThrottled.bind(this);
-    this.onChangeDefaultAllThumbsNameThrottled = throttle((value) => this.props.onChangeDefaultAllThumbsName(value), 1000, { leading: false });
+    this.onChangeDefaultAllThumbsNameThrottled = throttle(
+      value => this.props.onChangeDefaultAllThumbsName(value),
+      1000,
+      { leading: false },
+    );
     this.onChangeDefaultAllThumbsNameThrottled = this.onChangeDefaultAllThumbsNameThrottled.bind(this);
 
     // this.onToggleSliders = this.onToggleSliders.bind(this);
@@ -197,13 +222,13 @@ class SettingsList extends Component {
 
   componentDidUpdate(prevProps) {
     const { file, sheetName, settings } = this.props;
-    if (file !== undefined &&
+    if (
+      file !== undefined &&
       prevProps.file !== undefined &&
       prevProps.file.name !== undefined &&
-      file.name !== undefined) {
-      if (file.name !== prevProps.file.name ||
-        sheetName !== prevProps.sheetName
-      ) {
+      file.name !== undefined
+    ) {
+      if (file.name !== prevProps.file.name || sheetName !== prevProps.sheetName) {
         const {
           defaultMoviePrintName = DEFAULT_MOVIEPRINT_NAME,
           defaultSingleThumbName = DEFAULT_SINGLETHUMB_NAME,
@@ -226,32 +251,27 @@ class SettingsList extends Component {
 
   onGetPreviewCustomFileName = (customFileName, props = this.props) => {
     const { file, settings, sheetName } = props;
-    const previewName = getCustomFileName(
-      file !== undefined ? file.name : '',
-      sheetName,
-      `000000`,
-      customFileName,
-    );
+    const previewName = getCustomFileName(file !== undefined ? file.name : '', sheetName, `000000`, customFileName);
     return previewName;
-  }
+  };
 
   onShowSliders = (e, { checked }) => {
     this.setState({
-      showSliders: !checked
+      showSliders: !checked,
     });
-  }
+  };
 
-  setFocusReference = (e) => {
+  setFocusReference = e => {
     const ref = e.target;
     this.setState({
-      focusReference: ref
+      focusReference: ref,
     });
-  }
+  };
 
-  addAttributeIntoInput = (attribute) => {
+  addAttributeIntoInput = attribute => {
     const { focusReference } = this.state;
     if (focusReference !== undefined) {
-      console.log(focusReference)
+      console.log(focusReference);
       const newText = typeInTextarea(focusReference, attribute);
       const previewName = this.onGetPreviewCustomFileName(newText);
       switch (focusReference.name) {
@@ -273,174 +293,174 @@ class SettingsList extends Component {
         default:
       }
     }
-  }
+  };
 
-  onSubmitDefaultMoviePrintName = (e) => {
+  onSubmitDefaultMoviePrintName = e => {
     const value = sanitizeString(e.target.value);
     const previewMoviePrintName = this.onGetPreviewCustomFileName(value);
     this.setState({
       previewMoviePrintName,
     });
     this.onChangeDefaultMoviePrintNameThrottled(value);
-  }
+  };
 
-  onSubmitDefaultSingleThumbName = (e) => {
+  onSubmitDefaultSingleThumbName = e => {
     const value = sanitizeString(e.target.value);
     const previewSingleThumbName = this.onGetPreviewCustomFileName(value);
     this.setState({
       previewSingleThumbName,
     });
     this.onChangeDefaultSingleThumbNameThrottled(value);
-  }
+  };
 
-  onSubmitDefaultAllThumbsName = (e) => {
+  onSubmitDefaultAllThumbsName = e => {
     const value = sanitizeString(e.target.value);
     const previewAllThumbsName = this.onGetPreviewCustomFileName(value);
     this.setState({
       previewAllThumbsName,
     });
     this.onChangeDefaultAllThumbsNameThrottled(value);
-  }
+  };
 
-  onChangeColumnCountViaInput = (e) => {
+  onChangeColumnCountViaInput = e => {
     if (e.key === 'Enter') {
       const value = limitRange(Math.floor(e.target.value), 1, 100);
       this.props.onChangeColumn(value);
     }
-  }
+  };
 
-  onChangeColumnCountViaInputAndApply = (e) => {
+  onChangeColumnCountViaInputAndApply = e => {
     if (e.key === 'Enter') {
       const value = limitRange(Math.floor(e.target.value), 1, 100);
       this.props.onChangeColumnAndApply(value);
     }
-  }
+  };
 
-  onChangeRowViaInput = (e) => {
+  onChangeRowViaInput = e => {
     if (e.key === 'Enter') {
       const value = limitRange(Math.floor(e.target.value), 1, 100);
       this.props.onChangeRow(value);
     }
-  }
+  };
 
-  onChangeTimelineViewSecondsPerRowViaInput = (e) => {
+  onChangeTimelineViewSecondsPerRowViaInput = e => {
     if (e.key === 'Enter') {
       const value = limitRange(Math.floor(e.target.value), 1, 20000); // 1 second to 5 hours
       this.props.onChangeTimelineViewSecondsPerRow(value);
     }
-  }
+  };
 
   onChangeSceneCount = (e, { checked }) => {
-    this.setState({changeSceneCount: checked});
-  }
+    this.setState({ changeSceneCount: checked });
+  };
 
   onChangeTimelineViewFlow = (e, { checked }) => {
     this.props.onTimelineViewFlowClick(checked);
-  }
+  };
 
   onChangeShowPaperPreview = (e, { checked }) => {
     this.props.onShowPaperPreviewClick(checked);
-  }
+  };
 
   onChangeOutputPathFromMovie = (e, { checked }) => {
     this.props.onOutputPathFromMovieClick(checked);
-  }
+  };
 
   onChangePaperAspectRatio = (e, { value }) => {
     this.props.onPaperAspectRatioClick(value);
-  }
+  };
 
   onChangeDetectInOutPoint = (e, { checked }) => {
     this.props.onDetectInOutPointClick(checked);
-  }
+  };
 
   onChangeReCapture = (e, { checked }) => {
     this.props.onReCaptureClick(checked);
-  }
+  };
 
   onChangeShowHeader = (e, { checked }) => {
     this.props.onToggleHeaderClick(checked);
-  }
+  };
 
   onChangeShowPathInHeader = (e, { checked }) => {
     this.props.onShowPathInHeaderClick(checked);
-  }
+  };
 
   onChangeShowFaceRect = (e, { checked }) => {
     this.props.onChangeShowFaceRectClick(checked);
-  }
+  };
 
   onChangeShowDetailsInHeader = (e, { checked }) => {
     this.props.onShowDetailsInHeaderClick(checked);
-  }
+  };
 
   onChangeShowTimelineInHeader = (e, { checked }) => {
     this.props.onShowTimelineInHeaderClick(checked);
-  }
+  };
 
   onChangeRoundedCorners = (e, { checked }) => {
     this.props.onRoundedCornersClick(checked);
-  }
+  };
 
   onChangeShowHiddenThumbs = (e, { checked }) => {
     this.props.onShowHiddenThumbsClick(checked);
-  }
+  };
 
   onChangeThumbInfo = (e, { value }) => {
     this.props.onThumbInfoClick(value);
-  }
+  };
 
   onChangeOutputFormat = (e, { value }) => {
     this.props.onOutputFormatClick(value);
-  }
+  };
 
   onChangeFrameinfoPosition = (e, { value }) => {
     this.props.onFrameinfoPositionClick(value);
-  }
+  };
 
   onChangeCachedFramesSize = (e, { value }) => {
     this.props.onCachedFramesSizeClick(value);
-  }
+  };
 
   onChangeOverwrite = (e, { checked }) => {
     this.props.onOverwriteClick(checked);
-  }
+  };
 
   onChangeIncludeIndividual = (e, { checked }) => {
     this.props.onIncludeIndividualClick(checked);
-  }
+  };
 
   onChangeEmbedFrameNumbers = (e, { checked }) => {
     this.props.onEmbedFrameNumbersClick(checked);
-  }
+  };
 
   onChangeEmbedFilePath = (e, { checked }) => {
     this.props.onEmbedFilePathClick(checked);
-  }
+  };
 
   onChangeOpenFileExplorerAfterSaving = (e, { checked }) => {
     this.props.onOpenFileExplorerAfterSavingClick(checked);
-  }
+  };
 
   onChangeThumbnailScale = (e, { value }) => {
     this.props.onThumbnailScaleClick(value);
-  }
+  };
 
   onChangeMoviePrintWidth = (e, { value }) => {
     this.props.onMoviePrintWidthClick(value);
-  }
+  };
 
   onChangeShotDetectionMethod = (e, { value }) => {
     this.props.onShotDetectionMethodClick(value);
-  }
+  };
 
   colorPickerHandleClick = (e, id) => {
     e.stopPropagation();
     this.setState({
       displayColorPicker: {
         ...this.state.displayColorPicker,
-        [id]: !this.state.displayColorPicker[id]
-      }
+        [id]: !this.state.displayColorPicker[id],
+      },
     });
   };
 
@@ -449,8 +469,8 @@ class SettingsList extends Component {
     this.setState({
       displayColorPicker: {
         ...this.state.displayColorPicker,
-        [id]: false
-      }
+        [id]: false,
+      },
     });
   };
 
@@ -551,16 +571,18 @@ class SettingsList extends Component {
     const defaultSingleThumbNameContainsFrameNumber = defaultSingleThumbName.includes('[FN]');
     const defaultAllThumbsNameContainsFrameNumber = defaultAllThumbsName.includes('[FN]');
 
-    const moviePrintBackgroundColorDependentOnFormat = defaultOutputFormat === OUTPUT_FORMAT.JPG ? // set alpha only for PNG
-      {
-        r: defaultMoviePrintBackgroundColor.r,
-        g: defaultMoviePrintBackgroundColor.g,
-        b: defaultMoviePrintBackgroundColor.b,
-      } :
-      defaultMoviePrintBackgroundColor;
-    const moviePrintBackgroundColorDependentOnFormatString = defaultOutputFormat === OUTPUT_FORMAT.JPG ? // set alpha only for PNG
-      `rgb(${defaultMoviePrintBackgroundColor.r}, ${defaultMoviePrintBackgroundColor.g}, ${defaultMoviePrintBackgroundColor.b})` :
-      `rgba(${defaultMoviePrintBackgroundColor.r}, ${defaultMoviePrintBackgroundColor.g}, ${defaultMoviePrintBackgroundColor.b}, ${defaultMoviePrintBackgroundColor.a})`;
+    const moviePrintBackgroundColorDependentOnFormat =
+      defaultOutputFormat === OUTPUT_FORMAT.JPG // set alpha only for PNG
+        ? {
+            r: defaultMoviePrintBackgroundColor.r,
+            g: defaultMoviePrintBackgroundColor.g,
+            b: defaultMoviePrintBackgroundColor.b,
+          }
+        : defaultMoviePrintBackgroundColor;
+    const moviePrintBackgroundColorDependentOnFormatString =
+      defaultOutputFormat === OUTPUT_FORMAT.JPG // set alpha only for PNG
+        ? `rgb(${defaultMoviePrintBackgroundColor.r}, ${defaultMoviePrintBackgroundColor.g}, ${defaultMoviePrintBackgroundColor.b})`
+        : `rgba(${defaultMoviePrintBackgroundColor.r}, ${defaultMoviePrintBackgroundColor.g}, ${defaultMoviePrintBackgroundColor.b}, ${defaultMoviePrintBackgroundColor.a})`;
 
     const frameninfoBackgroundColorString = `rgba(${defaultFrameinfoBackgroundColor.r}, ${defaultFrameinfoBackgroundColor.g}, ${defaultFrameinfoBackgroundColor.b}, ${defaultFrameinfoBackgroundColor.a})`;
     const frameinfoColorString = `rgba(${defaultFrameinfoColor.r}, ${defaultFrameinfoColor.g}, ${defaultFrameinfoColor.b}, ${defaultFrameinfoColor.a})`;
@@ -572,19 +594,19 @@ class SettingsList extends Component {
         }}
       >
         <Grid padded inverted>
-          { !isGridView &&
+          {!isGridView && (
             <Grid.Row>
               <Grid.Column width={16}>
                 <Statistic inverted size="tiny">
                   <Statistic.Value>{thumbCountTemp}</Statistic.Value>
-                  <Statistic.Label>{(thumbCountTemp === 1) ? 'Shot' : 'Shots'}</Statistic.Label>
+                  <Statistic.Label>{thumbCountTemp === 1 ? 'Shot' : 'Shots'}</Statistic.Label>
                 </Statistic>
                 <Statistic inverted size="tiny">
                   <Statistic.Value>/</Statistic.Value>
                 </Statistic>
                 <Statistic inverted size="tiny">
                   <Statistic.Value>~{minutesRounded}</Statistic.Value>
-                  <Statistic.Label>{(minutesRounded === 1) ? 'Minute' : 'Minutes'}</Statistic.Label>
+                  <Statistic.Label>{minutesRounded === 1 ? 'Minute' : 'Minutes'}</Statistic.Label>
                 </Statistic>
                 <Statistic inverted size="tiny">
                   <Statistic.Value>≈</Statistic.Value>
@@ -595,42 +617,38 @@ class SettingsList extends Component {
                 </Statistic>
               </Grid.Column>
             </Grid.Row>
-          }
-          { isGridView &&
+          )}
+          {isGridView && (
             <Grid.Row>
               <Grid.Column width={16}>
                 <Statistic inverted size="tiny">
                   <Statistic.Value>{columnCountTemp}</Statistic.Value>
-                  <Statistic.Label>{(columnCountTemp === 1) ? 'Column' : 'Columns'}</Statistic.Label>
+                  <Statistic.Label>{columnCountTemp === 1 ? 'Column' : 'Columns'}</Statistic.Label>
                 </Statistic>
                 <Statistic inverted size="tiny">
                   <Statistic.Value>×</Statistic.Value>
                 </Statistic>
                 <Statistic inverted size="tiny">
                   <Statistic.Value>{rowCountTemp}</Statistic.Value>
-                  <Statistic.Label>{(rowCountTemp === 1) ? 'Row' : 'Rows'}</Statistic.Label>
+                  <Statistic.Label>{rowCountTemp === 1 ? 'Row' : 'Rows'}</Statistic.Label>
                 </Statistic>
                 <Statistic inverted size="tiny">
-                  <Statistic.Value>{(columnCountTemp * rowCountTemp ===
-                    thumbCountTemp) ? '=' : '≈'}
-                  </Statistic.Value>
+                  <Statistic.Value>{columnCountTemp * rowCountTemp === thumbCountTemp ? '=' : '≈'}</Statistic.Value>
                 </Statistic>
-                <Statistic inverted size="tiny" color={(reCapture) ? 'orange' : undefined}>
+                <Statistic inverted size="tiny" color={reCapture ? 'orange' : undefined}>
                   <Statistic.Value>{thumbCountTemp}</Statistic.Value>
-                  <Statistic.Label>{(reCapture) ? 'Count' : 'Count'}</Statistic.Label>
+                  <Statistic.Label>{reCapture ? 'Count' : 'Count'}</Statistic.Label>
                 </Statistic>
               </Grid.Column>
             </Grid.Row>
-          }
-          { isGridView &&
+          )}
+          {isGridView && (
             <Grid.Row>
-              <Grid.Column width={4}>
-                Columns
-              </Grid.Column>
+              <Grid.Column width={4}>Columns</Grid.Column>
               <Grid.Column width={12}>
-                { showSliders &&
+                {showSliders && (
                   <SliderWithTooltip
-                    data-tid='columnCountSlider'
+                    data-tid="columnCountSlider"
                     className={styles.slider}
                     min={1}
                     max={20}
@@ -641,71 +659,71 @@ class SettingsList extends Component {
                       20: '20',
                     }}
                     handle={handle}
-                    onChange={(sheetType === SHEET_TYPE.INTERVAL && reCapture && isGridView) ? onChangeColumn :
-                      onChangeColumnAndApply}
+                    onChange={
+                      sheetType === SHEET_TYPE.INTERVAL && reCapture && isGridView
+                        ? onChangeColumn
+                        : onChangeColumnAndApply
+                    }
                   />
-                }
-                { !showSliders &&
+                )}
+                {!showSliders && (
                   <Input
-                    type='number'
-                    data-tid='columnCountInput'
+                    type="number"
+                    data-tid="columnCountInput"
                     className={styles.input}
                     defaultValue={columnCountTemp}
-                    onKeyDown={(reCapture && isGridView) ? this.onChangeColumnCountViaInput :
-                      this.onChangeColumnCountViaInputAndApply}
+                    onKeyDown={
+                      reCapture && isGridView
+                        ? this.onChangeColumnCountViaInput
+                        : this.onChangeColumnCountViaInputAndApply
+                    }
                   />
-                }
+                )}
               </Grid.Column>
             </Grid.Row>
-          }
-          { sheetType === SHEET_TYPE.INTERVAL &&
-            isGridView &&
-            reCapture &&
+          )}
+          {sheetType === SHEET_TYPE.INTERVAL && isGridView && reCapture && (
             <Grid.Row>
-              <Grid.Column width={4}>
-                Rows
-              </Grid.Column>
+              <Grid.Column width={4}>Rows</Grid.Column>
               <Grid.Column width={12}>
-              { showSliders &&
-                <SliderWithTooltip
-                  data-tid='rowCountSlider'
-                  disabled={!reCapture}
-                  className={styles.slider}
-                  min={1}
-                  max={20}
-                  defaultValue={rowCountTemp}
-                  value={rowCountTemp}
-                  {...(reCapture ? {} : { value: rowCountTemp })}
-                  marks={{
-                    1: '1',
-                    20: '20',
-                  }}
-                  handle={handle}
-                  onChange={onChangeRow}
-                />
-              }
-              { !showSliders &&
-                <Input
-                  type='number'
-                  data-tid='rowCountInput'
-                  className={styles.input}
-                  defaultValue={rowCountTemp}
-                  onKeyDown={this.onChangeRowViaInput}
-                />
-              }
+                {showSliders && (
+                  <SliderWithTooltip
+                    data-tid="rowCountSlider"
+                    disabled={!reCapture}
+                    className={styles.slider}
+                    min={1}
+                    max={20}
+                    defaultValue={rowCountTemp}
+                    value={rowCountTemp}
+                    {...(reCapture ? {} : { value: rowCountTemp })}
+                    marks={{
+                      1: '1',
+                      20: '20',
+                    }}
+                    handle={handle}
+                    onChange={onChangeRow}
+                  />
+                )}
+                {!showSliders && (
+                  <Input
+                    type="number"
+                    data-tid="rowCountInput"
+                    className={styles.input}
+                    defaultValue={rowCountTemp}
+                    onKeyDown={this.onChangeRowViaInput}
+                  />
+                )}
               </Grid.Column>
             </Grid.Row>
-          }
-          { !isGridView &&
-            <Fragment>
+          )}
+          {!isGridView && (
+            <>
               <Grid.Row>
-                <Grid.Column width={4}>
-                  Minutes per row
-                </Grid.Column>
+                <Grid.Column width={4}>Minutes per row</Grid.Column>
                 <Grid.Column width={12}>
-                  { showSliders &&
+                  {showSliders && (
                     <SliderWithTooltip
-                      data-tid='minutesPerRowSlider'
+                      data-tid="minutesPerRowSlider"
                       className={styles.slider}
                       min={10}
                       max={1800}
@@ -722,196 +740,168 @@ class SettingsList extends Component {
                       handle={handle}
                       onChange={this.props.onChangeTimelineViewSecondsPerRow}
                     />
-                  }
-                  { !showSliders &&
+                  )}
+                  {!showSliders && (
                     <Input
-                      type='number'
-                      data-tid='minutesPerRowInput'
+                      type="number"
+                      data-tid="minutesPerRowInput"
                       className={styles.input}
                       label={{ basic: true, content: 'sec' }}
-                      labelPosition='right'
+                      labelPosition="right"
                       defaultValue={secondsPerRowTemp}
                       onKeyDown={this.onChangeTimelineViewSecondsPerRowViaInput}
                     />
-                  }
+                  )}
                 </Grid.Column>
               </Grid.Row>
-              { sheetType === SHEET_TYPE.SCENES &&
+              {sheetType === SHEET_TYPE.SCENES && (
                 <Grid.Row>
-                  <Grid.Column width={4}>
-                  </Grid.Column>
+                  <Grid.Column width={4}></Grid.Column>
                   <Grid.Column width={12}>
                     <Checkbox
-                      data-tid='changeTimelineViewFlow'
-                      label={
-                        <label className={styles.label}>
-                          Natural flow
-                        </label>
-                      }
+                      data-tid="changeTimelineViewFlow"
+                      label={<label className={styles.label}>Natural flow</label>}
                       checked={defaultTimelineViewFlow}
                       onChange={this.onChangeTimelineViewFlow}
                     />
                   </Grid.Column>
                 </Grid.Row>
-              }
-              { sheetType === SHEET_TYPE.SCENES &&
+              )}
+              {sheetType === SHEET_TYPE.SCENES && (
                 <Grid.Row>
-                  <Grid.Column width={4}>
-                    Count
-                  </Grid.Column>
+                  <Grid.Column width={4}>Count</Grid.Column>
                   <Grid.Column width={12}>
                     <Checkbox
-                      data-tid='changeSceneCountCheckbox'
-                      label={
-                        <label className={styles.label}>
-                          Change scene count
-                        </label>
-                      }
+                      data-tid="changeSceneCountCheckbox"
+                      label={<label className={styles.label}>Change scene count</label>}
                       checked={this.state.changeSceneCount}
                       onChange={this.onChangeSceneCount}
                     />
                   </Grid.Column>
                 </Grid.Row>
-              }
-              { sheetType === SHEET_TYPE.SCENES &&
-                this.state.changeSceneCount &&
-                <Fragment>
-                <Grid.Row>
-                  <Grid.Column width={4}>
-                    Shot detection threshold
-                  </Grid.Column>
-                  <Grid.Column width={12}>
-                    <SliderWithTooltip
-                      // data-tid='sceneDetectionThresholdSlider'
-                      className={styles.slider}
-                      min={3}
-                      max={40}
-                      defaultValue={defaultSceneDetectionThreshold}
-                      marks={{
-                        3: '3',
-                        15: '15',
-                        30: '30',
-                      }}
-                      handle={handle}
-                      onChange={onChangeSceneDetectionThreshold}
-                    />
-                  </Grid.Column>
-                </Grid.Row>
-                <Grid.Row>
-                  <Grid.Column width={4}>
-                  </Grid.Column>
-                  <Grid.Column width={12}>
-                    <Popup
-                      trigger={
-                        <Button
-                          data-tid='runSceneDetectionBtn'
-                          fluid
-                          color="orange"
-                          loading={fileScanRunning}
-                          disabled={fileScanRunning}
-                          onClick={() => this.props.runSceneDetection(file.id, file.path, file.useRatio, defaultSceneDetectionThreshold)}
-                        >
-                          Add new MoviePrint
-                        </Button>
-                      }
-                      mouseEnterDelay={1000}
-                      on={['hover']}
-                      position='bottom center'
-                      className={stylesPop.popup}
-                      content="Run shot detection with new threshold"
-                    />
-                  </Grid.Column>
-                </Grid.Row>
-              </Fragment>}
-            </Fragment>
-          }
-          { sheetType === SHEET_TYPE.INTERVAL &&
-            isGridView &&
+              )}
+              {sheetType === SHEET_TYPE.SCENES && this.state.changeSceneCount && (
+                <>
+                  <Grid.Row>
+                    <Grid.Column width={4}>Shot detection threshold</Grid.Column>
+                    <Grid.Column width={12}>
+                      <SliderWithTooltip
+                        // data-tid='sceneDetectionThresholdSlider'
+                        className={styles.slider}
+                        min={3}
+                        max={40}
+                        defaultValue={defaultSceneDetectionThreshold}
+                        marks={{
+                          3: '3',
+                          15: '15',
+                          30: '30',
+                        }}
+                        handle={handle}
+                        onChange={onChangeSceneDetectionThreshold}
+                      />
+                    </Grid.Column>
+                  </Grid.Row>
+                  <Grid.Row>
+                    <Grid.Column width={4}></Grid.Column>
+                    <Grid.Column width={12}>
+                      <Popup
+                        trigger={
+                          <Button
+                            data-tid="runSceneDetectionBtn"
+                            fluid
+                            color="orange"
+                            loading={fileScanRunning}
+                            disabled={fileScanRunning}
+                            onClick={() =>
+                              this.props.runSceneDetection(
+                                file.id,
+                                file.path,
+                                file.useRatio,
+                                defaultSceneDetectionThreshold,
+                              )
+                            }
+                          >
+                            Add new MoviePrint
+                          </Button>
+                        }
+                        mouseEnterDelay={1000}
+                        on={['hover']}
+                        position="bottom center"
+                        className={stylesPop.popup}
+                        content="Run shot detection with new threshold"
+                      />
+                    </Grid.Column>
+                  </Grid.Row>
+                </>
+              )}
+            </>
+          )}
+          {sheetType === SHEET_TYPE.INTERVAL && isGridView && (
             <Grid.Row>
-              <Grid.Column width={4}>
-                Count
-              </Grid.Column>
+              <Grid.Column width={4}>Count</Grid.Column>
               <Grid.Column width={12}>
                 <Checkbox
-                  data-tid='changeThumbCountCheckbox'
-                  label={
-                    <label className={styles.label}>
-                      Change thumb count
-                    </label>
-                  }
+                  data-tid="changeThumbCountCheckbox"
+                  label={<label className={styles.label}>Change thumb count</label>}
                   checked={reCapture}
                   onChange={this.onChangeReCapture}
                 />
               </Grid.Column>
             </Grid.Row>
-          }
-          { sheetType === SHEET_TYPE.INTERVAL &&
-            isGridView &&
-            (thumbCount !== thumbCountTemp) &&
+          )}
+          {sheetType === SHEET_TYPE.INTERVAL && isGridView && thumbCount !== thumbCountTemp && (
             <Grid.Row>
               <Grid.Column width={4} />
               <Grid.Column width={12}>
-                <Message
-                  data-tid='applyNewGridMessage'
-                  color="orange"
-                  size="mini"
-                >
-                  Applying a new grid will overwrite your previously selected thumbs. Don&apos;t worry, this can be undone.
+                <Message data-tid="applyNewGridMessage" color="orange" size="mini">
+                  Applying a new grid will overwrite your previously selected thumbs. Don&apos;t worry, this can be
+                  undone.
                 </Message>
               </Grid.Column>
             </Grid.Row>
-          }
-          { sheetType === SHEET_TYPE.INTERVAL &&
-            isGridView &&
+          )}
+          {sheetType === SHEET_TYPE.INTERVAL && isGridView && (
             <Grid.Row>
               <Grid.Column width={4} />
               <Grid.Column width={12}>
                 <Popup
                   trigger={
                     <Button
-                      data-tid='applyNewGridBtn'
+                      data-tid="applyNewGridBtn"
                       fluid
                       color="orange"
-                      disabled={(thumbCount === thumbCountTemp)}
+                      disabled={thumbCount === thumbCountTemp}
                       onClick={onApplyNewGridClick}
                     >
-                        Apply
+                      Apply
                     </Button>
                   }
                   mouseEnterDelay={1000}
                   on={['hover']}
-                  position='bottom center'
+                  position="bottom center"
                   className={stylesPop.popup}
                   content="Apply new grid for MoviePrint"
                 />
               </Grid.Column>
             </Grid.Row>
-          }
+          )}
           <Divider inverted />
           <Grid.Row>
-            <Grid.Column width={4}>
-              Preview
-            </Grid.Column>
+            <Grid.Column width={4}>Preview</Grid.Column>
             <Grid.Column width={12}>
               <Checkbox
-                data-tid='showPaperPreviewCheckbox'
-                label={
-                  <label className={styles.label}>
-                    Show paper preview
-                  </label>
-                }
+                data-tid="showPaperPreviewCheckbox"
+                label={<label className={styles.label}>Show paper preview</label>}
                 checked={defaultShowPaperPreview}
                 onChange={this.onChangeShowPaperPreview}
               />
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
-            <Grid.Column width={4}>
-              Layout
-            </Grid.Column>
+            <Grid.Column width={4}>Layout</Grid.Column>
             <Grid.Column width={12}>
               <Dropdown
-                data-tid='paperLayoutOptionsDropdown'
+                data-tid="paperLayoutOptionsDropdown"
                 placeholder="Select..."
                 selection
                 disabled={!defaultShowPaperPreview}
@@ -923,9 +913,7 @@ class SettingsList extends Component {
           </Grid.Row>
           <Divider inverted />
           <Grid.Row>
-            <Grid.Column width={4}>
-              Margin
-            </Grid.Column>
+            <Grid.Column width={4}>Margin</Grid.Column>
             <Grid.Column width={12}>
               <SliderWithTooltip
                 // data-tid='marginSlider'
@@ -942,14 +930,12 @@ class SettingsList extends Component {
               />
             </Grid.Column>
           </Grid.Row>
-          { !isGridView &&
+          {!isGridView && (
             <Grid.Row>
-              <Grid.Column width={4}>
-                Scene width ratio
-              </Grid.Column>
+              <Grid.Column width={4}>Scene width ratio</Grid.Column>
               <Grid.Column width={12}>
                 <SliderWithTooltip
-                  data-tid='sceneWidthRatioSlider'
+                  data-tid="sceneWidthRatioSlider"
                   className={styles.slider}
                   min={0}
                   max={100}
@@ -964,15 +950,13 @@ class SettingsList extends Component {
                 />
               </Grid.Column>
             </Grid.Row>
-          }
-          { !isGridView &&
+          )}
+          {!isGridView && (
             <Grid.Row>
-              <Grid.Column width={4}>
-                Min scene width
-              </Grid.Column>
+              <Grid.Column width={4}>Min scene width</Grid.Column>
               <Grid.Column width={12}>
                 <SliderWithTooltip
-                  data-tid='minSceneWidthSlider'
+                  data-tid="minSceneWidthSlider"
                   className={styles.slider}
                   min={0}
                   max={10}
@@ -986,36 +970,26 @@ class SettingsList extends Component {
                 />
               </Grid.Column>
             </Grid.Row>
-          }
+          )}
           <Grid.Row>
-            <Grid.Column width={4}>
-              Options
-            </Grid.Column>
+            <Grid.Column width={4}>Options</Grid.Column>
             <Grid.Column width={12}>
               <List>
-                { isGridView &&
-                  <Fragment>
+                {isGridView && (
+                  <>
                     <List.Item>
                       <Checkbox
-                        data-tid='showHeaderCheckbox'
-                        label={
-                          <label className={styles.label}>
-                            Show header
-                          </label>
-                        }
+                        data-tid="showHeaderCheckbox"
+                        label={<label className={styles.label}>Show header</label>}
                         checked={defaultShowHeader}
                         onChange={this.onChangeShowHeader}
                       />
                     </List.Item>
                     <List.Item>
                       <Checkbox
-                        data-tid='showFilePathCheckbox'
+                        data-tid="showFilePathCheckbox"
                         className={styles.subCheckbox}
-                        label={
-                          <label className={styles.label}>
-                            Show file path
-                          </label>
-                        }
+                        label={<label className={styles.label}>Show file path</label>}
                         disabled={!defaultShowHeader}
                         checked={defaultShowPathInHeader}
                         onChange={this.onChangeShowPathInHeader}
@@ -1023,13 +997,9 @@ class SettingsList extends Component {
                     </List.Item>
                     <List.Item>
                       <Checkbox
-                        data-tid='showFileDetailsCheckbox'
+                        data-tid="showFileDetailsCheckbox"
                         className={styles.subCheckbox}
-                        label={
-                          <label className={styles.label}>
-                            Show file details
-                          </label>
-                        }
+                        label={<label className={styles.label}>Show file details</label>}
                         disabled={!defaultShowHeader}
                         checked={defaultShowDetailsInHeader}
                         onChange={this.onChangeShowDetailsInHeader}
@@ -1037,13 +1007,9 @@ class SettingsList extends Component {
                     </List.Item>
                     <List.Item>
                       <Checkbox
-                        data-tid='showTimelineCheckbox'
+                        data-tid="showTimelineCheckbox"
                         className={styles.subCheckbox}
-                        label={
-                          <label className={styles.label}>
-                            Show timeline
-                          </label>
-                        }
+                        label={<label className={styles.label}>Show timeline</label>}
                         disabled={!defaultShowHeader}
                         checked={defaultShowTimelineInHeader}
                         onChange={this.onChangeShowTimelineInHeader}
@@ -1051,26 +1017,18 @@ class SettingsList extends Component {
                     </List.Item>
                     <List.Item>
                       <Checkbox
-                        data-tid='roundedCornersCheckbox'
-                        label={
-                          <label className={styles.label}>
-                            Rounded corners
-                          </label>
-                        }
+                        data-tid="roundedCornersCheckbox"
+                        label={<label className={styles.label}>Rounded corners</label>}
                         checked={defaultRoundedCorners}
                         onChange={this.onChangeRoundedCorners}
                       />
                     </List.Item>
-                  </Fragment>
-                }
+                  </>
+                )}
                 <List.Item>
                   <Checkbox
-                    data-tid='showHiddenThumbsCheckbox'
-                    label={
-                      <label className={styles.label}>
-                        Show hidden thumbs
-                      </label>
-                    }
+                    data-tid="showHiddenThumbsCheckbox"
+                    label={<label className={styles.label}>Show hidden thumbs</label>}
                     checked={visibilitySettings.visibilityFilter === 'SHOW_ALL'}
                     onChange={this.onChangeShowHiddenThumbs}
                   />
@@ -1078,12 +1036,8 @@ class SettingsList extends Component {
                 <Divider inverted />
                 <List.Item>
                   <Radio
-                    data-tid='showFramesRadioBtn'
-                    label={
-                      <label className={styles.label}>
-                        Show frames
-                      </label>
-                      }
+                    data-tid="showFramesRadioBtn"
+                    label={<label className={styles.label}>Show frames</label>}
                     name="radioGroup"
                     value="frames"
                     checked={defaultThumbInfo === 'frames'}
@@ -1092,12 +1046,8 @@ class SettingsList extends Component {
                 </List.Item>
                 <List.Item>
                   <Radio
-                    data-tid='showTimecodeRadioBtn'
-                    label={
-                      <label className={styles.label}>
-                        Show timecode
-                      </label>
-                      }
+                    data-tid="showTimecodeRadioBtn"
+                    label={<label className={styles.label}>Show timecode</label>}
                     name="radioGroup"
                     value="timecode"
                     checked={defaultThumbInfo === 'timecode'}
@@ -1106,12 +1056,8 @@ class SettingsList extends Component {
                 </List.Item>
                 <List.Item>
                   <Radio
-                    data-tid='hideInfoRadioBtn'
-                    label={
-                      <label className={styles.label}>
-                        Hide info
-                      </label>
-                      }
+                    data-tid="hideInfoRadioBtn"
+                    label={<label className={styles.label}>Hide info</label>}
                     name="radioGroup"
                     value="hideInfo"
                     checked={defaultThumbInfo === 'hideInfo'}
@@ -1122,14 +1068,12 @@ class SettingsList extends Component {
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
-            <Grid.Column width={4}>
-              Font color
-            </Grid.Column>
+            <Grid.Column width={4}>Font color</Grid.Column>
             <Grid.Column width={12}>
               <div>
                 <div
                   className={styles.colorPickerSwatch}
-                  onClick={(e) => this.colorPickerHandleClick(e, 'frameinfoColor')}
+                  onClick={e => this.colorPickerHandleClick(e, 'frameinfoColor')}
                 >
                   <Checkboard />
                   <div
@@ -1142,15 +1086,14 @@ class SettingsList extends Component {
                     00:00:00:00
                   </div>
                 </div>
-                {
-                  displayColorPicker.frameinfoColor ?
+                {displayColorPicker.frameinfoColor ? (
+                  <div
+                    className={styles.colorPickerPopover}
+                    // onMouseLeave={(e) => this.colorPickerHandleClose(e, 'frameinfoColor')}
+                  >
                     <div
-                      className={styles.colorPickerPopover}
-                      // onMouseLeave={(e) => this.colorPickerHandleClose(e, 'frameinfoColor')}
-                    >
-                     <div
                       className={styles.colorPickerCover}
-                      onClick={(e) => this.colorPickerHandleClose(e, 'frameinfoColor')}
+                      onClick={e => this.colorPickerHandleClose(e, 'frameinfoColor')}
                     />
                     <SketchPicker
                       color={defaultFrameinfoColor}
@@ -1158,20 +1101,17 @@ class SettingsList extends Component {
                       presetColors={COLOR_PALETTE_PICO_EIGHT}
                     />
                   </div>
-                  : null
-                }
+                ) : null}
               </div>
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
-            <Grid.Column width={4}>
-              Background color
-            </Grid.Column>
+            <Grid.Column width={4}>Background color</Grid.Column>
             <Grid.Column width={12}>
               <div>
                 <div
                   className={styles.colorPickerSwatch}
-                  onClick={(e) => this.colorPickerHandleClick(e, 'frameninfoBackgroundColor')}
+                  onClick={e => this.colorPickerHandleClick(e, 'frameninfoBackgroundColor')}
                 >
                   <Checkboard />
                   <div
@@ -1181,15 +1121,14 @@ class SettingsList extends Component {
                     }}
                   />
                 </div>
-                {
-                  displayColorPicker.frameninfoBackgroundColor ?
+                {displayColorPicker.frameninfoBackgroundColor ? (
+                  <div
+                    className={styles.colorPickerPopover}
+                    // onMouseLeave={(e) => this.colorPickerHandleClose(e, 'frameninfoBackgroundColor')}
+                  >
                     <div
-                      className={styles.colorPickerPopover}
-                      // onMouseLeave={(e) => this.colorPickerHandleClose(e, 'frameninfoBackgroundColor')}
-                    >
-                     <div
                       className={styles.colorPickerCover}
-                      onClick={(e) => this.colorPickerHandleClose(e, 'frameninfoBackgroundColor')}
+                      onClick={e => this.colorPickerHandleClose(e, 'frameninfoBackgroundColor')}
                     />
                     <SketchPicker
                       color={defaultFrameinfoBackgroundColor}
@@ -1197,18 +1136,15 @@ class SettingsList extends Component {
                       presetColors={COLOR_PALETTE_PICO_EIGHT}
                     />
                   </div>
-                  : null
-                }
+                ) : null}
               </div>
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
-            <Grid.Column width={4}>
-              Position
-            </Grid.Column>
+            <Grid.Column width={4}>Position</Grid.Column>
             <Grid.Column width={12}>
               <Dropdown
-                data-tid='changeFrameinfoPositionDropdown'
+                data-tid="changeFrameinfoPositionDropdown"
                 placeholder="Select..."
                 selection
                 options={FRAMEINFO_POSITION_OPTIONS}
@@ -1218,12 +1154,10 @@ class SettingsList extends Component {
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
-            <Grid.Column width={4}>
-              Size
-            </Grid.Column>
+            <Grid.Column width={4}>Size</Grid.Column>
             <Grid.Column width={12}>
               <SliderWithTooltip
-                data-tid='frameinfoScaleSlider'
+                data-tid="frameinfoScaleSlider"
                 className={styles.slider}
                 min={1}
                 max={100}
@@ -1239,12 +1173,10 @@ class SettingsList extends Component {
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
-            <Grid.Column width={4}>
-              Margin
-            </Grid.Column>
+            <Grid.Column width={4}>Margin</Grid.Column>
             <Grid.Column width={12}>
               <SliderWithTooltip
-                data-tid='frameinfoMarginSlider'
+                data-tid="frameinfoMarginSlider"
                 className={styles.slider}
                 min={0}
                 max={50}
@@ -1260,16 +1192,14 @@ class SettingsList extends Component {
           </Grid.Row>
           <Divider inverted />
           <Grid.Row>
-            <Grid.Column width={4}>
-              Output path
-            </Grid.Column>
+            <Grid.Column width={4}>Output path</Grid.Column>
             <Grid.Column width={12}>
               <List>
                 <List.Item>
                   <div
                     style={{
                       wordWrap: 'break-word',
-                      opacity: defaultOutputPathFromMovie ? '0.5' : '1.0'
+                      opacity: defaultOutputPathFromMovie ? '0.5' : '1.0',
                     }}
                   >
                     {defaultOutputPath}
@@ -1277,7 +1207,7 @@ class SettingsList extends Component {
                 </List.Item>
                 <List.Item>
                   <Button
-                    data-tid='changeOutputPathBtn'
+                    data-tid="changeOutputPathBtn"
                     onClick={onChangeOutputPathClick}
                     disabled={defaultOutputPathFromMovie}
                   >
@@ -1286,12 +1216,8 @@ class SettingsList extends Component {
                 </List.Item>
                 <List.Item>
                   <Checkbox
-                    data-tid='showPaperPreviewCheckbox'
-                    label={
-                      <label className={styles.label}>
-                        Same as movie file
-                      </label>
-                    }
+                    data-tid="showPaperPreviewCheckbox"
+                    label={<label className={styles.label}>Same as movie file</label>}
                     style={{
                       marginTop: '8px',
                     }}
@@ -1303,27 +1229,32 @@ class SettingsList extends Component {
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
-            <Grid.Column width={4}>
-              Output size
-            </Grid.Column>
+            <Grid.Column width={4}>Output size</Grid.Column>
             <Grid.Column width={12}>
               <Dropdown
-                data-tid='changeMoviePrintWidthDropdown'
+                data-tid="changeMoviePrintWidthDropdown"
                 placeholder="Select..."
                 selection
-                options={outputSize(file, columnCountTemp, thumbCountTemp, settings, visibilitySettings, sceneArray, secondsPerRowTemp, isGridView)}
+                options={outputSize(
+                  file,
+                  columnCountTemp,
+                  thumbCountTemp,
+                  settings,
+                  visibilitySettings,
+                  sceneArray,
+                  secondsPerRowTemp,
+                  isGridView,
+                )}
                 defaultValue={defaultMoviePrintWidth}
                 onChange={this.onChangeMoviePrintWidth}
               />
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
-            <Grid.Column width={4}>
-              Output format
-            </Grid.Column>
+            <Grid.Column width={4}>Output format</Grid.Column>
             <Grid.Column width={12}>
               <Dropdown
-                data-tid='changeOutputFormatDropdown'
+                data-tid="changeOutputFormatDropdown"
                 placeholder="Select..."
                 selection
                 options={OUTPUT_FORMAT_OPTIONS}
@@ -1333,14 +1264,12 @@ class SettingsList extends Component {
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
-            <Grid.Column width={4}>
-              Background color
-            </Grid.Column>
+            <Grid.Column width={4}>Background color</Grid.Column>
             <Grid.Column width={12}>
               <div>
                 <div
                   className={styles.colorPickerSwatch}
-                  onClick={(e) => this.colorPickerHandleClick(e, 'moviePrintBackgroundColor')}
+                  onClick={e => this.colorPickerHandleClick(e, 'moviePrintBackgroundColor')}
                 >
                   <Checkboard />
                   <div
@@ -1350,90 +1279,66 @@ class SettingsList extends Component {
                     }}
                   />
                 </div>
-                {
-                  displayColorPicker.moviePrintBackgroundColor ?
+                {displayColorPicker.moviePrintBackgroundColor ? (
+                  <div
+                    className={styles.colorPickerPopover}
+                    // onMouseLeave={(e) => this.colorPickerHandleClose(e, 'moviePrintBackgroundColor')}
+                  >
                     <div
-                      className={styles.colorPickerPopover}
-                      // onMouseLeave={(e) => this.colorPickerHandleClose(e, 'moviePrintBackgroundColor')}
-                    >
-                      <div
-                        className={styles.colorPickerCover}
-                        onClick={(e) => this.colorPickerHandleClose(e, 'moviePrintBackgroundColor')}
-                      />
-                      <SketchPicker
-                        color={moviePrintBackgroundColorDependentOnFormat}
-                        onChange={color => this.colorPickerHandleChange('moviePrintBackgroundColor', color)}
-                        disableAlpha={defaultOutputFormat === OUTPUT_FORMAT.JPG}
-                        presetColors={COLOR_PALETTE_PICO_EIGHT}
-                      />
+                      className={styles.colorPickerCover}
+                      onClick={e => this.colorPickerHandleClose(e, 'moviePrintBackgroundColor')}
+                    />
+                    <SketchPicker
+                      color={moviePrintBackgroundColorDependentOnFormat}
+                      onChange={color => this.colorPickerHandleChange('moviePrintBackgroundColor', color)}
+                      disableAlpha={defaultOutputFormat === OUTPUT_FORMAT.JPG}
+                      presetColors={COLOR_PALETTE_PICO_EIGHT}
+                    />
                   </div>
-                  : null
-                }
+                ) : null}
               </div>
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
-            <Grid.Column width={4}>
-              Save options
-            </Grid.Column>
+            <Grid.Column width={4}>Save options</Grid.Column>
             <Grid.Column width={12}>
               <List>
                 <List.Item>
                   <Checkbox
-                    data-tid='overwriteExistingCheckbox'
-                    label={
-                      <label className={styles.label}>
-                        Overwrite existing
-                      </label>
-                    }
+                    data-tid="overwriteExistingCheckbox"
+                    label={<label className={styles.label}>Overwrite existing</label>}
                     checked={defaultSaveOptionOverwrite}
                     onChange={this.onChangeOverwrite}
                   />
                 </List.Item>
                 <List.Item>
                   <Checkbox
-                    data-tid='includeIndividualFramesCheckbox'
-                    label={
-                      <label className={styles.label}>
-                        Include individual thumbs
-                      </label>
-                    }
+                    data-tid="includeIndividualFramesCheckbox"
+                    label={<label className={styles.label}>Include individual thumbs</label>}
                     checked={defaultSaveOptionIncludeIndividual}
                     onChange={this.onChangeIncludeIndividual}
                   />
                 </List.Item>
                 <List.Item>
                   <Checkbox
-                    data-tid='embedFrameNumbersCheckbox'
-                    label={
-                      <label className={styles.label}>
-                        Embed frameNumbers (only PNG)
-                      </label>
-                    }
+                    data-tid="embedFrameNumbersCheckbox"
+                    label={<label className={styles.label}>Embed frameNumbers (only PNG)</label>}
                     checked={defaultEmbedFrameNumbers}
                     onChange={this.onChangeEmbedFrameNumbers}
                   />
                 </List.Item>
                 <List.Item>
                   <Checkbox
-                    data-tid='embedFilePathCheckbox'
-                    label={
-                      <label className={styles.label}>
-                        Embed filePath (only PNG)
-                      </label>
-                    }
+                    data-tid="embedFilePathCheckbox"
+                    label={<label className={styles.label}>Embed filePath (only PNG)</label>}
                     checked={defaultEmbedFilePath}
                     onChange={this.onChangeEmbedFilePath}
                   />
                 </List.Item>
                 <List.Item>
                   <Checkbox
-                    data-tid='embedFilePathCheckbox'
-                    label={
-                      <label className={styles.label}>
-                        Open File Explorer after saving
-                      </label>
-                    }
+                    data-tid="embedFilePathCheckbox"
+                    label={<label className={styles.label}>Open File Explorer after saving</label>}
                     checked={defaultOpenFileExplorerAfterSaving}
                     onChange={this.onChangeOpenFileExplorerAfterSaving}
                   />
@@ -1448,28 +1353,26 @@ class SettingsList extends Component {
               <label>File name when saving a MoviePrint</label>
               <Input
                 // ref={this.inputDefaultMoviePrintName}
-                data-tid='defaultMoviePrintNameInput'
-                name='defaultMoviePrintNameInput' // needed for addAttributeIntoInput
+                data-tid="defaultMoviePrintNameInput"
+                name="defaultMoviePrintNameInput" // needed for addAttributeIntoInput
                 fluid
-                placeholder='MoviePrint name'
+                placeholder="MoviePrint name"
                 defaultValue={defaultMoviePrintName}
                 onFocus={this.setFocusReference}
                 onBlur={this.onSubmitDefaultMoviePrintName}
                 onKeyUp={this.onSubmitDefaultMoviePrintName}
               />
-              <Label
-                className={styles.previewCustomName}
-              >
+              <Label className={styles.previewCustomName}>
                 {previewMoviePrintName}.{defaultOutputFormat}
               </Label>
               <Divider hidden className={styles.smallDivider} />
               <label>File name of thumb when saving a single thumb</label>
               <Input
                 // ref={this.inputDefaultSingleThumbName}
-                data-tid='defaultSingleThumbNameInput'
-                name='defaultSingleThumbNameInput' // needed for addAttributeIntoInput
+                data-tid="defaultSingleThumbNameInput"
+                name="defaultSingleThumbNameInput" // needed for addAttributeIntoInput
                 fluid
-                placeholder='Name when saving a single thumb'
+                placeholder="Name when saving a single thumb"
                 defaultValue={defaultSingleThumbName}
                 onFocus={this.setFocusReference}
                 onBlur={this.onSubmitDefaultSingleThumbName}
@@ -1480,16 +1383,21 @@ class SettingsList extends Component {
                 color={defaultSingleThumbNameContainsFrameNumber ? undefined : 'orange'}
                 pointing={defaultSingleThumbNameContainsFrameNumber ? undefined : true}
               >
-                {defaultSingleThumbNameContainsFrameNumber ? undefined : 'The framenumber attribute is missing. This can lead to the thumb being overwritten. | '}{previewSingleThumbName}.jpg
+                {defaultSingleThumbNameContainsFrameNumber
+                  ? undefined
+                  : 'The framenumber attribute is missing. This can lead to the thumb being overwritten. | '}
+                {previewSingleThumbName}.jpg
               </Label>
               <Divider hidden className={styles.smallDivider} />
-              <label>File name of thumbs when <em>Include individual thumbs</em> is selected</label>
+              <label>
+                File name of thumbs when <em>Include individual thumbs</em> is selected
+              </label>
               <Input
                 // ref={this.inputDefaultAllThumbsName}
-                data-tid='defaultAllThumbsNameInput'
-                name='defaultAllThumbsNameInput' // needed for addAttributeIntoInput
+                data-tid="defaultAllThumbsNameInput"
+                name="defaultAllThumbsNameInput" // needed for addAttributeIntoInput
                 fluid
-                placeholder='Name when including individual thumbs'
+                placeholder="Name when including individual thumbs"
                 defaultValue={defaultAllThumbsName}
                 onFocus={this.setFocusReference}
                 onBlur={this.onSubmitDefaultAllThumbsName}
@@ -1500,42 +1408,45 @@ class SettingsList extends Component {
                 color={defaultAllThumbsNameContainsFrameNumber ? undefined : 'orange'}
                 pointing={defaultAllThumbsNameContainsFrameNumber ? undefined : true}
               >
-                {defaultAllThumbsNameContainsFrameNumber ? undefined : 'The framenumber attribute is missing. This can lead to the thumb being overwritten. | '}{previewAllThumbsName}.jpg
+                {defaultAllThumbsNameContainsFrameNumber
+                  ? undefined
+                  : 'The framenumber attribute is missing. This can lead to the thumb being overwritten. | '}
+                {previewAllThumbsName}.jpg
               </Label>
               <h6>Available attributes</h6>
               <Button
-                data-tid='addAttribute[MN]IntoInputButton'
+                data-tid="addAttribute[MN]IntoInputButton"
                 className={styles.attributeButton}
                 onClick={() => this.addAttributeIntoInput('[MN]')}
                 disabled={focusReference === undefined}
-                size='mini'
+                size="mini"
               >
                 [MN] Movie name
               </Button>
               <Button
-                data-tid='addAttribute[ME]IntoInputButton'
+                data-tid="addAttribute[ME]IntoInputButton"
                 className={styles.attributeButton}
                 onClick={() => this.addAttributeIntoInput('[ME]')}
                 disabled={focusReference === undefined}
-                size='mini'
+                size="mini"
               >
                 [ME] Movie extension
               </Button>
               <Button
-                data-tid='addAttribute[MPN]IntoInputButton'
+                data-tid="addAttribute[MPN]IntoInputButton"
                 className={styles.attributeButton}
                 onClick={() => this.addAttributeIntoInput('[MPN]')}
                 disabled={focusReference === undefined}
-                size='mini'
+                size="mini"
               >
                 [MPN] MoviePrint name
               </Button>
               <Button
-                data-tid='addAttribute[FN]IntoInputButton'
+                data-tid="addAttribute[FN]IntoInputButton"
                 className={styles.attributeButton}
                 onClick={() => this.addAttributeIntoInput('[FN]')}
                 disabled={focusReference === undefined}
-                size='mini'
+                size="mini"
               >
                 [FN] Frame number
               </Button>
@@ -1543,19 +1454,15 @@ class SettingsList extends Component {
           </Grid.Row>
           <Divider inverted />
           <Grid.Row>
-            <Grid.Column width={16}>
-              Experimental
-            </Grid.Column>
+            <Grid.Column width={16}>Experimental</Grid.Column>
           </Grid.Row>
           <Grid.Row>
-            <Grid.Column width={4}>
-              Detection chart
-            </Grid.Column>
+            <Grid.Column width={4}>Detection chart</Grid.Column>
             <Grid.Column width={12}>
               <Popup
                 trigger={
                   <Button
-                    data-tid='showDetectionChartBtn'
+                    data-tid="showDetectionChartBtn"
                     // fluid
                     onClick={onToggleDetectionChart}
                   >
@@ -1564,53 +1471,39 @@ class SettingsList extends Component {
                 }
                 mouseEnterDelay={1000}
                 on={['hover']}
-                position='bottom center'
+                position="bottom center"
                 className={stylesPop.popup}
                 content="Show detection chart with mean and difference values per frame"
               />
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
-            <Grid.Column width={4}>
-              Import options
-            </Grid.Column>
+            <Grid.Column width={4}>Import options</Grid.Column>
             <Grid.Column width={12}>
               <Checkbox
-                data-tid='automaticDetectionInOutPointCheckbox'
-                label={
-                  <label className={styles.label}>
-                    Automatic detection of In and Outpoint
-                  </label>
-                }
+                data-tid="automaticDetectionInOutPointCheckbox"
+                label={<label className={styles.label}>Automatic detection of In and Outpoint</label>}
                 checked={defaultDetectInOutPoint}
                 onChange={this.onChangeDetectInOutPoint}
               />
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
-            <Grid.Column width={4}>
-              Expert
-            </Grid.Column>
+            <Grid.Column width={4}>Expert</Grid.Column>
             <Grid.Column width={12}>
               <Checkbox
-                data-tid='showSlidersCheckbox'
-                label={
-                  <label className={styles.label}>
-                    Show input field instead of slider
-                  </label>
-                }
+                data-tid="showSlidersCheckbox"
+                label={<label className={styles.label}>Show input field instead of slider</label>}
                 checked={!this.state.showSliders}
                 onChange={this.onShowSliders}
               />
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
-            <Grid.Column width={4}>
-              Shot detection method
-            </Grid.Column>
+            <Grid.Column width={4}>Shot detection method</Grid.Column>
             <Grid.Column width={12}>
               <Dropdown
-                data-tid='shotDetectionMethodOptionsDropdown'
+                data-tid="shotDetectionMethodOptionsDropdown"
                 placeholder="Select..."
                 selection
                 options={SHOT_DETECTION_METHOD_OPTIONS}
@@ -1624,7 +1517,7 @@ class SettingsList extends Component {
             <Grid.Column width={4}>Face confidence threshold</Grid.Column>
             <Grid.Column width={12}>
               <SliderWithTooltip
-                data-tid='faceConfidenceThresholdSlider'
+                data-tid="faceConfidenceThresholdSlider"
                 className={styles.slider}
                 min={0}
                 max={100}
@@ -1643,7 +1536,7 @@ class SettingsList extends Component {
             <Grid.Column width={4}>Face size threshold</Grid.Column>
             <Grid.Column width={12}>
               <SliderWithTooltip
-                data-tid='faceSizeThresholdSlider'
+                data-tid="faceSizeThresholdSlider"
                 className={styles.slider}
                 min={0}
                 max={100}
@@ -1659,10 +1552,12 @@ class SettingsList extends Component {
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
-            <Grid.Column width={4} title='A smaller distance results in more unique faces'>Face uniqueness distance</Grid.Column>
+            <Grid.Column width={4} title="A smaller distance results in more unique faces">
+              Face uniqueness distance
+            </Grid.Column>
             <Grid.Column width={12}>
               <SliderWithTooltip
-                data-tid='faceUniquenessThresholdSlider'
+                data-tid="faceUniquenessThresholdSlider"
                 className={styles.slider}
                 min={0}
                 max={100}
@@ -1675,19 +1570,16 @@ class SettingsList extends Component {
                 handle={handle}
                 onChange={value => onChangeFaceUniquenessThreshold(value / 100.0)}
               />
+              <br />
+              <em>A smaller distance results in more unique faces</em>
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
-            <Grid.Column width={4}>
-            </Grid.Column>
+            <Grid.Column width={4}></Grid.Column>
             <Grid.Column width={12}>
               <Checkbox
-                data-tid='showFaceRectangleCheckbox'
-                label={
-                  <label className={styles.label}>
-                    Show face rectangle
-                  </label>
-                }
+                data-tid="showFaceRectangleCheckbox"
+                label={<label className={styles.label}>Show face rectangle</label>}
                 checked={defaultShowFaceRect}
                 onChange={this.onChangeShowFaceRect}
               />
@@ -1695,18 +1587,16 @@ class SettingsList extends Component {
           </Grid.Row>
           <Divider inverted />
           <Grid.Row>
-            <Grid.Column width={4}>
-              Max size cached frames
-            </Grid.Column>
+            <Grid.Column width={4}>Max size cached frames</Grid.Column>
             <Grid.Column width={12}>
-            <Dropdown
-              data-tid='changeCachedFramesSizeDropdown'
-              placeholder="Select..."
-              selection
-              options={CACHED_FRAMES_SIZE_OPTIONS}
-              defaultValue={defaultCachedFramesSize}
-              onChange={this.onChangeCachedFramesSize}
-            />
+              <Dropdown
+                data-tid="changeCachedFramesSizeDropdown"
+                placeholder="Select..."
+                selection
+                options={CACHED_FRAMES_SIZE_OPTIONS}
+                defaultValue={defaultCachedFramesSize}
+                onChange={this.onChangeCachedFramesSize}
+              />
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
@@ -1714,16 +1604,13 @@ class SettingsList extends Component {
             <Grid.Column width={12}>
               <Popup
                 trigger={
-                  <Button
-                    data-tid='updateFrameCacheBtn'
-                    onClick={recaptureAllFrames}
-                  >
+                  <Button data-tid="updateFrameCacheBtn" onClick={recaptureAllFrames}>
                     Update frame cache
                   </Button>
                 }
                 mouseEnterDelay={1000}
                 on={['hover']}
-                position='bottom center'
+                position="bottom center"
                 className={stylesPop.popup}
                 content="Recapture all frames and store it in the frame cache (uses max size)"
               />
@@ -1736,7 +1623,7 @@ class SettingsList extends Component {
 }
 
 SettingsList.contextTypes = {
-  store: PropTypes.object
+  store: PropTypes.object,
 };
 
 export default SettingsList;
