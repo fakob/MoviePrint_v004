@@ -21,7 +21,6 @@ import MenuBuilder from './menu';
 const { openProcessManager } = require('electron-process-manager');
 
 let mainWindow = null;
-let creditsWindow = null;
 let workerWindow = null;
 let opencvWorkerWindow = null;
 let indexedDBWorkerWindow = null;
@@ -158,25 +157,6 @@ app.on('ready', async () => {
     log.warn(event);
   });
 
-  creditsWindow = new BrowserWindow({
-    width: 660,
-    height: 660,
-    resizable: true,
-    title: 'Credits',
-    minimizable: false,
-    fullscreenable: false,
-  });
-  creditsWindow.hide();
-  creditsWindow.loadURL(`file://${__dirname}/credits.html`);
-
-  creditsWindow.on('close', event => {
-    // only hide window and prevent default if app not quitting
-    if (!appAboutToQuit) {
-      creditsWindow.hide();
-      event.preventDefault();
-    }
-  });
-
   workerWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
@@ -278,7 +258,6 @@ app.on('ready', async () => {
 
   const menuBuilder = new MenuBuilder(
     mainWindow,
-    creditsWindow,
     workerWindow,
     opencvWorkerWindow,
     indexedDBWorkerWindow,

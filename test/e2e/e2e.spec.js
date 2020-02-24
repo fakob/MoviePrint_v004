@@ -33,7 +33,7 @@ describe('main window', function spec() {
   // prepare to store window title and handle for later use
   const windowObject = {};
 
-  it('should open the 5 windows', async () => {
+  it('should open the 4 windows', async () => {
     const { client } = this.app;
     const windowHandles = await client.windowHandles();
     const windowNames = [];
@@ -52,7 +52,6 @@ describe('main window', function spec() {
 
     expect(windowNames).toEqual([
       'MoviePrint',
-      'MoviePrint credits',
       'MoviePrint_indexedDBWorker',
       'MoviePrint_opencvWorker',
       'MoviePrint_worker'

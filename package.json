@@ -62,7 +62,6 @@
       "dist/",
       "node_modules/",
       "app.html",
-      "credits.html",
       "worker.html",
       "worker_opencv.html",
       "worker_indexedDB.html",
