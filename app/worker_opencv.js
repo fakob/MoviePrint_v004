@@ -4,7 +4,7 @@ import log from 'electron-log';
 import * as tf from '@tensorflow/tfjs-node';
 
 import VideoCaptureProperties from './utils/videoCaptureProperties';
-import { limitRange, setPosition, fourccToString, getCropWidthAndHeight } from './utils/utils';
+import { limitRange, setPosition, fourccToString, getCropWidthAndHeight, getArrayOfOccurrences } from './utils/utils';
 import { detectAllFaces, runSyncCaptureAndFaceDetect } from './utils/faceDetection';
 import { HSVtoRGB, detectCut, recaptureThumbs } from './utils/utilsForOpencv';
 import { IN_OUT_POINT_SEARCH_LENGTH, IN_OUT_POINT_SEARCH_THRESHOLD } from './utils/constants';
@@ -864,6 +864,16 @@ ipcRenderer.on(
             } else {
               log.debug('lastThumb');
 
+              // insert occurence into detectionArray
+              const arrayOfOccurrences = getArrayOfOccurrences(detectionArray);
+              detectionArray.forEach(frame => {
+                frame.facesArray.forEach(face => {
+                  // convert object to array and find occurrence and add to item
+                  const { count } = Object.values(arrayOfOccurrences).find(item => item.faceId === face.faceId);
+                  face.occurrence = count;
+                });
+              });
+
               // insert all frames into sqlite3
               insertFaceScanArray(fileId, detectionArray);
 
@@ -875,7 +885,9 @@ ipcRenderer.on(
                   : `${Math.floor(scanDurationInSeconds)} seconds`;
               const messageToSend = `Face scanning took ${scanDurationString} (${Math.floor(
                 vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) / scanDurationInSeconds,
-              )} fps)`;
+              )} fps)
+
+              ${uniqueFaceArray.length} unique faces found in ${detectionArray.length} of ${frameNumberArray.length} scanned frames`;
               log.info(`opencvWorkerWindow | ${filePath} - ${messageToSend}`);
               console.timeEnd(`${fileId}-fileScanning`);
 
@@ -894,7 +906,7 @@ ipcRenderer.on(
                 'progressMessage',
                 'info',
                 messageToSend,
-                5000,
+                10000,
               );
             }
           });
