@@ -1,4 +1,5 @@
 import log from 'electron-log';
+import path from 'path';
 
 export const clearCache = win => {
   log.debug('clearCache');
@@ -46,4 +47,22 @@ export const reloadApplication = (mainWindow, workerWindow, opencvWorkerWindow, 
   workerWindow.webContents.reload();
   opencvWorkerWindow.webContents.reload();
   indexedDBWorkerWindow.webContents.reload();
+};
+
+export const getPathOfLogFileAndFolder = (processPlatform, appName) => {
+  let pathOfLogFolder;
+  switch (processPlatform) {
+    case 'darwin':
+      pathOfLogFolder = path.resolve(process.env.HOME || process.env.USERPROFILE, 'Library/Logs/', `${appName}/`);
+      break;
+    default:
+      pathOfLogFolder = path.resolve(
+        process.env.HOME || process.env.USERPROFILE,
+        'AppData\\Roaming\\',
+        `${appName}`,
+        'logs/',
+      );
+  }
+  const pathOfLogFile = path.resolve(pathOfLogFolder, 'main.log');
+  return { pathOfLogFile, pathOfLogFolder };
 };

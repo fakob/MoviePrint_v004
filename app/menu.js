@@ -2,7 +2,7 @@
 import { app, Menu, shell, BrowserWindow } from 'electron';
 import path from 'path';
 import fs from 'fs';
-import { resetApplication, reloadApplication, softResetApplication } from './utils/utilsForMain';
+import { getPathOfLogFileAndFolder, resetApplication, reloadApplication, softResetApplication } from './utils/utilsForMain';
 
 export default class MenuBuilder {
   mainWindow: BrowserWindow;
@@ -207,12 +207,7 @@ export default class MenuBuilder {
         {
           label: 'Show log file',
           click: () => {
-            const pathOfLogFolder = path.resolve(
-              process.env.HOME || process.env.USERPROFILE,
-              'Library/Logs/',
-              `${app.getName()}/`,
-            );
-            const pathOfLogFile = path.resolve(pathOfLogFolder, 'log.log');
+            const { pathOfLogFile, pathOfLogFolder} = getPathOfLogFileAndFolder(process.platform, app.getName());
             if (fs.existsSync(pathOfLogFile)) {
               shell.showItemInFolder(pathOfLogFile);
             } else {
@@ -485,12 +480,7 @@ export default class MenuBuilder {
         {
           label: 'Show log file',
           click: () => {
-            const pathOfLogFolder = path.resolve(
-              process.env.HOME || process.env.USERPROFILE,
-              'AppData\\Roaming\\',
-              `${app.getName()}/`,
-            );
-            const pathOfLogFile = path.resolve(pathOfLogFolder, 'log.log');
+            const { pathOfLogFile, pathOfLogFolder} = getPathOfLogFileAndFolder(process.platform, app.getName());
             if (fs.existsSync(pathOfLogFile)) {
               shell.showItemInFolder(pathOfLogFile);
             } else {
