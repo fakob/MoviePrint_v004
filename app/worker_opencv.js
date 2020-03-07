@@ -35,16 +35,37 @@ log.debug('I am the opencvWorkerWindow - responsible for capturing the necessary
 
 window.addEventListener('error', event => {
   log.error(event.error);
+  ipcRenderer.send(
+    'message-from-opencvWorkerWindow-to-mainWindow',
+    'progressMessage',
+    'error',
+    `There has been an error while loading the Opencv Worker. Please contact us for support: ${event.error.message}`,
+    false,
+  );
   event.preventDefault();
 });
 
 window.addEventListener('uncaughtException', event => {
   log.error(event.error);
+  ipcRenderer.send(
+    'message-from-opencvWorkerWindow-to-mainWindow',
+    'progressMessage',
+    'error',
+    `There has been an uncaughtException while loading the Opencv Worker. Please contact us for support: ${event.error.message}`,
+    false,
+  );
   event.preventDefault();
 });
 
 window.addEventListener('unhandledrejection', event => {
   log.error(event.error);
+  ipcRenderer.send(
+    'message-from-opencvWorkerWindow-to-mainWindow',
+    'progressMessage',
+    'error',
+    `There has been an unhandledrejection while loading the Opencv Worker. Please contact us for support: ${event.error.message}`,
+    false,
+  );
   event.preventDefault();
 });
 
