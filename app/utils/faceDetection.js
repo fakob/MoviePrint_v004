@@ -18,6 +18,15 @@ const weightsPath = path.join(appPath, './dist/weights');
 let fileScanRunning = false;
 
 const loadNet = async () => {
+  const toastId = 'loadNet';
+  ipcRenderer.send(
+    'message-from-opencvWorkerWindow-to-mainWindow',
+    'progressMessage',
+    'info',
+    'Initialising face detection',
+    false,
+    toastId,
+  );
   log.debug(weightsPath);
   log.debug(faceapi.nets);
   const detectionNet = faceapi.nets.ssdMobilenetv1;
@@ -26,7 +35,15 @@ const loadNet = async () => {
   await faceapi.nets.faceLandmark68Net.loadFromDisk(weightsPath);
   await faceapi.nets.ageGenderNet.loadFromDisk(weightsPath);
   await faceapi.nets.faceRecognitionNet.loadFromDisk(weightsPath);
-
+  ipcRenderer.send(
+    'message-from-opencvWorkerWindow-to-mainWindow',
+    'progressMessage',
+    'success',
+    'Face detection successfully initialised',
+    3000,
+    toastId,
+    true,
+  );
   return detectionNet;
 };
 
@@ -37,6 +54,15 @@ loadNet()
   })
   .catch(error => {
     log.error(`There has been a problem with your loadNet operation: ${error.message}`);
+    ipcRenderer.send(
+      'message-from-opencvWorkerWindow-to-mainWindow',
+      'progressMessage',
+      'error',
+      `There has been a problem with your loadNet operation: ${error.message}`,
+      false,
+      'loadNet',
+      true,
+    );
   });
 
 export const detectFace = async (
@@ -349,9 +375,8 @@ export const runSyncCaptureAndFaceDetect = async (
       // convert object to array and find occurrence and add to item
       const { count } = Object.values(arrayOfOccurrences).find(item => item.faceId === face.faceId);
       face.occurrence = count;
-    })
+    });
   });
-
 
   console.log(detectionArray);
   return detectionArray;

@@ -335,7 +335,6 @@ class App extends Component {
     this.updatecontainerWidthAndHeight = this.updatecontainerWidthAndHeight.bind(this);
     this.updateScaleValue = this.updateScaleValue.bind(this);
     this.recaptureAllFrames = this.recaptureAllFrames.bind(this);
-    this.showMessage = this.showMessage.bind(this);
 
     this.onFileListElementClick = this.onFileListElementClick.bind(this);
     this.onBackToParentClick = this.onBackToParentClick.bind(this);
@@ -524,9 +523,23 @@ class App extends Component {
       }
     });
 
-    ipcRenderer.on('progressMessage', (event, status, message, time = 3000) => {
-      this.showMessage(message, time, status);
-    });
+    ipcRenderer.on(
+      'progressMessage',
+      (
+        event,
+        status,
+        message,
+        time = 3000,
+        toastId = undefined,
+        shouldMessageUpdate = false,
+        additionalProperties = undefined,
+      ) => {
+        if (shouldMessageUpdate && toastId !== undefined) {
+          this.updateMessage(message, time, status, toastId, additionalProperties);
+        }
+        this.showMessage(message, time, status, toastId, additionalProperties);
+      },
+    );
 
     ipcRenderer.on('error-savingMoviePrint', () => {
       if (this.state.savingMoviePrint) {
@@ -1358,12 +1371,25 @@ class App extends Component {
     }
   }
 
-  showMessage(message, time, status = 'info') {
+  showMessage(message, time, status = 'info', toastId = undefined) {
     toast(message, {
       className: `${stylesPop.toast} ${status === 'info' ? stylesPop.toastInfo : ''}  ${
         status === 'error' ? stylesPop.toastError : ''
       }  ${status === 'success' ? stylesPop.toastSuccess : ''}`,
       autoClose: time,
+      toastId,
+      closeOnClick: status !== 'error',
+    });
+  }
+
+  updateMessage(message, time, status = 'info', toastId) {
+    toast.update(toastId, {
+      render: message,
+      className: `${stylesPop.toast} ${status === 'info' ? stylesPop.toastInfo : ''}  ${
+        status === 'error' ? stylesPop.toastError : ''
+      }  ${status === 'success' ? stylesPop.toastSuccess : ''}`,
+      autoClose: time,
+      closeOnClick: status !== 'error',
     });
   }
 
