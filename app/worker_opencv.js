@@ -718,6 +718,7 @@ ipcRenderer.on(
 
       const detectionArray = [];
       const uniqueFaceArray = [];
+      let detectionPromise;
 
       // getCropWidthAndHeight
       const videoWidth = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
@@ -771,7 +772,7 @@ ipcRenderer.on(
               const outJpg = opencv.imencode('.jpg', matRescaled);
               const input = tf.node.decodeJpeg(outJpg);
 
-              detectAllFaces(
+              detectionPromise = detectAllFaces(
                 input,
                 frameNumberToCapture,
                 detectionArray,
@@ -780,7 +781,7 @@ ipcRenderer.on(
                 defaultFaceSizeThreshold,
                 defaultFaceUniquenessThreshold,
               );
-              // console.log(detections)
+              // console.log(detectionPromise);
             } else {
               log.debug('opencvWorkerWindow | frame is empty');
             }
@@ -801,57 +802,66 @@ ipcRenderer.on(
             } else if (iterator < frameNumberArrayLength) {
               read();
             } else {
-              log.debug('lastThumb');
+              detectionPromise // wait for last detectionPromise
+                .then(() => {
+                  log.debug('lastThumb');
+                  console.log(detectionArray);
+                  console.log(detectionArray.length);
 
-              // insert occurence into detectionArray
-              const arrayOfOccurrences = getArrayOfOccurrences(detectionArray);
-              detectionArray.forEach(frame => {
-                if (frame.facesArray !== undefined) {
-                  frame.facesArray.forEach(face => {
-                    // convert object to array and find occurrence and add to item
-                    const { count } = Object.values(arrayOfOccurrences).find(item => item.faceId === face.faceId);
-                    /* eslint no-param-reassign: ["error", { "props": false }] */
-                    face.occurrence = count;
+                  // insert occurence into detectionArray
+                  const arrayOfOccurrences = getArrayOfOccurrences(detectionArray);
+                  detectionArray.forEach(frame => {
+                    if (frame.facesArray !== undefined) {
+                      frame.facesArray.forEach(face => {
+                        // convert object to array and find occurrence and add to item
+                        const { count } = Object.values(arrayOfOccurrences).find(item => item.faceId === face.faceId);
+                        /* eslint no-param-reassign: ["error", { "props": false }] */
+                        face.occurrence = count;
+                      });
+                    }
                   });
-                }
-              });
 
-              // insert all frames into sqlite3
-              insertFaceScanArray(fileId, detectionArray);
+                  // insert all frames into sqlite3
+                  insertFaceScanArray(fileId, detectionArray);
 
-              const timeAfterFaceDetection = Date.now();
-              const scanDurationInSeconds = (timeAfterFaceDetection - timeBeforeFaceDetection) / 1000;
-              const scanDurationString =
-                scanDurationInSeconds > 180
-                  ? `${Math.floor(scanDurationInSeconds / 60)} minutes`
-                  : `${Math.floor(scanDurationInSeconds)} seconds`;
-              const messageToSend = `Face scanning took ${scanDurationString} (${Math.floor(
-                vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) / scanDurationInSeconds,
-              )} fps)
+                  const timeAfterFaceDetection = Date.now();
+                  const scanDurationInSeconds = (timeAfterFaceDetection - timeBeforeFaceDetection) / 1000;
+                  const scanDurationString =
+                    scanDurationInSeconds > 180
+                      ? `${Math.floor(scanDurationInSeconds / 60)} minutes`
+                      : `${Math.floor(scanDurationInSeconds)} seconds`;
+                  const messageToSend = `Face scanning took ${scanDurationString} (${Math.floor(
+                    vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) / scanDurationInSeconds,
+                  )} fps)
 
-              ${uniqueFaceArray.length} unique faces found in ${detectionArray.length} of ${
-                frameNumberArray.length
-              } scanned frames`;
-              log.info(`opencvWorkerWindow | ${filePath} - ${messageToSend}`);
-              console.timeEnd(`${fileId}-fileScanning`);
+                ${uniqueFaceArray.length} unique faces found in ${detectionArray.length} of ${
+                    frameNumberArray.length
+                  } scanned frames`;
+                  log.info(`opencvWorkerWindow | ${filePath} - ${messageToSend}`);
+                  console.timeEnd(`${fileId}-fileScanning`);
 
-              ipcRenderer.send(
-                'message-from-opencvWorkerWindow-to-mainWindow',
-                'finished-getting-faces',
-                fileId,
-                sheetId,
-                detectionArray,
-                faceSortMethod,
-                updateSheet,
-              );
-              ipcRenderer.send('message-from-opencvWorkerWindow-to-mainWindow', 'progress', fileId, 100); // set to full
-              ipcRenderer.send(
-                'message-from-opencvWorkerWindow-to-mainWindow',
-                'progressMessage',
-                'info',
-                messageToSend,
-                10000,
-              );
+                  ipcRenderer.send(
+                    'message-from-opencvWorkerWindow-to-mainWindow',
+                    'finished-getting-faces',
+                    fileId,
+                    sheetId,
+                    detectionArray,
+                    faceSortMethod,
+                    updateSheet,
+                  );
+                  ipcRenderer.send('message-from-opencvWorkerWindow-to-mainWindow', 'progress', fileId, 100); // set to full
+                  ipcRenderer.send(
+                    'message-from-opencvWorkerWindow-to-mainWindow',
+                    'progressMessage',
+                    'info',
+                    messageToSend,
+                    10000,
+                  );
+                  return undefined;
+                })
+                .catch(err2 => {
+                  log.error(err2);
+                });
             }
           });
         };

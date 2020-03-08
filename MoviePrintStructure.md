@@ -114,6 +114,8 @@
       * call faceapi and add to detectionArray
     * insertFaceScanArray
   * ipc finished-getting-faces to mainWindow
+    * addThumbs
+      * sheetsToUpdate
 * dispatch updateFileScanStatus
 * runSceneDetection again
 * cancel requestIdleCallback

@@ -341,6 +341,7 @@ class App extends Component {
     this.onRescanFaceSheet = this.onRescanFaceSheet.bind(this);
     this.onErrorPosterFrame = this.onErrorPosterFrame.bind(this);
     this.getThumbsForFile = this.getThumbsForFile.bind(this);
+    this.onFinishedGettingFaces = this.onFinishedGettingFaces.bind(this);
 
     this.onChangeRow = this.onChangeRow.bind(this);
     this.onChangeColumn = this.onChangeColumn.bind(this);
@@ -700,76 +701,7 @@ class App extends Component {
     ipcRenderer.on(
       'finished-getting-faces',
       (event, fileId, sheetId, detectionArray, faceSortMethod, updateSheet = false) => {
-        const { sheetsToUpdate } = this.state;
-        const { files } = this.props;
-        console.log(detectionArray);
-        console.log(faceSortMethod);
-        console.log(sheetId);
-
-        this.setState({
-          fileScanRunning: false,
-        });
-
-        // only run if there is at least 1 face
-        if (detectionArray.length !== 0) {
-          // sort and filter faces by faceSortMethod
-          const sortedArray = sortArray(detectionArray, faceSortMethod);
-
-          // extract frameNumbers
-          const frameNumberArrayFromFaceDetection = sortedArray.map(item => item.frameNumber);
-          console.log(frameNumberArrayFromFaceDetection);
-
-          if (updateSheet) {
-            sheetsToUpdate.push({
-              fileId,
-              sheetId,
-              status: 'addFaceData',
-              sortMethod: faceSortMethod,
-            });
-            dispatch(
-              updateSheetColumnCount(fileId, sheetId, Math.ceil(Math.sqrt(frameNumberArrayFromFaceDetection.length))),
-            );
-          } else {
-            // create new sheet and add face thumbs
-            const newSheetId = uuidV4();
-            const file = getFile(files, fileId);
-            dispatch(addThumbs(file, newSheetId, frameNumberArrayFromFaceDetection))
-              .then(() => {
-                sheetsToUpdate.push({
-                  fileId,
-                  sheetId: newSheetId,
-                  status: 'addFaceData',
-                  sortMethod: faceSortMethod,
-                });
-                const sheetCount = getSheetCount(files, fileId);
-                const newSheetName = getNewSheetName(sheetCount);
-                dispatch(updateSheetName(fileId, newSheetId, newSheetName));
-                dispatch(updateSheetCounter(fileId));
-                dispatch(updateSheetType(fileId, newSheetId, SHEET_TYPE.FACES));
-                dispatch(updateSheetView(fileId, newSheetId, SHEET_VIEW.GRIDVIEW));
-                dispatch(
-                  updateSheetColumnCount(
-                    fileId,
-                    newSheetId,
-                    Math.ceil(Math.sqrt(frameNumberArrayFromFaceDetection.length)),
-                  ),
-                );
-                dispatch(setCurrentSheetId(newSheetId));
-                return undefined;
-              })
-              .catch(err => {
-                log.error(err);
-              });
-          }
-        } else {
-          log.info('No faces detected!');
-          toast('No faces detected!', {
-            className: `${stylesPop.toast}`,
-            autoClose: 10000,
-            closeButton: true,
-            closeOnClick: true,
-          });
-        }
+        this.onFinishedGettingFaces(fileId, sheetId, detectionArray, faceSortMethod, updateSheet);
       },
     );
 
@@ -1368,6 +1300,52 @@ class App extends Component {
     }
   }
 
+  async onFinishedGettingFaces(fileId, sheetId, detectionArray, faceSortMethod, updateSheet = false) {
+    const { sheetsToUpdate } = this.state;
+    const { dispatch, files, settings, sheetsByFileId, visibilitySettings } = this.props;
+    console.log(detectionArray);
+    console.log(faceSortMethod);
+    console.log(sheetId);
+    const file = getFile(files, fileId);
+    let thumbCount = getThumbsCount(sheetsByFileId, fileId, sheetId, settings, visibilitySettings, true);
+    console.log(thumbCount);
+
+    this.setState({
+      fileScanRunning: false,
+    });
+
+    if (detectionArray.length === 0 && thumbCount === 0) {
+      // dispatch(deleteSheets(fileId, sheetId));
+      log.info('No faces detected!');
+      toast('No faces detected!', {
+        className: `${stylesPop.toast}`,
+        autoClose: 10000,
+        closeButton: true,
+        closeOnClick: true,
+      });
+    } else {
+      // add new thumbs
+      if (detectionArray.length !== 0) {
+        const frameNumberArrayFromFaceDetection = detectionArray
+          .filter(item => item.faceCount !== 0)
+          .map(item => item.frameNumber);
+        await dispatch(addThumbs(file, sheetId, frameNumberArrayFromFaceDetection));
+
+        // update thumbCount
+
+        thumbCount += frameNumberArrayFromFaceDetection.length;
+        console.log(thumbCount)
+      }
+
+      // addFaceData and sort
+      this.addFaceData(fileId, sheetId, faceSortMethod);
+
+      // updateSheetColumnCount
+      dispatch(updateSheetColumnCount(fileId, sheetId, Math.ceil(Math.sqrt(Math.max(1, thumbCount)))));
+    }
+  }
+
+  /* eslint class-methods-use-this: off */
   showMessage(message, time, status = 'info', toastId = undefined) {
     toast(message, {
       className: `${stylesPop.toast} ${status === 'info' ? stylesPop.toastInfo : ''}  ${
@@ -1379,6 +1357,7 @@ class App extends Component {
     });
   }
 
+  /* eslint class-methods-use-this: off */
   updateMessage(message, time, status = 'info', toastId) {
     toast.update(toastId, {
       render: message,
@@ -2477,10 +2456,20 @@ class App extends Component {
     this.onSetSheetClick(theFileId, newSheetId, sheetView);
   }
 
-  onAddFaceSheetClick(scanResolution, scanWholeMovie = false) {
+  async onAddFaceSheetClick(scanResolution, scanWholeMovie = false) {
     // log.debug(`FileListElement clicked: ${file.name}`);
-    const { currentFileId, currentSheetId, file, sheetsByFileId, settings, visibilitySettings } = this.props;
+    const {
+      currentFileId,
+      currentSheetId,
+      dispatch,
+      file,
+      files,
+      sheetsByFileId,
+      settings,
+      visibilitySettings,
+    } = this.props;
     const { defaultFaceConfidenceThreshold, defaultFaceSizeThreshold, defaultFaceUniquenessThreshold } = settings;
+    const { sheetsToUpdate } = this.state;
 
     console.log(currentFileId);
     console.log(file);
@@ -2488,6 +2477,8 @@ class App extends Component {
 
     const updateSheet = false;
     const newSheetId = uuidV4();
+
+    const faceSortMethod = SORT_METHOD.FACESIZE;
 
     let frameNumberArray;
     if (scanWholeMovie) {
@@ -2512,65 +2503,94 @@ class App extends Component {
       const frameCountOfSelection = Math.abs(highestFrame - lowestFrame);
       console.log(`${lowestFrame} | ${highestFrame} | ${frameCountOfSelection}`);
       frameNumberArray = getIntervalArray(
-        Math.round(frameCountOfSelection * scanResolution),
+        Math.round(Math.max(1, frameCountOfSelection * scanResolution)), // at least 1
         lowestFrame,
         highestFrame,
         frameCount,
       );
     }
 
+    // create sheet
+    const sheetCount = getSheetCount(files, currentFileId);
+    const newSheetName = getNewSheetName(sheetCount);
+    dispatch(updateSheetName(currentFileId, newSheetId, newSheetName));
+    dispatch(updateSheetCounter(currentFileId));
+    dispatch(updateSheetType(currentFileId, newSheetId, SHEET_TYPE.FACES));
+    dispatch(updateSheetView(currentFileId, newSheetId, SHEET_VIEW.GRIDVIEW));
+    dispatch(setCurrentSheetId(newSheetId));
+
     // filter the frameNumberArray to only include frames which do not have face scan data
     console.log(frameNumberArray);
+
+    // these frames are already scanned
     const faceScanArray = getFaceScanByFileId(currentFileId, frameNumberArray);
     console.log(faceScanArray);
     const extractedFrameNumbers = faceScanArray.map(item => item.frameNumber);
     console.log(extractedFrameNumbers);
+
+    // these frames need to be scanned
     const frameArrayToScan = frameNumberArray.filter(item => !extractedFrameNumbers.includes(item));
     console.log(frameArrayToScan);
 
-    this.setState({ fileScanRunning: true });
-    // display toast and set toastId to fileId
-    toast(
-      ({ closeToast }) => (
-        <div>
-          Face detection in progress
-          <Button
-            compact
-            floated="right"
-            content="Cancel"
-            onClick={() => {
-              this.cancelFileScan(currentFileId);
-              closeToast();
-            }}
-          />
-        </div>
-      ),
-      {
-        toastId: currentFileId,
-        className: `${stylesPop.toast} ${stylesPop.toastInfo}`,
-        hideProgressBar: false,
-        autoClose: false,
-        closeButton: false,
-        closeOnClick: false,
-      },
-    );
+    // these frames are already scanned and have faces
+    const extractedFrameNumbersWithFaces = faceScanArray
+      .filter(item => item.faceCount !== 0)
+      .map(item => item.frameNumber);
+    console.log(extractedFrameNumbersWithFaces);
 
-    ipcRenderer.send(
-      'message-from-mainWindow-to-opencvWorkerWindow',
-      'send-get-faces',
-      currentFileId,
-      filePath,
-      newSheetId,
-      frameNumberArray,
-      useRatio,
-      settings.defaultCachedFramesSize,
-      transformObject,
-      defaultFaceConfidenceThreshold,
-      defaultFaceSizeThreshold,
-      defaultFaceUniquenessThreshold,
-      SORT_METHOD.FACESIZE,
-      updateSheet,
-    );
+    if (extractedFrameNumbersWithFaces.length !== 0) {
+      // add thumbs which already have face scan data
+      await dispatch(addThumbs(file, newSheetId, extractedFrameNumbersWithFaces));
+    }
+
+    if (frameArrayToScan.length !== 0) {
+      this.setState({ fileScanRunning: true });
+      // display toast and set toastId to fileId
+      toast(
+        ({ closeToast }) => (
+          <div>
+            Face detection in progress
+            <Button
+              compact
+              floated="right"
+              content="Cancel"
+              onClick={() => {
+                this.cancelFileScan(currentFileId);
+                closeToast();
+              }}
+            />
+          </div>
+        ),
+        {
+          toastId: currentFileId,
+          className: `${stylesPop.toast} ${stylesPop.toastInfo}`,
+          hideProgressBar: false,
+          autoClose: false,
+          closeButton: false,
+          closeOnClick: false,
+        },
+      );
+
+      ipcRenderer.send(
+        'message-from-mainWindow-to-opencvWorkerWindow',
+        'send-get-faces',
+        currentFileId,
+        filePath,
+        newSheetId,
+        frameArrayToScan,
+        useRatio,
+        settings.defaultCachedFramesSize,
+        transformObject,
+        defaultFaceConfidenceThreshold,
+        defaultFaceSizeThreshold,
+        defaultFaceUniquenessThreshold,
+        faceSortMethod,
+        updateSheet,
+      );
+    } else {
+      // no frames to scan, jump directly to finished getting faces
+      this.onFinishedGettingFaces(currentFileId, newSheetId, frameArrayToScan, faceSortMethod, updateSheet);
+    }
   }
 
   onRescanFaceSheet() {
