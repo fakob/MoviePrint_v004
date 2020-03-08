@@ -157,39 +157,6 @@ app.on('ready', async () => {
     log.warn(event);
   });
 
-  workerWindow = new BrowserWindow({
-    webPreferences: {
-      nodeIntegration: true,
-    },
-  });
-  workerWindow.hide();
-  // workerWindow.webContents.openDevTools();
-  workerWindow.loadURL(`file://${__dirname}/worker.html`);
-
-  workerWindow.on('close', event => {
-    // only hide window and prevent default if app not quitting
-    if (!appAboutToQuit) {
-      workerWindow.hide();
-      event.preventDefault();
-    }
-  });
-
-  workerWindow.webContents.on('crashed', event => {
-    log.error('mainThread | workerWindow just crashed, will try to reload window');
-    log.error(event);
-    workerWindow.webContents.reload();
-  });
-
-  workerWindow.webContents.on('unresponsive', event => {
-    log.warn('mainThread | workerWindow is unresponsive');
-    log.warn(event);
-  });
-
-  workerWindow.webContents.on('responsive', event => {
-    log.warn('mainThread | workerWindow is responsive again');
-    log.warn(event);
-  });
-
   opencvWorkerWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
@@ -253,6 +220,39 @@ app.on('ready', async () => {
 
   indexedDBWorkerWindow.webContents.on('responsive', event => {
     log.warn('mainThread | indexedDBWorkerWindow is responsive again');
+    log.warn(event);
+  });
+
+  workerWindow = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,
+    },
+  });
+  workerWindow.hide();
+  // workerWindow.webContents.openDevTools();
+  workerWindow.loadURL(`file://${__dirname}/worker.html`);
+
+  workerWindow.on('close', event => {
+    // only hide window and prevent default if app not quitting
+    if (!appAboutToQuit) {
+      workerWindow.hide();
+      event.preventDefault();
+    }
+  });
+
+  workerWindow.webContents.on('crashed', event => {
+    log.error('mainThread | workerWindow just crashed, will try to reload window');
+    log.error(event);
+    workerWindow.webContents.reload();
+  });
+
+  workerWindow.webContents.on('unresponsive', event => {
+    log.warn('mainThread | workerWindow is unresponsive');
+    log.warn(event);
+  });
+
+  workerWindow.webContents.on('responsive', event => {
+    log.warn('mainThread | workerWindow is responsive again');
     log.warn(event);
   });
 
