@@ -771,7 +771,7 @@ ipcRenderer.on(
               const outJpg = opencv.imencode('.jpg', matRescaled);
               const input = tf.node.decodeJpeg(outJpg);
 
-              const detections = detectAllFaces(
+              detectAllFaces(
                 input,
                 frameNumberToCapture,
                 detectionArray,
@@ -806,11 +806,14 @@ ipcRenderer.on(
               // insert occurence into detectionArray
               const arrayOfOccurrences = getArrayOfOccurrences(detectionArray);
               detectionArray.forEach(frame => {
-                frame.facesArray.forEach(face => {
-                  // convert object to array and find occurrence and add to item
-                  const { count } = Object.values(arrayOfOccurrences).find(item => item.faceId === face.faceId);
-                  face.occurrence = count;
-                });
+                if (frame.facesArray !== undefined) {
+                  frame.facesArray.forEach(face => {
+                    // convert object to array and find occurrence and add to item
+                    const { count } = Object.values(arrayOfOccurrences).find(item => item.faceId === face.faceId);
+                    /* eslint no-param-reassign: ["error", { "props": false }] */
+                    face.occurrence = count;
+                  });
+                }
               });
 
               // insert all frames into sqlite3
@@ -826,7 +829,9 @@ ipcRenderer.on(
                 vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) / scanDurationInSeconds,
               )} fps)
 
-              ${uniqueFaceArray.length} unique faces found in ${detectionArray.length} of ${frameNumberArray.length} scanned frames`;
+              ${uniqueFaceArray.length} unique faces found in ${detectionArray.length} of ${
+                frameNumberArray.length
+              } scanned frames`;
               log.info(`opencvWorkerWindow | ${filePath} - ${messageToSend}`);
               console.timeEnd(`${fileId}-fileScanning`);
 

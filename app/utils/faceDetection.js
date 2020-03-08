@@ -85,7 +85,7 @@ export const detectFace = async (
   // check if a face was detected
   if (face !== undefined) {
     const { age, gender, descriptor, detection } = face;
-    const { box, relativeBox, score } = detection;
+    const { relativeBox, score } = detection;
     const size = Math.round(relativeBox.height * 100);
     const scoreInPercent = Math.round(score * 100);
 
@@ -189,7 +189,11 @@ export const detectAllFaces = async (
 
   if (faceCount === 0) {
     console.log('no face detected!');
-    return undefined;
+    detectionArray.push({
+      frameNumber,
+      faceCount,
+    });
+    return detections;
   }
   console.log(`Face count: ${faceCount}`);
 
@@ -198,7 +202,7 @@ export const detectAllFaces = async (
   const facesArray = [];
   detections.forEach(face => {
     const { age, gender, descriptor, detection } = face;
-    const { box, relativeBox, score } = detection;
+    const { relativeBox, score } = detection;
     const size = Math.round(relativeBox.height * 100);
     const scoreInPercent = Math.round(score * 100);
 
@@ -259,6 +263,7 @@ export const detectAllFaces = async (
       box: simpleBox,
       gender,
       age: Math.round(age),
+      faceDescriptor: copyOfDescriptor,
     });
 
     // const drawBox = new faceapi.draw.DrawBox(box, {
@@ -271,8 +276,12 @@ export const detectAllFaces = async (
   });
 
   if (facesArray.length === 0) {
-    // no faces below thresholds
-    return undefined;
+    // no faces stored as they are below thresholds
+    detectionArray.push({
+      frameNumber,
+      faceCount,
+    });
+    return detections;
   }
 
   // sort faces by size with the largest one first

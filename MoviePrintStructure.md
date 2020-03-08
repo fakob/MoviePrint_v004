@@ -107,6 +107,17 @@
 * runSceneDetection again
 * cancel requestIdleCallback
 
+##### on face detection
+* onAddFaceSheetClick or onRescanFaceSheet
+  * ipc send-get-faces to opencvWorkerWindow
+    * async go through frameNumberArray and call detectAllFaces for each
+      * call faceapi and add to detectionArray
+    * insertFaceScanArray
+  * ipc finished-getting-faces to mainWindow
+* dispatch updateFileScanStatus
+* runSceneDetection again
+* cancel requestIdleCallback
+
 ##### on onReplaceMovieListItemClick
 
 

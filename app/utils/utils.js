@@ -1255,11 +1255,7 @@ export const getFrameScanTableName = fileId => {
 };
 
 // sort detectionArray by ...
-export const sortArray = (
-  detectionArray,
-  sortAndFilterMethod = SORT_METHOD.FACESIZE,
-  reverseSortOrder = false,
-) => {
+export const sortArray = (detectionArray, sortAndFilterMethod = SORT_METHOD.FACESIZE, reverseSortOrder = false) => {
   let sortedAndFilteredArray = [];
   const sortOrderMultiplier = reverseSortOrder ? -1 : 1;
   switch (sortAndFilterMethod) {
@@ -1272,29 +1268,22 @@ export const sortArray = (
     case SORT_METHOD.FACESIZE:
       sortedAndFilteredArray = detectionArray
         .slice()
+        .filter(item => item.faceCount !== 0) // filter out frames with no faces
         .sort((a, b) => (a.largestSize < b.largestSize ? sortOrderMultiplier * 1 : sortOrderMultiplier * -1));
       // .map(item => item.frameNumber);
       break;
     case SORT_METHOD.FACECOUNT:
       sortedAndFilteredArray = detectionArray
         .slice()
+        .filter(item => item.faceCount !== 0) // filter out frames with no faces
         .sort((a, b) => (a.faceCount < b.faceCount ? sortOrderMultiplier * 1 : sortOrderMultiplier * -1));
       // .map(item => item.frameNumber);
       break;
     case SORT_METHOD.FACECONFIDENCE: {
-      // flatten the detectionArray
-      const flattenedArray = [];
-      detectionArray.map(item => {
-        const { facesArray, ...rest } = item;
-        if (facesArray !== undefined) {
-          facesArray.map(face => {
-            flattenedArray.push({ ...face, ...rest });
-            return undefined;
-          });
-        }
-        return undefined;
-      });
-      console.log(flattenedArray);
+      // filtered and flatten the detectionArray
+      const detectionArrayFiltered = detectionArray.filter(item => item.faceCount !== 0) // filter out frames with no faces
+      const flattenedArray = getFlattenedArray(detectionArrayFiltered);
+
       // sort
       flattenedArray.sort((a, b) => (a.score < b.score ? sortOrderMultiplier * 1 : sortOrderMultiplier * -1));
 
@@ -1306,8 +1295,9 @@ export const sortArray = (
       break;
     }
     case SORT_METHOD.FACEOCCURRENCE: {
-      // flatten the detectionArray
-      const flattenedArray = getFlattenedArrayWithOccurrences(detectionArray);
+      // filtered and flatten the detectionArray
+      const detectionArrayFiltered = detectionArray.filter(item => item.faceCount !== 0) // filter out frames with no faces
+      const flattenedArray = getFlattenedArrayWithOccurrences(detectionArrayFiltered);
       // console.log(flattenedArray.map(item => ({ faceId: item.faceId, size: item.size, occurrence: item.occurrence })));
 
       // sort by count, size and then score
@@ -1333,8 +1323,9 @@ export const sortArray = (
       break;
     }
     case SORT_METHOD.UNIQUE:
-      // flatten the detectionArray
-      const flattenedArray = getFlattenedArrayWithOccurrences(detectionArray);
+      // filtered and flatten the detectionArray
+      const detectionArrayFiltered = detectionArray.filter(item => item.faceCount !== 0) // filter out frames with no faces
+      const flattenedArray = getFlattenedArrayWithOccurrences(detectionArrayFiltered);
       // console.log(flattenedArray.map(item => ({ faceId: item.faceId, size: item.size, occurrence: item.occurrence })));
 
       // sort by count, size and then score
