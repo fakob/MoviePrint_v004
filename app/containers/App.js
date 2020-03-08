@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone';
@@ -266,8 +266,6 @@ class App extends Component {
       },
       zoom: false,
       filesToLoad: [],
-      showMessage: false,
-      progressBarPercentage: 100,
       showFeedbackForm: false,
       feedbackFormIsLoading: false,
       intendToCloseFeedbackForm: false,
@@ -294,11 +292,9 @@ class App extends Component {
       showSaveThumbModal: false,
       transformObject: {},
       objectUrlObjects: {},
-      framesToFetch: [],
       fileIdToBeRecaptured: undefined,
       fileIdToBeCaptured: undefined,
       requestIdleCallbackForScenesHandle: undefined,
-      requestIdleCallbackForImagesHandle: undefined,
       requestIdleCallbackForObjectUrlHandle: undefined,
     };
 
@@ -427,7 +423,7 @@ class App extends Component {
 
     // moving ipcRenderer into constructor so it gets executed even when
     // the component can not mount and the ErrorBoundary kicks in
-    ipcRenderer.on('delete-all-tables', event => {
+    ipcRenderer.on('delete-all-tables', () => {
       log.debug('delete-all-tables');
       deleteTableFrameScanList();
       deleteTableReduxState();
@@ -2522,6 +2518,15 @@ class App extends Component {
         frameCount,
       );
     }
+
+    // filter the frameNumberArray to only include frames which do not have face scan data
+    console.log(frameNumberArray);
+    const faceScanArray = getFaceScanByFileId(currentFileId, frameNumberArray);
+    console.log(faceScanArray);
+    const extractedFrameNumbers = faceScanArray.map(item => item.frameNumber);
+    console.log(extractedFrameNumbers);
+    const frameArrayToScan = frameNumberArray.filter(item => !extractedFrameNumbers.includes(item));
+    console.log(frameArrayToScan);
 
     this.setState({ fileScanRunning: true });
     // display toast and set toastId to fileId
