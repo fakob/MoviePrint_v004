@@ -5,7 +5,7 @@ import * as tf from '@tensorflow/tfjs-node';
 
 import VideoCaptureProperties from './utils/videoCaptureProperties';
 import { limitRange, setPosition, fourccToString, getCropWidthAndHeight, getArrayOfOccurrences } from './utils/utils';
-import { detectAllFaces, runSyncCaptureAndFaceDetect } from './utils/faceDetection';
+import { detectAllFaces } from './utils/faceDetection';
 import { HSVtoRGB, detectCut, recaptureThumbs } from './utils/utilsForOpencv';
 import { IN_OUT_POINT_SEARCH_LENGTH, IN_OUT_POINT_SEARCH_THRESHOLD } from './utils/constants';
 import { insertFrameScanArray, insertFaceScanArray } from './utils/utilsForSqlite';
@@ -679,88 +679,6 @@ ipcRenderer.on(
         setPosition(vid, startFrame, useRatio);
         read(); // start reading frames
       });
-    } catch (e) {
-      log.error(e);
-    }
-  },
-);
-
-// get faces
-ipcRenderer.on(
-  'send-get-faces-sync',
-  (
-    event,
-    fileId,
-    filePath,
-    sheetId,
-    frameNumberArray,
-    useRatio,
-    defaultCachedFramesSize,
-    transformObject,
-    defaultFaceConfidenceThreshold,
-    defaultFaceSizeThreshold,
-    defaultFaceUniquenessThreshold,
-    faceSortMethod,
-    updateSheet = false,
-  ) => {
-    log.debug('opencvWorkerWindow | on send-get-faces-sync');
-    log.debug(`opencvWorkerWindow | ${filePath}`);
-
-    try {
-      const timeBeforeFaceDetection = Date.now();
-      console.time(`${fileId}-faceScanning`);
-
-      const vid = new opencv.VideoCapture(filePath);
-
-      runSyncCaptureAndFaceDetect(
-        vid,
-        fileId,
-        frameNumberArray,
-        useRatio,
-        transformObject,
-        defaultFaceConfidenceThreshold,
-        defaultFaceSizeThreshold,
-        defaultFaceUniquenessThreshold,
-      )
-        .then(detectionArray => {
-          // insert all frames into sqlite3
-          insertFaceScanArray(fileId, detectionArray);
-
-          const timeAfterFaceDetection = Date.now();
-          const scanDurationInSeconds = (timeAfterFaceDetection - timeBeforeFaceDetection) / 1000;
-          const scanDurationString =
-            scanDurationInSeconds > 180
-              ? `${Math.floor(scanDurationInSeconds / 60)} minutes`
-              : `${Math.floor(scanDurationInSeconds)} seconds`;
-          const messageToSend = `Face scanning took ${scanDurationString} (${Math.floor(
-            vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) / scanDurationInSeconds,
-          )} fps)`;
-          log.info(`opencvWorkerWindow | ${filePath} - ${messageToSend}`);
-          console.timeEnd(`${fileId}-fileScanning`);
-
-          ipcRenderer.send(
-            'message-from-opencvWorkerWindow-to-mainWindow',
-            'finished-getting-faces',
-            fileId,
-            sheetId,
-            detectionArray,
-            faceSortMethod,
-            updateSheet,
-          );
-          ipcRenderer.send('message-from-opencvWorkerWindow-to-mainWindow', 'progress', fileId, 100); // set to full
-          ipcRenderer.send(
-            'message-from-opencvWorkerWindow-to-mainWindow',
-            'progressMessage',
-            'info',
-            messageToSend,
-            5000,
-          );
-
-          return undefined;
-        })
-        .catch(err => {
-          log.error(err);
-        });
     } catch (e) {
       log.error(e);
     }
