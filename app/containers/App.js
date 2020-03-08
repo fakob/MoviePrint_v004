@@ -42,6 +42,7 @@ import getScaleValueObject from '../utils/getScaleValueObject';
 import {
   calculateSceneListFromDifferenceArray,
   createSceneArray,
+  deleteFaceDescriptorFromFaceScanArray,
   doesFileFolderExist,
   doesSheetExist,
   getAdjacentSceneIndicesFromCut,
@@ -1745,6 +1746,7 @@ class App extends Component {
     const arrayOfFrameNumbers = getFramenumbersOfSheet(sheetsByFileId, fileId, sheetId, visibilitySettings);
     console.log(arrayOfFrameNumbers);
     const faceScanArray = getFaceScanByFileId(fileId, arrayOfFrameNumbers);
+    deleteFaceDescriptorFromFaceScanArray(faceScanArray);
     console.log(faceScanArray);
     // add detection information to thumbs
     dispatch(changeAndSortThumbArray(fileId, sheetId, faceScanArray, sortMethod));

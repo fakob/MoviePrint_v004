@@ -1511,3 +1511,19 @@ export const getCropWidthAndHeight = (transformObject, videoWidth, videoHeight) 
     cropHeight,
   };
 };
+
+export const deleteFaceDescriptorFromFaceScanArray = faceScanArray => {
+  // note!!! this is a mutating function
+  faceScanArray.map(frame => {
+    // loop through all frames
+    if (frame.facesArray !== undefined) {
+      frame.facesArray.map(face => {
+        // loop through all faces
+        delete face.faceDescriptor;
+        return undefined;
+      });
+    }
+    return undefined;
+  });
+  return faceScanArray;
+};
