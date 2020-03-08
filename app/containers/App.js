@@ -2520,23 +2520,23 @@ class App extends Component {
     dispatch(setCurrentSheetId(newSheetId));
 
     // filter the frameNumberArray to only include frames which do not have face scan data
-    console.log(frameNumberArray);
+    // console.log(frameNumberArray);
 
     // these frames are already scanned
     const faceScanArray = getFaceScanByFileId(currentFileId, frameNumberArray);
-    console.log(faceScanArray);
+    // console.log(faceScanArray);
     const extractedFrameNumbers = faceScanArray.map(item => item.frameNumber);
-    console.log(extractedFrameNumbers);
+    // console.log(extractedFrameNumbers);
 
     // these frames need to be scanned
     const frameArrayToScan = frameNumberArray.filter(item => !extractedFrameNumbers.includes(item));
-    console.log(frameArrayToScan);
+    // console.log(frameArrayToScan);
 
     // these frames are already scanned and have faces
     const extractedFrameNumbersWithFaces = faceScanArray
       .filter(item => item.faceCount !== 0)
       .map(item => item.frameNumber);
-    console.log(extractedFrameNumbersWithFaces);
+    // console.log(extractedFrameNumbersWithFaces);
 
     if (extractedFrameNumbersWithFaces.length !== 0) {
       // add thumbs which already have face scan data
