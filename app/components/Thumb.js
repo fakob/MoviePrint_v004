@@ -179,9 +179,11 @@ const Thumb = ({
         src={
           transparentThumb
             ? transparent
-            : thumbImageObjectUrl === undefined
+            : thumbImageObjectUrl !== undefined
+            ? thumbImageObjectUrl
+            : base64 !== undefined
             ? `data:image/jpeg;base64, ${base64}`
-            : thumbImageObjectUrl
+            : transparent
         }
         id={`thumbImage${indexForId}`}
         className={`${styles.image} ${dim ? styles.dim : ''}`}
