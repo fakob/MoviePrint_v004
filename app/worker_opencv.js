@@ -730,10 +730,10 @@ ipcRenderer.on(
       );
 
       vid.readAsync(err1 => {
-        const read = (frameOffset = 0) => {
+        const read = () => {
           // limit frameNumberToCapture between 0 and movie length
           const frameNumberToCapture = limitRange(
-            frameNumberArray[iterator] + frameOffset,
+            frameNumberArray[iterator],
             0,
             vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1,
           );
@@ -749,7 +749,7 @@ ipcRenderer.on(
               progressBarPercentage,
             );
             log.debug(
-              `opencvWorkerWindow | readAsync: ${iterator}, frameOffset: ${frameOffset}, ${frameNumberToCapture}/${vid.get(
+              `opencvWorkerWindow | readAsync: ${iterator}, ${frameNumberToCapture}/${vid.get(
                 VideoCaptureProperties.CAP_PROP_POS_FRAMES,
               ) - 1}(${vid.get(VideoCaptureProperties.CAP_PROP_POS_MSEC)}ms) of ${vid.get(
                 VideoCaptureProperties.CAP_PROP_FRAME_COUNT,
@@ -907,6 +907,8 @@ ipcRenderer.on(
       const timeBefore = Date.now();
       const frameNumberAndColorArray = [];
 
+      let frameIsEmpty = false;
+
       // getCropWidthAndHeight
       const videoWidth = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
       const videoHeight = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
@@ -938,6 +940,7 @@ ipcRenderer.on(
             );
 
             if (mat.empty === false) {
+              frameIsEmpty = false;
               // opencv.imshow('mat', mat);
               // optional cropping
               let matCropped;
@@ -979,8 +982,11 @@ ipcRenderer.on(
                 frameNumber,
                 colorArray,
               });
+
+              iterator += 1;
             } else {
               log.debug('opencvWorkerWindow | frame is empty');
+              frameIsEmpty = true;
               // assumption is that the we might find frames forward or backward which work
               if (Math.abs(frameOffset) < searchLimit) {
                 // if frameNumberToCapture is close to the end go backward else go forward
@@ -1010,36 +1016,40 @@ ipcRenderer.on(
                   frameNumber,
                   colorArray: [0, 0, 0],
                 });
+
+                frameIsEmpty = false; // reset frameIsEmpty
+                iterator += 1;
               }
             }
-            iterator += 1;
+            if (!frameIsEmpty) {
+              // do not read or jump to last thumb if frameIsEmpty as it has its own read function
+              if (iterator < frameNumberArrayLength) {
+                read();
+              } else {
+                log.debug('lastThumb');
+                const duration = Date.now() - timeBefore;
+                log.debug('lastThumb');
 
-            if (iterator < frameNumberArrayLength) {
-              read();
-            } else {
-              log.debug('lastThumb');
-              const duration = Date.now() - timeBefore;
-              log.debug('lastThumb');
+                ipcRenderer.send(
+                  'message-from-opencvWorkerWindow-to-mainWindow',
+                  'update-frameNumber-and-colorArray',
+                  frameNumberAndColorArray,
+                );
 
-              ipcRenderer.send(
-                'message-from-opencvWorkerWindow-to-mainWindow',
-                'update-frameNumber-and-colorArray',
-                frameNumberAndColorArray,
-              );
-
-              ipcRenderer.send(
-                'message-from-opencvWorkerWindow-to-mainWindow',
-                'finished-getting-thumbs',
-                fileId,
-                sheetId,
-              );
-              ipcRenderer.send(
-                'message-from-opencvWorkerWindow-to-mainWindow',
-                'progressMessage',
-                'info',
-                `Loading of frames took ${duration / 1000.0}s`,
-                3000,
-              );
+                ipcRenderer.send(
+                  'message-from-opencvWorkerWindow-to-mainWindow',
+                  'finished-getting-thumbs',
+                  fileId,
+                  sheetId,
+                );
+                ipcRenderer.send(
+                  'message-from-opencvWorkerWindow-to-mainWindow',
+                  'progressMessage',
+                  'info',
+                  `Loading of frames took ${duration / 1000.0}s`,
+                  3000,
+                );
+              }
             }
           });
         };
