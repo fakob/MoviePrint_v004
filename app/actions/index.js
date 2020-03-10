@@ -857,15 +857,17 @@ export const updateOrder = (currentFileId, sheetId, array) => {
 
 export const updateFrameNumberAndColorArray = frameNumberAndColorArray => {
   log.debug('action: updateFrameNumberAndColorArray');
-  const { fileId, sheetId } = frameNumberAndColorArray[0];
-  return {
-    type: 'UPDATE_FRAMENUMBER_AND_COLORARRAY_OF_THUMB',
-    payload: {
-      fileId,
-      sheetId,
-      frameNumberAndColorArray,
-    },
-  };
+  if (frameNumberAndColorArray !== undefined) {
+    const { fileId, sheetId } = frameNumberAndColorArray[0];
+    return {
+      type: 'UPDATE_FRAMENUMBER_AND_COLORARRAY_OF_THUMB',
+      payload: {
+        fileId,
+        sheetId,
+        frameNumberAndColorArray,
+      },
+    };
+  }
 };
 
 export const duplicateSheet = (fileId, sheetId, newSheetId) => {
