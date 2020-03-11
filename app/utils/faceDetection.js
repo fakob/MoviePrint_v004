@@ -1,21 +1,15 @@
 import path from 'path';
 import * as faceapi from 'face-api.js';
 import log from 'electron-log';
-import * as tf from '@tensorflow/tfjs-node';
 
-import VideoCaptureProperties from './videoCaptureProperties';
-import { getArrayOfOccurrences, roundNumber, setPosition, getCropWidthAndHeight } from './utils';
+import { roundNumber } from './utils';
 import { FACE_CONFIDENCE_THRESHOLD, FACE_SIZE_THRESHOLD, FACE_UNIQUENESS_THRESHOLD } from './constants';
 
-const opencv = require('opencv4nodejs');
 const { ipcRenderer } = require('electron');
 const { app } = require('electron').remote;
 
 const appPath = app.getAppPath();
 const weightsPath = path.join(appPath, './dist/weights');
-
-// to cancel file scan
-let fileScanRunning = false;
 
 const loadNet = async () => {
   const toastId = 'loadNet';
@@ -172,10 +166,8 @@ export const detectAllFaces = async (
   image,
   frameNumber,
   detectionArray,
-  uniqueFaceArray,
   defaultFaceConfidenceThreshold = FACE_SIZE_THRESHOLD,
   defaultFaceSizeThreshold = FACE_CONFIDENCE_THRESHOLD,
-  defaultFaceUniquenessThreshold = FACE_UNIQUENESS_THRESHOLD,
 ) => {
   // detect expression
   const detections = await faceapi
@@ -219,36 +211,6 @@ export const detectAllFaces = async (
       return undefined;
     }
 
-    // check for uniqueness
-    // if the uniqueFaceArray is empty just push the current descriptor
-    // else compare the current descriptor to the ones in the uniqueFaceArray
-
-    // initialise the faceId
-    let faceId = 0;
-    const uniqueFaceArrayLength = uniqueFaceArray.length;
-    if (uniqueFaceArrayLength === 0) {
-      uniqueFaceArray.push(copyOfDescriptor);
-    } else {
-      // compare descriptor value with all values in the array
-      for (let i = 0; i < uniqueFaceArrayLength; i += 1) {
-        const dist = faceapi.euclideanDistance(copyOfDescriptor, uniqueFaceArray[i]);
-        // if no match was found add the current descriptor to the array marking a unique face
-        if (dist < defaultFaceUniquenessThreshold) {
-          console.log(
-            dist === 0
-              ? `this and face ${i} are identical: ${dist}`
-              : `this and face ${i} are probably the same: ${dist}`,
-          );
-          faceId = i;
-          break;
-        } else if (i === uniqueFaceArrayLength - 1) {
-          console.log(`this face is unique: ${dist}`);
-          uniqueFaceArray.push(copyOfDescriptor);
-          faceId = uniqueFaceArrayLength;
-        }
-      }
-    }
-
     const simpleBox = {
       x: roundNumber(relativeBox.x, 4),
       y: roundNumber(relativeBox.y, 4),
@@ -257,7 +219,6 @@ export const detectAllFaces = async (
     };
 
     facesArray.push({
-      faceId,
       score: scoreInPercent,
       size,
       box: simpleBox,

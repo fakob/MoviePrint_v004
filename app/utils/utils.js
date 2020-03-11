@@ -2,6 +2,7 @@ import pathR from 'path';
 import fsR from 'fs';
 import log from 'electron-log';
 import sanitize from 'sanitize-filename';
+import * as faceapi from 'face-api.js';
 
 import VideoCaptureProperties from './videoCaptureProperties';
 import sheetNames from '../img/listOfNames.json';
@@ -189,7 +190,7 @@ export const typeInTextarea = (el, textToAdd) => {
 };
 
 const fillTemplate = function(templateString, templateVars) {
-  return new Function('return `' + templateString + '`;').call(templateVars);
+  return new Function(`return \`${templateString}\`;`).call(templateVars);
 };
 
 export const getCustomFileName = (fileName, sheetName, frameNumber, fileNameTemplate) => {
@@ -999,7 +1000,7 @@ export const createSceneArray = (sheetsByFileId, fileId, sheetId) => {
       visibleThumbsArray.map((thumb, index, array) => {
         if (index !== 0) {
           // everything except the first thumb
-          sceneStart = sceneStart + sceneLength;
+          sceneStart += sceneLength;
           if (index < array.length - 1) {
             // then until second to last
             const nextThumb = array[index + 1];
@@ -1219,16 +1220,13 @@ export const repairFrameScanData = (arrayOfFrameScanData, frameCount) => {
       // if first frame missing fill it with default object
       let correctedDuplicate;
       if (i === 0) {
-        correctedDuplicate = Object.assign(
-          {},
-          {
-            frameNumber: 0,
-            meanColor: '[0,0,0]',
-            differenceValue: 0,
-          },
-        );
+        correctedDuplicate = {
+          frameNumber: 0,
+          meanColor: '[0,0,0]',
+          differenceValue: 0,
+        };
       } else {
-        correctedDuplicate = Object.assign({}, arrayOfFrameScanData[i - 1]);
+        correctedDuplicate = { ...arrayOfFrameScanData[i - 1] };
         correctedDuplicate.frameNumber = i;
       }
       log.info(`repaired frameScanData at: ${i}`);
@@ -1281,7 +1279,7 @@ export const sortArray = (detectionArray, sortAndFilterMethod = SORT_METHOD.FACE
       break;
     case SORT_METHOD.FACECONFIDENCE: {
       // filtered and flatten the detectionArray
-      const detectionArrayFiltered = detectionArray.filter(item => item.faceCount !== 0) // filter out frames with no faces
+      const detectionArrayFiltered = detectionArray.filter(item => item.faceCount !== 0); // filter out frames with no faces
       const flattenedArray = getFlattenedArray(detectionArrayFiltered);
 
       // sort
@@ -1296,7 +1294,7 @@ export const sortArray = (detectionArray, sortAndFilterMethod = SORT_METHOD.FACE
     }
     case SORT_METHOD.FACEOCCURRENCE: {
       // filtered and flatten the detectionArray
-      const detectionArrayFiltered = detectionArray.filter(item => item.faceCount !== 0) // filter out frames with no faces
+      const detectionArrayFiltered = detectionArray.filter(item => item.faceCount !== 0); // filter out frames with no faces
       const flattenedArray = getFlattenedArrayWithOccurrences(detectionArrayFiltered);
       // console.log(flattenedArray.map(item => ({ faceId: item.faceId, size: item.size, occurrence: item.occurrence })));
 
@@ -1324,7 +1322,7 @@ export const sortArray = (detectionArray, sortAndFilterMethod = SORT_METHOD.FACE
     }
     case SORT_METHOD.UNIQUE:
       // filtered and flatten the detectionArray
-      const detectionArrayFiltered = detectionArray.filter(item => item.faceCount !== 0) // filter out frames with no faces
+      const detectionArrayFiltered = detectionArray.filter(item => item.faceCount !== 0); // filter out frames with no faces
       const flattenedArray = getFlattenedArrayWithOccurrences(detectionArrayFiltered);
       // console.log(flattenedArray.map(item => ({ faceId: item.faceId, size: item.size, occurrence: item.occurrence })));
 
@@ -1396,6 +1394,64 @@ export const getArrayOfOccurrences = detectionArray => {
   // console.log(typeof arrayOfOccurrences);
 
   return arrayOfOccurrences;
+};
+
+export const determineAndInsertFaceId = (detectionArray, defaultFaceUniquenessThreshold) => {
+  // this function determines unique faces and adds the faceId into the detectionArray
+  // initialise the faceId
+  console.log(defaultFaceUniquenessThreshold);
+  let faceId = 0;
+  const uniqueFaceArray = [];
+  detectionArray.forEach(frame => {
+    frame.facesArray.forEach(face => {
+      const currentFaceDescriptor = Object.values(face.faceDescriptor);
+      const uniqueFaceArrayLength = uniqueFaceArray.length;
+      if (uniqueFaceArrayLength === 0) {
+        uniqueFaceArray.push(currentFaceDescriptor); // convert array
+        face.faceId = faceId;
+      } else {
+        // compare descriptor value with all values in the array
+        for (let i = 0; i < uniqueFaceArrayLength; i += 1) {
+          const dist = faceapi.euclideanDistance(currentFaceDescriptor, uniqueFaceArray[i]);
+          console.log(dist);
+          // if no match was found add the current descriptor to the array marking a unique face
+          if (dist < defaultFaceUniquenessThreshold) {
+            console.log(
+              dist === 0
+                ? `this and face ${i} are identical: ${dist}`
+                : `this and face ${i} are probably the same: ${dist}`,
+            );
+            faceId = i;
+            face.faceId = faceId;
+            break;
+          } else if (i === uniqueFaceArrayLength - 1) {
+            console.log(`this face is unique: ${dist}`);
+            uniqueFaceArray.push(currentFaceDescriptor); // convert array
+            faceId = uniqueFaceArrayLength;
+            face.faceId = faceId;
+          }
+        }
+      }
+      return undefined;
+    });
+    return undefined;
+  });
+};
+
+export const insertOccurrence = detectionArray => {
+  // this function determines occurrences and adds them to the detectionArray
+  // insert occurrence into detectionArray
+  const arrayOfOccurrences = getArrayOfOccurrences(detectionArray);
+  detectionArray.forEach(frame => {
+    if (frame.facesArray !== undefined) {
+      frame.facesArray.forEach(face => {
+        // convert object to array and find occurrence and add to item
+        const { count } = Object.values(arrayOfOccurrences).find(item => item.faceId === face.faceId);
+        /* eslint no-param-reassign: ["error", { "props": false }] */
+        face.occurrence = count;
+      });
+    }
+  });
 };
 
 export const getIntervalArray = (

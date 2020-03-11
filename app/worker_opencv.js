@@ -717,7 +717,6 @@ ipcRenderer.on(
       const vid = new opencv.VideoCapture(filePath);
 
       const detectionArray = [];
-      const uniqueFaceArray = [];
       let detectionPromise;
 
       // getCropWidthAndHeight
@@ -776,7 +775,6 @@ ipcRenderer.on(
                 input,
                 frameNumberToCapture,
                 detectionArray,
-                uniqueFaceArray,
                 defaultFaceConfidenceThreshold,
                 defaultFaceSizeThreshold,
                 defaultFaceUniquenessThreshold,
@@ -808,19 +806,6 @@ ipcRenderer.on(
                   console.log(detectionArray);
                   console.log(detectionArray.length);
 
-                  // insert occurence into detectionArray
-                  const arrayOfOccurrences = getArrayOfOccurrences(detectionArray);
-                  detectionArray.forEach(frame => {
-                    if (frame.facesArray !== undefined) {
-                      frame.facesArray.forEach(face => {
-                        // convert object to array and find occurrence and add to item
-                        const { count } = Object.values(arrayOfOccurrences).find(item => item.faceId === face.faceId);
-                        /* eslint no-param-reassign: ["error", { "props": false }] */
-                        face.occurrence = count;
-                      });
-                    }
-                  });
-
                   // insert all frames into sqlite3
                   insertFaceScanArray(fileId, detectionArray);
 
@@ -833,8 +818,7 @@ ipcRenderer.on(
                   const messageToSend = `Face scanning took ${scanDurationString} (${Math.floor(
                     vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) / scanDurationInSeconds,
                   )} fps)
-
-                ${uniqueFaceArray.length} unique faces found in ${detectionArray.length} of ${
+                faces found in ${detectionArray.length} of ${
                     frameNumberArray.length
                   } scanned frames`;
                   log.info(`opencvWorkerWindow | ${filePath} - ${messageToSend}`);
