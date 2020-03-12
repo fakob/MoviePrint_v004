@@ -49,7 +49,7 @@ import {
   getAdjacentSceneIndicesFromCut,
   getColumnCount,
   getEDLscenes,
-  getFaceIdOfThumb,
+  getFrameNumberWithSceneOrThumbId,
   getFile,
   getFileName,
   getFilePath,
@@ -65,6 +65,7 @@ import {
   getMoviePrintColor,
   getNewSheetName,
   getObjectProperty,
+  getOccurrencesOfFace,
   getParentSheetId,
   getSceneFromFrameNumber,
   getSceneScrubFrameNumber,
@@ -173,6 +174,7 @@ import {
   updateSceneArray,
   updateSheetColumnCount,
   updateSheetCounter,
+  updateSheetFaceUniquenessThreshold,
   updateSheetName,
   updateSheetParent,
   updateSheetSecondsPerRow,
@@ -1340,8 +1342,12 @@ class App extends Component {
         console.log(thumbCount);
       }
 
-      // addFaceData and sort
-      this.addFaceData(fileId, sheetId, faceSortMethod);
+      sheetsToUpdate.push({
+        fileId,
+        sheetId,
+        status: 'addFaceData',
+        sortMethod: faceSortMethod,
+      });
 
       // updateSheetColumnCount
       dispatch(updateSheetColumnCount(fileId, sheetId, Math.ceil(Math.sqrt(Math.max(1, thumbCount)))));
@@ -1689,13 +1695,14 @@ class App extends Component {
     const isFaceType = sheetType === SHEET_TYPE.FACES;
 
     if (sortMethod !== SORT_METHOD.REVERSE) {
+      // get visible thumbs and only request faces scan data for them
+      let baseArray = getVisibleThumbs(thumbsArray, visibilitySettings.visibilityFilter);
       if (isFaceType) {
-        // get visible thumbs and only request faces scan data for them
-        const baseArray = getVisibleThumbs(thumbsArray, visibilitySettings.visibilityFilter);
-        const thumbsFrameNumbers = thumbs.map(thumb => thumb.frameNumber);
+        const thumbsFrameNumbers = baseArray.map(thumb => thumb.frameNumber);
         baseArray = getFaceScanByFileId(theFileId, thumbsFrameNumbers);
         determineAndInsertFaceId(baseArray, defaultFaceUniquenessThreshold);
         insertOccurrence(baseArray);
+        dispatch(updateSheetFaceUniquenessThreshold(theFileId, theSheetId, defaultFaceUniquenessThreshold));
         console.log(baseArray);
       }
 
@@ -1734,16 +1741,16 @@ class App extends Component {
     const { defaultFaceUniquenessThreshold } = settings;
 
     const arrayOfFrameNumbers = getFramenumbersOfSheet(sheetsByFileId, fileId, sheetId, visibilitySettings);
-    console.log(arrayOfFrameNumbers);
+    // console.log(arrayOfFrameNumbers);
     const faceScanArray = getFaceScanByFileId(fileId, arrayOfFrameNumbers);
 
     // calculate occurrences
-    console.log(faceScanArray);
+    // console.log(faceScanArray);
     determineAndInsertFaceId(faceScanArray, defaultFaceUniquenessThreshold);
     insertOccurrence(faceScanArray);
 
     deleteFaceDescriptorFromFaceScanArray(faceScanArray);
-    console.log(faceScanArray);
+    // console.log(faceScanArray);
     // add detection information to thumbs
     dispatch(changeAndSortThumbArray(fileId, sheetId, faceScanArray, sortMethod));
     // this.onSortSheet(fileId, sheetId, sortMethod);
@@ -2036,6 +2043,8 @@ class App extends Component {
   onExpandClick(file, sceneOrThumbId, parentSheetId, isFaceType = false) {
     const { dispatch } = this.props;
     const { files, scenes, sheetsArray, sheetsByFileId, settings } = this.props;
+    const { defaultFaceUniquenessThreshold } = settings;
+    const { sheetsToUpdate } = this.state;
     // console.log(file);
     // console.log(sceneOrThumbId);
     // console.log(parentSheetId);
@@ -2060,18 +2069,27 @@ class App extends Component {
     if (sheetsArray.findIndex(item => item === sheetId) === -1) {
       // expand face type
       if (isFaceType) {
-        // get faceId
-        const faceIdOfThumb = getFaceIdOfThumb(sheetsByFileId, file.id, parentSheetId, sceneOrThumbId);
-        console.log(faceIdOfThumb);
+        // get frameNumber
+        const frameNumber = getFrameNumberWithSceneOrThumbId(sheetsByFileId, file.id, parentSheetId, sceneOrThumbId)
+        // console.log(frameNumber);
+
+        const faceScanArray = getFaceScanByFileId(file.id);
+        // console.log(faceScanArray);
+
         // get frameNumbers of occurrences of faceId
-        const detectionArray = getFaceScanByFileId(file.id);
-        const frameNumberArray = getFrameNumberArrayOfOccurrences(detectionArray, faceIdOfThumb);
+        const frameNumberArray = getOccurrencesOfFace(faceScanArray, frameNumber, defaultFaceUniquenessThreshold);
+        // console.log(frameNumberArray);
 
         // get thumbs
         dispatch(addNewThumbsWithOrder(file, sheetId, frameNumberArray, settings.defaultCachedFramesSize));
-        this.addFaceData(file.id, sheetId);
+        sheetsToUpdate.push({
+          fileId: file.id,
+          sheetId,
+          status: 'addFaceData',
+          sortMethod: undefined,
+        });
         const parentSheetName = getSheetName(sheetsByFileId, file.id, parentSheetId);
-        dispatch(updateSheetName(file.id, sheetId, `${parentSheetName} #${faceIdOfThumb}`)); // set name on file
+        dispatch(updateSheetName(file.id, sheetId, `${parentSheetName} #${frameNumber}`)); // set name on file
         // dispatch(updateSheetCounter(file.id));
         dispatch(updateSheetType(file.id, sheetId, SHEET_TYPE.FACES));
       } else {
@@ -2490,7 +2508,6 @@ class App extends Component {
       visibilitySettings,
     } = this.props;
     const { defaultFaceConfidenceThreshold, defaultFaceSizeThreshold, defaultFaceUniquenessThreshold } = settings;
-    const { sheetsToUpdate } = this.state;
 
     console.log(currentFileId);
     console.log(file);

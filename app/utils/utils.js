@@ -1399,43 +1399,78 @@ export const getArrayOfOccurrences = detectionArray => {
 export const determineAndInsertFaceId = (detectionArray, defaultFaceUniquenessThreshold) => {
   // this function determines unique faces and adds the faceId into the detectionArray
   // initialise the faceId
-  console.log(defaultFaceUniquenessThreshold);
   let faceId = 0;
   const uniqueFaceArray = [];
   detectionArray.forEach(frame => {
-    frame.facesArray.forEach(face => {
-      const currentFaceDescriptor = Object.values(face.faceDescriptor);
-      const uniqueFaceArrayLength = uniqueFaceArray.length;
-      if (uniqueFaceArrayLength === 0) {
-        uniqueFaceArray.push(currentFaceDescriptor); // convert array
-        face.faceId = faceId;
-      } else {
-        // compare descriptor value with all values in the array
-        for (let i = 0; i < uniqueFaceArrayLength; i += 1) {
-          const dist = faceapi.euclideanDistance(currentFaceDescriptor, uniqueFaceArray[i]);
-          console.log(dist);
-          // if no match was found add the current descriptor to the array marking a unique face
-          if (dist < defaultFaceUniquenessThreshold) {
-            console.log(
-              dist === 0
-                ? `this and face ${i} are identical: ${dist}`
-                : `this and face ${i} are probably the same: ${dist}`,
-            );
-            faceId = i;
-            face.faceId = faceId;
-            break;
-          } else if (i === uniqueFaceArrayLength - 1) {
-            console.log(`this face is unique: ${dist}`);
-            uniqueFaceArray.push(currentFaceDescriptor); // convert array
-            faceId = uniqueFaceArrayLength;
-            face.faceId = faceId;
+    if (frame.faceCount !== 0) {
+      frame.facesArray.forEach(face => {
+        const currentFaceDescriptor = Object.values(face.faceDescriptor);
+        const uniqueFaceArrayLength = uniqueFaceArray.length;
+        if (uniqueFaceArrayLength === 0) {
+          uniqueFaceArray.push(currentFaceDescriptor); // convert array
+          face.faceId = faceId;
+        } else {
+          // compare descriptor value with all values in the array
+          for (let i = 0; i < uniqueFaceArrayLength; i += 1) {
+            const dist = faceapi.euclideanDistance(currentFaceDescriptor, uniqueFaceArray[i]);
+            // console.log(dist);
+            // if no match was found add the current descriptor to the array marking a unique face
+            if (dist < defaultFaceUniquenessThreshold) {
+              // console.log(
+              //   dist === 0
+              //   ? `this and face ${i} are identical: ${dist}`
+              //   : `this and face ${i} are probably the same: ${dist}`,
+              // );
+              faceId = i;
+              face.faceId = faceId;
+              break;
+            } else if (i === uniqueFaceArrayLength - 1) {
+              // console.log(`this face is unique: ${dist}`);
+              uniqueFaceArray.push(currentFaceDescriptor); // convert array
+              faceId = uniqueFaceArrayLength;
+              face.faceId = faceId;
+            }
           }
         }
-      }
-      return undefined;
-    });
+        return undefined;
+      });
+    }
     return undefined;
   });
+};
+
+export const getOccurrencesOfFace = (detectionArray, frameNumber, defaultFaceUniquenessThreshold) => {
+  // returns an array of frameNumbers where this face occurrs
+  // initialise the faceId
+  const frameNumberArray = [];
+
+  const frameOfFace = detectionArray.find(frame => frame.frameNumber === frameNumber);
+  if (frameOfFace === undefined || frameOfFace.facesArray === undefined || frameOfFace.facesArray.length === 0) {
+    return []; // return an empty array as there where no occurrences
+  }
+
+  // use first face in array to search for
+  // later it would be nice if one can specify which face on an array to search for
+  const faceDescriptorOfFace = Object.values(frameOfFace.facesArray[0].faceDescriptor);
+
+  detectionArray.forEach(frame => {
+    if (frame.faceCount !== 0) {
+      frame.facesArray.forEach(face => {
+        const currentFaceDescriptor = Object.values(face.faceDescriptor);
+        // compare descriptor value with faceDescriptorOfFace
+        const dist = faceapi.euclideanDistance(currentFaceDescriptor, faceDescriptorOfFace);
+        console.log(dist);
+        // if no match was found add the current descriptor to the array marking a unique face
+        if (dist < defaultFaceUniquenessThreshold) {
+          console.log(dist === 0 ? `this face is identical: ${dist}` : `this face is probably the same: ${dist}`);
+          frameNumberArray.push(frame.frameNumber);
+        }
+        return undefined;
+      });
+    }
+    return undefined;
+  });
+  return frameNumberArray;
 };
 
 export const insertOccurrence = detectionArray => {
@@ -1528,6 +1563,24 @@ export const getFaceIdOfThumb = (sheetsByFileId, fileId, sheetId, thumbId) => {
   const { facesArray } = thumb;
   const faceIdOfFirstFace = facesArray[0].faceId;
   return faceIdOfFirstFace;
+};
+
+export const getFrameNumberWithSceneOrThumbId = (sheetsByFileId, fileId, sheetId, thumbId) => {
+  if (
+    thumbId === undefined ||
+    fileId === undefined ||
+    sheetId === undefined ||
+    sheetsByFileId === undefined ||
+    sheetsByFileId[fileId] === undefined ||
+    sheetsByFileId[fileId][sheetId] === undefined ||
+    sheetsByFileId[fileId][sheetId].thumbsArray === undefined
+  ) {
+    return undefined;
+  }
+  const { thumbsArray } = sheetsByFileId[fileId][sheetId];
+  const thumb = thumbsArray.find(item => item.thumbId === thumbId);
+  const { frameNumber } = thumb;
+  return frameNumber;
 };
 
 export const getFrameNumberArrayOfOccurrences = (detectionArray, faceId) => {
