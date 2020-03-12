@@ -82,6 +82,7 @@ import {
   insertOccurrence,
   isEquivalent,
   limitFrameNumberWithinMovieRange,
+  pad,
   repairFrameScanData,
   setPosition,
   sortArray,
@@ -2095,7 +2096,7 @@ class App extends Component {
           sortMethod: undefined,
         });
         const parentSheetName = getSheetName(sheetsByFileId, file.id, parentSheetId);
-        dispatch(updateSheetName(file.id, sheetId, `${parentSheetName} #${frameNumber}`)); // set name on file
+        dispatch(updateSheetName(file.id, sheetId, `${parentSheetName} ${pad(frameNumber, 4)}`)); // set name on file
         // dispatch(updateSheetCounter(file.id));
         dispatch(updateSheetType(file.id, sheetId, SHEET_TYPE.FACES));
       } else {

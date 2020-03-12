@@ -452,6 +452,7 @@ class ThumbGrid extends Component {
     const isPlayerView = view !== VIEW.STANDARDVIEW;
     const isIntervalType = sheetType === SHEET_TYPE.INTERVAL;
     const isShotType = sheetType === SHEET_TYPE.SCENES;
+    const isFaceType = sheetType === SHEET_TYPE.FACES;
 
     const isAltKey = keyObject.altKey;
 
@@ -730,14 +731,14 @@ class ThumbGrid extends Component {
                       onFocus={over}
                       onBlur={out}
                     >
-                      EXPAND
+                      {isFaceType ? 'FIND FACE' : 'EXPAND'}
                     </button>
                   }
                   mouseEnterDelay={1000}
                   on={['hover']}
                   position="top center"
                   className={stylesPop.popup}
-                  content="Create a new MoviePrint using In- and Outpoints of this scene"
+                  content={isFaceType ? "Create a new MoviePrint of all occurrences of this face" : "Create a new MoviePrint using In- and Outpoints of this scene"}
                 />
                 <Popup
                   trigger={
