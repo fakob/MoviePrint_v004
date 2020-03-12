@@ -342,7 +342,6 @@ class App extends Component {
     this.onAddIntervalSheet = this.onAddIntervalSheet.bind(this);
     this.onAddIntervalSheetClick = this.onAddIntervalSheetClick.bind(this);
     this.onAddFaceSheetClick = this.onAddFaceSheetClick.bind(this);
-    this.onRescanFaceSheet = this.onRescanFaceSheet.bind(this);
     this.onErrorPosterFrame = this.onErrorPosterFrame.bind(this);
     this.getThumbsForFile = this.getThumbsForFile.bind(this);
     this.onFinishedGettingFaces = this.onFinishedGettingFaces.bind(this);
@@ -2502,7 +2501,7 @@ class App extends Component {
     this.onSetSheetClick(theFileId, newSheetId, sheetView);
   }
 
-  async onAddFaceSheetClick(scanResolution, scanWholeMovie = false) {
+  async onAddFaceSheetClick(scanRange = "scanBetweenInAndOut", scanResolution = undefined) {
     // log.debug(`FileListElement clicked: ${file.name}`);
     const {
       currentFileId,
@@ -2520,49 +2519,65 @@ class App extends Component {
     console.log(file);
     const { frameCount, path: filePath, useRatio, transformObject } = file;
 
-    const updateSheet = false;
-    const newSheetId = uuidV4();
+    let updateSheet = false;
+    let sheetId = uuidV4();
 
     const faceSortMethod = SORT_METHOD.FACESIZE;
 
     let frameNumberArray;
-    if (scanWholeMovie) {
-      frameNumberArray = getIntervalArray(Math.round(frameCount * scanResolution), 0, frameCount, frameCount);
-    } else {
-      const lowestFrame = getLowestFrame(
-        getVisibleThumbs(
+    switch (scanRange) {
+      case "scanFramesOfSheet":
+        updateSheet = true;
+        sheetId = currentSheetId;
+        frameNumberArray = getVisibleThumbs(
           sheetsByFileId[currentFileId] === undefined
             ? undefined
             : sheetsByFileId[currentFileId][currentSheetId].thumbsArray,
           visibilitySettings.visibilityFilter,
-        ),
-      );
-      const highestFrame = getHighestFrame(
-        getVisibleThumbs(
-          sheetsByFileId[currentFileId] === undefined
-            ? undefined
-            : sheetsByFileId[currentFileId][currentSheetId].thumbsArray,
-          visibilitySettings.visibilityFilter,
-        ),
-      );
-      const frameCountOfSelection = Math.abs(highestFrame - lowestFrame);
-      console.log(`${lowestFrame} | ${highestFrame} | ${frameCountOfSelection}`);
-      frameNumberArray = getIntervalArray(
-        Math.round(Math.max(1, frameCountOfSelection * scanResolution)), // at least 1
-        lowestFrame,
-        highestFrame,
-        frameCount,
-      );
-    }
+        ).map(thumb => thumb.frameNumber);
+        break;
+      case "scanBetweenInAndOut":
+        const lowestFrame = getLowestFrame(
+          getVisibleThumbs(
+            sheetsByFileId[currentFileId] === undefined
+              ? undefined
+              : sheetsByFileId[currentFileId][currentSheetId].thumbsArray,
+            visibilitySettings.visibilityFilter,
+          ),
+        );
+        const highestFrame = getHighestFrame(
+          getVisibleThumbs(
+            sheetsByFileId[currentFileId] === undefined
+              ? undefined
+              : sheetsByFileId[currentFileId][currentSheetId].thumbsArray,
+            visibilitySettings.visibilityFilter,
+          ),
+        );
+        const frameCountOfSelection = Math.abs(highestFrame - lowestFrame);
+        console.log(`${lowestFrame} | ${highestFrame} | ${frameCountOfSelection}`);
+        frameNumberArray = getIntervalArray(
+          Math.round(Math.max(1, frameCountOfSelection * scanResolution)), // at least 1
+          lowestFrame,
+          highestFrame,
+          frameCount,
+        );
+        break;
+      case "scanWholeMovie":
+        frameNumberArray = getIntervalArray(Math.round(frameCount * scanResolution), 0, frameCount, frameCount);
+        break;
+      default:
+    };
 
-    // create sheet
-    const sheetCount = getSheetCount(files, currentFileId);
-    const newSheetName = getNewSheetName(sheetCount);
-    dispatch(updateSheetName(currentFileId, newSheetId, newSheetName));
-    dispatch(updateSheetCounter(currentFileId));
-    dispatch(updateSheetType(currentFileId, newSheetId, SHEET_TYPE.FACES));
-    dispatch(updateSheetView(currentFileId, newSheetId, SHEET_VIEW.GRIDVIEW));
-    dispatch(setCurrentSheetId(newSheetId));
+    if (!updateSheet) {
+      // create sheet
+      const sheetCount = getSheetCount(files, currentFileId);
+      const newSheetName = getNewSheetName(sheetCount);
+      dispatch(updateSheetName(currentFileId, sheetId, newSheetName));
+      dispatch(updateSheetCounter(currentFileId));
+      dispatch(updateSheetType(currentFileId, sheetId, SHEET_TYPE.FACES));
+      dispatch(updateSheetView(currentFileId, sheetId, SHEET_VIEW.GRIDVIEW));
+      dispatch(setCurrentSheetId(sheetId));
+    }
 
     // filter the frameNumberArray to only include frames which do not have face scan data
     // console.log(frameNumberArray);
@@ -2583,9 +2598,9 @@ class App extends Component {
       .map(item => item.frameNumber);
     // console.log(extractedFrameNumbersWithFaces);
 
-    if (extractedFrameNumbersWithFaces.length !== 0) {
+    if (extractedFrameNumbersWithFaces.length !== 0 && !updateSheet) {
       // add thumbs which already have face scan data
-      await dispatch(addThumbs(file, newSheetId, extractedFrameNumbersWithFaces));
+      await dispatch(addThumbs(file, sheetId, extractedFrameNumbersWithFaces));
     }
 
     if (frameArrayToScan.length !== 0) {
@@ -2600,7 +2615,7 @@ class App extends Component {
               floated="right"
               content="Cancel"
               onClick={() => {
-                this.cancelFileScan(currentFileId, newSheetId);
+                this.cancelFileScan(currentFileId, sheetId);
                 closeToast();
               }}
             />
@@ -2621,7 +2636,7 @@ class App extends Component {
         'send-get-faces',
         currentFileId,
         filePath,
-        newSheetId,
+        sheetId,
         frameArrayToScan,
         useRatio,
         settings.defaultCachedFramesSize,
@@ -2636,69 +2651,6 @@ class App extends Component {
       // no frames to scan, jump directly to finished getting faces
       this.onFinishedGettingFaces(currentFileId, newSheetId, frameArrayToScan, faceSortMethod, updateSheet);
     }
-  }
-
-  onRescanFaceSheet() {
-    // log.debug(`FileListElement clicked: ${file.name}`);
-    const { currentFileId, currentSheetId, file, sheetsByFileId, settings, visibilitySettings } = this.props;
-    const { defaultFaceConfidenceThreshold, defaultFaceSizeThreshold, defaultFaceUniquenessThreshold } = settings;
-
-    console.log(currentFileId);
-    console.log(file);
-    const { frameCount, path: filePath, useRatio, transformObject } = file;
-
-    const updateSheet = true;
-
-    const frameNumberArray = getVisibleThumbs(
-      sheetsByFileId[currentFileId] === undefined
-        ? undefined
-        : sheetsByFileId[currentFileId][currentSheetId].thumbsArray,
-      visibilitySettings.visibilityFilter,
-    ).map(thumb => thumb.frameNumber);
-
-    this.setState({ fileScanRunning: true });
-    // display toast and set toastId to fileId
-    toast(
-      ({ closeToast }) => (
-        <div>
-          Face detection in progress
-          <Button
-            compact
-            floated="right"
-            content="Cancel"
-            onClick={() => {
-              this.cancelFileScan(currentFileId);
-              closeToast();
-            }}
-          />
-        </div>
-      ),
-      {
-        toastId: currentFileId,
-        className: `${stylesPop.toast} ${stylesPop.toastInfo}`,
-        hideProgressBar: false,
-        autoClose: false,
-        closeButton: false,
-        closeOnClick: false,
-      },
-    );
-
-    ipcRenderer.send(
-      'message-from-mainWindow-to-opencvWorkerWindow',
-      'send-get-faces',
-      currentFileId,
-      filePath,
-      currentSheetId,
-      frameNumberArray,
-      useRatio,
-      settings.defaultCachedFramesSize,
-      transformObject,
-      defaultFaceConfidenceThreshold,
-      defaultFaceSizeThreshold,
-      defaultFaceUniquenessThreshold,
-      SORT_METHOD.FACESIZE,
-      updateSheet,
-    );
   }
 
   onFileListElementClick(fileId) {
@@ -3766,7 +3718,6 @@ ${exportObject}`;
                     toggleMovielist={this.toggleMovielist}
                     onAddIntervalSheetClick={this.onAddIntervalSheetClick}
                     onAddFaceSheetClick={this.onAddFaceSheetClick}
-                    onRescanFaceSheet={this.onRescanFaceSheet}
                     onScanMovieListItemClick={this.onScanMovieListItemClick}
                     onSortSheet={this.onSortSheet}
                     onDuplicateSheetClick={this.onDuplicateSheetClick}

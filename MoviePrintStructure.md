@@ -108,7 +108,7 @@
 * cancel requestIdleCallback
 
 ##### on face detection
-* onAddFaceSheetClick or onRescanFaceSheet
+* onAddFaceSheetClick
   * ipc send-get-faces to opencvWorkerWindow
     * async go through frameNumberArray and call detectAllFaces for each
       * call faceapi and add to detectionArray

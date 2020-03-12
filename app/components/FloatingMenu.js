@@ -36,7 +36,6 @@ const ButtonExampleCircularSocial = ({
   hasParent,
   onAddIntervalSheetClick,
   onAddFaceSheetClick,
-  onRescanFaceSheet,
   onBackToParentClick,
   onChangeSheetViewClick,
   onDuplicateSheetClick,
@@ -165,15 +164,15 @@ const ButtonExampleCircularSocial = ({
               icon={<img src={iconAddFace} height="18px" alt="" />}
             >
               <Dropdown.Menu className={styles.dropDownMenu}>
-                <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick(0.01)}>
+                <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick("scanBetweenInAndOut", 0.01)}>
                   Scan every 100th frame between IN and OUT
                 </Dropdown.Item>
-                <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick(0.1)}>
+                <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick("scanBetweenInAndOut", 0.1)}>
                   Scan every 10th frame between IN and OUT
                 </Dropdown.Item>
                 <Dropdown.Divider />
-                <Dropdown.Item className={styles.dropDownItem} onClick={onRescanFaceSheet}>
-                  Re-scan selected thumbs
+                <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick("scanFramesOfSheet")}>
+                  Scan these thumbs
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
