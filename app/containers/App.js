@@ -175,7 +175,6 @@ import {
   updateSceneArray,
   updateSheetColumnCount,
   updateSheetCounter,
-  updateSheetFaceUniquenessThreshold,
   updateSheetName,
   updateSheetParent,
   updateSheetSecondsPerRow,
@@ -1702,8 +1701,7 @@ class App extends Component {
         baseArray = getFaceScanByFileId(theFileId, thumbsFrameNumbers);
         determineAndInsertFaceId(baseArray, defaultFaceUniquenessThreshold);
         insertOccurrence(baseArray);
-        dispatch(updateSheetFaceUniquenessThreshold(theFileId, theSheetId, defaultFaceUniquenessThreshold));
-        console.log(baseArray);
+        // console.log(baseArray);
       }
 
       // get sortOrderArray
@@ -3718,6 +3716,7 @@ ${exportObject}`;
                     fileMissingStatus={file.fileMissingStatus}
                     toggleMovielist={this.toggleMovielist}
                     onAddIntervalSheetClick={this.onAddIntervalSheetClick}
+                    onChangeFaceUniquenessThreshold={this.onChangeFaceUniquenessThreshold}
                     onAddFaceSheetClick={this.onAddFaceSheetClick}
                     onScanMovieListItemClick={this.onScanMovieListItemClick}
                     onSortSheet={this.onSortSheet}
