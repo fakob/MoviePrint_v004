@@ -1807,7 +1807,7 @@ class App extends Component {
                 floated="right"
                 content="Cancel"
                 onClick={() => {
-                  this.cancelFileScan(fileId);
+                  this.cancelFileScan(fileId, sheetId);
                   closeToast();
                 }}
               />
@@ -1985,7 +1985,8 @@ class App extends Component {
     }
   }
 
-  cancelFileScan(fileId) {
+  cancelFileScan(fileId, sheetId = undefined) {
+    const { currentSheetId, dispatch, sheetsByFileId } = this.props;
     const { requestIdleCallbackForScenesHandle } = this.state;
 
     console.error(`Cancel file scan for: ${fileId}`);
@@ -2010,10 +2011,16 @@ class App extends Component {
       closeButton: true,
       closeOnClick: true,
     });
-    // toast.error("Shot detection was cancelled !", {
-    //   toastId: `${fileId}-fileScanCancelled`,
-    //   autoClose: 3000,
-    // });
+
+    // if there was a sheet in progress, delete it again
+    if (sheetId !== undefined) {
+      dispatch(deleteSheets(fileId, sheetId));
+      // if the currentSheet is deleted then switch to the first sheet of the file
+      if (currentSheetId === sheetId) {
+        const newSheetId = getSheetId(sheetsByFileId, fileId);
+        dispatch(setCurrentSheetId(newSheetId));
+      }
+    }
   }
 
   onScrubClick(file, scrubThumb, scrubWindowTriggerTime) {
@@ -2593,7 +2600,7 @@ class App extends Component {
               floated="right"
               content="Cancel"
               onClick={() => {
-                this.cancelFileScan(currentFileId);
+                this.cancelFileScan(currentFileId, newSheetId);
                 closeToast();
               }}
             />
