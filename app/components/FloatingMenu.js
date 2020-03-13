@@ -1,6 +1,16 @@
 import React from 'react';
-import { Button, Dropdown, Popup } from 'semantic-ui-react';
-import { SORT_METHOD, VIEW, SHEET_VIEW, SHEET_TYPE, SHEET_FIT, THUMB_INFO_OPTIONS } from '../utils/constants';
+import { Button, Dropdown, Message, Popup } from 'semantic-ui-react';
+import Slider, { Handle, createSliderWithTooltip } from 'rc-slider';
+import Tooltip from 'rc-tooltip';
+import {
+  FACE_UNIQUENESS_THRESHOLD,
+  SORT_METHOD,
+  VIEW,
+  SHEET_VIEW,
+  SHEET_TYPE,
+  SHEET_FIT,
+  THUMB_INFO_OPTIONS,
+} from '../utils/constants';
 import styles from './FloatingMenu.css';
 import stylesPop from './Popup.css';
 import iconCutView from '../img/icon-cut-view.svg';
