@@ -20,6 +20,7 @@ import iconImage from '../img/icon-image.svg';
 import iconNoImage from '../img/icon-no-image.svg';
 import iconFrameInfo from '../img/icon-frame-info.svg';
 import iconShowFaceRect from '../img/icon-show-face-rect.svg';
+import iconCaretDown from '../img/icon-caret-down.svg';
 import iconArrowUp from '../img/icon-arrow-up.svg';
 import iconHide from '../img/icon-hide.svg';
 import iconUnhide from '../img/icon-unhide.svg';
@@ -41,12 +42,24 @@ import icon4x4 from '../img/icon-4x4.svg';
 import icon5x5 from '../img/icon-5x5.svg';
 import icon6x6 from '../img/icon-6x6.svg';
 
+const SliderWithTooltip = createSliderWithTooltip(Slider);
+
+const handle = props => {
+  const { value, dragging, index, ...restProps } = props;
+  return (
+    <Tooltip prefixCls="rc-slider-tooltip" overlay={value} visible placement="top" key={index}>
+      <Handle value={value} {...restProps} />
+    </Tooltip>
+  );
+};
+
 const ButtonExampleCircularSocial = ({
   fileMissingStatus,
   hasParent,
   onAddIntervalSheetClick,
   onAddFaceSheetClick,
   onBackToParentClick,
+  onChangeFaceUniquenessThreshold,
   onChangeSheetViewClick,
   onDuplicateSheetClick,
   onScanMovieListItemClick,
@@ -58,6 +71,7 @@ const ButtonExampleCircularSocial = ({
   onToggleImagesClick,
   onToggleFaceRectClick,
   onToggleShowHiddenThumbsClick,
+  optimiseGridLayout,
   scaleValueObject,
   settings,
   sheetType,
@@ -66,7 +80,7 @@ const ButtonExampleCircularSocial = ({
   visibilitySettings,
   zoom,
 }) => {
-  const { defaultThumbInfo, defaultShowImages } = settings;
+  const { defaultFaceUniquenessThreshold = FACE_UNIQUENESS_THRESHOLD, defaultThumbInfo, defaultShowImages } = settings;
   const { defaultView, defaultSheetFit, visibilityFilter } = visibilitySettings;
   const { moviePrintAspectRatioInv, containerAspectRatioInv } = scaleValueObject;
   const isGridViewAndDefault = sheetView === SHEET_VIEW.GRIDVIEW && defaultView === VIEW.STANDARDVIEW;
@@ -174,14 +188,19 @@ const ButtonExampleCircularSocial = ({
               icon={<img src={iconAddFace} height="18px" alt="" />}
             >
               <Dropdown.Menu className={styles.dropDownMenu}>
-                <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick("scanBetweenInAndOut", 0.01)}>
+                <Dropdown.Item
+                  className={styles.dropDownItem}
+                  onClick={() => onAddFaceSheetClick('scanBetweenInAndOut', 0.01)}
+                >
                   Scan every 100th frame between IN and OUT
                 </Dropdown.Item>
-                <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick("scanBetweenInAndOut", 0.1)}>
+                <Dropdown.Item
+                  className={styles.dropDownItem}
+                  onClick={() => onAddFaceSheetClick('scanBetweenInAndOut', 0.1)}
+                >
                   Scan every 10th frame between IN and OUT
                 </Dropdown.Item>
-                <Dropdown.Divider />
-                <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick("scanFramesOfSheet")}>
+                <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick('scanFramesOfSheet')}>
                   Scan these thumbs
                 </Dropdown.Item>
               </Dropdown.Menu>
@@ -201,6 +220,8 @@ const ButtonExampleCircularSocial = ({
               button
               className={styles.dropDownButton}
               floating
+              closeOnBlur={false}
+              closeOnChange={false}
               disabled={fileMissingStatus || isShotType}
               icon={<img src={iconSort} height="18px" alt="" />}
             >
@@ -243,6 +264,30 @@ const ButtonExampleCircularSocial = ({
                   Sort by confidence value of face
                 </Dropdown.Item>
                 <Dropdown.Divider />
+                <Message size="mini">
+                  <Message.Header>Filter by unique faces and sort by occurrence and size</Message.Header>
+                  <em>Use the slider to define the uniqueness threshold.</em>
+                </Message>
+                <Dropdown.Item className={`${styles.dropDownItem} ${styles.dropDownItemSlider}`}>
+                  <SliderWithTooltip
+                    data-tid="faceUniquenessThresholdSlider"
+                    className={styles.slider}
+                    min={50}
+                    max={70}
+                    defaultValue={defaultFaceUniquenessThreshold * 100}
+                    marks={{
+                      // 50: 'unique',
+                      60: 'more unique | less unique',
+                      // 70: 'similar',
+                    }}
+                    handle={handle}
+                    onChange={value => {
+                      onChangeFaceUniquenessThreshold(value / 100.0);
+                      onSortSheet(SORT_METHOD.UNIQUE, false);
+                    }}
+                  />
+                </Dropdown.Item>
+
                 <Dropdown.Item
                   disabled={!isFaceType}
                   className={styles.dropDownItem}
@@ -530,19 +575,36 @@ const ButtonExampleCircularSocial = ({
         />
         <Popup
           trigger={
-            <Button
-              className={styles.imageButton}
-              size="large"
-              data-tid="toggleImageBtn"
-              onClick={() => onToggleImagesClick()}
-              icon={<img src={defaultShowImages ? iconNoImage : iconImage} height="18px" alt="" />}
-            />
+            <Dropdown
+              button
+              className={styles.dropDownButton}
+              floating
+              closeOnBlur={false}
+              closeOnChange={false}
+              disabled={fileMissingStatus || isShotType}
+              icon={<img src={iconCaretDown} height="18px" alt="" />}
+            >
+              <Dropdown.Menu className={styles.dropDownMenu}>
+                <Dropdown.Item
+                  className={`${styles.dropDownItem} ${styles.dropDownItemIconInvert}`}
+                  onClick={() => onToggleImagesClick()}
+                  icon={<img src={defaultShowImages ? iconNoImage : iconImage} height="18px" alt="" />}
+                  text="Toggle images"
+                />
+                <Dropdown.Item
+                  className={styles.dropDownItem}
+                  onClick={() => optimiseGridLayout()}
+                  icon={<img src={icon3x3} height="18px" alt="" />}
+                  text="Optimise grid layout"
+                />
+              </Dropdown.Menu>
+            </Dropdown>
           }
           mouseEnterDelay={1000}
           on={['hover']}
-          position="bottom center"
+          position="right center"
           className={stylesPop.popup}
-          content="Toggle images"
+          content="Additional settings"
         />
       </Button.Group>
     </div>

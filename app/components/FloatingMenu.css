@@ -55,6 +55,14 @@
   margin-top: -2px !important;
 }
 
+.dropDownItemIconInvert img{
+  filter: invert(100%);
+}
+
+.dropDownItemSlider{
+  height: 48px !important;
+}
+
 .normalButton {
   color: white !important;
   /* background-color: rgba(30, 15, 0, 1.0) !important; */

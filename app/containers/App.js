@@ -345,6 +345,7 @@ class App extends Component {
     this.onErrorPosterFrame = this.onErrorPosterFrame.bind(this);
     this.getThumbsForFile = this.getThumbsForFile.bind(this);
     this.onFinishedGettingFaces = this.onFinishedGettingFaces.bind(this);
+    this.optimiseGridLayout = this.optimiseGridLayout.bind(this);
 
     this.onChangeRow = this.onChangeRow.bind(this);
     this.onChangeColumn = this.onChangeColumn.bind(this);
@@ -1348,9 +1349,23 @@ class App extends Component {
         sortMethod: faceSortMethod,
       });
 
-      // updateSheetColumnCount
-      dispatch(updateSheetColumnCount(fileId, sheetId, Math.ceil(Math.sqrt(Math.max(1, thumbCount)))));
+      this.optimiseGridLayout(fileId, sheetId, thumbCount);
     }
+  }
+
+  optimiseGridLayout(fileId = undefined, sheetId = undefined, thumbCountOverride = undefined) {
+    const { currentFileId, currentSheetId, dispatch, settings, sheetsByFileId, visibilitySettings } = this.props;
+
+    const noDefault = true;
+    const theFileId = fileId || currentFileId;
+    const theSheetId = sheetId || currentSheetId;
+    const thumbCount =
+      thumbCountOverride ||
+      getThumbsCount(sheetsByFileId, theFileId, theSheetId, settings, visibilitySettings, noDefault);
+    const newSheetColumnCount = Math.ceil(Math.sqrt(Math.max(1, thumbCount)));
+    // updateSheetColumnCount
+    dispatch(updateSheetColumnCount(theFileId, theSheetId, newSheetColumnCount));
+    this.setState({ columnCountTemp: newSheetColumnCount });
   }
 
   /* eslint class-methods-use-this: off */
@@ -1975,7 +1990,7 @@ class App extends Component {
       dispatch(updateSheetName(tempFile.id, sheetId, getNewSheetName(getSheetCount(files, tempFile.id))));
       dispatch(updateSheetCounter(tempFile.id));
       dispatch(setCurrentSheetId(sheetId));
-      dispatch(updateSheetColumnCount(tempFile.id, sheetId, Math.ceil(Math.sqrt(sceneList.length))));
+      optimiseGridLayout(tempFile.id, sheetId, sceneList.length);
       dispatch(setDefaultSheetView(SHEET_VIEW.TIMELINEVIEW));
       dispatch(addScenesFromSceneList(tempFile, sceneList, clearOldScenes, settings.defaultCachedFramesSize, sheetId));
     } else {
@@ -2075,7 +2090,7 @@ class App extends Component {
       // expand face type
       if (isFaceType) {
         // get frameNumber
-        const frameNumber = getFrameNumberWithSceneOrThumbId(sheetsByFileId, file.id, parentSheetId, sceneOrThumbId)
+        const frameNumber = getFrameNumberWithSceneOrThumbId(sheetsByFileId, file.id, parentSheetId, sceneOrThumbId);
         // console.log(frameNumber);
 
         const faceScanArray = getFaceScanByFileId(file.id);
@@ -2500,7 +2515,7 @@ class App extends Component {
     this.onSetSheetClick(theFileId, newSheetId, sheetView);
   }
 
-  async onAddFaceSheetClick(scanRange = "scanBetweenInAndOut", scanResolution = undefined) {
+  async onAddFaceSheetClick(scanRange = 'scanBetweenInAndOut', scanResolution = undefined) {
     // log.debug(`FileListElement clicked: ${file.name}`);
     const {
       currentFileId,
@@ -2525,7 +2540,7 @@ class App extends Component {
 
     let frameNumberArray;
     switch (scanRange) {
-      case "scanFramesOfSheet":
+      case 'scanFramesOfSheet':
         updateSheet = true;
         sheetId = currentSheetId;
         frameNumberArray = getVisibleThumbs(
@@ -2535,7 +2550,7 @@ class App extends Component {
           visibilitySettings.visibilityFilter,
         ).map(thumb => thumb.frameNumber);
         break;
-      case "scanBetweenInAndOut":
+      case 'scanBetweenInAndOut':
         const lowestFrame = getLowestFrame(
           getVisibleThumbs(
             sheetsByFileId[currentFileId] === undefined
@@ -2561,11 +2576,11 @@ class App extends Component {
           frameCount,
         );
         break;
-      case "scanWholeMovie":
+      case 'scanWholeMovie':
         frameNumberArray = getIntervalArray(Math.round(frameCount * scanResolution), 0, frameCount, frameCount);
         break;
       default:
-    };
+    }
 
     if (!updateSheet) {
       // create sheet
@@ -3733,6 +3748,7 @@ ${exportObject}`;
                     onToggleHeaderClick={this.onToggleHeaderClick}
                     onToggleImagesClick={this.onToggleImagesClick}
                     onToggleFaceRectClick={this.onToggleFaceRectClick}
+                    optimiseGridLayout={this.optimiseGridLayout}
                     toggleSettings={this.toggleSettings}
                   />
                 )}
