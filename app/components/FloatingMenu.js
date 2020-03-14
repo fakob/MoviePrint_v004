@@ -1,5 +1,5 @@
-import React from 'react';
-import { Button, Dropdown, Message, Popup } from 'semantic-ui-react';
+import React, { useState } from 'react';
+import { Button, Checkbox, Dropdown, Message, Popup, Radio } from 'semantic-ui-react';
 import Slider, { Handle, createSliderWithTooltip } from 'rc-slider';
 import Tooltip from 'rc-tooltip';
 import {
@@ -10,6 +10,7 @@ import {
   SHEET_TYPE,
   SHEET_FIT,
   THUMB_INFO_OPTIONS,
+  THUMB_SELECTION,
 } from '../utils/constants';
 import styles from './FloatingMenu.css';
 import stylesPop from './Popup.css';
@@ -65,6 +66,7 @@ const ButtonExampleCircularSocial = ({
   onScanMovieListItemClick,
   onSetSheetFitClick,
   onSetViewClick,
+  onShowAllThumbs,
   onSortSheet,
   onThumbInfoClick,
   onToggleHeaderClick,
@@ -80,6 +82,9 @@ const ButtonExampleCircularSocial = ({
   visibilitySettings,
   zoom,
 }) => {
+  const [filterRange, setFilterRange] = useState(THUMB_SELECTION.VISIBLE_THUMBS);
+  const [filterUniqueFaces, setFilterUniqueFaces] = useState(false);
+
   const { defaultFaceUniquenessThreshold = FACE_UNIQUENESS_THRESHOLD, defaultThumbInfo, defaultShowImages } = settings;
   const { defaultView, defaultSheetFit, visibilityFilter } = visibilitySettings;
   const { moviePrintAspectRatioInv, containerAspectRatioInv } = scaleValueObject;
@@ -189,19 +194,26 @@ const ButtonExampleCircularSocial = ({
             >
               <Dropdown.Menu className={styles.dropDownMenu}>
                 <Dropdown.Item
+                  disabled={isFaceType}
                   className={styles.dropDownItem}
                   onClick={() => onAddFaceSheetClick('scanBetweenInAndOut', 0.01)}
                 >
                   Scan every 100th frame between IN and OUT
                 </Dropdown.Item>
                 <Dropdown.Item
+                  disabled={isFaceType}
                   className={styles.dropDownItem}
                   onClick={() => onAddFaceSheetClick('scanBetweenInAndOut', 0.1)}
                 >
                   Scan every 10th frame between IN and OUT
                 </Dropdown.Item>
-                <Dropdown.Item className={styles.dropDownItem} onClick={() => onAddFaceSheetClick('scanFramesOfSheet')}>
-                  Scan these thumbs
+                <Dropdown.Divider />
+                <Dropdown.Item
+                  disabled={!isFaceType}
+                  className={styles.dropDownItem}
+                  onClick={() => onAddFaceSheetClick('scanFramesOfSheet')}
+                >
+                  Rescan these thumbs
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
@@ -226,49 +238,127 @@ const ButtonExampleCircularSocial = ({
               icon={<img src={iconSort} height="18px" alt="" />}
             >
               <Dropdown.Menu className={styles.dropDownMenu}>
-                <Dropdown.Item className={styles.dropDownItem} onClick={() => onSortSheet(SORT_METHOD.REVERSE, false)}>
+                <Dropdown.Item className={styles.dropDownItem} onClick={e => e.stopPropagation()}>
+                  <Radio
+                    data-tid="useVisibleThumbsRadioBtn"
+                    label="Visible thumbs"
+                    name="radioGroupSort"
+                    // defaultChecked
+                    value={THUMB_SELECTION.VISIBLE_THUMBS}
+                    checked={filterRange === THUMB_SELECTION.VISIBLE_THUMBS}
+                    onChange={() => setFilterRange(THUMB_SELECTION.VISIBLE_THUMBS)}
+                  />
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <Radio
+                    data-tid="useAllThumbsRadioBtn"
+                    label="All thumbs"
+                    name="radioGroupSort"
+                    value={THUMB_SELECTION.ALL_THUMBS}
+                    checked={filterRange === THUMB_SELECTION.ALL_THUMBS}
+                    onChange={() => setFilterRange(THUMB_SELECTION.ALL_THUMBS)}
+                  />
+                </Dropdown.Item>
+                <Dropdown.Divider />
+                <Dropdown.Header content="Sort" />
+                <Dropdown.Item
+                  className={styles.dropDownItem}
+                  onClick={() => {
+                    onSortSheet(SORT_METHOD.REVERSE, false);
+                    if (filterRange === THUMB_SELECTION.ALL_THUMBS) {
+                      setFilterUniqueFaces(false);
+                    }
+                  }}
+                >
                   Reverse sort
                 </Dropdown.Item>
                 <Dropdown.Item
                   className={styles.dropDownItem}
-                  onClick={() => onSortSheet(SORT_METHOD.FRAMENUMBER, false)}
+                  onClick={() => {
+                    onSortSheet(SORT_METHOD.FRAMENUMBER, filterRange);
+                    if (filterRange === THUMB_SELECTION.ALL_THUMBS) {
+                      setFilterUniqueFaces(false);
+                    }
+                  }}
                 >
-                  Sort by framenumber
+                  Framenumber
                 </Dropdown.Item>
                 <Dropdown.Item
                   disabled={!isFaceType}
                   className={styles.dropDownItem}
-                  onClick={() => onSortSheet(SORT_METHOD.FACESIZE, false)}
+                  onClick={() => {
+                    onSortSheet(SORT_METHOD.FACESIZE, filterRange);
+                    if (filterRange === THUMB_SELECTION.ALL_THUMBS) {
+                      setFilterUniqueFaces(false);
+                    }
+                  }}
                 >
-                  Sort by face size
+                  Face size
                 </Dropdown.Item>
                 <Dropdown.Item
                   disabled={!isFaceType}
                   className={styles.dropDownItem}
-                  onClick={() => onSortSheet(SORT_METHOD.FACECOUNT, false)}
+                  onClick={() => {
+                    onSortSheet(SORT_METHOD.FACECOUNT, filterRange);
+                    if (filterRange === THUMB_SELECTION.ALL_THUMBS) {
+                      setFilterUniqueFaces(false);
+                    }
+                  }}
                 >
-                  Sort by face count in image
+                  Face count in image
                 </Dropdown.Item>
                 <Dropdown.Item
                   disabled={!isFaceType}
                   className={styles.dropDownItem}
-                  onClick={() => onSortSheet(SORT_METHOD.FACEOCCURRENCE, false)}
+                  onClick={() => {
+                    onSortSheet(SORT_METHOD.FACEOCCURRENCE, filterRange);
+                    if (filterRange === THUMB_SELECTION.ALL_THUMBS) {
+                      setFilterUniqueFaces(false);
+                    }
+                  }}
                 >
-                  Sort by occurrence of face
+                  Occurrence of face
                 </Dropdown.Item>
                 <Dropdown.Item
                   disabled={!isFaceType}
                   className={styles.dropDownItem}
-                  onClick={() => onSortSheet(SORT_METHOD.FACECONFIDENCE, false)}
+                  onClick={() => {
+                    onSortSheet(SORT_METHOD.FACECONFIDENCE, filterRange);
+                    if (filterRange === THUMB_SELECTION.ALL_THUMBS) {
+                      setFilterUniqueFaces(false);
+                    }
+                  }}
                 >
-                  Sort by confidence value of face
+                  Confidence value of face
                 </Dropdown.Item>
                 <Dropdown.Divider />
-                <Message size="mini">
-                  <Message.Header>Filter by unique faces and sort by occurrence and size</Message.Header>
-                  <em>Use the slider to define the uniqueness threshold.</em>
-                </Message>
-                <Dropdown.Item className={`${styles.dropDownItem} ${styles.dropDownItemSlider}`}>
+                <Dropdown.Header content="Filter" />
+                {/* <Message size="mini" className={styles.noBackground}>
+                  <em>The &quot;duplicate&quot; faces will be hidden.</em>
+                </Message> */}
+                <Dropdown.Item
+                  disabled={!isFaceType}
+                  className={`${styles.dropDownItem} ${styles.dropDownItemSlider}`}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <Checkbox
+                    data-tid="showSlidersCheckbox"
+                    label="Unique faces"
+                    checked={filterUniqueFaces}
+                    onChange={(e, { checked }) => {
+                      if (checked) {
+                        onSortSheet(SORT_METHOD.UNIQUE, THUMB_SELECTION.ALL_THUMBS);
+                      } else {
+                        onShowAllThumbs();
+                      }
+                      setFilterUniqueFaces(checked);
+                    }}
+                  />
+                </Dropdown.Item>
+                <Dropdown.Item
+                  disabled={!isFaceType || !filterUniqueFaces}
+                  className={`${styles.dropDownItem} ${styles.dropDownItemSlider}`}
+                  onClick={e => e.stopPropagation()}
+                >
                   <SliderWithTooltip
                     data-tid="faceUniquenessThresholdSlider"
                     className={styles.slider}
@@ -277,23 +367,15 @@ const ButtonExampleCircularSocial = ({
                     defaultValue={defaultFaceUniquenessThreshold * 100}
                     marks={{
                       // 50: 'unique',
-                      60: 'more unique | less unique',
+                      60: 'more unique faces | less unique faces   ',
                       // 70: 'similar',
                     }}
                     handle={handle}
                     onChange={value => {
                       onChangeFaceUniquenessThreshold(value / 100.0);
-                      onSortSheet(SORT_METHOD.UNIQUE, false);
+                      onSortSheet(SORT_METHOD.UNIQUE, THUMB_SELECTION.ALL_THUMBS);
                     }}
                   />
-                </Dropdown.Item>
-
-                <Dropdown.Item
-                  disabled={!isFaceType}
-                  className={styles.dropDownItem}
-                  onClick={() => onSortSheet(SORT_METHOD.UNIQUE, false)}
-                >
-                  Filter by unique faces and sort by occurrence and size
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
@@ -504,16 +586,22 @@ const ButtonExampleCircularSocial = ({
               className={styles.normalButton}
               size="large"
               circular
-              data-tid={visibilityFilter === 'SHOW_ALL' ? 'showOnlyVisibleBtn' : 'showHiddenBtn'}
+              data-tid={visibilityFilter === THUMB_SELECTION.ALL_THUMBS ? 'showOnlyVisibleBtn' : 'showHiddenBtn'}
               onClick={onToggleShowHiddenThumbsClick}
-              icon={<img src={visibilityFilter === 'SHOW_ALL' ? iconHide : iconUnhide} height="18px" alt="" />}
+              icon={
+                <img
+                  src={visibilityFilter === THUMB_SELECTION.ALL_THUMBS ? iconHide : iconUnhide}
+                  height="18px"
+                  alt=""
+                />
+              }
             />
           }
           mouseEnterDelay={1000}
           on={['hover']}
           position="bottom center"
           className={stylesPop.popup}
-          content={visibilityFilter === 'SHOW_ALL' ? 'Show visible thumbs only' : 'Show hidden thumbs'}
+          content={visibilityFilter === THUMB_SELECTION.ALL_THUMBS ? 'Show visible thumbs only' : 'Show hidden thumbs'}
         />
         <Popup
           trigger={

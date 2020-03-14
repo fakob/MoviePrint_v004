@@ -161,6 +161,7 @@ import {
   setSheetFit,
   setView,
   setVisibilityFilter,
+  showAllThumbs,
   showMovielist,
   showSettings,
   showThumbsByFrameNumberArray,
@@ -193,6 +194,7 @@ import {
   SHEET_TYPE,
   SHEET_VIEW,
   SHOT_DETECTION_METHOD,
+  THUMB_SELECTION,
   URL_CHANGE_LOG,
   URL_FEEDBACK_FORM,
   URL_REST_API_CHECK_FOR_UPDATES,
@@ -314,7 +316,7 @@ class App extends Component {
     this.toggleSettings = this.toggleSettings.bind(this);
     this.showSettings = this.showSettings.bind(this);
     this.hideSettings = this.hideSettings.bind(this);
-    this.onShowThumbs = this.onShowThumbs.bind(this);
+    this.onShowAllThumbs = this.onShowAllThumbs.bind(this);
     this.onViewToggle = this.onViewToggle.bind(this);
     this.onChangeThumb = this.onChangeThumb.bind(this);
     this.onAddThumb = this.onAddThumb.bind(this);
@@ -470,7 +472,7 @@ class App extends Component {
     loadSheetPropertiesIntoState(
       this,
       getColumnCount(sheetsByFileId, undefined, undefined, settings),
-      getThumbsCount(sheetsByFileId, currentFileId, currentSheetId, settings, visibilitySettings),
+      getThumbsCount(sheetsByFileId, currentFileId, currentSheetId, settings, visibilitySettings.visibilityFilter),
       secondsPerRow,
     );
     this.setState({
@@ -893,7 +895,7 @@ class App extends Component {
           nextProps.file.id,
           nextProps.currentSheetId,
           nextProps.settings,
-          nextProps.visibilitySettings,
+          nextProps.visibilitySettings.visibilityFilter,
         );
 
         loadSheetPropertiesIntoState(this, columnCount, newThumbCount, secondsPerRow);
@@ -901,13 +903,19 @@ class App extends Component {
       }
 
       // check if visibleThumbCount changed
-      const oldThumbCount = getThumbsCount(sheetsByFileId, file.id, currentSheetId, settings, visibilitySettings);
+      const oldThumbCount = getThumbsCount(
+        sheetsByFileId,
+        file.id,
+        currentSheetId,
+        settings,
+        visibilitySettings.visibilityFilter,
+      );
       const newThumbCount = getThumbsCount(
         nextProps.sheetsByFileId,
         nextProps.file.id,
         nextProps.currentSheetId,
         nextProps.settings,
-        nextProps.visibilitySettings,
+        nextProps.visibilitySettings.visibilityFilter,
       );
       if (oldThumbCount !== newThumbCount) {
         loadSheetPropertiesIntoState(this, columnCount, newThumbCount, secondsPerRow);
@@ -1083,7 +1091,14 @@ class App extends Component {
         sortMethod: mySortMethod = undefined,
         status: myStatus,
       } = copyOfSheetsToUpdate[0];
-      const thumbCount = getThumbsCount(sheetsByFileId, myFileId, mySheetId, settings, visibilitySettings, true);
+      const thumbCount = getThumbsCount(
+        sheetsByFileId,
+        myFileId,
+        mySheetId,
+        settings,
+        visibilitySettings.visibilityFilter,
+        true,
+      );
       if (thumbCount !== 0) {
         if (myStatus === 'addFaceData') {
           this.addFaceData(myFileId, mySheetId, mySortMethod);
@@ -1311,7 +1326,14 @@ class App extends Component {
     console.log(faceSortMethod);
     console.log(sheetId);
     const file = getFile(files, fileId);
-    let thumbCount = getThumbsCount(sheetsByFileId, fileId, sheetId, settings, visibilitySettings, true);
+    let thumbCount = getThumbsCount(
+      sheetsByFileId,
+      fileId,
+      sheetId,
+      settings,
+      visibilitySettings.visibilityFilter,
+      true,
+    );
     console.log(thumbCount);
 
     this.setState({
@@ -1361,7 +1383,7 @@ class App extends Component {
     const theSheetId = sheetId || currentSheetId;
     const thumbCount =
       thumbCountOverride ||
-      getThumbsCount(sheetsByFileId, theFileId, theSheetId, settings, visibilitySettings, noDefault);
+      getThumbsCount(sheetsByFileId, theFileId, theSheetId, settings, visibilitySettings.visibilityFilter, noDefault);
     const newSheetColumnCount = Math.ceil(Math.sqrt(Math.max(1, thumbCount)));
     // updateSheetColumnCount
     dispatch(updateSheetColumnCount(theFileId, theSheetId, newSheetColumnCount));
@@ -1656,7 +1678,7 @@ class App extends Component {
     loadSheetPropertiesIntoState(
       this,
       getColumnCount(sheetsByFileId, currentFileId, currentSheetId, settings),
-      getThumbsCount(sheetsByFileId, currentFileId, currentSheetId, settings, visibilitySettings),
+      getThumbsCount(sheetsByFileId, currentFileId, currentSheetId, settings, visibilitySettings.visibilityFilter),
       secondsPerRow,
     );
     this.disableZoom();
@@ -1676,13 +1698,20 @@ class App extends Component {
     }
   }
 
-  onShowThumbs() {
-    const { dispatch } = this.props;
-    if (this.props.visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') {
-      dispatch(setVisibilityFilter('SHOW_ALL'));
-    } else {
-      dispatch(setVisibilityFilter('SHOW_VISIBLE'));
-    }
+  onShowAllThumbs() {
+    const { currentFileId, currentSheetId, dispatch, settings, sheetsByFileId } = this.props;
+    dispatch(showAllThumbs(currentFileId, currentSheetId));
+    const noDefault = true;
+    const thumbCount = getThumbsCount(
+      sheetsByFileId,
+      currentFileId,
+      currentSheetId,
+      settings,
+      THUMB_SELECTION.ALL_THUMBS,
+      noDefault,
+    );
+    console.log(thumbCount);
+    this.optimiseGridLayout(currentFileId, currentSheetId, thumbCount);
   }
 
   onHideDetectionChart() {
@@ -1697,11 +1726,13 @@ class App extends Component {
     });
   }
 
-  onSortSheet(sortMethod, reverseSortOrder, fileId = undefined, sheetId = undefined) {
+  onSortSheet(sortMethod, filterRange = undefined, fileId = undefined, sheetId = undefined) {
     const { currentFileId, currentSheetId, dispatch, settings, sheetsByFileId, visibilitySettings } = this.props;
     const { defaultFaceUniquenessThreshold } = settings;
     const { visibilityFilter } = visibilitySettings;
 
+    console.log(filterRange);
+    const theFilterRange = filterRange || visibilityFilter;
     const theFileId = fileId || currentFileId;
     const theSheetId = sheetId || currentSheetId;
     const { thumbsArray } = sheetsByFileId[theFileId][theSheetId];
@@ -1709,10 +1740,13 @@ class App extends Component {
     const isFaceType = sheetType === SHEET_TYPE.FACES;
 
     if (sortMethod !== SORT_METHOD.REVERSE) {
-      // get visible thumbs and only request faces scan data for them
-      let baseArray = getVisibleThumbs(thumbsArray, visibilitySettings.visibilityFilter);
+      let baseArray = getVisibleThumbs(thumbsArray, theFilterRange);
       if (isFaceType) {
-        const thumbsFrameNumbers = baseArray.map(thumb => thumb.frameNumber);
+        let thumbsFrameNumbers;
+        if (sortMethod !== SORT_METHOD.UNIQUE) {
+          thumbsFrameNumbers = baseArray.map(thumb => thumb.frameNumber);
+        }
+        // for unique method get all face scan data
         baseArray = getFaceScanByFileId(theFileId, thumbsFrameNumbers);
         determineAndInsertFaceId(baseArray, defaultFaceUniquenessThreshold);
         insertOccurrence(baseArray);
@@ -1720,7 +1754,7 @@ class App extends Component {
       }
 
       // get sortOrderArray
-      const sortOrderArray = sortArray(baseArray, sortMethod, reverseSortOrder);
+      const sortOrderArray = sortArray(baseArray, sortMethod);
       console.log(sortOrderArray);
 
       // sort thumbs array
@@ -1733,12 +1767,14 @@ class App extends Component {
       const frameNumberArray = sortOrderArray.map(item => item.frameNumber);
       dispatch(showThumbsByFrameNumberArray(theFileId, theSheetId, frameNumberArray));
 
+      // change column count for optimisation
+      this.optimiseGridLayout(currentFileId, currentSheetId, frameNumberArray.length);
+
       // add detection information to thumbs
       if (isFaceType) {
         deleteFaceDescriptorFromFaceScanArray(baseArray);
         dispatch(changeAndSortThumbArray(theFileId, theSheetId, baseArray, sortMethod));
       }
-
     } else {
       // for reverse take all thumbs not just visible ones
       const baseArray = thumbsArray;
@@ -1750,9 +1786,10 @@ class App extends Component {
       dispatch(updateOrder(theFileId, theSheetId, sortedThumbsArray));
 
       // if show all, then unhide all thumbs
-      if (visibilityFilter === 'SHOW_ALL') {
-        const frameNumberArray = baseArray.map(item => item.frameNumber);
-        dispatch(showThumbsByFrameNumberArray(theFileId, theSheetId, frameNumberArray));
+      if (theFilterRange === THUMB_SELECTION.ALL_THUMBS) {
+        this.onShowAllThumbs();
+        // const frameNumberArray = baseArray.map(item => item.frameNumber);
+        // dispatch(showThumbsByFrameNumberArray(theFileId, theSheetId, frameNumberArray));
       }
     }
   }
@@ -1998,7 +2035,7 @@ class App extends Component {
       dispatch(updateSheetName(tempFile.id, sheetId, getNewSheetName(getSheetCount(files, tempFile.id))));
       dispatch(updateSheetCounter(tempFile.id));
       dispatch(setCurrentSheetId(sheetId));
-      optimiseGridLayout(tempFile.id, sheetId, sceneList.length);
+      this.optimiseGridLayout(tempFile.id, sheetId, sceneList.length);
       dispatch(setDefaultSheetView(SHEET_VIEW.TIMELINEVIEW));
       dispatch(addScenesFromSceneList(tempFile, sceneList, clearOldScenes, settings.defaultCachedFramesSize, sheetId));
     } else {
@@ -2559,6 +2596,7 @@ class App extends Component {
         ).map(thumb => thumb.frameNumber);
         break;
       case 'scanBetweenInAndOut':
+        /* eslint no-case-declarations: "off" */
         const lowestFrame = getLowestFrame(
           getVisibleThumbs(
             sheetsByFileId[currentFileId] === undefined
@@ -2671,7 +2709,7 @@ class App extends Component {
       );
     } else {
       // no frames to scan, jump directly to finished getting faces
-      this.onFinishedGettingFaces(currentFileId, newSheetId, frameArrayToScan, faceSortMethod, updateSheet);
+      this.onFinishedGettingFaces(currentFileId, sheetId, frameArrayToScan, faceSortMethod, updateSheet);
     }
   }
 
@@ -3032,10 +3070,10 @@ class App extends Component {
 
   onToggleShowHiddenThumbsClick = () => {
     const { dispatch } = this.props;
-    if (this.props.visibilitySettings.visibilityFilter === 'SHOW_ALL') {
-      dispatch(setVisibilityFilter('SHOW_VISIBLE'));
+    if (this.props.visibilitySettings.visibilityFilter === THUMB_SELECTION.ALL_THUMBS) {
+      dispatch(setVisibilityFilter(THUMB_SELECTION.VISIBLE_THUMBS));
     } else {
-      dispatch(setVisibilityFilter('SHOW_ALL'));
+      dispatch(setVisibilityFilter(THUMB_SELECTION.ALL_THUMBS));
     }
   };
 
@@ -3049,9 +3087,9 @@ class App extends Component {
   onShowHiddenThumbsClick = value => {
     const { dispatch } = this.props;
     if (value) {
-      dispatch(setVisibilityFilter('SHOW_ALL'));
+      dispatch(setVisibilityFilter(THUMB_SELECTION.ALL_THUMBS));
     } else {
-      dispatch(setVisibilityFilter('SHOW_VISIBLE'));
+      dispatch(setVisibilityFilter(THUMB_SELECTION.VISIBLE_THUMBS));
     }
   };
 
@@ -3751,6 +3789,7 @@ ${exportObject}`;
                     onSetViewClick={this.onSetViewClick}
                     onSetSheetFitClick={this.onSetSheetFitClick}
                     toggleZoom={this.toggleZoom}
+                    onShowAllThumbs={this.onShowAllThumbs}
                     onToggleShowHiddenThumbsClick={this.onToggleShowHiddenThumbsClick}
                     onThumbInfoClick={this.onThumbInfoClick}
                     onToggleHeaderClick={this.onToggleHeaderClick}

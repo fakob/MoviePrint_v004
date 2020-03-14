@@ -6,7 +6,7 @@ import * as faceapi from 'face-api.js';
 
 import VideoCaptureProperties from './videoCaptureProperties';
 import sheetNames from '../img/listOfNames.json';
-import { SORT_METHOD, SCENE_DETECTION_MIN_SCENE_LENGTH, SHEET_VIEW } from './constants';
+import { SORT_METHOD, SCENE_DETECTION_MIN_SCENE_LENGTH, SHEET_VIEW, THUMB_SELECTION } from './constants';
 
 const randomColor = require('randomcolor');
 const { app } = require('electron').remote;
@@ -419,11 +419,11 @@ export const getVisibleThumbs = (thumbs, filter) => {
     return thumbs;
   }
   switch (filter) {
-    case 'SHOW_ALL':
+    case THUMB_SELECTION.ALL_THUMBS:
       return thumbs;
-    case 'SHOW_HIDDEN':
+    case THUMB_SELECTION.HIDDEN_THUMBS:
       return thumbs.filter(t => t.hidden);
-    case 'SHOW_VISIBLE':
+    case THUMB_SELECTION.VISIBLE_THUMBS:
       return thumbs.filter(t => !t.hidden);
     default:
       return thumbs;
@@ -491,7 +491,7 @@ export const getFramenumbers = (sheet, visibilityFilter) => {
     return undefined;
   }
   const { thumbsArray } = sheet;
-  if (visibilityFilter === 'SHOW_VISIBLE') {
+  if (visibilityFilter === THUMB_SELECTION.VISIBLE_THUMBS) {
     const frameNumberArray = thumbsArray.filter(thumb => thumb.hidden === false).map(thumb => thumb.frameNumber);
     return frameNumberArray;
   }
@@ -509,7 +509,7 @@ export const getFramenumbersOfSheet = (sheetsByFileId, fileId, sheetId, visibili
     return undefined;
   }
   const { thumbsArray } = sheetsByFileId[fileId][sheetId];
-  if (visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') {
+  if (visibilitySettings.visibilityFilter === THUMB_SELECTION.VISIBLE_THUMBS) {
     const frameNumberArray = thumbsArray.filter(thumb => thumb.hidden === false).map(thumb => thumb.frameNumber);
     return frameNumberArray;
   }
@@ -527,7 +527,7 @@ export const getEDLscenes = (sheetsByFileId, fileId, sheetId, visibilitySettings
     return undefined;
   }
   const { sceneArray } = sheetsByFileId[fileId][sheetId];
-  if (visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') {
+  if (visibilitySettings.visibilityFilter === THUMB_SELECTION.VISIBLE_THUMBS) {
     const frameNumberArray = sceneArray
       .filter(scene => scene.hidden === false)
       .map(
@@ -688,7 +688,7 @@ export const getSecondsPerRow = (sheetsByFileId, fileId, sheetId, settings) => {
   return sheetsByFileId[fileId][sheetId].secondsPerRow;
 };
 
-export const getThumbsCount = (sheetsByFileId, fileId, sheetId, settings, visibilitySettings, noDefault = false) => {
+export const getThumbsCount = (sheetsByFileId, fileId, sheetId, settings, visibilityFilter, noDefault = false) => {
   if (
     fileId === undefined ||
     sheetsByFileId[fileId] === undefined ||
@@ -698,7 +698,7 @@ export const getThumbsCount = (sheetsByFileId, fileId, sheetId, settings, visibi
   ) {
     return noDefault ? 0 : settings.defaultThumbCount;
   }
-  if (visibilitySettings.visibilityFilter === 'SHOW_VISIBLE') {
+  if (visibilityFilter === THUMB_SELECTION.VISIBLE_THUMBS) {
     return sheetsByFileId[fileId][sheetId].thumbsArray.filter(thumb => thumb.hidden === false).length;
   }
   return sheetsByFileId[fileId][sheetId].thumbsArray.length;
@@ -991,7 +991,7 @@ export const createSceneArray = (sheetsByFileId, fileId, sheetId) => {
   ) {
     const { thumbsArray } = sheetsByFileId[fileId][sheetId];
     if (thumbsArray.length > 0) {
-      const visibleThumbsArray = getVisibleThumbs(thumbsArray, 'SHOW_VISIBLE');
+      const visibleThumbsArray = getVisibleThumbs(thumbsArray, THUMB_SELECTION.VISIBLE_THUMBS);
       visibleThumbsArray.sort((t1, t2) => t1.frameNumber - t2.frameNumber);
       // console.log(visibleThumbsArray);
       const sceneArray = [];
@@ -1477,6 +1477,7 @@ export const insertOccurrence = detectionArray => {
   // this function determines occurrences and adds them to the detectionArray
   // insert occurrence into detectionArray
   const arrayOfOccurrences = getArrayOfOccurrences(detectionArray);
+  console.log(arrayOfOccurrences);
   detectionArray.forEach(frame => {
     if (frame.facesArray !== undefined) {
       frame.facesArray.forEach(face => {

@@ -738,7 +738,11 @@ class ThumbGrid extends Component {
                   on={['hover']}
                   position="top center"
                   className={stylesPop.popup}
-                  content={isFaceType ? "Create a new MoviePrint of all occurrences of this face" : "Create a new MoviePrint using In- and Outpoints of this scene"}
+                  content={
+                    isFaceType
+                      ? 'Create a new MoviePrint of all occurrences of this face'
+                      : 'Create a new MoviePrint using In- and Outpoints of this scene'
+                  }
                 />
                 <Popup
                   trigger={
@@ -821,81 +825,87 @@ class ThumbGrid extends Component {
                         )
                       }
                     />
-                    <Popup
-                      trigger={
-                        <button
-                          data-tid={`addNewThumbBeforeBtn_${controllersVisible}`}
-                          type="button"
-                          className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayAddBefore} ${
-                            thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER ? styles.overlayShrink : ''
-                          }`}
-                          onClick={isShotType ? this.onJumpToCutBefore : this.onAddBefore}
-                          onMouseOver={this.onHoverAddThumbBefore}
-                          onMouseOut={this.onLeaveAddThumb}
-                          onFocus={over}
-                          onBlur={out}
-                        >
-                          {isShotType ? '||' : '+'}
-                        </button>
-                      }
-                      mouseEnterDelay={1000}
-                      on={['hover']}
-                      position="bottom center"
-                      className={stylesPop.popup}
-                      content={isShotType ? <span>Jump to cut</span> : <span>Add new thumb before</span>}
-                    />
-                    <Popup
-                      trigger={
-                        <button
-                          data-tid={`scrubBtn_${controllersVisible}`}
-                          type="button"
-                          className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayScrub} ${
-                            thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER ? styles.overlayShrink : ''
-                          }`}
-                          onMouseDown={e => this.onScrub(e, Date.now())}
-                          onMouseOver={over}
-                          onMouseOut={out}
-                          onFocus={over}
-                          onBlur={out}
-                        >
-                          {'<|>'}
-                        </button>
-                      }
-                      mouseEnterDelay={1000}
-                      on={['hover']}
-                      position="bottom center"
-                      className={stylesPop.popup}
-                      content={
-                        <span>
-                          Click and drag left and right to change the frame (then with <mark>SHIFT</mark> add new thumb
-                          before, <mark>ALT</mark> add new thumb after, <mark>CTRL</mark> allow dragging over whole
-                          movie)
-                        </span>
-                      }
-                    />
-                    <Popup
-                      trigger={
-                        <button
-                          data-tid={`addNewThumbAfterBtn_${controllersVisible}`}
-                          type="button"
-                          className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayAddAfter} ${
-                            thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER ? styles.overlayShrink : ''
-                          }`}
-                          onClick={isShotType ? this.onJumpToCutAfter : this.onAddAfter}
-                          onMouseOver={this.onHoverAddThumbAfter}
-                          onMouseOut={this.onLeaveAddThumb}
-                          onFocus={over}
-                          onBlur={out}
-                        >
-                          {isShotType ? '||' : '+'}
-                        </button>
-                      }
-                      mouseEnterDelay={1000}
-                      on={['hover']}
-                      position="bottom center"
-                      className={stylesPop.popup}
-                      content={isShotType ? <span>Jump to cut</span> : <span>Add new thumb after</span>}
-                    />
+                    {!isFaceType && (
+                      <Popup
+                        trigger={
+                          <button
+                            data-tid={`addNewThumbBeforeBtn_${controllersVisible}`}
+                            type="button"
+                            className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayAddBefore} ${
+                              thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER ? styles.overlayShrink : ''
+                            }`}
+                            onClick={isShotType ? this.onJumpToCutBefore : this.onAddBefore}
+                            onMouseOver={this.onHoverAddThumbBefore}
+                            onMouseOut={this.onLeaveAddThumb}
+                            onFocus={over}
+                            onBlur={out}
+                          >
+                            {isShotType ? '||' : '+'}
+                          </button>
+                        }
+                        mouseEnterDelay={1000}
+                        on={['hover']}
+                        position="bottom center"
+                        className={stylesPop.popup}
+                        content={isShotType ? <span>Jump to cut</span> : <span>Add new thumb before</span>}
+                      />
+                    )}
+                    {!isFaceType && (
+                      <Popup
+                        trigger={
+                          <button
+                            data-tid={`scrubBtn_${controllersVisible}`}
+                            type="button"
+                            className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayScrub} ${
+                              thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER ? styles.overlayShrink : ''
+                            }`}
+                            onMouseDown={e => this.onScrub(e, Date.now())}
+                            onMouseOver={over}
+                            onMouseOut={out}
+                            onFocus={over}
+                            onBlur={out}
+                          >
+                            {'<|>'}
+                          </button>
+                        }
+                        mouseEnterDelay={1000}
+                        on={['hover']}
+                        position="bottom center"
+                        className={stylesPop.popup}
+                        content={
+                          <span>
+                            Click and drag left and right to change the frame (then with <mark>SHIFT</mark> add new
+                            thumb before, <mark>ALT</mark> add new thumb after, <mark>CTRL</mark> allow dragging over
+                            whole movie)
+                          </span>
+                        }
+                      />
+                    )}
+                    {!isFaceType && (
+                      <Popup
+                        trigger={
+                          <button
+                            data-tid={`addNewThumbAfterBtn_${controllersVisible}`}
+                            type="button"
+                            className={`${styles.hoverButton} ${styles.textButton} ${styles.overlayAddAfter} ${
+                              thumbWidth < MINIMUM_WIDTH_TO_SHRINK_HOVER ? styles.overlayShrink : ''
+                            }`}
+                            onClick={isShotType ? this.onJumpToCutAfter : this.onAddAfter}
+                            onMouseOver={this.onHoverAddThumbAfter}
+                            onMouseOut={this.onLeaveAddThumb}
+                            onFocus={over}
+                            onBlur={out}
+                          >
+                            {isShotType ? '||' : '+'}
+                          </button>
+                        }
+                        mouseEnterDelay={1000}
+                        on={['hover']}
+                        position="bottom center"
+                        className={stylesPop.popup}
+                        content={isShotType ? <span>Jump to cut</span> : <span>Add new thumb after</span>}
+                      />
+                    )}
                     <Popup
                       trigger={
                         <button

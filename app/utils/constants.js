@@ -11,11 +11,17 @@ export const URL_FEEDBACK_FORM = 'http://movieprint.fakob.com/feedback-for-movie
 export const SHOT_DETECTION_METHOD = {
   MEAN: 'meanAverage',
   HIST: 'histogram',
-}
+};
+
+export const THUMB_SELECTION = {
+  ALL_THUMBS: 'allThumbs',
+  VISIBLE_THUMBS: 'visibleThumbs',
+  HIDDEN_THUMBS: 'hiddenThumbs',
+};
 
 export const SHOT_DETECTION_METHOD_OPTIONS = [
-  { value: SHOT_DETECTION_METHOD.MEAN, text: 'Mean average', 'data-tid': 'shotDetectionMethodOptionsMean'},
-  { value: SHOT_DETECTION_METHOD.HIST, text: 'Histogram', 'data-tid': 'shotDetectionMethodOptionsHist'},
+  { value: SHOT_DETECTION_METHOD.MEAN, text: 'Mean average', 'data-tid': 'shotDetectionMethodOptionsMean' },
+  { value: SHOT_DETECTION_METHOD.HIST, text: 'Histogram', 'data-tid': 'shotDetectionMethodOptionsHist' },
 ];
 
 export const OUTPUT_FORMAT = {
@@ -24,9 +30,30 @@ export const OUTPUT_FORMAT = {
 };
 
 export const COLOR_PALETTE_PICO_EIGHT = [
-'transparent','#000000','#FFFFFF','#0C0C0C','#1E1E1E','#FF5006','#FF9365','#B44E23','#D14003',
-'#1D2B53','#7E2553','#008751','#AB5236','#5F574F','#C2C3C7','#FFF1E8',
-'#FF004D','#FFA300','#FFEC27','#00E436','#29ADFF','#83769C','#FF77A8','#FFCCAA',
+  'transparent',
+  '#000000',
+  '#FFFFFF',
+  '#0C0C0C',
+  '#1E1E1E',
+  '#FF5006',
+  '#FF9365',
+  '#B44E23',
+  '#D14003',
+  '#1D2B53',
+  '#7E2553',
+  '#008751',
+  '#AB5236',
+  '#5F574F',
+  '#C2C3C7',
+  '#FFF1E8',
+  '#FF004D',
+  '#FFA300',
+  '#FFEC27',
+  '#00E436',
+  '#29ADFF',
+  '#83769C',
+  '#FF77A8',
+  '#FFCCAA',
 ];
 
 export const FRAMEINFO_POSITION = {
@@ -40,13 +67,13 @@ export const FRAMEINFO_POSITION = {
 };
 
 export const FRAMEINFO_POSITION_OPTIONS = [
-  { value: FRAMEINFO_POSITION.TOPLEFT, text: 'Top Left', 'data-tid': 'frameinfoPositionOptionTopLeft'},
-  { value: FRAMEINFO_POSITION.TOPCENTER, text: 'Top Center', 'data-tid': 'frameinfoPositionOptionTopCenter'},
-  { value: FRAMEINFO_POSITION.TOPRIGHT, text: 'Top Right', 'data-tid': 'frameinfoPositionOptionTopRight'},
-  { value: FRAMEINFO_POSITION.CENTERCENTER, text: 'Center Center', 'data-tid': 'frameinfoPositionOptionCenterCenter'},
-  { value: FRAMEINFO_POSITION.BOTTOMLEFT, text: 'Bottom Left', 'data-tid': 'frameinfoPositionOptionBottomLeft'},
-  { value: FRAMEINFO_POSITION.BOTTOMCENTER, text: 'Bottom Center', 'data-tid': 'frameinfoPositionOptionBottomCenter'},
-  { value: FRAMEINFO_POSITION.BOTTOMRIGHT, text: 'Bottom Right', 'data-tid': 'frameinfoPositionOptionBottomRight'},
+  { value: FRAMEINFO_POSITION.TOPLEFT, text: 'Top Left', 'data-tid': 'frameinfoPositionOptionTopLeft' },
+  { value: FRAMEINFO_POSITION.TOPCENTER, text: 'Top Center', 'data-tid': 'frameinfoPositionOptionTopCenter' },
+  { value: FRAMEINFO_POSITION.TOPRIGHT, text: 'Top Right', 'data-tid': 'frameinfoPositionOptionTopRight' },
+  { value: FRAMEINFO_POSITION.CENTERCENTER, text: 'Center Center', 'data-tid': 'frameinfoPositionOptionCenterCenter' },
+  { value: FRAMEINFO_POSITION.BOTTOMLEFT, text: 'Bottom Left', 'data-tid': 'frameinfoPositionOptionBottomLeft' },
+  { value: FRAMEINFO_POSITION.BOTTOMCENTER, text: 'Bottom Center', 'data-tid': 'frameinfoPositionOptionBottomCenter' },
+  { value: FRAMEINFO_POSITION.BOTTOMRIGHT, text: 'Bottom Right', 'data-tid': 'frameinfoPositionOptionBottomRight' },
 ];
 
 export const SHEET_FIT = {
@@ -63,9 +90,9 @@ export const SHEET_TYPE = {
 };
 
 export const SHEET_TYPE_OPTIONS = [
-  { value: SHEET_TYPE.INTERVAL, text: 'Interval', 'data-tid': 'sheetTypeOptionsInterval'},
-  { value: SHEET_TYPE.SCENES, text: 'Scenes', 'data-tid': 'sheetTypeOptionsScenes'},
-  { value: SHEET_TYPE.FACES, text: 'Faces', 'data-tid': 'sheetTypeOptionsFaces'},
+  { value: SHEET_TYPE.INTERVAL, text: 'Interval', 'data-tid': 'sheetTypeOptionsInterval' },
+  { value: SHEET_TYPE.SCENES, text: 'Scenes', 'data-tid': 'sheetTypeOptionsScenes' },
+  { value: SHEET_TYPE.FACES, text: 'Faces', 'data-tid': 'sheetTypeOptionsFaces' },
 ];
 
 export const THUMB_INFO = {
@@ -75,9 +102,9 @@ export const THUMB_INFO = {
 };
 
 export const THUMB_INFO_OPTIONS = [
-  { value: THUMB_INFO.FRAMES, text: 'Show frames', 'data-tid':'framesOption'},
-  { value: THUMB_INFO.TIMECODE, text: 'Show timecode', 'data-tid':'timecodeOption'},
-  { value: THUMB_INFO.HIDEINFO, text: 'Hide info', 'data-tid':'hideInfoOption'},
+  { value: THUMB_INFO.FRAMES, text: 'Show frames', 'data-tid': 'framesOption' },
+  { value: THUMB_INFO.TIMECODE, text: 'Show timecode', 'data-tid': 'timecodeOption' },
+  { value: THUMB_INFO.HIDEINFO, text: 'Hide info', 'data-tid': 'hideInfoOption' },
 ];
 
 export const SHEET_VIEW = {
@@ -90,24 +117,18 @@ export const VIEW = {
   STANDARDVIEW: 'standardView',
 };
 
-export const MOVIEPRINT_COLORS = [
-  '#FF5006',
-  '#FFb799',
-  '#FF9365',
-  '#FFa883',
-  '#FFd3c1',
-];
+export const MOVIEPRINT_COLORS = ['#FF5006', '#FFb799', '#FF9365', '#FFa883', '#FFd3c1'];
 
 export const PAPER_LAYOUT_OPTIONS = [
-  { value: 0.71, text: 'A0-A5 (Landscape)', 'data-tid': 'A0-A5-L'},
-  { value: 1.41, text: 'A0-A5 (Portrait)', 'data-tid': 'A0-A5-P'},
-  { value: 0.77, text: 'Letter (Landscape)', 'data-tid': 'Letter-L'},
-  { value: 1.29, text: 'Letter (Portrait)', 'data-tid': 'Letter-P'},
-  { value: 0.61, text: 'Legal (Landscape)', 'data-tid': 'Legal-L'},
-  { value: 1.65, text: 'Legal (Portrait)', 'data-tid': 'Legal-P'},
-  { value: 0.65, text: 'Tabloid (Landscape)', 'data-tid': 'Tabloid-L'},
-  { value: 1.55, text: 'Tabloid (Portrait)', 'data-tid': 'Tabloid-P'},
-  { value: 1.00, text: 'Square', 'data-tid': 'Square'},
+  { value: 0.71, text: 'A0-A5 (Landscape)', 'data-tid': 'A0-A5-L' },
+  { value: 1.41, text: 'A0-A5 (Portrait)', 'data-tid': 'A0-A5-P' },
+  { value: 0.77, text: 'Letter (Landscape)', 'data-tid': 'Letter-L' },
+  { value: 1.29, text: 'Letter (Portrait)', 'data-tid': 'Letter-P' },
+  { value: 0.61, text: 'Legal (Landscape)', 'data-tid': 'Legal-L' },
+  { value: 1.65, text: 'Legal (Portrait)', 'data-tid': 'Legal-P' },
+  { value: 0.65, text: 'Tabloid (Landscape)', 'data-tid': 'Tabloid-L' },
+  { value: 1.55, text: 'Tabloid (Portrait)', 'data-tid': 'Tabloid-P' },
+  { value: 1.0, text: 'Square', 'data-tid': 'Square' },
 ];
 
 export const OUTPUT_FORMAT_OPTIONS = [
@@ -130,10 +151,10 @@ export const CACHED_FRAMES_SIZE_OPTIONS = [
 ];
 
 // start initialStateJSON
-export const VISIBILITY_FILTER = 'SHOW_VISIBLE';
+export const VISIBILITY_FILTER = THUMB_SELECTION.VISIBLE_THUMBS;
 export const SHOW_MOVIELIST = false;
 export const SHOW_SETTINGS = false;
-export const DEFAULT_VIEW = VIEW.STANDARDVIEW
+export const DEFAULT_VIEW = VIEW.STANDARDVIEW;
 export const DEFAULT_SHEETVIEW = SHEET_VIEW.GRIDVIEW;
 export const DEFAULT_SHEET_TYPE = SHEET_TYPE.INTERVAL;
 export const DEFAULT_SHEET_FIT = SHEET_FIT.BOTH;
@@ -246,11 +267,11 @@ export const SORT_METHOD = {
   REVERSE: 'reverse',
 };
 export const SORT_METHOD_OPTIONS = [
-  { value: SORT_METHOD.FRAMENUMBER, text: 'framenumber', 'data-tid': 'sortMethodOptionsFrameNumber'},
-  { value: SORT_METHOD.FACESIZE, text: 'size of face', 'data-tid': 'sortMethodOptionsFaceSize'},
-  { value: SORT_METHOD.FACECOUNT, text: 'number of faces', 'data-tid': 'sortMethodOptionsFaceCount'},
-  { value: SORT_METHOD.FACEOCCURRENCE, text: 'occurrence of face', 'data-tid': 'sortMethodOptionsFaceOccurrence'},
-  { value: SORT_METHOD.FACECONFIDENCE, text: 'confidence of face', 'data-tid': 'sortMethodOptionsFaceConfidence'},
-  { value: SORT_METHOD.UNIQUE, text: 'unique faces', 'data-tid': 'sortMethodOptionsUnique'},
-  { value: SORT_METHOD.REVERSE, text: 'reverse order', 'data-tid': 'sortMethodOptionsReverse'},
+  { value: SORT_METHOD.FRAMENUMBER, text: 'framenumber', 'data-tid': 'sortMethodOptionsFrameNumber' },
+  { value: SORT_METHOD.FACESIZE, text: 'size of face', 'data-tid': 'sortMethodOptionsFaceSize' },
+  { value: SORT_METHOD.FACECOUNT, text: 'number of faces', 'data-tid': 'sortMethodOptionsFaceCount' },
+  { value: SORT_METHOD.FACEOCCURRENCE, text: 'occurrence of face', 'data-tid': 'sortMethodOptionsFaceOccurrence' },
+  { value: SORT_METHOD.FACECONFIDENCE, text: 'confidence of face', 'data-tid': 'sortMethodOptionsFaceConfidence' },
+  { value: SORT_METHOD.UNIQUE, text: 'unique faces', 'data-tid': 'sortMethodOptionsUnique' },
+  { value: SORT_METHOD.REVERSE, text: 'reverse order', 'data-tid': 'sortMethodOptionsReverse' },
 ];

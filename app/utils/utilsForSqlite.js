@@ -186,9 +186,9 @@ export const getFaceScanByFileId = (fileId, arrayOfFrameNumbers = undefined) => 
       );
     }
     const returnArray = stmt.all();
-    console.log(returnArray);
+    // console.log(returnArray);
     const newArray = returnArray.map(item => JSON.parse(item.faceObject));
-    console.log(newArray);
+    // console.log(newArray);
     return newArray;
   }
   return []; // if table does not exist, return empty array

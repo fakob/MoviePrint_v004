@@ -62,6 +62,10 @@ const thumb = (state = {}, action, index) => {
       return Object.assign({}, state, {
         hidden: !state.hidden,
       });
+    case 'SHOW_ALL_THUMBS':
+      return Object.assign({}, state, {
+        hidden: false,
+      });
     case 'SHOW_THUMBS_BY_FRAMENUMBERARRAY':
       // hide thumbs not included in the frameNumberArray and show frames included
       if (action.payload.frameNumberArray.includes(state.frameNumber)) {
@@ -371,18 +375,7 @@ const sheetsByFileId = (state = {}, action) => {
         },
       };
     case 'CHANGE_THUMB':
-      return {
-        ...state,
-        [action.payload.fileId]: {
-          ...state[action.payload.fileId],
-          [action.payload.sheetId]: {
-            ...state[action.payload.fileId][action.payload.sheetId],
-            thumbsArray: state[action.payload.fileId][action.payload.sheetId].thumbsArray.map((t, index) =>
-              thumb(t, action),
-            ),
-          },
-        },
-      };
+    case 'SHOW_ALL_THUMBS':
     case 'TOGGLE_THUMB':
     case 'SHOW_THUMBS_BY_FRAMENUMBERARRAY':
     case 'TOGGLE_THUMBS_BY_THUMBIDARRAY':

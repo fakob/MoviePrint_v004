@@ -53,6 +53,7 @@ import {
   PAPER_LAYOUT_OPTIONS,
   SHEET_TYPE,
   SHOT_DETECTION_METHOD_OPTIONS,
+  THUMB_SELECTION,
 } from '../utils/constants';
 import getScaleValueObject from '../utils/getScaleValueObject';
 
@@ -1029,7 +1030,7 @@ class SettingsList extends Component {
                   <Checkbox
                     data-tid="showHiddenThumbsCheckbox"
                     label={<label className={styles.label}>Show hidden thumbs</label>}
-                    checked={visibilitySettings.visibilityFilter === 'SHOW_ALL'}
+                    checked={visibilitySettings.visibilityFilter === THUMB_SELECTION.ALL_THUMBS}
                     onChange={this.onChangeShowHiddenThumbs}
                   />
                 </List.Item>
@@ -1549,40 +1550,8 @@ class SettingsList extends Component {
                 handle={handle}
                 onChange={onChangeFaceSizeThreshold}
               />
-            </Grid.Column>
-          </Grid.Row>
-          <Grid.Row>
-            <Grid.Column width={4} title="A smaller distance results in more unique faces">
-              Face uniqueness distance
-            </Grid.Column>
-            <Grid.Column width={12}>
-              <SliderWithTooltip
-                data-tid="faceUniquenessThresholdSlider"
-                className={styles.slider}
-                min={0}
-                max={100}
-                defaultValue={defaultFaceUniquenessThreshold * 100}
-                marks={{
-                  0: '0',
-                  50: '50',
-                  100: '100',
-                }}
-                handle={handle}
-                onChange={value => onChangeFaceUniquenessThreshold(value / 100.0)}
-              />
               <br />
-              <em>A smaller distance results in more unique faces</em>
-            </Grid.Column>
-          </Grid.Row>
-          <Grid.Row>
-            <Grid.Column width={4}></Grid.Column>
-            <Grid.Column width={12}>
-              <Checkbox
-                data-tid="showFaceRectangleCheckbox"
-                label={<label className={styles.label}>Show face rectangle</label>}
-                checked={defaultShowFaceRect}
-                onChange={this.onChangeShowFaceRect}
-              />
+              <em>Changes take effect on next face scan.</em>
             </Grid.Column>
           </Grid.Row>
           <Divider inverted />

@@ -105,3 +105,10 @@
 .hidden {
   visibility: hidden;
 }
+
+.noBackground {
+  background-color: none !important;
+  box-shadow: none !important;
+  padding: 0px 16px 16px 16px !important;
+  opacity: 0.5 !important;
+}

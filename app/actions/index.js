@@ -757,14 +757,25 @@ export const deleteThumb = (fileId, sheetId, index) => {
   };
 };
 
-export const toggleThumb = (currentFileId, sheetId, thumbId) => {
+export const toggleThumb = (fileId, sheetId, thumbId) => {
   log.debug(`action: toggleThumb - ${thumbId}`);
   return {
     type: 'TOGGLE_THUMB',
     payload: {
-      fileId: currentFileId,
+      fileId,
       sheetId,
       thumbId,
+    },
+  };
+};
+
+export const showAllThumbs = (fileId, sheetId) => {
+  log.debug(`action: showAllThumbs - ${sheetId}`);
+  return {
+    type: 'SHOW_ALL_THUMBS',
+    payload: {
+      fileId,
+      sheetId,
     },
   };
 };
@@ -794,7 +805,7 @@ export const showThumbsByFrameNumberArray = (fileId, sheetId, frameNumberArray) 
 };
 
 export const changeAndSortThumbArray = (fileId, sheetId, faceScanArray, sortMethod) => {
-  log.debug(`action: changeAndSortThumbArray - ${faceScanArray}`);
+  log.debug(`action: changeAndSortThumbArray - ${sheetId}`);
   return (dispatch, getState) => {
     dispatch(changeThumbArray(fileId, sheetId, faceScanArray));
     // return immediately if no sorting is needed
@@ -819,7 +830,7 @@ export const changeAndSortThumbArray = (fileId, sheetId, faceScanArray, sortMeth
 };
 
 export const changeThumbArray = (fileId, sheetId, dataToUpdateArray) => {
-  log.debug(`action: changeThumbArray - ${dataToUpdateArray}`);
+  log.debug(`action: changeThumbArray - ${sheetId}`);
   return {
     type: 'CHANGE_THUMB_ARRAY',
     payload: {
