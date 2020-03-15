@@ -55,6 +55,7 @@ const handle = props => {
 };
 
 const ButtonExampleCircularSocial = ({
+  currentSheetFilter,
   fileMissingStatus,
   hasParent,
   onAddIntervalSheetClick,
@@ -63,6 +64,7 @@ const ButtonExampleCircularSocial = ({
   onChangeFaceUniquenessThreshold,
   onChangeSheetViewClick,
   onDuplicateSheetClick,
+  onUpdateSheetFilter,
   onScanMovieListItemClick,
   onSetSheetFitClick,
   onSetViewClick,
@@ -91,6 +93,8 @@ const ButtonExampleCircularSocial = ({
   const isGridViewAndDefault = sheetView === SHEET_VIEW.GRIDVIEW && defaultView === VIEW.STANDARDVIEW;
   const isFaceType = sheetType === SHEET_TYPE.FACES;
   const isShotType = sheetType === SHEET_TYPE.SCENES;
+
+  const { unique: uniqueFilter } = currentSheetFilter;
 
   return (
     <div className={`${styles.floatingMenu}`}>
@@ -343,14 +347,15 @@ const ButtonExampleCircularSocial = ({
                   <Checkbox
                     data-tid="showSlidersCheckbox"
                     label="Unique faces"
-                    checked={filterUniqueFaces}
+                    checked={uniqueFilter}
                     onChange={(e, { checked }) => {
                       if (checked) {
                         onSortSheet(SORT_METHOD.UNIQUE, THUMB_SELECTION.ALL_THUMBS);
                       } else {
                         onShowAllThumbs();
                       }
-                      setFilterUniqueFaces(checked);
+                      onUpdateSheetFilter({ unique: checked });
+                      // setFilterUniqueFaces(checked);
                     }}
                   />
                 </Dropdown.Item>

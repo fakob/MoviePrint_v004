@@ -640,6 +640,18 @@ export const getSheetName = (sheetsByFileId, fileId, sheetId) => {
   return sheetsByFileId[fileId][sheetId].name;
 };
 
+export const getSheetFilter = (sheetsByFileId, fileId, sheetId) => {
+  if (
+    sheetsByFileId === undefined ||
+    sheetsByFileId[fileId] === undefined ||
+    sheetsByFileId[fileId][sheetId] === undefined ||
+    sheetsByFileId[fileId][sheetId].filter === undefined
+  ) {
+    return {}; // empty object means no filter
+  }
+  return sheetsByFileId[fileId][sheetId].filter;
+};
+
 export const getSheetView = (sheetsByFileId, fileId, sheetId, visibilitySettings) => {
   if (
     sheetsByFileId === undefined ||

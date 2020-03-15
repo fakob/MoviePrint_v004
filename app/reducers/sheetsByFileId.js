@@ -441,6 +441,19 @@ const sheetsByFileId = (state = {}, action) => {
           },
         },
       };
+    case 'UPDATE_SHEET_FILTER':
+      return {
+        ...state,
+        [action.payload.fileId]: {
+          ...state[action.payload.fileId],
+          [action.payload.sheetId]: {
+            // conditional adding of properties
+            // only add when fileId exists
+            ...(state[action.payload.fileId] === undefined ? {} : state[action.payload.fileId][action.payload.sheetId]),
+            filter: action.payload.filter,
+          },
+        },
+      };
     case 'UPDATE_SHEET_SECONDSPERROW':
       return {
         ...state,

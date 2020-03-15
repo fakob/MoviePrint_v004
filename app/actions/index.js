@@ -1209,6 +1209,20 @@ export const removeMovieListItem = fileId => {
   };
 };
 
+export const updateSheetFilter = (fileId, sheetId, filter) => {
+  return dispatch => {
+    log.debug(`action: updateSheetFilter - ${filter}`);
+    dispatch({
+      type: 'UPDATE_SHEET_FILTER',
+      payload: {
+        fileId,
+        sheetId,
+        filter,
+      },
+    });
+  };
+};
+
 export const updateSheetSecondsPerRow = (fileId, sheetId, secondsPerRow) => {
   return dispatch => {
     log.debug(`action: updateSheetSecondsPerRow - ${secondsPerRow}`);
