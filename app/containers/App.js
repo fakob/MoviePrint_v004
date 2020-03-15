@@ -199,6 +199,8 @@ import {
   URL_FEEDBACK_FORM,
   URL_REST_API_CHECK_FOR_UPDATES,
   VIEW,
+  WINDOW_WIDTH,
+  WINDOW_HEIGHT,
   ZOOM_SCALE,
 } from '../utils/constants';
 import { deleteTableFramelist } from '../utils/utilsForIndexedDB';
@@ -1604,7 +1606,7 @@ class App extends Component {
     try {
       // set default values for clientWidth and clientHeight
       // as on start up this.siteContent ref is not set yet
-      const { clientWidth = 1366, clientHeight = 768 } = this.siteContent;
+      const { clientWidth = WINDOW_WIDTH, clientHeight = WINDOW_HEIGHT } = this.siteContent;
       const { file, visibilitySettings } = this.props;
       const { containerHeight, containerWidth } = this.state;
       const containerWidthInner =

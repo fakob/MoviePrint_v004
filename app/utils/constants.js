@@ -213,6 +213,10 @@ export const DEFAULT_OPEN_FILE_EXPLORER_AFTER_SAVING = false;
 export const DEFAULT_SHOW_FACERECT = true;
 // end initialStateJSON
 
+// fallback window measures
+export const WINDOW_WIDTH = 1366; // main window width and height is set in main.dev.js
+export const WINDOW_HEIGHT = 768;
+
 export const MENU_HEADER_HEIGHT = 35;
 export const MENU_FOOTER_HEIGHT = 35;
 
