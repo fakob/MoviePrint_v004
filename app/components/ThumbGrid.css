@@ -119,8 +119,13 @@
   position: absolute;
   /* border:1px solid rgba(255,255,255,0.5); */
   /* mix-blend-mode: difference; */
-  border:1px solid rgba(255,80,6,0.5);
-  background-color: transparent;
+  /* border:1px solid rgba(255,80,6,0.5); */
+  /* background-color: transparent; */
+  background-color: rgba(255, 80, 6, 0.2);
+  border:1px solid rgba(255,80,6,0.2);
+  /* background-color: rgba(255, 255, 255, 0.1); */
+  mix-blend-mode: lighten;
+  border-radius: 4px;
 }
 
 .faceRectTag {
@@ -130,7 +135,8 @@
   font-size: 9px;
   line-height: 11px;
   color: #FFFFFF;
-  mix-blend-mode: difference;
+  visibility: hidden;
+  /* mix-blend-mode: difference; */
   /* filter: invert(1) grayscale(1) contrast(9); */
   /* color: rgba(255,80,6,1); */
 }
