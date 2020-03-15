@@ -804,7 +804,7 @@ export const showThumbsByFrameNumberArray = (fileId, sheetId, frameNumberArray) 
   };
 };
 
-export const changeAndSortThumbArray = (fileId, sheetId, faceScanArray, sortMethod) => {
+export const changeAndSortThumbArray = (fileId, sheetId, faceScanArray, sortMethod, optionalSortProperties = undefined) => {
   log.debug(`action: changeAndSortThumbArray - ${sheetId}`);
   return (dispatch, getState) => {
     dispatch(changeThumbArray(fileId, sheetId, faceScanArray));
@@ -812,7 +812,7 @@ export const changeAndSortThumbArray = (fileId, sheetId, faceScanArray, sortMeth
     if (sortMethod === undefined) {
       return undefined;
     }
-    const sortedArray = sortArray(faceScanArray, sortMethod);
+    const sortedArray = sortArray(faceScanArray, sortMethod, undefined, optionalSortProperties);
     // extract frameNumbers
     const frameNumberArrayFromFaceDetection = sortedArray.map(item => item.frameNumber);
 

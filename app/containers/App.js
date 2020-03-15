@@ -43,7 +43,7 @@ import {
   calculateSceneListFromDifferenceArray,
   createSceneArray,
   deleteFaceDescriptorFromFaceScanArray,
-  determineAndInsertFaceId,
+  determineAndInsertFaceNumber,
   doesFileFolderExist,
   doesSheetExist,
   getAdjacentSceneIndicesFromCut,
@@ -1094,6 +1094,7 @@ class App extends Component {
         sheetId: mySheetId,
         sortMethod: mySortMethod = undefined,
         status: myStatus,
+        optionalProperties: myOptionalProperties,
       } = copyOfSheetsToUpdate[0];
       const thumbCount = getThumbsCount(
         sheetsByFileId,
@@ -1105,7 +1106,7 @@ class App extends Component {
       );
       if (thumbCount !== 0) {
         if (myStatus === 'addFaceData') {
-          this.addFaceData(myFileId, mySheetId, mySortMethod);
+          this.addFaceData(myFileId, mySheetId, mySortMethod, myOptionalProperties);
           // remove the first item
           copyOfSheetsToUpdate.shift();
           this.setState({
@@ -1755,7 +1756,7 @@ class App extends Component {
         }
         // for unique method get all face scan data
         baseArray = getFaceScanByFileId(theFileId, thumbsFrameNumbers);
-        determineAndInsertFaceId(baseArray, theFaceUniquenessThreshold);
+        determineAndInsertFaceNumber(baseArray, theFaceUniquenessThreshold);
         insertOccurrence(baseArray);
         // console.log(baseArray);
       }
@@ -1801,7 +1802,7 @@ class App extends Component {
     }
   }
 
-  addFaceData(fileId, sheetId, sortMethod = undefined) {
+  addFaceData(fileId, sheetId, sortMethod = undefined, optionalSortProperties = undefined) {
     const { dispatch, settings, sheetsByFileId, visibilitySettings } = this.props;
     const { defaultFaceUniquenessThreshold } = settings;
 
@@ -1811,13 +1812,13 @@ class App extends Component {
 
     // calculate occurrences
     // console.log(faceScanArray);
-    determineAndInsertFaceId(faceScanArray, defaultFaceUniquenessThreshold);
+    determineAndInsertFaceNumber(faceScanArray, defaultFaceUniquenessThreshold);
     insertOccurrence(faceScanArray);
 
     deleteFaceDescriptorFromFaceScanArray(faceScanArray);
     // console.log(faceScanArray);
     // add detection information to thumbs
-    dispatch(changeAndSortThumbArray(fileId, sheetId, faceScanArray, sortMethod));
+    dispatch(changeAndSortThumbArray(fileId, sheetId, faceScanArray, sortMethod, optionalSortProperties));
     // this.onSortSheet(fileId, sheetId, sortMethod);
   }
 
@@ -2149,8 +2150,9 @@ class App extends Component {
         const faceScanArray = getFaceScanByFileId(fileId);
         console.log(faceScanArray);
 
-        // get frameNumbers of occurrences of faceId
-        const frameNumberArray = getOccurrencesOfFace(faceScanArray, frameNumber, defaultFaceUniquenessThreshold);
+        // get frameNumbers of occurrences of faceNumber
+        const { faceIdOfOrigin, frameNumberArray } = getOccurrencesOfFace(faceScanArray, frameNumber, defaultFaceUniquenessThreshold);
+        console.log(faceIdOfOrigin);
         console.log(frameNumberArray);
 
         // get thumbs
@@ -2160,6 +2162,9 @@ class App extends Component {
           sheetId,
           status: 'addFaceData',
           sortMethod: SORT_METHOD.DISTTOORIGIN,
+          optionalProperties: {
+            faceIdOfOrigin
+          },
         });
         const parentSheetName = getSheetName(sheetsByFileId, fileId, parentSheetId);
         dispatch(updateSheetName(fileId, sheetId, `${parentSheetName} face in ${pad(frameNumber, 4)}`)); // set name on file

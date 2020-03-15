@@ -574,12 +574,12 @@ class ThumbGrid extends Component {
 
     const margin = `${view === VIEW.STANDARDVIEW ? thumbMarginGridView : Math.max(1, thumbMarginGridView)}px`;
 
-    let expandedFaceId;
-    // if it is an expanded facetype, then get the faceId
+    let expandedFaceNumber;
+    // if it is an expanded facetype, then get the faceNumber
     if (expandedFrameNumber !== undefined) {
       const expandedThumb = thumbArray.find(thumb => thumb.frameNumber === expandedFrameNumber);
       if (expandedThumb !== undefined && expandedThumb.facesArray !== undefined) {
-        expandedFaceId = expandedThumb.facesArray[0].faceId;
+        expandedFaceNumber = expandedThumb.facesArray[0].faceNumber;
       }
     }
 
@@ -709,7 +709,7 @@ class ThumbGrid extends Component {
               frameinfoMargin={frameinfoMargin}
               thumbCSSTranslate={thumbCSSTranslate}
               uniqueFilter={uniqueFilter}
-              expandedFaceId={expandedFaceId}
+              expandedFaceNumber={expandedFaceNumber}
             />
           ))}
         </div>

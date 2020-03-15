@@ -1,6 +1,7 @@
 import path from 'path';
 import * as faceapi from 'face-api.js';
 import log from 'electron-log';
+import uuidV4 from 'uuid/v4';
 
 import { roundNumber } from './utils';
 import { FACE_CONFIDENCE_THRESHOLD, FACE_SIZE_THRESHOLD, FACE_UNIQUENESS_THRESHOLD } from './constants';
@@ -58,109 +59,6 @@ loadNet()
       true,
     );
   });
-
-export const detectFace = async (
-  image,
-  frameNumber,
-  detectionArray,
-  uniqueFaceArray,
-  defaultFaceConfidenceThreshold = FACE_CONFIDENCE_THRESHOLD,
-  defaultFaceSizeThreshold = FACE_SIZE_THRESHOLD,
-  defaultFaceUniquenessThreshold = FACE_UNIQUENESS_THRESHOLD,
-) => {
-  // detect expression
-  const face = await faceapi
-    .detectSingleFace(image)
-    .withFaceLandmarks()
-    .withAgeAndGender()
-    .withFaceDescriptor();
-
-  console.log(frameNumber);
-  // check if a face was detected
-  if (face !== undefined) {
-    const { age, gender, descriptor, detection } = face;
-    const { relativeBox, score } = detection;
-    const size = Math.round(relativeBox.height * 100);
-    const scoreInPercent = Math.round(score * 100);
-
-    // console.log(face);
-    if (size < defaultFaceSizeThreshold || scoreInPercent < defaultFaceConfidenceThreshold) {
-      console.log('detected face below size or confidence threshold!');
-      return undefined;
-    }
-
-    // create full copy of array to be pushed later
-    const copyOfDescriptor = descriptor.slice();
-
-    console.log(detection);
-    console.log(uniqueFaceArray);
-    console.log(copyOfDescriptor);
-
-    // check for uniqueness
-    // if the uniqueFaceArray is empty just push the current descriptor
-    // else compare the current descriptor to the ones in the uniqueFaceArray
-
-    // initialise the faceId
-    let faceId = 0;
-    const uniqueFaceArrayLength = uniqueFaceArray.length;
-    if (uniqueFaceArrayLength === 0) {
-      uniqueFaceArray.push(copyOfDescriptor);
-    } else {
-      // compare descriptor value with all values in the array
-      for (let i = 0; i < uniqueFaceArrayLength; i += 1) {
-        const dist = faceapi.euclideanDistance(copyOfDescriptor, uniqueFaceArray[i]);
-        console.log(`${faceId}, ${frameNumber}`);
-        console.log(dist);
-        // if no match was found add the current descriptor to the array marking a unique face
-        if (dist < defaultFaceUniquenessThreshold) {
-          // console.log(`face matches face ${i}`);
-          faceId = i;
-          break;
-        } else if (i === uniqueFaceArrayLength - 1) {
-          console.log('face is unique');
-          uniqueFaceArray.push(copyOfDescriptor);
-          faceId = uniqueFaceArrayLength;
-        }
-      }
-    }
-
-    // console.log(`frameNumber: ${frameNumber}, Score: ${score}, Size: ${size}, Gender: ${gender}, Age: ${age}`);
-    // detectionArray.push({
-    //   faceId,
-    //   frameNumber,
-    //   score: scoreInPercent,
-    //   largestSize: size,
-    //   gender,
-    //   age: Math.round(age),
-    // });
-    const simpleBox = {
-      x: roundNumber(relativeBox.x, 4),
-      y: roundNumber(relativeBox.y, 4),
-      width: roundNumber(relativeBox.width, 4),
-      height: roundNumber(relativeBox.height, 4),
-    };
-
-    const facesArray = [
-      {
-        faceId,
-        score: scoreInPercent,
-        size,
-        box: simpleBox,
-        gender,
-        age: Math.round(age),
-      },
-    ];
-    detectionArray.push({
-      frameNumber,
-      faceCount: 1,
-      largestSize: facesArray[0].size,
-      facesArray,
-    });
-    return detection;
-  }
-  console.log('no face detected!');
-  return undefined;
-};
 
 export const detectAllFaces = async (
   image,
@@ -224,6 +122,7 @@ export const detectAllFaces = async (
       box: simpleBox,
       gender,
       age: Math.round(age),
+      faceId: uuidV4(),
       faceDescriptor: copyOfDescriptor,
     });
 

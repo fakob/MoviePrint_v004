@@ -45,10 +45,10 @@ const DragHandle = SortableHandle(({ width, height, thumbId }) => (
   />
 ));
 
-const AllFaces = ({ facesArray, thumbWidth, thumbHeight, uniqueFilter, expandedFaceId }) =>
+const AllFaces = ({ facesArray, thumbWidth, thumbHeight, uniqueFilter, expandedFaceNumber }) =>
   facesArray.map((face, index) => {
     const showFaceRect =
-      expandedFaceId === face.faceId || (expandedFaceId === undefined && (!uniqueFilter || face.distToOrigin === 0));
+      expandedFaceNumber === face.faceNumber || (expandedFaceNumber === undefined && (!uniqueFilter || face.distToOrigin === 0));
     if (showFaceRect) {
       return <FaceRect key={index} face={face} thumbWidth={thumbWidth} thumbHeight={thumbHeight} />;
     }
@@ -74,11 +74,11 @@ const FaceRect = ({ face: { box, ...faceExceptForBox }, thumbWidth, thumbHeight 
         top: `${box.y * thumbHeight}px`,
       }}
     >
-      {faceExceptForBox.gender === 'female' ? '\u2640' : '\u2642'}
-      <br />#<em>{faceExceptForBox.faceId}</em>
-      <br />
+      {/* {faceExceptForBox.gender === 'female' ? '\u2640' : '\u2642'} */}
+      {/* <br />#<em>{faceExceptForBox.faceNumber}</em> */}
+      {/* <br /> */}
       {faceExceptForBox.occurrence} x<br />
-      {faceExceptForBox.distToOrigin}
+      {/* {faceExceptForBox.distToOrigin} */}
       <br />
     </div>
   </>
@@ -93,7 +93,7 @@ const Thumb = ({
   controllersAreVisible,
   defaultShowFaceRect,
   dim,
-  expandedFaceId,
+  expandedFaceNumber,
   frameninfoBackgroundColor,
   frameinfoColor,
   frameinfoPosition,
@@ -201,17 +201,17 @@ const Thumb = ({
         height={`${thumbHeight}px`}
         style={{
           filter: `${controllersAreVisible ? 'brightness(80%)' : ''}`,
-          opacity: hidden ? '0.2' : facesArray && defaultShowFaceRect !== undefined ? '0.5' : '1.0',
+          opacity: hidden ? '0.2' : facesArray !== undefined && defaultShowFaceRect ? '0.5' : '1.0',
           borderRadius: `${selected && view === VIEW.PLAYERVIEW ? 0 : borderRadius}px`,
         }}
       />
-      {facesArray && defaultShowFaceRect !== undefined && (
+      {facesArray !== undefined && defaultShowFaceRect && (
         <AllFaces
           facesArray={facesArray}
           thumbWidth={thumbWidth}
           thumbHeight={thumbHeight}
           uniqueFilter={uniqueFilter}
-          expandedFaceId={expandedFaceId}
+          expandedFaceNumber={expandedFaceNumber}
         />
       )}
       {thumbInfoValue !== undefined && (
