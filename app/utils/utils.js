@@ -652,7 +652,7 @@ export const getSheetFilter = (sheetsByFileId, fileId, sheetId) => {
   return sheetsByFileId[fileId][sheetId].filter;
 };
 
-export const getSheetView = (sheetsByFileId, fileId, sheetId, visibilitySettings) => {
+export const getSheetView = (sheetsByFileId, fileId, sheetId) => {
   if (
     sheetsByFileId === undefined ||
     sheetsByFileId[fileId] === undefined ||
@@ -1332,6 +1332,36 @@ export const sortArray = (detectionArray, sortAndFilterMethod = SORT_METHOD.FACE
       );
       break;
     }
+    case SORT_METHOD.DISTTOORIGIN: {
+      // filtered and flatten the detectionArray
+      const detectionArrayFiltered = detectionArray.filter(item => item.faceCount !== 0); // filter out frames with no faces
+
+      if (detectionArrayFiltered.length > 0) {
+        const faceIdOfOrigin = detectionArrayFiltered[0].facesArray(face => face.size === detectionArrayFiltered[0].largestSize).faceId;
+
+        if (faceIdOfOrigin !== undefined) {
+          const flattenedArray = getFlattenedArrayWithOccurrences(detectionArrayFiltered);
+          console.log(flattenedArray);
+
+          // filter array to only include faceIdOfOrigin
+          flattenedArray.filter(item => item.faceId === faceIdOfOrigin);
+
+          // sort by distToOrigin
+          flattenedArray.sort((a, b) => {
+            // Sort by distToOrigin
+            if (a.distToOrigin > b.distToOrigin) return sortOrderMultiplier * 1;
+            if (a.distToOrigin < b.distToOrigin) return sortOrderMultiplier * -1;
+            return -1;
+          });
+
+          // only keep first occurrence of frameNumber
+          sortedAndFilteredArray = flattenedArray.filter(
+            (item, index, self) => index === self.findIndex(t => t.frameNumber === item.frameNumber),
+          );
+        }
+      }
+      break;
+    }
     case SORT_METHOD.UNIQUE:
       // filtered and flatten the detectionArray
       const detectionArrayFiltered = detectionArray.filter(item => item.faceCount !== 0); // filter out frames with no faces
@@ -1340,7 +1370,7 @@ export const sortArray = (detectionArray, sortAndFilterMethod = SORT_METHOD.FACE
 
       // sort by count, size and then score
       flattenedArray.sort((a, b) => {
-        // Sort by count number
+        // Sort by occurrence
         if (a.occurrence < b.occurrence) return sortOrderMultiplier * 1;
         if (a.occurrence > b.occurrence) return sortOrderMultiplier * -1;
 
@@ -1421,13 +1451,15 @@ export const determineAndInsertFaceId = (detectionArray, defaultFaceUniquenessTh
         if (uniqueFaceArrayLength === 0) {
           uniqueFaceArray.push(currentFaceDescriptor); // convert array
           face.faceId = faceId;
+          face.distToOrigin = 0;
         } else {
           // compare descriptor value with all values in the array
           for (let i = 0; i < uniqueFaceArrayLength; i += 1) {
             const dist = faceapi.euclideanDistance(currentFaceDescriptor, uniqueFaceArray[i]);
             // console.log(dist);
-            // if no match was found add the current descriptor to the array marking a unique face
+            // check how close the faces are
             if (dist < defaultFaceUniquenessThreshold) {
+              // faces are similar or equal
               // console.log(
               //   dist === 0
               //   ? `this and face ${i} are identical: ${dist}`
@@ -1435,12 +1467,16 @@ export const determineAndInsertFaceId = (detectionArray, defaultFaceUniquenessTh
               // );
               faceId = i;
               face.faceId = faceId;
+              face.distToOrigin = dist;
               break;
             } else if (i === uniqueFaceArrayLength - 1) {
+              // face is unique
+              // if no match was found add the current descriptor to the array marking a new unique face
               // console.log(`this face is unique: ${dist}`);
               uniqueFaceArray.push(currentFaceDescriptor); // convert array
               faceId = uniqueFaceArrayLength;
               face.faceId = faceId;
+              face.distToOrigin = 0;
             }
           }
         }

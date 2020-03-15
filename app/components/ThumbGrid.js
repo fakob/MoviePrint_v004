@@ -419,6 +419,7 @@ class ThumbGrid extends Component {
 
   render() {
     const {
+      currentSheetFilter,
       defaultShowDetailsInHeader,
       defaultShowHeader,
       defaultShowImages,
@@ -448,6 +449,7 @@ class ThumbGrid extends Component {
       view,
     } = this.props;
     const { addThumbAfterController, addThumbBeforeController, controllersVisible, hoverPos, thumbsToDim } = this.state;
+    const { unique: uniqueFilter, expanded: expandedFrameNumber } = currentSheetFilter;
 
     const isPlayerView = view !== VIEW.STANDARDVIEW;
     const isIntervalType = sheetType === SHEET_TYPE.INTERVAL;
@@ -571,6 +573,15 @@ class ThumbGrid extends Component {
     }
 
     const margin = `${view === VIEW.STANDARDVIEW ? thumbMarginGridView : Math.max(1, thumbMarginGridView)}px`;
+
+    let expandedFaceId;
+    // if it is an expanded facetype, then get the faceId
+    if (expandedFrameNumber !== undefined) {
+      const expandedThumb = thumbArray.find(thumb => thumb.frameNumber === expandedFrameNumber);
+      if (expandedThumb !== undefined && expandedThumb.facesArray !== undefined) {
+        expandedFaceId = expandedThumb.facesArray[0].faceId;
+      }
+    }
 
     return (
       <div
@@ -697,6 +708,8 @@ class ThumbGrid extends Component {
               frameinfoScale={defaultFrameinfoScale}
               frameinfoMargin={frameinfoMargin}
               thumbCSSTranslate={thumbCSSTranslate}
+              uniqueFilter={uniqueFilter}
+              expandedFaceId={expandedFaceId}
             />
           ))}
         </div>
@@ -740,7 +753,7 @@ class ThumbGrid extends Component {
                   className={stylesPop.popup}
                   content={
                     isFaceType
-                      ? 'Create a new MoviePrint of all occurrences of this face'
+                      ? 'Create a new MoviePrint of all occurrences of the largest face in this thumb'
                       : 'Create a new MoviePrint using In- and Outpoints of this scene'
                   }
                 />
@@ -974,6 +987,7 @@ class ThumbGrid extends Component {
 
 ThumbGrid.defaultProps = {
   currentSheetId: undefined,
+  currentSheetFilter: {},
   file: {},
   selectedThumbsArray: [],
   thumbs: [],
@@ -998,6 +1012,7 @@ ThumbGrid.propTypes = {
     }).isRequired,
   ),
   currentSheetId: PropTypes.string,
+  currentSheetFilter: PropTypes.object,
   defaultShowDetailsInHeader: PropTypes.bool,
   defaultShowHeader: PropTypes.bool,
   defaultShowImages: PropTypes.bool,

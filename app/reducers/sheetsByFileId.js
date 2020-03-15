@@ -450,7 +450,7 @@ const sheetsByFileId = (state = {}, action) => {
             // conditional adding of properties
             // only add when fileId exists
             ...(state[action.payload.fileId] === undefined ? {} : state[action.payload.fileId][action.payload.sheetId]),
-            filter: action.payload.filter,
+            filter: Object.assign({}, action.payload.filter),
           },
         },
       };

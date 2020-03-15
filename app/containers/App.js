@@ -1247,13 +1247,10 @@ class App extends Component {
           case 52: // press '4'
             break;
           case 53: // press '5'
-            this.onSortSheet(SORT_METHOD.FACECONFIDENCE);
             break;
           case 54: // press '6'
-            this.onSortSheet(SORT_METHOD.FACEOCCURRENCE);
             break;
           case 55: // press '7'
-            this.onSortSheet(SORT_METHOD.UNIQUE);
             break;
           case 56: // press '8'
             break;
@@ -1728,18 +1725,26 @@ class App extends Component {
     });
   }
 
-  onSortSheet(sortMethod, filterRange = undefined, fileId = undefined, sheetId = undefined) {
+  onSortSheet(
+    sortMethod,
+    filterRange = undefined,
+    fileId = undefined,
+    sheetId = undefined,
+    faceUniquenessThreshold = undefined,
+  ) {
     const { currentFileId, currentSheetId, dispatch, settings, sheetsByFileId, visibilitySettings } = this.props;
     const { defaultFaceUniquenessThreshold } = settings;
     const { visibilityFilter } = visibilitySettings;
 
-    console.log(filterRange);
     const theFilterRange = filterRange || visibilityFilter;
     const theFileId = fileId || currentFileId;
     const theSheetId = sheetId || currentSheetId;
     const { thumbsArray } = sheetsByFileId[theFileId][theSheetId];
+
     const sheetType = getSheetType(sheetsByFileId, theFileId, theSheetId, settings);
     const isFaceType = sheetType === SHEET_TYPE.FACES;
+
+    const theFaceUniquenessThreshold = faceUniquenessThreshold || defaultFaceUniquenessThreshold;
 
     if (sortMethod !== SORT_METHOD.REVERSE) {
       let baseArray = getVisibleThumbs(thumbsArray, theFilterRange);
@@ -1750,14 +1755,14 @@ class App extends Component {
         }
         // for unique method get all face scan data
         baseArray = getFaceScanByFileId(theFileId, thumbsFrameNumbers);
-        determineAndInsertFaceId(baseArray, defaultFaceUniquenessThreshold);
+        determineAndInsertFaceId(baseArray, theFaceUniquenessThreshold);
         insertOccurrence(baseArray);
-        console.log(baseArray);
+        // console.log(baseArray);
       }
 
       // get sortOrderArray
       const sortOrderArray = sortArray(baseArray, sortMethod);
-      console.log(sortOrderArray);
+      // console.log(sortOrderArray);
 
       // sort thumbs array
       const sortedThumbsArray = sortThumbsArray(thumbsArray, sortOrderArray);
@@ -2112,6 +2117,7 @@ class App extends Component {
     const { files, scenes, sheetsArray, sheetsByFileId, settings } = this.props;
     const { defaultFaceUniquenessThreshold } = settings;
     const { sheetsToUpdate } = this.state;
+    const { id: fileId } = file;
     // console.log(file);
     // console.log(sceneOrThumbId);
     // console.log(parentSheetId);
@@ -2122,8 +2128,8 @@ class App extends Component {
     // create scenesArray if it does not exist
     let sceneArray = scenes;
     if (sceneArray === undefined || sceneArray.length === 0) {
-      sceneArray = createSceneArray(sheetsByFileId, file.id, parentSheetId);
-      dispatch(updateSceneArray(file.id, parentSheetId, sceneArray));
+      sceneArray = createSceneArray(sheetsByFileId, fileId, parentSheetId);
+      dispatch(updateSceneArray(fileId, parentSheetId, sceneArray));
     }
     // console.log(sceneArray);
 
@@ -2137,28 +2143,35 @@ class App extends Component {
       // expand face type
       if (isFaceType) {
         // get frameNumber
-        const frameNumber = getFrameNumberWithSceneOrThumbId(sheetsByFileId, file.id, parentSheetId, sceneOrThumbId);
-        // console.log(frameNumber);
+        const frameNumber = getFrameNumberWithSceneOrThumbId(sheetsByFileId, fileId, parentSheetId, sceneOrThumbId);
+        console.log(frameNumber);
 
-        const faceScanArray = getFaceScanByFileId(file.id);
-        // console.log(faceScanArray);
+        const faceScanArray = getFaceScanByFileId(fileId);
+        console.log(faceScanArray);
 
         // get frameNumbers of occurrences of faceId
         const frameNumberArray = getOccurrencesOfFace(faceScanArray, frameNumber, defaultFaceUniquenessThreshold);
-        // console.log(frameNumberArray);
+        console.log(frameNumberArray);
 
         // get thumbs
         dispatch(addNewThumbsWithOrder(file, sheetId, frameNumberArray, settings.defaultCachedFramesSize));
         sheetsToUpdate.push({
-          fileId: file.id,
+          fileId,
           sheetId,
           status: 'addFaceData',
-          sortMethod: undefined,
+          sortMethod: SORT_METHOD.DISTTOORIGIN,
         });
-        const parentSheetName = getSheetName(sheetsByFileId, file.id, parentSheetId);
-        dispatch(updateSheetName(file.id, sheetId, `${parentSheetName} ${pad(frameNumber, 4)}`)); // set name on file
-        // dispatch(updateSheetCounter(file.id));
-        dispatch(updateSheetType(file.id, sheetId, SHEET_TYPE.FACES));
+        const parentSheetName = getSheetName(sheetsByFileId, fileId, parentSheetId);
+        dispatch(updateSheetName(fileId, sheetId, `${parentSheetName} face in ${pad(frameNumber, 4)}`)); // set name on file
+        // dispatch(updateSheetCounter(fileId));
+        dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.FACES));
+
+        // set filter
+        this.onUpdateSheetFilter({ expanded: frameNumber }, false, fileId, sheetId);
+
+        // update columnCount
+        this.optimiseGridLayout(fileId, sheetId, frameNumberArray.length);
+
       } else {
         // log.debug(`addIntervalSheet as no thumbs were found for: ${file.name}`);
         dispatch(
@@ -2172,13 +2185,16 @@ class App extends Component {
             true, // limitToRange -> do not get more thumbs then between in and out available
           ),
         );
-        dispatch(updateSheetName(file.id, sheetId, getNewSheetName(getSheetCount(files, file.id)))); // set name on file
-        dispatch(updateSheetCounter(file.id));
-        dispatch(updateSheetType(file.id, sheetId, SHEET_TYPE.INTERVAL));
+        dispatch(updateSheetName(fileId, sheetId, getNewSheetName(getSheetCount(files, fileId)))); // set name on file
+        dispatch(updateSheetCounter(fileId));
+        dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.INTERVAL));
+
+        // update columnCount
+        this.optimiseGridLayout(fileId, sheetId, DEFAULT_THUMB_COUNT);
       }
-      dispatch(updateSheetParent(file.id, sheetId, parentSheetId));
+      dispatch(updateSheetParent(fileId, sheetId, parentSheetId));
     }
-    dispatch(updateSheetView(file.id, sheetId, SHEET_VIEW.GRIDVIEW));
+    dispatch(updateSheetView(fileId, sheetId, SHEET_VIEW.GRIDVIEW));
     dispatch(setCurrentSheetId(sheetId));
   }
 
@@ -2977,9 +2993,29 @@ class App extends Component {
     dispatch(setDefaultSceneDetectionThreshold(value));
   };
 
-  onUpdateSheetFilter = filterObject => {
-    const { currentFileId, currentSheetId, dispatch } = this.props;
-    dispatch(updateSheetFilter(currentFileId, currentSheetId, filterObject));
+  onUpdateSheetFilter = (filter, update = true, fileId = undefined, sheetId = undefined) => {
+    const { currentFileId, currentSheetId, currentSheetFilter, dispatch, sheetsByFileId } = this.props;
+
+    const theFileId = fileId || currentFileId;
+    const theSheetId = sheetId || currentSheetId;
+    let previousFilter = currentSheetFilter;
+
+    let newFilter;
+    if (update) {
+      // load specific previousFilter if fileId and sheetId are provided
+      if (fileId !== undefined && sheetId !== undefined) {
+        previousFilter = getSheetFilter(sheetsByFileId, fileId, sheetId);
+      }
+      newFilter = {
+        ...previousFilter,
+        ...filter,
+      };
+    } else {
+      // if update is false, the previousFilter will be ignored
+      newFilter = filter;
+    }
+
+    dispatch(updateSheetFilter(theFileId, theSheetId, newFilter));
   };
 
   onChangeTimelineViewSecondsPerRow = value => {
@@ -4143,6 +4179,7 @@ ${exportObject}`;
                             isViewForPrinting={false}
                             frameSize={settings.defaultCachedFramesSize}
                             isGridView={isGridView}
+                            currentSheetFilter={currentSheetFilter}
                           />
                         </Conditional>
                         <Conditional
@@ -4568,8 +4605,6 @@ const mapStateToProps = state => {
   const currentSheetType = getSheetType(sheetsByFileId, currentFileId, currentSheetId, settings);
   const currentSheetView = getSheetView(sheetsByFileId, currentFileId, currentSheetId, visibilitySettings);
   const currentHasParent = getParentSheetId(sheetsByFileId, currentFileId, currentSheetId) !== undefined;
-
-  console.log(currentSheetFilter);
 
   return {
     sheetsArray,

@@ -260,12 +260,13 @@ export const TIMELINE_PLAYHEAD_MINIMUM_WIDTH = 2;
 // face detection
 export const FACE_SIZE_THRESHOLD = 20; // faces smaller than this percentage of the movie height are ignored
 export const FACE_CONFIDENCE_THRESHOLD = 70; // detected faces with a lower score are ignored
-export const FACE_UNIQUENESS_THRESHOLD = 0.61; // faces with a euclideanDistance larger than this are considered unique
+export const FACE_UNIQUENESS_THRESHOLD = 0.6; // faces with a euclideanDistance larger than this are considered unique
 export const SORT_METHOD = {
   FRAMENUMBER: 'frameNumber',
   FACECONFIDENCE: 'faceConfidence',
   FACECOUNT: 'faceCount',
   FACEOCCURRENCE: 'faceOccurrence',
+  DISTTOORIGIN: 'distToOrigin',
   FACESIZE: 'faceSize',
   UNIQUE: 'unique',
   REVERSE: 'reverse',
@@ -275,6 +276,7 @@ export const SORT_METHOD_OPTIONS = [
   { value: SORT_METHOD.FACESIZE, text: 'size of face', 'data-tid': 'sortMethodOptionsFaceSize' },
   { value: SORT_METHOD.FACECOUNT, text: 'number of faces', 'data-tid': 'sortMethodOptionsFaceCount' },
   { value: SORT_METHOD.FACEOCCURRENCE, text: 'occurrence of face', 'data-tid': 'sortMethodOptionsFaceOccurrence' },
+  { value: SORT_METHOD.DISTTOORIGIN, text: 'distance to origin', 'data-tid': 'sortMethodOptionsDistToOrigin' },
   { value: SORT_METHOD.FACECONFIDENCE, text: 'confidence of face', 'data-tid': 'sortMethodOptionsFaceConfidence' },
   { value: SORT_METHOD.UNIQUE, text: 'unique faces', 'data-tid': 'sortMethodOptionsUnique' },
   { value: SORT_METHOD.REVERSE, text: 'reverse order', 'data-tid': 'sortMethodOptionsReverse' },

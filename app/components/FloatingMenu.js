@@ -54,7 +54,7 @@ const handle = props => {
   );
 };
 
-const ButtonExampleCircularSocial = ({
+const FloatingMenu = ({
   currentSheetFilter,
   fileMissingStatus,
   hasParent,
@@ -85,7 +85,6 @@ const ButtonExampleCircularSocial = ({
   zoom,
 }) => {
   const [filterRange, setFilterRange] = useState(THUMB_SELECTION.VISIBLE_THUMBS);
-  const [filterUniqueFaces, setFilterUniqueFaces] = useState(false);
 
   const { defaultFaceUniquenessThreshold = FACE_UNIQUENESS_THRESHOLD, defaultThumbInfo, defaultShowImages } = settings;
   const { defaultView, defaultSheetFit, visibilityFilter } = visibilitySettings;
@@ -94,7 +93,7 @@ const ButtonExampleCircularSocial = ({
   const isFaceType = sheetType === SHEET_TYPE.FACES;
   const isShotType = sheetType === SHEET_TYPE.SCENES;
 
-  const { unique: uniqueFilter } = currentSheetFilter;
+  const { unique: uniqueFilter, expanded: expandedFrameNumber } = currentSheetFilter;
 
   return (
     <div className={`${styles.floatingMenu}`}>
@@ -269,7 +268,7 @@ const ButtonExampleCircularSocial = ({
                   onClick={() => {
                     onSortSheet(SORT_METHOD.REVERSE, false);
                     if (filterRange === THUMB_SELECTION.ALL_THUMBS) {
-                      setFilterUniqueFaces(false);
+                      onUpdateSheetFilter({ unique: false });
                     }
                   }}
                 >
@@ -280,7 +279,7 @@ const ButtonExampleCircularSocial = ({
                   onClick={() => {
                     onSortSheet(SORT_METHOD.FRAMENUMBER, filterRange);
                     if (filterRange === THUMB_SELECTION.ALL_THUMBS) {
-                      setFilterUniqueFaces(false);
+                      onUpdateSheetFilter({ unique: false });
                     }
                   }}
                 >
@@ -292,7 +291,7 @@ const ButtonExampleCircularSocial = ({
                   onClick={() => {
                     onSortSheet(SORT_METHOD.FACESIZE, filterRange);
                     if (filterRange === THUMB_SELECTION.ALL_THUMBS) {
-                      setFilterUniqueFaces(false);
+                      onUpdateSheetFilter({ unique: false });
                     }
                   }}
                 >
@@ -304,7 +303,7 @@ const ButtonExampleCircularSocial = ({
                   onClick={() => {
                     onSortSheet(SORT_METHOD.FACECOUNT, filterRange);
                     if (filterRange === THUMB_SELECTION.ALL_THUMBS) {
-                      setFilterUniqueFaces(false);
+                      onUpdateSheetFilter({ unique: false });
                     }
                   }}
                 >
@@ -316,7 +315,7 @@ const ButtonExampleCircularSocial = ({
                   onClick={() => {
                     onSortSheet(SORT_METHOD.FACEOCCURRENCE, filterRange);
                     if (filterRange === THUMB_SELECTION.ALL_THUMBS) {
-                      setFilterUniqueFaces(false);
+                      onUpdateSheetFilter({ unique: false });
                     }
                   }}
                 >
@@ -328,7 +327,7 @@ const ButtonExampleCircularSocial = ({
                   onClick={() => {
                     onSortSheet(SORT_METHOD.FACECONFIDENCE, filterRange);
                     if (filterRange === THUMB_SELECTION.ALL_THUMBS) {
-                      setFilterUniqueFaces(false);
+                      onUpdateSheetFilter({ unique: false });
                     }
                   }}
                 >
@@ -340,7 +339,7 @@ const ButtonExampleCircularSocial = ({
                   <em>The &quot;duplicate&quot; faces will be hidden.</em>
                 </Message> */}
                 <Dropdown.Item
-                  disabled={!isFaceType}
+                  disabled={!isFaceType || expandedFrameNumber !== undefined}
                   className={`${styles.dropDownItem} ${styles.dropDownItemSlider}`}
                   onClick={e => e.stopPropagation()}
                 >
@@ -355,12 +354,11 @@ const ButtonExampleCircularSocial = ({
                         onShowAllThumbs();
                       }
                       onUpdateSheetFilter({ unique: checked });
-                      // setFilterUniqueFaces(checked);
                     }}
                   />
                 </Dropdown.Item>
                 <Dropdown.Item
-                  disabled={!isFaceType || !filterUniqueFaces}
+                  disabled={!isFaceType || !uniqueFilter || expandedFrameNumber !== undefined}
                   className={`${styles.dropDownItem} ${styles.dropDownItemSlider}`}
                   onClick={e => e.stopPropagation()}
                 >
@@ -376,9 +374,10 @@ const ButtonExampleCircularSocial = ({
                       // 70: 'similar',
                     }}
                     handle={handle}
-                    onChange={value => {
-                      onChangeFaceUniquenessThreshold(value / 100.0);
-                      onSortSheet(SORT_METHOD.UNIQUE, THUMB_SELECTION.ALL_THUMBS);
+                    onAfterChange={value => {
+                      const valueFloat = value / 100.0;
+                      onChangeFaceUniquenessThreshold(valueFloat);
+                      onSortSheet(SORT_METHOD.UNIQUE, THUMB_SELECTION.ALL_THUMBS, undefined, undefined, valueFloat);
                     }}
                   />
                 </Dropdown.Item>
@@ -703,4 +702,4 @@ const ButtonExampleCircularSocial = ({
     </div>
   );
 };
-export default ButtonExampleCircularSocial;
+export default FloatingMenu;

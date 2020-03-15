@@ -45,10 +45,15 @@ const DragHandle = SortableHandle(({ width, height, thumbId }) => (
   />
 ));
 
-const AllFaces = ({ facesArray, thumbWidth, thumbHeight }) =>
-  facesArray.map((face, index) => (
-    <FaceRect key={index} face={face} thumbWidth={thumbWidth} thumbHeight={thumbHeight} />
-  ));
+const AllFaces = ({ facesArray, thumbWidth, thumbHeight, uniqueFilter, expandedFaceId }) =>
+  facesArray.map((face, index) => {
+    const showFaceRect =
+      expandedFaceId === face.faceId || (expandedFaceId === undefined && (!uniqueFilter || face.distToOrigin === 0));
+    if (showFaceRect) {
+      return <FaceRect key={index} face={face} thumbWidth={thumbWidth} thumbHeight={thumbHeight} />;
+    }
+    return undefined;
+  });
 
 const FaceRect = ({ face: { box, ...faceExceptForBox }, thumbWidth, thumbHeight }) => (
   <>
@@ -73,6 +78,8 @@ const FaceRect = ({ face: { box, ...faceExceptForBox }, thumbWidth, thumbHeight 
       <br />#<em>{faceExceptForBox.faceId}</em>
       <br />
       {faceExceptForBox.occurrence} x<br />
+      {faceExceptForBox.distToOrigin}
+      <br />
     </div>
   </>
 );
@@ -86,6 +93,7 @@ const Thumb = ({
   controllersAreVisible,
   defaultShowFaceRect,
   dim,
+  expandedFaceId,
   frameninfoBackgroundColor,
   frameinfoColor,
   frameinfoPosition,
@@ -107,6 +115,7 @@ const Thumb = ({
   thumbInfoValue,
   thumbWidth,
   transparentThumb,
+  uniqueFilter,
   view,
 }) => {
   function onThumbDoubleClickWithStop(e) {
@@ -192,12 +201,18 @@ const Thumb = ({
         height={`${thumbHeight}px`}
         style={{
           filter: `${controllersAreVisible ? 'brightness(80%)' : ''}`,
-          opacity: hidden ? '0.2' : '1',
+          opacity: hidden ? '0.2' : facesArray && defaultShowFaceRect !== undefined ? '0.5' : '1.0',
           borderRadius: `${selected && view === VIEW.PLAYERVIEW ? 0 : borderRadius}px`,
         }}
       />
-      {defaultShowFaceRect && facesArray !== undefined && (
-        <AllFaces facesArray={facesArray} thumbWidth={thumbWidth} thumbHeight={thumbHeight} />
+      {facesArray && defaultShowFaceRect !== undefined && (
+        <AllFaces
+          facesArray={facesArray}
+          thumbWidth={thumbWidth}
+          thumbHeight={thumbHeight}
+          uniqueFilter={uniqueFilter}
+          expandedFaceId={expandedFaceId}
+        />
       )}
       {thumbInfoValue !== undefined && (
         <div
@@ -218,7 +233,7 @@ const Thumb = ({
           display: controllersAreVisible ? 'block' : 'none',
         }}
       >
-        {sheetType === SHEET_TYPE.INTERVAL && (
+        {sheetType !== SHEET_TYPE.SCENES && (
           <DragHandle
             width={thumbWidth - 1} // shrink it to prevent rounding issues
             height={thumbHeight - 1}
