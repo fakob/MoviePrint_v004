@@ -46,21 +46,15 @@ const DragHandle = SortableHandle(({ width, height, thumbId }) => (
 ));
 
 const AllFaces = ({ facesArray, thumbWidth, thumbHeight, uniqueFilter, expandedFaceNumber }) =>
-  facesArray.map((face, index) => {
+  facesArray.map(face => {
     const showFaceRect =
       expandedFaceNumber === face.faceNumber ||
       (expandedFaceNumber === undefined && (!uniqueFilter || face.distToOrigin === 0));
     if (showFaceRect) {
-      return <FaceRect key={index} face={face} thumbWidth={thumbWidth} thumbHeight={thumbHeight} />;
+      return <FaceRect key={face.faceId} face={face} thumbWidth={thumbWidth} thumbHeight={thumbHeight} />;
     }
     return undefined;
   });
-
-const svgForFaceRect = (
-  <svg>
-    <line x1="5" y1="5" x2="100" y2="100" stroke="#765373" stroke-width="8" />
-  </svg>
-);
 
 const FaceRect = ({ face: { box, ...faceExceptForBox }, thumbWidth, thumbHeight }) => {
   const left = box.x * thumbWidth;
@@ -69,12 +63,12 @@ const FaceRect = ({ face: { box, ...faceExceptForBox }, thumbWidth, thumbHeight 
   const height = box.height * thumbHeight;
   const cornerLength = Math.min(thumbWidth, thumbHeight) / 32;
 
-  const leftCornerLength = Math.max(1,left - cornerLength);
-  const topCornerLength = Math.max(1,top - cornerLength);
-  const leftWidth = Math.min(thumbWidth - 1,left + width);
-  const topHeight = Math.min(thumbHeight - 1,top + height);
-  const topHeightCornerLength = Math.min(thumbHeight - 1,topHeight + cornerLength);
-  const leftWidthCornerLength = Math.min(thumbWidth - 1,leftWidth + cornerLength);
+  const leftCornerLength = Math.max(1, left - cornerLength);
+  const topCornerLength = Math.max(1, top - cornerLength);
+  const leftWidth = Math.min(thumbWidth - 1, left + width);
+  const topHeight = Math.min(thumbHeight - 1, top + height);
+  const topHeightCornerLength = Math.min(thumbHeight - 1, topHeight + cornerLength);
+  const leftWidthCornerLength = Math.min(thumbWidth - 1, leftWidth + cornerLength);
 
   const polylineLine0 = `${leftCornerLength}, ${top}, ${left}, ${top}, ${left}, ${topCornerLength}`;
   const polylineLine1 = `${leftWidth}, ${topCornerLength}, ${leftWidth}, ${top}, ${leftWidthCornerLength}, ${top}`;
