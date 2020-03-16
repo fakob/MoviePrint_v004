@@ -122,11 +122,22 @@
   /* border:1px solid rgba(255,80,6,0.5); */
   /* background-color: transparent; */
   /* background-color: rgba(255, 80, 6, 0.2); */
-  background-color: rgba(255, 255, 255, 0.1);
-  border:1px solid rgba(255,80,6,0.2);
   /* background-color: rgba(255, 255, 255, 0.1); */
-  mix-blend-mode: luminosity;
-  border-radius: 4px;
+  background-color: rgba(153, 253, 114, 0.1);
+  /* border:1px solid rgba(255,80,6,0.2); */
+  /* background-color: rgba(255, 255, 255, 0.1); */
+  /* mix-blend-mode: luminosity; */
+  /* border-radius: 15%; */
+}
+
+.faceRectSVG {
+  position: absolute;
+}
+
+.faceRectSVG svg {
+  stroke: rgba(153, 253, 114, 0.5);
+  stroke-width: 1px;
+  fill: rgba(153, 253, 114, 0.25);
 }
 
 .faceRectTag {

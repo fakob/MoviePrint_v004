@@ -2607,8 +2607,8 @@ class App extends Component {
     let frameNumberArray;
     switch (scanRange) {
       case 'scanFramesOfSheet':
-        updateSheet = true;
-        sheetId = currentSheetId;
+        // updateSheet = true;
+        // sheetId = currentSheetId;
         frameNumberArray = getVisibleThumbs(
           sheetsByFileId[currentFileId] === undefined
             ? undefined

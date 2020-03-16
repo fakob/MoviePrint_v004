@@ -48,41 +48,84 @@ const DragHandle = SortableHandle(({ width, height, thumbId }) => (
 const AllFaces = ({ facesArray, thumbWidth, thumbHeight, uniqueFilter, expandedFaceNumber }) =>
   facesArray.map((face, index) => {
     const showFaceRect =
-      expandedFaceNumber === face.faceNumber || (expandedFaceNumber === undefined && (!uniqueFilter || face.distToOrigin === 0));
+      expandedFaceNumber === face.faceNumber ||
+      (expandedFaceNumber === undefined && (!uniqueFilter || face.distToOrigin === 0));
     if (showFaceRect) {
       return <FaceRect key={index} face={face} thumbWidth={thumbWidth} thumbHeight={thumbHeight} />;
     }
     return undefined;
   });
 
-const FaceRect = ({ face: { box, ...faceExceptForBox }, thumbWidth, thumbHeight }) => (
-  <>
-    <div
-      className={styles.faceRect}
-      title={JSON.stringify(faceExceptForBox)}
-      style={{
-        width: `${box.width * thumbWidth}px`,
-        height: `${box.height * thumbHeight}px`,
-        left: `${box.x * thumbWidth}px`,
-        top: `${box.y * thumbHeight}px`,
-      }}
-    />
-    <div
-      className={styles.faceRectTag}
-      style={{
-        left: `${box.x * thumbWidth + box.width * thumbWidth}px`,
-        top: `${box.y * thumbHeight}px`,
-      }}
-    >
-      {/* {faceExceptForBox.gender === 'female' ? '\u2640' : '\u2642'} */}
-      {/* <br />#<em>{faceExceptForBox.faceNumber}</em> */}
-      {/* <br /> */}
-      {faceExceptForBox.occurrence} x<br />
-      {/* {faceExceptForBox.distToOrigin} */}
-      <br />
-    </div>
-  </>
+const svgForFaceRect = (
+  <svg>
+    <line x1="5" y1="5" x2="100" y2="100" stroke="#765373" stroke-width="8" />
+  </svg>
 );
+
+const FaceRect = ({ face: { box, ...faceExceptForBox }, thumbWidth, thumbHeight }) => {
+  const left = box.x * thumbWidth;
+  const top = box.y * thumbHeight;
+  const width = box.width * thumbWidth;
+  const height = box.height * thumbHeight;
+  const cornerLength = Math.min(thumbWidth, thumbHeight) / 32;
+
+  const leftCornerLength = Math.max(1,left - cornerLength);
+  const topCornerLength = Math.max(1,top - cornerLength);
+  const leftWidth = Math.min(thumbWidth - 1,left + width);
+  const topHeight = Math.min(thumbHeight - 1,top + height);
+  const topHeightCornerLength = Math.min(thumbHeight - 1,topHeight + cornerLength);
+  const leftWidthCornerLength = Math.min(thumbWidth - 1,leftWidth + cornerLength);
+
+  const polylineLine0 = `${leftCornerLength}, ${top}, ${left}, ${top}, ${left}, ${topCornerLength}`;
+  const polylineLine1 = `${leftWidth}, ${topCornerLength}, ${leftWidth}, ${top}, ${leftWidthCornerLength}, ${top}`;
+  const polylineLine2 = `${leftCornerLength}, ${topHeight}, ${left}, ${topHeight}, ${left}, ${topHeightCornerLength}`;
+  const polylineLine3 = `${leftWidth}, ${topHeightCornerLength}, ${leftWidth}, ${topHeight}, ${leftWidthCornerLength}, ${topHeight}`;
+  return (
+    <>
+      <div
+        className={styles.faceRect}
+        title={JSON.stringify(faceExceptForBox)}
+        style={{
+          width: `${box.width * thumbWidth}px`,
+          height: `${box.height * thumbHeight}px`,
+          left: `${box.x * thumbWidth}px`,
+          top: `${box.y * thumbHeight}px`,
+        }}
+      />
+      <div
+        className={styles.faceRectSVG}
+        title={JSON.stringify(faceExceptForBox)}
+        // style={{
+        //   width: `${box.width * thumbWidth}px`,
+        //   height: `${box.height * thumbHeight}px`,
+        //   left: `${box.x * thumbWidth}px`,
+        //   top: `${box.y * thumbHeight}px`,
+        // }}
+      >
+        <svg width={thumbWidth} height={thumbHeight}>
+          <polyline points={polylineLine0} />
+          <polyline points={polylineLine1} />
+          <polyline points={polylineLine2} />
+          <polyline points={polylineLine3} />
+        </svg>
+      </div>
+      <div
+        className={styles.faceRectTag}
+        style={{
+          left: `${box.x * thumbWidth + box.width * thumbWidth}px`,
+          top: `${box.y * thumbHeight}px`,
+        }}
+      >
+        {faceExceptForBox.gender === 'female' ? '\u2640' : '\u2642'}
+        <br />#<em>{faceExceptForBox.faceNumber}</em>
+        <br />
+        {faceExceptForBox.occurrence} x<br />
+        {faceExceptForBox.distToOrigin}
+        <br />
+      </div>
+    </>
+  );
+};
 
 const Thumb = ({
   aspectRatioInv,

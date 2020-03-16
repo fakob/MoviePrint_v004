@@ -1,10 +1,12 @@
+/* eslint import/prefer-default-export: "off" */
+
 import path from 'path';
 import * as faceapi from 'face-api.js';
 import log from 'electron-log';
 import uuidV4 from 'uuid/v4';
 
 import { roundNumber } from './utils';
-import { FACE_CONFIDENCE_THRESHOLD, FACE_SIZE_THRESHOLD, FACE_UNIQUENESS_THRESHOLD } from './constants';
+import { FACE_CONFIDENCE_THRESHOLD, FACE_SIZE_THRESHOLD } from './constants';
 
 const { ipcRenderer } = require('electron');
 const { app } = require('electron').remote;

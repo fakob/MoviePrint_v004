@@ -673,7 +673,7 @@ const FloatingMenu = ({
               floating
               closeOnBlur={false}
               closeOnChange={false}
-              disabled={fileMissingStatus || isShotType}
+              disabled={fileMissingStatus}
               icon={<img src={iconCaretDown} height="18px" alt="" />}
             >
               <Dropdown.Menu className={styles.dropDownMenu}>
