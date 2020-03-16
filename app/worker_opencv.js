@@ -806,6 +806,14 @@ ipcRenderer.on(
                   console.log(detectionArray);
                   console.log(detectionArray.length);
 
+                  let totalFaceCount = 0;
+                  detectionArray.forEach(frame => {
+                    const { faceCount, facesArray } = frame;
+                    if (faceCount > 0 && facesArray !== undefined) {
+                      totalFaceCount += facesArray.length;
+                    }
+                  });
+
                   // insert all frames into sqlite3
                   insertFaceScanArray(fileId, detectionArray);
 
@@ -818,9 +826,7 @@ ipcRenderer.on(
                   const messageToSend = `Face scanning took ${scanDurationString} (${Math.floor(
                     vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) / scanDurationInSeconds,
                   )} fps)
-                faces found in ${detectionArray.length} of ${
-                    frameNumberArray.length
-                  } scanned frames`;
+                ${totalFaceCount} faces found in ${detectionArray.length} of ${frameNumberArray.length} scanned frames`;
                   log.info(`opencvWorkerWindow | ${filePath} - ${messageToSend}`);
                   console.timeEnd(`${fileId}-fileScanning`);
 

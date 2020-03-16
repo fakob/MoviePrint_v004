@@ -1471,7 +1471,7 @@ export const determineAndInsertFaceNumber = (detectionArray, defaultFaceUniquene
               // );
               faceNumber = i;
               face.faceNumber = faceNumber;
-              face.distToOrigin = dist;
+              face.distToOrigin = roundNumber(dist);
               break;
             } else if (i === uniqueFaceArrayLength - 1) {
               // face is unique

@@ -212,11 +212,11 @@ const FloatingMenu = ({
                 </Dropdown.Item>
                 <Dropdown.Divider />
                 <Dropdown.Item
-                  disabled={!isFaceType}
+                  disabled={isFaceType}
                   className={styles.dropDownItem}
                   onClick={() => onAddFaceSheetClick('scanFramesOfSheet')}
                 >
-                  Rescan these thumbs
+                  Scan these thumbs
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
