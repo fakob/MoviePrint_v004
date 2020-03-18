@@ -38,8 +38,8 @@
 #### Worker openCV thread (handles most opencv interaction, like grabbing frames)
 * worker_opencv.js
 
-#### Worker IndexedDB thread (handles most IndexedDB interaction, like storing frames and getting objectUrls)
-* worker_indexedDB.js
+#### Worker database thread (handles most IndexedDB and database interaction, like storing frames, getting objectUrls or more extensive sqlite3 database queries)
+* worker_database.js
 
 
 # Action processes
@@ -66,9 +66,9 @@
 		* dispatch addThumbs
 			* check DB if thumb is already grabbed
 			* ipc send-get-thumbs to opencvWorkerWindow for every single thumb
-        * ipc start requestIdleCallback to indexedDBWorkerWindow
-          * indexedDBWorkerWindow requests 100 images every time it is idle until get thumbs is finished
-        * ipc send-base64-frame to indexedDBWorkerWindow (only used for posterFrame and recaptureThumbs)
+        * ipc start requestIdleCallback to databaseWorkerWindow
+          * databaseWorkerWindow requests 100 images every time it is idle until get thumbs is finished
+        * ipc send-base64-frame to databaseWorkerWindow (only used for posterFrame and recaptureThumbs)
           * addFrameToIndexedDB
           * createObjectURL
           * add to objectUrlQueue

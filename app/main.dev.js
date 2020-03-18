@@ -23,7 +23,7 @@ const { openProcessManager } = require('electron-process-manager');
 let mainWindow = null;
 let workerWindow = null;
 let opencvWorkerWindow = null;
-let indexedDBWorkerWindow = null;
+let databaseWorkerWindow = null;
 
 let appAboutToQuit = false;
 
@@ -119,13 +119,13 @@ app.on('ready', async () => {
     if (process.argv.findIndex(value => value === '--reset') > -1) {
       setTimeout(() => {
         log.info('resetApplication via --reset');
-        resetApplication(mainWindow, workerWindow, opencvWorkerWindow, indexedDBWorkerWindow);
+        resetApplication(mainWindow, workerWindow, opencvWorkerWindow, databaseWorkerWindow);
       }, 1000);
     }
 
     // clear cache if started with --softreset arg
     if (process.argv.findIndex(value => value === '--softreset') > -1) {
-      softResetApplication(mainWindow, workerWindow, opencvWorkerWindow, indexedDBWorkerWindow);
+      softResetApplication(mainWindow, workerWindow, opencvWorkerWindow, databaseWorkerWindow);
     }
   });
 
@@ -190,36 +190,36 @@ app.on('ready', async () => {
     log.warn(event);
   });
 
-  indexedDBWorkerWindow = new BrowserWindow({
+  databaseWorkerWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
     },
   });
-  indexedDBWorkerWindow.hide();
-  // indexedDBWorkerWindow.webContents.openDevTools();
-  indexedDBWorkerWindow.loadURL(`file://${__dirname}/worker_indexedDB.html`);
+  databaseWorkerWindow.hide();
+  // databaseWorkerWindow.webContents.openDevTools();
+  databaseWorkerWindow.loadURL(`file://${__dirname}/worker_database.html`);
 
-  indexedDBWorkerWindow.on('close', event => {
+  databaseWorkerWindow.on('close', event => {
     // only hide window and prevent default if app not quitting
     if (!appAboutToQuit) {
-      indexedDBWorkerWindow.hide();
+      databaseWorkerWindow.hide();
       event.preventDefault();
     }
   });
 
-  indexedDBWorkerWindow.webContents.on('crashed', event => {
-    log.error('mainThread | indexedDBWorkerWindow just crashed, will try to reload window');
+  databaseWorkerWindow.webContents.on('crashed', event => {
+    log.error('mainThread | databaseWorkerWindow just crashed, will try to reload window');
     log.error(event);
-    indexedDBWorkerWindow.webContents.reload();
+    databaseWorkerWindow.webContents.reload();
   });
 
-  indexedDBWorkerWindow.webContents.on('unresponsive', event => {
-    log.warn('mainThread | indexedDBWorkerWindow is unresponsive');
+  databaseWorkerWindow.webContents.on('unresponsive', event => {
+    log.warn('mainThread | databaseWorkerWindow is unresponsive');
     log.warn(event);
   });
 
-  indexedDBWorkerWindow.webContents.on('responsive', event => {
-    log.warn('mainThread | indexedDBWorkerWindow is responsive again');
+  databaseWorkerWindow.webContents.on('responsive', event => {
+    log.warn('mainThread | databaseWorkerWindow is responsive again');
     log.warn(event);
   });
 
@@ -260,24 +260,24 @@ app.on('ready', async () => {
     mainWindow,
     workerWindow,
     opencvWorkerWindow,
-    indexedDBWorkerWindow,
+    databaseWorkerWindow,
   );
   menuBuilder.buildMenu();
 });
 
 ipcMain.on('reset-application', event => {
   log.info('resetApplication');
-  resetApplication(mainWindow, workerWindow, opencvWorkerWindow, indexedDBWorkerWindow);
+  resetApplication(mainWindow, workerWindow, opencvWorkerWindow, databaseWorkerWindow);
 });
 
 ipcMain.on('soft-reset-application', event => {
   log.info('softResetApplication');
-  softResetApplication(mainWindow, workerWindow, opencvWorkerWindow, indexedDBWorkerWindow);
+  softResetApplication(mainWindow, workerWindow, opencvWorkerWindow, databaseWorkerWindow);
 });
 
 ipcMain.on('reload-application', event => {
   log.info('reloadApplication');
-  reloadApplication(mainWindow, workerWindow, opencvWorkerWindow, indexedDBWorkerWindow);
+  reloadApplication(mainWindow, workerWindow, opencvWorkerWindow, databaseWorkerWindow);
 });
 
 ipcMain.on('reload-workerWindow', event => {
@@ -288,8 +288,8 @@ ipcMain.on('reload-opencvWorkerWindow', event => {
   opencvWorkerWindow.webContents.reload();
 });
 
-ipcMain.on('reload-indexedDBWorkerWindow', event => {
-  indexedDBWorkerWindow.webContents.reload();
+ipcMain.on('reload-databaseWorkerWindow', event => {
+  databaseWorkerWindow.webContents.reload();
 });
 
 ipcMain.on('request-save-MoviePrint', (event, arg) => {
@@ -368,16 +368,16 @@ ipcMain.on('message-from-mainWindow-to-opencvWorkerWindow', (e, ipcName, ...args
   opencvWorkerWindow.webContents.send(ipcName, ...args);
 });
 
-ipcMain.on('message-from-indexedDBWorkerWindow-to-opencvWorkerWindow', (e, ipcName, ...args) => {
-  log.debug(`mainThread | passing ${ipcName} from indexedDBWorkerWindow to opencvWorkerWindow`);
+ipcMain.on('message-from-databaseWorkerWindow-to-opencvWorkerWindow', (e, ipcName, ...args) => {
+  log.debug(`mainThread | passing ${ipcName} from databaseWorkerWindow to opencvWorkerWindow`);
   // log.debug(...args);
   opencvWorkerWindow.webContents.send(ipcName, ...args);
 });
 
-ipcMain.on('message-from-mainWindow-to-indexedDBWorkerWindow', (e, ipcName, ...args) => {
-  log.debug(`mainThread | passing ${ipcName} from mainWindow to indexedDBWorkerWindow`);
+ipcMain.on('message-from-mainWindow-to-databaseWorkerWindow', (e, ipcName, ...args) => {
+  log.debug(`mainThread | passing ${ipcName} from mainWindow to databaseWorkerWindow`);
   // log.debug(...args);
-  indexedDBWorkerWindow.webContents.send(ipcName, ...args);
+  databaseWorkerWindow.webContents.send(ipcName, ...args);
 });
 
 ipcMain.on('message-from-opencvWorkerWindow-to-mainWindow', (e, ipcName, ...args) => {
@@ -386,14 +386,14 @@ ipcMain.on('message-from-opencvWorkerWindow-to-mainWindow', (e, ipcName, ...args
   mainWindow.webContents.send(ipcName, ...args);
 });
 
-ipcMain.on('message-from-opencvWorkerWindow-to-indexedDBWorkerWindow', (e, ipcName, ...args) => {
-  log.debug(`mainThread | passing ${ipcName} from opencvWorkerWindow to indexedDBWorkerWindow`);
+ipcMain.on('message-from-opencvWorkerWindow-to-databaseWorkerWindow', (e, ipcName, ...args) => {
+  log.debug(`mainThread | passing ${ipcName} from opencvWorkerWindow to databaseWorkerWindow`);
   // log.debug(...args);
-  indexedDBWorkerWindow.webContents.send(ipcName, ...args);
+  databaseWorkerWindow.webContents.send(ipcName, ...args);
 });
 
-ipcMain.on('message-from-indexedDBWorkerWindow-to-mainWindow', (e, ipcName, ...args) => {
-  log.debug(`mainThread | passing ${ipcName} from indexedDBWorkerWindow to mainWindow`);
+ipcMain.on('message-from-databaseWorkerWindow-to-mainWindow', (e, ipcName, ...args) => {
+  log.debug(`mainThread | passing ${ipcName} from databaseWorkerWindow to mainWindow`);
   // log.debug(...args);
   mainWindow.webContents.send(ipcName, ...args);
 });

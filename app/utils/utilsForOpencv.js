@@ -53,7 +53,7 @@ export const recaptureThumbs = (
       if (mat.empty) {
         log.info('opencvWorkerWindow | frame is empty');
         ipcRenderer.send(
-          'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
+          'message-from-opencvWorkerWindow-to-databaseWorkerWindow',
           'send-base64-frame',
           frameId,
           fileId,
@@ -78,7 +78,7 @@ export const recaptureThumbs = (
 
         const outBase64 = opencv.imencode('.jpg', matRescaled || matCropped || mat).toString('base64'); // maybe change to .png?
         ipcRenderer.send(
-          'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
+          'message-from-opencvWorkerWindow-to-databaseWorkerWindow',
           'send-base64-frame',
           frameId,
           fileId,

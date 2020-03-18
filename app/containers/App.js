@@ -471,7 +471,7 @@ class App extends Component {
     }
 
     // get objecturls from all frames in imagedb
-    ipcRenderer.send('message-from-mainWindow-to-indexedDBWorkerWindow', 'get-arrayOfObjectUrls');
+    ipcRenderer.send('message-from-mainWindow-to-databaseWorkerWindow', 'get-arrayOfObjectUrls');
 
     loadSheetPropertiesIntoState(
       this,
@@ -669,13 +669,13 @@ class App extends Component {
         this.setState({
           objectUrlObjects: copyOfObject,
         });
-        const newRequestIdleCallbackHandle = window.requestIdleCallback(this.pullObjectUrlFromIndexedDBWorkerWindow);
+        const newRequestIdleCallbackHandle = window.requestIdleCallback(this.pullObjectUrlFromdatabaseWorkerWindow);
         this.setState({
           requestIdleCallbackForObjectUrlHandle: newRequestIdleCallbackHandle,
         });
         log.debug('now I requestIdleCallbackForObjectUrl again');
       } else {
-        // cancel pullObjectUrlFromIndexedDBWorkerWindow
+        // cancel pullObjectUrlFromdatabaseWorkerWindow
         window.cancelIdleCallback(requestIdleCallbackForObjectUrlHandle);
         this.setState({
           requestIdleCallbackForObjectUrlHandle: undefined,
@@ -688,7 +688,7 @@ class App extends Component {
 
       // start requestIdleCallback until it is cancelled
       if (requestIdleCallbackForObjectUrlHandle === undefined) {
-        const newRequestIdleCallbackHandle = window.requestIdleCallback(this.pullObjectUrlFromIndexedDBWorkerWindow);
+        const newRequestIdleCallbackHandle = window.requestIdleCallback(this.pullObjectUrlFromdatabaseWorkerWindow);
         this.setState({
           requestIdleCallbackForObjectUrlHandle: newRequestIdleCallbackHandle,
         });
@@ -1822,11 +1822,11 @@ class App extends Component {
     // this.onSortSheet(fileId, sheetId, sortMethod);
   }
 
-  pullObjectUrlFromIndexedDBWorkerWindow(deadline) {
-    // it pulls objectUrls from worker_indexedDB objectUrlQueue during idle time
+  pullObjectUrlFromdatabaseWorkerWindow(deadline) {
+    // it pulls objectUrls from worker_database objectUrlQueue during idle time
     log.debug('now I am not busy - requestIdleCallbackForObjectUrl');
     ipcRenderer.send(
-      'message-from-mainWindow-to-indexedDBWorkerWindow',
+      'message-from-mainWindow-to-databaseWorkerWindow',
       'get-some-objectUrls-from-objectUrlQueue',
       100, // amount
     );

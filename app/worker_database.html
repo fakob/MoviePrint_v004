@@ -2,13 +2,13 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>MoviePrint_indexedDBWorker</title>
+    <title>MoviePrint_databaseWorker</title>
     <script>
       (() => {
         if (!process.env.START_HOT) {
           // const link = document.createElement('link');
           // link.rel = 'stylesheet';
-          // link.href = './dist/worker_indexedDB.css';
+          // link.href = './dist/worker_database.css';
           // HACK: Writing the script path should be done with webpack
           // document.getElementsByTagName('head')[0].appendChild(link);
         }
@@ -16,7 +16,7 @@
     </script>
   </head>
   <body>
-    <div id="worker_indexedDB"></div>
+    <div id="worker_database"></div>
     <script>
       {
         const scripts = [];
@@ -31,8 +31,8 @@
         const port = process.env.PORT || 1212;
         scripts.push(
           process.env.START_HOT
-            ? 'http://localhost:' + port + '/dist/worker_indexedDB.dev.js'
-            : './dist/worker_indexedDB.prod.js'
+            ? 'http://localhost:' + port + '/dist/worker_database.dev.js'
+            : './dist/worker_database.prod.js'
         );
 
         document.write(

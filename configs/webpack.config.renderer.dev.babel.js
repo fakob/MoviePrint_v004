@@ -68,11 +68,11 @@ export default merge.smart(baseConfig, {
       'webpack/hot/only-dev-server',
       require.resolve('../app/worker_opencv')
     ],
-    worker_indexedDB: [
+    worker_database: [
       ...(process.env.PLAIN_HMR ? [] : ['react-hot-loader/patch']),
       `webpack-dev-server/client?http://localhost:${port}/`,
       'webpack/hot/only-dev-server',
-      require.resolve('../app/worker_indexedDB')
+      require.resolve('../app/worker_database')
     ]
   },
 

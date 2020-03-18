@@ -25,7 +25,7 @@ export default merge.smart(baseConfig, {
     renderer: path.join(__dirname, '..', 'app/index'),
     worker: path.join(__dirname, '..', 'app/worker'),
     worker_opencv: path.join(__dirname, '..', 'app/worker_opencv'),
-    worker_indexedDB: path.join(__dirname, '..', 'app/worker_indexedDB')
+    worker_database: path.join(__dirname, '..', 'app/worker_database')
   },
 
   output: {

@@ -13,12 +13,12 @@ export default class MenuBuilder {
     mainWindow: BrowserWindow,
     workerWindow: BrowserWindow,
     opencvWorkerWindow: BrowserWindow,
-    indexedDBWorkerWindow: BrowserWindow,
+    databaseWorkerWindow: BrowserWindow,
   ) {
     this.mainWindow = mainWindow;
     this.workerWindow = workerWindow;
     this.opencvWorkerWindow = opencvWorkerWindow;
-    this.indexedDBWorkerWindow = indexedDBWorkerWindow;
+    this.databaseWorkerWindow = databaseWorkerWindow;
   }
 
   buildMenu() {
@@ -108,7 +108,7 @@ export default class MenuBuilder {
           label: 'Reset application',
           accelerator: 'Shift+Alt+Command+C',
           click: () => {
-            resetApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.indexedDBWorkerWindow);
+            resetApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.databaseWorkerWindow);
           },
         },
         {
@@ -119,7 +119,7 @@ export default class MenuBuilder {
               this.mainWindow,
               this.workerWindow,
               this.opencvWorkerWindow,
-              this.indexedDBWorkerWindow,
+              this.databaseWorkerWindow,
             );
           },
         },
@@ -127,7 +127,7 @@ export default class MenuBuilder {
           label: 'Reload application',
           accelerator: 'Command+R',
           click: () => {
-            reloadApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.indexedDBWorkerWindow);
+            reloadApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.databaseWorkerWindow);
           },
         },
         {
@@ -152,10 +152,10 @@ export default class MenuBuilder {
           },
         },
         {
-          label: 'Reload IndexedDB Worker',
+          label: 'Reload Database Worker',
           accelerator: 'Alt+Shift+Command+R',
           click: () => {
-            this.indexedDBWorkerWindow.webContents.reload();
+            this.databaseWorkerWindow.webContents.reload();
           },
         },
         {
@@ -180,10 +180,10 @@ export default class MenuBuilder {
           },
         },
         {
-          label: 'Toggle Developer Tools for IndexedDB Worker',
+          label: 'Toggle Developer Tools for Database Worker',
           accelerator: 'Alt+Shift+Command+K',
           click: () => {
-            this.indexedDBWorkerWindow.toggleDevTools();
+            this.databaseWorkerWindow.toggleDevTools();
           },
         },
         {
@@ -199,9 +199,9 @@ export default class MenuBuilder {
           },
         },
         {
-          label: 'Show IndexedDB Worker',
+          label: 'Show Database Worker',
           click: () => {
-            this.indexedDBWorkerWindow.show();
+            this.databaseWorkerWindow.show();
           },
         },
         {
@@ -243,14 +243,14 @@ export default class MenuBuilder {
           label: 'Reload application',
           accelerator: 'Command+R',
           click: () => {
-            reloadApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.indexedDBWorkerWindow);
+            reloadApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.databaseWorkerWindow);
           },
         },
         {
           label: 'Reset application',
           accelerator: 'Shift+Alt+Command+C',
           click: () => {
-            resetApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.indexedDBWorkerWindow);
+            resetApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.databaseWorkerWindow);
           },
         },
         { type: 'separator' },
@@ -381,7 +381,7 @@ export default class MenuBuilder {
           label: 'Reset application',
           accelerator: 'Shift+Alt+Ctrl+C',
           click: () => {
-            resetApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.indexedDBWorkerWindow);
+            resetApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.databaseWorkerWindow);
           },
         },
         {
@@ -392,7 +392,7 @@ export default class MenuBuilder {
               this.mainWindow,
               this.workerWindow,
               this.opencvWorkerWindow,
-              this.indexedDBWorkerWindow,
+              this.databaseWorkerWindow,
             );
           },
         },
@@ -400,7 +400,7 @@ export default class MenuBuilder {
           label: '&Reload application',
           accelerator: 'Ctrl+R',
           click: () => {
-            reloadApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.indexedDBWorkerWindow);
+            reloadApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.databaseWorkerWindow);
           },
         },
         {
@@ -425,10 +425,10 @@ export default class MenuBuilder {
           },
         },
         {
-          label: 'Reload IndexedDB Worker',
+          label: 'Reload Database Worker',
           accelerator: 'Alt+Shift+Ctrl+R',
           click: () => {
-            this.indexedDBWorkerWindow.webContents.reload();
+            this.databaseWorkerWindow.webContents.reload();
           },
         },
         {
@@ -453,10 +453,10 @@ export default class MenuBuilder {
           },
         },
         {
-          label: 'Toggle Developer Tools for IndexedDB Worker',
+          label: 'Toggle Developer Tools for Database Worker',
           accelerator: 'Alt+Shift+Ctrl+K',
           click: () => {
-            this.indexedDBWorkerWindow.toggleDevTools();
+            this.databaseWorkerWindow.toggleDevTools();
           },
         },
         {
@@ -472,9 +472,9 @@ export default class MenuBuilder {
           },
         },
         {
-          label: 'Show IndexedDB Worker',
+          label: 'Show Database Worker',
           click: () => {
-            this.indexedDBWorkerWindow.show();
+            this.databaseWorkerWindow.show();
           },
         },
         {
@@ -516,14 +516,14 @@ export default class MenuBuilder {
           label: 'Reload application',
           accelerator: 'Ctrl+R',
           click: () => {
-            reloadApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.indexedDBWorkerWindow);
+            reloadApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.databaseWorkerWindow);
           },
         },
         {
           label: 'Reset application',
           accelerator: 'Shift+Alt+Ctrl+C',
           click: () => {
-            resetApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.indexedDBWorkerWindow);
+            resetApplication(this.mainWindow, this.workerWindow, this.opencvWorkerWindow, this.databaseWorkerWindow);
           },
         },
         { type: 'separator' },

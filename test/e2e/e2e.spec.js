@@ -52,7 +52,7 @@ describe('main window', function spec() {
 
     expect(windowNames).toEqual([
       'MoviePrint',
-      'MoviePrint_indexedDBWorker',
+      'MoviePrint_databaseWorker',
       'MoviePrint_opencvWorker',
       'MoviePrint_worker'
     ]);

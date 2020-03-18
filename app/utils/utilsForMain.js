@@ -26,13 +26,13 @@ export const clearCache = win => {
     });
 };
 
-export const resetApplication = (mainWindow, workerWindow, opencvWorkerWindow, indexedDBWorkerWindow) => {
+export const resetApplication = (mainWindow, workerWindow, opencvWorkerWindow, databaseWorkerWindow) => {
   mainWindow.webContents.send('delete-all-tables');
   setTimeout(() => {
     clearCache(mainWindow);
     workerWindow.webContents.reload();
     opencvWorkerWindow.webContents.reload();
-    indexedDBWorkerWindow.webContents.reload(); // needs reload to open indexedDB connection
+    databaseWorkerWindow.webContents.reload(); // needs reload to open indexedDB connection
   }, 1000);
 };
 
@@ -42,11 +42,11 @@ export const softResetApplication = mainWindow => {
   mainWindow.webContents.send('delete-all-tables');
 };
 
-export const reloadApplication = (mainWindow, workerWindow, opencvWorkerWindow, indexedDBWorkerWindow) => {
+export const reloadApplication = (mainWindow, workerWindow, opencvWorkerWindow, databaseWorkerWindow) => {
   mainWindow.webContents.reload();
   workerWindow.webContents.reload();
   opencvWorkerWindow.webContents.reload();
-  indexedDBWorkerWindow.webContents.reload();
+  databaseWorkerWindow.webContents.reload();
 };
 
 export const getPathOfLogFileAndFolder = (processPlatform, appName) => {

@@ -28,7 +28,7 @@ let fileScanRunning = false;
 // sceneQueue stores scene data, is used for preview purpose and is pulled from mainWindow
 const sceneQueue = new Queue();
 
-// imageQueue stores image data, is used when grabbing images and is pulled from indexedDBWorkerWindow
+// imageQueue stores image data, is used when grabbing images and is pulled from databaseWorkerWindow
 const imageQueue = new Queue();
 
 log.debug('I am the opencvWorkerWindow - responsible for capturing the necessary frames from the video using opencv');
@@ -91,7 +91,7 @@ setInterval(() => {
     log.debug(`the imageQueue size is: ${size}`);
     // start requestIdleCallback for imageQueue
     ipcRenderer.send(
-      'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
+      'message-from-opencvWorkerWindow-to-databaseWorkerWindow',
       'start-setIntervalForImages-for-imageQueue',
     );
   }
@@ -233,7 +233,7 @@ ipcRenderer.on(
               const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // maybe change to .png?
               const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES);
               ipcRenderer.send(
-                'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
+                'message-from-opencvWorkerWindow-to-databaseWorkerWindow',
                 'send-base64-frame',
                 posterFrameId,
                 fileId,
@@ -1071,7 +1071,7 @@ ipcRenderer.on('get-some-images-from-imageQueue', (event, amount) => {
   log.debug(`opencvWorkerWindow | on get-some-images-from-imageQueue ${imageQueue.size()}`);
   const someImages = imageQueue.removeLastMany(amount);
   ipcRenderer.send(
-    'message-from-opencvWorkerWindow-to-indexedDBWorkerWindow',
+    'message-from-opencvWorkerWindow-to-databaseWorkerWindow',
     'receive-some-images-from-imageQueue',
     someImages,
   );

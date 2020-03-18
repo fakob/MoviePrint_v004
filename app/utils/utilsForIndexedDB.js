@@ -97,7 +97,7 @@ export const updateFrameInIndexedDB = (frameId, outBase64, objectUrlQueue, fastT
       if (frame !== undefined) {
         const objectUrl = window.URL.createObjectURL(frame.data);
         if (fastTrack) {
-          ipcRenderer.send('message-from-indexedDBWorkerWindow-to-mainWindow', 'update-objectUrl', frameId, objectUrl);
+          ipcRenderer.send('message-from-databaseWorkerWindow-to-mainWindow', 'update-objectUrl', frameId, objectUrl);
         } else {
           objectUrlQueue.add({
             frameId,

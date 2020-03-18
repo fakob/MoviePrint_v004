@@ -15,7 +15,7 @@ const unhandled = require('electron-unhandled');
 unhandled();
 const { ipcRenderer } = require('electron');
 
-log.debug('I am the indexedDBWorkerWindow - responsible for storing things in indexedDB');
+log.debug('I am the databaseWorkerWindow - responsible for storing things in indexedDB');
 
 // openDB if not already open
 // to avoid errors as Chrome sometimes closes the connection after a while
@@ -32,7 +32,7 @@ window.addEventListener('error', event => {
     'message-from-opencvWorkerWindow-to-mainWindow',
     'progressMessage',
     'error',
-    `There has been an error while loading the IndexedDB Worker. Please contact us for support: ${event.message}`,
+    `There has been an error while loading the Database Worker. Please contact us for support: ${event.message}`,
     false,
   );
   event.preventDefault();
@@ -44,7 +44,7 @@ window.addEventListener('uncaughtException', event => {
     'message-from-opencvWorkerWindow-to-mainWindow',
     'progressMessage',
     'error',
-    `There has been an uncaughtException while loading the IndexedDB Worker. Please contact us for support: ${event.message}`,
+    `There has been an uncaughtException while loading the Database Worker. Please contact us for support: ${event.message}`,
     false,
   );
   event.preventDefault();
@@ -56,7 +56,7 @@ window.addEventListener('unhandledrejection', event => {
     'message-from-opencvWorkerWindow-to-mainWindow',
     'progressMessage',
     'error',
-    `There has been an unhandledrejection while loading the IndexedDB Worker. Please contact us for support: ${event.message}`,
+    `There has been an unhandledrejection while loading the Database Worker. Please contact us for support: ${event.message}`,
     false,
   );
   event.preventDefault();
@@ -79,7 +79,7 @@ process.on('SIGTERM', err => {
 const pullImagesFromOpencvWorker = () => {
   log.debug('now I am running pullImagesFromOpencvWorker');
   ipcRenderer.send(
-    'message-from-indexedDBWorkerWindow-to-opencvWorkerWindow',
+    'message-from-databaseWorkerWindow-to-opencvWorkerWindow',
     'get-some-images-from-imageQueue',
     1000, // amount
   );
@@ -97,7 +97,7 @@ setInterval(() => {
 }, 1000);
 
 ipcRenderer.on('send-base64-frame', (event, frameId, fileId, frameNumber, outBase64, onlyReplace = false) => {
-  log.debug('indexedDBWorkerWindow | on send-base64-frame');
+  log.debug('databaseWorkerWindow | on send-base64-frame');
   if (onlyReplace) {
     const fastTrack = onlyReplace; // make this one use fastTrack so it gets updated right away
     updateFrameInIndexedDB(frameId, outBase64, objectUrlQueue, fastTrack);
@@ -107,27 +107,27 @@ ipcRenderer.on('send-base64-frame', (event, frameId, fileId, frameNumber, outBas
 });
 
 ipcRenderer.on('update-base64-frame', (event, frameId, outBase64) => {
-  log.debug('indexedDBWorkerWindow | on update-base64-frame');
+  log.debug('databaseWorkerWindow | on update-base64-frame');
   updateFrameInIndexedDB(frameId, outBase64, objectUrlQueue);
 });
 
 ipcRenderer.on('get-arrayOfObjectUrls', () => {
-  log.debug('indexedDBWorkerWindow | on get-arrayOfObjectUrls');
+  log.debug('databaseWorkerWindow | on get-arrayOfObjectUrls');
   getObjectUrlsFromFramelist(objectUrlQueue);
 });
 
 ipcRenderer.on('get-some-objectUrls-from-objectUrlQueue', () => {
-  log.debug('indexedDBWorkerWindow | on get-some-objectUrls-from-objectUrlQueue');
+  log.debug('databaseWorkerWindow | on get-some-objectUrls-from-objectUrlQueue');
 
   const arrayOfObjectUrls = objectUrlQueue.data;
   log.debug(arrayOfObjectUrls);
   // start requestIdleCallback in mainWindow for objectUrlQueue
-  ipcRenderer.send('message-from-indexedDBWorkerWindow-to-mainWindow', 'send-arrayOfObjectUrls', arrayOfObjectUrls);
+  ipcRenderer.send('message-from-databaseWorkerWindow-to-mainWindow', 'send-arrayOfObjectUrls', arrayOfObjectUrls);
   objectUrlQueue.clear();
 });
 
 ipcRenderer.on('start-setIntervalForImages-for-imageQueue', () => {
-  log.debug('indexedDBWorkerWindow | on start-setIntervalForImages-for-imageQueue');
+  log.debug('databaseWorkerWindow | on start-setIntervalForImages-for-imageQueue');
 
   // start setIntervalForImages until it is cancelled
   if (setIntervalForImagesHandle === undefined) {
@@ -142,7 +142,7 @@ ipcRenderer.on('start-setIntervalForImages-for-imageQueue', () => {
 });
 
 ipcRenderer.on('receive-some-images-from-imageQueue', (event, someImages) => {
-  log.debug(`indexedDBWorkerWindow | on receive-some-images-from-imageQueue: ${someImages.length}`);
+  log.debug(`databaseWorkerWindow | on receive-some-images-from-imageQueue: ${someImages.length}`);
   if (someImages.length > 0) {
     // add images in reveres as they are stored inverse in the queue
     someImages.reverse().map(async image => {
@@ -156,7 +156,7 @@ ipcRenderer.on('receive-some-images-from-imageQueue', (event, someImages) => {
 
 render(
   <div>
-    <h1>I am the IndexedDB worker window.</h1>
+    <h1>I am the Database worker window.</h1>
   </div>,
-  document.getElementById('worker_indexedDB'),
+  document.getElementById('worker_database'),
 );

@@ -64,7 +64,7 @@
       "app.html",
       "worker.html",
       "worker_opencv.html",
-      "worker_indexedDB.html",
+      "worker_database.html",
       "main.prod.js",
       "main.prod.js.map",
       "renderer.prod.js",
