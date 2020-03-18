@@ -1,4 +1,5 @@
-// @flow
+/* eslint no-nested-ternary: "off" */
+/* eslint no-bitwise: "off" */
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
@@ -466,7 +467,7 @@ class ThumbGrid extends Component {
       defaultFrameinfoMargin = DEFAULT_FRAMEINFO_MARGIN,
       defaultShowFaceRect = DEFAULT_SHOW_FACERECT,
     } = settings;
-    const frameninfoBackgroundColorString = `rgba(${defaultFrameinfoBackgroundColor.r}, ${defaultFrameinfoBackgroundColor.g}, ${defaultFrameinfoBackgroundColor.b}, ${defaultFrameinfoBackgroundColor.a})`;
+    const frameinfoBackgroundColorString = `rgba(${defaultFrameinfoBackgroundColor.r}, ${defaultFrameinfoBackgroundColor.g}, ${defaultFrameinfoBackgroundColor.b}, ${defaultFrameinfoBackgroundColor.a})`;
     const frameinfoColorString = `rgba(${defaultFrameinfoColor.r}, ${defaultFrameinfoColor.g}, ${defaultFrameinfoColor.b}, ${defaultFrameinfoColor.a})`;
 
     const fps = file !== undefined && file.fps !== undefined ? file.fps : 25;
@@ -702,7 +703,7 @@ class ThumbGrid extends Component {
                       onSelectClick(thumb.thumbId, thumb.frameNumber);
                     }
               }
-              frameninfoBackgroundColor={frameninfoBackgroundColorString}
+              frameninfoBackgroundColor={frameinfoBackgroundColorString}
               frameinfoColor={frameinfoColorString}
               frameinfoPosition={defaultFrameinfoPosition}
               frameinfoScale={defaultFrameinfoScale}
