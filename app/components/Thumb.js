@@ -47,11 +47,10 @@ const DragHandle = React.memo(
   )),
 );
 
-const AllFaces = ({ facesArray, thumbWidth, thumbHeight, uniqueFilter, expandedFaceNumber }) =>
+const AllFaces = ({ facesArray, thumbWidth, thumbHeight, uniqueFilter, isExpanded }) =>
   facesArray.map(face => {
     const showFaceRect =
-      expandedFaceNumber === face.faceNumber ||
-      (expandedFaceNumber === undefined && (!uniqueFilter || face.distToOrigin === 0));
+      (isExpanded && face.distToOrigin !== undefined) || (!isExpanded && (!uniqueFilter || face.distToOrigin === 0));
     if (showFaceRect) {
       return <FaceRect key={face.faceId} face={face} thumbWidth={thumbWidth} thumbHeight={thumbHeight} />;
     }
@@ -113,7 +112,7 @@ const FaceRect = React.memo(({ face: { box, ...faceExceptForBox }, thumbWidth, t
         }}
       >
         {faceExceptForBox.gender === 'female' ? '\u2640' : '\u2642'}
-        <br />#<em>{faceExceptForBox.faceNumber}</em>
+        <br />#<em>{faceExceptForBox.faceGroupNumber}</em>
         <br />
         {faceExceptForBox.occurrence} x<br />
         {faceExceptForBox.distToOrigin}
@@ -133,7 +132,7 @@ const Thumb = React.memo(
     controllersAreVisible,
     defaultShowFaceRect,
     dim,
-    expandedFaceNumber,
+    isExpanded,
     frameninfoBackgroundColor,
     frameinfoColor,
     frameinfoPosition,
@@ -243,7 +242,7 @@ const Thumb = React.memo(
           height={`${thumbHeight}px`}
           style={{
             filter: `${controllersAreVisible ? 'brightness(80%)' : ''}`,
-            opacity: hidden ? '0.2' : facesArray !== undefined && defaultShowFaceRect ? '0.5' : '1.0',
+            opacity: hidden ? '0.2' : facesArray !== undefined && defaultShowFaceRect ? '0.7' : '1.0',
             borderRadius: `${selected && view === VIEW.PLAYERVIEW ? 0 : borderRadius}px`,
           }}
         />
@@ -253,7 +252,7 @@ const Thumb = React.memo(
             thumbWidth={thumbWidth}
             thumbHeight={thumbHeight}
             uniqueFilter={uniqueFilter}
-            expandedFaceNumber={expandedFaceNumber}
+            isExpanded={isExpanded}
           />
         )}
         {thumbInfoValue !== undefined && (

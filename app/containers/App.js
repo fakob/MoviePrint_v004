@@ -43,7 +43,7 @@ import {
   calculateSceneListFromDifferenceArray,
   createSceneArray,
   deleteFaceDescriptorFromFaceScanArray,
-  determineAndInsertFaceNumber,
+  determineAndInsertFaceGroupNumber,
   doesFileFolderExist,
   doesSheetExist,
   getAdjacentSceneIndicesFromCut,
@@ -65,7 +65,6 @@ import {
   getMoviePrintColor,
   getNewSheetName,
   getObjectProperty,
-  getOccurrencesOfFace,
   getParentSheetId,
   getSceneFromFrameNumber,
   getSceneScrubFrameNumber,
@@ -428,6 +427,7 @@ class App extends Component {
     this.onToggleDetectionChart = this.onToggleDetectionChart.bind(this);
     this.onSortSheet = this.onSortSheet.bind(this);
     this.addFaceData = this.addFaceData.bind(this);
+    this.getFaceData = this.getFaceData.bind(this);
     this.onHideDetectionChart = this.onHideDetectionChart.bind(this);
     this.checkForUpdates = this.checkForUpdates.bind(this);
 
@@ -795,6 +795,49 @@ class App extends Component {
       }
     });
 
+    ipcRenderer.on(
+      'receive-find-face',
+      (event, fileId, sheetId, parentSheetId, frameNumber, faceIdOfOrigin, foundFrames) => {
+        const { files, sheetsByFileId } = this.props;
+        const { sheetsToUpdate } = this.state;
+        console.log(foundFrames);
+
+        const file = getFile(files, fileId);
+
+        const frameNumberArray = foundFrames.map(frame => frame.frameNumber);
+
+        // get thumbs
+        dispatch(addNewThumbsWithOrder(file, sheetId, frameNumberArray, settings.defaultCachedFramesSize));
+        sheetsToUpdate.push({
+          fileId,
+          sheetId,
+          status: 'addFaceData',
+          payload: {
+            faceScanArray: foundFrames,
+            sortMethod: SORT_METHOD.DISTTOORIGIN,
+            optionalSortProperties: {
+              faceIdOfOrigin,
+            },
+          },
+        });
+        const parentSheetName = getSheetName(sheetsByFileId, fileId, parentSheetId);
+        dispatch(updateSheetName(fileId, sheetId, `${parentSheetName} face in ${pad(frameNumber, 4)}`)); // set name on file
+        // dispatch(updateSheetCounter(fileId));
+        dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.FACES));
+
+        // set filter
+        this.onUpdateSheetFilter({ expanded: frameNumber }, false, fileId, sheetId);
+
+        // update columnCount
+        this.optimiseGridLayout(fileId, sheetId, frameNumberArray.length);
+
+        dispatch(updateSheetParent(fileId, sheetId, parentSheetId));
+
+        dispatch(updateSheetView(fileId, sheetId, SHEET_VIEW.GRIDVIEW));
+        dispatch(setCurrentSheetId(sheetId));
+      },
+    );
+
     ipcRenderer.on('start-requestIdleCallback-for-sceneQueue', event => {
       const { requestIdleCallbackForScenesHandle } = this.state;
 
@@ -1089,13 +1132,7 @@ class App extends Component {
     if (sheetsToUpdate.length !== 0) {
       const copyOfSheetsToUpdate = sheetsToUpdate.slice();
       // read the first item
-      const {
-        fileId: myFileId,
-        sheetId: mySheetId,
-        sortMethod: mySortMethod = undefined,
-        status: myStatus,
-        optionalProperties: myOptionalProperties,
-      } = copyOfSheetsToUpdate[0];
+      const { fileId: myFileId, sheetId: mySheetId, status: myStatus, payload: myPayload } = copyOfSheetsToUpdate[0];
       const thumbCount = getThumbsCount(
         sheetsByFileId,
         myFileId,
@@ -1106,7 +1143,7 @@ class App extends Component {
       );
       if (thumbCount !== 0) {
         if (myStatus === 'addFaceData') {
-          this.addFaceData(myFileId, mySheetId, mySortMethod, myOptionalProperties);
+          this.addFaceData(myFileId, mySheetId, myPayload);
           // remove the first item
           copyOfSheetsToUpdate.shift();
           this.setState({
@@ -1219,7 +1256,15 @@ class App extends Component {
     // only listen to key events when feedback form is not shown
     if (!this.state.showFeedbackForm && event.target.tagName !== 'INPUT') {
       const { dispatch } = this.props;
-      const { currentFileId, currentSheetId, currentSheetType, file, settings, sheetsByFileId, visibilitySettings } = this.props;
+      const {
+        currentFileId,
+        currentSheetId,
+        currentSheetType,
+        file,
+        settings,
+        sheetsByFileId,
+        visibilitySettings,
+      } = this.props;
 
       if (event) {
         switch (event.which) {
@@ -1365,11 +1410,16 @@ class App extends Component {
         console.log(thumbCount);
       }
 
+      const faceScanArray = getFaceData(fileId, sheetId);
+
       sheetsToUpdate.push({
         fileId,
         sheetId,
         status: 'addFaceData',
-        sortMethod: faceSortMethod,
+        payload: {
+          faceScanArray,
+          sortMethod: faceSortMethod,
+        },
       });
 
       this.optimiseGridLayout(fileId, sheetId, thumbCount);
@@ -1578,7 +1628,16 @@ class App extends Component {
 
   updateScaleValue() {
     const { columnCountTemp, thumbCountTemp, containerWidth, containerHeight, zoom } = this.state;
-    const { currentFileId, currentSheetId, currentSecondsPerRow, file, scenes, settings, sheetsByFileId, visibilitySettings } = this.props;
+    const {
+      currentFileId,
+      currentSheetId,
+      currentSecondsPerRow,
+      file,
+      scenes,
+      settings,
+      sheetsByFileId,
+      visibilitySettings,
+    } = this.props;
 
     // log.debug(`inside updateScaleValue and containerWidth: ${this.state.containerWidth}`);
     const scaleValueObject = getScaleValueObject(
@@ -1671,7 +1730,15 @@ class App extends Component {
 
   showSettings() {
     const { dispatch } = this.props;
-    const { currentFileId, currentSheetId, currentSecondsPerRow, file, settings, sheetsByFileId, visibilitySettings } = this.props;
+    const {
+      currentFileId,
+      currentSheetId,
+      currentSecondsPerRow,
+      file,
+      settings,
+      sheetsByFileId,
+      visibilitySettings,
+    } = this.props;
 
     dispatch(showSettings());
 
@@ -1756,7 +1823,7 @@ class App extends Component {
         }
         // for unique method get all face scan data
         baseArray = getFaceScanByFileId(theFileId, thumbsFrameNumbers);
-        determineAndInsertFaceNumber(baseArray, theFaceUniquenessThreshold);
+        determineAndInsertFaceGroupNumber(baseArray, theFaceUniquenessThreshold);
         insertOccurrence(baseArray);
         // console.log(baseArray);
       }
@@ -1802,7 +1869,7 @@ class App extends Component {
     }
   }
 
-  addFaceData(fileId, sheetId, sortMethod = undefined, optionalSortProperties = undefined) {
+  getFaceData(fileId, sheetId) {
     const { dispatch, settings, sheetsByFileId, visibilitySettings } = this.props;
     const { defaultFaceUniquenessThreshold } = settings;
 
@@ -1812,11 +1879,18 @@ class App extends Component {
 
     // calculate occurrences
     // console.log(faceScanArray);
-    determineAndInsertFaceNumber(faceScanArray, defaultFaceUniquenessThreshold);
+    determineAndInsertFaceGroupNumber(faceScanArray, defaultFaceUniquenessThreshold);
     insertOccurrence(faceScanArray);
 
     deleteFaceDescriptorFromFaceScanArray(faceScanArray);
-    // console.log(faceScanArray);
+    return faceScanArray;
+  }
+
+  addFaceData(fileId, sheetId, payload) {
+    const { dispatch } = this.props;
+    const { faceScanArray, sortMethod = undefined, optionalSortProperties = undefined } = payload;
+
+    console.log(faceScanArray);
     // add detection information to thumbs
     dispatch(changeAndSortThumbArray(fileId, sheetId, faceScanArray, sortMethod, optionalSortProperties));
     // this.onSortSheet(fileId, sheetId, sortMethod);
@@ -2147,36 +2221,15 @@ class App extends Component {
         const frameNumber = getFrameNumberWithSceneOrThumbId(sheetsByFileId, fileId, parentSheetId, sceneOrThumbId);
         console.log(frameNumber);
 
-        const faceScanArray = getFaceScanByFileId(fileId);
-        console.log(faceScanArray);
-
-        // get frameNumbers of occurrences of faceNumber
-        const { faceIdOfOrigin, frameNumberArray } = getOccurrencesOfFace(faceScanArray, frameNumber, defaultFaceUniquenessThreshold);
-        console.log(faceIdOfOrigin);
-        console.log(frameNumberArray);
-
-        // get thumbs
-        dispatch(addNewThumbsWithOrder(file, sheetId, frameNumberArray, settings.defaultCachedFramesSize));
-        sheetsToUpdate.push({
+        ipcRenderer.send(
+          'message-from-mainWindow-to-databaseWorkerWindow',
+          'send-find-face',
           fileId,
           sheetId,
-          status: 'addFaceData',
-          sortMethod: SORT_METHOD.DISTTOORIGIN,
-          optionalProperties: {
-            faceIdOfOrigin
-          },
-        });
-        const parentSheetName = getSheetName(sheetsByFileId, fileId, parentSheetId);
-        dispatch(updateSheetName(fileId, sheetId, `${parentSheetName} face in ${pad(frameNumber, 4)}`)); // set name on file
-        // dispatch(updateSheetCounter(fileId));
-        dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.FACES));
-
-        // set filter
-        this.onUpdateSheetFilter({ expanded: frameNumber }, false, fileId, sheetId);
-
-        // update columnCount
-        this.optimiseGridLayout(fileId, sheetId, frameNumberArray.length);
-
+          parentSheetId,
+          frameNumber,
+          defaultFaceUniquenessThreshold,
+        );
       } else {
         // log.debug(`addIntervalSheet as no thumbs were found for: ${file.name}`);
         dispatch(
@@ -2196,8 +2249,8 @@ class App extends Component {
 
         // update columnCount
         this.optimiseGridLayout(fileId, sheetId, DEFAULT_THUMB_COUNT);
+        dispatch(updateSheetParent(fileId, sheetId, parentSheetId));
       }
-      dispatch(updateSheetParent(fileId, sheetId, parentSheetId));
     }
     dispatch(updateSheetView(fileId, sheetId, SHEET_VIEW.GRIDVIEW));
     dispatch(setCurrentSheetId(sheetId));
@@ -2456,7 +2509,14 @@ class App extends Component {
 
   onSaveMoviePrint() {
     const { file, settings, scenes, sheetsByFileId, visibilitySettings } = this.props;
-    const { currentFileId, currentSheetId, currentSecondsPerRow, currentSheetView, defaultMoviePrintWidth, defaultPaperAspectRatioInv } = settings;
+    const {
+      currentFileId,
+      currentSheetId,
+      currentSecondsPerRow,
+      currentSheetView,
+      defaultMoviePrintWidth,
+      defaultPaperAspectRatioInv,
+    } = settings;
     const { visibilityFilter } = visibilitySettings;
 
     const sheet = sheetsByFileId[file.id][currentSheetId];

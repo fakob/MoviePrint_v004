@@ -7,6 +7,8 @@ import {
   openDBConnection,
   updateFrameInIndexedDB,
 } from './utils/utilsForIndexedDB';
+import { getOccurrencesOfFace } from './utils/utils';
+import { getFaceScanByFileId } from './utils/utilsForSqlite';
 import Queue from './utils/queue';
 
 const unhandled = require('electron-unhandled');
@@ -153,6 +155,36 @@ ipcRenderer.on('receive-some-images-from-imageQueue', (event, someImages) => {
   log.debug('now I cancel setIntervalForImages');
   setIntervalForImagesHandle = window.clearInterval(setIntervalForImagesHandle);
 });
+
+ipcRenderer.on(
+  'send-find-face',
+  (event, fileId, sheetId, parentSheetId, frameNumber, defaultFaceUniquenessThreshold) => {
+    log.debug(`databaseWorkerWindow | on send-find-face: ${frameNumber}`);
+
+    const faceScanArray = getFaceScanByFileId(fileId);
+    console.log(faceScanArray);
+
+    // get frameNumbers of occurrences of a faceGroup
+    const { faceIdOfOrigin, foundFrames } = getOccurrencesOfFace(
+      faceScanArray,
+      frameNumber,
+      defaultFaceUniquenessThreshold,
+    );
+    console.log(faceIdOfOrigin);
+    console.log(foundFrames);
+
+    ipcRenderer.send(
+      'message-from-databaseWorkerWindow-to-mainWindow',
+      'receive-find-face',
+      fileId,
+      sheetId,
+      parentSheetId,
+      frameNumber,
+      faceIdOfOrigin,
+      foundFrames,
+    );
+  },
+);
 
 render(
   <div>

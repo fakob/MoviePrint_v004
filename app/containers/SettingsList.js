@@ -493,7 +493,6 @@ class SettingsList extends Component {
       onChangeMargin,
       onChangeFaceSizeThreshold,
       onChangeFaceConfidenceThreshold,
-      onChangeFaceUniquenessThreshold,
       onChangeFrameinfoMargin,
       onChangeFrameinfoScale,
       onChangeMinDisplaySceneLength,

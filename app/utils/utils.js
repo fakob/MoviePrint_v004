@@ -1265,7 +1265,12 @@ export const getFrameScanTableName = fileId => {
 };
 
 // sort detectionArray by ...
-export const sortArray = (detectionArray, sortAndFilterMethod = SORT_METHOD.FACESIZE, reverseSortOrder = false, optionalSortProperties = undefined) => {
+export const sortArray = (
+  detectionArray,
+  sortAndFilterMethod = SORT_METHOD.FACESIZE,
+  reverseSortOrder = false,
+  optionalSortProperties = undefined,
+) => {
   let sortedAndFilteredArray = [];
   const sortOrderMultiplier = reverseSortOrder ? -1 : 1;
   switch (sortAndFilterMethod) {
@@ -1308,7 +1313,7 @@ export const sortArray = (detectionArray, sortAndFilterMethod = SORT_METHOD.FACE
       // filtered and flatten the detectionArray
       const detectionArrayFiltered = detectionArray.filter(item => item.faceCount !== 0); // filter out frames with no faces
       const flattenedArray = getFlattenedArrayWithOccurrences(detectionArrayFiltered);
-      // console.log(flattenedArray.map(item => ({ faceNumber: item.faceNumber, size: item.size, occurrence: item.occurrence })));
+      // console.log(flattenedArray.map(item => ({ faceGroupNumber: item.faceGroupNumber, size: item.size, occurrence: item.occurrence })));
 
       // sort by count, size and then score
       flattenedArray.sort((a, b) => {
@@ -1345,7 +1350,7 @@ export const sortArray = (detectionArray, sortAndFilterMethod = SORT_METHOD.FACE
           console.log(flattenedArray);
 
           // filter array to only include faceIdOfOrigin
-          flattenedArray.filter(item => item.faceNumber === faceIdOfOrigin);
+          flattenedArray.filter(item => item.faceGroupNumber === faceIdOfOrigin);
 
           // sort by distToOrigin
           flattenedArray.sort((a, b) => {
@@ -1368,10 +1373,8 @@ export const sortArray = (detectionArray, sortAndFilterMethod = SORT_METHOD.FACE
       const detectionArrayFiltered = detectionArray.filter(item => item.faceCount !== 0); // filter out frames with no faces
       const flattenedArray = getFlattenedArrayWithOccurrences(detectionArrayFiltered);
 
-
       // sort by count, size and then score
       flattenedArray.sort((a, b) => {
-
         // Sort by occurrence
         if (a.occurrence < b.occurrence) return sortOrderMultiplier * 1;
         if (a.occurrence > b.occurrence) return sortOrderMultiplier * -1;
@@ -1388,9 +1391,9 @@ export const sortArray = (detectionArray, sortAndFilterMethod = SORT_METHOD.FACE
 
       // get only origins
       sortedAndFilteredArray = flattenedArray.filter(item => item.distToOrigin === 0);
-      // only keep first occurrence of faceNumber
+      // only keep first occurrence of faceGroupNumber
       // sortedAndFilteredArray = flattenedArray.filter(
-      //   (item, index, self) => index === self.findIndex(t => t.faceNumber === item.faceNumber),
+      //   (item, index, self) => index === self.findIndex(t => t.faceGroupNumber === item.faceGroupNumber),
       // );
       break;
     default:
@@ -1419,7 +1422,7 @@ export const getFlattenedArrayWithOccurrences = detectionArray => {
   const flattenedArray = getFlattenedArray(detectionArray);
   flattenedArray.forEach(item => {
     // convert object to array and find occurrence and add to item
-    const { count } = Object.values(arrayOfOccurrences).find(item2 => item2.faceNumber === item.faceNumber);
+    const { count } = Object.values(arrayOfOccurrences).find(item2 => item2.faceGroupNumber === item.faceGroupNumber);
     item.occurrence = count;
   });
   return flattenedArray;
@@ -1429,10 +1432,10 @@ export const getArrayOfOccurrences = detectionArray => {
   // flatten the detectionArray
   const flattenedArray = getFlattenedArray(detectionArray);
   const arrayOfOccurrences = flattenedArray.reduce((acc, curr) => {
-    if (acc[curr.faceNumber] === undefined) {
-      acc[curr.faceNumber] = { count: 1, faceNumber: curr.faceNumber };
+    if (acc[curr.faceGroupNumber] === undefined) {
+      acc[curr.faceGroupNumber] = { count: 1, faceGroupNumber: curr.faceGroupNumber };
     } else {
-      acc[curr.faceNumber].count += 1;
+      acc[curr.faceGroupNumber].count += 1;
     }
     return acc;
   }, {});
@@ -1442,10 +1445,10 @@ export const getArrayOfOccurrences = detectionArray => {
   return arrayOfOccurrences;
 };
 
-export const determineAndInsertFaceNumber = (detectionArray, defaultFaceUniquenessThreshold) => {
-  // this function determines unique faces and adds the faceNumber into the detectionArray
-  // initialise the faceNumber
-  let faceNumber = 0;
+export const determineAndInsertFaceGroupNumber = (detectionArray, defaultFaceUniquenessThreshold) => {
+  // this function determines unique faces and adds the faceGroupNumber into the detectionArray
+  // initialise the faceGroupNumber
+  let faceGroupNumber = 0;
   const uniqueFaceArray = [];
   detectionArray.forEach(frame => {
     if (frame.faceCount !== 0) {
@@ -1454,7 +1457,7 @@ export const determineAndInsertFaceNumber = (detectionArray, defaultFaceUniquene
         const uniqueFaceArrayLength = uniqueFaceArray.length;
         if (uniqueFaceArrayLength === 0) {
           uniqueFaceArray.push(currentFaceDescriptor); // convert array
-          face.faceNumber = faceNumber;
+          face.faceGroupNumber = faceGroupNumber;
           face.distToOrigin = 0;
         } else {
           // compare descriptor value with all values in the array
@@ -1469,8 +1472,8 @@ export const determineAndInsertFaceNumber = (detectionArray, defaultFaceUniquene
               //   ? `this and face ${i} are identical: ${dist}`
               //   : `this and face ${i} are probably the same: ${dist}`,
               // );
-              faceNumber = i;
-              face.faceNumber = faceNumber;
+              faceGroupNumber = i;
+              face.faceGroupNumber = faceGroupNumber;
               face.distToOrigin = roundNumber(dist);
               break;
             } else if (i === uniqueFaceArrayLength - 1) {
@@ -1478,8 +1481,8 @@ export const determineAndInsertFaceNumber = (detectionArray, defaultFaceUniquene
               // if no match was found add the current descriptor to the array marking a new unique face
               // console.log(`this face is unique: ${dist}`);
               uniqueFaceArray.push(currentFaceDescriptor); // convert array
-              faceNumber = uniqueFaceArrayLength;
-              face.faceNumber = faceNumber;
+              faceGroupNumber = uniqueFaceArrayLength;
+              face.faceGroupNumber = faceGroupNumber;
               face.distToOrigin = 0;
             }
           }
@@ -1492,23 +1495,25 @@ export const determineAndInsertFaceNumber = (detectionArray, defaultFaceUniquene
 };
 
 export const getOccurrencesOfFace = (detectionArray, frameNumber, defaultFaceUniquenessThreshold) => {
-  // returns an array of frameNumbers where this face occurrs
-  // initialise the faceNumber
-  const frameNumberArray = [];
+  // returns an array of foundFrames where this face occurrs
+  // initialise the foundFrames
+  const foundFrames = [];
 
   const frameOfFace = detectionArray.find(frame => frame.frameNumber === frameNumber);
+  console.log(frameOfFace);
   if (frameOfFace === undefined || frameOfFace.facesArray === undefined || frameOfFace.facesArray.length === 0) {
     return []; // return an empty array as there where no occurrences
   }
 
   // use first face in array to search for
   // later it would be nice if one can specify which face on an array to search for
-  const faceIdOfOrigin = frameOfFace.facesArray[0].faceNumber;
+  const faceIdOfOrigin = frameOfFace.facesArray[0].faceId;
   const faceDescriptorOfFace = Object.values(frameOfFace.facesArray[0].faceDescriptor);
 
   detectionArray.forEach(frame => {
     if (frame.faceCount !== 0) {
       frame.facesArray.forEach(face => {
+        const foundFaces = [];
         const currentFaceDescriptor = Object.values(face.faceDescriptor);
         // compare descriptor value with faceDescriptorOfFace
         const dist = faceapi.euclideanDistance(currentFaceDescriptor, faceDescriptorOfFace);
@@ -1516,7 +1521,10 @@ export const getOccurrencesOfFace = (detectionArray, frameNumber, defaultFaceUni
         // if no match was found add the current descriptor to the array marking a unique face
         if (dist < defaultFaceUniquenessThreshold) {
           console.log(dist === 0 ? `this face is identical: ${dist}` : `this face is probably the same: ${dist}`);
-          frameNumberArray.push(frame.frameNumber);
+          foundFaces.push({ ...face, distToOrigin: dist, faceDescriptor: undefined });
+        }
+        if (foundFaces.length > 0) {
+          foundFrames.push({ ...frame, facesArray: foundFaces });
         }
         return undefined;
       });
@@ -1525,7 +1533,7 @@ export const getOccurrencesOfFace = (detectionArray, frameNumber, defaultFaceUni
   });
   return {
     faceIdOfOrigin,
-    frameNumberArray,
+    foundFrames,
   };
 };
 
@@ -1538,7 +1546,7 @@ export const insertOccurrence = detectionArray => {
     if (frame.facesArray !== undefined) {
       frame.facesArray.forEach(face => {
         // convert object to array and find occurrence and add to item
-        const { count } = Object.values(arrayOfOccurrences).find(item => item.faceNumber === face.faceNumber);
+        const { count } = Object.values(arrayOfOccurrences).find(item => item.faceGroupNumber === face.faceGroupNumber);
         /* eslint no-param-reassign: ["error", { "props": false }] */
         face.occurrence = count;
       });
@@ -1621,12 +1629,12 @@ export const getFrameNumberWithSceneOrThumbId = (sheetsByFileId, fileId, sheetId
   return frameNumber;
 };
 
-export const getFrameNumberArrayOfOccurrences = (detectionArray, faceNumber) => {
+export const getFrameNumberArrayOfOccurrences = (detectionArray, faceGroupNumber) => {
   // flatten the detectionArray
   const flattenedArray = getFlattenedArray(detectionArray);
   const frameNumberArray = [];
   flattenedArray.map(face => {
-    if (face.faceNumber === faceNumber) {
+    if (face.faceGroupNumber === faceGroupNumber) {
       frameNumberArray.push(face.frameNumber);
     }
     return undefined;

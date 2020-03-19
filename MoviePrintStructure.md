@@ -138,10 +138,21 @@
 
 # sqlite3 structure
 ##### fileScanList (data from all scanned files)
-* fileId
 * frameNumber
 * differenceValue
 * meanColor
+* faceObject
+  * frameNumber
+  * faceCount
+  * largestSize
+  * facesArray
+    * score
+    * size
+    * box // relative x,y,w,h
+    * gender
+    * age
+    * faceId
+    * faceDescriptor
 
 # Redux structure
 ##### visibilitySettings
@@ -169,6 +180,19 @@
 	    * fileId
 	    * index
 	    * hidden
+      * --- if faces based
+      * faceCount
+      * largestSize
+      * facesArray
+        * score
+        * size
+        * box // relative x,y,w,h
+        * gender
+        * age
+        * faceId
+        * faceGroupNumber // number to identify a group of faces which are considered the same
+        * --- if expanded
+        * distToOrigin
 		* sceneArray
 			* sceneId (=== thumbId)
 			* start

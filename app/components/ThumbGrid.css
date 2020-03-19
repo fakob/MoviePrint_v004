@@ -117,9 +117,9 @@
 
 .faceRect {
   position: absolute;
-  /* border:1px solid rgba(255,255,255,0.5); */
+  /* border:1px solid rgba(255,255,255,0.3); */
   /* mix-blend-mode: difference; */
-  /* border:1px solid rgba(255,80,6,0.5); */
+  border:1px solid rgba(255,80,6,0.3);
   /* background-color: transparent; */
   /* background-color: rgba(255, 80, 6, 0.2); */
   background-color: rgba(255, 255, 255, 0.1);
@@ -127,7 +127,7 @@
   /* border:1px solid rgba(255,80,6,0.2); */
   /* background-color: rgba(255, 255, 255, 0.1); */
   /* mix-blend-mode: luminosity; */
-  /* border-radius: 15%; */
+  border-radius: 5%;
 }
 
 .faceRectSVG {
@@ -139,6 +139,7 @@
   fill: rgba(153, 253, 114, 0.25); */
   stroke: rgba(255, 255, 255, 0.5);
   /* fill: rgba(255, 255, 255, 0.25); */
+  fill: none;
   stroke-width: 1px;
 }
 
