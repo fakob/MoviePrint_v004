@@ -31,6 +31,7 @@ import iconZoomOut from '../img/icon-zoom-out.svg';
 import iconResizeVertical from '../img/icon-resize-vertical.svg';
 import iconResizeHorizontal from '../img/icon-resize-horizontal.svg';
 import iconSort from '../img/icon-sort.svg';
+import iconFilter from '../img/icon-filter.svg';
 import iconCopy from '../img/icon-copy.svg';
 import iconGrid from '../img/icon-grid.svg';
 import iconBarcode from '../img/icon-barcode.svg';
@@ -235,13 +236,14 @@ const FloatingMenu = ({
               button
               className={styles.dropDownButton}
               floating
-              closeOnBlur={false}
-              closeOnChange={false}
+              // closeOnBlur={false}
+              // closeOnChange={false}
               disabled={fileMissingStatus || isShotType}
               icon={<img src={iconSort} height="18px" alt="" />}
             >
               <Dropdown.Menu className={styles.dropDownMenu}>
-                <Dropdown.Item className={styles.dropDownItem} onClick={e => e.stopPropagation()}>
+                {/* <Dropdown.Header content="Sort" /> */}
+                {/* <Dropdown.Item className={styles.dropDownItem} onClick={e => e.stopPropagation()}>
                   <Radio
                     data-tid="useVisibleThumbsRadioBtn"
                     label="Visible thumbs"
@@ -261,8 +263,7 @@ const FloatingMenu = ({
                     onChange={() => setFilterRange(THUMB_SELECTION.ALL_THUMBS)}
                   />
                 </Dropdown.Item>
-                <Dropdown.Divider />
-                <Dropdown.Header content="Sort" />
+                <Dropdown.Divider /> */}
                 <Dropdown.Item
                   className={styles.dropDownItem}
                   onClick={() => {
@@ -333,14 +334,34 @@ const FloatingMenu = ({
                 >
                   Confidence value of face
                 </Dropdown.Item>
-                <Dropdown.Divider />
-                <Dropdown.Header content="Filter" />
+              </Dropdown.Menu>
+            </Dropdown>
+          }
+          mouseEnterDelay={1000}
+          on={['hover']}
+          position="right center"
+          className={stylesPop.popup}
+          content="Sort"
+        />
+        <Popup
+          trigger={
+            <Dropdown
+              button
+              className={styles.dropDownButton}
+              floating
+              closeOnBlur={false}
+              closeOnChange={false}
+              disabled={fileMissingStatus || isShotType}
+              icon={<img src={iconFilter} height="18px" alt="" />}
+            >
+              <Dropdown.Menu className={`${styles.dropDownMenu} ${styles.dropDownMenuFilter}`}>
+                {/* <Dropdown.Header content="Filter" /> */}
                 {/* <Message size="mini" className={styles.noBackground}>
                   <em>The &quot;duplicate&quot; faces will be hidden.</em>
                 </Message> */}
                 <Dropdown.Item
                   disabled={!isFaceType || expandedFrameNumber !== undefined}
-                  className={`${styles.dropDownItem} ${styles.dropDownItemSlider}`}
+                  className={`${styles.dropDownItem} ${styles.dropDownItemCheckbox}`}
                   onClick={e => e.stopPropagation()}
                 >
                   <Checkbox
@@ -365,8 +386,8 @@ const FloatingMenu = ({
                   <SliderWithTooltip
                     data-tid="faceUniquenessThresholdSlider"
                     className={styles.slider}
-                    min={50}
-                    max={70}
+                    min={40}
+                    max={80}
                     defaultValue={defaultFaceUniquenessThreshold * 100}
                     marks={{
                       // 50: 'unique',
@@ -388,7 +409,7 @@ const FloatingMenu = ({
           on={['hover']}
           position="right center"
           className={stylesPop.popup}
-          content="Sort and Filter"
+          content="Filter"
         />
         <Popup
           trigger={

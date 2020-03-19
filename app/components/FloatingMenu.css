@@ -6,7 +6,7 @@
   top: 8px;
   left: calc(50% + 10px);
   z-index: 990;
-  width: 680px;
+  width: 720px;
   /* background-color: rgba(255, 0, 0, 0.5); */
 }
 
@@ -51,12 +51,20 @@
   /* background-color: rgba(60, 30, 0, 1.0) !important; */
 }
 
+.dropDownMenuFilter {
+  width: 260px;
+}
+
 .dropDownItem img{
   margin-top: -2px !important;
 }
 
 .dropDownItemIconInvert img{
   filter: invert(100%);
+}
+
+.dropDownItemCheckbox{
+  height: 32px !important;
 }
 
 .dropDownItemSlider{

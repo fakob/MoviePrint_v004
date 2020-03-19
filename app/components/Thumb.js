@@ -52,12 +52,12 @@ const AllFaces = ({ facesArray, thumbWidth, thumbHeight, uniqueFilter, isExpande
     const showFaceRect =
       (isExpanded && face.distToOrigin !== undefined) || (!isExpanded && (!uniqueFilter || face.distToOrigin === 0));
     if (showFaceRect) {
-      return <FaceRect key={face.faceId} face={face} thumbWidth={thumbWidth} thumbHeight={thumbHeight} />;
+      return <FaceRect key={face.faceId} uniqueFilter={uniqueFilter} face={face} thumbWidth={thumbWidth} thumbHeight={thumbHeight} />;
     }
     return undefined;
   });
 
-const FaceRect = React.memo(({ face: { box, ...faceExceptForBox }, thumbWidth, thumbHeight }) => {
+const FaceRect = React.memo(({ face: { box, ...faceExceptForBox }, thumbWidth, thumbHeight, uniqueFilter }) => {
   const left = box.x * thumbWidth;
   const top = box.y * thumbHeight;
   const width = box.width * thumbWidth;
@@ -95,7 +95,7 @@ const FaceRect = React.memo(({ face: { box, ...faceExceptForBox }, thumbWidth, t
           <polyline points={polylineLine3} />
         </svg>
       </div>
-      <div
+      {uniqueFilter && <div
         className={styles.faceRectTag}
         style={{
           left: `${box.x * thumbWidth + box.width * thumbWidth}px`,
@@ -103,12 +103,12 @@ const FaceRect = React.memo(({ face: { box, ...faceExceptForBox }, thumbWidth, t
         }}
       >
         {faceExceptForBox.gender === 'female' ? '\u2640' : '\u2642'}
-        <br />#<em>{faceExceptForBox.faceGroupNumber}</em>
+        {/* <br />#<em>{faceExceptForBox.faceGroupNumber}</em> */}
         <br />
         {faceExceptForBox.occurrence} x<br />
-        {faceExceptForBox.distToOrigin}
+        {/* {faceExceptForBox.distToOrigin} */}
         <br />
-      </div>
+      </div>}
     </>
   );
 });
