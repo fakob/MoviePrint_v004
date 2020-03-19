@@ -1816,11 +1816,8 @@ class App extends Component {
 
     if (sortMethod !== SORT_METHOD.REVERSE) {
       let baseArray = getVisibleThumbs(thumbsArray, theFilterRange);
-      if (isFaceType) {
+      if (isFaceType && sortMethod === SORT_METHOD.UNIQUE) {
         let thumbsFrameNumbers;
-        if (sortMethod !== SORT_METHOD.UNIQUE) {
-          thumbsFrameNumbers = baseArray.map(thumb => thumb.frameNumber);
-        }
         // for unique method get all face scan data
         baseArray = getFaceScanByFileId(theFileId, thumbsFrameNumbers);
         determineAndInsertFaceGroupNumber(baseArray, theFaceUniquenessThreshold);
@@ -1870,7 +1867,7 @@ class App extends Component {
   }
 
   getFaceData(fileId, sheetId) {
-    const { dispatch, settings, sheetsByFileId, visibilitySettings } = this.props;
+    const { settings, sheetsByFileId, visibilitySettings } = this.props;
     const { defaultFaceUniquenessThreshold } = settings;
 
     const arrayOfFrameNumbers = getFramenumbersOfSheet(sheetsByFileId, fileId, sheetId, visibilitySettings);

@@ -1512,8 +1512,8 @@ export const getOccurrencesOfFace = (detectionArray, frameNumber, defaultFaceUni
 
   detectionArray.forEach(frame => {
     if (frame.faceCount !== 0) {
+      const foundFaces = [];
       frame.facesArray.forEach(face => {
-        const foundFaces = [];
         const currentFaceDescriptor = Object.values(face.faceDescriptor);
         // compare descriptor value with faceDescriptorOfFace
         const dist = faceapi.euclideanDistance(currentFaceDescriptor, faceDescriptorOfFace);
@@ -1522,12 +1522,15 @@ export const getOccurrencesOfFace = (detectionArray, frameNumber, defaultFaceUni
         if (dist < defaultFaceUniquenessThreshold) {
           console.log(dist === 0 ? `this face is identical: ${dist}` : `this face is probably the same: ${dist}`);
           foundFaces.push({ ...face, distToOrigin: dist, faceDescriptor: undefined });
-        }
-        if (foundFaces.length > 0) {
-          foundFrames.push({ ...frame, facesArray: foundFaces });
+        } else if (foundFaces.length > 0) { // only add other faces if one face is similar
+          console.log(`this face is different: ${dist}`);
+          foundFaces.push({ ...face, faceDescriptor: undefined });
         }
         return undefined;
       });
+      if (foundFaces.length > 0) {
+        foundFrames.push({ ...frame, facesArray: foundFaces });
+      }
     }
     return undefined;
   });
