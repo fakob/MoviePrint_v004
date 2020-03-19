@@ -62,7 +62,7 @@ const FaceRect = React.memo(({ face: { box, ...faceExceptForBox }, thumbWidth, t
   const top = box.y * thumbHeight;
   const width = box.width * thumbWidth;
   const height = box.height * thumbHeight;
-  const cornerLength = Math.min(thumbWidth, thumbHeight) / 32;
+  const cornerLength = Math.max(2, Math.min(width, height) / 8) * -1;
 
   const leftCornerLength = Math.max(1, left - cornerLength);
   const topCornerLength = Math.max(1, top - cornerLength);
@@ -87,16 +87,7 @@ const FaceRect = React.memo(({ face: { box, ...faceExceptForBox }, thumbWidth, t
           top: `${box.y * thumbHeight}px`,
         }}
       />
-      <div
-        className={styles.faceRectSVG}
-        title={JSON.stringify(faceExceptForBox)}
-        // style={{
-        //   width: `${box.width * thumbWidth}px`,
-        //   height: `${box.height * thumbHeight}px`,
-        //   left: `${box.x * thumbWidth}px`,
-        //   top: `${box.y * thumbHeight}px`,
-        // }}
-      >
+      <div className={styles.faceRectSVG} title={JSON.stringify(faceExceptForBox)}>
         <svg width={thumbWidth} height={thumbHeight}>
           <polyline points={polylineLine0} />
           <polyline points={polylineLine1} />

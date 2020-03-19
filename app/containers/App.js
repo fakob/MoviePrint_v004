@@ -1410,7 +1410,7 @@ class App extends Component {
         console.log(thumbCount);
       }
 
-      const faceScanArray = getFaceData(fileId, sheetId);
+      const faceScanArray = this.getFaceData(fileId, sheetId);
 
       sheetsToUpdate.push({
         fileId,
