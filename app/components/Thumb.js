@@ -52,7 +52,15 @@ const AllFaces = ({ facesArray, thumbWidth, thumbHeight, uniqueFilter, isExpande
     const showFaceRect =
       (isExpanded && face.distToOrigin !== undefined) || (!isExpanded && (!uniqueFilter || face.distToOrigin === 0));
     if (showFaceRect) {
-      return <FaceRect key={face.faceId} uniqueFilter={uniqueFilter} face={face} thumbWidth={thumbWidth} thumbHeight={thumbHeight} />;
+      return (
+        <FaceRect
+          key={face.faceId}
+          uniqueFilter={uniqueFilter}
+          face={face}
+          thumbWidth={thumbWidth}
+          thumbHeight={thumbHeight}
+        />
+      );
     }
     return undefined;
   });
@@ -63,6 +71,11 @@ const FaceRect = React.memo(({ face: { box, ...faceExceptForBox }, thumbWidth, t
   const width = box.width * thumbWidth;
   const height = box.height * thumbHeight;
   const cornerLength = Math.max(2, Math.min(width, height) / 8) * -1;
+
+  // embedding styles directly as html2Canvas ignores css styling of SVGs
+  const svgStylingFill = 'none';
+  const svgStylingStroke = 'rgba(255,80,6,1)';
+  const svgStylingStrokeWidth = '1';
 
   const leftCornerLength = Math.max(1, left - cornerLength);
   const topCornerLength = Math.max(1, top - cornerLength);
@@ -89,26 +102,48 @@ const FaceRect = React.memo(({ face: { box, ...faceExceptForBox }, thumbWidth, t
       />
       <div className={styles.faceRectSVG} title={JSON.stringify(faceExceptForBox)}>
         <svg width={thumbWidth} height={thumbHeight}>
-          <polyline points={polylineLine0} />
-          <polyline points={polylineLine1} />
-          <polyline points={polylineLine2} />
-          <polyline points={polylineLine3} />
+          <polyline
+            points={polylineLine0}
+            fill={svgStylingFill}
+            stroke={svgStylingStroke}
+            strokeWidth={svgStylingStrokeWidth}
+          />
+          <polyline
+            points={polylineLine1}
+            fill={svgStylingFill}
+            stroke={svgStylingStroke}
+            strokeWidth={svgStylingStrokeWidth}
+          />
+          <polyline
+            points={polylineLine2}
+            fill={svgStylingFill}
+            stroke={svgStylingStroke}
+            strokeWidth={svgStylingStrokeWidth}
+          />
+          <polyline
+            points={polylineLine3}
+            fill={svgStylingFill}
+            stroke={svgStylingStroke}
+            strokeWidth={svgStylingStrokeWidth}
+          />
         </svg>
       </div>
-      {uniqueFilter && <div
-        className={styles.faceRectTag}
-        style={{
-          left: `${box.x * thumbWidth + box.width * thumbWidth}px`,
-          top: `${box.y * thumbHeight}px`,
-        }}
-      >
-        {faceExceptForBox.gender === 'female' ? '\u2640' : '\u2642'}
-        {/* <br />#<em>{faceExceptForBox.faceGroupNumber}</em> */}
-        <br />
-        {faceExceptForBox.occurrence} x<br />
-        {/* {faceExceptForBox.distToOrigin} */}
-        <br />
-      </div>}
+      {uniqueFilter && (
+        <div
+          className={styles.faceRectTag}
+          style={{
+            left: `${box.x * thumbWidth + box.width * thumbWidth}px`,
+            top: `${box.y * thumbHeight}px`,
+          }}
+        >
+          {faceExceptForBox.gender === 'female' ? '\u2640' : '\u2642'}
+          {/* <br />#<em>{faceExceptForBox.faceGroupNumber}</em> */}
+          <br />
+          {faceExceptForBox.occurrence} x<br />
+          {/* {faceExceptForBox.distToOrigin} */}
+          <br />
+        </div>
+      )}
     </>
   );
 });

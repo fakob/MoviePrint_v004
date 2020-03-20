@@ -135,16 +135,6 @@
   position: absolute;
 }
 
-.faceRectSVG svg {
-  /* stroke: rgba(153, 253, 114, 0.5); */
-  stroke: rgba(255,80,6,1);
-  /* fill: rgba(255,80,6,1); */
-  /* stroke: rgba(255, 255, 255, 0.5); */
-  /* fill: rgba(255, 255, 255, 0.25); */
-  fill: none;
-  stroke-width: 1px;
-}
-
 .faceRectTag {
   position: absolute;
   margin-left: 2px;
