@@ -530,41 +530,51 @@ const FloatingMenu = ({
       <Button.Group className={`${defaultView === VIEW.STANDARDVIEW ? '' : styles.hidden}`}>
         <Popup
           trigger={
-            <Dropdown
-              button
-              className={styles.dropDownButton}
-              floating
-              closeOnBlur={false}
-              disabled={!isGridViewAndDefault}
-              icon={<img src={iconZoomIn} height="18px" alt="" />}
-            >
-              <Dropdown.Menu className={`${styles.dropDownMenu} ${styles.dropDownMenuFilter}`}>
-                <Dropdown.Item
-                  className={`${styles.dropDownItem} ${styles.dropDownItemSlider}`}
-                  onClick={e => e.stopPropagation()}
-                >
-                  <Slider
-                    data-tid="zoomLevelSlider"
-                    className={styles.slider}
-                    min={0}
-                    max={9}
-                    value={defaultZoomLevel}
-                    marks={{
-                      4: 'actual size',
-                    }}
-                    onChange={value => {
-                      onChangeDefaultZoomLevel(value);
-                    }}
-                  />
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
+            <Button
+              className={styles.normalButton}
+              size="large"
+              data-tid="zoomOutBtn"
+              onClick={() => onChangeDefaultZoomLevel('zoomOut')}
+              icon={<img src={iconZoomOut} height="18px" alt="" />}
+            />
           }
           mouseEnterDelay={1000}
           on={['hover']}
-          position="right center"
+          position="bottom center"
           className={stylesPop.popup}
-          content="Zoom"
+          content="Zoom Out"
+        />
+        <Popup
+          trigger={
+            <Button
+              className={styles.normalButton}
+              size="large"
+              data-tid="zoomFitBtn"
+              onClick={() => onChangeDefaultZoomLevel('resetZoom')}
+              icon={<img src={iconExpand} height="18px" alt="" />}
+            />
+          }
+          mouseEnterDelay={1000}
+          on={['hover']}
+          position="bottom center"
+          className={stylesPop.popup}
+          content="Fit"
+        />
+        <Popup
+          trigger={
+            <Button
+              className={styles.normalButton}
+              size="large"
+              data-tid="zoomInBtn"
+              onClick={() => onChangeDefaultZoomLevel('zoomIn')}
+              icon={<img src={iconZoomIn} height="18px" alt="" />}
+            />
+          }
+          mouseEnterDelay={1000}
+          on={['hover']}
+          position="bottom center"
+          className={stylesPop.popup}
+          content="Zoom In"
         />
       </Button.Group>{' '}
       <Button.Group className={`${defaultView === VIEW.STANDARDVIEW ? '' : styles.hidden}`}>

@@ -3063,7 +3063,7 @@ class App extends Component {
         }
     }
     // make sure that it doesn't exceed the arrays limits
-    const limitedZoomLevel = limitRange(zoomLevel, 0, SCALE_VALUE_ARRAY.length);
+    const limitedZoomLevel = limitRange(zoomLevel, 0, SCALE_VALUE_ARRAY.length - 1);
     dispatch(setZoomLevel(limitedZoomLevel));
   };
 
@@ -4159,6 +4159,7 @@ ${exportObject}`;
                       width:
                         // use window width if any of these are true
                         defaultSheetView === SHEET_VIEW.TIMELINEVIEW ||
+                        file === undefined ||
                         scaleValueObject.newMoviePrintWidth < this.state.containerWidth // if smaller, width has to be undefined otherwise the center align does not work
                           ? undefined
                           : scaleValueObject.newMoviePrintWidth,
