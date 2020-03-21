@@ -4,13 +4,14 @@ import Slider, { Handle, createSliderWithTooltip } from 'rc-slider';
 import Tooltip from 'rc-tooltip';
 import {
   FACE_UNIQUENESS_THRESHOLD,
-  SORT_METHOD,
-  VIEW,
+  SCALE_VALUE_ARRAY,
   SHEET_VIEW,
   SHEET_TYPE,
   SHEET_FIT,
+  SORT_METHOD,
   THUMB_INFO_OPTIONS,
   THUMB_SELECTION,
+  VIEW,
 } from '../utils/constants';
 import styles from './FloatingMenu.css';
 import stylesPop from './Popup.css';
@@ -63,11 +64,11 @@ const FloatingMenu = ({
   onAddFaceSheetClick,
   onBackToParentClick,
   onChangeFaceUniquenessThreshold,
+  onChangeDefaultZoomLevel,
   onChangeSheetViewClick,
   onDuplicateSheetClick,
   onUpdateSheetFilter,
   onScanMovieListItemClick,
-  onSetSheetFitClick,
   onSetViewClick,
   onShowAllThumbs,
   onSortSheet,
@@ -81,14 +82,12 @@ const FloatingMenu = ({
   settings,
   sheetType,
   sheetView,
-  toggleZoom,
   visibilitySettings,
-  zoom,
 }) => {
   const [filterRange, setFilterRange] = useState(THUMB_SELECTION.VISIBLE_THUMBS);
 
   const { defaultFaceUniquenessThreshold = FACE_UNIQUENESS_THRESHOLD, defaultThumbInfo, defaultShowImages } = settings;
-  const { defaultView, defaultSheetFit, visibilityFilter } = visibilitySettings;
+  const { defaultView, defaultZoomLevel, visibilityFilter } = visibilitySettings;
   const { moviePrintAspectRatioInv, containerAspectRatioInv } = scaleValueObject;
   const isGridViewAndDefault = sheetView === SHEET_VIEW.GRIDVIEW && defaultView === VIEW.STANDARDVIEW;
   const isFaceType = sheetType === SHEET_TYPE.FACES;
@@ -529,79 +528,43 @@ const FloatingMenu = ({
         }
       />{' '}
       <Button.Group className={`${defaultView === VIEW.STANDARDVIEW ? '' : styles.hidden}`}>
-        {defaultSheetFit !== SHEET_FIT.HEIGHT && moviePrintAspectRatioInv < containerAspectRatioInv && (
-          <Popup
-            trigger={
-              <Button
-                className={styles.normalButton}
-                size="large"
-                disabled={!isGridViewAndDefault}
-                data-tid="fitHeightBtn"
-                onClick={() => onSetSheetFitClick(SHEET_FIT.HEIGHT)}
-                icon={<img src={iconResizeVertical} height="18px" alt="" />}
-              />
-            }
-            mouseEnterDelay={1000}
-            on={['hover']}
-            position="bottom center"
-            className={stylesPop.popup}
-            content="Fit height"
-          />
-        )}
-        {defaultSheetFit !== SHEET_FIT.WIDTH && moviePrintAspectRatioInv > containerAspectRatioInv && (
-          <Popup
-            trigger={
-              <Button
-                className={styles.normalButton}
-                size="large"
-                disabled={!isGridViewAndDefault}
-                data-tid="fitWidthBtn"
-                onClick={() => onSetSheetFitClick(SHEET_FIT.WIDTH)}
-                icon={<img src={iconResizeHorizontal} height="18px" alt="" />}
-              />
-            }
-            mouseEnterDelay={1000}
-            on={['hover']}
-            position="bottom center"
-            className={stylesPop.popup}
-            content="Fit width"
-          />
-        )}
-        {defaultSheetFit !== SHEET_FIT.BOTH && (
-          <Popup
-            trigger={
-              <Button
-                className={styles.normalButton}
-                size="large"
-                disabled={!isGridViewAndDefault}
-                data-tid="fitAllBtn"
-                onClick={() => onSetSheetFitClick(SHEET_FIT.BOTH)}
-                icon={<img src={iconExpand} height="18px" alt="" />}
-              />
-            }
-            mouseEnterDelay={1000}
-            on={['hover']}
-            position="bottom center"
-            className={stylesPop.popup}
-            content="Fit all"
-          />
-        )}
         <Popup
           trigger={
-            <Button
-              className={styles.normalButton}
-              size="large"
+            <Dropdown
+              button
+              className={styles.dropDownButton}
+              floating
+              closeOnBlur={false}
               disabled={!isGridViewAndDefault}
-              data-tid={zoom ? 'zoomOutBtn' : 'zoomInBtn'}
-              onClick={toggleZoom}
-              icon={<img src={zoom ? iconZoomOut : iconZoomIn} height="18px" alt="" />}
-            />
+              icon={<img src={iconZoomIn} height="18px" alt="" />}
+            >
+              <Dropdown.Menu className={`${styles.dropDownMenu} ${styles.dropDownMenuFilter}`}>
+                <Dropdown.Item
+                  className={`${styles.dropDownItem} ${styles.dropDownItemSlider}`}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <Slider
+                    data-tid="zoomLevelSlider"
+                    className={styles.slider}
+                    min={0}
+                    max={9}
+                    value={defaultZoomLevel}
+                    marks={{
+                      4: 'actual size',
+                    }}
+                    onChange={value => {
+                      onChangeDefaultZoomLevel(value);
+                    }}
+                  />
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
           }
           mouseEnterDelay={1000}
           on={['hover']}
-          position="bottom center"
+          position="right center"
           className={stylesPop.popup}
-          content={zoom ? 'Zoom out' : 'Zoom in'}
+          content="Zoom"
         />
       </Button.Group>{' '}
       <Button.Group className={`${defaultView === VIEW.STANDARDVIEW ? '' : styles.hidden}`}>

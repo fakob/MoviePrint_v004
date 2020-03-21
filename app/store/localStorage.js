@@ -61,6 +61,7 @@ import {
   SHOW_SETTINGS,
   STATEID,
   VISIBILITY_FILTER,
+  ZOOM_SCALE,
 } from '../utils/constants';
 import { createTableReduxState, updateReduxState, getReduxState } from '../utils/utilsForSqlite';
 
@@ -76,7 +77,7 @@ const initialStateJSON = {
     showSettings: SHOW_SETTINGS,
     defaultView: DEFAULT_VIEW,
     defaultSheetView: DEFAULT_SHEETVIEW,
-    defaultSheetFit: DEFAULT_SHEET_FIT,
+    defaultZoomLevel: ZOOM_SCALE,
   },
   undoGroup: {
     settings: {

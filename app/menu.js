@@ -238,6 +238,27 @@ export default class MenuBuilder {
             this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
           },
         },
+        {
+          label: 'Actual Size',
+          accelerator: 'Command+0',
+          click: () => {
+            this.mainWindow.webContents.send('send-zoom-level', 'resetZoom');
+          },
+        },
+        {
+          label: 'Zoom In',
+          accelerator: 'Command+Plus',
+          click: () => {
+            this.mainWindow.webContents.send('send-zoom-level', 'zoomIn');
+          },
+        },
+        {
+          label: 'Zoom Out',
+          accelerator: 'Command+-',
+          click: () => {
+            this.mainWindow.webContents.send('send-zoom-level', 'zoomOut');
+          },
+        },
         { type: 'separator' },
         {
           label: 'Reload application',
@@ -509,6 +530,27 @@ export default class MenuBuilder {
           accelerator: 'F11',
           click: () => {
             this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
+          },
+        },
+        {
+          label: 'Actual Size',
+          accelerator: 'Ctrl+0',
+          click: () => {
+            this.mainWindow.webContents.send('send-zoom-level', 'resetZoom');
+          },
+        },
+        {
+          label: 'Zoom In',
+          accelerator: 'Ctrl+Plus',
+          click: () => {
+            this.mainWindow.webContents.send('send-zoom-level', 'zoomIn');
+          },
+        },
+        {
+          label: 'Zoom Out',
+          accelerator: 'Ctrl+-',
+          click: () => {
+            this.mainWindow.webContents.send('send-zoom-level', 'zoomOut');
           },
         },
         { type: 'separator' },

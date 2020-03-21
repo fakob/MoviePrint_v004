@@ -29,6 +29,8 @@ export const OUTPUT_FORMAT = {
   JPG: 'jpg',
 };
 
+export const SCALE_VALUE_ARRAY = [0.25, 0.33, 0.5, 0.75, 1, 2, 3, 4, 5, 6];
+
 export const COLOR_PALETTE_PICO_EIGHT = [
   'transparent',
   '#000000',
@@ -220,7 +222,7 @@ export const WINDOW_HEIGHT = 768;
 export const MENU_HEADER_HEIGHT = 35;
 export const MENU_FOOTER_HEIGHT = 35;
 
-export const ZOOM_SCALE = 2;
+export const ZOOM_SCALE = 1;
 export const PAPER_ADJUSTMENT_SCALE = 0.9;
 export const MARGIN_ADJUSTMENT_SCALE = 0.95;
 

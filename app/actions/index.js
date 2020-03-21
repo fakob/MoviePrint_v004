@@ -75,11 +75,11 @@ export const setDefaultSheetView = defaultSheetView => {
   };
 };
 
-export const setSheetFit = defaultSheetFit => {
-  log.debug(`action: setSheetFitView - ${defaultSheetFit}`);
+export const setZoomLevel = defaultZoomLevel => {
+  log.debug(`action: setZoomLevel - ${defaultZoomLevel}`);
   return {
-    type: 'SET_SHEET_FIT',
-    defaultSheetFit,
+    type: 'SET_ZOOMLEVEL',
+    defaultZoomLevel,
   };
 };
 

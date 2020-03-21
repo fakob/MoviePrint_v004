@@ -82,6 +82,7 @@ import {
   insertOccurrence,
   isEquivalent,
   limitFrameNumberWithinMovieRange,
+  limitRange,
   pad,
   repairFrameScanData,
   setPosition,
@@ -158,9 +159,9 @@ import {
   setDefaultTimelineViewSecondsPerRow,
   setDefaultTimelineViewWidthScale,
   setEmailAddress,
-  setSheetFit,
   setView,
   setVisibilityFilter,
+  setZoomLevel,
   showAllThumbs,
   showMovielist,
   showSettings,
@@ -191,6 +192,7 @@ import {
   FRAMESDB_PATH,
   MENU_FOOTER_HEIGHT,
   MENU_HEADER_HEIGHT,
+  SCALE_VALUE_ARRAY,
   SHEET_FIT,
   SHEET_TYPE,
   SHEET_VIEW,
@@ -273,7 +275,6 @@ class App extends Component {
         metaKey: false,
         which: undefined,
       },
-      zoom: false,
       filesToLoad: [],
       showFeedbackForm: false,
       feedbackFormIsLoading: false,
@@ -368,6 +369,7 @@ class App extends Component {
     this.onChangeFaceSizeThreshold = this.onChangeFaceSizeThreshold.bind(this);
     this.onChangeFaceConfidenceThreshold = this.onChangeFaceConfidenceThreshold.bind(this);
     this.onChangeFaceUniquenessThreshold = this.onChangeFaceUniquenessThreshold.bind(this);
+    this.onChangeDefaultZoomLevel = this.onChangeDefaultZoomLevel.bind(this);
     this.onChangeFrameinfoScale = this.onChangeFrameinfoScale.bind(this);
     this.onChangeFrameinfoMargin = this.onChangeFrameinfoMargin.bind(this);
     this.onChangeMinDisplaySceneLength = this.onChangeMinDisplaySceneLength.bind(this);
@@ -382,11 +384,8 @@ class App extends Component {
     this.onShowDetailsInHeaderClick = this.onShowDetailsInHeaderClick.bind(this);
     this.onShowTimelineInHeaderClick = this.onShowTimelineInHeaderClick.bind(this);
     this.onRoundedCornersClick = this.onRoundedCornersClick.bind(this);
-    this.toggleZoom = this.toggleZoom.bind(this);
-    this.disableZoom = this.disableZoom.bind(this);
     this.onToggleShowHiddenThumbsClick = this.onToggleShowHiddenThumbsClick.bind(this);
     this.onUpdateSheetFilter = this.onUpdateSheetFilter.bind(this);
-    this.onSetSheetFitClick = this.onSetSheetFitClick.bind(this);
     this.onShowHiddenThumbsClick = this.onShowHiddenThumbsClick.bind(this);
     this.onThumbInfoClick = this.onThumbInfoClick.bind(this);
     this.onSetViewClick = this.onSetViewClick.bind(this);
@@ -445,7 +444,7 @@ class App extends Component {
 
   componentWillMount() {
     const { dispatch } = this.props;
-    const { columnCountTemp, thumbCountTemp, containerWidth, containerHeight, zoom } = this.state;
+    const { columnCountTemp, thumbCountTemp, containerWidth, containerHeight } = this.state;
     const {
       currentFileId,
       currentSecondsPerRow,
@@ -458,6 +457,7 @@ class App extends Component {
       visibilitySettings,
     } = this.props;
     const { defaultShowPaperPreview, defaultThumbCountMax } = settings;
+    const { defaultZoomLevel = ZOOM_SCALE } = visibilitySettings;
 
     // check if all movies exist
     // if not then mark them with fileMissingStatus
@@ -489,8 +489,8 @@ class App extends Component {
         thumbCountTemp,
         containerWidth,
         containerHeight,
-        zoom ? ZOOM_SCALE : 0.95,
-        zoom ? false : defaultShowPaperPreview,
+        SCALE_VALUE_ARRAY[defaultZoomLevel],
+        defaultShowPaperPreview,
         undefined,
         scenes,
         currentSecondsPerRow,
@@ -508,7 +508,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    const { dispatch, settings } = this.props;
+    const { dispatch, settings, visibilitySettings } = this.props;
 
     ipcRenderer.on('progress', (event, fileId, progressBarPercentage) => {
       this.setState({
@@ -905,6 +905,10 @@ class App extends Component {
       log.error(`Saved file error: ${message}`);
     });
 
+    ipcRenderer.on('send-zoom-level', (event, value) => {
+      this.onChangeDefaultZoomLevel(value);
+    });
+
     document.addEventListener('keydown', this.handleKeyPress);
     document.addEventListener('keyup', this.handleKeyUp);
 
@@ -1180,10 +1184,9 @@ class App extends Component {
       prevProps.settings.defaultRoundedCorners !== this.props.settings.defaultRoundedCorners ||
       prevProps.settings.defaultShowPaperPreview !== this.props.settings.defaultShowPaperPreview ||
       prevProps.settings.defaultPaperAspectRatioInv !== this.props.settings.defaultPaperAspectRatioInv ||
-      prevState.zoom !== this.state.zoom ||
       prevProps.visibilitySettings.defaultView !== this.props.visibilitySettings.defaultView ||
       prevProps.visibilitySettings.defaultSheetView !== this.props.visibilitySettings.defaultSheetView ||
-      prevProps.visibilitySettings.defaultSheetFit !== this.props.visibilitySettings.defaultSheetFit ||
+      prevProps.visibilitySettings.defaultZoomLevel !== this.props.visibilitySettings.defaultZoomLevel ||
       prevState.secondsPerRowTemp !== this.state.secondsPerRowTemp ||
       prevState.columnCountTemp !== this.state.columnCountTemp ||
       prevState.thumbCountTemp !== this.state.thumbCountTemp ||
@@ -1627,7 +1630,7 @@ class App extends Component {
   }
 
   updateScaleValue() {
-    const { columnCountTemp, thumbCountTemp, containerWidth, containerHeight, zoom } = this.state;
+    const { columnCountTemp, thumbCountTemp, containerWidth, containerHeight } = this.state;
     const {
       currentFileId,
       currentSheetId,
@@ -1638,6 +1641,7 @@ class App extends Component {
       sheetsByFileId,
       visibilitySettings,
     } = this.props;
+    const { defaultZoomLevel = ZOOM_SCALE } = visibilitySettings;
 
     // log.debug(`inside updateScaleValue and containerWidth: ${this.state.containerWidth}`);
     const scaleValueObject = getScaleValueObject(
@@ -1648,8 +1652,8 @@ class App extends Component {
       thumbCountTemp,
       containerWidth,
       containerHeight,
-      zoom ? ZOOM_SCALE : 0.95,
-      zoom ? false : settings.defaultShowPaperPreview,
+      SCALE_VALUE_ARRAY[defaultZoomLevel],
+      settings.defaultShowPaperPreview,
       undefined,
       scenes,
       currentSecondsPerRow,
@@ -1748,7 +1752,6 @@ class App extends Component {
       getThumbsCount(sheetsByFileId, currentFileId, currentSheetId, settings, visibilitySettings.visibilityFilter),
       currentSecondsPerRow,
     );
-    this.disableZoom();
   }
 
   hideSettings() {
@@ -2656,8 +2659,8 @@ class App extends Component {
     console.log(file);
     const { frameCount, path: filePath, useRatio, transformObject } = file;
 
-    let updateSheet = false;
-    let sheetId = uuidV4();
+    const updateSheet = false;
+    const sheetId = uuidV4();
 
     const faceSortMethod = SORT_METHOD.FACESIZE;
 
@@ -3040,6 +3043,30 @@ class App extends Component {
     dispatch(setDefaultFaceUniquenessThreshold(value));
   };
 
+  onChangeDefaultZoomLevel = value => {
+    const { dispatch, visibilitySettings } = this.props;
+    const { defaultZoomLevel = ZOOM_SCALE } = visibilitySettings;
+    let zoomLevel = defaultZoomLevel;
+    switch (value) {
+      case 'resetZoom':
+        zoomLevel = 4;
+        break;
+      case 'zoomIn':
+        zoomLevel += 1;
+        break;
+      case 'zoomOut':
+        zoomLevel -= 1;
+        break;
+      default:
+        if (typeof value === 'number') {
+          zoomLevel = value;
+        }
+    }
+    // make sure that it doesn't exceed the arrays limits
+    const limitedZoomLevel = limitRange(zoomLevel, 0, SCALE_VALUE_ARRAY.length);
+    dispatch(setZoomLevel(limitedZoomLevel));
+  };
+
   onChangeFrameinfoScale = value => {
     const { dispatch } = this.props;
     dispatch(setDefaultFrameinfoScale(value));
@@ -3159,18 +3186,6 @@ class App extends Component {
     }
   };
 
-  toggleZoom = () => {
-    this.setState({
-      zoom: !this.state.zoom,
-    });
-  };
-
-  disableZoom = () => {
-    this.setState({
-      zoom: false,
-    });
-  };
-
   onToggleShowHiddenThumbsClick = () => {
     const { dispatch } = this.props;
     if (this.props.visibilitySettings.visibilityFilter === THUMB_SELECTION.ALL_THUMBS) {
@@ -3178,13 +3193,6 @@ class App extends Component {
     } else {
       dispatch(setVisibilityFilter(THUMB_SELECTION.ALL_THUMBS));
     }
-  };
-
-  onSetSheetFitClick = value => {
-    const { dispatch } = this.props;
-    dispatch(setSheetFit(value));
-    // disable zoom
-    this.disableZoom();
   };
 
   onShowHiddenThumbsClick = value => {
@@ -3855,17 +3863,14 @@ ${exportObject}`;
                   fileCount={fileCount}
                   toggleMovielist={this.toggleMovielist}
                   toggleSettings={this.toggleSettings}
-                  toggleZoom={this.toggleZoom}
                   onToggleShowHiddenThumbsClick={this.onToggleShowHiddenThumbsClick}
                   onThumbInfoClick={this.onThumbInfoClick}
                   onImportMoviePrint={this.onImportMoviePrint}
                   onClearMovieList={this.onClearMovieList}
                   onSetViewClick={this.onSetViewClick}
-                  onSetSheetFitClick={this.onSetSheetFitClick}
                   openMoviesDialog={this.openMoviesDialog}
                   checkForUpdates={this.checkForUpdates}
                   onOpenFeedbackForm={this.onOpenFeedbackForm}
-                  zoom={this.state.zoom}
                   isCheckingForUpdates={this.state.isCheckingForUpdates}
                   scaleValueObject={scaleValueObject}
                   isGridView
@@ -3888,10 +3893,8 @@ ${exportObject}`;
                     onChangeSheetViewClick={this.onChangeSheetViewClick}
                     hasParent={currentHasParent}
                     onBackToParentClick={this.onBackToParentClick}
-                    zoom={this.state.zoom}
+                    onChangeDefaultZoomLevel={this.onChangeDefaultZoomLevel}
                     onSetViewClick={this.onSetViewClick}
-                    onSetSheetFitClick={this.onSetSheetFitClick}
-                    toggleZoom={this.toggleZoom}
                     onShowAllThumbs={this.onShowAllThumbs}
                     currentSheetFilter={currentSheetFilter}
                     onUpdateSheetFilter={this.onUpdateSheetFilter}
@@ -4156,10 +4159,6 @@ ${exportObject}`;
                       width:
                         // use window width if any of these are true
                         defaultSheetView === SHEET_VIEW.TIMELINEVIEW ||
-                        // currentSheetView === SHEET_VIEW.TIMELINEVIEW ||
-                        (visibilitySettings.defaultView !== VIEW.PLAYERVIEW &&
-                          visibilitySettings.defaultSheetFit !== SHEET_FIT.HEIGHT &&
-                          !this.state.zoom) ||
                         scaleValueObject.newMoviePrintWidth < this.state.containerWidth // if smaller, width has to be undefined otherwise the center align does not work
                           ? undefined
                           : scaleValueObject.newMoviePrintWidth,

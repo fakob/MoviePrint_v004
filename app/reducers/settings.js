@@ -43,7 +43,7 @@ const settings = (state = {}, action) => {
     case 'SET_DEFAULT_SAVE_OPTION_INCLUDE_INDIVIDUAL':
       return {
         ...state,
-        defaultSaveOptionIncludeIndividual: action.defaultSaveOptionIncludeIndividual
+        defaultSaveOptionIncludeIndividual: action.defaultSaveOptionIncludeIndividual,
       };
     case 'SET_DEFAULT_EMBED_FRAMENUMBERS':
       return { ...state, defaultEmbedFrameNumbers: action.defaultEmbedFrameNumbers };
@@ -60,7 +60,10 @@ const settings = (state = {}, action) => {
     case 'SET_DEFAULT_TIMELINEVIEW_SECONDS_PER_ROW':
       return { ...state, defaultTimelineViewSecondsPerRow: action.defaultTimelineViewSecondsPerRow };
     case 'SET_DEFAULT_TIMELINEVIEW_MIN_DISPLAY_SCENE_LENGTH_IN_FRAMES':
-      return { ...state, defaultTimelineViewMinDisplaySceneLengthInFrames: action.defaultTimelineViewMinDisplaySceneLengthInFrames };
+      return {
+        ...state,
+        defaultTimelineViewMinDisplaySceneLengthInFrames: action.defaultTimelineViewMinDisplaySceneLengthInFrames,
+      };
     case 'SET_DEFAULT_TIMELINEVIEW_PIXEL_PER_FRAME_RATIO':
       return { ...state, defaultTimelineViewWidthScale: action.defaultTimelineViewWidthScale };
     case 'SET_DEFAULT_TIMELINEVIEW_FLOW':

@@ -37,7 +37,7 @@ const getScaleValueObject = (
     defaultShowPathInHeader, defaultShowTimelineInHeader, defaultThumbnailScale,
     defaultTimelineViewMinDisplaySceneLengthInFrames,
     defaultTimelineViewWidthScale, defaultVideoPlayerControllerHeight } = settings;
-  const { defaultView, defaultSheetFit, showSettings } = visibilitySettings;
+  const { defaultView, showSettings } = visibilitySettings;
 
   const movieWidth = (file !== undefined && file.width !== undefined ? file.width : DEFAULT_MOVIE_WIDTH);
   const movieHeight = (file !== undefined && file.height !== undefined ? file.height : DEFAULT_MOVIE_HEIGHT);
@@ -126,12 +126,7 @@ const getScaleValueObject = (
   const scaleValueWidth = containerWidth / (showPaperPreview ? paperMoviePrintWidth : originalMoviePrintWidth);
   const scaleValueHeight = containerHeight / (showPaperPreview ? paperMoviePrintHeight : originalMoviePrintHeight);
   // default is SHEET_FIT.BOTH which is used when showSettings and forPrinting
-  let scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * zoomScale * paperAdjustmentScale;
-  if (!forPrinting && !showSettings && defaultSheetFit === SHEET_FIT.WIDTH) {
-    scaleValue = scaleValueWidth * zoomScale * paperAdjustmentScale;
-  } else if (!forPrinting && !showSettings && defaultSheetFit === SHEET_FIT.HEIGHT) {
-    scaleValue = scaleValueHeight * zoomScale * paperAdjustmentScale;
-  }
+  const scaleValue = Math.min(scaleValueWidth, scaleValueHeight) * zoomScale * paperAdjustmentScale;
   paperMoviePrintWidth *= scaleValue;
   paperMoviePrintHeight *= scaleValue;
   // calculate scaleValue for gridview
