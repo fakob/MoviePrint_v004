@@ -247,7 +247,7 @@ export default class MenuBuilder {
         },
         {
           label: 'Zoom In',
-          accelerator: 'Command+Plus',
+          accelerator: 'Command+=',
           click: () => {
             this.mainWindow.webContents.send('send-zoom-level', 'zoomIn');
           },
@@ -541,7 +541,7 @@ export default class MenuBuilder {
         },
         {
           label: 'Zoom In',
-          accelerator: 'Ctrl+Plus',
+          accelerator: 'Ctrl+=',
           click: () => {
             this.mainWindow.webContents.send('send-zoom-level', 'zoomIn');
           },
