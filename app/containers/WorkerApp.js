@@ -1,5 +1,5 @@
 // @flow
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import log from 'electron-log';
 import path from 'path';
@@ -10,19 +10,10 @@ import SortedVisibleThumbGrid from './VisibleThumbGrid';
 import SortedVisibleSceneGrid from './VisibleSceneGrid';
 import Conditional from '../components/Conditional';
 import ErrorBoundary from '../components/ErrorBoundary';
-import {
-  getMoviePrintColor,
-  getVisibleThumbs,
-  getFramenumbers,
- } from '../utils/utils';
+import { getMoviePrintColor, getVisibleThumbs, getFramenumbers } from '../utils/utils';
 import saveMoviePrint from '../utils/saveMoviePrint';
-import {
-  SHEET_VIEW,
-  VIEW,
-} from '../utils/constants';
-import {
-  getBase64Object,
-} from '../utils/utilsForOpencv';
+import { SHEET_VIEW, VIEW } from '../utils/constants';
+import { getBase64Object } from '../utils/utilsForOpencv';
 
 const { ipcRenderer } = require('electron');
 
@@ -34,13 +25,13 @@ class WorkerApp extends Component {
     this.state = {
       savingMoviePrint: false,
       sentData: {},
-      thumbObjectBase64s: {}
+      thumbObjectBase64s: {},
     };
   }
 
   componentDidMount() {
     log.debug('I am the worker window - responsible for saving a MoviePrint');
-    ipcRenderer.on('action-saved-MoviePrint-done', (event) => {
+    ipcRenderer.on('action-saved-MoviePrint-done', event => {
       this.setState({
         savingMoviePrint: false,
         sentData: {},
@@ -57,13 +48,10 @@ class WorkerApp extends Component {
         ipcRenderer.send(
           'message-from-workerWindow-to-mainWindow',
           'received-saved-file-error',
-          'MoviePrint could not be saved due to sizelimit (width > 16384)'
+          'MoviePrint could not be saved due to sizelimit (width > 16384)',
         );
       } else {
-        const visibleThumbs = getVisibleThumbs(
-          sentData.sheet.thumbsArray,
-          sentData.visibilityFilter
-        );
+        const visibleThumbs = getVisibleThumbs(sentData.sheet.thumbsArray, sentData.visibilityFilter);
 
         // calculate which frameSize is needed to be captured
         // moviePrintAspectRatioInv
@@ -71,12 +59,18 @@ class WorkerApp extends Component {
         const { newThumbWidth, moviePrintAspectRatioInv } = sentData.scaleValueObject;
         const { file } = sentData;
         const newThumbHeight = newThumbWidth * moviePrintAspectRatioInv;
-        const frameSize = Math.floor(Math.max(newThumbHeight, newThumbWidth) * 2) // get twice the needed resolution for better antialiasing
+        const frameSize = Math.floor(Math.max(newThumbHeight, newThumbWidth) * 2); // get twice the needed resolution for better antialiasing
         console.log(newThumbWidth);
         console.log(newThumbHeight);
         console.log(frameSize);
 
-        const base64Object = getBase64Object(sentData.file.path, sentData.file.useRatio, visibleThumbs, frameSize, file.transformObject);
+        const base64Object = getBase64Object(
+          sentData.file.path,
+          sentData.file.useRatio,
+          visibleThumbs,
+          frameSize,
+          file.transformObject,
+        );
 
         // console.log(base64Object);
 
@@ -100,12 +94,16 @@ class WorkerApp extends Component {
       const filePath = path.dirname(file.path);
       console.log(filePath);
       // const filePath = file.path.substring(0, file.path.lastIndexOf("/"));
-      const outputPath = sentData.settings.defaultOutputPathFromMovie ? filePath : sentData.settings.defaultOutputPath
+      const outputPath = sentData.settings.defaultOutputPathFromMovie ? filePath : sentData.settings.defaultOutputPath;
 
       const movieFilePath = sentData.settings.defaultEmbedFilePath ? sentData.file.path : undefined;
       const transformObject = sentData.settings.defaultEmbedFrameNumbers ? sentData.file.transformObject : undefined;
-      const columnCount = sentData.settings.defaultEmbedFrameNumbers ? (sentData.sheet.columnCount || sentData.settings.defaultColumnCount) : undefined;
-      const frameNumberArray = sentData.settings.defaultEmbedFrameNumbers ? getFramenumbers(sentData.sheet, sentData.visibilityFilter) : undefined;
+      const columnCount = sentData.settings.defaultEmbedFrameNumbers
+        ? sentData.sheet.columnCount || sentData.settings.defaultColumnCount
+        : undefined;
+      const frameNumberArray = sentData.settings.defaultEmbedFrameNumbers
+        ? getFramenumbers(sentData.sheet, sentData.visibilityFilter)
+        : undefined;
 
       const dataToEmbed = {
         filePath: movieFilePath,
@@ -153,26 +151,31 @@ class WorkerApp extends Component {
       console.log(sheetView);
     }
 
-
     return (
       <ErrorBoundary>
         <div>
-          {savingMoviePrint &&
+          {savingMoviePrint && (
             <div
-              ref={(r) => { this.divOfSortedVisibleThumbGridRef = r; }}
+              ref={r => {
+                this.divOfSortedVisibleThumbGridRef = r;
+              }}
               className={`${styles.ItemMain}`}
               style={{
-                width: `${sheetView !== SHEET_VIEW.TIMELINEVIEW ?
-                  sentData.moviePrintWidth :
-                  (Math.ceil(sentData.scaleValueObject.newMoviePrintTimelineWidth) + Math.ceil(sentData.scaleValueObject.thumbMarginTimeline) * 2)
-                }px`
+                width: `${
+                  sheetView !== SHEET_VIEW.TIMELINEVIEW
+                    ? sentData.moviePrintWidth
+                    : Math.ceil(sentData.scaleValueObject.newMoviePrintTimelineWidth) +
+                      Math.ceil(sentData.scaleValueObject.thumbMarginTimeline) * 2
+                }px`,
               }}
             >
-              <Fragment>
+              <>
                 <Conditional if={sheetView === SHEET_VIEW.GRIDVIEW}>
                   <SortedVisibleThumbGrid
                     isViewForPrinting
-                    inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
+                    inputRef={r => {
+                      this.sortedVisibleThumbGridRef = r;
+                    }}
                     showSettings={false}
                     settings={sentData.settings}
                     file={sentData.file}
@@ -187,12 +190,9 @@ class WorkerApp extends Component {
                     defaultShowTimelineInHeader={sentData.settings.defaultShowTimelineInHeader}
                     defaultThumbInfo={sentData.settings.defaultThumbInfo}
                     defaultThumbInfoRatio={sentData.settings.defaultThumbInfoRatio}
-
                     selectedThumbId={undefined}
-
                     colorArray={getMoviePrintColor(sentData.settings.defaultThumbCountMax)}
                     thumbCount={sentData.file.thumbCount}
-
                     sheetView={sheetView}
                     view={VIEW.STANDARDVIEW}
                     currentSheetId={sentData.currentSheetId || sentData.settings.currentSheetId}
@@ -208,7 +208,9 @@ class WorkerApp extends Component {
                     sheetView={sheetView}
                     file={sentData.file}
                     frameCount={sentData.file ? sentData.file.frameCount : undefined}
-                    inputRef={(r) => { this.sortedVisibleThumbGridRef = r; }}
+                    inputRef={r => {
+                      this.sortedVisibleThumbGridRef = r;
+                    }}
                     keyObject={{}}
                     selectedSceneId={undefined}
                     selectedSceneIdArray={undefined}
@@ -221,9 +223,9 @@ class WorkerApp extends Component {
                     useBase64
                   />
                 </Conditional>
-              </Fragment>
+              </>
             </div>
-          }
+          )}
         </div>
       </ErrorBoundary>
     );

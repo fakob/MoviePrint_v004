@@ -2508,15 +2508,18 @@ class App extends Component {
   }
 
   onSaveMoviePrint() {
-    const { file, settings, scenes, sheetsByFileId, visibilitySettings } = this.props;
     const {
       currentFileId,
       currentSheetId,
       currentSecondsPerRow,
       currentSheetView,
-      defaultMoviePrintWidth,
-      defaultPaperAspectRatioInv,
-    } = settings;
+      file,
+      settings,
+      scenes,
+      sheetsByFileId,
+      visibilitySettings,
+    } = this.props;
+    const { defaultMoviePrintWidth, defaultPaperAspectRatioInv } = settings;
     const { visibilityFilter } = visibilitySettings;
 
     const sheet = sheetsByFileId[file.id][currentSheetId];
