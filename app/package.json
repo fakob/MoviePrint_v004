@@ -6,8 +6,8 @@
   "main": "./main.prod.js",
   "author": {
     "name": "Jakob Schindegger",
-    "email": "jakob@fakob.com",
-    "url": "http://www.fakob.com"
+    "email": "jakob@movieprint.org",
+    "url": "https://movieprint.org"
   },
   "license": "MIT",
   "bugs": {

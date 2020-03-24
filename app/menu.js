@@ -308,7 +308,7 @@ export default class MenuBuilder {
         {
           label: 'Help',
           click() {
-            shell.openExternal('https://movieprint.fakob.com/movieprint-help/');
+            shell.openExternal('https://movieprint.org/help/');
           },
         },
         { type: 'separator' },
@@ -332,13 +332,13 @@ export default class MenuBuilder {
         {
           label: 'Changelog',
           click() {
-            shell.openExternal('https://movieprint.fakob.com/movieprint-changelog/');
+            shell.openExternal('https://movieprint.org/download/');
           },
         },
         {
           label: 'Credits',
           click() {
-            shell.openExternal('https://movieprint.fakob.com/movieprint-credits/');
+            shell.openExternal('https://movieprint.org/credits/');
           },
         },
       ],
@@ -601,7 +601,7 @@ export default class MenuBuilder {
         {
           label: 'Help',
           click() {
-            shell.openExternal('https://movieprint.fakob.com/movieprint-help/');
+            shell.openExternal('https://movieprint.org/help/');
           },
         },
         { type: 'separator' },
@@ -625,13 +625,13 @@ export default class MenuBuilder {
         {
           label: 'Changelog',
           click() {
-            shell.openExternal('https://movieprint.fakob.com/movieprint-changelog/');
+            shell.openExternal('https://movieprint.org/download/');
           },
         },
         {
           label: 'Credits',
           click() {
-            shell.openExternal('https://movieprint.fakob.com/movieprint-credits/');
+            shell.openExternal('https://movieprint.org/credits/');
           },
         },
       ],

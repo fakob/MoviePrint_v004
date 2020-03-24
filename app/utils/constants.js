@@ -4,9 +4,9 @@ const { app } = require('electron').remote;
 // throws error as it would be packed into main.js where this is can not be required
 // tried it again and it seems to work, lets see
 
-export const URL_CHANGE_LOG = 'https://movieprint.fakob.com/movieprint-changelog/';
-export const URL_REST_API_CHECK_FOR_UPDATES = 'https://movieprint.fakob.com/wp-json/wp/v2/pages/568'; // _Latest_Release page
-export const URL_FEEDBACK_FORM = 'http://movieprint.fakob.com/feedback-for-movieprint-app';
+export const URL_CHANGE_LOG = 'https://movieprint.org/download/';
+export const URL_REST_API_CHECK_FOR_UPDATES = 'https://movieprint.org/wp-json/wp/v2/pages/114'; // _Latest_Release page
+export const URL_FEEDBACK_FORM = 'http://movieprint.org/contact-us-from-movieprint-app';
 
 export const SHOT_DETECTION_METHOD = {
   MEAN: 'meanAverage',

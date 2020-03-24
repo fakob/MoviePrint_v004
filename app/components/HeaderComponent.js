@@ -131,7 +131,7 @@ const Header = ({
             position='bottom right'
             offset='0,8px'
             className={stylesPop.popup}
-            content="Feedback or feature request? Click here or contact us at movieprint@fakob.com"
+            content="Feedback or feature request? Click here or contact us at support@movieprint.org"
           />
         </Menu.Menu>
       </Menu>

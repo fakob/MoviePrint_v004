@@ -1,6 +1,6 @@
 ![MoviePrint](resources/icons/128x128.png)
 
-Website - [https://movieprint.fakob.com/](https://movieprint.fakob.com/)
+Website - [https://movieprint.org/](https://movieprint.org/)
 
 A tool which lets you create screenshots of entire movies in an instant.
 <br/>
@@ -26,10 +26,10 @@ As **we are not collecting any data** from you, **we are dependent on you talkin
 * what you like, what you dislike
 * and anything else you think we should know to make a better product
 
-You can use [this form](http://movieprint.fakob.com/2018/05/alpha-release-is-out/) or the `Share Feedback` button in the app.
+You can use [this form](http://movieprint.org/contact-us/) or the `Contact us` button in the app.
 
 ### Want to stay updated?
-Do you want to be informed when new features are released? Just write NEWSLETTER in [this form](http://movieprint.fakob.com/2018/05/alpha-release-is-out/) or use the `Share Feedback` button in the app.
+Do you want to be informed when new features are released? Just check Keep me up-to-date in [this form](http://movieprint.org/contact-us/) or use the `Contact us` button in the app.
 _We will only ever send you MoviePrint related updates._
 
 ### Example MoviePrints
