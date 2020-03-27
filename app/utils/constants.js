@@ -131,6 +131,12 @@ export const PAPER_LAYOUT_OPTIONS = [
   { value: 0.65, text: 'Tabloid (Landscape)', 'data-tid': 'Tabloid-L' },
   { value: 1.55, text: 'Tabloid (Portrait)', 'data-tid': 'Tabloid-P' },
   { value: 1.0, text: 'Square', 'data-tid': 'Square' },
+  { value: 0.75, text: '4:3', 'data-tid': '4:3' },
+  { value: 0.625, text: '16:10', 'data-tid': '16:10' },
+  { value: 0.5625, text: '16:9', 'data-tid': '16:9' },
+  { value: 0.5, text: '2:1', 'data-tid': '2:1' },
+  { value: 1.778, text: '9:16', 'data-tid': '9:16' },
+  { value: 2.0, text: '1:2', 'data-tid': '1:2' },
 ];
 
 export const OUTPUT_FORMAT_OPTIONS = [
