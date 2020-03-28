@@ -225,7 +225,7 @@ class VideoPlayer extends Component {
   }
 
   onDurationChange(duration) {
-    const { playHeadPositionPerc } = this.state;
+    const { playHeadPositionPerc, playHeadPositionPercSelection } = this.state;
 
     // setState is asynchronious
     // updatePosition needs to wait for setState, therefore it is put into callback of setState
@@ -561,7 +561,7 @@ class VideoPlayer extends Component {
 
   onChangeThumbClick() {
     const { currentFrame, currentScene } = this.state;
-    const { currentSheetId, file, onChangeThumb, allScenes } = this.props;
+    const { currentSheetId, file, onChangeThumb } = this.props;
 
     if (currentScene !== undefined && currentFrame !== undefined) {
       onChangeThumb(file, currentSheetId, currentScene.sceneId, currentFrame);
