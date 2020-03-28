@@ -891,14 +891,14 @@ class SettingsList extends Component {
             <Grid.Column width={12}>
               <Checkbox
                 data-tid="showPaperPreviewCheckbox"
-                label={<label className={styles.label}>Show paper preview</label>}
+                label={<label className={styles.label}>Show guide layout</label>}
                 checked={defaultShowPaperPreview}
                 onChange={this.onChangeShowPaperPreview}
               />
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
-            <Grid.Column width={4}>Layout</Grid.Column>
+            <Grid.Column width={4}>Guide layout</Grid.Column>
             <Grid.Column width={12}>
               <Dropdown
                 data-tid="paperLayoutOptionsDropdown"
