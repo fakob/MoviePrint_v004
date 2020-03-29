@@ -77,6 +77,7 @@ import {
   getSheetName,
   getSheetType,
   getSheetView,
+  getShotNumber,
   getThumbsCount,
   getVisibleThumbs,
   insertOccurrence,
@@ -2187,7 +2188,7 @@ class App extends Component {
     });
   }
 
-  onExpandClick(file, sceneOrThumbId, parentSheetId, isFaceType = false) {
+  onExpandClick(file, sceneOrThumbId, parentSheetId, sheetType = undefined) {
     const { dispatch } = this.props;
     const { files, scenes, sheetsArray, sheetsByFileId, settings } = this.props;
     const { defaultFaceUniquenessThreshold } = settings;
@@ -2216,7 +2217,7 @@ class App extends Component {
     // create new sheet if it does not already exist
     if (sheetsArray.findIndex(item => item === sheetId) === -1) {
       // expand face type
-      if (isFaceType) {
+      if (sheetType === SHEET_TYPE.FACES) {
         // get frameNumber
         const frameNumber = getFrameNumberWithSceneOrThumbId(sheetsByFileId, fileId, parentSheetId, sceneOrThumbId);
         console.log(frameNumber);
@@ -2231,19 +2232,29 @@ class App extends Component {
           defaultFaceUniquenessThreshold,
         );
       } else {
-        // log.debug(`addIntervalSheet as no thumbs were found for: ${file.name}`);
+        const startFrame = sceneArray[sceneIndex].start;
+        const endFrame = startFrame + sceneArray[sceneIndex].length - 1;
+        let sheetName = `Sequence ${startFrame} - ${endFrame}`;
+
+        if (sheetType === SHEET_TYPE.SCENES) {
+          const shotNumber = getShotNumber(sceneOrThumbId, sheetsByFileId, fileId, parentSheetId);
+          if (shotNumber !== undefined) {
+            sheetName = `Shot ${shotNumber}`;
+          }
+        }
+
         dispatch(
           addIntervalSheet(
             file,
             sheetId,
             DEFAULT_THUMB_COUNT, // use constant value instead of defaultThumbCount
-            sceneArray[sceneIndex].start,
-            sceneArray[sceneIndex].start + sceneArray[sceneIndex].length - 1,
+            startFrame,
+            endFrame,
             settings.defaultCachedFramesSize,
             true, // limitToRange -> do not get more thumbs then between in and out available
           ),
         );
-        dispatch(updateSheetName(fileId, sheetId, getNewSheetName(getSheetCount(files, fileId)))); // set name on file
+        dispatch(updateSheetName(fileId, sheetId, sheetName)); // set name on file
         dispatch(updateSheetCounter(fileId));
         dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.INTERVAL));
 

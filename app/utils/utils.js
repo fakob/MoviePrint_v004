@@ -716,6 +716,21 @@ export const getThumbsCount = (sheetsByFileId, fileId, sheetId, settings, visibi
   return sheetsByFileId[fileId][sheetId].thumbsArray.length;
 };
 
+export const getShotNumber = (sceneId, sheetsByFileId, fileId, sheetId) => {
+  if (
+    fileId === undefined ||
+    sheetsByFileId[fileId] === undefined ||
+    sheetId === undefined ||
+    sceneId === undefined ||
+    sheetsByFileId[fileId][sheetId] === undefined ||
+    sheetsByFileId[fileId][sheetId].sceneArray === undefined
+  ) {
+    return undefined;
+  }
+  const shotNumber = sheetsByFileId[fileId][sheetId].sceneArray.findIndex(scene => scene.sceneId === sceneId) + 1; // index is zero based
+  return shotNumber;
+};
+
 export const setPosition = (vid, frameNumberToCapture, useRatio) => {
   if (vid !== undefined) {
     if (useRatio) {
