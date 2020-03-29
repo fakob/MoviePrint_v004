@@ -2239,7 +2239,7 @@ class App extends Component {
         if (sheetType === SHEET_TYPE.SCENES) {
           const shotNumber = getShotNumber(sceneOrThumbId, sheetsByFileId, fileId, parentSheetId);
           if (shotNumber !== undefined) {
-            sheetName = `Shot ${shotNumber}`;
+            sheetName = `Shot #${shotNumber}`;
           }
         }
 
