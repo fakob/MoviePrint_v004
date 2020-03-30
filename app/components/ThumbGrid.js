@@ -741,7 +741,7 @@ class ThumbGrid extends Component {
                       onFocus={over}
                       onBlur={out}
                     >
-                      {isFaceType ? 'FACE' : 'EXPAND'}
+                      {isFaceType ? 'FIND' : 'EXPAND'}
                     </button>
                   }
                   mouseEnterDelay={1000}
@@ -857,7 +857,7 @@ class ThumbGrid extends Component {
                         on={['hover']}
                         position="bottom center"
                         className={stylesPop.popup}
-                        content={isShotType ? <span>Jump to cut</span> : <span>Add new thumb before</span>}
+                        content={isShotType ? <span>Jump to cut</span> : <span>Insert new thumb before</span>}
                       />
                     )}
                     {!isFaceType && (
@@ -884,8 +884,8 @@ class ThumbGrid extends Component {
                         className={stylesPop.popup}
                         content={
                           <span>
-                            Click and drag left and right to change the frame (then with <mark>SHIFT</mark> add new
-                            thumb before, <mark>ALT</mark> add new thumb after, <mark>CTRL</mark> allow dragging over
+                            Click and drag left and right to change the frame (then with <mark>SHIFT</mark> insert new
+                            thumb before, <mark>ALT</mark> insert new thumb after, <mark>CTRL</mark> allow dragging over
                             whole movie)
                           </span>
                         }
@@ -913,7 +913,7 @@ class ThumbGrid extends Component {
                         on={['hover']}
                         position="bottom center"
                         className={stylesPop.popup}
-                        content={isShotType ? <span>Jump to cut</span> : <span>Add new thumb after</span>}
+                        content={isShotType ? <span>Jump to cut</span> : <span>Insert new thumb after</span>}
                       />
                     )}
                     <Popup
