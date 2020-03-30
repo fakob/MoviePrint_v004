@@ -4,7 +4,7 @@ import log from 'electron-log';
 import sanitize from 'sanitize-filename';
 import * as faceapi from 'face-api.js';
 
-import VideoCaptureProperties from './videoCaptureProperties';
+import { VideoCaptureProperties } from './openCVProperties';
 import sheetNames from '../img/listOfNames.json';
 import { SORT_METHOD, SCENE_DETECTION_MIN_SCENE_LENGTH, SHEET_VIEW, THUMB_SELECTION } from './constants';
 
@@ -735,9 +735,10 @@ export const setPosition = (vid, frameNumberToCapture, useRatio) => {
   if (vid !== undefined) {
     if (useRatio) {
       const positionRatio = (frameNumberToCapture * 1.0) / (vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) - 1);
-      // log.debug(`using positionRatio: ${positionRatio}`);
+      // log.debug(`setPosition using positionRatio: ${positionRatio}`);
       vid.set(VideoCaptureProperties.CAP_PROP_POS_AVI_RATIO, positionRatio);
     } else {
+      // log.debug(`setPosition using frame position: ${frameNumberToCapture}`);
       vid.set(VideoCaptureProperties.CAP_PROP_POS_FRAMES, frameNumberToCapture);
     }
   }

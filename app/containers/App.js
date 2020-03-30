@@ -129,6 +129,8 @@ import {
   setDefaultFrameinfoPosition,
   setDefaultFrameinfoScale,
   setDefaultMarginRatio,
+  setDefaultOutputJpgQuality,
+  setDefaultThumbJpgQuality,
   setDefaultMoviePrintBackgroundColor,
   setDefaultMoviePrintName,
   setDefaultSingleThumbName,
@@ -136,6 +138,7 @@ import {
   setDefaultMoviePrintWidth,
   setDefaultOpenFileExplorerAfterSaving,
   setDefaultOutputFormat,
+  setDefaultThumbFormat,
   setDefaultOutputPath,
   setDefaultOutputPathFromMovie,
   setDefaultPaperAspectRatioInv,
@@ -367,6 +370,8 @@ class App extends Component {
     this.onCancelClick = this.onCancelClick.bind(this);
 
     this.onChangeMargin = this.onChangeMargin.bind(this);
+    this.onChangeOutputJpgQuality = this.onChangeOutputJpgQuality.bind(this);
+    this.onChangeThumbJpgQuality = this.onChangeThumbJpgQuality.bind(this);
     this.onChangeFaceSizeThreshold = this.onChangeFaceSizeThreshold.bind(this);
     this.onChangeFaceConfidenceThreshold = this.onChangeFaceConfidenceThreshold.bind(this);
     this.onChangeFaceUniquenessThreshold = this.onChangeFaceUniquenessThreshold.bind(this);
@@ -411,6 +416,7 @@ class App extends Component {
     this.onChangeOutputPathClick = this.onChangeOutputPathClick.bind(this);
     this.onFrameinfoPositionClick = this.onFrameinfoPositionClick.bind(this);
     this.onOutputFormatClick = this.onOutputFormatClick.bind(this);
+    this.onThumbFormatClick = this.onThumbFormatClick.bind(this);
     this.onCachedFramesSizeClick = this.onCachedFramesSizeClick.bind(this);
     this.onOverwriteClick = this.onOverwriteClick.bind(this);
     this.onIncludeIndividualClick = this.onIncludeIndividualClick.bind(this);
@@ -3042,6 +3048,16 @@ class App extends Component {
     dispatch(setDefaultMarginRatio(value / settings.defaultMarginSliderFactor));
   };
 
+  onChangeOutputJpgQuality = value => {
+    const { dispatch } = this.props;
+    dispatch(setDefaultOutputJpgQuality(value));
+  };
+
+  onChangeThumbJpgQuality = value => {
+    const { dispatch } = this.props;
+    dispatch(setDefaultThumbJpgQuality(value));
+  };
+
   onChangeFaceSizeThreshold = value => {
     const { dispatch } = this.props;
     dispatch(setDefaultFaceSizeThreshold(value));
@@ -3693,6 +3709,11 @@ ${exportObject}`;
     dispatch(setDefaultOutputFormat(value));
   };
 
+  onThumbFormatClick = value => {
+    const { dispatch } = this.props;
+    dispatch(setDefaultThumbFormat(value));
+  };
+
   onFrameinfoPositionClick = value => {
     const { dispatch } = this.props;
     // log.debug(value);
@@ -4066,6 +4087,8 @@ ${exportObject}`;
                       onApplyNewGridClick={this.onApplyNewGridClick}
                       onCancelClick={this.onCancelClick}
                       onChangeMargin={this.onChangeMargin}
+                      onChangeOutputJpgQuality={this.onChangeOutputJpgQuality}
+                      onChangeThumbJpgQuality={this.onChangeThumbJpgQuality}
                       onChangeFaceSizeThreshold={this.onChangeFaceSizeThreshold}
                       onChangeFaceConfidenceThreshold={this.onChangeFaceConfidenceThreshold}
                       onChangeFaceUniquenessThreshold={this.onChangeFaceUniquenessThreshold}
@@ -4091,6 +4114,7 @@ ${exportObject}`;
                       onChangeOutputPathClick={this.onChangeOutputPathClick}
                       onFrameinfoPositionClick={this.onFrameinfoPositionClick}
                       onOutputFormatClick={this.onOutputFormatClick}
+                      onThumbFormatClick={this.onThumbFormatClick}
                       onCachedFramesSizeClick={this.onCachedFramesSizeClick}
                       onOverwriteClick={this.onOverwriteClick}
                       onIncludeIndividualClick={this.onIncludeIndividualClick}

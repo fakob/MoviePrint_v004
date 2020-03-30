@@ -11,6 +11,9 @@ import {
   DEFAULT_MOVIEPRINT_BACKGROUND_COLOR,
   DEFAULT_MOVIEPRINT_NAME,
   DEFAULT_ALLTHUMBS_NAME,
+  DEFAULT_OUTPUT_JPG_QUALITY,
+  DEFAULT_THUMB_FORMAT,
+  DEFAULT_THUMB_JPG_QUALITY,
 } from './constants';
 
 const { ipcRenderer } = require('electron');
@@ -20,13 +23,12 @@ const saveBlob = (blob, sheetId, fileName, dataToEmbed = undefined) => {
   const reader = new FileReader();
   reader.onload = () => {
     if (reader.readyState === 2) {
-
       const buffer = Buffer.from(reader.result);
       let chunkBuffer = buffer;
 
       // if there is data to embed, create chunks and add them in the end
       if (dataToEmbed !== undefined) {
-        const { filePath, transformObject, columnCount, frameNumberArray} = dataToEmbed;
+        const { filePath, transformObject, columnCount, frameNumberArray } = dataToEmbed;
         // Create chunks
         const version = text.encode('version', app.getVersion());
         const filePathChunk = text.encode('filePath', encodeURIComponent(filePath));
@@ -70,47 +72,70 @@ const saveBlob = (blob, sheetId, fileName, dataToEmbed = undefined) => {
 };
 
 const saveMoviePrint = (
-  elementId, exportPath, file, sheetId, sheetName, scale, outputFormat, overwrite,
-    saveIndividualThumbs = false, thumbs, dataToEmbed, backgroundColor = DEFAULT_MOVIEPRINT_BACKGROUND_COLOR,
-    moviePrintName = DEFAULT_MOVIEPRINT_NAME, allThumbsName = DEFAULT_ALLTHUMBS_NAME
+  elementId,
+  exportPath,
+  file,
+  sheetId,
+  sheetName,
+  scale,
+  outputFormat,
+  overwrite,
+  saveIndividualThumbs = false,
+  thumbs,
+  dataToEmbed,
+  backgroundColor = DEFAULT_MOVIEPRINT_BACKGROUND_COLOR,
+  moviePrintName = DEFAULT_MOVIEPRINT_NAME,
+  allThumbsName = DEFAULT_ALLTHUMBS_NAME,
+  defaultOutputJpgQuality = DEFAULT_OUTPUT_JPG_QUALITY,
+  defaultThumbFormat = DEFAULT_THUMB_FORMAT,
+  defaultThumbJpgQuality = DEFAULT_THUMB_JPG_QUALITY,
 ) => {
   log.debug(file);
   const node = document.getElementById(elementId);
   const fileName = file.name;
   const frameNumber = undefined;
-  const newFilePathObject = getFilePathObject(fileName, sheetName, frameNumber, moviePrintName, outputFormat, exportPath, overwrite);
-  const newFilePathAndName = pathR.join(
-    newFilePathObject.dir,
-    newFilePathObject.base
+  const newFilePathObject = getFilePathObject(
+    fileName,
+    sheetName,
+    frameNumber,
+    moviePrintName,
+    outputFormat,
+    exportPath,
+    overwrite,
   );
+  const newFilePathAndName = pathR.join(newFilePathObject.dir, newFilePathObject.base);
 
-  const qualityArgument = 0.8; // only applicable for jpg
+  const qualityArgument = defaultOutputJpgQuality / 100.0; // only applicable for jpg
 
   // log.debug(newFilePathAndName);
   // log.debug(node);
 
   // only embed data for PNGs
   const passOnDataToEmbed = outputFormat === 'png' ? dataToEmbed : undefined;
-  const backgroundColorDependentOnFormat = outputFormat === 'png' ? // set alpha only for PNG
-    `rgba(${backgroundColor.r}, ${backgroundColor.g}, ${backgroundColor.b}, ${backgroundColor.a})` :
-    `rgb(${backgroundColor.r}, ${backgroundColor.g}, ${backgroundColor.b})`;
+  const backgroundColorDependentOnFormat =
+    outputFormat === 'png' // set alpha only for PNG
+      ? `rgba(${backgroundColor.r}, ${backgroundColor.g}, ${backgroundColor.b}, ${backgroundColor.a})`
+      : `rgb(${backgroundColor.r}, ${backgroundColor.g}, ${backgroundColor.b})`;
 
   html2canvas(node, {
     backgroundColor: backgroundColorDependentOnFormat,
     allowTaint: true,
     scale,
-  }).then((canvas) => {
-    canvas.toBlob((blob) => {
-      saveBlob(blob, sheetId, newFilePathAndName, passOnDataToEmbed);
-    }, getMimeType(outputFormat), qualityArgument);
-  }).catch((err) => {
-    log.error(err);
-  });
+  })
+    .then(canvas => {
+      canvas.toBlob(
+        blob => {
+          saveBlob(blob, sheetId, newFilePathAndName, passOnDataToEmbed);
+        },
+        getMimeType(outputFormat),
+        qualityArgument,
+      );
+    })
+    .catch(err => {
+      log.error(err);
+    });
 
-  const newFilePathAndNameWithoutExtension = pathR.join(
-    newFilePathObject.dir,
-    newFilePathObject.name
-  );
+  const newFilePathAndNameWithoutExtension = pathR.join(newFilePathObject.dir, newFilePathObject.name);
 
   if (saveIndividualThumbs) {
     thumbs.map(thumb => {
@@ -125,6 +150,8 @@ const saveMoviePrint = (
         file.transformObject,
         newFilePathAndNameWithoutExtension,
         overwrite,
+        defaultThumbFormat,
+        defaultThumbJpgQuality,
       );
     });
   }

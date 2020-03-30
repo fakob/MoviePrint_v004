@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { Popup } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
 import log from 'electron-log';
-import VideoCaptureProperties from '../utils/videoCaptureProperties';
+import { VideoCaptureProperties } from '../utils/openCVProperties';
 import {
   MOVIEPRINT_COLORS,
   VIDEOPLAYER_SLICE_ARRAY_SIZE,

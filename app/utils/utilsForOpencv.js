@@ -1,16 +1,10 @@
 import log from 'electron-log';
-import VideoCaptureProperties from './videoCaptureProperties';
+import { VideoCaptureProperties, ImwriteFlags } from './openCVProperties';
 import imageDB from './db';
-import {
-  arrayToObject,
-  setPosition,
-} from './utils';
-import {
-  SHOT_DETECTION_METHOD,
-} from './constants';
-import {
-  // updateFrameBase64,
-} from './utilsForSqlite';
+import { arrayToObject, setPosition } from './utils';
+import { DEFAULT_THUMB_JPG_QUALITY, DEFAULT_THUMB_FORMAT, OUTPUT_FORMAT, SHOT_DETECTION_METHOD } from './constants';
+import // updateFrameBase64,
+'./utilsForSqlite';
 
 const opencv = require('opencv4nodejs');
 const { ipcRenderer } = require('electron');
@@ -36,7 +30,7 @@ export const recaptureThumbs = (
     let cropLeft = 0;
     let cropRight = 0;
     if (transformObject !== undefined && transformObject !== null) {
-      console.log(transformObject)
+      console.log(transformObject);
       cropTop = transformObject.cropTop;
       cropBottom = transformObject.cropBottom;
       cropLeft = transformObject.cropLeft;
@@ -62,7 +56,6 @@ export const recaptureThumbs = (
           onlyReplace,
         );
       } else {
-
         // optional cropping
         let matCropped;
         if (transformObject !== undefined && transformObject !== null) {
@@ -72,11 +65,12 @@ export const recaptureThumbs = (
 
         // optional rescale
         let matRescaled;
-        if (frameSize !== 0) { // 0 stands for keep original size
-          matRescaled = matCropped === undefined ? mat.resizeToMax(frameSize) :  matCropped.resizeToMax(frameSize);
+        if (frameSize !== 0) {
+          // 0 stands for keep original size
+          matRescaled = matCropped === undefined ? mat.resizeToMax(frameSize) : matCropped.resizeToMax(frameSize);
         }
 
-        const outBase64 = opencv.imencode('.jpg', matRescaled || matCropped || mat).toString('base64'); // maybe change to .png?
+        const outBase64 = opencv.imencode('.jpg', matRescaled || matCropped || mat).toString('base64'); // for internal usage frame jpg is used
         ipcRenderer.send(
           'message-from-opencvWorkerWindow-to-databaseWorkerWindow',
           'send-base64-frame',
@@ -91,9 +85,16 @@ export const recaptureThumbs = (
   } catch (e) {
     log.error(e);
   }
-}
+};
 
-export const getBase64Object = (filePath, useRatio, arrayOfThumbs, frameSize = 0, transformObject = undefined) => {
+export const getBase64Object = (
+  filePath,
+  useRatio,
+  arrayOfThumbs,
+  frameSize = 0,
+  transformObject = undefined,
+  thumbFormatObject = undefined,
+) => {
   try {
     const vid = new opencv.VideoCapture(filePath);
 
@@ -105,7 +106,7 @@ export const getBase64Object = (filePath, useRatio, arrayOfThumbs, frameSize = 0
     let cropLeft = 0;
     let cropRight = 0;
     if (transformObject !== undefined && transformObject !== null) {
-      console.log(transformObject)
+      console.log(transformObject);
       cropTop = transformObject.cropTop;
       cropBottom = transformObject.cropBottom;
       cropLeft = transformObject.cropLeft;
@@ -114,14 +115,13 @@ export const getBase64Object = (filePath, useRatio, arrayOfThumbs, frameSize = 0
     const cropWidth = width - cropLeft - cropRight;
     const cropHeight = height - cropTop - cropBottom;
 
-
     const objectUrlObjects = {};
     arrayOfThumbs.map(thumb => {
       setPosition(vid, thumb.frameNumber, useRatio);
       const mat = vid.read();
       let base64 = '';
-      if (!mat.empty) {
 
+      if (!mat.empty) {
         // optional cropping
         let matCropped;
         if (transformObject !== undefined && transformObject !== null) {
@@ -131,11 +131,29 @@ export const getBase64Object = (filePath, useRatio, arrayOfThumbs, frameSize = 0
 
         // optional rescale
         let matRescaled;
-        if (frameSize !== 0) { // 0 stands for keep original size
-          matRescaled = matCropped === undefined ? mat.resizeToMax(frameSize) :  matCropped.resizeToMax(frameSize);
+        if (frameSize !== 0) {
+          // 0 stands for keep original size
+          matRescaled = matCropped === undefined ? mat.resizeToMax(frameSize) : matCropped.resizeToMax(frameSize);
         }
 
-        base64 = opencv.imencode('.jpg', matRescaled || matCropped || mat).toString('base64'); // maybe change to .png?
+        let fileFormat = DEFAULT_THUMB_FORMAT;
+        let encodingFlags = []; // default for png quality 1 (lossless - best speed setting), default for jpg -> 95% quality
+        // https://justadudewhohacks.github.io/opencv4nodejs/docs/cv#imencode
+        // https://docs.opencv.org/3.4.9/d4/da8/group__imgcodecs.html
+
+        if (thumbFormatObject !== undefined) {
+          const {
+            defaultThumbFormat = DEFAULT_THUMB_FORMAT,
+            defaultThumbJpgQuality = DEFAULT_THUMB_JPG_QUALITY,
+          } = thumbFormatObject;
+          fileFormat = defaultThumbFormat;
+          if (fileFormat === OUTPUT_FORMAT.JPG) {
+            encodingFlags = [ImwriteFlags.IMWRITE_JPEG_QUALITY, defaultThumbJpgQuality]; // 1 for IMWRITE_JPEG_QUALITY
+          }
+        } else {
+          log.debug('getBase64Object | frame is empty');
+        }
+        base64 = opencv.imencode(`.${fileFormat}`, matRescaled || matCropped || mat, encodingFlags).toString('base64');
       }
       objectUrlObjects[thumb.frameId] = base64;
       return undefined;
@@ -144,9 +162,9 @@ export const getBase64Object = (filePath, useRatio, arrayOfThumbs, frameSize = 0
   } catch (e) {
     log.error(e);
   }
-}
+};
 
-export const getDominantColor = (image, k=4) => {
+export const getDominantColor = (image, k = 4) => {
   // takes an image as input
   // returns the dominant color of the image as a list
   //
@@ -165,17 +183,17 @@ export const getDominantColor = (image, k=4) => {
   const reshapedArray = njArray.reshape(matAsArray.rows * matAsArray.cols, 3);
 
   const { labels, centers } = opencv.kmeans(
-      [
-          new opencv.Vec3(255, 0, 0),
-          new opencv.Vec3(255, 0, 0),
-          new opencv.Vec3(255, 0, 255),
-          new opencv.Vec3(255, 0, 255),
-          new opencv.Vec3(255, 255, 255)
-      ],
-      2,
-      new opencv.TermCriteria(opencv.termCriteria.EPS | opencv.termCriteria.MAX_ITER, 10, 0.1),
-      5,
-      opencv.KMEANS_RANDOM_CENTERS
+    [
+      new opencv.Vec3(255, 0, 0),
+      new opencv.Vec3(255, 0, 0),
+      new opencv.Vec3(255, 0, 255),
+      new opencv.Vec3(255, 0, 255),
+      new opencv.Vec3(255, 255, 255),
+    ],
+    2,
+    new opencv.TermCriteria(opencv.termCriteria.EPS | opencv.termCriteria.MAX_ITER, 10, 0.1),
+    5,
+    opencv.KMEANS_RANDOM_CENTERS,
   );
 
   // // count labels to find most popular
@@ -185,47 +203,44 @@ export const getDominantColor = (image, k=4) => {
   // dominant_color = clt.cluster_centers_[label_counts.most_common(1)[0][0]]
   //
   // return list(dominant_color)
-}
-
+};
 
 export const HSVtoRGB = (h, s, v) => {
   // console.log(`h: ${h}, s: ${s}, v: ${v}`);
-  let r, g, b;
+  let r;
+  let g;
+  let b;
   const i = Math.floor((h / 180) * 6);
   const f = (h / 180) * 6 - i;
-  const p = (v / 255) * (1 - (s / 255));
+  const p = (v / 255) * (1 - s / 255);
   const q = (v / 255) * (1 - f * (s / 255));
   const t = (v / 255) * (1 - (1 - f) * (s / 255));
   switch (i % 6) {
     case 0:
-      r = (v / 255), g = t, b = p;
+      (r = v / 255), (g = t), (b = p);
       break;
     case 1:
-      r = q, g = (v / 255), b = p;
+      (r = q), (g = v / 255), (b = p);
       break;
     case 2:
-      r = p, g = (v / 255), b = t;
+      (r = p), (g = v / 255), (b = t);
       break;
     case 3:
-      r = p, g = q, b = (v / 255);
+      (r = p), (g = q), (b = v / 255);
       break;
     case 4:
-      r = t, g = p, b = (v / 255);
+      (r = t), (g = p), (b = v / 255);
       break;
     case 5:
-      r = (v / 255), g = p, b = q;
+      (r = v / 255), (g = p), (b = q);
       break;
     default:
       break;
-    }
-    const rgbArray = [
-        Math.round(r * 255),
-        Math.round(g * 255),
-        Math.round(b * 255)
-    ];
-    // console.log(rgbArray);
-    return rgbArray;
-}
+  }
+  const rgbArray = [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+  // console.log(rgbArray);
+  return rgbArray;
+};
 
 // export const hsvToHsl = (h, s, v) => {
 //
@@ -250,10 +265,8 @@ export const HSVtoRGB = (h, s, v) => {
 // }
 
 export const detectCut = (previousData, currentFrame, threshold, method) => {
-
   switch (method) {
     case SHOT_DETECTION_METHOD.MEAN: {
-
       // resize and convert to HSV
       const convertedFrame = currentFrame.resizeToMax(240).cvtColor(opencv.COLOR_BGR2HSV);
       const frameMean = convertedFrame.mean();
@@ -271,11 +284,10 @@ export const detectCut = (previousData, currentFrame, threshold, method) => {
         differenceValue,
         lastColorRGB: colorArray,
         lastValue: frameMean,
-      }
+      };
       // log.error('no previousData detected');
     }
     case SHOT_DETECTION_METHOD.HIST: {
-
       // resize and convert to HSV
       const resizedFrame = currentFrame.resizeToMax(240);
       const convertedFrame = resizedFrame.cvtColor(opencv.COLOR_BGR2HSV);
@@ -285,21 +297,23 @@ export const detectCut = (previousData, currentFrame, threshold, method) => {
       const { lastValue } = previousData;
 
       // all axes for 3D hist
-      const getAllAxes = () => ([
+      const getAllAxes = () => [
         {
           channel: 0,
           bins: 32,
-          ranges: [0, 256]
-        },{
+          ranges: [0, 256],
+        },
+        {
           channel: 1,
           bins: 32,
-          ranges: [0, 256]
-        },{
+          ranges: [0, 256],
+        },
+        {
           channel: 2,
           bins: 32,
-          ranges: [0, 256]
-        }
-      ]);
+          ranges: [0, 256],
+        },
+      ];
 
       // get combined histogram for all channels
       const vHist = opencv.calcHist(convertedFrame, getAllAxes()).convertTo(opencv.CV_32F);
@@ -328,9 +342,9 @@ export const detectCut = (previousData, currentFrame, threshold, method) => {
         lastValue: vHistNormalized,
         differenceValue,
         lastColorRGB,
-      }
+      };
       // log.error('no previousData detected');
     }
     default:
   }
-}
+};

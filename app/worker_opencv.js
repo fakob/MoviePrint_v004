@@ -3,11 +3,11 @@ import { render } from 'react-dom';
 import log from 'electron-log';
 import * as tf from '@tensorflow/tfjs-node';
 
-import VideoCaptureProperties from './utils/videoCaptureProperties';
+import { VideoCaptureProperties } from './utils/openCVProperties';
 import { limitRange, setPosition, fourccToString, getCropWidthAndHeight, getArrayOfOccurrences } from './utils/utils';
 import { detectAllFaces } from './utils/faceDetection';
 import { HSVtoRGB, detectCut, recaptureThumbs } from './utils/utilsForOpencv';
-import { IN_OUT_POINT_SEARCH_LENGTH, IN_OUT_POINT_SEARCH_THRESHOLD } from './utils/constants';
+import { IN_OUT_POINT_SEARCH_LENGTH, IN_OUT_POINT_SEARCH_THRESHOLD, DEFAULT_THUMB_FORMAT, DEFAULT_THUMB_JPG_QUALITY } from './utils/constants';
 import { insertFrameScanArray, insertFaceScanArray } from './utils/utilsForSqlite';
 import Queue from './utils/queue';
 
@@ -230,7 +230,7 @@ ipcRenderer.on(
             }
 
             if (mat.empty === false) {
-              const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // maybe change to .png?
+              const outBase64 = opencv.imencode('.jpg', mat).toString('base64'); // for poster frame jpg is used
               const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES);
               ipcRenderer.send(
                 'message-from-opencvWorkerWindow-to-databaseWorkerWindow',
@@ -768,7 +768,7 @@ ipcRenderer.on(
               // rescale
               const matRescaled = matCropped === undefined ? mat.resizeToMax(720) : matCropped.resizeToMax(720);
 
-              const outJpg = opencv.imencode('.jpg', matRescaled);
+              const outJpg = opencv.imencode('.jpg', matRescaled); // for detection jpg is used
               const input = tf.node.decodeJpeg(outJpg);
 
               detectionPromise = detectAllFaces(
@@ -948,7 +948,7 @@ ipcRenderer.on(
               }
               // opencv.imshow('matRescaled', matRescaled);
               const matResult = matRescaled || matCropped || mat;
-              const outBase64 = opencv.imencode('.jpg', matResult).toString('base64'); // maybe change to .png?
+              const outBase64 = opencv.imencode('.jpg', matResult).toString('base64'); // for internal usage frame jpg is used
               const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
               const frameId = frameIdArray[iterator];
               // get color

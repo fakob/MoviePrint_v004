@@ -128,6 +128,7 @@ class WorkerApp extends Component {
         sentData.settings.defaultMoviePrintBackgroundColor,
         sentData.settings.defaultMoviePrintName,
         sentData.settings.defaultAllThumbsName,
+        sentData.settings.defaultOutputJpgQuality,
       );
     }
   }

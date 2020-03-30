@@ -250,6 +250,8 @@ const mapDispatchToProps = (dispatch, ownProps) => {
         transformObject,
         outputPath,
         true,
+        ownProps.settings.defaultThumbFormat,
+        ownProps.settings.defaultThumbJpgQuality,
       );
     },
     onBackClick: (file, thumbId, frameNumber) => {

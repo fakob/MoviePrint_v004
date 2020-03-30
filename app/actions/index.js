@@ -213,6 +213,30 @@ export const setDefaultOutputFormat = defaultOutputFormat => {
   };
 };
 
+export const setDefaultOutputJpgQuality = defaultOutputJpgQuality => {
+  log.debug(`action: setDefaultOutputJpgQuality - ${defaultOutputJpgQuality}`);
+  return {
+    type: 'SET_DEFAULT_OUTPUT_JPG_QUALITY',
+    defaultOutputJpgQuality,
+  };
+};
+
+export const setDefaultThumbFormat = defaultThumbFormat => {
+  log.debug(`action: setDefaultThumbFormat - ${defaultThumbFormat}`);
+  return {
+    type: 'SET_DEFAULT_THUMB_FORMAT',
+    defaultThumbFormat,
+  };
+};
+
+export const setDefaultThumbJpgQuality = defaultThumbJpgQuality => {
+  log.debug(`action: setDefaultThumbJpgQuality - ${defaultThumbJpgQuality}`);
+  return {
+    type: 'SET_DEFAULT_THUMB_JPG_QUALITY',
+    defaultThumbJpgQuality,
+  };
+};
+
 export const setDefaultCachedFramesSize = defaultCachedFramesSize => {
   log.debug(`action: setDefaultCachedFramesSize - ${defaultCachedFramesSize}`);
   return {

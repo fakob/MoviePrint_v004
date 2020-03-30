@@ -36,6 +36,12 @@ const settings = (state = {}, action) => {
       return { ...state, defaultOutputPath: action.defaultOutputPath };
     case 'SET_DEFAULT_OUTPUT_FORMAT':
       return { ...state, defaultOutputFormat: action.defaultOutputFormat };
+    case 'SET_DEFAULT_OUTPUT_JPG_QUALITY':
+      return { ...state, defaultOutputJpgQuality: action.defaultOutputJpgQuality };
+    case 'SET_DEFAULT_THUMB_FORMAT':
+      return { ...state, defaultThumbFormat: action.defaultThumbFormat };
+    case 'SET_DEFAULT_THUMB_JPG_QUALITY':
+      return { ...state, defaultThumbJpgQuality: action.defaultThumbJpgQuality };
     case 'SET_DEFAULT_CACHED_FRAMES_SIZE':
       return { ...state, defaultCachedFramesSize: action.defaultCachedFramesSize };
     case 'SET_DEFAULT_SAVE_OPTION_OVERWRITE':
