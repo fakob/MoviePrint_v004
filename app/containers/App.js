@@ -3369,7 +3369,7 @@ class App extends Component {
     dispatch(setCurrentSheetId(newSheetId));
 
     // if interval scene then create artificial sceneArray
-    if (getSheetType(sheetsByFileId, theFileId, newSheetId, settings) === SHEET_TYPE.INTERVAL) {
+    if (getSheetType(sheetsByFileId, theFileId, theSheetId, settings) === SHEET_TYPE.INTERVAL) {
       const sceneArray = createSceneArray(sheetsByFileId, theFileId, newSheetId);
       dispatch(updateSceneArray(theFileId, newSheetId, sceneArray));
     }
