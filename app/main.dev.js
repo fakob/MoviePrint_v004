@@ -292,10 +292,6 @@ ipcMain.on('reload-databaseWorkerWindow', event => {
   databaseWorkerWindow.webContents.reload();
 });
 
-ipcMain.on('request-save-MoviePrint', (event, arg) => {
-  workerWindow.webContents.send('action-save-MoviePrint', arg);
-});
-
 ipcMain.on('send-save-json-to-file', (event, id, filePath, json) => {
   fs.writeFile(filePath, json, err => {
     if (err) {

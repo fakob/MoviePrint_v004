@@ -2570,7 +2570,9 @@ class App extends Component {
       currentSecondsPerRow,
     };
     // log.debug(dataToSend);
-    this.setState({ savingMoviePrint: true }, ipcRenderer.send('request-save-MoviePrint', dataToSend));
+    this.setState({ savingMoviePrint: true },
+      ipcRenderer.send('message-from-mainWindow-to-workerWindow', 'action-save-MoviePrint', dataToSend);
+    );
   }
 
   onSaveAllMoviePrints() {

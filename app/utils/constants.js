@@ -29,7 +29,7 @@ export const OUTPUT_FORMAT = {
   JPG: 'jpg',
 };
 
-export const SCALE_VALUE_ARRAY = [0.25, 0.33, 0.5, 0.75, 1, 2, 3, 4, 5, 6];
+export const SCALE_VALUE_ARRAY = [0.25, 0.33, 0.5, 0.75, 1, 2, 3, 4, 5, 6, 7, 8];
 
 export const COLOR_PALETTE_PICO_EIGHT = [
   'transparent',

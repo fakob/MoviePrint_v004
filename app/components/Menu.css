@@ -17,6 +17,55 @@
   background-color: rgba(255, 80, 6, 0.5) !important;
 }
 
+.saveButton :global(.ui.loader) {
+  margin-right: 4.5px !important;
+}
+
+.saveButton :global(.ui.mini.loader) {
+  height: 0.8rem !important;
+}
+
+.saveButton :global(.ui.loader:after) {
+  border-color: #ffffff transparent transparent !important;
+}
+
+@keyframes rotating {
+  from {
+    -ms-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -ms-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes loader{
+  from {
+    -webkit-transform:rotate(0);
+    transform:rotate(0)
+  } to {
+    -webkit-transform:rotate(360deg);
+      transform:rotate(360deg)
+      }}
+
+.spinner {
+  animation:loader .6s linear;
+  animation-iteration-count:infinite;
+  border-radius:500rem;
+  border-color:#767676 transparent transparent;
+  border-style:solid;
+  width: 4px;
+  border-width:.2em;
+  box-shadow:0 0 0 1px transparent
+}
+
 /* .headerItem {
   float: left;
   opacity: 0.5;
