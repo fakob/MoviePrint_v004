@@ -286,7 +286,7 @@ class SettingsList extends Component {
   addAttributeIntoInput = attribute => {
     const { focusReference } = this.state;
     if (focusReference !== undefined) {
-      console.log(focusReference);
+      // console.log(focusReference);
       const newText = typeInTextarea(focusReference, attribute);
       const previewName = this.onGetPreviewCustomFileName(newText);
       switch (focusReference.name) {
@@ -909,10 +909,9 @@ class SettingsList extends Component {
               </Grid.Column>
             </Grid.Row>
           )}
-          <Divider inverted />
           <Grid.Row>
             <Grid.Column width={16}>
-              <Accordion inverted>
+              <Accordion inverted className={styles.accordion}>
                 <Accordion.Title active={activeIndex === 0} index={0} onClick={this.handleClick}>
                   <Icon name="dropdown" />
                   Guide layout
@@ -942,7 +941,11 @@ class SettingsList extends Component {
                   </Grid>
                 </Accordion.Content>
 
-                <Accordion.Title active={activeIndex === 1} index={1} onClick={this.handleClick}>
+                <Accordion.Title
+                  active={activeIndex === 1}
+                  index={1}
+                  onClick={this.handleClick}
+                >
                   <Icon name="dropdown" />
                   Styling
                 </Accordion.Title>
@@ -1334,6 +1337,7 @@ class SettingsList extends Component {
                             defaultValue={defaultOutputJpgQuality}
                             marks={{
                               0: '0',
+                              80: '80',
                               100: '100',
                             }}
                             handle={handle}
@@ -1456,6 +1460,7 @@ class SettingsList extends Component {
                             defaultValue={defaultThumbJpgQuality}
                             marks={{
                               0: '0',
+                              95: '95',
                               100: '100',
                             }}
                             handle={handle}
@@ -1675,6 +1680,19 @@ class SettingsList extends Component {
                 <Accordion.Content active={activeIndex === 6}>
                   <Grid padded inverted>
                     <Grid.Row>
+                      <Grid.Column width={4}>Shot detection method</Grid.Column>
+                      <Grid.Column width={12}>
+                        <Dropdown
+                          data-tid="shotDetectionMethodOptionsDropdown"
+                          placeholder="Select..."
+                          selection
+                          options={SHOT_DETECTION_METHOD_OPTIONS}
+                          defaultValue={defaultShotDetectionMethod}
+                          onChange={this.onChangeShotDetectionMethod}
+                        />
+                      </Grid.Column>
+                    </Grid.Row>
+                    <Grid.Row>
                       <Grid.Column width={4}>Detection chart</Grid.Column>
                       <Grid.Column width={12}>
                         <Popup
@@ -1714,19 +1732,6 @@ class SettingsList extends Component {
                           label={<label className={styles.label}>Show input field instead of slider</label>}
                           checked={!this.state.showSliders}
                           onChange={this.onShowSliders}
-                        />
-                      </Grid.Column>
-                    </Grid.Row>
-                    <Grid.Row>
-                      <Grid.Column width={4}>Shot detection method</Grid.Column>
-                      <Grid.Column width={12}>
-                        <Dropdown
-                          data-tid="shotDetectionMethodOptionsDropdown"
-                          placeholder="Select..."
-                          selection
-                          options={SHOT_DETECTION_METHOD_OPTIONS}
-                          defaultValue={defaultShotDetectionMethod}
-                          onChange={this.onChangeShotDetectionMethod}
                         />
                       </Grid.Column>
                     </Grid.Row>
