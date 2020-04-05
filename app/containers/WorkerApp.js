@@ -129,6 +129,8 @@ class WorkerApp extends Component {
         sentData.settings.defaultMoviePrintName,
         sentData.settings.defaultAllThumbsName,
         sentData.settings.defaultOutputJpgQuality,
+        sentData.settings.defaultThumbFormat,
+        sentData.settings.defaultThumbJpgQuality,
       );
     }
   }
