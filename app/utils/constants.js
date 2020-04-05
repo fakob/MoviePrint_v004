@@ -231,7 +231,7 @@ export const WINDOW_HEIGHT = 768;
 export const MENU_HEADER_HEIGHT = 35;
 export const MENU_FOOTER_HEIGHT = 35;
 
-export const ZOOM_SCALE = 1;
+export const ZOOM_SCALE = 4; // index of SCALE_VALUE_ARRAY
 export const PAPER_ADJUSTMENT_SCALE = 0.9;
 export const MARGIN_ADJUSTMENT_SCALE = 0.95;
 

@@ -239,7 +239,7 @@ export default class MenuBuilder {
           },
         },
         {
-          label: 'Actual Size',
+          label: 'Fit MoviePrint',
           accelerator: 'Command+0',
           click: () => {
             this.mainWindow.webContents.send('send-zoom-level', 'resetZoom');
@@ -533,7 +533,7 @@ export default class MenuBuilder {
           },
         },
         {
-          label: 'Actual Size',
+          label: 'Fit MoviePrint',
           accelerator: 'Ctrl+0',
           click: () => {
             this.mainWindow.webContents.send('send-zoom-level', 'resetZoom');

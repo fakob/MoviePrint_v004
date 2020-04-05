@@ -558,7 +558,7 @@ const FloatingMenu = ({
           on={['hover']}
           position="bottom center"
           className={stylesPop.popup}
-          content="Fit"
+          content="Fit MoviePrint"
         />
         <Popup
           trigger={
