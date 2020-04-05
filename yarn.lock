@@ -4848,6 +4848,14 @@ ejs@~2.5.6:
   resolved "https://registry.yarnpkg.com/ejs/-/ejs-2.5.9.tgz#7ba254582a560d267437109a68354112475b0ce5"
   integrity sha512-GJCAeDBKfREgkBtgrYSf9hQy9kTb3helv0zGdzqhM7iAkW8FA/ZF97VQDbwFiwIT8MQLLOe5VlPZOEvZAqtUAQ==
 
+electron-builder-notarize@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/electron-builder-notarize/-/electron-builder-notarize-1.1.2.tgz#29939591c6edf133aadc8450d975e9ce94a15da3"
+  integrity sha512-IiuG+Wwky4EwekhJ9T5t9m00sFL9EGUrkyr4wqivXxrvtWIGAh2WCUwO6e47l3W8nE/4ng0v+VNJhZEIlCu1xg==
+  dependencies:
+    electron-notarize "^0.2.0"
+    read-pkg-up "^7.0.0"
+
 electron-builder@^22.3.2:
   version "22.3.2"
   resolved "https://registry.yarnpkg.com/electron-builder/-/electron-builder-22.3.2.tgz#902d150fc0670cb90213262e5e0aa3c4f299ffa4"
@@ -4955,6 +4963,14 @@ electron-log@^4.0.4:
   version "4.0.5"
   resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.0.5.tgz#4179f0ecf28917e74f0408cfa1e93857b8f20f97"
   integrity sha512-YadfIactRvhnkclBwxJ9jYGCrkbjhpPXjQXglz71rzrhUq1mXq3DyISrq1t4XiL0C8HKJbSpAq5DXbDppPxzaQ==
+
+electron-notarize@^0.2.0:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/electron-notarize/-/electron-notarize-0.2.1.tgz#759e8006decae19134f82996ed910db26d9192cc"
+  integrity sha512-oZ6/NhKeXmEKNROiFmRNfytqu3cxqC95sjooG7kBXQVEUSQkZnbiAhxVh5jXngL881G197pbwpeVPJyM7Ikmxw==
+  dependencies:
+    debug "^4.1.1"
+    fs-extra "^8.1.0"
 
 electron-process-manager@^1.0.0:
   version "1.0.0"

@@ -1,8 +1,9 @@
 {
   "name": "MoviePrint_v004",
   "productName": "MoviePrint_v004",
-  "version": "0.2.16",
+  "version": "0.2.17",
   "description": "A tool which lets you create screenshots of entire movies in an instant.",
+  "copyright": "Copyright © 2020 ${author}",
   "scripts": {
     "build": "concurrently \"yarn build-main\" \"yarn build-renderer\"",
     "build-dll": "cross-env NODE_ENV=development webpack --config ./configs/webpack.config.renderer.dev.dll.babel.js --colors",
@@ -35,7 +36,14 @@
     "test-e2e": "cross-env NODE_ENV=test BABEL_DISABLE_CACHE=1 node -r @babel/register ./internals/scripts/RunTests.js e2e",
     "test-watch": "yarn test --watch"
   },
-  "browserslist": "electron 1.6",
+  "browserslist": {
+    "production": [
+      "electron 7.1.11"
+    ],
+    "development": [
+      "electron 7.1.11"
+    ]
+  },
   "lint-staged": {
     "*.{js,jsx}": [
       "cross-env NODE_ENV=development eslint --cache --format=pretty",
@@ -57,7 +65,8 @@
   },
   "build": {
     "productName": "MoviePrint_v004",
-    "appId": "com.fakob.movieprint",
+    "appId": "org.movieprint.movieprint",
+    "artifactName": "${productName}-${version}-${os}.${ext}",
     "files": [
       "dist/",
       "node_modules/",
@@ -89,7 +98,10 @@
         }
       ]
     },
+    "afterSign": "electron-builder-notarize",
     "mac": {
+      "hardenedRuntime": true,
+      "entitlements": "./node_modules/electron-builder-notarize/entitlements.mac.inherit.plist",
       "files": [
         "!node_modules/opencv-build/opencv/opencv/",
         "!node_modules/opencv-build/opencv/opencv_contrib/",
@@ -228,6 +240,7 @@
     "detect-port": "^1.2.3",
     "electron": "7.1.11",
     "electron-builder": "^22.3.2",
+    "electron-builder-notarize": "^1.1.2",
     "electron-devtools-installer": "^2.2.4",
     "electron-rebuild": "^1.8.2",
     "enzyme": "^3.4.4",
