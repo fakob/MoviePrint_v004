@@ -102,6 +102,9 @@
     "mac": {
       "hardenedRuntime": true,
       "entitlements": "./node_modules/electron-builder-notarize/entitlements.mac.inherit.plist",
+      "target": [
+        "dmg"
+      ],
       "files": [
         "!node_modules/opencv-build/opencv/opencv/",
         "!node_modules/opencv-build/opencv/opencv_contrib/",
@@ -303,6 +306,7 @@
     "core-js": "^3.6.4",
     "devtron": "^1.4.0",
     "dexie": "^2.0.1",
+    "dotenv": "^8.2.0",
     "electron-chartjs": "^1.0.0",
     "electron-debug": "^3.0.1",
     "electron-log": "^4.0.4",

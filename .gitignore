@@ -51,3 +51,4 @@ main.js.map
 .idea
 npm-debug.log.*
 .env
+electron-builder.env
