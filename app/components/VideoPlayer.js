@@ -271,9 +271,19 @@ class VideoPlayer extends Component {
         const thisFrameIsACut = arrayOfCuts.some(item => item === offsetFrameNumber + i + 1);
 
         if (offsetFrameNumber + i >= 0) {
-          const frame = vid.read();
-          if (!frame.empty) {
+          const mat = vid.read();
+          if (!mat.empty) {
+            const frame = vid.read();
             const matResized = frame.rescale(rescaleFactor);
+            // const { rotationFlag = RotateFlags.NO_ROTATION } = file.transformObject;
+            // // first rotate if necessary
+            // let matRotated = mat;
+            // if (rotationFlag !== RotateFlags.NO_ROTATION) {
+            //   matRotated = mat.rotate(rotationFlag);
+            // }
+            //
+            // const matResized = matRotated.rescale(rescaleFactor);
+
             const matCropped = matResized.getRegion(
               new opencv.Rect(
                 sliceXPos,

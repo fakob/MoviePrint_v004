@@ -6,7 +6,13 @@ import * as faceapi from 'face-api.js';
 
 import { VideoCaptureProperties } from './openCVProperties';
 import sheetNames from '../img/listOfNames.json';
-import { SORT_METHOD, SCENE_DETECTION_MIN_SCENE_LENGTH, SHEET_VIEW, THUMB_SELECTION } from './constants';
+import {
+  SORT_METHOD,
+  SCENE_DETECTION_MIN_SCENE_LENGTH,
+  SHEET_VIEW,
+  THUMB_SELECTION,
+  TRANSFORMOBJECT_INIT,
+} from './constants';
 
 const randomColor = require('randomcolor');
 const { app } = require('electron').remote;
@@ -609,9 +615,9 @@ export const getFileTransformObject = (files, fileId) => {
   // console.log(file);
   if (file === undefined) {
     // there is no file yet, so return undefined
-    return 0;
+    return undefined;
   }
-  return file.transformObject;
+  return file.transformObject || TRANSFORMOBJECT_INIT;
 };
 
 export const getSheetIdArray = (sheetsByFileId, fileId) => {
@@ -1538,7 +1544,8 @@ export const getOccurrencesOfFace = (detectionArray, frameNumber, defaultFaceUni
         if (dist < defaultFaceUniquenessThreshold) {
           console.log(dist === 0 ? `this face is identical: ${dist}` : `this face is probably the same: ${dist}`);
           foundFaces.push({ ...face, distToOrigin: dist, faceDescriptor: undefined });
-        } else if (foundFaces.length > 0) { // only add other faces if one face is similar
+        } else if (foundFaces.length > 0) {
+          // only add other faces if one face is similar
           console.log(`this face is different: ${dist}`);
           foundFaces.push({ ...face, faceDescriptor: undefined });
         }

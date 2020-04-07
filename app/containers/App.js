@@ -56,7 +56,6 @@ import {
   getFileStatsObject,
   getFileTransformObject,
   getFrameCount,
-  getFrameNumberArrayOfOccurrences,
   getFramenumbersOfSheet,
   getHighestFrame,
   getIntervalArray,
@@ -90,6 +89,7 @@ import {
   sortArray,
   sortThumbsArray,
 } from '../utils/utils';
+import { RotateFlags } from '../utils/openCVProperties';
 import styles from './App.css';
 import stylesPop from '../components/Popup.css';
 import {
@@ -112,7 +112,7 @@ import {
   mergeScenes,
   removeMovieListItem,
   replaceFileDetails,
-  setCropping,
+  setTransform,
   setCurrentFileId,
   setCurrentSheetId,
   setDefaultCachedFramesSize,
@@ -170,7 +170,8 @@ import {
   showMovielist,
   showSettings,
   showThumbsByFrameNumberArray,
-  updateCropping,
+  rotateWidthAndHeight,
+  updateTransform,
   updateFileDetails,
   updateFileDetailUseRatio,
   updateFileMissingStatus,
@@ -196,8 +197,8 @@ import {
   FRAMESDB_PATH,
   MENU_FOOTER_HEIGHT,
   MENU_HEADER_HEIGHT,
+  ROTATION_OPTIONS,
   SCALE_VALUE_ARRAY,
-  SHEET_FIT,
   SHEET_TYPE,
   SHEET_VIEW,
   SHOT_DETECTION_METHOD,
@@ -410,6 +411,7 @@ class App extends Component {
     this.onReplaceMovieListItemClick = this.onReplaceMovieListItemClick.bind(this);
     this.onEditTransformListItemClick = this.onEditTransformListItemClick.bind(this);
     this.onChangeTransform = this.onChangeTransform.bind(this);
+    this.handleTransformChange = this.handleTransformChange.bind(this);
     this.onRemoveMovieListItem = this.onRemoveMovieListItem.bind(this);
     this.onDeleteSheetClick = this.onDeleteSheetClick.bind(this);
     this.onChangeDefaultMoviePrintName = this.onChangeDefaultMoviePrintName.bind(this);
@@ -3257,30 +3259,63 @@ class App extends Component {
     const { files } = this.props;
     const file = getFile(files, fileId);
 
-    const { transformObject = { cropTop: 0, cropBottom: 0, cropLeft: 0, cropRight: 0 } } = file; // initialise if undefined
+    const { transformObject = { cropTop: 0, cropBottom: 0, cropLeft: 0, cropRight: 0, rotationFlag: RotateFlags.NO_ROTATION } } = file; // initialise if undefined
     this.setState({
       showTransformModal: true,
       transformObject: { fileId, ...transformObject }, // adding fileId
     });
   };
 
-  onChangeTransform = e => {
-    const { dispatch } = this.props;
+  handleTransformChange = (e, { name, value }) => {
     const { transformObject } = this.state;
-    const { cropTop, cropBottom, cropLeft, cropRight } = e.target;
-    // console.log(typeof cropTop.value);
-    dispatch(
-      updateCropping(
-        transformObject.fileId,
-        parseInt(cropTop.value, 10),
-        parseInt(cropBottom.value, 10),
-        parseInt(cropLeft.value, 10),
-        parseInt(cropRight.value, 10),
-      ),
-    );
+    console.log(name)
+    console.log(value)
+    if (value === 4) {
+      this.setState({
+        transformObject: {
+          ...transformObject,
+          [name]: null,
+        },
+      });
+    } else {
+      this.setState({
+        transformObject: {
+          ...transformObject,
+          [name]: parseInt(value, 10),
+        },
+      });
+    }
+  };
+
+  onChangeTransform = () => {
+    const { dispatch, files } = this.props;
+    const { transformObject } = this.state;
+    const { cropTop, cropBottom, cropLeft, cropRight, rotationFlag } = transformObject;
+    console.log(transformObject);
+
+    const transformObjectBefore = getFileTransformObject(files, transformObject.fileId);
+    console.log(transformObjectBefore);
+
+    const wasThereAChange =
+      transformObjectBefore.rotationFlag !== transformObject.rotationFlag ||
+      transformObjectBefore.cropTop !== transformObject.cropTop ||
+      transformObjectBefore.cropBottom !== transformObject.cropBottom ||
+      transformObjectBefore.cropLeft !== transformObject.cropLeft ||
+      transformObjectBefore.cropRight !== transformObject.cropRight;
+
+    console.log(wasThereAChange);
+
+    if (wasThereAChange) {
+      dispatch(updateTransform(transformObject.fileId, rotationFlag, cropTop, cropBottom, cropLeft, cropRight));
+      if (rotationFlag === RotateFlags.ROTATE_90_CLOCKWISE || rotationFlag === RotateFlags.ROTATE_90_COUNTERCLOCKWISE) {
+        dispatch(rotateWidthAndHeight(transformObject.fileId, true));
+      } else {
+        dispatch(rotateWidthAndHeight(transformObject.fileId, false));
+      }
+    }
     this.setState({
       showTransformModal: false,
-      fileIdToBeRecaptured: transformObject.fileId,
+      ...(wasThereAChange && { fileIdToBeRecaptured: transformObject.fileId }),
     });
   };
 
@@ -3522,8 +3557,9 @@ ${exportObject}`;
           });
           if (transformObject !== undefined) {
             dispatch(
-              setCropping(
+              setTransform(
                 fileId,
+                transformObject.rotationFlag || RotateFlags.NO_ROTATION,
                 transformObject.cropTop,
                 transformObject.cropBottom,
                 transformObject.cropLeft,
@@ -4539,6 +4575,15 @@ ${exportObject}`;
                     <Modal.Description>
                       <Form onSubmit={this.onChangeTransform}>
                         <Form.Group>
+                          <Header as="h3">Rotation</Header>
+                          <Form.Select
+                            name="rotationFlag"
+                            label="rotationFlag"
+                            options={ROTATION_OPTIONS}
+                            // placeholder="Select"
+                            onChange={this.handleTransformChange}
+                            defaultValue={this.state.transformObject.rotationFlag}
+                          />
                           <Header as="h3">Cropping in pixel</Header>
                           <Form.Input
                             name="cropTop"
@@ -4548,6 +4593,7 @@ ${exportObject}`;
                             min="0"
                             width={3}
                             defaultValue={this.state.transformObject.cropTop}
+                            onChange={this.handleTransformChange}
                           />
                           <Form.Input
                             name="cropBottom"
@@ -4557,6 +4603,7 @@ ${exportObject}`;
                             min="0"
                             width={3}
                             defaultValue={this.state.transformObject.cropBottom}
+                            onChange={this.handleTransformChange}
                           />
                           <Form.Input
                             name="cropLeft"
@@ -4566,6 +4613,7 @@ ${exportObject}`;
                             min="0"
                             width={3}
                             defaultValue={this.state.transformObject.cropLeft}
+                            onChange={this.handleTransformChange}
                           />
                           <Form.Input
                             name="cropRight"
@@ -4575,33 +4623,7 @@ ${exportObject}`;
                             min="0"
                             width={3}
                             defaultValue={this.state.transformObject.cropRight}
-                          />
-                        </Form.Group>
-                        <Form.Button content="Update cropping" />
-                      </Form>
-                    </Modal.Description>
-                  </Modal.Content>
-                </Modal>
-                <Modal
-                  open={this.state.showSaveThumbModal}
-                  onClose={() => this.setState({ showSaveThumbModal: false })}
-                  size="small"
-                  closeIcon
-                >
-                  <Modal.Header>Save thumb</Modal.Header>
-                  <Modal.Content image>
-                    <Modal.Description>
-                      <Form onSubmit={this.onChangeTransform}>
-                        <Form.Group>
-                          <Header as="h3">Cropping in pixel</Header>
-                          <Form.Input
-                            name="cropTop"
-                            label="From top"
-                            placeholder="top"
-                            type="number"
-                            min="0"
-                            width={3}
-                            defaultValue={this.state.transformObject.cropTop}
+                            onChange={this.handleTransformChange}
                           />
                         </Form.Group>
                         <Form.Button content="Update cropping" />

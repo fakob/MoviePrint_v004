@@ -1,4 +1,5 @@
 import path from 'path';
+import { RotateFlags } from './openCVProperties';
 
 const { app } = require('electron').remote;
 // throws error as it would be packed into main.js where this is can not be required
@@ -96,6 +97,25 @@ export const SHEET_TYPE_OPTIONS = [
   { value: SHEET_TYPE.SCENES, text: 'Scenes', 'data-tid': 'sheetTypeOptionsScenes' },
   { value: SHEET_TYPE.FACES, text: 'Faces', 'data-tid': 'sheetTypeOptionsFaces' },
 ];
+
+export const ROTATION_OPTIONS = [
+  { value: RotateFlags.NO_ROTATION, text: 'No rotation', 'data-tid': 'rotationOptions0' },
+  { value: RotateFlags.ROTATE_90_CLOCKWISE, text: 'Rotate 90º clockwise', 'data-tid': 'rotationOptions90' },
+  { value: RotateFlags.ROTATE_180, text: 'Rotate 180º', 'data-tid': 'rotationOptions180' },
+  {
+    value: RotateFlags.ROTATE_90_COUNTERCLOCKWISE,
+    text: 'Rotate 90º counterclockwise',
+    'data-tid': 'rotationOptions270',
+  },
+];
+
+export const TRANSFORMOBJECT_INIT = {
+  cropTop: 0,
+  cropLeft: 0,
+  cropBottom: 0,
+  cropRight: 0,
+  rotationFlag: RotateFlags.NO_ROTATION,
+};
 
 export const THUMB_INFO = {
   FRAMES: 'frames',

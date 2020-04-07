@@ -6,8 +6,8 @@ import * as tf from '@tensorflow/tfjs-node';
 import { VideoCaptureProperties } from './utils/openCVProperties';
 import { limitRange, setPosition, fourccToString, getCropWidthAndHeight, getArrayOfOccurrences } from './utils/utils';
 import { detectAllFaces } from './utils/faceDetection';
-import { HSVtoRGB, detectCut, recaptureThumbs } from './utils/utilsForOpencv';
-import { IN_OUT_POINT_SEARCH_LENGTH, IN_OUT_POINT_SEARCH_THRESHOLD, DEFAULT_THUMB_FORMAT, DEFAULT_THUMB_JPG_QUALITY } from './utils/constants';
+import { HSVtoRGB, detectCut, recaptureThumbs, rescaleMat, transformMat } from './utils/utilsForOpencv';
+import { IN_OUT_POINT_SEARCH_LENGTH, IN_OUT_POINT_SEARCH_THRESHOLD } from './utils/constants';
 import { insertFrameScanArray, insertFaceScanArray } from './utils/utilsForSqlite';
 import Queue from './utils/queue';
 
@@ -512,14 +512,8 @@ ipcRenderer.on(
       let previousData = {};
       let lastSceneCut = null;
 
-      // getCropWidthAndHeight
-      const videoWidth = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
-      const videoHeight = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
-      const { cropTop, cropLeft, cropWidth, cropHeight } = getCropWidthAndHeight(
-        transformObject,
-        videoWidth,
-        videoHeight,
-      );
+      const { cropTop, cropLeft, cropBottom, cropRight } = transformObject;
+      const isCroppingNeeded = cropTop > 0 || cropLeft > 0 || cropBottom > 0 || cropRight > 0;
 
       vid.readAsync(err1 => {
         const read = () => {
@@ -540,13 +534,10 @@ ipcRenderer.on(
               );
             }
             if (mat.empty === false) {
-              // optional cropping
-              let matCropped;
-              if (transformObject !== undefined && transformObject !== null) {
-                matCropped = mat.getRegion(new opencv.Rect(cropLeft, cropTop, cropWidth, cropHeight));
-              }
+              // optional transform
+              const matTransformed = transformMat(vid, mat, transformObject, isCroppingNeeded);
 
-              const resultingData = detectCut(previousData, matCropped || mat, threshold, shotDetectionMethod);
+              const resultingData = detectCut(previousData, matTransformed, threshold, shotDetectionMethod);
               const { isCut, lastColorRGB, differenceValue } = resultingData;
 
               // initialise first scene cut
@@ -719,14 +710,8 @@ ipcRenderer.on(
       const detectionArray = [];
       let detectionPromise;
 
-      // getCropWidthAndHeight
-      const videoWidth = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
-      const videoHeight = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
-      const { cropTop, cropLeft, cropWidth, cropHeight } = getCropWidthAndHeight(
-        transformObject,
-        videoWidth,
-        videoHeight,
-      );
+      const { cropTop, cropLeft, cropBottom, cropRight } = transformObject;
+      const isCroppingNeeded = cropTop > 0 || cropLeft > 0 || cropBottom > 0 || cropRight > 0;
 
       vid.readAsync(err1 => {
         const read = () => {
@@ -757,18 +742,14 @@ ipcRenderer.on(
 
             if (mat.empty === false) {
               // opencv.imshow('mat', mat);
-              // optional cropping
-              let matCropped;
-              if (transformObject !== undefined && transformObject !== null) {
-                matCropped = mat.getRegion(new opencv.Rect(cropLeft, cropTop, cropWidth, cropHeight));
-                // matCropped = mat.copy().copyMakeBorder(transformObject.cropTop, transformObject.cropBottom, transformObject.cropLeft, transformObject.cropRight);
-                // opencv.imshow('matCropped', matCropped);
-              }
 
-              // rescale
-              const matRescaled = matCropped === undefined ? mat.resizeToMax(720) : matCropped.resizeToMax(720);
+              // optional transform
+              const matTransformed = transformMat(vid, mat, transformObject, isCroppingNeeded);
 
-              const outJpg = opencv.imencode('.jpg', matRescaled); // for detection jpg is used
+              // optional rescale
+              const matResult = rescaleMat(vid, matTransformed, 720);
+
+              const outJpg = opencv.imencode('.jpg', matResult); // for detection jpg is used
               const input = tf.node.decodeJpeg(outJpg);
 
               detectionPromise = detectAllFaces(
@@ -899,14 +880,8 @@ ipcRenderer.on(
 
       let frameIsEmpty = false;
 
-      // getCropWidthAndHeight
-      const videoWidth = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
-      const videoHeight = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
-      const { cropTop, cropLeft, cropWidth, cropHeight } = getCropWidthAndHeight(
-        transformObject,
-        videoWidth,
-        videoHeight,
-      );
+      const { cropTop, cropLeft, cropBottom, cropRight } = transformObject;
+      const isCroppingNeeded = cropTop > 0 || cropLeft > 0 || cropBottom > 0 || cropRight > 0;
 
       vid.readAsync(err1 => {
         const read = (frameOffset = 0) => {
@@ -932,22 +907,14 @@ ipcRenderer.on(
             if (mat.empty === false) {
               frameIsEmpty = false;
               // opencv.imshow('mat', mat);
-              // optional cropping
-              let matCropped;
-              if (transformObject !== undefined && transformObject !== null) {
-                matCropped = mat.getRegion(new opencv.Rect(cropLeft, cropTop, cropWidth, cropHeight));
-                // matCropped = mat.copy().copyMakeBorder(transformObject.cropTop, transformObject.cropBottom, transformObject.cropLeft, transformObject.cropRight);
-                // opencv.imshow('matCropped', matCropped);
-              }
+
+              // optional transform
+              const matTransformed = transformMat(vid, mat, transformObject, isCroppingNeeded);
 
               // optional rescale
-              let matRescaled;
-              if (frameSize !== 0) {
-                // 0 stands for keep original size
-                matRescaled = matCropped === undefined ? mat.resizeToMax(frameSize) : matCropped.resizeToMax(frameSize);
-              }
+              const matResult = rescaleMat(vid, matTransformed, frameSize);
+
               // opencv.imshow('matRescaled', matRescaled);
-              const matResult = matRescaled || matCropped || mat;
               const outBase64 = opencv.imencode('.jpg', matResult).toString('base64'); // for internal usage frame jpg is used
               const frameNumber = vid.get(VideoCaptureProperties.CAP_PROP_POS_FRAMES) - 1;
               const frameId = frameIdArray[iterator];

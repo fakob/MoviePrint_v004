@@ -4,6 +4,7 @@ import imageDB from '../utils/db';
 import { deleteTableFramelist } from '../utils/utilsForIndexedDB';
 import { deleteTableFrameScanList } from '../utils/utilsForSqlite';
 import { getIntervalArray, limitRange, sortArray } from '../utils/utils';
+import { TRANSFORMOBJECT_INIT } from '../utils/constants';
 
 const { ipcRenderer } = require('electron');
 
@@ -732,7 +733,7 @@ export const addThumb = (file, sheetId, frameNumber, index, thumbId = uuidV4(), 
             [newFrameNumberWithinBoundaries],
             file.useRatio,
             frameSize,
-            file.transformObject,
+            file.transformObject || TRANSFORMOBJECT_INIT,
           );
           log.debug('dispatch: ADD_THUMB');
           return dispatch({
@@ -1055,7 +1056,7 @@ export const addThumbs = (file, sheetId, frameNumberArray, frameSize = 0, thumbI
             notExistingFrameNumberArray,
             file.useRatio,
             frameSize,
-            file.transformObject,
+            file.transformObject || TRANSFORMOBJECT_INIT,
           );
         } else {
           // send finished-getting-thumbs if no thumbs have to be captured
@@ -1117,7 +1118,7 @@ export const addNewThumbsWithOrder = (file, sheetId, frameNumberArray, frameSize
       frameNumberArray,
       file.useRatio,
       frameSize,
-      file.transformObject,
+      file.transformObject || TRANSFORMOBJECT_INIT,
     );
 
     log.debug('dispatch: ADD_THUMBS');
@@ -1161,7 +1162,7 @@ export const changeThumb = (sheetId, file, thumbId, newFrameNumber, frameSize = 
             [newFrameNumberWithinBoundaries],
             file.useRatio,
             frameSize,
-            file.transformObject,
+            file.transformObject || TRANSFORMOBJECT_INIT,
           );
           log.debug('dispatch: CHANGE_THUMB');
           return dispatch({
@@ -1416,14 +1417,15 @@ export const replaceFileDetails = (fileId, path, name, size, lastModified) => {
   };
 };
 
-export const setCropping = (fileId, cropTop, cropBottom, cropLeft, cropRight) => {
+export const setTransform = (fileId, rotationFlag, cropTop, cropBottom, cropLeft, cropRight) => {
   return dispatch => {
-    log.debug('action: setCropping');
+    log.debug('action: setTransform');
     dispatch({
-      type: 'SET_CROPPING',
+      type: 'SET_TRANSFORM',
       payload: {
         fileId,
         transformObject: {
+          rotationFlag,
           cropTop,
           cropBottom,
           cropLeft,
@@ -1434,19 +1436,33 @@ export const setCropping = (fileId, cropTop, cropBottom, cropLeft, cropRight) =>
   };
 };
 
-export const updateCropping = (fileId, cropTop, cropBottom, cropLeft, cropRight) => {
+export const updateTransform = (fileId, rotationFlag, cropTop, cropBottom, cropLeft, cropRight) => {
   return dispatch => {
-    log.debug('action: updateCropping');
+    log.debug('action: updateTransform');
     dispatch({
-      type: 'UPDATE_CROPPING',
+      type: 'UPDATE_TRANSFORM',
       payload: {
         fileId,
         transformObject: {
+          rotationFlag,
           cropTop,
           cropBottom,
           cropLeft,
           cropRight,
         },
+      },
+    });
+  };
+};
+
+export const rotateWidthAndHeight = (fileId, shouldRotate) => {
+  return dispatch => {
+    log.debug('action: rotateWidthAndHeight');
+    dispatch({
+      type: 'ROTATE_WIDTH_AND_HEIGHT',
+      payload: {
+        fileId,
+        shouldRotate,
       },
     });
   };

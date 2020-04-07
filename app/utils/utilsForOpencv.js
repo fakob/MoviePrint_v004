@@ -1,7 +1,6 @@
 import log from 'electron-log';
-import { VideoCaptureProperties, ImwriteFlags } from './openCVProperties';
-import imageDB from './db';
-import { arrayToObject, setPosition } from './utils';
+import { VideoCaptureProperties, ImwriteFlags, RotateFlags } from './openCVProperties';
+import { getCropWidthAndHeight, setPosition } from './utils';
 import { DEFAULT_THUMB_JPG_QUALITY, DEFAULT_THUMB_FORMAT, OUTPUT_FORMAT, SHOT_DETECTION_METHOD } from './constants';
 import // updateFrameBase64,
 './utilsForSqlite';
@@ -22,22 +21,8 @@ export const recaptureThumbs = (
   try {
     const vid = new opencv.VideoCapture(filePath);
 
-    // transform
-    const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
-    const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
-    let cropTop = 0;
-    let cropBottom = 0;
-    let cropLeft = 0;
-    let cropRight = 0;
-    if (transformObject !== undefined && transformObject !== null) {
-      console.log(transformObject);
-      cropTop = transformObject.cropTop;
-      cropBottom = transformObject.cropBottom;
-      cropLeft = transformObject.cropLeft;
-      cropRight = transformObject.cropRight;
-    }
-    const cropWidth = width - cropLeft - cropRight;
-    const cropHeight = height - cropTop - cropBottom;
+    const { cropTop, cropLeft, cropBottom, cropRight } = transformObject;
+    const isCroppingNeeded = cropTop > 0 || cropLeft > 0 || cropBottom > 0 || cropRight > 0;
 
     for (let i = 0; i < frameNumberArray.length; i += 1) {
       const frameNumber = frameNumberArray[i];
@@ -56,21 +41,14 @@ export const recaptureThumbs = (
           onlyReplace,
         );
       } else {
-        // optional cropping
-        let matCropped;
-        if (transformObject !== undefined && transformObject !== null) {
-          matCropped = mat.getRegion(new opencv.Rect(cropLeft, cropTop, cropWidth, cropHeight));
-          // matCropped = mat.copy().copyMakeBorder(transformObject.cropTop, transformObject.cropBottom, transformObject.cropLeft, transformObject.cropRight);
-        }
+        // optional transform
+        const matTransformed = transformMat(vid, mat, transformObject, isCroppingNeeded);
 
         // optional rescale
-        let matRescaled;
-        if (frameSize !== 0) {
-          // 0 stands for keep original size
-          matRescaled = matCropped === undefined ? mat.resizeToMax(frameSize) : matCropped.resizeToMax(frameSize);
-        }
+        const matResult = rescaleMat(vid, matTransformed, frameSize);
 
-        const outBase64 = opencv.imencode('.jpg', matRescaled || matCropped || mat).toString('base64'); // for internal usage frame jpg is used
+        // opencv.imshow('matRescaled', matRescaled);
+        const outBase64 = opencv.imencode('.jpg', matResult).toString('base64'); // for internal usage frame jpg is used
         ipcRenderer.send(
           'message-from-opencvWorkerWindow-to-databaseWorkerWindow',
           'send-base64-frame',
@@ -347,4 +325,38 @@ export const detectCut = (previousData, currentFrame, threshold, method) => {
     }
     default:
   }
+};
+
+export const transformMat = (vid, mat, transformObject, isCroppingNeeded) => {
+  // optional transform
+  let matTransformed = mat;
+  if (transformObject !== undefined && transformObject !== null) {
+    // getCropWidthAndHeight
+    const { rotationFlag, cropTop, cropLeft } = transformObject;
+    // first rotate if necessary
+    let matRotated = mat;
+    if (rotationFlag !== RotateFlags.NO_ROTATION) {
+      matRotated = matTransformed.rotate(rotationFlag);
+    }
+    matTransformed = matRotated;
+    if (isCroppingNeeded) {
+      const videoWidth = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
+      const videoHeight = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
+      const { cropWidth, cropHeight } = getCropWidthAndHeight(transformObject, videoWidth, videoHeight);
+      matTransformed = matRotated.getRegion(new opencv.Rect(cropLeft, cropTop, cropWidth, cropHeight));
+    }
+    // matCropped = mat.copy().copyMakeBorder(transformObject.cropTop, transformObject.cropBottom, transformObject.cropLeft, transformObject.cropRight);
+    // opencv.imshow('matCropped', matCropped);
+  }
+  return matTransformed;
+};
+
+export const rescaleMat = (vid, mat, frameSize) => {
+  // optional rescale
+  let matRescaled = mat;
+  if (frameSize !== 0) {
+    // 0 stands for keep original size
+    matRescaled = mat.resizeToMax(frameSize);
+  }
+  return matRescaled;
 };

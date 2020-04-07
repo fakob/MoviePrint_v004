@@ -59,3 +59,10 @@ export const ImwriteFlags = Object.freeze({
   IMWRITE_TIFF_YDPI: 258,
   IMWRITE_TIFF_COMPRESSION: 259,
 });
+
+export const RotateFlags = Object.freeze({
+  ROTATE_90_CLOCKWISE: 0, // Rotate 90 degrees clockwise
+  ROTATE_180: 1, // Rotate 180 degrees clockwise
+  ROTATE_90_COUNTERCLOCKWISE: 2, // Rotate 270 degrees clockwise
+  NO_ROTATION: 3, // No rotation - Artifical no rotation flag for opencv!
+});
