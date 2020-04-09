@@ -203,6 +203,7 @@ import {
   SHEET_VIEW,
   SHOT_DETECTION_METHOD,
   THUMB_SELECTION,
+  TRANSFORMOBJECT_INIT,
   URL_CHANGE_LOG,
   URL_FEEDBACK_FORM,
   URL_REST_API_CHECK_FOR_UPDATES,
@@ -1921,7 +1922,7 @@ class App extends Component {
     useRatio,
     threshold = this.props.settings.defaultSceneDetectionThreshold,
     sheetId = uuidV4(),
-    transformObject = undefined,
+    transformObject = TRANSFORMOBJECT_INIT,
   ) {
     const { dispatch } = this.props;
     const { settings } = this.props;
@@ -1979,7 +1980,7 @@ class App extends Component {
           useRatio,
           threshold,
           sheetId,
-          transformObject,
+          transformObject || TRANSFORMOBJECT_INIT, // need INIT value as undefined is translated to null via IPC
           defaultShotDetectionMethod,
         );
       } else {
@@ -2806,7 +2807,7 @@ class App extends Component {
         frameArrayToScan,
         useRatio,
         settings.defaultCachedFramesSize,
-        transformObject,
+        transformObject || TRANSFORMOBJECT_INIT, // need INIT value as undefined is translated to null via IPC
         defaultFaceConfidenceThreshold,
         defaultFaceSizeThreshold,
         defaultFaceUniquenessThreshold,
@@ -3255,11 +3256,10 @@ class App extends Component {
   };
 
   onEditTransformListItemClick = fileId => {
-    const { dispatch } = this.props;
     const { files } = this.props;
     const file = getFile(files, fileId);
 
-    const { transformObject = { cropTop: 0, cropBottom: 0, cropLeft: 0, cropRight: 0, rotationFlag: RotateFlags.NO_ROTATION } } = file; // initialise if undefined
+    const { transformObject = TRANSFORMOBJECT_INIT } = file; // initialise if undefined
     this.setState({
       showTransformModal: true,
       transformObject: { fileId, ...transformObject }, // adding fileId

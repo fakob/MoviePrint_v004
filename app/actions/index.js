@@ -733,7 +733,7 @@ export const addThumb = (file, sheetId, frameNumber, index, thumbId = uuidV4(), 
             [newFrameNumberWithinBoundaries],
             file.useRatio,
             frameSize,
-            file.transformObject || TRANSFORMOBJECT_INIT,
+            file.transformObject || TRANSFORMOBJECT_INIT, // need INIT value as undefined is translated to null via IPC
           );
           log.debug('dispatch: ADD_THUMB');
           return dispatch({
@@ -1056,7 +1056,7 @@ export const addThumbs = (file, sheetId, frameNumberArray, frameSize = 0, thumbI
             notExistingFrameNumberArray,
             file.useRatio,
             frameSize,
-            file.transformObject || TRANSFORMOBJECT_INIT,
+            file.transformObject || TRANSFORMOBJECT_INIT, // need INIT value as undefined is translated to null via IPC
           );
         } else {
           // send finished-getting-thumbs if no thumbs have to be captured
@@ -1118,7 +1118,7 @@ export const addNewThumbsWithOrder = (file, sheetId, frameNumberArray, frameSize
       frameNumberArray,
       file.useRatio,
       frameSize,
-      file.transformObject || TRANSFORMOBJECT_INIT,
+      file.transformObject || TRANSFORMOBJECT_INIT, // need INIT value as undefined is translated to null via IPC
     );
 
     log.debug('dispatch: ADD_THUMBS');
@@ -1162,7 +1162,7 @@ export const changeThumb = (sheetId, file, thumbId, newFrameNumber, frameSize = 
             [newFrameNumberWithinBoundaries],
             file.useRatio,
             frameSize,
-            file.transformObject || TRANSFORMOBJECT_INIT,
+            file.transformObject || TRANSFORMOBJECT_INIT, // need INIT value as undefined is translated to null via IPC
           );
           log.debug('dispatch: CHANGE_THUMB');
           return dispatch({
