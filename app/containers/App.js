@@ -1206,10 +1206,6 @@ class App extends Component {
       this.updateScaleValue();
     }
 
-    // if (prevState.showScrubWindow === false && this.state.showScrubWindow === true) {
-    //   this.updateOpencvVideoCanvas(0);
-    // }
-
     // replace all frames for this fileId -> fileIdToBeRecaptured
     if (
       this.state.fileIdToBeRecaptured !== undefined &&

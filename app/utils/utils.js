@@ -768,6 +768,8 @@ export const getScrubFrameNumber = (
   scrubThumb,
   scrubThumbLeft,
   scrubThumbRight,
+  leftOfScrubMovie,
+  rightOfScrubMovie,
 ) => {
   let scrubFrameNumber;
 
@@ -780,13 +782,6 @@ export const getScrubFrameNumber = (
   // depending on if add before (shift) or after (alt) changing the mapping range
   const tempLeftFrameNumber = keyObject.altKey ? scrubThumb.frameNumber : scrubThumbLeft.frameNumber;
   const tempRightFrameNumber = keyObject.shiftKey ? scrubThumb.frameNumber : scrubThumbRight.frameNumber;
-  const leftOfScrubMovie = scaleValueObject.containerWidth / 2 - scaleValueObject.scrubMovieWidth / 2;
-  const rightOfScrubMovie = scaleValueObject.containerWidth / 2 + scaleValueObject.scrubMovieWidth / 2;
-  // const rightOfScrubMovie = leftOfScrubMovie + scaleValueObject.scrubMovieWidth;
-
-  console.log(leftOfScrubMovie)
-  console.log(rightOfScrubMovie)
-
 
   // check if scrubbed thumb is first/last thumb
   // in this case take range movie start/end same as when pressing ctrl
@@ -817,11 +812,16 @@ export const getScrubFrameNumber = (
   return scrubFrameNumber;
 };
 
-export const getSceneScrubFrameNumber = (mouseX, scaleValueObject, scrubThumb, scrubScene) => {
+export const getSceneScrubFrameNumber = (
+  mouseX,
+  scaleValueObject,
+  scrubThumb,
+  scrubScene,
+  leftOfScrubMovie,
+  rightOfScrubMovie,
+) => {
   let scrubFrameNumber;
 
-  const leftOfScrubMovie = (scaleValueObject.scrubInnerContainerWidth - scaleValueObject.scrubMovieWidth) / 2;
-  const rightOfScrubMovie = leftOfScrubMovie + scaleValueObject.scrubMovieWidth;
   const tempLeftFrameNumber = scrubScene.start;
   const tempRightFrameNumber = scrubScene.start + scrubScene.length - 1;
   if (mouseX < leftOfScrubMovie) {

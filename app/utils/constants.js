@@ -100,11 +100,11 @@ export const SHEET_TYPE_OPTIONS = [
 
 export const ROTATION_OPTIONS = [
   { value: RotateFlags.NO_ROTATION, text: 'No rotation', 'data-tid': 'rotationOptions0' },
-  { value: RotateFlags.ROTATE_90_CLOCKWISE, text: 'Rotate 90º clockwise', 'data-tid': 'rotationOptions90' },
-  { value: RotateFlags.ROTATE_180, text: 'Rotate 180º', 'data-tid': 'rotationOptions180' },
+  { value: RotateFlags.ROTATE_90_CLOCKWISE, text: '90º clockwise', 'data-tid': 'rotationOptions90' },
+  { value: RotateFlags.ROTATE_180, text: '180º', 'data-tid': 'rotationOptions180' },
   {
     value: RotateFlags.ROTATE_90_COUNTERCLOCKWISE,
-    text: 'Rotate 90º counterclockwise',
+    text: '90º counterclockwise',
     'data-tid': 'rotationOptions270',
   },
 ];

@@ -6,11 +6,17 @@ import { Popup } from 'semantic-ui-react';
 import log from 'electron-log';
 import styles from './Scrub.css';
 import stylesPop from './Popup.css';
-import { getScrubFrameNumber, getSceneScrubFrameNumber, mapRange, getThumbInfoValue, setPosition } from '../utils/utils';
+import {
+  getScrubFrameNumber,
+  getSceneScrubFrameNumber,
+  mapRange,
+  getThumbInfoValue,
+  setPosition,
+} from '../utils/utils';
 import { getCropRect, transformMat } from '../utils/utilsForOpencv';
 import transparent from '../img/Thumb_TRANSPARENT.png';
 import { RotateFlags } from '../utils/openCVProperties';
-import { MENU_FOOTER_HEIGHT, MENU_HEADER_HEIGHT, SHEET_TYPE } from '../utils/constants';
+import { MENU_FOOTER_HEIGHT, MENU_HEADER_HEIGHT, SHEET_TYPE, TRANSFORMOBJECT_INIT } from '../utils/constants';
 
 const opencv = require('opencv4nodejs');
 
@@ -40,40 +46,25 @@ class Scrub extends Component {
 
   componentDidMount() {
     const myInitialState = this.getInitialStateObject();
+    this.updateOpencvVideoCanvas(0);
     this.setState(myInitialState);
-    console.log('Scrub.js - componentDidMount')
+    console.log('Scrub.js - componentDidMount');
   }
 
   getInitialStateObject() {
     const { file, opencvVideo, scaleValueObject, scrubThumb, scrubThumbLeft, scrubThumbRight, settings } = this.props;
-    const {
-      transformObject = {
-        rotationFlag: RotateFlags.NO_ROTATION,
-      },
-    } = file;
+    const { transformObject = TRANSFORMOBJECT_INIT } = file;
 
-    const timeLineCutIn = mapRange(
-      scrubThumbLeft.frameNumber,
-      0,
-      file.frameCount,
-      0,
-      scaleValueObject.scrubInnerContainerWidth,
-    );
-    const timeLineScrubThumb = mapRange(
-      scrubThumb.frameNumber,
-      0,
-      file.frameCount,
-      0,
-      scaleValueObject.scrubInnerContainerWidth,
-    );
+    const timeLineCutIn = mapRange(scrubThumbLeft.frameNumber, 0, file.frameCount, 0, scaleValueObject.containerWidth);
+    const timeLineScrubThumb = mapRange(scrubThumb.frameNumber, 0, file.frameCount, 0, scaleValueObject.containerWidth);
     const timeLineCutOut = mapRange(
       scrubThumbRight.frameNumber,
       0,
       file.frameCount,
       0,
-      scaleValueObject.scrubInnerContainerWidth,
+      scaleValueObject.containerWidth,
     );
-    const leftOfScrubMovie = (scaleValueObject.scrubInnerContainerWidth - scaleValueObject.scrubMovieWidth) / 2;
+    const leftOfScrubMovie = scaleValueObject.containerWidth / 2 - scaleValueObject.scrubMovieWidth / 2;
     const rightOfScrubMovie = leftOfScrubMovie + scaleValueObject.scrubMovieWidth;
     const scrubThumbLineValue = mapRange(
       scrubThumb.frameNumber,
@@ -85,7 +76,10 @@ class Scrub extends Component {
 
     // show timecode if hideInfo
     const scrubInfo = settings.defaultThumbInfo === 'hideInfo' ? 'timecode' : settings.defaultThumbInfo;
+
     const cropRect = getCropRect(opencvVideo, transformObject);
+
+    console.log(transformObject);
 
     return {
       cropRect,
@@ -106,17 +100,17 @@ class Scrub extends Component {
       keyObject,
       containerHeight,
       scaleValueObject,
+      scrubScene,
       scrubThumb,
       scrubThumbLeft,
       scrubThumbRight,
       sheetType,
     } = this.props;
+    const { leftOfScrubMovie, rightOfScrubMovie } = this.state;
 
     e.stopPropagation();
-    // onScrubWindowMouseOver(e, sheetType);
 
     if (e.clientY < MENU_HEADER_HEIGHT + containerHeight) {
-
       const scrubLineValue = e.clientX;
       let scrubFrameNumber;
 
@@ -129,6 +123,8 @@ class Scrub extends Component {
           scrubThumb,
           scrubThumbLeft,
           scrubThumbRight,
+          leftOfScrubMovie,
+          rightOfScrubMovie,
         );
       } else {
         scrubFrameNumber = getSceneScrubFrameNumber(
@@ -136,6 +132,8 @@ class Scrub extends Component {
           scaleValueObject,
           scrubThumb,
           scrubScene,
+          leftOfScrubMovie,
+          rightOfScrubMovie,
         );
       }
       const scrubLineOnTimelineValue = mapRange(
@@ -143,12 +141,8 @@ class Scrub extends Component {
         0,
         file.frameCount,
         0,
-        scaleValueObject.scrubInnerContainerWidth,
+        scaleValueObject.containerWidth,
       );
-
-      console.log(scrubLineValue)
-      console.log(scrubLineOnTimelineValue)
-      console.log(scrubFrameNumber)
 
       this.setState({
         scrubLineValue,
@@ -182,7 +176,7 @@ class Scrub extends Component {
 
   updateOpencvVideoCanvas(currentFrame) {
     const { file, opencvVideo, scaleValueObject } = this.props;
-    const { cropRect, thisTransformObject } = this.state;
+    const { cropRect, thisTransformObject = TRANSFORMOBJECT_INIT } = this.state;
 
     setPosition(opencvVideo, currentFrame, file.useRatio);
     const mat = opencvVideo.read();
@@ -196,7 +190,6 @@ class Scrub extends Component {
           ? parseInt(scaleValueObject.scrubMovieWidth, 10)
           : parseInt(scaleValueObject.scrubMovieHeight, 10),
       );
-      // renderImage(matResized, this.opencvVideoCanvasRef, opencv);
       const matRGBA = img.channels === 1 ? img.cvtColor(opencv.COLOR_GRAY2RGBA) : img.cvtColor(opencv.COLOR_BGR2RGBA);
 
       this.opencvVideoCanvasRef.height = img.rows;
@@ -467,8 +460,6 @@ Scrub.propTypes = {
   }),
   keyObject: PropTypes.object.isRequired,
   scaleValueObject: PropTypes.object.isRequired,
-  onScrubWindowMouseOver: PropTypes.func.isRequired,
-  onScrubWindowClick: PropTypes.func.isRequired,
   settings: PropTypes.object.isRequired,
   objectUrlObjects: PropTypes.object.isRequired,
   containerHeight: PropTypes.number.isRequired,
