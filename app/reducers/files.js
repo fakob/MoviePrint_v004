@@ -1,6 +1,7 @@
 /* eslint no-case-declarations: "off" */
 
 import log from 'electron-log';
+import { RotateFlags } from '../utils/openCVProperties';
 
 const file = (state = {}, type, payload, index) => {
   switch (type) {
@@ -71,13 +72,20 @@ const file = (state = {}, type, payload, index) => {
         return { ...state, width: state.originalHeight, height: state.originalWidth };
       }
       return { ...state, width: state.originalWidth, height: state.originalHeight };
-    case 'UPDATE_TRANSFORM':
+    case 'UPDATE_CROPPING':
       if (state.id !== payload.fileId) {
         return state;
       }
       const { transformObject } = payload;
-      const newWidth = state.originalWidth - transformObject.cropLeft - transformObject.cropRight;
-      const newHeight = state.originalHeight - transformObject.cropTop - transformObject.cropBottom;
+      const { cropTop, cropLeft, cropBottom, cropRight, rotationFlag } = transformObject;
+
+      let origWidth = state.originalWidth;
+      let origHeight = state.originalHeight;
+      if (rotationFlag === RotateFlags.ROTATE_90_CLOCKWISE || rotationFlag === RotateFlags.ROTATE_90_COUNTERCLOCKWISE) {
+        [origWidth, origHeight] = [origHeight, origWidth]; // swapping of width and height
+      }
+      const newWidth = origWidth - cropLeft - cropRight;
+      const newHeight = origHeight - cropTop - cropBottom;
       return { ...state, width: newWidth, height: newHeight, transformObject };
     case 'UPDATE_IN_OUT_POINT':
       if (state.id !== payload.fileId) {
@@ -112,7 +120,7 @@ const files = (state = [], { type, payload }) => {
     case 'UPDATE_MOVIE_LIST_ITEM':
     case 'SET_TRANSFORM':
     case 'ROTATE_WIDTH_AND_HEIGHT':
-    case 'UPDATE_TRANSFORM':
+    case 'UPDATE_CROPPING':
     case 'UPDATE_IN_OUT_POINT':
     case 'UPDATE_FILE_MISSING_STATUS':
     case 'UPDATE_FILESCAN_STATUS':

@@ -1436,11 +1436,11 @@ export const setTransform = (fileId, rotationFlag, cropTop, cropBottom, cropLeft
   };
 };
 
-export const updateTransform = (fileId, rotationFlag, cropTop, cropBottom, cropLeft, cropRight) => {
+export const updateCropping = (fileId, rotationFlag, cropTop, cropBottom, cropLeft, cropRight) => {
   return dispatch => {
-    log.debug('action: updateTransform');
+    log.debug('action: updateCropping');
     dispatch({
-      type: 'UPDATE_TRANSFORM',
+      type: 'UPDATE_CROPPING',
       payload: {
         fileId,
         transformObject: {

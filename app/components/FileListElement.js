@@ -240,7 +240,7 @@ const FileListElement = ({
             <Dropdown.Item
               data-tid="changeCroppingListItemOption"
               icon="crop"
-              text="Edit cropping"
+              text="Edit rotation and cropping"
               onClick={e => onEditTransformListItemClickWithStop(e, fileId)}
             />
           )}

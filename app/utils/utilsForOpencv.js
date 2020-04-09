@@ -21,8 +21,11 @@ export const recaptureThumbs = (
   try {
     const vid = new opencv.VideoCapture(filePath);
 
-    const { cropTop, cropLeft, cropBottom, cropRight } = transformObject;
+    const { cropTop, cropLeft, cropBottom, cropRight, rotationFlag } = transformObject;
     const isCroppingNeeded = cropTop > 0 || cropLeft > 0 || cropBottom > 0 || cropRight > 0;
+
+    // swap width and height for possible cropping, if rotation is 90 or 270 degrees
+    const { videoWidth, videoHeight } = getVideoWidthAndHeightDependingOnRotation(vid, rotationFlag);
 
     for (let i = 0; i < frameNumberArray.length; i += 1) {
       const frameNumber = frameNumberArray[i];
@@ -42,7 +45,7 @@ export const recaptureThumbs = (
         );
       } else {
         // optional transform
-        const matTransformed = transformMat(vid, mat, transformObject, isCroppingNeeded);
+        const matTransformed = transformMat(videoWidth, videoHeight, mat, transformObject, isCroppingNeeded);
 
         // optional rescale
         const matResult = rescaleMat(vid, matTransformed, frameSize);
@@ -327,23 +330,35 @@ export const detectCut = (previousData, currentFrame, threshold, method) => {
   }
 };
 
-export const transformMat = (vid, mat, transformObject, isCroppingNeeded) => {
+export const transformMat = (videoWidth, videoHeight, mat, transformObject, isCroppingNeeded) => {
   // optional transform
+  log.debug('transformMat');
+  log.debug(transformObject);
   let matTransformed = mat;
   if (transformObject !== undefined && transformObject !== null) {
     // getCropWidthAndHeight
     const { rotationFlag, cropTop, cropLeft } = transformObject;
     // first rotate if necessary
     let matRotated = mat;
+    log.debug(mat);
     if (rotationFlag !== RotateFlags.NO_ROTATION) {
       matRotated = matTransformed.rotate(rotationFlag);
+      log.debug(matRotated);
     }
     matTransformed = matRotated;
     if (isCroppingNeeded) {
-      const videoWidth = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
-      const videoHeight = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
       const { cropWidth, cropHeight } = getCropWidthAndHeight(transformObject, videoWidth, videoHeight);
-      matTransformed = matRotated.getRegion(new opencv.Rect(cropLeft, cropTop, cropWidth, cropHeight));
+      log.debug(cropLeft);
+      log.debug(cropTop);
+      log.debug(cropWidth);
+      log.debug(cropHeight);
+      const cropRect = new opencv.Rect(cropLeft, cropTop, cropWidth, cropHeight);
+      log.debug(cropRect);
+      log.debug(matRotated);
+      log.debug(matTransformed);
+
+      matTransformed = matRotated.getRegion(cropRect);
+
     }
     // matCropped = mat.copy().copyMakeBorder(transformObject.cropTop, transformObject.cropBottom, transformObject.cropLeft, transformObject.cropRight);
     // opencv.imshow('matCropped', matCropped);
@@ -353,10 +368,25 @@ export const transformMat = (vid, mat, transformObject, isCroppingNeeded) => {
 
 export const rescaleMat = (vid, mat, frameSize) => {
   // optional rescale
+  log.debug('rescaleMat');
+  log.debug(frameSize);
   let matRescaled = mat;
   if (frameSize !== 0) {
     // 0 stands for keep original size
     matRescaled = mat.resizeToMax(frameSize);
   }
   return matRescaled;
+};
+
+export const getVideoWidthAndHeightDependingOnRotation = (vid, rotationFlag) => {
+  // swap width and height for possible cropping, if rotation is 90 or 270 degrees
+  let videoWidth = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
+  let videoHeight = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
+  if (rotationFlag === RotateFlags.ROTATE_90_CLOCKWISE || rotationFlag === RotateFlags.ROTATE_90_COUNTERCLOCKWISE) {
+    [videoWidth, videoHeight] = [videoHeight, videoWidth]; // swapping of width and height
+  }
+  return {
+    videoWidth,
+    videoHeight,
+  };
 };

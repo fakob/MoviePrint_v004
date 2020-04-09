@@ -259,3 +259,7 @@
 .feedbackFormWebView {
   height: 85vh;
 }
+
+.smallInfo {
+  color: rgba(0,0,0,.87);
+}

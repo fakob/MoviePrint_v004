@@ -4,17 +4,19 @@ import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone';
 import fs from 'fs';
 import {
-  Progress,
-  Modal,
   Button,
-  Icon,
   Container,
   Dimmer,
-  Loader,
-  Header,
   Divider,
   Form,
+  Grid,
+  Header,
+  Icon,
+  Loader,
+  Message,
+  Modal,
   Popup,
+  Progress,
 } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
 import { Line, defaults } from 'react-chartjs-2';
@@ -171,7 +173,7 @@ import {
   showSettings,
   showThumbsByFrameNumberArray,
   rotateWidthAndHeight,
-  updateTransform,
+  updateCropping,
   updateFileDetails,
   updateFileDetailUseRatio,
   updateFileMissingStatus,
@@ -3268,8 +3270,8 @@ class App extends Component {
 
   handleTransformChange = (e, { name, value }) => {
     const { transformObject } = this.state;
-    console.log(name)
-    console.log(value)
+    console.log(name);
+    console.log(value);
     if (value === 4) {
       this.setState({
         transformObject: {
@@ -3306,12 +3308,13 @@ class App extends Component {
     console.log(wasThereAChange);
 
     if (wasThereAChange) {
-      dispatch(updateTransform(transformObject.fileId, rotationFlag, cropTop, cropBottom, cropLeft, cropRight));
+      // always update rotation before cropping as this is the same order it is applied when capturing a thumb
       if (rotationFlag === RotateFlags.ROTATE_90_CLOCKWISE || rotationFlag === RotateFlags.ROTATE_90_COUNTERCLOCKWISE) {
         dispatch(rotateWidthAndHeight(transformObject.fileId, true));
       } else {
         dispatch(rotateWidthAndHeight(transformObject.fileId, false));
       }
+      dispatch(updateCropping(transformObject.fileId, rotationFlag, cropTop, cropBottom, cropLeft, cropRight));
     }
     this.setState({
       showTransformModal: false,
@@ -4569,67 +4572,102 @@ ${exportObject}`;
                   onClose={() => this.setState({ showTransformModal: false })}
                   size="small"
                   closeIcon
+                  as={Form}
+                  onSubmit={this.onChangeTransform}
                 >
-                  <Modal.Header>Set transform</Modal.Header>
+                  <Modal.Header>Set rotation and cropping</Modal.Header>
                   <Modal.Content image>
                     <Modal.Description>
-                      <Form onSubmit={this.onChangeTransform}>
-                        <Form.Group>
-                          <Header as="h3">Rotation</Header>
-                          <Form.Select
-                            name="rotationFlag"
-                            label="rotationFlag"
-                            options={ROTATION_OPTIONS}
-                            // placeholder="Select"
-                            onChange={this.handleTransformChange}
-                            defaultValue={this.state.transformObject.rotationFlag}
-                          />
-                          <Header as="h3">Cropping in pixel</Header>
-                          <Form.Input
-                            name="cropTop"
-                            label="From top"
-                            placeholder="top"
-                            type="number"
-                            min="0"
-                            width={3}
-                            defaultValue={this.state.transformObject.cropTop}
-                            onChange={this.handleTransformChange}
-                          />
-                          <Form.Input
-                            name="cropBottom"
-                            label="From bottom"
-                            placeholder="bottom"
-                            type="number"
-                            min="0"
-                            width={3}
-                            defaultValue={this.state.transformObject.cropBottom}
-                            onChange={this.handleTransformChange}
-                          />
-                          <Form.Input
-                            name="cropLeft"
-                            label="From left"
-                            placeholder="left"
-                            type="number"
-                            min="0"
-                            width={3}
-                            defaultValue={this.state.transformObject.cropLeft}
-                            onChange={this.handleTransformChange}
-                          />
-                          <Form.Input
-                            name="cropRight"
-                            label="From right"
-                            placeholder="right"
-                            type="number"
-                            min="0"
-                            width={3}
-                            defaultValue={this.state.transformObject.cropRight}
-                            onChange={this.handleTransformChange}
-                          />
-                        </Form.Group>
-                        <Form.Button content="Update cropping" />
-                      </Form>
+                      <Form.Group>
+                        <Header as="h5">Rotation</Header>
+                      </Form.Group>
+                      <Form.Group>
+                        <Form.Select
+                          name="rotationFlag"
+                          // label="Rotation"
+                          options={ROTATION_OPTIONS}
+                          // placeholder="Select"
+                          onChange={this.handleTransformChange}
+                          defaultValue={this.state.transformObject.rotationFlag}
+                        />
+                      </Form.Group>
+                      <Divider hidden />
+                      <Form.Group>
+                        <Header as="h5">Cropping in pixel</Header>
+                      </Form.Group>
+                      <Grid centered columns={3}>
+                        <Grid.Row>
+                          <Grid.Column>
+                            <Form.Group>
+                              <Form.Input
+                                name="cropTop"
+                                label="From top"
+                                placeholder="top"
+                                required
+                                type="number"
+                                min="0"
+                                width={16}
+                                defaultValue={this.state.transformObject.cropTop}
+                                onChange={this.handleTransformChange}
+                              />
+                            </Form.Group>
+                          </Grid.Column>
+                        </Grid.Row>
+                        <Grid.Row centered columns={1}>
+                          <Grid.Column width={5}>
+                            <Form.Input
+                              name="cropLeft"
+                              label="From left"
+                              placeholder="left"
+                              required
+                              type="number"
+                              min="0"
+                              width={16}
+                              defaultValue={this.state.transformObject.cropLeft}
+                              onChange={this.handleTransformChange}
+                            />
+                          </Grid.Column>
+                          <Grid.Column width={6}></Grid.Column>
+                          <Grid.Column width={5}>
+                            <Form.Input
+                              name="cropRight"
+                              label="From right"
+                              placeholder="right"
+                              required
+                              type="number"
+                              min="0"
+                              width={16}
+                              defaultValue={this.state.transformObject.cropRight}
+                              onChange={this.handleTransformChange}
+                            />
+                          </Grid.Column>
+                        </Grid.Row>
+                        <Grid.Row centered columns={3}>
+                          <Grid.Column>
+                            <Form.Group>
+                              <Form.Input
+                                name="cropBottom"
+                                label="From bottom"
+                                placeholder="bottom"
+                                required
+                                type="number"
+                                min="0"
+                                width={16}
+                                defaultValue={this.state.transformObject.cropBottom}
+                                onChange={this.handleTransformChange}
+                              />
+                            </Form.Group>
+                          </Grid.Column>
+                        </Grid.Row>
+                      </Grid>
                     </Modal.Description>
                   </Modal.Content>
+                  <Modal.Actions>
+                    <span className={styles.smallInfo}>
+                      All thumbs of this movie will be updated. This can take a bit.
+                    </span>
+                    <Button type="submit" content="Update transform" />
+                  </Modal.Actions>
                 </Modal>
               </div>
               <Modal
