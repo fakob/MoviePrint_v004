@@ -97,8 +97,10 @@ class Scrub extends Component {
       sheetType,
     } = this.props;
 
+    const scrubLineValue = e.clientX;
+
     const scrubFrameNumber = getScrubFrameNumber(
-      e.clientX,
+      scrubLineValue,
       keyObject,
       scaleValueObject,
       file.frameCount,
@@ -114,8 +116,16 @@ class Scrub extends Component {
       0,
       scaleValueObject.scrubInnerContainerWidth,
     );
+
+    // console.log(scrubThumb)
+    // console.log(scrubThumbLeft)
+    // console.log(scrubThumbRight)
+    console.log(scrubLineValue)
+    console.log(scrubLineOnTimelineValue)
+    console.log(scrubFrameNumber)
+
     this.setState({
-      scrubLineValue: e.clientX,
+      scrubLineValue,
       scrubFrameNumber,
       scrubLineOnTimelineValue,
     });

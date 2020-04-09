@@ -91,6 +91,7 @@ import {
   sortArray,
   sortThumbsArray,
 } from '../utils/utils';
+import { getCropRect, transformMat } from '../utils/utilsForOpencv';
 import { RotateFlags } from '../utils/openCVProperties';
 import styles from './App.css';
 import stylesPop from '../components/Popup.css';
@@ -3809,13 +3810,27 @@ ${exportObject}`;
   };
 
   updateOpencvVideoCanvas(currentFrame) {
-    setPosition(this.state.opencvVideo, currentFrame, this.props.file.useRatio);
-    const frame = this.state.opencvVideo.read();
-    if (!frame.empty) {
-      const img = frame.resizeToMax(
-        this.state.scaleValueObject.aspectRatioInv < 1
-          ? parseInt(this.state.scaleValueObject.scrubMovieWidth, 10)
-          : parseInt(this.state.scaleValueObject.scrubMovieHeight, 10),
+    const { opencvVideo, scaleValueObject } = this.state;
+    const { file } = this.props;
+    const {
+      transformObject = {
+        rotationFlag: RotateFlags.NO_ROTATION,
+      },
+    } = file;
+
+    setPosition(opencvVideo, currentFrame, file.useRatio);
+    const mat = opencvVideo.read();
+
+    if (!mat.empty) {
+      const cropRect = getCropRect(opencvVideo, transformObject);
+
+      // optional transformation
+      const matTransformed = transformMat(mat, transformObject, cropRect);
+
+      const img = matTransformed.resizeToMax(
+        scaleValueObject.aspectRatioInv < 1
+          ? parseInt(scaleValueObject.scrubMovieWidth, 10)
+          : parseInt(scaleValueObject.scrubMovieHeight, 10),
       );
       // renderImage(matResized, this.opencvVideoCanvasRef, opencv);
       const matRGBA = img.channels === 1 ? img.cvtColor(opencv.COLOR_GRAY2RGBA) : img.cvtColor(opencv.COLOR_BGR2RGBA);
@@ -3829,7 +3844,7 @@ ${exportObject}`;
   }
 
   render() {
-    const { accept, dropzoneActive, feedbackFormIsLoading, objectUrlObjects, scaleValueObject } = this.state;
+    const { dropzoneActive, feedbackFormIsLoading, objectUrlObjects, scaleValueObject } = this.state;
     const { dispatch } = this.props;
     const {
       allScenes,

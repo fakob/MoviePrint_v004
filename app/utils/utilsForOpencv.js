@@ -331,7 +331,7 @@ export const transformMat = (mat, transformObject, cropRect) => {
   let matTransformed = mat;
 
   // getCropWidthAndHeight
-  const { rotationFlag } = transformObject;
+  const { rotationFlag = RotateFlags.NO_ROTATION } = transformObject;
   // first rotate if necessary
   let matRotated = mat;
   if (rotationFlag !== RotateFlags.NO_ROTATION) {
@@ -371,7 +371,7 @@ export const getVideoWidthAndHeightDependingOnRotation = (vid, rotationFlag) => 
 export const getCropRect = (vid, transformObject) => {
   // add isCroppingNeeded
   let cropRect;
-  const { cropTop, cropLeft, cropBottom, cropRight } = transformObject;
+  const { cropTop = 0, cropLeft = 0, cropBottom = 0, cropRight = 0 } = transformObject;
   const isCroppingNeeded = cropTop > 0 || cropLeft > 0 || cropBottom > 0 || cropRight > 0;
 
   if (isCroppingNeeded) {

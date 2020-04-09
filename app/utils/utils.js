@@ -780,8 +780,13 @@ export const getScrubFrameNumber = (
   // depending on if add before (shift) or after (alt) changing the mapping range
   const tempLeftFrameNumber = keyObject.altKey ? scrubThumb.frameNumber : scrubThumbLeft.frameNumber;
   const tempRightFrameNumber = keyObject.shiftKey ? scrubThumb.frameNumber : scrubThumbRight.frameNumber;
-  const leftOfScrubMovie = (scaleValueObject.scrubInnerContainerWidth - scaleValueObject.scrubMovieWidth) / 2;
-  const rightOfScrubMovie = leftOfScrubMovie + scaleValueObject.scrubMovieWidth;
+  const leftOfScrubMovie = scaleValueObject.containerWidth / 2 - scaleValueObject.scrubMovieWidth / 2;
+  const rightOfScrubMovie = scaleValueObject.containerWidth / 2 + scaleValueObject.scrubMovieWidth / 2;
+  // const rightOfScrubMovie = leftOfScrubMovie + scaleValueObject.scrubMovieWidth;
+
+  console.log(leftOfScrubMovie)
+  console.log(rightOfScrubMovie)
+
 
   // check if scrubbed thumb is first/last thumb
   // in this case take range movie start/end same as when pressing ctrl
