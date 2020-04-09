@@ -1677,17 +1677,15 @@ export const getCropWidthAndHeight = (transformObject, videoWidth, videoHeight) 
   let cropLeft = 0;
   let cropRight = 0;
   if (transformObject !== undefined && transformObject !== null) {
-    log.debug(transformObject);
+    // log.debug(transformObject);
     cropTop = transformObject.cropTop;
     cropBottom = transformObject.cropBottom;
     cropLeft = transformObject.cropLeft;
     cropRight = transformObject.cropRight;
   }
-  const cropWidth = videoWidth - cropLeft - cropRight;
-  const cropHeight = videoHeight - cropTop - cropBottom;
+  const cropWidth = Math.max(1, videoWidth - cropLeft - cropRight);
+  const cropHeight = Math.max(1, videoHeight - cropTop - cropBottom);
   return {
-    cropTop,
-    cropLeft,
     cropWidth,
     cropHeight,
   };

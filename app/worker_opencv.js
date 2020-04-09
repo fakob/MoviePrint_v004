@@ -7,7 +7,7 @@ import { VideoCaptureProperties } from './utils/openCVProperties';
 import { limitRange, setPosition, fourccToString } from './utils/utils';
 import { detectAllFaces } from './utils/faceDetection';
 import {
-  getVideoWidthAndHeightDependingOnRotation,
+  getCropRect,
   HSVtoRGB,
   detectCut,
   recaptureThumbs,
@@ -519,11 +519,7 @@ ipcRenderer.on(
       let previousData = {};
       let lastSceneCut = null;
 
-      const { cropTop, cropLeft, cropBottom, cropRight, rotationFlag } = transformObject;
-      const isCroppingNeeded = cropTop > 0 || cropLeft > 0 || cropBottom > 0 || cropRight > 0;
-
-      // swap width and height for possible cropping, if rotation is 90 or 270 degrees
-      const { videoWidth, videoHeight } = getVideoWidthAndHeightDependingOnRotation(vid, rotationFlag);
+      const cropRect = getCropRect(vid, transformObject);
 
       vid.readAsync(err1 => {
         const read = () => {
@@ -545,7 +541,7 @@ ipcRenderer.on(
             }
             if (mat.empty === false) {
               // optional transform
-              const matTransformed = transformMat(videoWidth, videoHeight, mat, transformObject, isCroppingNeeded);
+              const matTransformed = transformMat(mat, transformObject, cropRect);
 
               const resultingData = detectCut(previousData, matTransformed, threshold, shotDetectionMethod);
               const { isCut, lastColorRGB, differenceValue } = resultingData;
@@ -720,11 +716,7 @@ ipcRenderer.on(
       const detectionArray = [];
       let detectionPromise;
 
-      const { cropTop, cropLeft, cropBottom, cropRight, rotationFlag } = transformObject;
-      const isCroppingNeeded = cropTop > 0 || cropLeft > 0 || cropBottom > 0 || cropRight > 0;
-
-      // swap width and height for possible cropping, if rotation is 90 or 270 degrees
-      const { videoWidth, videoHeight } = getVideoWidthAndHeightDependingOnRotation(vid, rotationFlag);
+      const cropRect = getCropRect(vid, transformObject);
 
       vid.readAsync(err1 => {
         const read = () => {
@@ -757,7 +749,7 @@ ipcRenderer.on(
               // opencv.imshow('mat', mat);
 
               // optional transform
-              const matTransformed = transformMat(videoWidth, videoHeight, mat, transformObject, isCroppingNeeded);
+              const matTransformed = transformMat(mat, transformObject, cropRect);
 
               // optional rescale
               const matResult = rescaleMat(vid, matTransformed, 720);
@@ -896,11 +888,7 @@ ipcRenderer.on(
 
       let frameIsEmpty = false;
 
-      const { cropTop, cropLeft, cropBottom, cropRight, rotationFlag } = transformObject;
-      const isCroppingNeeded = cropTop > 0 || cropLeft > 0 || cropBottom > 0 || cropRight > 0;
-
-      // swap width and height for possible cropping, if rotation is 90 or 270 degrees
-      const { videoWidth, videoHeight } = getVideoWidthAndHeightDependingOnRotation(vid, rotationFlag);
+      const cropRect = getCropRect(vid, transformObject);
 
       vid.readAsync(err1 => {
         const read = (frameOffset = 0) => {
@@ -928,7 +916,7 @@ ipcRenderer.on(
               // opencv.imshow('mat', mat);
 
               // optional transform
-              const matTransformed = transformMat(videoWidth, videoHeight, mat, transformObject, isCroppingNeeded);
+              const matTransformed = transformMat(mat, transformObject, cropRect);
 
               // optional rescale
               const matResult = rescaleMat(vid, matTransformed, frameSize);
