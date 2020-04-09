@@ -91,7 +91,6 @@ import {
   sortArray,
   sortThumbsArray,
 } from '../utils/utils';
-import { getCropRect, transformMat } from '../utils/utilsForOpencv';
 import { RotateFlags } from '../utils/openCVProperties';
 import styles from './App.css';
 import stylesPop from '../components/Popup.css';
@@ -308,7 +307,6 @@ class App extends Component {
       sheetsToUpdate: [],
       savingAllMoviePrints: false,
       showTransformModal: false,
-      showSaveThumbModal: false,
       transformObject: {},
       objectUrlObjects: {},
       fileIdToBeRecaptured: undefined,
@@ -333,8 +331,7 @@ class App extends Component {
     this.onViewToggle = this.onViewToggle.bind(this);
     this.onChangeThumb = this.onChangeThumb.bind(this);
     this.onAddThumb = this.onAddThumb.bind(this);
-    this.onScrubWindowMouseOver = this.onScrubWindowMouseOver.bind(this);
-    this.onScrubWindowClick = this.onScrubWindowClick.bind(this);
+    this.onScrubReturn = this.onScrubReturn.bind(this);
     this.onScrubClick = this.onScrubClick.bind(this);
     this.onExpandClick = this.onExpandClick.bind(this);
     this.onAddThumbClick = this.onAddThumbClick.bind(this);
@@ -432,7 +429,7 @@ class App extends Component {
     this.onThumbnailScaleClick = this.onThumbnailScaleClick.bind(this);
     this.onMoviePrintWidthClick = this.onMoviePrintWidthClick.bind(this);
     this.onShotDetectionMethodClick = this.onShotDetectionMethodClick.bind(this);
-    this.updateOpencvVideoCanvas = this.updateOpencvVideoCanvas.bind(this);
+    // this.updateOpencvVideoCanvas = this.updateOpencvVideoCanvas.bind(this);
     this.runSceneDetection = this.runSceneDetection.bind(this);
     this.cancelFileScan = this.cancelFileScan.bind(this);
     this.calculateSceneList = this.calculateSceneList.bind(this);
@@ -1209,9 +1206,9 @@ class App extends Component {
       this.updateScaleValue();
     }
 
-    if (prevState.showScrubWindow === false && this.state.showScrubWindow === true) {
-      this.updateOpencvVideoCanvas(0);
-    }
+    // if (prevState.showScrubWindow === false && this.state.showScrubWindow === true) {
+    //   this.updateOpencvVideoCanvas(0);
+    // }
 
     // replace all frames for this fileId -> fileIdToBeRecaptured
     if (
@@ -2200,6 +2197,63 @@ class App extends Component {
     });
   }
 
+  onScrubReturn(scrubFrameNumber = undefined) {
+    const { dispatch, file, settings, thumbs } = this.props;
+    const { keyObject, scrubThumb, sheetType } = this.state;
+    console.log(scrubFrameNumber);
+
+    if (scrubFrameNumber !== undefined) {
+      if (sheetType === SHEET_TYPE.SCENES) {
+        this.onChangeThumb(
+          file,
+          settings.currentSheetId,
+          scrubThumb.thumbId,
+          scrubFrameNumber,
+          settings.defaultCachedFramesSize,
+        );
+      } else if (keyObject.altKey || keyObject.shiftKey) {
+        const newThumbId = uuidV4();
+        if (keyObject.altKey) {
+          dispatch(
+            addThumb(
+              file,
+              settings.currentSheetId,
+              scrubFrameNumber,
+              thumbs.find(thumb => thumb.thumbId === scrubThumb.thumbId).index + 1,
+              newThumbId,
+              settings.defaultCachedFramesSize,
+            ),
+          );
+        } else {
+          // if shiftKey
+          dispatch(
+            addThumb(
+              file,
+              settings.currentSheetId,
+              scrubFrameNumber,
+              thumbs.find(thumb => thumb.thumbId === scrubThumb.thumbId).index,
+              newThumbId,
+              settings.defaultCachedFramesSize,
+            ),
+          );
+        }
+      } else {
+        // if normal set new thumb
+        this.onChangeThumb(
+          file,
+          settings.currentSheetId,
+          scrubThumb.thumbId,
+          scrubFrameNumber,
+          settings.defaultCachedFramesSize,
+        );
+      }
+    }
+    this.setState({
+      showScrubWindow: false,
+      scrubWindowTriggerTime: undefined,
+    });
+  }
+
   onExpandClick(file, sceneOrThumbId, parentSheetId, sheetType = undefined) {
     const { dispatch } = this.props;
     const { files, scenes, sheetsArray, sheetsByFileId, settings } = this.props;
@@ -2396,117 +2450,6 @@ class App extends Component {
     const firstSceneId = allScenes[adjacentSceneIndicesArray[0]].sceneId;
     // console.log(firstSceneId);
     this.onSelectThumbMethod(firstSceneId); // select first scene
-  }
-
-  onScrubWindowMouseOver(e, sheetType) {
-    const { file } = this.props;
-    const { state } = this;
-
-    if (e.clientY < MENU_HEADER_HEIGHT + state.containerHeight) {
-      // const { sheetsByFileId, settings } = this.props;
-      // // if sheet type interval then create 'artificial' scene Array
-      // const sheetType = getSheetType(sheetsByFileId, fileId, sheetId, settings);
-
-      let scrubFrameNumber;
-      if (sheetType === SHEET_TYPE.INTERVAL) {
-        scrubFrameNumber = getScrubFrameNumber(
-          e.clientX,
-          state.keyObject,
-          state.scaleValueObject,
-          file.frameCount,
-          state.scrubThumb,
-          state.scrubThumbLeft,
-          state.scrubThumbRight,
-        );
-      } else {
-        scrubFrameNumber = getSceneScrubFrameNumber(
-          e.clientX,
-          state.scaleValueObject,
-          state.scrubThumb,
-          state.scrubScene,
-        );
-      }
-      this.updateOpencvVideoCanvas(scrubFrameNumber);
-    } else {
-      this.setState({
-        showScrubWindow: false,
-      });
-    }
-  }
-
-  onScrubWindowClick(e, sheetType) {
-    const { dispatch } = this.props;
-    const { file, settings, thumbs } = this.props;
-    const { state } = this;
-
-    if (e.clientY < MENU_HEADER_HEIGHT + state.containerHeight) {
-      let scrubFrameNumber;
-      if (sheetType === SHEET_TYPE.SCENES) {
-        scrubFrameNumber = getSceneScrubFrameNumber(
-          e.clientX,
-          state.scaleValueObject,
-          state.scrubThumb,
-          state.scrubScene,
-        );
-        this.onChangeThumb(
-          file,
-          settings.currentSheetId,
-          state.scrubThumb.thumbId,
-          scrubFrameNumber,
-          settings.defaultCachedFramesSize,
-        );
-      } else {
-        scrubFrameNumber = getScrubFrameNumber(
-          e.clientX,
-          state.keyObject,
-          state.scaleValueObject,
-          file.frameCount,
-          state.scrubThumb,
-          state.scrubThumbLeft,
-          state.scrubThumbRight,
-        );
-        if (state.keyObject.altKey || state.keyObject.shiftKey) {
-          const newThumbId = uuidV4();
-          if (state.keyObject.altKey) {
-            dispatch(
-              addThumb(
-                file,
-                settings.currentSheetId,
-                scrubFrameNumber,
-                thumbs.find(thumb => thumb.thumbId === state.scrubThumb.thumbId).index + 1,
-                newThumbId,
-                settings.defaultCachedFramesSize,
-              ),
-            );
-          } else {
-            // if shiftKey
-            dispatch(
-              addThumb(
-                file,
-                settings.currentSheetId,
-                scrubFrameNumber,
-                thumbs.find(thumb => thumb.thumbId === state.scrubThumb.thumbId).index,
-                newThumbId,
-                settings.defaultCachedFramesSize,
-              ),
-            );
-          }
-        } else {
-          // if normal set new thumb
-          this.onChangeThumb(
-            file,
-            settings.currentSheetId,
-            state.scrubThumb.thumbId,
-            scrubFrameNumber,
-            settings.defaultCachedFramesSize,
-          );
-        }
-      }
-    }
-    this.setState({
-      showScrubWindow: false,
-      scrubWindowTriggerTime: undefined,
-    });
   }
 
   onChangeThumb(file, sheetId, thumbId, frameNumber, defaultCachedFramesSize) {
@@ -3809,40 +3752,6 @@ ${exportObject}`;
     dispatch(setDefaultShotDetectionMethod(value));
   };
 
-  updateOpencvVideoCanvas(currentFrame) {
-    const { opencvVideo, scaleValueObject } = this.state;
-    const { file } = this.props;
-    const {
-      transformObject = {
-        rotationFlag: RotateFlags.NO_ROTATION,
-      },
-    } = file;
-
-    setPosition(opencvVideo, currentFrame, file.useRatio);
-    const mat = opencvVideo.read();
-
-    if (!mat.empty) {
-      const cropRect = getCropRect(opencvVideo, transformObject);
-
-      // optional transformation
-      const matTransformed = transformMat(mat, transformObject, cropRect);
-
-      const img = matTransformed.resizeToMax(
-        scaleValueObject.aspectRatioInv < 1
-          ? parseInt(scaleValueObject.scrubMovieWidth, 10)
-          : parseInt(scaleValueObject.scrubMovieHeight, 10),
-      );
-      // renderImage(matResized, this.opencvVideoCanvasRef, opencv);
-      const matRGBA = img.channels === 1 ? img.cvtColor(opencv.COLOR_GRAY2RGBA) : img.cvtColor(opencv.COLOR_BGR2RGBA);
-
-      this.opencvVideoCanvasRef.current.height = img.rows;
-      this.opencvVideoCanvasRef.current.width = img.cols;
-      const imgData = new ImageData(new Uint8ClampedArray(matRGBA.getData()), img.cols, img.rows);
-      const ctx = this.opencvVideoCanvasRef.current.getContext('2d');
-      ctx.putImageData(imgData, 0, 0);
-    }
-  }
-
   render() {
     const { dropzoneActive, feedbackFormIsLoading, objectUrlObjects, scaleValueObject } = this.state;
     const { dispatch } = this.props;
@@ -4526,21 +4435,21 @@ ${exportObject}`;
               </div>
               {this.state.showScrubWindow && (
                 <Scrub
-                  opencvVideoCanvasRef={this.opencvVideoCanvasRef}
+                  opencvVideo={this.state.opencvVideo}
                   file={file}
                   settings={settings}
                   sheetType={currentSheetType}
                   objectUrlObjects={filteredObjectUrlObjects}
                   keyObject={this.state.keyObject}
                   scrubWindowTriggerTime={this.state.scrubWindowTriggerTime}
+                  scrubScene={this.state.scrubScene}
                   scrubThumb={this.state.scrubThumb}
                   scrubThumbLeft={this.state.scrubThumbLeft}
                   scrubThumbRight={this.state.scrubThumbRight}
                   scaleValueObject={scaleValueObject}
                   containerWidth={this.state.containerWidth}
                   containerHeight={this.state.containerHeight}
-                  onScrubWindowMouseOver={this.onScrubWindowMouseOver}
-                  onScrubWindowClick={this.onScrubWindowClick}
+                  onScrubReturn={this.onScrubReturn}
                 />
               )}
               {this.state.showChart && (

@@ -3,30 +3,37 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Popup } from 'semantic-ui-react';
+import log from 'electron-log';
 import styles from './Scrub.css';
 import stylesPop from './Popup.css';
-import { getScrubFrameNumber, mapRange, getThumbInfoValue } from '../utils/utils';
+import { getScrubFrameNumber, getSceneScrubFrameNumber, mapRange, getThumbInfoValue, setPosition } from '../utils/utils';
+import { getCropRect, transformMat } from '../utils/utilsForOpencv';
 import transparent from '../img/Thumb_TRANSPARENT.png';
-import { MENU_FOOTER_HEIGHT, SHEET_TYPE } from '../utils/constants';
+import { RotateFlags } from '../utils/openCVProperties';
+import { MENU_FOOTER_HEIGHT, MENU_HEADER_HEIGHT, SHEET_TYPE } from '../utils/constants';
+
+const opencv = require('opencv4nodejs');
 
 class Scrub extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      scrubLineValue: undefined,
-      scrubFrameNumber: undefined,
-      scrubLineOnTimelineValue: undefined,
-      timeLineCutIn: undefined,
-      timeLineScrubThumb: undefined,
-      timeLineCutOut: undefined,
-      scrubThumbLineValue: undefined,
+      cropRect: undefined,
       leftOfScrubMovie: undefined,
       rightOfScrubMovie: undefined,
+      scrubFrameNumber: undefined,
       scrubInfo: undefined,
+      scrubLineOnTimelineValue: undefined,
+      scrubLineValue: undefined,
+      scrubThumbLineValue: undefined,
+      timeLineCutIn: undefined,
+      timeLineCutOut: undefined,
+      timeLineScrubThumb: undefined,
     };
 
     this.onScrubMouseMoveWithStop = this.onScrubMouseMoveWithStop.bind(this);
+    this.onScrubCancel = this.onScrubCancel.bind(this);
     this.onScrubClickWithStop = this.onScrubClickWithStop.bind(this);
     this.getInitialStateObject = this.getInitialStateObject.bind(this);
   }
@@ -34,10 +41,16 @@ class Scrub extends Component {
   componentDidMount() {
     const myInitialState = this.getInitialStateObject();
     this.setState(myInitialState);
+    console.log('Scrub.js - componentDidMount')
   }
 
   getInitialStateObject() {
-    const { file, scaleValueObject, scrubThumb, scrubThumbLeft, scrubThumbRight, settings } = this.props;
+    const { file, opencvVideo, scaleValueObject, scrubThumb, scrubThumbLeft, scrubThumbRight, settings } = this.props;
+    const {
+      transformObject = {
+        rotationFlag: RotateFlags.NO_ROTATION,
+      },
+    } = file;
 
     const timeLineCutIn = mapRange(
       scrubThumbLeft.frameNumber,
@@ -72,16 +85,18 @@ class Scrub extends Component {
 
     // show timecode if hideInfo
     const scrubInfo = settings.defaultThumbInfo === 'hideInfo' ? 'timecode' : settings.defaultThumbInfo;
+    const cropRect = getCropRect(opencvVideo, transformObject);
 
     return {
-      // scrubFrameNumber: scrubThumb.frameNumber,
-      timeLineCutIn,
-      timeLineScrubThumb,
-      timeLineCutOut,
-      scrubThumbLineValue,
+      cropRect,
       leftOfScrubMovie,
       rightOfScrubMovie,
       scrubInfo,
+      scrubThumbLineValue,
+      thisTransformObject: transformObject,
+      timeLineCutIn,
+      timeLineCutOut,
+      timeLineScrubThumb,
     };
   }
 
@@ -89,7 +104,7 @@ class Scrub extends Component {
     const {
       file,
       keyObject,
-      onScrubWindowMouseOver,
+      containerHeight,
       scaleValueObject,
       scrubThumb,
       scrubThumbLeft,
@@ -97,50 +112,98 @@ class Scrub extends Component {
       sheetType,
     } = this.props;
 
-    const scrubLineValue = e.clientX;
-
-    const scrubFrameNumber = getScrubFrameNumber(
-      scrubLineValue,
-      keyObject,
-      scaleValueObject,
-      file.frameCount,
-      scrubThumb,
-      scrubThumbLeft,
-      scrubThumbRight,
-    );
-
-    const scrubLineOnTimelineValue = mapRange(
-      scrubFrameNumber,
-      0,
-      file.frameCount,
-      0,
-      scaleValueObject.scrubInnerContainerWidth,
-    );
-
-    // console.log(scrubThumb)
-    // console.log(scrubThumbLeft)
-    // console.log(scrubThumbRight)
-    console.log(scrubLineValue)
-    console.log(scrubLineOnTimelineValue)
-    console.log(scrubFrameNumber)
-
-    this.setState({
-      scrubLineValue,
-      scrubFrameNumber,
-      scrubLineOnTimelineValue,
-    });
     e.stopPropagation();
-    onScrubWindowMouseOver(e, sheetType);
+    // onScrubWindowMouseOver(e, sheetType);
+
+    if (e.clientY < MENU_HEADER_HEIGHT + containerHeight) {
+
+      const scrubLineValue = e.clientX;
+      let scrubFrameNumber;
+
+      if (sheetType === SHEET_TYPE.INTERVAL) {
+        scrubFrameNumber = getScrubFrameNumber(
+          scrubLineValue,
+          keyObject,
+          scaleValueObject,
+          file.frameCount,
+          scrubThumb,
+          scrubThumbLeft,
+          scrubThumbRight,
+        );
+      } else {
+        scrubFrameNumber = getSceneScrubFrameNumber(
+          scrubLineValue,
+          scaleValueObject,
+          scrubThumb,
+          scrubScene,
+        );
+      }
+      const scrubLineOnTimelineValue = mapRange(
+        scrubFrameNumber,
+        0,
+        file.frameCount,
+        0,
+        scaleValueObject.scrubInnerContainerWidth,
+      );
+
+      console.log(scrubLineValue)
+      console.log(scrubLineOnTimelineValue)
+      console.log(scrubFrameNumber)
+
+      this.setState({
+        scrubLineValue,
+        scrubFrameNumber,
+        scrubLineOnTimelineValue,
+      });
+      this.updateOpencvVideoCanvas(scrubFrameNumber);
+    } else {
+      this.onScrubCancel();
+    }
   }
 
   onScrubClickWithStop(e) {
-    const { onScrubWindowClick, scrubWindowTriggerTime, sheetType } = this.props;
+    const { onScrubReturn, scrubWindowTriggerTime } = this.props;
+    const { scrubFrameNumber } = this.state;
     e.stopPropagation();
     // for the scrub window the user has to click and drag while keeping the mouse pressed
     // use triggerTime to keep scrub window open if users just click and release the mouse within 1000ms
     const timeSinceClick = Date.now() - scrubWindowTriggerTime;
     if (timeSinceClick > 1000) {
-      onScrubWindowClick(e, sheetType);
+      log.debug(`onScrubReturn, new frameNumber: ${scrubFrameNumber}`);
+      onScrubReturn(scrubFrameNumber);
+    }
+  }
+
+  onScrubCancel() {
+    const { onScrubReturn } = this.props;
+    log.debug('Cancel scrubbing');
+    onScrubReturn();
+  }
+
+  updateOpencvVideoCanvas(currentFrame) {
+    const { file, opencvVideo, scaleValueObject } = this.props;
+    const { cropRect, thisTransformObject } = this.state;
+
+    setPosition(opencvVideo, currentFrame, file.useRatio);
+    const mat = opencvVideo.read();
+
+    if (!mat.empty) {
+      // optional transformation
+      const matTransformed = transformMat(mat, thisTransformObject, cropRect);
+
+      const img = matTransformed.resizeToMax(
+        scaleValueObject.aspectRatioInv < 1
+          ? parseInt(scaleValueObject.scrubMovieWidth, 10)
+          : parseInt(scaleValueObject.scrubMovieHeight, 10),
+      );
+      // renderImage(matResized, this.opencvVideoCanvasRef, opencv);
+      const matRGBA = img.channels === 1 ? img.cvtColor(opencv.COLOR_GRAY2RGBA) : img.cvtColor(opencv.COLOR_BGR2RGBA);
+
+      this.opencvVideoCanvasRef.height = img.rows;
+      this.opencvVideoCanvasRef.width = img.cols;
+      const imgData = new ImageData(new Uint8ClampedArray(matRGBA.getData()), img.cols, img.rows);
+      const ctx = this.opencvVideoCanvasRef.getContext('2d');
+      ctx.putImageData(imgData, 0, 0);
     }
   }
 
@@ -149,7 +212,6 @@ class Scrub extends Component {
       file,
       keyObject,
       objectUrlObjects,
-      opencvVideoCanvasRef,
       scaleValueObject,
       scrubThumb,
       scrubThumbLeft,
@@ -242,7 +304,11 @@ class Scrub extends Component {
                 width: scaleValueObject.scrubMovieWidth,
               }}
             >
-              <canvas ref={opencvVideoCanvasRef} />
+              <canvas
+                ref={el => {
+                  this.opencvVideoCanvasRef = el;
+                }}
+              />
             </span>
             <span
               className={styles.scrubThumbRight}
@@ -339,8 +405,7 @@ class Scrub extends Component {
           trigger={
             <div
               className={styles.scrubCancelBar}
-              onMouseOver={this.onScrubClickWithStop}
-              // onClick={this.onScrubClickWithStop}
+              onMouseOver={this.onScrubCancel}
               style={{
                 height: `${MENU_FOOTER_HEIGHT}px`,
               }}
@@ -411,7 +476,7 @@ Scrub.propTypes = {
   scrubThumb: PropTypes.object.isRequired,
   scrubThumbLeft: PropTypes.object.isRequired,
   scrubThumbRight: PropTypes.object.isRequired,
-  opencvVideoCanvasRef: PropTypes.object.isRequired,
+  opencvVideo: PropTypes.object.isRequired,
 };
 
 export default Scrub;
