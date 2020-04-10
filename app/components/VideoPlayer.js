@@ -243,7 +243,8 @@ class VideoPlayer extends Component {
 
   updateOpencvVideoCanvas(currentFrame) {
     const { arrayOfCuts, file, containerWidth, useRatio, defaultSheetView, opencvVideo } = this.props;
-    const { rescaleFactor, sliceArraySize, sliceWidthArray, videoHeight, videoWidth } = this.state;
+    const { rescaleFactor, sliceArraySize, sliceWidthArray, videoHeight } = this.state;
+    const { width } = file;
     const ctx = this.opencvVideoPlayerCanvasRef.getContext('2d');
 
     // check if the video was found and is loaded
@@ -268,13 +269,12 @@ class VideoPlayer extends Component {
 
       console.log(file)
       console.log(sliceArraySize)
-      console.log(videoWidth)
 
       let canvasXPos = 0;
 
       for (let i = 0; i < sliceArraySize; i += 1) {
         const sliceWidth = sliceWidthArray[i];
-        const sliceXPos = Math.max(Math.floor((videoWidth * rescaleFactor) / 2) - Math.floor(sliceWidth / 2), 0);
+        const sliceXPos = Math.max(Math.floor((width * rescaleFactor) / 2) - Math.floor(sliceWidth / 2), 0);
         const thisFrameIsACut = arrayOfCuts.some(item => item === offsetFrameNumber + i + 1);
         // console.log(sliceWidth)
 

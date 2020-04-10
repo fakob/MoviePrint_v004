@@ -283,7 +283,7 @@ export const SCRUBCUT_SLICE_ARRAY_SIZE = 19;
 
 // videoPlayer
 export const VIDEOPLAYER_SLICEGAP = 1;
-export const VIDEOPLAYER_CUTGAP = 1;
+export const VIDEOPLAYER_CUTGAP = 8;
 export const VIDEOPLAYER_SLICE_ARRAY_SIZE = 20;
 export const VIDEOPLAYER_SCENE_MARGIN = 4;
 export const VIDEOPLAYER_THUMB_MARGIN = 4;
