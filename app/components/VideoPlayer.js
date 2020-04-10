@@ -88,7 +88,7 @@ class VideoPlayer extends Component {
   }
 
   static getDerivedStateFromProps(props) {
-    const { aspectRatioInv, height, containerWidth, defaultSheetView, fileHeight } = props;
+    const { aspectRatioInv, height, containerWidth, defaultSheetView, fileHeight, fileWidth } = props;
 
     const videoHeight = parseInt(height - DEFAULT_VIDEO_PLAYER_CONTROLLER_HEIGHT, 10);
     const videoWidth = videoHeight / aspectRatioInv;
@@ -99,8 +99,8 @@ class VideoPlayer extends Component {
     }
 
     // needs to check for video aspect ratio!!!
-    const rescaleFactor = Math.abs(videoHeight / fileHeight);
-    const sliceWidthArray = getSliceWidthArrayForCut(containerWidth, sliceArraySize);
+    const rescaleFactor = aspectRatioInv <= 1 ? videoHeight / fileHeight : videoWidth / fileWidth;
+    const sliceWidthArray = getSliceWidthArrayForCut(containerWidth, videoWidth, sliceArraySize);
 
     return {
       rescaleFactor,
@@ -242,9 +242,8 @@ class VideoPlayer extends Component {
   }
 
   updateOpencvVideoCanvas(currentFrame) {
-    const { arrayOfCuts, file, containerWidth, useRatio, defaultSheetView, opencvVideo } = this.props;
+    const { arrayOfCuts, fileWidth, containerWidth, useRatio, defaultSheetView, opencvVideo } = this.props;
     const { rescaleFactor, sliceArraySize, sliceWidthArray, videoHeight } = this.state;
-    const { width } = file;
     const ctx = this.opencvVideoPlayerCanvasRef.getContext('2d');
 
     // check if the video was found and is loaded
@@ -267,16 +266,12 @@ class VideoPlayer extends Component {
       const startFrameToRead = Math.max(0, offsetFrameNumber);
       setPosition(opencvVideo, startFrameToRead, useRatio);
 
-      console.log(file)
-      console.log(sliceArraySize)
-
       let canvasXPos = 0;
 
       for (let i = 0; i < sliceArraySize; i += 1) {
         const sliceWidth = sliceWidthArray[i];
-        const sliceXPos = Math.max(Math.floor((width * rescaleFactor) / 2) - Math.floor(sliceWidth / 2), 0);
+        const sliceXPos = Math.max(Math.floor((fileWidth * rescaleFactor) / 2) - Math.floor(sliceWidth / 2), 0);
         const thisFrameIsACut = arrayOfCuts.some(item => item === offsetFrameNumber + i + 1);
-        // console.log(sliceWidth)
 
         if (offsetFrameNumber + i >= 0) {
           const mat = opencvVideo.read();
@@ -291,7 +286,7 @@ class VideoPlayer extends Component {
               Math.min(matResized.rows, Math.abs(videoHeight)),
             );
             // console.log(cropRect)
-            console.log(`${i}: ${canvasXPos}, ${sliceXPos}, ${cropRect.width}`)
+            // console.log(`${i}: ${canvasXPos}, ${sliceXPos}, ${cropRect.width}`)
 
             const matCropped = matResized.getRegion(cropRect);
 

@@ -12,6 +12,8 @@ import {
   SHEET_VIEW,
   THUMB_SELECTION,
   TRANSFORMOBJECT_INIT,
+  VIDEOPLAYER_CUTGAP,
+  VIDEOPLAYER_SLICEGAP,
 } from './constants';
 
 const randomColor = require('randomcolor');
@@ -1068,24 +1070,24 @@ export const createSceneArray = (sheetsByFileId, fileId, sheetId) => {
   return [];
 };
 
-export const getSliceWidthArrayForScrub = (vid, sliceArraySize = 19, sliceWidthOutsideMin = 20) => {
-  const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
-  // const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
-  const sliceWidthInMiddle = width;
-  const sliceWidthArray = [];
-  const halfArraySize = Math.ceil(sliceArraySize / 2);
-  for (let i = 0; i < sliceArraySize; i += 1) {
-    const factor = i < halfArraySize ? halfArraySize - (i + 1) : i + 1 - halfArraySize;
-    const sliceWidth = Math.floor(sliceWidthInMiddle / 2 ** factor);
-    sliceWidthArray.push(Math.max(sliceWidth, sliceWidthOutsideMin));
-  }
-  return sliceWidthArray;
-};
+// export const getSliceWidthArrayForScrub = (vid, sliceArraySize = 19, sliceWidthOutsideMin = 20) => {
+//   const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
+//   // const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
+//   const sliceWidthInMiddle = width;
+//   const sliceWidthArray = [];
+//   const halfArraySize = Math.ceil(sliceArraySize / 2);
+//   for (let i = 0; i < sliceArraySize; i += 1) {
+//     const factor = i < halfArraySize ? halfArraySize - (i + 1) : i + 1 - halfArraySize;
+//     const sliceWidth = Math.floor(sliceWidthInMiddle / 2 ** factor);
+//     sliceWidthArray.push(Math.max(sliceWidth, sliceWidthOutsideMin));
+//   }
+//   return sliceWidthArray;
+// };
 
-export const getSliceWidthArrayForCut = (canvasWidth, sliceArraySize = 20, sliceGap = 1, cutGap = 8) => {
+export const getSliceWidthArrayForCut = (canvasWidth, videoWidth, sliceArraySize = 20) => {
   const isAsymmetrical = sliceArraySize % 2 === 1;
   const halfArraySize = Math.floor(sliceArraySize / 2);
-  const newCanvasWidth = canvasWidth - cutGap - sliceGap * sliceArraySize;
+  const newCanvasWidth = canvasWidth - VIDEOPLAYER_CUTGAP - VIDEOPLAYER_SLICEGAP * sliceArraySize;
   const sliceWidthInMiddle = Math.floor(newCanvasWidth / (isAsymmetrical ? 3 : 4));
   const sliceWidthArray = [];
   let factor;
@@ -1096,7 +1098,7 @@ export const getSliceWidthArrayForCut = (canvasWidth, sliceArraySize = 20, slice
       factor = i < halfArraySize ? halfArraySize - (i + 1) : i - halfArraySize;
     }
     const sliceWidth = Math.floor(sliceWidthInMiddle / 2 ** factor);
-    sliceWidthArray.push(Math.max(sliceWidth, 1)); // keep minimum of 1px
+    sliceWidthArray.push(limitRange(sliceWidth, 1, videoWidth)); // keep minimum of 1px or videoWidth for portrait videos
   }
   return sliceWidthArray;
 };
