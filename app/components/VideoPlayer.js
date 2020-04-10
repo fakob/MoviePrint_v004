@@ -8,11 +8,14 @@ import uuidV4 from 'uuid/v4';
 import log from 'electron-log';
 import { VideoCaptureProperties } from '../utils/openCVProperties';
 import {
-  MOVIEPRINT_COLORS,
-  VIDEOPLAYER_SLICE_ARRAY_SIZE,
   CHANGE_THUMB_STEP,
-  SHEET_VIEW,
+  DEFAULT_VIDEO_PLAYER_CONTROLLER_HEIGHT,
+  MOVIEPRINT_COLORS,
   SHEET_TYPE,
+  SHEET_VIEW,
+  VIDEOPLAYER_CUTGAP,
+  VIDEOPLAYER_SLICE_ARRAY_SIZE,
+  VIDEOPLAYER_SLICEGAP,
 } from '../utils/constants';
 import {
   secondsToFrameCount,
@@ -84,19 +87,38 @@ class VideoPlayer extends Component {
     this.onChangeOrAddClick = this.onChangeOrAddClick.bind(this);
   }
 
-  componentWillMount() {
-    const { aspectRatioInv, height, controllerHeight } = this.props;
-    const videoHeight = parseInt(height - controllerHeight, 10);
+  static getDerivedStateFromProps(props) {
+    const { aspectRatioInv, height, containerWidth, defaultSheetView, fileHeight } = props;
+
+    const videoHeight = parseInt(height - DEFAULT_VIDEO_PLAYER_CONTROLLER_HEIGHT, 10);
     const videoWidth = videoHeight / aspectRatioInv;
-    this.setState({
+
+    let sliceArraySize = VIDEOPLAYER_SLICE_ARRAY_SIZE;
+    if (defaultSheetView === SHEET_VIEW.GRIDVIEW) {
+      sliceArraySize -= 1;
+    }
+
+    // needs to check for video aspect ratio!!!
+    const rescaleFactor = Math.abs(videoHeight / fileHeight);
+    const sliceWidthArray = getSliceWidthArrayForCut(containerWidth, sliceArraySize);
+
+    console.log(videoHeight)
+    console.log(videoWidth)
+    console.log(rescaleFactor)
+
+    return {
+      rescaleFactor,
+      sliceArraySize,
+      sliceWidthArray,
       videoHeight,
       videoWidth,
-      loadVideo: true,
-    });
+    };
   }
 
   componentDidMount() {
-    const { jumpToFrameNumber } = this.props;
+    const { containerWidth, jumpToFrameNumber } = this.props;
+    const { videoHeight } = this.state;
+
     if (jumpToFrameNumber !== undefined) {
       this.updateTimeFromFrameNumber(jumpToFrameNumber);
     }
@@ -104,18 +126,8 @@ class VideoPlayer extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { aspectRatioInv, controllerHeight, height, jumpToFrameNumber, opencvVideo, allScenes, width } = this.props;
+    const { jumpToFrameNumber, containerWidth, path, frameCount, allScenes, width } = this.props;
     const { currentFrame, videoHeight } = this.state;
-
-    // update videoHeight if window size changed
-    if (prevProps.aspectRatioInv !== aspectRatioInv || prevProps.height !== height || prevProps.width !== width) {
-      const theVideoHeight = parseInt(height - controllerHeight, 10);
-      const videoWidth = theVideoHeight / aspectRatioInv;
-      this.setState({
-        videoHeight: theVideoHeight,
-        videoWidth,
-      });
-    }
 
     if (jumpToFrameNumber !== undefined) {
       if (prevProps.jumpToFrameNumber !== jumpToFrameNumber) {
@@ -125,13 +137,11 @@ class VideoPlayer extends Component {
 
     if (
       prevProps.allScenes.length !== allScenes.length ||
-      (prevProps.opencvVideo !== undefined &&
-        opencvVideo !== undefined &&
-        prevProps.opencvVideo.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT) !==
-          opencvVideo.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT)) ||
+      prevProps.frameCount !== frameCount ||
+      prevProps.path !== path ||
       prevState.videoHeight !== videoHeight
     ) {
-      this.updateTimeFromFrameNumber(currentFrame);
+      this.updateTimeFromFrameNumber(Math.min(currentFrame, frameCount - 1));
     }
   }
 
@@ -236,84 +246,85 @@ class VideoPlayer extends Component {
   }
 
   updateOpencvVideoCanvas(currentFrame) {
-    const { arrayOfCuts, containerWidth, file, opencvVideo, defaultSheetView } = this.props;
-    // offset currentFrame due to main frame is in middle of sliceArraySize
+    const { arrayOfCuts, file, containerWidth, useRatio, defaultSheetView, opencvVideo } = this.props;
+    const { rescaleFactor, sliceArraySize, sliceWidthArray, videoHeight, videoWidth } = this.state;
+    const ctx = this.opencvVideoPlayerCanvasRef.getContext('2d');
 
     // check if the video was found and is loaded
     if (opencvVideo !== undefined) {
       let offsetCorrection = 0;
-      let sliceArraySize = VIDEOPLAYER_SLICE_ARRAY_SIZE;
       if (defaultSheetView === SHEET_VIEW.GRIDVIEW) {
-        sliceArraySize -= 1;
         offsetCorrection = 1;
       }
-      const sliceArraySizeHalf = Math.floor(sliceArraySize / 2);
-      const offsetFrameNumber = currentFrame - parseInt(sliceArraySizeHalf, 10) + offsetCorrection;
-      const { videoHeight } = this.state;
-      const vid = opencvVideo;
-      const startFrameToRead = Math.max(0, offsetFrameNumber);
-      setPosition(vid, startFrameToRead, file.useRatio);
-      const ctx = this.opencvVideoPlayerCanvasRef.getContext('2d');
-      const length = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT);
-      const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
-      const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
-      const rescaleFactor = Math.abs(videoHeight / height);
-      const sliceWidthArray = getSliceWidthArrayForCut(containerWidth, sliceArraySize);
-      const sliceGap = 1;
-      const cutGap = 8;
+
+      // maybe this can be optimised so it is not set on every updateOpencvVideoCanvas, but
+      // setting this in componentDidUpdate ended in not showing the canvas at allow
+      // so I am keeping it for now
+      // apparently this sets/resets the canvas
       this.opencvVideoPlayerCanvasRef.height = videoHeight;
       this.opencvVideoPlayerCanvasRef.width = containerWidth;
+
+      // offset currentFrame due to main frame is in middle of sliceArraySize
+      const sliceArraySizeHalf = Math.floor(sliceArraySize / 2);
+      const offsetFrameNumber = currentFrame - parseInt(sliceArraySizeHalf, 10) + offsetCorrection;
+      const startFrameToRead = Math.max(0, offsetFrameNumber);
+      setPosition(opencvVideo, startFrameToRead, useRatio);
+
+      console.log(file)
+      console.log(sliceArraySize)
+
       let canvasXPos = 0;
 
       for (let i = 0; i < sliceArraySize; i += 1) {
         const sliceWidth = sliceWidthArray[i];
-        const sliceXPos = Math.max(Math.floor((width * rescaleFactor) / 2) - Math.floor(sliceWidth / 2), 0);
+        const sliceXPos = Math.max(Math.floor((videoWidth * rescaleFactor) / 2) - Math.floor(sliceWidth / 2), 0);
         const thisFrameIsACut = arrayOfCuts.some(item => item === offsetFrameNumber + i + 1);
+        // console.log(sliceWidth)
 
         if (offsetFrameNumber + i >= 0) {
-          const mat = vid.read();
+          const mat = opencvVideo.read();
+          console.log(mat)
           if (!mat.empty) {
-            const frame = vid.read();
-            const matResized = frame.rescale(rescaleFactor);
-            // const { rotationFlag = RotateFlags.NO_ROTATION } = file.transformObject;
-            // // first rotate if necessary
-            // let matRotated = mat;
-            // if (rotationFlag !== RotateFlags.NO_ROTATION) {
-            //   matRotated = mat.rotate(rotationFlag);
-            // }
-            //
-            // const matResized = matRotated.rescale(rescaleFactor);
+            console.log(canvasXPos)
+            const matResized = mat.rescale(rescaleFactor);
 
-            const matCropped = matResized.getRegion(
-              new opencv.Rect(
-                sliceXPos,
-                0,
-                Math.min(matResized.cols, sliceWidth),
-                Math.min(matResized.rows, Math.abs(videoHeight)),
-              ),
-            );
+            // const matCropped = matResized.getRegion(
+            //   new opencv.Rect(
+            //     sliceXPos,
+            //     0,
+            //     Math.min(matResized.cols, sliceWidth),
+            //     Math.min(matResized.rows, Math.abs(videoHeight)),
+            //   ),
+            // );
+
+            // const matRGBA =
+            //   matResized.channels === 1
+            //     ? matCropped.cvtColor(opencv.COLOR_GRAY2RGBA)
+            //     : matCropped.cvtColor(opencv.COLOR_BGR2RGBA);
 
             const matRGBA =
               matResized.channels === 1
-                ? matCropped.cvtColor(opencv.COLOR_GRAY2RGBA)
-                : matCropped.cvtColor(opencv.COLOR_BGR2RGBA);
+                ? matResized.cvtColor(opencv.COLOR_GRAY2RGBA)
+                : matResized.cvtColor(opencv.COLOR_BGR2RGBA);
 
-            const imgData = new ImageData(new Uint8ClampedArray(matRGBA.getData()), matCropped.cols, matCropped.rows);
+            // const imgData = new ImageData(new Uint8ClampedArray(matRGBA.getData()), matCropped.cols, matCropped.rows);
+            const imgData = new ImageData(new Uint8ClampedArray(matRGBA.getData()), matResized.cols, matResized.rows);
+
             ctx.putImageData(imgData, canvasXPos, 0);
           } else {
             log.debug('frame empty');
           }
         }
-        canvasXPos += sliceWidthArray[i] + (thisFrameIsACut ? cutGap : sliceGap);
+        canvasXPos += sliceWidthArray[i] + (thisFrameIsACut ? VIDEOPLAYER_CUTGAP : VIDEOPLAYER_SLICEGAP);
       }
     }
   }
 
   updatePositionWithStep(step) {
-    const { file } = this.props;
+    const { frameCount, fps } = this.props;
     const { currentTime, loadVideo, showHTML5Player } = this.state;
-    const currentFramePlusStep = limitRange(this.getCurrentFrameNumber() + step, 0, file.frameCount - 1);
-    const currentTimePlusStep = currentTime + frameCountToSeconds(step, file.fps);
+    const currentFramePlusStep = limitRange(this.getCurrentFrameNumber() + step, 0, frameCount - 1);
+    const currentTimePlusStep = currentTime + frameCountToSeconds(step, fps);
     this.updatePositionFromFrame(currentFramePlusStep);
     this.updateOpencvVideoCanvas(currentFramePlusStep);
     if (loadVideo && showHTML5Player) {
@@ -322,12 +333,12 @@ class VideoPlayer extends Component {
   }
 
   updatePositionFromTime(currentTime) {
-    const { file, onSelectThumbMethod, allScenes } = this.props;
+    const { fps, onSelectThumbMethod, allScenes } = this.props;
     const { currentScene, duration } = this.state;
     if (currentTime) {
       // rounds the number with 3 decimals
       const roundedCurrentTime = Math.round(currentTime * 1000 + Number.EPSILON) / 1000;
-      const currentFrame = secondsToFrameCount(currentTime, file.fps);
+      const currentFrame = secondsToFrameCount(currentTime, fps);
       const newScene = getSceneFromFrameNumber(allScenes, currentFrame);
       if (currentScene !== undefined && newScene !== undefined && currentScene.sceneId !== newScene.sceneId) {
         this.setState({
@@ -350,7 +361,7 @@ class VideoPlayer extends Component {
   }
 
   updatePositionFromFrame(currentFrame) {
-    const { file, onSelectThumbMethod, allScenes } = this.props;
+    const { frameCount, onSelectThumbMethod, allScenes } = this.props;
     const { currentScene } = this.state;
 
     if (currentFrame !== undefined) {
@@ -361,7 +372,7 @@ class VideoPlayer extends Component {
         });
         onSelectThumbMethod(newScene.sceneId); // call to update selection when scrubbing
       }
-      const xPos = mapRange(currentFrame, 0, file.frameCount - 1, 0, 1.0, false);
+      const xPos = mapRange(currentFrame, 0, frameCount - 1, 0, 1.0, false);
       const { inPoint, outPoint } = this.getInOutObject(newScene);
       const xPosSelection = mapRange(currentFrame, inPoint, outPoint, 0, 1.0, false);
       this.setState({
@@ -373,8 +384,10 @@ class VideoPlayer extends Component {
   }
 
   updateTimeFromFrameNumber(currentFrame) {
-    const { file, allScenes } = this.props;
+    const { frameCount, fps, allScenes } = this.props;
     const { loadVideo, showHTML5Player } = this.state;
+
+    console.log('updateTimeFromFrameNumber - updateTimeFromFrameNumber')
 
     const currentScene = getSceneFromFrameNumber(allScenes, currentFrame);
     if (currentScene !== undefined) {
@@ -382,10 +395,10 @@ class VideoPlayer extends Component {
         currentScene,
       });
     }
-    const xPos = mapRange(currentFrame, 0, file.frameCount - 1, 0, 1.0, false);
+    const xPos = mapRange(currentFrame, 0, frameCount - 1, 0, 1.0, false);
     const { inPoint, outPoint } = this.getInOutObject(currentScene);
     const xPosSelection = mapRange(currentFrame, inPoint, outPoint, 0, 1.0, false);
-    const currentTime = frameCountToSeconds(currentFrame, file.fps);
+    const currentTime = frameCountToSeconds(currentFrame, fps);
     this.setState({
       currentFrame,
       currentTime,
@@ -412,10 +425,9 @@ class VideoPlayer extends Component {
   };
 
   updateTimeFromPosition(xPos) {
-    const { file, allScenes, onSelectThumbMethod } = this.props;
+    const { frameCount, allScenes, onSelectThumbMethod } = this.props;
     const { currentScene, duration, loadVideo, showHTML5Player } = this.state;
     if (xPos !== undefined) {
-      const { frameCount } = file;
       const currentFrame = mapRange(xPos, 0, 1.0, 0, frameCount - 1);
       const newScene = getSceneFromFrameNumber(allScenes, currentFrame);
       if (currentScene !== undefined && newScene !== undefined && currentScene.sceneId !== newScene.sceneId) {
@@ -442,13 +454,13 @@ class VideoPlayer extends Component {
   }
 
   updateTimeFromPositionSelection(xPosSelection) {
-    const { file, allScenes, onSelectThumbMethod } = this.props;
+    const { frameCount, allScenes, onSelectThumbMethod } = this.props;
     const { currentScene, duration, loadVideo, showHTML5Player } = this.state;
 
     if (xPosSelection !== undefined) {
       const { inPoint, outPoint } = this.getInOutObject(currentScene);
       const currentFrame = mapRange(xPosSelection, 0, 1.0, inPoint, outPoint);
-      const xPos = mapRange(currentFrame, 0, file.frameCount - 1, 0, 1.0, false);
+      const xPos = mapRange(currentFrame, 0, frameCount - 1, 0, 1.0, false);
       const newScene = getSceneFromFrameNumber(allScenes, currentFrame);
       if (currentScene !== undefined && newScene !== undefined && currentScene.sceneId !== newScene.sceneId) {
         this.setState({
@@ -496,7 +508,7 @@ class VideoPlayer extends Component {
 
   onNextThumbClickWithStop(e, direction) {
     const { currentScene } = this.state;
-    const { file, onSelectThumbMethod, allScenes, selectedThumb, thumbs, sheetType } = this.props;
+    const { frameCount, onSelectThumbMethod, allScenes, selectedThumb, thumbs, sheetType } = this.props;
     if (e !== undefined) {
       e.target.blur(); // remove focus so button gets not triggered when clicking enter
       e.stopPropagation();
@@ -516,7 +528,7 @@ class VideoPlayer extends Component {
       }
       if (newThumbToSelect !== undefined) {
         let newFrameNumberToJumpTo = newThumbToSelect.frameNumber;
-        newFrameNumberToJumpTo = limitRange(newFrameNumberToJumpTo, 0, file.frameCount - 1);
+        newFrameNumberToJumpTo = limitRange(newFrameNumberToJumpTo, 0, frameCount - 1);
         this.updatePositionFromFrame(newFrameNumberToJumpTo);
         this.updateOpencvVideoCanvas(newFrameNumberToJumpTo);
       }
@@ -531,7 +543,7 @@ class VideoPlayer extends Component {
       if (newThumbToSelect !== undefined) {
         onSelectThumbMethod(newThumbToSelect.thumbId); // call to update selection
         let newFrameNumberToJumpTo = newThumbToSelect.frameNumber;
-        newFrameNumberToJumpTo = limitRange(newFrameNumberToJumpTo, 0, file.frameCount - 1);
+        newFrameNumberToJumpTo = limitRange(newFrameNumberToJumpTo, 0, frameCount - 1);
         this.updatePositionFromFrame(newFrameNumberToJumpTo);
         this.updateOpencvVideoCanvas(newFrameNumberToJumpTo);
       }
@@ -540,7 +552,7 @@ class VideoPlayer extends Component {
 
   onNextSceneClickWithStop(e, direction, frameNumber) {
     const { currentScene } = this.state;
-    const { file, onSelectThumbMethod, allScenes } = this.props;
+    const { frameCount, onSelectThumbMethod, allScenes } = this.props;
     if (e !== undefined) {
       e.target.blur(); // remove focus so button gets not triggered when clicking enter
       e.stopPropagation();
@@ -564,7 +576,7 @@ class VideoPlayer extends Component {
         onSelectThumbMethod(newSceneToSelect.sceneId); // call to update selection
       }
     }
-    newFrameNumberToJumpTo = limitRange(newFrameNumberToJumpTo, 0, file.frameCount - 1);
+    newFrameNumberToJumpTo = limitRange(newFrameNumberToJumpTo, 0, frameCount - 1);
     this.updatePositionFromFrame(newFrameNumberToJumpTo);
     this.updateOpencvVideoCanvas(newFrameNumberToJumpTo);
   }
@@ -636,8 +648,7 @@ class VideoPlayer extends Component {
   }
 
   onVideoError = () => {
-    const { file } = this.props;
-    const { frameCount } = file;
+    const { frameCount } = this.props;
 
     log.error('onVideoError');
     // log.debug(this);
@@ -657,7 +668,18 @@ class VideoPlayer extends Component {
 
   render() {
     const { currentFrame, currentScene, playHeadPositionPerc, playHeadPositionPercSelection } = this.state;
-    const { arrayOfCuts, containerWidth, defaultSheetView, file, keyObject, scenes, sheetType, thumbs } = this.props;
+    const {
+      arrayOfCuts,
+      containerWidth,
+      defaultSheetView,
+      file,
+      frameCount,
+      path,
+      keyObject,
+      scenes,
+      sheetType,
+      thumbs,
+    } = this.props;
     const { showHTML5Player, showPlaybar, videoHeight, videoWidth } = this.state;
 
     function over(event) {
@@ -709,11 +731,7 @@ class VideoPlayer extends Component {
                 className={`${styles.videoOverlay}`}
                 controls={showPlaybar ? true : undefined}
                 muted
-                src={
-                  file
-                    ? `${pathModule.dirname(file.path)}/${encodeURIComponent(pathModule.basename(file.path))}` || ''
-                    : ''
-                }
+                src={`${pathModule.dirname(path)}/${encodeURIComponent(pathModule.basename(path))}`}
                 width={videoWidth}
                 height={videoHeight}
                 onDurationChange={e => this.onDurationChange(e.target.duration)}
@@ -739,7 +757,7 @@ class VideoPlayer extends Component {
             playHeadPositionPercSelection={playHeadPositionPercSelection}
             containerWidth={containerWidth}
             playHeadPositionPerc={playHeadPositionPerc}
-            frameCount={file.frameCount}
+            frameCount={frameCount}
             currentScene={currentScene}
             sheetType={sheetType}
             updateTimeFromPosition={this.updateTimeFromPosition}
@@ -1165,7 +1183,6 @@ VideoPlayer.defaultProps = {
 
 VideoPlayer.propTypes = {
   aspectRatioInv: PropTypes.number.isRequired,
-  controllerHeight: PropTypes.number.isRequired,
   selectedThumb: PropTypes.shape({
     thumbId: PropTypes.string,
   }),

@@ -5,11 +5,13 @@ import {
   DEFAULT_MOVIE_HEIGHT,
   DEFAULT_MOVIE_WIDTH,
   DEFAULT_THUMB_COUNT,
+  DEFAULT_VIDEO_PLAYER_CONTROLLER_HEIGHT,
   MARGIN_ADJUSTMENT_SCALE,
   PAPER_ADJUSTMENT_SCALE,
-  SHEET_FIT,
+  SCALE_VALUE_ARRAY,
   VIDEOPLAYER_THUMB_MARGIN,
   VIEW,
+  ZOOM_SCALE,
 } from './constants';
 import { getScenesInRows, getPixelPerFrameRatio } from './utils';
 
@@ -21,7 +23,7 @@ const getScaleValueObject = (
   thumbCount = DEFAULT_THUMB_COUNT,
   containerWidth,
   containerHeight = 99999, // very high value so it is not taken into account when not set
-  zoomScale,
+  zoomScale = SCALE_VALUE_ARRAY[ZOOM_SCALE],
   showPaperPreview = false,
   forPrinting = false,
   sceneArray = [],
@@ -45,7 +47,6 @@ const getScaleValueObject = (
     defaultThumbnailScale,
     defaultTimelineViewMinDisplaySceneLengthInFrames,
     defaultTimelineViewWidthScale,
-    defaultVideoPlayerControllerHeight,
   } = settings;
   const { defaultView } = visibilitySettings;
 
@@ -76,13 +77,13 @@ const getScaleValueObject = (
   const moviePrintAspectRatioInv = (originalMoviePrintHeight * 1.0) / originalMoviePrintWidth;
 
   // for playerView
-  const videoHeight = (containerHeight * 2) / 3 - defaultVideoPlayerControllerHeight;
+  const videoHeight = (containerHeight * 2) / 3 - DEFAULT_VIDEO_PLAYER_CONTROLLER_HEIGHT;
   const videoWidth = videoHeight / movieAspectRatioInv;
-  let videoPlayerHeight = videoHeight + defaultVideoPlayerControllerHeight;
+  let videoPlayerHeight = videoHeight + DEFAULT_VIDEO_PLAYER_CONTROLLER_HEIGHT;
   let videoPlayerWidth = videoWidth;
   if (videoWidth > containerWidth) {
     videoPlayerWidth = containerWidth - defaultBorderMargin * 2;
-    videoPlayerHeight = videoPlayerWidth * movieAspectRatioInv + defaultVideoPlayerControllerHeight;
+    videoPlayerHeight = videoPlayerWidth * movieAspectRatioInv + DEFAULT_VIDEO_PLAYER_CONTROLLER_HEIGHT;
   }
   const thumbnailHeightForThumbView = videoPlayerHeight / 2 - defaultBorderMargin * 3;
   const thumbnailWidthForThumbView = thumbnailHeightForThumbView / movieAspectRatioInv;

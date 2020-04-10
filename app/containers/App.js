@@ -193,7 +193,9 @@ import {
 } from '../actions';
 import {
   DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN,
+  DEFAULT_COLUMN_COUNT,
   DEFAULT_THUMB_COUNT,
+  DEFAULT_VIDEO_PLAYER_CONTROLLER_HEIGHT,
   EXPORT_FORMAT_OPTIONS,
   SORT_METHOD,
   FRAMESDB_PATH,
@@ -239,14 +241,14 @@ moviePrintDB.pragma('journal_mode = WAL');
 // Disable animating charts by default.
 defaults.global.animation = false;
 
-const loadSheetPropertiesIntoState = (that, columnCount, thumbCount, secondsPerRowTemp = undefined) => {
-  that.setState({
+const returnSheetProperties = (columnCount = DEFAULT_COLUMN_COUNT, thumbCount = DEFAULT_THUMB_COUNT, secondsPerRowTemp = undefined) => {
+  return {
     columnCountTemp: columnCount,
     thumbCountTemp: thumbCount,
     columnCount,
     thumbCount,
     secondsPerRowTemp,
-  });
+  };
 };
 
 class App extends Component {
@@ -254,7 +256,6 @@ class App extends Component {
     super();
 
     this.webviewRef = React.createRef();
-    this.opencvVideoCanvasRef = React.createRef();
     this.dropzoneRef = React.createRef();
     this.videoPlayer = React.createRef();
 
@@ -429,7 +430,6 @@ class App extends Component {
     this.onThumbnailScaleClick = this.onThumbnailScaleClick.bind(this);
     this.onMoviePrintWidthClick = this.onMoviePrintWidthClick.bind(this);
     this.onShotDetectionMethodClick = this.onShotDetectionMethodClick.bind(this);
-    // this.updateOpencvVideoCanvas = this.updateOpencvVideoCanvas.bind(this);
     this.runSceneDetection = this.runSceneDetection.bind(this);
     this.cancelFileScan = this.cancelFileScan.bind(this);
     this.calculateSceneList = this.calculateSceneList.bind(this);
@@ -452,46 +452,42 @@ class App extends Component {
     });
   }
 
-  componentWillMount() {
-    const { dispatch } = this.props;
-    const { columnCountTemp, thumbCountTemp, containerWidth, containerHeight } = this.state;
-    const {
-      currentFileId,
-      currentSecondsPerRow,
-      currentSheetId,
-      file,
-      files,
-      scenes,
-      settings,
-      sheetsByFileId,
-      visibilitySettings,
-    } = this.props;
+  static getDerivedStateFromProps(props, state) {
+    const { currentFileId, currentSheetId, file, settings, sheetsByFileId, scenes, visibilitySettings } = props;
     const { defaultShowPaperPreview, defaultThumbCountMax } = settings;
-    const { defaultZoomLevel = ZOOM_SCALE } = visibilitySettings;
+    const { containerWidth } = state;
 
-    // check if all movies exist
-    // if not then mark them with fileMissingStatus
-    if (files.length > 0) {
-      files.map(item => {
-        if (doesFileFolderExist(item.path) === false) {
-          console.log(item.path);
-          dispatch(updateFileMissingStatus(item.id, true));
-        }
-      });
+    let emptyColorsArray;
+    if (state.emptyColorsArray === undefined) {
+      emptyColorsArray = getMoviePrintColor(defaultThumbCountMax);
     }
 
-    // get objecturls from all frames in imagedb
-    ipcRenderer.send('message-from-mainWindow-to-databaseWorkerWindow', 'get-arrayOfObjectUrls');
+    let opencvVideo;
+    if (file !== undefined && file.path !== undefined && state.currentFilePathInState !== file.path) {
+      let sheetProperties;
+      opencvVideo = new opencv.VideoCapture(file.path);
 
-    loadSheetPropertiesIntoState(
-      this,
-      getColumnCount(sheetsByFileId, undefined, undefined, settings),
-      getThumbsCount(sheetsByFileId, currentFileId, currentSheetId, settings, visibilitySettings.visibilityFilter),
-      currentSecondsPerRow,
-    );
-    this.setState({
-      emptyColorsArray: getMoviePrintColor(defaultThumbCountMax),
-      scaleValueObject: getScaleValueObject(
+      const secondsPerRow = getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings);
+
+      const columnCount = getColumnCount(sheetsByFileId, file.id, currentSheetId, settings);
+
+      const newThumbCount = getThumbsCount(
+        sheetsByFileId,
+        file.id,
+        currentSheetId,
+        settings,
+        visibilitySettings.visibilityFilter,
+      );
+
+      // check if currentFileId, currentSheetId or visibleThumbCount changed
+      if (currentFileId !== currentFileId || currentSheetId !== currentSheetId || state.currentThumbCountInState !== newThumbCount) {
+        sheetProperties = returnSheetProperties(columnCount, newThumbCount, secondsPerRow);
+
+        log.debug('currentFileId, currentSheetId or visibleThumbCount changed');
+      }
+
+      const { columnCountTemp, thumbCountTemp, containerHeight, currentSecondsPerRow } = state;
+      const scaleValueObject = getScaleValueObject(
         file,
         settings,
         visibilitySettings,
@@ -499,26 +495,68 @@ class App extends Component {
         thumbCountTemp,
         containerWidth,
         containerHeight,
-        SCALE_VALUE_ARRAY[defaultZoomLevel],
+        undefined,
         defaultShowPaperPreview,
         undefined,
         scenes,
         currentSecondsPerRow,
-      ),
-    });
-    if (getObjectProperty(() => file.id)) {
-      try {
-        this.setState({
-          opencvVideo: new opencv.VideoCapture(file.path),
-        });
-      } catch (e) {
-        log.error(e);
-      }
+      );
+
+      return {
+        opencvVideo,
+        scaleValueObject,
+        currentFilePathInState: file.path,
+        currentFileIdInState: currentFileId,
+        currentSheetIdInState: currentSheetId,
+        currentThumbCountInState: newThumbCount,
+        ...sheetProperties,
+      };
     }
+
+    let scaleValueObject;
+    // initial state when no file loaded
+    if (state.scaleValueObject === undefined) {
+      scaleValueObject = getScaleValueObject(
+        undefined,
+        settings,
+        visibilitySettings,
+        undefined,
+        undefined,
+        containerWidth,
+      );
+    }
+
+    let sheetPropertiesWhenNoFileLoaded;
+    // initial state when no file loaded
+    if (state.thumbCountTemp === undefined) {
+      sheetPropertiesWhenNoFileLoaded = returnSheetProperties();
+    }
+    console.log(state)
+    console.log(scaleValueObject)
+    console.log(sheetPropertiesWhenNoFileLoaded)
+
+    return {
+      ...(emptyColorsArray !== undefined) && {emptyColorsArray},
+      ...(scaleValueObject !== undefined) && {scaleValueObject},
+      ...(sheetPropertiesWhenNoFileLoaded !== undefined) && sheetPropertiesWhenNoFileLoaded,
+    };
   }
 
   componentDidMount() {
-    const { dispatch, settings, visibilitySettings } = this.props;
+    const {
+      currentFileId,
+      currentSecondsPerRow,
+      currentSheetId,
+      dispatch,
+      file,
+      files,
+      scenes,
+      settings,
+      sheetsByFileId,
+      visibilitySettings,
+    } = this.props;
+    const { columnCountTemp, thumbCountTemp, containerWidth, containerHeight } = this.state;
+    const { defaultZoomLevel = ZOOM_SCALE, visibilityFilter } = visibilitySettings;
 
     ipcRenderer.on('progress', (event, fileId, progressBarPercentage) => {
       this.setState({
@@ -929,60 +967,31 @@ class App extends Component {
     log.debug(`Operating system: ${process.platform}-${os.release()}`);
     log.debug(`App version: ${app.getName()}-${app.getVersion()}`);
     log.debug(`Chromium version: ${process.versions.chrome}`);
-  }
 
-  componentWillReceiveProps(nextProps) {
-    const { currentFileId, currentSheetId, file, settings, sheetsByFileId, visibilitySettings } = this.props;
+    // check if all movies exist
+    // if not then mark them with fileMissingStatus
+    if (files.length > 0) {
+      files.map(item => {
+        if (doesFileFolderExist(item.path) === false) {
+          console.log(item.path);
+          dispatch(updateFileMissingStatus(item.id, true));
+        }
+      });
+    }
 
-    const secondsPerRow = getSecondsPerRow(
-      nextProps.sheetsByFileId,
-      nextProps.currentFileId,
-      nextProps.currentSheetId,
-      nextProps.settings,
-    );
-
-    if (file !== undefined && nextProps.file !== undefined && file.id !== undefined) {
-      const columnCount = getColumnCount(
-        nextProps.sheetsByFileId,
-        nextProps.file.id,
-        nextProps.currentSheetId,
-        nextProps.settings,
-      );
-
-      // check if currentFileId or currentSheetId changed
-      if (currentFileId !== nextProps.currentFileId || currentSheetId !== nextProps.currentSheetId) {
-        const newThumbCount = getThumbsCount(
-          nextProps.sheetsByFileId,
-          nextProps.file.id,
-          nextProps.currentSheetId,
-          nextProps.settings,
-          nextProps.visibilitySettings.visibilityFilter,
-        );
-
-        loadSheetPropertiesIntoState(this, columnCount, newThumbCount, secondsPerRow);
-        log.debug('currentFileId or currentSheetId changed');
-      }
-
-      // check if visibleThumbCount changed
-      const oldThumbCount = getThumbsCount(
-        sheetsByFileId,
-        file.id,
-        currentSheetId,
-        settings,
-        visibilitySettings.visibilityFilter,
-      );
-      const newThumbCount = getThumbsCount(
-        nextProps.sheetsByFileId,
-        nextProps.file.id,
-        nextProps.currentSheetId,
-        nextProps.settings,
-        nextProps.visibilitySettings.visibilityFilter,
-      );
-      if (oldThumbCount !== newThumbCount) {
-        loadSheetPropertiesIntoState(this, columnCount, newThumbCount, secondsPerRow);
-        log.debug(`visibleThumbCount changed to ${newThumbCount}`);
+    // load opencvVideo for scrub and playerView
+    if (getObjectProperty(() => file.path)) {
+      try {
+        this.setState({
+          opencvVideo: new opencv.VideoCapture(file.path),
+        });
+      } catch (e) {
+        log.error(e);
       }
     }
+
+    // get objecturls from all frames in imagedb
+    ipcRenderer.send('message-from-mainWindow-to-databaseWorkerWindow', 'get-arrayOfObjectUrls');
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -992,16 +1001,6 @@ class App extends Component {
     const { files, file, settings, sheetsByFileId, visibilitySettings } = this.props;
     const { defaultMoviePrintWidth, defaultPaperAspectRatioInv } = settings;
     const { visibilityFilter } = visibilitySettings;
-
-    if (file !== undefined && getObjectProperty(() => prevProps.file.id) !== file.id) {
-      try {
-        this.setState({
-          opencvVideo: new opencv.VideoCapture(file.path),
-        });
-      } catch (e) {
-        log.error(e);
-      }
-    }
 
     if (filesToLoad.length !== 0 && prevState.filesToLoad.length !== filesToLoad.length) {
       ipcRenderer.send(
@@ -1752,12 +1751,12 @@ class App extends Component {
 
     dispatch(showSettings());
 
-    loadSheetPropertiesIntoState(
-      this,
+    const sheetProperties = returnSheetProperties(
       getColumnCount(sheetsByFileId, currentFileId, currentSheetId, settings),
       getThumbsCount(sheetsByFileId, currentFileId, currentSheetId, settings, visibilitySettings.visibilityFilter),
       currentSecondsPerRow,
     );
+    this.setState(sheetProperties);
   }
 
   hideSettings() {
@@ -3834,6 +3833,9 @@ ${exportObject}`;
       );
     }
 
+    console.log(this.state)
+    console.log(scaleValueObject)
+
     return (
       <Dropzone
         ref={this.dropzoneRef}
@@ -4106,7 +4108,7 @@ ${exportObject}`;
                         visibilitySettings.defaultView === VIEW.PLAYERVIEW
                           ? `translate(0px, 0px)`
                           : `translate(0, ${(scaleValueObject.videoPlayerHeight +
-                              settings.defaultVideoPlayerControllerHeight) *
+                              DEFAULT_VIDEO_PLAYER_CONTROLLER_HEIGHT) *
                               -1}px)`,
                       overflow: visibilitySettings.defaultView === VIEW.PLAYERVIEW ? 'visible' : 'hidden',
                     }}
@@ -4115,17 +4117,23 @@ ${exportObject}`;
                       <VideoPlayer
                         ref={this.videoPlayer}
                         file={file}
+                        fileWidth={file.width}
+                        fileHeight={file.height}
+                        frameCount={file.frameCount}
+                        useRatio={file.useRatio}
+                        fps={file.fps}
+                        path={file.path || ''}
                         currentSheetId={settings.currentSheetId}
+                        frameSize={settings.defaultCachedFramesSize}
                         defaultSheetView={defaultSheetView}
                         sheetType={currentSheetType}
                         keyObject={this.state.keyObject}
+                        opencvVideo={this.state.opencvVideo}
                         containerWidth={this.state.containerWidth}
-                        scaleValueObject={scaleValueObject}
                         aspectRatioInv={scaleValueObject.aspectRatioInv}
                         height={scaleValueObject.videoPlayerHeight}
                         width={scaleValueObject.videoPlayerWidth}
                         objectUrlObjects={filteredObjectUrlObjects}
-                        controllerHeight={settings.defaultVideoPlayerControllerHeight}
                         arrayOfCuts={this.props.arrayOfCuts}
                         allScenes={allScenes}
                         scenes={scenes}
@@ -4141,8 +4149,6 @@ ${exportObject}`;
                         onSelectThumbMethod={this.onSelectThumbMethod}
                         onCutSceneClick={this.onCutSceneClick}
                         onMergeSceneClick={this.onMergeSceneClick}
-                        opencvVideo={this.state.opencvVideo}
-                        frameSize={settings.defaultCachedFramesSize}
                       />
                     )}
                   </div>

@@ -213,7 +213,7 @@ export const DEFAULT_SAVE_OPTION_OVERWRITE = false;
 export const DEFAULT_SAVE_OPTION_INCLUDE_INDIVIDUAL = false;
 export const DEFAULT_VIDEO_PLAYER_HEIGHT = 360;
 export const DEFAULT_VIDEO_PLAYER_WIDTH = 640;
-export const DEFAULT_VIDEO_PLAYER_CONTROLLER_HEIGHT = 64;
+export const DEFAULT_VIDEO_PLAYER_CONTROLLER_HEIGHT = 84;
 export const DEFAULT_BORDER_MARGIN = 24;
 export const DEFAULT_SHOW_PAPER_PREVIEW = false;
 export const DEFAULT_PAPER_ASPECTRATIOINV = 0.71;
@@ -280,6 +280,10 @@ export const FRAMESDB_PATH = path.join(app.getPath('userData'), 'moviePrint_fram
 export const STATEID = '1';
 
 export const SCRUBCUT_SLICE_ARRAY_SIZE = 19;
+
+// videoPlayer
+export const VIDEOPLAYER_SLICEGAP = 1;
+export const VIDEOPLAYER_CUTGAP = 1;
 export const VIDEOPLAYER_SLICE_ARRAY_SIZE = 20;
 export const VIDEOPLAYER_SCENE_MARGIN = 4;
 export const VIDEOPLAYER_THUMB_MARGIN = 4;

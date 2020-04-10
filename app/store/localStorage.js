@@ -111,7 +111,6 @@ const initialStateJSON = {
       defaultSaveOptionIncludeIndividual: DEFAULT_SAVE_OPTION_INCLUDE_INDIVIDUAL,
       defaultVideoPlayerHeight: DEFAULT_VIDEO_PLAYER_HEIGHT,
       defaultVideoPlayerWidth: DEFAULT_VIDEO_PLAYER_WIDTH,
-      defaultVideoPlayerControllerHeight: DEFAULT_VIDEO_PLAYER_CONTROLLER_HEIGHT,
       defaultBorderMargin: DEFAULT_BORDER_MARGIN,
       defaultShowPaperPreview: DEFAULT_SHOW_PAPER_PREVIEW,
       defaultPaperAspectRatioInv: DEFAULT_PAPER_ASPECTRATIOINV,
