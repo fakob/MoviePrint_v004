@@ -102,10 +102,6 @@ class VideoPlayer extends Component {
     const rescaleFactor = Math.abs(videoHeight / fileHeight);
     const sliceWidthArray = getSliceWidthArrayForCut(containerWidth, sliceArraySize);
 
-    console.log(videoHeight)
-    console.log(videoWidth)
-    console.log(rescaleFactor)
-
     return {
       rescaleFactor,
       sliceArraySize,
@@ -272,6 +268,7 @@ class VideoPlayer extends Component {
 
       console.log(file)
       console.log(sliceArraySize)
+      console.log(videoWidth)
 
       let canvasXPos = 0;
 
@@ -283,32 +280,27 @@ class VideoPlayer extends Component {
 
         if (offsetFrameNumber + i >= 0) {
           const mat = opencvVideo.read();
-          console.log(mat)
           if (!mat.empty) {
-            console.log(canvasXPos)
+            // console.log(canvasXPos)
             const matResized = mat.rescale(rescaleFactor);
 
-            // const matCropped = matResized.getRegion(
-            //   new opencv.Rect(
-            //     sliceXPos,
-            //     0,
-            //     Math.min(matResized.cols, sliceWidth),
-            //     Math.min(matResized.rows, Math.abs(videoHeight)),
-            //   ),
-            // );
+            const cropRect = new opencv.Rect(
+              sliceXPos,
+              0,
+              Math.min(matResized.cols, sliceWidth),
+              Math.min(matResized.rows, Math.abs(videoHeight)),
+            );
+            // console.log(cropRect)
+            console.log(`${i}: ${canvasXPos}, ${sliceXPos}, ${cropRect.width}`)
 
-            // const matRGBA =
-            //   matResized.channels === 1
-            //     ? matCropped.cvtColor(opencv.COLOR_GRAY2RGBA)
-            //     : matCropped.cvtColor(opencv.COLOR_BGR2RGBA);
+            const matCropped = matResized.getRegion(cropRect);
 
             const matRGBA =
               matResized.channels === 1
-                ? matResized.cvtColor(opencv.COLOR_GRAY2RGBA)
-                : matResized.cvtColor(opencv.COLOR_BGR2RGBA);
+                ? matCropped.cvtColor(opencv.COLOR_GRAY2RGBA)
+                : matCropped.cvtColor(opencv.COLOR_BGR2RGBA);
 
-            // const imgData = new ImageData(new Uint8ClampedArray(matRGBA.getData()), matCropped.cols, matCropped.rows);
-            const imgData = new ImageData(new Uint8ClampedArray(matRGBA.getData()), matResized.cols, matResized.rows);
+            const imgData = new ImageData(new Uint8ClampedArray(matRGBA.getData()), matCropped.cols, matCropped.rows);
 
             ctx.putImageData(imgData, canvasXPos, 0);
           } else {

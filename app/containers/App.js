@@ -13,7 +13,6 @@ import {
   Header,
   Icon,
   Loader,
-  Message,
   Modal,
   Popup,
   Progress,
@@ -68,8 +67,6 @@ import {
   getObjectProperty,
   getParentSheetId,
   getSceneFromFrameNumber,
-  getSceneScrubFrameNumber,
-  getScrubFrameNumber,
   getSecondsPerRow,
   getSheetCount,
   getSheetFilter,
@@ -87,7 +84,6 @@ import {
   limitRange,
   pad,
   repairFrameScanData,
-  setPosition,
   sortArray,
   sortThumbsArray,
 } from '../utils/utils';
@@ -195,6 +191,8 @@ import {
   DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN,
   DEFAULT_COLUMN_COUNT,
   DEFAULT_THUMB_COUNT,
+  DEFAULT_THUMB_COUNT_MAX,
+  DEFAULT_TIMELINEVIEW_SECONDS_PER_ROW,
   DEFAULT_VIDEO_PLAYER_CONTROLLER_HEIGHT,
   EXPORT_FORMAT_OPTIONS,
   SORT_METHOD,
@@ -241,7 +239,11 @@ moviePrintDB.pragma('journal_mode = WAL');
 // Disable animating charts by default.
 defaults.global.animation = false;
 
-const returnSheetProperties = (columnCount = DEFAULT_COLUMN_COUNT, thumbCount = DEFAULT_THUMB_COUNT, secondsPerRowTemp = undefined) => {
+const returnSheetProperties = (
+  columnCount = DEFAULT_COLUMN_COUNT,
+  thumbCount = DEFAULT_THUMB_COUNT,
+  secondsPerRowTemp = undefined,
+) => {
   return {
     columnCountTemp: columnCount,
     thumbCountTemp: thumbCount,
@@ -259,16 +261,18 @@ class App extends Component {
     this.dropzoneRef = React.createRef();
     this.videoPlayer = React.createRef();
 
+    const emptyColorsArray = getMoviePrintColor(DEFAULT_THUMB_COUNT_MAX);
+
     this.state = {
       containerHeight: 360,
       containerWidth: 640,
-      secondsPerRowTemp: undefined,
-      columnCountTemp: undefined,
-      thumbCountTemp: undefined,
-      columnCount: undefined,
-      thumbCount: undefined,
+      secondsPerRowTemp: DEFAULT_TIMELINEVIEW_SECONDS_PER_ROW,
+      columnCountTemp: DEFAULT_COLUMN_COUNT,
+      thumbCountTemp: DEFAULT_THUMB_COUNT,
+      columnCount: DEFAULT_COLUMN_COUNT,
+      thumbCount: DEFAULT_THUMB_COUNT,
       reCapture: true,
-      emptyColorsArray: undefined,
+      emptyColorsArray,
       scaleValueObject: undefined,
       savingMoviePrint: false,
       selectedThumbsArray: [],
@@ -454,23 +458,11 @@ class App extends Component {
 
   static getDerivedStateFromProps(props, state) {
     const { currentFileId, currentSheetId, file, settings, sheetsByFileId, scenes, visibilitySettings } = props;
-    const { defaultShowPaperPreview, defaultThumbCountMax } = settings;
+    const { defaultShowPaperPreview } = settings;
     const { containerWidth } = state;
 
-    let emptyColorsArray;
-    if (state.emptyColorsArray === undefined) {
-      emptyColorsArray = getMoviePrintColor(defaultThumbCountMax);
-    }
-
-    let opencvVideo;
-    if (file !== undefined && file.path !== undefined && state.currentFilePathInState !== file.path) {
-      let sheetProperties;
-      opencvVideo = new opencv.VideoCapture(file.path);
-
-      const secondsPerRow = getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings);
-
-      const columnCount = getColumnCount(sheetsByFileId, file.id, currentSheetId, settings);
-
+    // update scaleValueObject, sheetProperties, opencvVideo if file/sheet/thumbcount changes
+    if (file !== undefined) {
       const newThumbCount = getThumbsCount(
         sheetsByFileId,
         file.id,
@@ -479,42 +471,49 @@ class App extends Component {
         visibilitySettings.visibilityFilter,
       );
 
-      // check if currentFileId, currentSheetId or visibleThumbCount changed
-      if (currentFileId !== currentFileId || currentSheetId !== currentSheetId || state.currentThumbCountInState !== newThumbCount) {
-        sheetProperties = returnSheetProperties(columnCount, newThumbCount, secondsPerRow);
+      if (
+        state.currentFileIdInState !== currentFileId ||
+        state.currentSheetIdInState !== currentSheetId ||
+        state.currentThumbCountInState !== newThumbCount
+      ) {
+        const { columnCountTemp, thumbCountTemp, containerHeight, currentSecondsPerRow } = state;
 
-        log.debug('currentFileId, currentSheetId or visibleThumbCount changed');
+        const opencvVideo = new opencv.VideoCapture(file.path);
+        const secondsPerRow = getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings);
+        const columnCount = getColumnCount(sheetsByFileId, file.id, currentSheetId, settings);
+
+
+        const sheetProperties = returnSheetProperties(columnCount, newThumbCount, secondsPerRow);
+
+        const scaleValueObject = getScaleValueObject(
+          file,
+          settings,
+          visibilitySettings,
+          columnCountTemp,
+          thumbCountTemp,
+          containerWidth,
+          containerHeight,
+          undefined,
+          defaultShowPaperPreview,
+          undefined,
+          scenes,
+          currentSecondsPerRow,
+        );
+
+        return {
+          opencvVideo,
+          scaleValueObject,
+          currentFilePathInState: file.path,
+          currentFileIdInState: currentFileId,
+          currentSheetIdInState: currentSheetId,
+          currentThumbCountInState: newThumbCount,
+          ...sheetProperties,
+        };
       }
-
-      const { columnCountTemp, thumbCountTemp, containerHeight, currentSecondsPerRow } = state;
-      const scaleValueObject = getScaleValueObject(
-        file,
-        settings,
-        visibilitySettings,
-        columnCountTemp,
-        thumbCountTemp,
-        containerWidth,
-        containerHeight,
-        undefined,
-        defaultShowPaperPreview,
-        undefined,
-        scenes,
-        currentSecondsPerRow,
-      );
-
-      return {
-        opencvVideo,
-        scaleValueObject,
-        currentFilePathInState: file.path,
-        currentFileIdInState: currentFileId,
-        currentSheetIdInState: currentSheetId,
-        currentThumbCountInState: newThumbCount,
-        ...sheetProperties,
-      };
     }
 
+    // initial scaleValueObject
     let scaleValueObject;
-    // initial state when no file loaded
     if (state.scaleValueObject === undefined) {
       scaleValueObject = getScaleValueObject(
         undefined,
@@ -526,19 +525,8 @@ class App extends Component {
       );
     }
 
-    let sheetPropertiesWhenNoFileLoaded;
-    // initial state when no file loaded
-    if (state.thumbCountTemp === undefined) {
-      sheetPropertiesWhenNoFileLoaded = returnSheetProperties();
-    }
-    console.log(state)
-    console.log(scaleValueObject)
-    console.log(sheetPropertiesWhenNoFileLoaded)
-
     return {
-      ...(emptyColorsArray !== undefined) && {emptyColorsArray},
-      ...(scaleValueObject !== undefined) && {scaleValueObject},
-      ...(sheetPropertiesWhenNoFileLoaded !== undefined) && sheetPropertiesWhenNoFileLoaded,
+      ...(scaleValueObject !== undefined && { scaleValueObject }), // don't add it if it is undefined, it would overwrite itself
     };
   }
 
@@ -3832,9 +3820,6 @@ ${exportObject}`;
           ).name,
       );
     }
-
-    console.log(this.state)
-    console.log(scaleValueObject)
 
     return (
       <Dropzone

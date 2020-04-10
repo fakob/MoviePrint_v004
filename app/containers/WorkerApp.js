@@ -12,7 +12,7 @@ import Conditional from '../components/Conditional';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { getMoviePrintColor, getVisibleThumbs, getFramenumbers } from '../utils/utils';
 import saveMoviePrint from '../utils/saveMoviePrint';
-import { SHEET_VIEW, VIEW } from '../utils/constants';
+import { DEFAULT_THUMB_COUNT_MAX, SHEET_VIEW, VIEW } from '../utils/constants';
 import { getBase64Object } from '../utils/utilsForOpencv';
 
 const { ipcRenderer } = require('electron');
@@ -194,7 +194,7 @@ class WorkerApp extends Component {
                     defaultThumbInfo={sentData.settings.defaultThumbInfo}
                     defaultThumbInfoRatio={sentData.settings.defaultThumbInfoRatio}
                     selectedThumbId={undefined}
-                    colorArray={getMoviePrintColor(sentData.settings.defaultThumbCountMax)}
+                    colorArray={getMoviePrintColor(DEFAULT_THUMB_COUNT_MAX)}
                     thumbCount={sentData.file.thumbCount}
                     sheetView={sheetView}
                     view={VIEW.STANDARDVIEW}
