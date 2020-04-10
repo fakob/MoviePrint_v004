@@ -13,6 +13,7 @@ import {
   MOVIEPRINT_COLORS,
   SHEET_TYPE,
   SHEET_VIEW,
+  TRANSFORMOBJECT_INIT,
   VIDEOPLAYER_CUTGAP,
   VIDEOPLAYER_SLICE_ARRAY_SIZE,
   VIDEOPLAYER_SLICEGAP,
@@ -32,6 +33,7 @@ import {
   mapRange,
   setPosition,
 } from '../utils/utils';
+import { getCropRect, transformMat } from '../utils/utilsForOpencv';
 import Timeline from './Timeline';
 import styles from './VideoPlayer.css';
 import stylesPop from './Popup.css';
@@ -88,7 +90,8 @@ class VideoPlayer extends Component {
   }
 
   static getDerivedStateFromProps(props) {
-    const { aspectRatioInv, height, containerWidth, defaultSheetView, fileHeight, fileWidth } = props;
+    const { aspectRatioInv, height, containerWidth, defaultSheetView, file, fileHeight, fileWidth, opencvVideo } = props;
+    const { transformObject = TRANSFORMOBJECT_INIT } = file;
 
     const videoHeight = parseInt(height - DEFAULT_VIDEO_PLAYER_CONTROLLER_HEIGHT, 10);
     const videoWidth = videoHeight / aspectRatioInv;
@@ -102,10 +105,14 @@ class VideoPlayer extends Component {
     const rescaleFactor = aspectRatioInv <= 1 ? videoHeight / fileHeight : videoWidth / fileWidth;
     const sliceWidthArray = getSliceWidthArrayForCut(containerWidth, videoWidth, sliceArraySize);
 
+    const cropRect = getCropRect(opencvVideo, transformObject);
+
     return {
+      cropRect,
       rescaleFactor,
       sliceArraySize,
       sliceWidthArray,
+      thisTransformObject: transformObject,
       videoHeight,
       videoWidth,
     };
@@ -242,8 +249,8 @@ class VideoPlayer extends Component {
   }
 
   updateOpencvVideoCanvas(currentFrame) {
-    const { arrayOfCuts, fileWidth, containerWidth, useRatio, defaultSheetView, opencvVideo } = this.props;
-    const { rescaleFactor, sliceArraySize, sliceWidthArray, videoHeight } = this.state;
+    const { arrayOfCuts, fileHeight, fileWidth, containerWidth, useRatio, defaultSheetView, opencvVideo } = this.props;
+    const { cropRect, rescaleFactor, sliceArraySize, sliceWidthArray, thisTransformObject, videoHeight } = this.state;
     const ctx = this.opencvVideoPlayerCanvasRef.getContext('2d');
 
     // check if the video was found and is loaded
@@ -276,19 +283,21 @@ class VideoPlayer extends Component {
         if (offsetFrameNumber + i >= 0) {
           const mat = opencvVideo.read();
           if (!mat.empty) {
-            // console.log(canvasXPos)
-            const matResized = mat.rescale(rescaleFactor);
+            // optional transformation
+            const matTransformed = transformMat(mat, thisTransformObject, cropRect);
 
-            const cropRect = new opencv.Rect(
+            const matResized = matTransformed.rescale(rescaleFactor);
+
+            const cropRectForSlice = new opencv.Rect(
               sliceXPos,
               0,
               Math.min(matResized.cols, sliceWidth),
               Math.min(matResized.rows, Math.abs(videoHeight)),
             );
-            // console.log(cropRect)
-            // console.log(`${i}: ${canvasXPos}, ${sliceXPos}, ${cropRect.width}`)
+            log.debug(cropRectForSlice);
+            log.debug(`${fileWidth}, ${fileHeight}, ${rescaleFactor}, ${fileWidth * rescaleFactor}, ${fileHeight * rescaleFactor}, ${i}: ${canvasXPos}, ${sliceXPos}, ${cropRectForSlice.width}`)
 
-            const matCropped = matResized.getRegion(cropRect);
+            const matCropped = matResized.getRegion(cropRectForSlice);
 
             const matRGBA =
               matResized.channels === 1
