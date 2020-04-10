@@ -383,8 +383,6 @@ class VideoPlayer extends Component {
     const { frameCount, fps, allScenes } = this.props;
     const { loadVideo, showHTML5Player } = this.state;
 
-    console.log('updateTimeFromFrameNumber - updateTimeFromFrameNumber')
-
     const currentScene = getSceneFromFrameNumber(allScenes, currentFrame);
     if (currentScene !== undefined) {
       this.setState({

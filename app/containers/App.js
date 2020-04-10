@@ -482,7 +482,6 @@ class App extends Component {
         const secondsPerRow = getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings);
         const columnCount = getColumnCount(sheetsByFileId, file.id, currentSheetId, settings);
 
-
         const sheetProperties = returnSheetProperties(columnCount, newThumbCount, secondsPerRow);
 
         const scaleValueObject = getScaleValueObject(
@@ -3438,7 +3437,7 @@ ${exportObject}`;
             newFilePath = decodeURIComponent(textChunks.find(chunk => chunk.keyword === 'filePath').text);
             const transformObjectString = textChunks.find(chunk => chunk.keyword === 'transformObject').text;
             transformObject = transformObjectString !== 'undefined' ? JSON.parse(transformObjectString) : undefined;
-            columnCount = textChunks.find(chunk => chunk.keyword === 'columnCount').text;
+            columnCount = Number(textChunks.find(chunk => chunk.keyword === 'columnCount').text);
             const frameNumberArrayString = textChunks.find(chunk => chunk.keyword === 'frameNumberArray').text;
             frameNumberArray = frameNumberArrayString !== 'undefined' ? JSON.parse(frameNumberArrayString) : undefined;
             if (frameNumberArray !== undefined && frameNumberArray.length > 0) {
@@ -3472,6 +3471,19 @@ ${exportObject}`;
           const fileId = uuidV4();
           const posterFrameId = uuidV4();
           const sheetId = uuidV4();
+
+          let transformObjectToAdd;
+          if (transformObject !== undefined) {
+            transformObjectToAdd = {
+              // rotationFlag: transformObject.rotationFlag || RotateFlags.NO_ROTATION,
+              rotationFlag: RotateFlags.NO_ROTATION, // ignoring rotationFlag for now as the capturing in the correct orientation is not yet solved
+              cropTop: transformObject.cropTop,
+              cropBottom: transformObject.cropBottom,
+              cropLeft: transformObject.cropLeft,
+              cropRight: transformObject.cropRight,
+            };
+          }
+
           const fileToAdd = {
             id: fileId,
             lastModified,
@@ -3480,23 +3492,12 @@ ${exportObject}`;
             size,
             fileMissingStatus: lastModified === undefined, // if lastModified is undefined than file missing
             posterFrameId,
+            transformObject: transformObjectToAdd,
           };
           dispatch({
             type: 'ADD_MOVIE_LIST_ITEMS',
             payload: [fileToAdd],
           });
-          if (transformObject !== undefined) {
-            dispatch(
-              setTransform(
-                fileId,
-                transformObject.rotationFlag || RotateFlags.NO_ROTATION,
-                transformObject.cropTop,
-                transformObject.cropBottom,
-                transformObject.cropLeft,
-                transformObject.cropRight,
-              ),
-            );
-          }
           dispatch(addNewThumbsWithOrder(fileToAdd, sheetId, frameNumberArray, settings.defaultCachedFramesSize));
           dispatch(updateSheetName(fileId, sheetId, getNewSheetName(getSheetCount(files, fileId)))); // set name on file
           dispatch(updateSheetCounter(fileId));

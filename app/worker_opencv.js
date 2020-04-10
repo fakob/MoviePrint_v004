@@ -174,21 +174,28 @@ ipcRenderer.on(
     log.debug(`opencvWorkerWindow | ${filePath}`);
     try {
       const vid = new opencv.VideoCapture(filePath);
-      log.debug(`opencvWorkerWindow | width: ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH)}`);
-      log.debug(`opencvWorkerWindow | height: ${vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT)}`);
+      const frameCount = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT);
+      const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
+      const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
+      const fps = vid.get(VideoCaptureProperties.CAP_PROP_FPS);
+      const fourCC = fourccToString(vid.get(VideoCaptureProperties.CAP_PROP_FOURCC));
+
+      log.debug(`opencvWorkerWindow | width: ${width}`);
+      log.debug(`opencvWorkerWindow | height: ${height}`);
       log.debug(`opencvWorkerWindow | FPS: ${vid.get(VideoCaptureProperties.CAP_PROP_FPS)}`);
       log.debug(`opencvWorkerWindow | codec: ${fourccToString(vid.get(VideoCaptureProperties.CAP_PROP_FOURCC))}`);
+
       ipcRenderer.send(
         'message-from-opencvWorkerWindow-to-mainWindow',
         'receive-get-file-details',
         fileId,
         filePath,
         posterFrameId,
-        vid.get(VideoCaptureProperties.CAP_PROP_FRAME_COUNT),
-        vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH),
-        vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT),
-        vid.get(VideoCaptureProperties.CAP_PROP_FPS),
-        fourccToString(vid.get(VideoCaptureProperties.CAP_PROP_FOURCC)),
+        frameCount,
+        width,
+        height,
+        fps,
+        fourCC,
         onlyReplace,
         onlyImport,
       );
