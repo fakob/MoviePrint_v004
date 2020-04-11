@@ -316,3 +316,6 @@ export const SORT_METHOD_OPTIONS = [
   { value: SORT_METHOD.UNIQUE, text: 'unique faces', 'data-tid': 'sortMethodOptionsUnique' },
   { value: SORT_METHOD.REVERSE, text: 'reverse order', 'data-tid': 'sortMethodOptionsReverse' },
 ];
+
+// app settings
+export const UNDO_STEPS_LIMIT = 50; // undo redo

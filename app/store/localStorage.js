@@ -151,13 +151,12 @@ export const loadState = () => {
       // return undefined;
       return initialStateJSON;
     }
-    log.debug(`load state from ${row.timeStamp}`);
+    log.debug(`Loading reduxstate from ${row.timeStamp}`);
+
     const serializedState = row.state;
-    // console.log(row);
-    // console.log(row.timeStamp);
-    // console.log(row.stateId);
-    // console.log(serializedState);
-    return JSON.parse(serializedState);
+    log.debug(`Size of reduxstate: ${getSizeOfString(serializedState)}`);
+    const stateObject = JSON.parse(serializedState);
+    return stateObject;
   } catch (err) {
     log.error('localStorage.js - error in loadState');
     log.error(err);
@@ -166,7 +165,19 @@ export const loadState = () => {
 
 export const saveState = state => {
   try {
-    const serializedState = JSON.stringify(state);
+    // only save present state and not any history (undo)
+    const { undoGroup, ...allPropertiesExceptUndoGroup } = state; // separating the undoGroup
+    const { past, future, ...rest } = undoGroup; // destructuring past and future out and only take rest
+    const stateWithoutHistory = {
+      ...allPropertiesExceptUndoGroup,
+      undoGroup: {
+        past: [],
+        ...rest,
+        future: [],
+      },
+    }; // rebuilding state object
+
+    const serializedState = JSON.stringify(stateWithoutHistory);
     const timeStamp = Date();
     updateReduxState({
       stateId: STATEID,
