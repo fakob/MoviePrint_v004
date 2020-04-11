@@ -7,7 +7,7 @@ import {
   openDBConnection,
   updateFrameInIndexedDB,
 } from './utils/utilsForIndexedDB';
-import { getOccurrencesOfFace } from './utils/utils';
+import { getOccurrencesOfFace } from './utils/utilsSortAndFilter';
 import { getFaceScanByFileId } from './utils/utilsForSqlite';
 import Queue from './utils/queue';
 

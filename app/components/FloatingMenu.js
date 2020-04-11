@@ -4,10 +4,9 @@ import Slider, { Handle, createSliderWithTooltip } from 'rc-slider';
 import Tooltip from 'rc-tooltip';
 import {
   FACE_UNIQUENESS_THRESHOLD,
-  SCALE_VALUE_ARRAY,
+  FILTER_METHOD,
   SHEET_VIEW,
   SHEET_TYPE,
-  SHEET_FIT,
   SORT_METHOD,
   THUMB_INFO_OPTIONS,
   THUMB_SELECTION,
@@ -60,23 +59,24 @@ const FloatingMenu = ({
   currentSheetFilter,
   fileMissingStatus,
   hasParent,
-  onAddIntervalSheetClick,
   onAddFaceSheetClick,
+  onAddIntervalSheetClick,
   onBackToParentClick,
-  onChangeFaceUniquenessThreshold,
   onChangeDefaultZoomLevel,
+  onChangeFaceUniquenessThreshold,
   onChangeSheetViewClick,
   onDuplicateSheetClick,
-  onUpdateSheetFilter,
+  onFilterSheet,
   onScanMovieListItemClick,
   onSetViewClick,
   onShowAllThumbs,
   onSortSheet,
   onThumbInfoClick,
+  onToggleFaceRectClick,
   onToggleHeaderClick,
   onToggleImagesClick,
-  onToggleFaceRectClick,
   onToggleShowHiddenThumbsClick,
+  onUpdateSheetFilter,
   optimiseGridLayout,
   scaleValueObject,
   settings,
@@ -84,7 +84,7 @@ const FloatingMenu = ({
   sheetView,
   visibilitySettings,
 }) => {
-  const [filterRange, setFilterRange] = useState(THUMB_SELECTION.VISIBLE_THUMBS);
+  // const [filterRange, setFilterRange] = useState(THUMB_SELECTION.VISIBLE_THUMBS);
 
   const { defaultFaceUniquenessThreshold = FACE_UNIQUENESS_THRESHOLD, defaultThumbInfo, defaultShowImages } = settings;
   const { defaultView, defaultZoomLevel, visibilityFilter } = visibilitySettings;
@@ -266,10 +266,7 @@ const FloatingMenu = ({
                 <Dropdown.Item
                   className={styles.dropDownItem}
                   onClick={() => {
-                    onSortSheet(SORT_METHOD.REVERSE, false);
-                    if (filterRange === THUMB_SELECTION.ALL_THUMBS) {
-                      onUpdateSheetFilter({ unique: false });
-                    }
+                    onSortSheet(SORT_METHOD.REVERSE);
                   }}
                 >
                   Reverse sort
@@ -277,10 +274,7 @@ const FloatingMenu = ({
                 <Dropdown.Item
                   className={styles.dropDownItem}
                   onClick={() => {
-                    onSortSheet(SORT_METHOD.FRAMENUMBER, filterRange);
-                    if (filterRange === THUMB_SELECTION.ALL_THUMBS) {
-                      onUpdateSheetFilter({ unique: false });
-                    }
+                    onSortSheet(SORT_METHOD.FRAMENUMBER);
                   }}
                 >
                   Framenumber
@@ -289,10 +283,7 @@ const FloatingMenu = ({
                   disabled={!isFaceType}
                   className={styles.dropDownItem}
                   onClick={() => {
-                    onSortSheet(SORT_METHOD.FACESIZE, filterRange);
-                    if (filterRange === THUMB_SELECTION.ALL_THUMBS) {
-                      onUpdateSheetFilter({ unique: false });
-                    }
+                    onSortSheet(SORT_METHOD.FACESIZE);
                   }}
                 >
                   Face size
@@ -301,10 +292,7 @@ const FloatingMenu = ({
                   disabled={!isFaceType}
                   className={styles.dropDownItem}
                   onClick={() => {
-                    onSortSheet(SORT_METHOD.FACECOUNT, filterRange);
-                    if (filterRange === THUMB_SELECTION.ALL_THUMBS) {
-                      onUpdateSheetFilter({ unique: false });
-                    }
+                    onSortSheet(SORT_METHOD.FACECOUNT);
                   }}
                 >
                   Face count in image
@@ -313,10 +301,7 @@ const FloatingMenu = ({
                   disabled={!isFaceType}
                   className={styles.dropDownItem}
                   onClick={() => {
-                    onSortSheet(SORT_METHOD.FACEOCCURRENCE, filterRange);
-                    if (filterRange === THUMB_SELECTION.ALL_THUMBS) {
-                      onUpdateSheetFilter({ unique: false });
-                    }
+                    onSortSheet(SORT_METHOD.FACEOCCURRENCE);
                   }}
                 >
                   Occurrence of face
@@ -325,10 +310,7 @@ const FloatingMenu = ({
                   disabled={!isFaceType}
                   className={styles.dropDownItem}
                   onClick={() => {
-                    onSortSheet(SORT_METHOD.FACECONFIDENCE, filterRange);
-                    if (filterRange === THUMB_SELECTION.ALL_THUMBS) {
-                      onUpdateSheetFilter({ unique: false });
-                    }
+                    onSortSheet(SORT_METHOD.FACECONFIDENCE);
                   }}
                 >
                   Confidence value of face
@@ -358,6 +340,26 @@ const FloatingMenu = ({
                 {/* <Message size="mini" className={styles.noBackground}>
                   <em>The &quot;duplicate&quot; faces will be hidden.</em>
                 </Message> */}
+                {/* <Dropdown.Item
+                  disabled={!isFaceType || expandedFrameNumber !== undefined}
+                  className={`${styles.dropDownItem} ${styles.dropDownItemCheckbox}`}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <Checkbox
+                    data-tid="showSlidersCheckbox"
+                    label="Female faces only"
+                    checked={uniqueFilter}
+                    onChange={(e, { checked }) => {
+                      if (checked) {
+                        onFilterSheet(FILTER_METHOD.UNIQUE);
+                        onUpdateSheetFilter({ gender: 'female' });
+                      } else {
+                        onShowAllThumbs();
+                        onUpdateSheetFilter({ gender: undefined });
+                      }
+                    }}
+                  />
+                </Dropdown.Item> */}
                 <Dropdown.Item
                   disabled={!isFaceType || expandedFrameNumber !== undefined}
                   className={`${styles.dropDownItem} ${styles.dropDownItemCheckbox}`}
@@ -369,7 +371,7 @@ const FloatingMenu = ({
                     checked={uniqueFilter}
                     onChange={(e, { checked }) => {
                       if (checked) {
-                        onSortSheet(SORT_METHOD.UNIQUE, THUMB_SELECTION.ALL_THUMBS);
+                        onFilterSheet(FILTER_METHOD.UNIQUE);
                       } else {
                         onShowAllThumbs();
                       }
@@ -397,7 +399,7 @@ const FloatingMenu = ({
                     onAfterChange={value => {
                       const valueFloat = value / 100.0;
                       onChangeFaceUniquenessThreshold(valueFloat);
-                      onSortSheet(SORT_METHOD.UNIQUE, THUMB_SELECTION.ALL_THUMBS, undefined, undefined, valueFloat);
+                      onFilterSheet(FILTER_METHOD.UNIQUE, undefined, undefined, valueFloat);
                     }}
                   />
                 </Dropdown.Item>

@@ -297,13 +297,14 @@ export const FACE_SIZE_THRESHOLD = 20; // faces smaller than this percentage of 
 export const FACE_CONFIDENCE_THRESHOLD = 70; // detected faces with a lower score are ignored
 export const FACE_UNIQUENESS_THRESHOLD = 0.6; // faces with a euclideanDistance larger than this are considered unique
 export const SORT_METHOD = {
-  FRAMENUMBER: 'frameNumber',
-  FACECONFIDENCE: 'faceConfidence',
+  AGE: 'age',
+  DISTTOORIGIN: 'distToOrigin',
+  FACECONFIDENCE: 'score',
   FACECOUNT: 'faceCount',
   FACEOCCURRENCE: 'faceOccurrence',
-  DISTTOORIGIN: 'distToOrigin',
-  FACESIZE: 'faceSize',
-  UNIQUE: 'unique',
+  FACESIZE: 'size',
+  FRAMENUMBER: 'frameNumber',
+  GENDER: 'gender',
   REVERSE: 'reverse',
 };
 export const SORT_METHOD_OPTIONS = [
@@ -313,9 +314,18 @@ export const SORT_METHOD_OPTIONS = [
   { value: SORT_METHOD.FACEOCCURRENCE, text: 'occurrence of face', 'data-tid': 'sortMethodOptionsFaceOccurrence' },
   { value: SORT_METHOD.DISTTOORIGIN, text: 'distance to origin', 'data-tid': 'sortMethodOptionsDistToOrigin' },
   { value: SORT_METHOD.FACECONFIDENCE, text: 'confidence of face', 'data-tid': 'sortMethodOptionsFaceConfidence' },
-  { value: SORT_METHOD.UNIQUE, text: 'unique faces', 'data-tid': 'sortMethodOptionsUnique' },
   { value: SORT_METHOD.REVERSE, text: 'reverse order', 'data-tid': 'sortMethodOptionsReverse' },
 ];
+export const FILTER_METHOD = {
+  AGE: 'age',
+  DISTTOORIGIN: 'distToOrigin',
+  FACECONFIDENCE: 'score',
+  FACECOUNT: 'faceCount',
+  FACEOCCURRENCE: 'faceOccurrence',
+  FACESIZE: 'size',
+  GENDER: 'gender',
+  UNIQUE: 'unique',
+};
 
 // app settings
 export const UNDO_STEPS_LIMIT = 50; // undo redo

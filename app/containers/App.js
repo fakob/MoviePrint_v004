@@ -43,8 +43,6 @@ import getScaleValueObject from '../utils/getScaleValueObject';
 import {
   calculateSceneListFromDifferenceArray,
   createSceneArray,
-  deleteFaceDescriptorFromFaceScanArray,
-  determineAndInsertFaceGroupNumber,
   doesFileFolderExist,
   doesSheetExist,
   getAdjacentSceneIndicesFromCut,
@@ -59,7 +57,6 @@ import {
   getFrameCount,
   getFramenumbersOfSheet,
   getHighestFrame,
-  getIntervalArray,
   getLeftAndRightThumb,
   getLowestFrame,
   getMoviePrintColor,
@@ -78,15 +75,21 @@ import {
   getShotNumber,
   getThumbsCount,
   getVisibleThumbs,
-  insertOccurrence,
   isEquivalent,
   limitFrameNumberWithinMovieRange,
   limitRange,
   pad,
   repairFrameScanData,
+} from '../utils/utils';
+import {
+  deleteFaceDescriptorFromFaceScanArray,
+  determineAndInsertFaceGroupNumber,
+  filterArray,
+  getIntervalArray,
+  insertOccurrence,
   sortArray,
   sortThumbsArray,
-} from '../utils/utils';
+} from '../utils/utilsSortAndFilter';
 import { RotateFlags } from '../utils/openCVProperties';
 import styles from './App.css';
 import stylesPop from '../components/Popup.css';
@@ -188,14 +191,14 @@ import {
   updateSheetView,
 } from '../actions';
 import {
-  DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN,
   DEFAULT_COLUMN_COUNT,
-  DEFAULT_THUMB_COUNT,
+  DEFAULT_MIN_MOVIEPRINTWIDTH_MARGIN,
   DEFAULT_THUMB_COUNT_MAX,
+  DEFAULT_THUMB_COUNT,
   DEFAULT_TIMELINEVIEW_SECONDS_PER_ROW,
   DEFAULT_VIDEO_PLAYER_CONTROLLER_HEIGHT,
   EXPORT_FORMAT_OPTIONS,
-  SORT_METHOD,
+  FILTER_METHOD,
   FRAMESDB_PATH,
   MENU_FOOTER_HEIGHT,
   MENU_HEADER_HEIGHT,
@@ -204,14 +207,15 @@ import {
   SHEET_TYPE,
   SHEET_VIEW,
   SHOT_DETECTION_METHOD,
+  SORT_METHOD,
   THUMB_SELECTION,
   TRANSFORMOBJECT_INIT,
   URL_CHANGE_LOG,
   URL_FEEDBACK_FORM,
   URL_REST_API_CHECK_FOR_UPDATES,
   VIEW,
-  WINDOW_WIDTH,
   WINDOW_HEIGHT,
+  WINDOW_WIDTH,
   ZOOM_SCALE,
 } from '../utils/constants';
 import { deleteTableFramelist } from '../utils/utilsForIndexedDB';
@@ -439,6 +443,7 @@ class App extends Component {
     this.calculateSceneList = this.calculateSceneList.bind(this);
     this.onToggleDetectionChart = this.onToggleDetectionChart.bind(this);
     this.onSortSheet = this.onSortSheet.bind(this);
+    this.onFilterSheet = this.onFilterSheet.bind(this);
     this.addFaceData = this.addFaceData.bind(this);
     this.getFaceData = this.getFaceData.bind(this);
     this.onHideDetectionChart = this.onHideDetectionChart.bind(this);
@@ -1788,13 +1793,7 @@ class App extends Component {
     });
   }
 
-  onSortSheet(
-    sortMethod,
-    filterRange = undefined,
-    fileId = undefined,
-    sheetId = undefined,
-    faceUniquenessThreshold = undefined,
-  ) {
+  onSortSheet(sortMethod, filterRange = undefined, fileId = undefined, sheetId = undefined) {
     const { currentFileId, currentSheetId, dispatch, settings, sheetsByFileId, visibilitySettings } = this.props;
     const { defaultFaceUniquenessThreshold } = settings;
     const { visibilityFilter } = visibilitySettings;
@@ -1807,18 +1806,8 @@ class App extends Component {
     const sheetType = getSheetType(sheetsByFileId, theFileId, theSheetId, settings);
     const isFaceType = sheetType === SHEET_TYPE.FACES;
 
-    const theFaceUniquenessThreshold = faceUniquenessThreshold || defaultFaceUniquenessThreshold;
-
     if (sortMethod !== SORT_METHOD.REVERSE) {
-      let baseArray = getVisibleThumbs(thumbsArray, theFilterRange);
-      if (isFaceType && sortMethod === SORT_METHOD.UNIQUE) {
-        let thumbsFrameNumbers;
-        // for unique method get all face scan data
-        baseArray = getFaceScanByFileId(theFileId, thumbsFrameNumbers);
-        determineAndInsertFaceGroupNumber(baseArray, theFaceUniquenessThreshold);
-        insertOccurrence(baseArray);
-        // console.log(baseArray);
-      }
+      const baseArray = getVisibleThumbs(thumbsArray, theFilterRange);
 
       // get sortOrderArray
       const sortOrderArray = sortArray(baseArray, sortMethod);
@@ -1860,6 +1849,86 @@ class App extends Component {
       }
     }
   }
+
+  onFilterSheet(filterMethod, fileId = undefined, sheetId = undefined, faceUniquenessThreshold = undefined) {
+    const { currentFileId, currentSheetId, dispatch, settings, sheetsByFileId } = this.props;
+    const { defaultFaceUniquenessThreshold } = settings;
+
+    const theFileId = fileId || currentFileId;
+    const theSheetId = sheetId || currentSheetId;
+    const { thumbsArray } = sheetsByFileId[theFileId][theSheetId];
+
+    const sheetType = getSheetType(sheetsByFileId, theFileId, theSheetId, settings);
+    const isFaceType = sheetType === SHEET_TYPE.FACES;
+
+    if (isFaceType) {
+      const theFaceUniquenessThreshold = faceUniquenessThreshold || defaultFaceUniquenessThreshold;
+
+      let baseArray = thumbsArray;
+      if (filterMethod === FILTER_METHOD.UNIQUE) {
+        let thumbsFrameNumbers;
+        // for unique method get all face scan data
+        baseArray = getFaceScanByFileId(theFileId, thumbsFrameNumbers);
+        determineAndInsertFaceGroupNumber(baseArray, theFaceUniquenessThreshold);
+        insertOccurrence(baseArray);
+        // console.log(baseArray);
+      }
+
+      // flatten thumbsArray
+
+      // filter flattened thumbsArray
+
+      // sort flattened thumbsArray
+
+      // create new movieprint
+
+      // get sortOrderArray
+      const sortOrderArray = filterArray(baseArray, filterMethod);
+      // console.log(sortOrderArray);
+
+      // sort thumbs array
+      const sortedThumbsArray = sortThumbsArray(thumbsArray, sortOrderArray);
+
+      // update the thumb order
+      dispatch(updateOrder(theFileId, theSheetId, sortedThumbsArray));
+
+      // hide other thumbs as filtering could happen
+      const frameNumberArray = sortOrderArray.map(item => item.frameNumber);
+      dispatch(showThumbsByFrameNumberArray(theFileId, theSheetId, frameNumberArray));
+
+      // change column count for optimisation
+      this.optimiseGridLayout(currentFileId, currentSheetId, frameNumberArray.length);
+
+      // add detection information to thumbs
+      deleteFaceDescriptorFromFaceScanArray(baseArray);
+      dispatch(changeAndSortThumbArray(theFileId, theSheetId, baseArray, filterMethod));
+    }
+  }
+
+  onUpdateSheetFilter = (filter, update = true, fileId = undefined, sheetId = undefined) => {
+    const { currentFileId, currentSheetId, currentSheetFilter, dispatch, sheetsByFileId } = this.props;
+
+    const theFileId = fileId || currentFileId;
+    const theSheetId = sheetId || currentSheetId;
+    let previousFilter = currentSheetFilter;
+
+    let newFilter;
+    if (update) {
+      // load specific previousFilter if fileId and sheetId are provided
+      if (fileId !== undefined && sheetId !== undefined) {
+        previousFilter = getSheetFilter(sheetsByFileId, fileId, sheetId);
+      }
+      newFilter = {
+        ...previousFilter,
+        ...filter,
+      };
+    } else {
+      // if update is false, the previousFilter will be ignored
+      newFilter = filter;
+    }
+
+    dispatch(updateSheetFilter(theFileId, theSheetId, newFilter));
+  };
 
   getFaceData(fileId, sheetId) {
     const { settings, sheetsByFileId, visibilitySettings } = this.props;
@@ -3046,31 +3115,6 @@ class App extends Component {
     dispatch(setDefaultSceneDetectionThreshold(value));
   };
 
-  onUpdateSheetFilter = (filter, update = true, fileId = undefined, sheetId = undefined) => {
-    const { currentFileId, currentSheetId, currentSheetFilter, dispatch, sheetsByFileId } = this.props;
-
-    const theFileId = fileId || currentFileId;
-    const theSheetId = sheetId || currentSheetId;
-    let previousFilter = currentSheetFilter;
-
-    let newFilter;
-    if (update) {
-      // load specific previousFilter if fileId and sheetId are provided
-      if (fileId !== undefined && sheetId !== undefined) {
-        previousFilter = getSheetFilter(sheetsByFileId, fileId, sheetId);
-      }
-      newFilter = {
-        ...previousFilter,
-        ...filter,
-      };
-    } else {
-      // if update is false, the previousFilter will be ignored
-      newFilter = filter;
-    }
-
-    dispatch(updateSheetFilter(theFileId, theSheetId, newFilter));
-  };
-
   onChangeTimelineViewSecondsPerRow = value => {
     const { dispatch } = this.props;
     const { file, currentSheetId } = this.props;
@@ -3874,6 +3918,7 @@ ${exportObject}`;
                     onAddFaceSheetClick={this.onAddFaceSheetClick}
                     onScanMovieListItemClick={this.onScanMovieListItemClick}
                     onSortSheet={this.onSortSheet}
+                    onFilterSheet={this.onFilterSheet}
                     onDuplicateSheetClick={this.onDuplicateSheetClick}
                     onChangeSheetViewClick={this.onChangeSheetViewClick}
                     hasParent={currentHasParent}

@@ -3,7 +3,8 @@ import log from 'electron-log';
 import imageDB from '../utils/db';
 import { deleteTableFramelist } from '../utils/utilsForIndexedDB';
 import { deleteTableFrameScanList } from '../utils/utilsForSqlite';
-import { getIntervalArray, limitRange, sortArray } from '../utils/utils';
+import { limitRange } from '../utils/utils';
+import { getIntervalArray, sortArray } from '../utils/utilsSortAndFilter';
 import { TRANSFORMOBJECT_INIT } from '../utils/constants';
 
 const { ipcRenderer } = require('electron');
