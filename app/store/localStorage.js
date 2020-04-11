@@ -64,6 +64,7 @@ import {
   ZOOM_SCALE,
 } from '../utils/constants';
 import { createTableReduxState, updateReduxState, getReduxState } from '../utils/utilsForSqlite';
+import { getSizeOfString } from '../utils/utils';
 
 const { app } = require('electron').remote;
 
@@ -173,9 +174,10 @@ export const saveState = state => {
       state: serializedState,
     });
     const timeBeforeUnix = new Date(timeStamp);
-    const timeAfter = new Date;
+    const timeAfter = new Date();
     const timeAfterUnix = timeAfter.getTime();
-    console.log(`saving state in sqlite3 took ${timeAfterUnix - timeBeforeUnix} milliseconds`);
+    log.debug(`Size of reduxstate: ${getSizeOfString(serializedState)}`);
+    log.debug(`Saving reduxstate in sqlite3 took ${timeAfterUnix - timeBeforeUnix} milliseconds`);
     // localStorage.setItem('state', serializedState);
   } catch (err) {
     log.error('localStorage.js - error in saveState');

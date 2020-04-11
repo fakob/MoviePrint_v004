@@ -1713,3 +1713,8 @@ export const deleteFaceDescriptorFromFaceScanArray = faceScanArray => {
   });
   return faceScanArray;
 };
+
+export const getSizeOfString = stringToMeasure => {
+  const sizeInByte = Buffer.byteLength(stringToMeasure, 'utf8');
+  return formatBytes(sizeInByte);
+};
