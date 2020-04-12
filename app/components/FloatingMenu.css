@@ -55,6 +55,10 @@
   width: 260px;
 }
 
+.dropDownItem {
+  height: 40px !important;
+}
+
 .dropDownItem img{
   margin-top: -2px !important;
 }
@@ -74,6 +78,11 @@
 .dropDownItemRadioGroup{
   height: 40px !important;
   margin: 16px;
+}
+
+.dropDownItemHidden {
+  visibility: hidden;
+  /* height: 32px !important; */
 }
 
 .dropDownItemRadioGroup > div{

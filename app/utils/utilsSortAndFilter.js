@@ -136,6 +136,7 @@ export const filterArray = (detectionArray, filters) => {
         switch (key) {
           case FILTER_METHOD.AGE:
           case FILTER_METHOD.FACESIZE:
+          case FILTER_METHOD.FACECOUNT:
             // set new max value if 100 to not exclude top values on age, size ...
             const newMaxValue = filters[key].max === 100 ? 999 : filters[key].max;
             if (item[key] === undefined || !(filters[key].min <= item[key] && item[key] <= newMaxValue)) return false;
