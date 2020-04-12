@@ -866,7 +866,7 @@ class App extends Component {
         dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.FACES));
 
         // set filter
-        this.onUpdateSheetFilter({ expanded: frameNumber }, false, fileId, sheetId);
+        this.onUpdateSheetFilter({ expanded: frameNumber }, fileId, sheetId);
 
         // update columnCount
         this.optimiseGridLayout(fileId, sheetId, frameNumberArray.length);
@@ -1902,7 +1902,7 @@ class App extends Component {
     }
   }
 
-  onUpdateSheetFilter = (filter, update = true, fileId = undefined, sheetId = undefined) => {
+  onUpdateSheetFilter = (filter, fileId = undefined, sheetId = undefined, overwrite = true) => {
     const { currentFileId, currentSheetId, currentSheetFilter, dispatch, sheetsByFileId } = this.props;
 
     const theFileId = fileId || currentFileId;
@@ -1910,7 +1910,10 @@ class App extends Component {
     let previousFilter = currentSheetFilter;
 
     let newFilter;
-    if (update) {
+    if (overwrite) {
+      // if update is false, the previousFilter will be ignored
+      newFilter = filter;
+    } else {
       // load specific previousFilter if fileId and sheetId are provided
       if (fileId !== undefined && sheetId !== undefined) {
         previousFilter = getSheetFilter(sheetsByFileId, fileId, sheetId);
@@ -1919,9 +1922,6 @@ class App extends Component {
         ...previousFilter,
         ...filter,
       };
-    } else {
-      // if update is false, the previousFilter will be ignored
-      newFilter = filter;
     }
 
     dispatch(updateSheetFilter(theFileId, theSheetId, newFilter));

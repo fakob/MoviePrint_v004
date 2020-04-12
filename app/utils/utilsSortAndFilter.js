@@ -128,13 +128,24 @@ export const filterArray = (detectionArray, filters) => {
   /* eslint no-restricted-syntax: ["error", "FunctionExpression", "WithStatement", "BinaryExpression[operator='in']"] */
   filteredAndSortedArray = flattenedArray.filter(item => {
     for (const key of Object.keys(filters)) {
-      console.log(key)
-      if (typeof filters[key] === 'object') { // range
-        console.log(filters[key])
-        console.log(item[key])
-        if (item[key] === undefined || !(filters[key].min <= item[key] && item[key] <= filters[key].max)) return false;
-      } else {
-        if (item[key] === undefined || item[key] !== filters[key]) return false;
+      // console.log(key)
+      // console.log(filters[key])
+      // console.log(item[key])
+      // only filter if enabled
+      if (filters[key].enabled) {
+        switch (key) {
+          case FILTER_METHOD.AGE:
+          case FILTER_METHOD.FACESIZE:
+            // set new max value if 100 to not exclude top values on age, size ...
+            const newMaxValue = filters[key].max === 100 ? 999 : filters[key].max;
+            if (item[key] === undefined || !(filters[key].min <= item[key] && item[key] <= newMaxValue)) return false;
+            break;
+          case FILTER_METHOD.GENDER:
+          case FILTER_METHOD.DISTTOORIGIN:
+            if (item[key] === undefined || item[key] !== filters[key].value) return false;
+            break;
+          default:
+        }
       }
     }
     return true;

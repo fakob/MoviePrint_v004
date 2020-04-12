@@ -64,11 +64,24 @@
 }
 
 .dropDownItemCheckbox{
-  height: 32px !important;
+  height: 40px !important;
 }
 
-.dropDownItemSlider{
-  height: 48px !important;
+.dropDownItemCheckboxAndSlider{
+  height: 72px !important;
+}
+
+.dropDownItemRadioGroup{
+  height: 40px !important;
+  margin: 16px;
+}
+
+.dropDownItemRadioGroup > div{
+  margin-right: 16px;
+}
+
+.slider{
+  margin-top: 8px !important;
 }
 
 .normalButton {

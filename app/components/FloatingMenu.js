@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { Button, Checkbox, Dropdown, Message, Popup, Radio } from 'semantic-ui-react';
+import React from 'react';
+import { Button, Checkbox, Divider, Dropdown, Popup, Radio } from 'semantic-ui-react';
 import Slider, { Handle, createSliderWithTooltip } from 'rc-slider';
 import Tooltip from 'rc-tooltip';
 import {
   FACE_UNIQUENESS_THRESHOLD,
+  FACE_SIZE_THRESHOLD,
   FILTER_METHOD,
   SHEET_VIEW,
   SHEET_TYPE,
@@ -45,6 +46,7 @@ import icon5x5 from '../img/icon-5x5.svg';
 import icon6x6 from '../img/icon-6x6.svg';
 
 const SliderWithTooltip = createSliderWithTooltip(Slider);
+const Range = createSliderWithTooltip(Slider.Range);
 
 const handle = props => {
   const { value, dragging, index, ...restProps } = props;
@@ -84,17 +86,40 @@ const FloatingMenu = ({
   sheetView,
   visibilitySettings,
 }) => {
-  // const [filterRange, setFilterRange] = useState(THUMB_SELECTION.VISIBLE_THUMBS);
-  const [filters, setFilters] = useState({});
-
-  const { defaultFaceUniquenessThreshold = FACE_UNIQUENESS_THRESHOLD, defaultThumbInfo, defaultShowImages } = settings;
+  const {
+    defaultFaceUniquenessThreshold = FACE_UNIQUENESS_THRESHOLD,
+    defaultFaceSizeThreshold = FACE_SIZE_THRESHOLD,
+    defaultThumbInfo,
+    defaultShowImages
+  } = settings;
   const { defaultView, defaultZoomLevel, visibilityFilter } = visibilitySettings;
   const { moviePrintAspectRatioInv, containerAspectRatioInv } = scaleValueObject;
   const isGridViewAndDefault = sheetView === SHEET_VIEW.GRIDVIEW && defaultView === VIEW.STANDARDVIEW;
   const isFaceType = sheetType === SHEET_TYPE.FACES;
   const isShotType = sheetType === SHEET_TYPE.SCENES;
 
-  const { unique: uniqueFilter, expanded: expandedFrameNumber } = currentSheetFilter;
+  const {
+    [FILTER_METHOD.AGE]: ageFilter = {
+      enabled: false,
+      min: 20,
+      max: 40,
+    },
+    [FILTER_METHOD.DISTTOORIGIN]: uniqueFilter = {
+      enabled: false,
+      value: 0,
+    },
+    [FILTER_METHOD.FACESIZE]: sizeFilter = {
+      enabled: false,
+      min: 50,
+      max: 100,
+    },
+    [FILTER_METHOD.GENDER]: genderFilter = {
+      enabled: false,
+      value: 'female',
+    },
+    // unique: uniqueFilter,
+    expanded: expandedFrameNumber
+  } = currentSheetFilter;
 
   return (
     <div className={`${styles.floatingMenu}`}>
@@ -242,28 +267,6 @@ const FloatingMenu = ({
               icon={<img src={iconSort} height="18px" alt="" />}
             >
               <Dropdown.Menu className={styles.dropDownMenu}>
-                {/* <Dropdown.Header content="Sort" /> */}
-                {/* <Dropdown.Item className={styles.dropDownItem} onClick={e => e.stopPropagation()}>
-                  <Radio
-                    data-tid="useVisibleThumbsRadioBtn"
-                    label="Visible thumbs"
-                    name="radioGroupSort"
-                    // defaultChecked
-                    value={THUMB_SELECTION.VISIBLE_THUMBS}
-                    checked={filterRange === THUMB_SELECTION.VISIBLE_THUMBS}
-                    onChange={() => setFilterRange(THUMB_SELECTION.VISIBLE_THUMBS)}
-                  />
-                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  <Radio
-                    data-tid="useAllThumbsRadioBtn"
-                    label="All thumbs"
-                    name="radioGroupSort"
-                    value={THUMB_SELECTION.ALL_THUMBS}
-                    checked={filterRange === THUMB_SELECTION.ALL_THUMBS}
-                    onChange={() => setFilterRange(THUMB_SELECTION.ALL_THUMBS)}
-                  />
-                </Dropdown.Item>
-                <Dropdown.Divider /> */}
                 <Dropdown.Item
                   className={styles.dropDownItem}
                   onClick={() => {
@@ -337,124 +340,190 @@ const FloatingMenu = ({
               icon={<img src={iconFilter} height="18px" alt="" />}
             >
               <Dropdown.Menu className={`${styles.dropDownMenu} ${styles.dropDownMenuFilter}`}>
-                {/* <Dropdown.Header content="Filter" /> */}
-                {/* <Message size="mini" className={styles.noBackground}>
-                  <em>The &quot;duplicate&quot; faces will be hidden.</em>
-                </Message> */}
                 <Dropdown.Item
-                  disabled={!isFaceType || expandedFrameNumber !== undefined}
-                  className={`${styles.dropDownItem} ${styles.dropDownItemCheckbox}`}
+                  disabled={!isFaceType}
+                  className={`${styles.dropDownItem} ${styles.dropDownItemCheckboxAndSlider}`}
                   onClick={e => e.stopPropagation()}
                 >
                   <Checkbox
-                    data-tid="showSlidersCheckbox"
-                    label="Age = 0-25"
-                    checked={filters[FILTER_METHOD.AGE] !== undefined}
+                    data-tid="enableAgeFilterCheckbox"
+                    label="Age"
+                    checked={ageFilter.enabled}
                     onChange={(e, { checked }) => {
-                      let newFilters;
-                      if (checked) {
-                        newFilters = {
-                          ...filters,
-                          [FILTER_METHOD.AGE]: {
-                            min: 0,
-                            max: 25,
+                      const newFilters = {
+                        ...currentSheetFilter,
+                        [FILTER_METHOD.AGE]: {
+                          ...currentSheetFilter[FILTER_METHOD.AGE],
+                          enabled: checked,
+                        },
+                      };
+                      onFilterSheet(newFilters);
+                      onUpdateSheetFilter(newFilters);
+                    }}
+                  />
+                  <Range
+                    data-tid="ageRangeSlider"
+                    className={styles.slider}
+                    disabled={!isFaceType || !ageFilter.enabled}
+                    min={0}
+                    max={100}
+                    defaultValue={[ageFilter.min, ageFilter.max]}
+                    marks={{
+                      0: '0',
+                      100: 'max',
+                    }}
+                    handle={handle}
+                    onAfterChange={value => {
+                      const newFilters = {
+                        ...currentSheetFilter,
+                        [FILTER_METHOD.AGE]: {
+                          ...currentSheetFilter[FILTER_METHOD.AGE],
+                          min: value[0],
+                          max: value[1],
+                        },
+                      };
+                      onFilterSheet(newFilters);
+                      onUpdateSheetFilter(newFilters);
+                    }}
+                  />
+                </Dropdown.Item>
+                <Dropdown.Item
+                  disabled={!isFaceType}
+                  className={`${styles.dropDownItem} ${styles.dropDownItemCheckboxAndSlider}`}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <Checkbox
+                    data-tid="enableSizeFilterCheckbox"
+                    label="Face size"
+                    checked={sizeFilter.enabled}
+                    onChange={(e, { checked }) => {
+                      const newFilters = {
+                        ...currentSheetFilter,
+                        [FILTER_METHOD.FACESIZE]: {
+                          ...currentSheetFilter[FILTER_METHOD.FACESIZE],
+                          enabled: checked,
+                        },
+                      };
+                      onFilterSheet(newFilters);
+                      onUpdateSheetFilter(newFilters);
+                    }}
+                  />
+                  <Range
+                    data-tid="sizeRangeSlider"
+                    className={styles.slider}
+                    disabled={!isFaceType || !sizeFilter.enabled}
+                    min={defaultFaceSizeThreshold}
+                    max={100}
+                    defaultValue={[sizeFilter.min, sizeFilter.max]}
+                    marks={{
+                      30: 'medium',
+                      75: 'close',
+                      100: 'max',
+                    }}
+                    handle={handle}
+                    onAfterChange={value => {
+                      const newFilters = {
+                        ...currentSheetFilter,
+                        [FILTER_METHOD.FACESIZE]: {
+                          ...currentSheetFilter[FILTER_METHOD.FACESIZE],
+                          min: value[0],
+                          max: value[1],
+                        },
+                      };
+                      onFilterSheet(newFilters);
+                      onUpdateSheetFilter(newFilters);
+                    }}
+                  />
+                </Dropdown.Item>
+                <Dropdown.Item
+                  disabled={!isFaceType}
+                  className={`${styles.dropDownItem} ${styles.dropDownItemCheckboxAndSlider}`}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <Checkbox
+                    data-tid="enableGenderFilterCheckbox"
+                    label="Gender"
+                    checked={genderFilter.enabled}
+                    onChange={(e, { checked }) => {
+                      const newFilters = {
+                        ...currentSheetFilter,
+                        [FILTER_METHOD.GENDER]: {
+                          ...currentSheetFilter[FILTER_METHOD.GENDER],
+                          enabled: checked,
+                        },
+                      };
+                      onFilterSheet(newFilters);
+                      onUpdateSheetFilter(newFilters);
+                    }}
+                  />
+                  <div className={styles.dropDownItemRadioGroup}>
+                    <Radio
+                      data-tid="genderFemaleRadioBtn"
+                      disabled={!genderFilter.enabled}
+                      label={<label className={styles.label}>Female</label>}
+                      name="genderGroup"
+                      value="female"
+                      checked={genderFilter.value === 'female'}
+                      onChange={(e, { value }) => {
+                        const newFilters = {
+                          ...currentSheetFilter,
+                          [FILTER_METHOD.GENDER]: {
+                            ...currentSheetFilter[FILTER_METHOD.GENDER],
+                            value,
                           },
                         };
                         onFilterSheet(newFilters);
-                        setFilters(newFilters);
-                        // onUpdateSheetFilter({ gender: 'female' });
-                      } else {
-                        // console.log(filters)
-                        // console.log(typeof filters)
-                        delete filters[FILTER_METHOD.AGE];
-                        onFilterSheet(filters);
-                      }
-                    }}
-                  />
-                </Dropdown.Item>
-                <Dropdown.Item
-                  disabled={!isFaceType || expandedFrameNumber !== undefined}
-                  className={`${styles.dropDownItem} ${styles.dropDownItemCheckbox}`}
-                  onClick={e => e.stopPropagation()}
-                >
-                  <Checkbox
-                    data-tid="showSlidersCheckbox"
-                    label="Female faces only"
-                    checked={filters[FILTER_METHOD.GENDER] === 'female'}
-                    onChange={(e, { checked }) => {
-                      let newFilters;
-                      if (checked) {
-                        newFilters = {
-                          ...filters,
-                          [FILTER_METHOD.GENDER]: 'female',
+                        onUpdateSheetFilter(newFilters);
+                      }}
+                    />
+                    <Radio
+                      data-tid="genderMaleRadioBtn"
+                      disabled={!genderFilter.enabled}
+                      label={<label className={styles.label}>Male</label>}
+                      name="genderGroup"
+                      value="male"
+                      checked={genderFilter.value === 'male'}
+                      onChange={(e, { value }) => {
+                        const newFilters = {
+                          ...currentSheetFilter,
+                          [FILTER_METHOD.GENDER]: {
+                            ...currentSheetFilter[FILTER_METHOD.GENDER],
+                            value,
+                          },
                         };
                         onFilterSheet(newFilters);
-                        setFilters(newFilters);
-                        // onUpdateSheetFilter({ gender: 'female' });
-                      } else {
-                        // console.log(filters)
-                        // console.log(typeof filters)
-                        delete filters[FILTER_METHOD.GENDER];
-                        onFilterSheet(filters);
-                      }
-                    }}
-                  />
+                        onUpdateSheetFilter(newFilters);
+                      }}
+                    />
+                  </div>
                 </Dropdown.Item>
+                <Divider />
                 <Dropdown.Item
-                  disabled={!isFaceType || expandedFrameNumber !== undefined}
-                  className={`${styles.dropDownItem} ${styles.dropDownItemCheckbox}`}
+                  disabled={!isFaceType}
+                  className={`${styles.dropDownItem} ${styles.dropDownItemCheckboxAndSlider}`}
                   onClick={e => e.stopPropagation()}
                 >
                   <Checkbox
-                    data-tid="showSlidersCheckbox"
-                    label="Male faces only"
-                    checked={filters[FILTER_METHOD.GENDER] === 'male'}
-                    onChange={(e, { checked }) => {
-                      let newFilters;
-                      if (checked) {
-                        newFilters = {
-                          ...filters,
-                          [FILTER_METHOD.GENDER]: 'male',
-                        };
-                        onFilterSheet(newFilters);
-                        setFilters(newFilters);
-                        // onUpdateSheetFilter({ gender: 'female' });
-                      } else {
-                        // console.log(filters)
-                        // console.log(typeof filters)
-                        delete filters[FILTER_METHOD.GENDER];
-                        onFilterSheet(filters);
-                      }
-                    }}
-                  />
-                </Dropdown.Item>
-                <Dropdown.Item
-                  disabled={!isFaceType || expandedFrameNumber !== undefined}
-                  className={`${styles.dropDownItem} ${styles.dropDownItemCheckbox}`}
-                  onClick={e => e.stopPropagation()}
-                >
-                  <Checkbox
-                    data-tid="showSlidersCheckbox"
+                    data-tid="enableUniqueFilterCheckbox"
                     label="Unique faces"
-                    checked={uniqueFilter}
+                    checked={uniqueFilter.enabled}
                     onChange={(e, { checked }) => {
-                      if (checked) {
-                        onFilterSheet(FILTER_METHOD.UNIQUE);
-                      } else {
-                        onShowAllThumbs();
-                      }
-                      onUpdateSheetFilter({ unique: checked });
+                      const newFilters = {
+                        ...currentSheetFilter,
+                        [FILTER_METHOD.DISTTOORIGIN]: {
+                          ...currentSheetFilter[FILTER_METHOD.DISTTOORIGIN],
+                          enabled: checked,
+                          value: 0,
+                        },
+                      };
+                      onFilterSheet(newFilters);
+                      onUpdateSheetFilter(newFilters);
                     }}
                   />
-                </Dropdown.Item>
-                <Dropdown.Item
-                  disabled={!isFaceType || !uniqueFilter || expandedFrameNumber !== undefined}
-                  className={`${styles.dropDownItem} ${styles.dropDownItemSlider}`}
-                  onClick={e => e.stopPropagation()}
-                >
                   <SliderWithTooltip
                     data-tid="faceUniquenessThresholdSlider"
                     className={styles.slider}
+                    disabled={!isFaceType || !uniqueFilter.enabled || expandedFrameNumber !== undefined}
                     min={40}
                     max={80}
                     defaultValue={defaultFaceUniquenessThreshold * 100}
@@ -467,7 +536,8 @@ const FloatingMenu = ({
                     onAfterChange={value => {
                       const valueFloat = value / 100.0;
                       onChangeFaceUniquenessThreshold(valueFloat);
-                      onFilterSheet(FILTER_METHOD.UNIQUE, undefined, undefined, valueFloat);
+                      onFilterSheet(currentSheetFilter);
+                      onUpdateSheetFilter(currentSheetFilter);
                     }}
                   />
                 </Dropdown.Item>
