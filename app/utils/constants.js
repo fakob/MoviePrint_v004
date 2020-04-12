@@ -325,6 +325,36 @@ export const FILTER_METHOD = {
   FACESIZE: 'size', // range
   GENDER: 'gender', // equals
 };
+export const FILTER_METHOD_AGE = {
+  MIN: 0,
+  LOWER: 20,
+  UPPER: 40,
+  MAX: 100, // slider max value
+  MAXMAX: 200, // max value when filtering to not exclude top values
+};
+export const FILTER_METHOD_FACECOUNT = {
+  MIN: 1,
+  LOWER: 1,
+  UPPER: 3,
+  MAX: 10, // slider max value
+  MAXMAX: 100, // max value when filtering to not exclude top values
+};
+export const FILTER_METHOD_FACEOCCURRENCE = {
+  MIN: 1,
+  LOWER: 10,
+  UPPER: 100,
+  MAX: 100, // slider max value
+  MAXMAX: 10000, // max value when filtering to not exclude top values
+};
+export const FILTER_METHOD_FACESIZE = {
+  // MIN: 1, // no MIN value -> handled by defaultFaceSizeThreshold
+  LOWER: 50,
+  UPPER: 100,
+  MEDIUM: 30,
+  CLOSE: 75,
+  MAX: 100, // slider max value
+  MAXMAX: 1000, // max value when filtering to not exclude top values
+};
 
 // app settings
 export const UNDO_STEPS_LIMIT = 50; // undo redo

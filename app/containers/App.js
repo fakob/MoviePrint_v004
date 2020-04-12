@@ -3903,6 +3903,7 @@ ${exportObject}`;
                 />
                 {file && (
                   <FloatingMenu
+                    key={currentSheetId} // adding key so component updates on sheet change
                     visibilitySettings={visibilitySettings}
                     settings={settings}
                     scaleValueObject={scaleValueObject}

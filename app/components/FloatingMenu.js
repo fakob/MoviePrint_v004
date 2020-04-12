@@ -6,9 +6,14 @@ import {
   FACE_UNIQUENESS_THRESHOLD,
   FACE_SIZE_THRESHOLD,
   FILTER_METHOD,
+  FILTER_METHOD_AGE,
+  FILTER_METHOD_FACECOUNT,
+  FILTER_METHOD_FACEOCCURRENCE,
+  FILTER_METHOD_FACESIZE,
   SHEET_VIEW,
   SHEET_TYPE,
   SORT_METHOD,
+  THUMB_INFO,
   THUMB_INFO_OPTIONS,
   THUMB_SELECTION,
   VIEW,
@@ -18,10 +23,13 @@ import stylesPop from './Popup.css';
 import iconCutView from '../img/icon-cut-view.svg';
 import iconThumbView from '../img/icon-thumb-view.svg';
 import iconHeader from '../img/icon-header.svg';
+import iconHeaderEnabled from '../img/icon-header-enabled.svg';
 import iconImage from '../img/icon-image.svg';
 import iconNoImage from '../img/icon-no-image.svg';
 import iconFrameInfo from '../img/icon-frame-info.svg';
+import iconFrameInfoEnabled from '../img/icon-frame-info-enabled.svg';
 import iconShowFaceRect from '../img/icon-show-face-rect.svg';
+import iconShowFaceRectEnabled from '../img/icon-show-face-rect-enabled.svg';
 import iconCaretDown from '../img/icon-caret-down.svg';
 import iconArrowUp from '../img/icon-arrow-up.svg';
 import iconHide from '../img/icon-hide.svg';
@@ -33,6 +41,7 @@ import iconResizeVertical from '../img/icon-resize-vertical.svg';
 import iconResizeHorizontal from '../img/icon-resize-horizontal.svg';
 import iconSort from '../img/icon-sort.svg';
 import iconFilter from '../img/icon-filter.svg';
+import iconFilterEnabled from '../img/icon-filter-enabled.svg';
 import iconCopy from '../img/icon-copy.svg';
 import iconGrid from '../img/icon-grid.svg';
 import iconBarcode from '../img/icon-barcode.svg';
@@ -90,7 +99,9 @@ const FloatingMenu = ({
     defaultFaceUniquenessThreshold = FACE_UNIQUENESS_THRESHOLD,
     defaultFaceSizeThreshold = FACE_SIZE_THRESHOLD,
     defaultThumbInfo,
+    defaultShowHeader,
     defaultShowImages,
+    defaultShowFaceRect,
   } = settings;
   const { defaultView, defaultZoomLevel, visibilityFilter } = visibilitySettings;
   const { moviePrintAspectRatioInv, containerAspectRatioInv } = scaleValueObject;
@@ -98,11 +109,21 @@ const FloatingMenu = ({
   const isFaceType = sheetType === SHEET_TYPE.FACES;
   const isShotType = sheetType === SHEET_TYPE.SCENES;
 
+  const checkIfSheetHasFilters = () => {
+    for (const key of Object.keys(currentSheetFilter)) {
+      if (currentSheetFilter[key].enabled) {
+        return true;
+      }
+    }
+    return false;
+  };
+  const sheetHasFilters = checkIfSheetHasFilters();
+
   const {
     [FILTER_METHOD.AGE]: ageFilter = {
       enabled: false,
-      min: 20,
-      max: 40,
+      lower: FILTER_METHOD_AGE.LOWER,
+      upper: FILTER_METHOD_AGE.UPPER,
     },
     [FILTER_METHOD.DISTTOORIGIN]: uniqueFilter = {
       enabled: false,
@@ -110,19 +131,23 @@ const FloatingMenu = ({
     },
     [FILTER_METHOD.FACECOUNT]: faceCountFilter = {
       enabled: false,
-      min: 1,
-      max: 10,
+      lower: FILTER_METHOD_FACECOUNT.LOWER,
+      upper: FILTER_METHOD_FACECOUNT.UPPER,
+    },
+    [FILTER_METHOD.FACEOCCURRENCE]: faceOccurrenceFilter = {
+      enabled: false,
+      lower: FILTER_METHOD_FACEOCCURRENCE.LOWER,
+      upper: FILTER_METHOD_FACEOCCURRENCE.UPPER,
     },
     [FILTER_METHOD.FACESIZE]: sizeFilter = {
       enabled: false,
-      min: 50,
-      max: 100,
+      lower: FILTER_METHOD_FACESIZE.LOWER,
+      upper: FILTER_METHOD_FACESIZE.UPPER,
     },
     [FILTER_METHOD.GENDER]: genderFilter = {
       enabled: false,
       value: 'female',
     },
-    // unique: uniqueFilter,
     expanded: expandedFrameNumber,
   } = currentSheetFilter;
 
@@ -354,7 +379,7 @@ const FloatingMenu = ({
               closeOnBlur={false}
               closeOnChange={false}
               disabled={fileMissingStatus || isShotType}
-              icon={<img src={iconFilter} height="18px" alt="" />}
+              icon={<img src={sheetHasFilters ? iconFilterEnabled : iconFilter} height="18px" alt="" />}
             >
               <Dropdown.Menu className={`${styles.dropDownMenu} ${styles.dropDownMenuFilter}`}>
                 <Dropdown.Item
@@ -368,6 +393,7 @@ const FloatingMenu = ({
                     checked={ageFilter.enabled}
                     onChange={(e, { checked }) => {
                       onFilterChange(FILTER_METHOD.AGE, {
+                        ...ageFilter,
                         enabled: checked,
                       });
                     }}
@@ -376,18 +402,97 @@ const FloatingMenu = ({
                     data-tid="ageRangeSlider"
                     className={`${styles.slider} ${!ageFilter.enabled ? styles.dropDownItemHidden : ''}`}
                     disabled={!isFaceType || !ageFilter.enabled}
-                    min={0}
-                    max={100}
-                    defaultValue={[ageFilter.min, ageFilter.max]}
+                    min={FILTER_METHOD_AGE.MIN}
+                    max={FILTER_METHOD_AGE.MAX}
+                    defaultValue={[ageFilter.lower, ageFilter.upper]}
                     marks={{
-                      0: '0',
-                      100: 'max',
+                      [FILTER_METHOD_AGE.MIN]: FILTER_METHOD_AGE.MIN,
+                      [FILTER_METHOD_AGE.MAX]: 'max',
                     }}
                     handle={handle}
                     onAfterChange={value => {
                       onFilterChange(FILTER_METHOD.AGE, {
-                        min: value[0],
-                        max: value[1],
+                        ...ageFilter,
+                        lower: value[0],
+                        upper: value[1],
+                      });
+                    }}
+                  />
+                </Dropdown.Item>
+                <Dropdown.Item
+                  disabled={!isFaceType}
+                  className={`${styles.dropDownItem} ${
+                    faceCountFilter.enabled ? styles.dropDownItemCheckboxAndSlider : ''
+                  }`}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <Checkbox
+                    data-tid="enableSizeFilterCheckbox"
+                    label="Face count in frame"
+                    checked={faceCountFilter.enabled}
+                    onChange={(e, { checked }) => {
+                      onFilterChange(FILTER_METHOD.FACECOUNT, {
+                        ...faceCountFilter,
+                        enabled: checked,
+                      });
+                    }}
+                  />
+                  <Range
+                    data-tid="faceCountRangeSlider"
+                    className={`${styles.slider} ${!faceCountFilter.enabled ? styles.dropDownItemHidden : ''}`}
+                    disabled={!isFaceType || !faceCountFilter.enabled}
+                    min={FILTER_METHOD_FACECOUNT.MIN}
+                    max={FILTER_METHOD_FACECOUNT.MAX}
+                    defaultValue={[faceCountFilter.lower, faceCountFilter.upper]}
+                    marks={{
+                      [FILTER_METHOD_FACECOUNT.MIN]: FILTER_METHOD_FACECOUNT.MIN,
+                      [FILTER_METHOD_FACECOUNT.MAX]: 'max',
+                    }}
+                    handle={handle}
+                    onAfterChange={value => {
+                      onFilterChange(FILTER_METHOD.FACECOUNT, {
+                        ...faceCountFilter,
+                        lower: value[0],
+                        upper: value[1],
+                      });
+                    }}
+                  />
+                </Dropdown.Item>
+                <Dropdown.Item
+                  disabled={!isFaceType}
+                  className={`${styles.dropDownItem} ${
+                    faceOccurrenceFilter.enabled ? styles.dropDownItemCheckboxAndSlider : ''
+                  }`}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <Checkbox
+                    data-tid="enableFaceOccurrenceFilterCheckbox"
+                    label="Occurrence of face"
+                    checked={faceOccurrenceFilter.enabled}
+                    onChange={(e, { checked }) => {
+                      onFilterChange(FILTER_METHOD.FACEOCCURRENCE, {
+                        ...faceOccurrenceFilter,
+                        enabled: checked,
+                      });
+                    }}
+                  />
+                  <Range
+                    data-tid="faceOccurrenceRangeSlider"
+                    className={`${styles.slider} ${!faceOccurrenceFilter.enabled ? styles.dropDownItemHidden : ''}`}
+                    disabled={!isFaceType || !faceOccurrenceFilter.enabled}
+                    min={FILTER_METHOD_FACEOCCURRENCE.MIN}
+                    max={FILTER_METHOD_FACEOCCURRENCE.MAX}
+                    defaultValue={[faceOccurrenceFilter.lower, faceOccurrenceFilter.upper]}
+                    marks={{
+                      [FILTER_METHOD_FACEOCCURRENCE.MIN]: FILTER_METHOD_FACEOCCURRENCE.MIN,
+                      [FILTER_METHOD_FACEOCCURRENCE.MAX]: 'max',
+                    }}
+                    handle={handle}
+                    onAfterChange={value => {
+                      onFilterChange(FILTER_METHOD.FACEOCCURRENCE, {
+                        ...faceOccurrenceFilter,
+                        lower: value[0],
+                        upper: value[1],
                       });
                     }}
                   />
@@ -403,6 +508,7 @@ const FloatingMenu = ({
                     checked={sizeFilter.enabled}
                     onChange={(e, { checked }) => {
                       onFilterChange(FILTER_METHOD.FACESIZE, {
+                        ...sizeFilter,
                         enabled: checked,
                       });
                     }}
@@ -412,53 +518,19 @@ const FloatingMenu = ({
                     className={`${styles.slider} ${!sizeFilter.enabled ? styles.dropDownItemHidden : ''}`}
                     disabled={!isFaceType || !sizeFilter.enabled}
                     min={defaultFaceSizeThreshold}
-                    max={100}
-                    defaultValue={[sizeFilter.min, sizeFilter.max]}
+                    max={FILTER_METHOD_FACESIZE.MAX}
+                    defaultValue={[sizeFilter.lower, sizeFilter.upper]}
                     marks={{
-                      30: 'medium',
-                      75: 'close',
-                      100: 'max',
+                      [FILTER_METHOD_FACESIZE.MEDIUM]: 'medium',
+                      [FILTER_METHOD_FACESIZE.CLOSE]: 'close',
+                      [FILTER_METHOD_FACESIZE.MAX]: 'max',
                     }}
                     handle={handle}
                     onAfterChange={value => {
                       onFilterChange(FILTER_METHOD.FACESIZE, {
-                        min: value[0],
-                        max: value[1],
-                      });
-                    }}
-                  />
-                </Dropdown.Item>
-                <Dropdown.Item
-                  disabled={!isFaceType}
-                  className={`${styles.dropDownItem} ${faceCountFilter.enabled ? styles.dropDownItemCheckboxAndSlider : ''}`}
-                  onClick={e => e.stopPropagation()}
-                >
-                  <Checkbox
-                    data-tid="enableSizeFilterCheckbox"
-                    label="Face count in frame"
-                    checked={faceCountFilter.enabled}
-                    onChange={(e, { checked }) => {
-                      onFilterChange(FILTER_METHOD.FACECOUNT, {
-                        enabled: checked,
-                      });
-                    }}
-                  />
-                  <Range
-                    data-tid="faceCountRangeSlider"
-                    className={`${styles.slider} ${!faceCountFilter.enabled ? styles.dropDownItemHidden : ''}`}
-                    disabled={!isFaceType || !faceCountFilter.enabled}
-                    min={1}
-                    max={10}
-                    defaultValue={[faceCountFilter.min, faceCountFilter.max]}
-                    marks={{
-                      1: '1',
-                      10: 'max',
-                    }}
-                    handle={handle}
-                    onAfterChange={value => {
-                      onFilterChange(FILTER_METHOD.FACECOUNT, {
-                        min: value[0],
-                        max: value[1],
+                        ...sizeFilter,
+                        lower: value[0],
+                        upper: value[1],
                       });
                     }}
                   />
@@ -476,6 +548,7 @@ const FloatingMenu = ({
                     checked={genderFilter.enabled}
                     onChange={(e, { checked }) => {
                       onFilterChange(FILTER_METHOD.GENDER, {
+                        ...genderFilter,
                         enabled: checked,
                       });
                     }}
@@ -494,6 +567,7 @@ const FloatingMenu = ({
                       checked={genderFilter.value === 'female'}
                       onChange={(e, { value }) => {
                         onFilterChange(FILTER_METHOD.GENDER, {
+                          ...genderFilter,
                           value,
                         });
                       }}
@@ -762,7 +836,7 @@ const FloatingMenu = ({
               data-tid="toggleHeaderBtn"
               onClick={() => onToggleHeaderClick()}
             >
-              <img src={iconHeader} height="18px" alt="" />
+              <img src={defaultShowHeader ? iconHeaderEnabled : iconHeader} height="18px" alt="" />
             </Button>
           }
           mouseEnterDelay={1000}
@@ -785,7 +859,11 @@ const FloatingMenu = ({
                 onThumbInfoClick(THUMB_INFO_OPTIONS[nextIndex].value);
               }}
             >
-              <img src={iconFrameInfo} height="18px" alt="" />
+              <img
+                src={defaultThumbInfo !== THUMB_INFO.HIDEINFO ? iconFrameInfoEnabled : iconFrameInfo}
+                height="18px"
+                alt=""
+              />
             </Button>
           }
           mouseEnterDelay={1000}
@@ -802,7 +880,7 @@ const FloatingMenu = ({
               data-tid="toggleFaceRectBtn"
               disabled={!isFaceType}
               onClick={() => onToggleFaceRectClick()}
-              icon={<img src={iconShowFaceRect} height="18px" alt="" />}
+              icon={<img src={defaultShowFaceRect ? iconShowFaceRectEnabled : iconShowFaceRect} height="18px" alt="" />}
             />
           }
           mouseEnterDelay={1000}

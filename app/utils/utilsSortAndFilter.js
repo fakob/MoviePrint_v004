@@ -2,7 +2,14 @@ import log from 'electron-log';
 import * as faceapi from 'face-api.js';
 
 import { limitRange, roundNumber, mapRange } from './utils';
-import { FILTER_METHOD, SORT_METHOD } from './constants';
+import {
+  FILTER_METHOD,
+  SORT_METHOD,
+  FILTER_METHOD_AGE,
+  FILTER_METHOD_FACESIZE,
+  FILTER_METHOD_FACEOCCURRENCE,
+  FILTER_METHOD_FACECOUNT,
+} from './constants';
 
 // sort detectionArray by ...
 export const sortArray = (
@@ -42,7 +49,7 @@ export const sortArray = (
       // sort
       flattenedArray.sort((a, b) => (a.score < b.score ? sortOrderMultiplier * 1 : sortOrderMultiplier * -1));
 
-      // only keep first occurrence of frameNumber
+      // only keep first faceOccurrence of frameNumber
       sortedArray = flattenedArray.filter(
         (item, index, self) => index === self.findIndex(t => t.frameNumber === item.frameNumber),
       );
@@ -53,13 +60,13 @@ export const sortArray = (
       // filtered and flatten the detectionArray
       const detectionArrayFiltered = detectionArray.filter(item => item.faceCount !== 0); // filter out frames with no faces
       const flattenedArray = getFlattenedArrayWithOccurrences(detectionArrayFiltered);
-      // console.log(flattenedArray.map(item => ({ faceGroupNumber: item.faceGroupNumber, size: item.size, occurrence: item.occurrence })));
+      // console.log(flattenedArray.map(item => ({ faceGroupNumber: item.faceGroupNumber, size: item.size, faceOccurrence: item.faceOccurrence })));
 
       // sort by count, size and then score
       flattenedArray.sort((a, b) => {
         // Sort by count number
-        if (a.occurrence < b.occurrence) return sortOrderMultiplier * 1;
-        if (a.occurrence > b.occurrence) return sortOrderMultiplier * -1;
+        if (a.faceOccurrence < b.faceOccurrence) return sortOrderMultiplier * 1;
+        if (a.faceOccurrence > b.faceOccurrence) return sortOrderMultiplier * -1;
 
         // If the count number is the same between both items, sort by size
         if (a.size < b.size) return sortOrderMultiplier * 1;
@@ -71,7 +78,7 @@ export const sortArray = (
         return -1;
       });
 
-      // only keep first occurrence of frameNumber
+      // only keep first faceOccurrence of frameNumber
       sortedArray = flattenedArray.filter(
         (item, index, self) => index === self.findIndex(t => t.frameNumber === item.frameNumber),
       );
@@ -100,7 +107,7 @@ export const sortArray = (
             return -1;
           });
 
-          // only keep first occurrence of frameNumber
+          // only keep first faceOccurrence of frameNumber
           sortedArray = flattenedArray.filter(
             (item, index, self) => index === self.findIndex(t => t.frameNumber === item.frameNumber),
           );
@@ -133,13 +140,18 @@ export const filterArray = (detectionArray, filters) => {
       // console.log(item[key])
       // only filter if enabled
       if (filters[key].enabled) {
+        // set new max value if upper equals max to not exclude top values on age, size ...
+        let newMaxValue
         switch (key) {
           case FILTER_METHOD.AGE:
-          case FILTER_METHOD.FACESIZE:
+            newMaxValue = filters[key].upper === FILTER_METHOD_AGE.MAX ? FILTER_METHOD_AGE.MAXMAX : filters[key].upper;
           case FILTER_METHOD.FACECOUNT:
-            // set new max value if 100 to not exclude top values on age, size ...
-            const newMaxValue = filters[key].max === 100 ? 999 : filters[key].max;
-            if (item[key] === undefined || !(filters[key].min <= item[key] && item[key] <= newMaxValue)) return false;
+            newMaxValue = filters[key].upper === FILTER_METHOD_FACECOUNT.MAX ? FILTER_METHOD_FACECOUNT.MAXMAX : filters[key].upper;
+          case FILTER_METHOD.FACEOCCURRENCE:
+            newMaxValue = filters[key].upper === FILTER_METHOD_FACEOCCURRENCE.MAX ? FILTER_METHOD_FACEOCCURRENCE.MAXMAX : filters[key].upper;
+          case FILTER_METHOD.FACESIZE:
+            newMaxValue = filters[key].upper === FILTER_METHOD_FACESIZE.MAX ? FILTER_METHOD_FACESIZE.MAXMAX : filters[key].upper;
+            if (item[key] === undefined || !(filters[key].lower <= item[key] && item[key] <= newMaxValue)) return false;
             break;
           case FILTER_METHOD.GENDER:
           case FILTER_METHOD.DISTTOORIGIN:
@@ -152,16 +164,16 @@ export const filterArray = (detectionArray, filters) => {
     return true;
   });
 
-  // only keep first occurrence of faceGroupNumber
+  // only keep first faceOccurrence of faceGroupNumber
   // filteredAndSortedArray = flattenedArray.filter(
   //   (item, index, self) => index === self.findIndex(t => t.faceGroupNumber === item.faceGroupNumber),
   // );
 
   // sort by count, size and then score
   filteredAndSortedArray.sort((a, b) => {
-    // Sort by occurrence
-    if (a.occurrence < b.occurrence) return 1;
-    if (a.occurrence > b.occurrence) return -1;
+    // Sort by faceOccurrence
+    if (a.faceOccurrence < b.faceOccurrence) return 1;
+    if (a.faceOccurrence > b.faceOccurrence) return -1;
 
     // If the count number is the same between both items, sort by size
     if (a.size < b.size) return 1;
@@ -181,9 +193,9 @@ export const getFlattenedArrayWithOccurrences = detectionArray => {
   const arrayOfOccurrences = getArrayOfOccurrences(detectionArray);
   const flattenedArray = getFlattenedArray(detectionArray);
   flattenedArray.forEach(item => {
-    // convert object to array and find occurrence and add to item
+    // convert object to array and find faceOccurrence and add to item
     const { count } = Object.values(arrayOfOccurrences).find(item2 => item2.faceGroupNumber === item.faceGroupNumber);
-    item.occurrence = count;
+    item.faceOccurrence = count;
   });
   return flattenedArray;
 };
@@ -277,7 +289,7 @@ export const getOccurrencesOfFace = (detectionArray, frameNumber, defaultFaceUni
   const frameOfFace = detectionArray.find(frame => frame.frameNumber === frameNumber);
   console.log(frameOfFace);
   if (frameOfFace === undefined || frameOfFace.facesArray === undefined || frameOfFace.facesArray.length === 0) {
-    return []; // return an empty array as there where no occurrences
+    return []; // return an empty array as there where no faceOccurrences
   }
 
   // use first face in array to search for
@@ -317,17 +329,17 @@ export const getOccurrencesOfFace = (detectionArray, frameNumber, defaultFaceUni
 };
 
 export const insertOccurrence = detectionArray => {
-  // this function determines occurrences and adds them to the detectionArray
-  // insert occurrence into detectionArray
+  // this function determines faceOccurrences and adds them to the detectionArray
+  // insert faceOccurrence into detectionArray
   const arrayOfOccurrences = getArrayOfOccurrences(detectionArray);
   console.log(arrayOfOccurrences);
   detectionArray.forEach(frame => {
     if (frame.facesArray !== undefined) {
       frame.facesArray.forEach(face => {
-        // convert object to array and find occurrence and add to item
+        // convert object to array and find faceOccurrence and add to item
         const { count } = Object.values(arrayOfOccurrences).find(item => item.faceGroupNumber === face.faceGroupNumber);
         /* eslint no-param-reassign: ["error", { "props": false }] */
-        face.occurrence = count;
+        face.faceOccurrence = count;
       });
     }
   });
