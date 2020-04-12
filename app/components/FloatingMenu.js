@@ -85,6 +85,7 @@ const FloatingMenu = ({
   visibilitySettings,
 }) => {
   // const [filterRange, setFilterRange] = useState(THUMB_SELECTION.VISIBLE_THUMBS);
+  const [filters, setFilters] = useState({});
 
   const { defaultFaceUniquenessThreshold = FACE_UNIQUENESS_THRESHOLD, defaultThumbInfo, defaultShowImages } = settings;
   const { defaultView, defaultZoomLevel, visibilityFilter } = visibilitySettings;
@@ -340,7 +341,38 @@ const FloatingMenu = ({
                 {/* <Message size="mini" className={styles.noBackground}>
                   <em>The &quot;duplicate&quot; faces will be hidden.</em>
                 </Message> */}
-                {/* <Dropdown.Item
+                <Dropdown.Item
+                  disabled={!isFaceType || expandedFrameNumber !== undefined}
+                  className={`${styles.dropDownItem} ${styles.dropDownItemCheckbox}`}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <Checkbox
+                    data-tid="showSlidersCheckbox"
+                    label="Age = 0-25"
+                    checked={filters[FILTER_METHOD.AGE] !== undefined}
+                    onChange={(e, { checked }) => {
+                      let newFilters;
+                      if (checked) {
+                        newFilters = {
+                          ...filters,
+                          [FILTER_METHOD.AGE]: {
+                            min: 0,
+                            max: 25,
+                          },
+                        };
+                        onFilterSheet(newFilters);
+                        setFilters(newFilters);
+                        // onUpdateSheetFilter({ gender: 'female' });
+                      } else {
+                        // console.log(filters)
+                        // console.log(typeof filters)
+                        delete filters[FILTER_METHOD.AGE];
+                        onFilterSheet(filters);
+                      }
+                    }}
+                  />
+                </Dropdown.Item>
+                <Dropdown.Item
                   disabled={!isFaceType || expandedFrameNumber !== undefined}
                   className={`${styles.dropDownItem} ${styles.dropDownItemCheckbox}`}
                   onClick={e => e.stopPropagation()}
@@ -348,18 +380,54 @@ const FloatingMenu = ({
                   <Checkbox
                     data-tid="showSlidersCheckbox"
                     label="Female faces only"
-                    checked={uniqueFilter}
+                    checked={filters[FILTER_METHOD.GENDER] === 'female'}
                     onChange={(e, { checked }) => {
+                      let newFilters;
                       if (checked) {
-                        onFilterSheet(FILTER_METHOD.UNIQUE);
-                        onUpdateSheetFilter({ gender: 'female' });
+                        newFilters = {
+                          ...filters,
+                          [FILTER_METHOD.GENDER]: 'female',
+                        };
+                        onFilterSheet(newFilters);
+                        setFilters(newFilters);
+                        // onUpdateSheetFilter({ gender: 'female' });
                       } else {
-                        onShowAllThumbs();
-                        onUpdateSheetFilter({ gender: undefined });
+                        // console.log(filters)
+                        // console.log(typeof filters)
+                        delete filters[FILTER_METHOD.GENDER];
+                        onFilterSheet(filters);
                       }
                     }}
                   />
-                </Dropdown.Item> */}
+                </Dropdown.Item>
+                <Dropdown.Item
+                  disabled={!isFaceType || expandedFrameNumber !== undefined}
+                  className={`${styles.dropDownItem} ${styles.dropDownItemCheckbox}`}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <Checkbox
+                    data-tid="showSlidersCheckbox"
+                    label="Male faces only"
+                    checked={filters[FILTER_METHOD.GENDER] === 'male'}
+                    onChange={(e, { checked }) => {
+                      let newFilters;
+                      if (checked) {
+                        newFilters = {
+                          ...filters,
+                          [FILTER_METHOD.GENDER]: 'male',
+                        };
+                        onFilterSheet(newFilters);
+                        setFilters(newFilters);
+                        // onUpdateSheetFilter({ gender: 'female' });
+                      } else {
+                        // console.log(filters)
+                        // console.log(typeof filters)
+                        delete filters[FILTER_METHOD.GENDER];
+                        onFilterSheet(filters);
+                      }
+                    }}
+                  />
+                </Dropdown.Item>
                 <Dropdown.Item
                   disabled={!isFaceType || expandedFrameNumber !== undefined}
                   className={`${styles.dropDownItem} ${styles.dropDownItemCheckbox}`}

@@ -1795,7 +1795,6 @@ class App extends Component {
 
   onSortSheet(sortMethod, filterRange = undefined, fileId = undefined, sheetId = undefined) {
     const { currentFileId, currentSheetId, dispatch, settings, sheetsByFileId, visibilitySettings } = this.props;
-    const { defaultFaceUniquenessThreshold } = settings;
     const { visibilityFilter } = visibilitySettings;
 
     const theFilterRange = filterRange || visibilityFilter;
@@ -1850,7 +1849,7 @@ class App extends Component {
     }
   }
 
-  onFilterSheet(filterMethod, fileId = undefined, sheetId = undefined, faceUniquenessThreshold = undefined) {
+  onFilterSheet(filters, fileId = undefined, sheetId = undefined, faceUniquenessThreshold = undefined) {
     const { currentFileId, currentSheetId, dispatch, settings, sheetsByFileId } = this.props;
     const { defaultFaceUniquenessThreshold } = settings;
 
@@ -1865,14 +1864,12 @@ class App extends Component {
       const theFaceUniquenessThreshold = faceUniquenessThreshold || defaultFaceUniquenessThreshold;
 
       let baseArray = thumbsArray;
-      if (filterMethod === FILTER_METHOD.UNIQUE) {
-        let thumbsFrameNumbers;
-        // for unique method get all face scan data
-        baseArray = getFaceScanByFileId(theFileId, thumbsFrameNumbers);
-        determineAndInsertFaceGroupNumber(baseArray, theFaceUniquenessThreshold);
-        insertOccurrence(baseArray);
-        // console.log(baseArray);
-      }
+      let thumbsFrameNumbers;
+      // for unique method get all face scan data
+      baseArray = getFaceScanByFileId(theFileId, thumbsFrameNumbers);
+      determineAndInsertFaceGroupNumber(baseArray, theFaceUniquenessThreshold);
+      insertOccurrence(baseArray);
+      // console.log(baseArray);
 
       // flatten thumbsArray
 
@@ -1883,7 +1880,7 @@ class App extends Component {
       // create new movieprint
 
       // get sortOrderArray
-      const sortOrderArray = filterArray(baseArray, filterMethod);
+      const sortOrderArray = filterArray(baseArray, filters);
       // console.log(sortOrderArray);
 
       // sort thumbs array
@@ -1901,7 +1898,7 @@ class App extends Component {
 
       // add detection information to thumbs
       deleteFaceDescriptorFromFaceScanArray(baseArray);
-      dispatch(changeAndSortThumbArray(theFileId, theSheetId, baseArray, filterMethod));
+      dispatch(changeAndSortThumbArray(theFileId, theSheetId, baseArray));
     }
   }
 

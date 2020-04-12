@@ -115,69 +115,52 @@ export const sortArray = (
 };
 
 // filter detectionArray by ...
-export const filterArray = (detectionArray, filterMethod = FILTER_METHOD.FACESIZE) => {
+export const filterArray = (detectionArray, filters) => {
   let filteredAndSortedArray = [];
-  switch (filterMethod) {
-    case FILTER_METHOD.GENDER: {
-      // filtered and flatten the detectionArray
-      const detectionArrayFiltered = detectionArray.filter(item => item.faceCount !== 0); // filter out frames with no faces
-      const flattenedArray = getFlattenedArrayWithOccurrences(detectionArrayFiltered);
 
-      // get only origins
-      filteredAndSortedArray = flattenedArray.filter(item => item.gender === 0);
-      // only keep first occurrence of faceGroupNumber
-      // filteredAndSortedArray = flattenedArray.filter(
-      //   (item, index, self) => index === self.findIndex(t => t.faceGroupNumber === item.faceGroupNumber),
-      // );
+  console.log(filters);
 
-      // sort by count, size and then score
-      filteredAndSortedArray.sort((a, b) => {
-        // Sort by occurrence
-        if (a.occurrence < b.occurrence) return 1;
-        if (a.occurrence > b.occurrence) return -1;
+  const detectionArrayFiltered = detectionArray.filter(item => item.faceCount !== 0); // filter out frames with no faces
+  const flattenedArray = getFlattenedArrayWithOccurrences(detectionArrayFiltered);
 
-        // If the count number is the same between both items, sort by size
-        if (a.size < b.size) return 1;
-        if (a.size > b.size) return -1;
+  // filteredAndSortedArray = flattenedArray.filter(item => item.distToOrigin === 0);
 
-        // If the count number is the same between both items, sort by size
-        if (a.score < b.score) return 1;
-        if (a.score > b.score) return -1;
-        return -1;
-      });
-      break;
+  /* eslint no-restricted-syntax: ["error", "FunctionExpression", "WithStatement", "BinaryExpression[operator='in']"] */
+  filteredAndSortedArray = flattenedArray.filter(item => {
+    for (const key of Object.keys(filters)) {
+      console.log(key)
+      if (typeof filters[key] === 'object') { // range
+        console.log(filters[key])
+        console.log(item[key])
+        if (item[key] === undefined || !(filters[key].min <= item[key] && item[key] <= filters[key].max)) return false;
+      } else {
+        if (item[key] === undefined || item[key] !== filters[key]) return false;
+      }
     }
-    case FILTER_METHOD.UNIQUE: {
-      // filtered and flatten the detectionArray
-      const detectionArrayFiltered = detectionArray.filter(item => item.faceCount !== 0); // filter out frames with no faces
-      const flattenedArray = getFlattenedArrayWithOccurrences(detectionArrayFiltered);
+    return true;
+  });
 
-      // get only origins
-      filteredAndSortedArray = flattenedArray.filter(item => item.distToOrigin === 0);
-      // only keep first occurrence of faceGroupNumber
-      // filteredAndSortedArray = flattenedArray.filter(
-      //   (item, index, self) => index === self.findIndex(t => t.faceGroupNumber === item.faceGroupNumber),
-      // );
+  // only keep first occurrence of faceGroupNumber
+  // filteredAndSortedArray = flattenedArray.filter(
+  //   (item, index, self) => index === self.findIndex(t => t.faceGroupNumber === item.faceGroupNumber),
+  // );
 
-      // sort by count, size and then score
-      filteredAndSortedArray.sort((a, b) => {
-        // Sort by occurrence
-        if (a.occurrence < b.occurrence) return 1;
-        if (a.occurrence > b.occurrence) return -1;
+  // sort by count, size and then score
+  filteredAndSortedArray.sort((a, b) => {
+    // Sort by occurrence
+    if (a.occurrence < b.occurrence) return 1;
+    if (a.occurrence > b.occurrence) return -1;
 
-        // If the count number is the same between both items, sort by size
-        if (a.size < b.size) return 1;
-        if (a.size > b.size) return -1;
+    // If the count number is the same between both items, sort by size
+    if (a.size < b.size) return 1;
+    if (a.size > b.size) return -1;
 
-        // If the count number is the same between both items, sort by size
-        if (a.score < b.score) return 1;
-        if (a.score > b.score) return -1;
-        return -1;
-      });
-      break;
-    }
-    default:
-  }
+    // If the count number is the same between both items, sort by size
+    if (a.score < b.score) return 1;
+    if (a.score > b.score) return -1;
+    return -1;
+  });
+
   console.log(filteredAndSortedArray);
   return filteredAndSortedArray;
 };

@@ -317,14 +317,14 @@ export const SORT_METHOD_OPTIONS = [
   { value: SORT_METHOD.REVERSE, text: 'reverse order', 'data-tid': 'sortMethodOptionsReverse' },
 ];
 export const FILTER_METHOD = {
-  AGE: 'age',
-  DISTTOORIGIN: 'distToOrigin',
-  FACECONFIDENCE: 'score',
-  FACECOUNT: 'faceCount',
-  FACEOCCURRENCE: 'faceOccurrence',
-  FACESIZE: 'size',
-  GENDER: 'gender',
-  UNIQUE: 'unique',
+  AGE: 'age', // range
+  DISTTOORIGIN: 'distToOrigin', // range
+  FACECONFIDENCE: 'score', // range
+  FACECOUNT: 'faceCount', // range
+  FACEOCCURRENCE: 'faceOccurrence', // range
+  FACESIZE: 'size', // range
+  GENDER: 'gender', // equals
+  UNIQUE: 'unique', // equals
 };
 
 // app settings

@@ -830,7 +830,13 @@ export const showThumbsByFrameNumberArray = (fileId, sheetId, frameNumberArray) 
   };
 };
 
-export const changeAndSortThumbArray = (fileId, sheetId, faceScanArray, sortMethod, optionalSortProperties = undefined) => {
+export const changeAndSortThumbArray = (
+  fileId,
+  sheetId,
+  faceScanArray,
+  sortMethod = undefined,
+  optionalSortProperties = undefined,
+) => {
   log.debug(`action: changeAndSortThumbArray - ${sheetId}`);
   return (dispatch, getState) => {
     dispatch(changeThumbArray(fileId, sheetId, faceScanArray));
