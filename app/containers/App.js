@@ -102,6 +102,7 @@ import {
   addThumb,
   addThumbs,
   changeThumb,
+  changeThumbArray,
   changeAndSortThumbArray,
   clearMovieList,
   clearScenes,
@@ -113,7 +114,6 @@ import {
   mergeScenes,
   removeMovieListItem,
   replaceFileDetails,
-  setTransform,
   setCurrentFileId,
   setCurrentSheetId,
   setDefaultCachedFramesSize,
@@ -1900,7 +1900,7 @@ class App extends Component {
       deleteFaceDescriptorFromFaceScanArray(baseArray);
       // console.log(baseArray)
       // console.log(thumbsArray)
-      dispatch(changeAndSortThumbArray(theFileId, theSheetId, baseArray));
+      dispatch(changeThumbArray(theFileId, theSheetId, baseArray));
     }
   }
 

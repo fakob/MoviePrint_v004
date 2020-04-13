@@ -150,7 +150,6 @@ class ThumbGrid extends Component {
         let currentThumb;
         if (foundThumbId !== undefined) {
           currentThumb = thumbs.find(thumb => thumb.thumbId === foundThumbId);
-          console.log(currentThumb);
         }
 
         this.setState({
