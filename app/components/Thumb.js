@@ -9,6 +9,7 @@ import { Popup } from 'semantic-ui-react';
 import { SHEET_TYPE, VIEW } from '../utils/constants';
 import styles from './ThumbGrid.css';
 import stylesPop from './Popup.css';
+import AllFaces from './AllFaces';
 
 import transparent from '../img/Thumb_TRANSPARENT.png';
 
@@ -47,140 +48,44 @@ const DragHandle = React.memo(
   )),
 );
 
-const AllFaces = ({ facesArray, thumbWidth, thumbHeight, uniqueFilter, isExpanded }) =>
-  facesArray.map(face => {
-    const showFaceRect =
-      (isExpanded && face.distToOrigin !== undefined) || (!isExpanded && (!uniqueFilter || face.distToOrigin === 0));
-    if (showFaceRect) {
-      return (
-        <FaceRect
-          key={face.faceId}
-          uniqueFilter={uniqueFilter}
-          face={face}
-          thumbWidth={thumbWidth}
-          thumbHeight={thumbHeight}
-        />
-      );
-    }
-    return undefined;
-  });
-
-const FaceRect = React.memo(({ face: { box, ...faceExceptForBox }, thumbWidth, thumbHeight, uniqueFilter }) => {
-  const left = box.x * thumbWidth;
-  const top = box.y * thumbHeight;
-  const width = box.width * thumbWidth;
-  const height = box.height * thumbHeight;
-  const cornerLength = Math.max(2, Math.min(width, height) / 8) * -1;
-
-  // embedding styles directly as html2Canvas ignores css styling of SVGs
-  const svgStylingFill = 'none';
-  const svgStylingStroke = 'rgba(255,80,6,1)';
-  const svgStylingStrokeWidth = '1';
-
-  const leftCornerLength = Math.max(1, left - cornerLength);
-  const topCornerLength = Math.max(1, top - cornerLength);
-  const leftWidth = Math.min(thumbWidth - 1, left + width);
-  const topHeight = Math.min(thumbHeight - 1, top + height);
-  const topHeightCornerLength = Math.min(thumbHeight - 1, topHeight + cornerLength);
-  const leftWidthCornerLength = Math.min(thumbWidth - 1, leftWidth + cornerLength);
-
-  const polylineLine0 = `${leftCornerLength}, ${top}, ${left}, ${top}, ${left}, ${topCornerLength}`;
-  const polylineLine1 = `${leftWidth}, ${topCornerLength}, ${leftWidth}, ${top}, ${leftWidthCornerLength}, ${top}`;
-  const polylineLine2 = `${leftCornerLength}, ${topHeight}, ${left}, ${topHeight}, ${left}, ${topHeightCornerLength}`;
-  const polylineLine3 = `${leftWidth}, ${topHeightCornerLength}, ${leftWidth}, ${topHeight}, ${leftWidthCornerLength}, ${topHeight}`;
-  return (
-    <>
-      <div
-        className={styles.faceRect}
-        title={JSON.stringify(faceExceptForBox)}
-        style={{
-          width: `${box.width * thumbWidth}px`,
-          height: `${box.height * thumbHeight}px`,
-          left: `${box.x * thumbWidth}px`,
-          top: `${box.y * thumbHeight}px`,
-        }}
-      />
-      <div className={styles.faceRectSVG} title={JSON.stringify(faceExceptForBox)}>
-        <svg width={thumbWidth} height={thumbHeight}>
-          <polyline
-            points={polylineLine0}
-            fill={svgStylingFill}
-            stroke={svgStylingStroke}
-            strokeWidth={svgStylingStrokeWidth}
-          />
-          <polyline
-            points={polylineLine1}
-            fill={svgStylingFill}
-            stroke={svgStylingStroke}
-            strokeWidth={svgStylingStrokeWidth}
-          />
-          <polyline
-            points={polylineLine2}
-            fill={svgStylingFill}
-            stroke={svgStylingStroke}
-            strokeWidth={svgStylingStrokeWidth}
-          />
-          <polyline
-            points={polylineLine3}
-            fill={svgStylingFill}
-            stroke={svgStylingStroke}
-            strokeWidth={svgStylingStrokeWidth}
-          />
-        </svg>
-      </div>
-      {uniqueFilter && (
-        <div
-          className={styles.faceRectTag}
-          style={{
-            left: `${box.x * thumbWidth + box.width * thumbWidth}px`,
-            top: `${box.y * thumbHeight}px`,
-          }}
-        >
-          {faceExceptForBox.gender === 'female' ? '\u2640' : '\u2642'}
-          {/* <br />#<em>{faceExceptForBox.faceGroupNumber}</em> */}
-          <br />
-          {faceExceptForBox.occurrence} x<br />
-          {/* {faceExceptForBox.distToOrigin} */}
-          <br />
-        </div>
-      )}
-    </>
-  );
-});
-
 const Thumb = React.memo(
   ({
-    aspectRatioInv,
     base64,
-    facesArray,
     borderRadius,
     color,
     controllersAreVisible,
     defaultShowFaceRect,
     dim,
-    isExpanded,
-    frameninfoBackgroundColor,
+    facesArray,
     frameinfoColor,
+    frameinfoMargin,
     frameinfoPosition,
+    frameninfoBackgroundColor,
     hidden,
     index,
     indexForId,
     inputRefThumb,
+    isExpanded,
     keyObject,
     margin,
-    frameinfoMargin,
     onOver,
     onSelect,
     onThumbDoubleClick,
     selected,
     sheetType,
     thumbCSSTranslate,
+    thumbHeight,
     thumbId,
     thumbImageObjectUrl,
     thumbInfoValue,
     thumbWidth,
     transparentThumb,
-    uniqueFilter,
+    ageFilterEnabled,
+    uniqueFilterEnabled,
+    faceCountFilterEnabled,
+    faceOccurrenceFilterEnabled,
+    sizeFilterEnabled,
+    genderFilterEnabled,
     view,
   }) => {
     function onThumbDoubleClickWithStop(e) {
@@ -216,8 +121,6 @@ const Thumb = React.memo(
       //   onOut(e);
       // }
     }
-
-    const thumbHeight = thumbWidth * aspectRatioInv;
 
     return (
       <div
@@ -272,12 +175,17 @@ const Thumb = React.memo(
             borderRadius: `${selected && view === VIEW.PLAYERVIEW ? 0 : borderRadius}px`,
           }}
         />
-        {facesArray !== undefined && defaultShowFaceRect && (
+        {facesArray !== undefined && !controllersAreVisible && defaultShowFaceRect && (
           <AllFaces
             facesArray={facesArray}
             thumbWidth={thumbWidth}
             thumbHeight={thumbHeight}
-            uniqueFilter={uniqueFilter}
+            ageFilterEnabled={ageFilterEnabled}
+            uniqueFilterEnabled={uniqueFilterEnabled}
+            faceCountFilterEnabled={faceCountFilterEnabled}
+            faceOccurrenceFilterEnabled={faceOccurrenceFilterEnabled}
+            sizeFilterEnabled={sizeFilterEnabled}
+            genderFilterEnabled={genderFilterEnabled}
             isExpanded={isExpanded}
           />
         )}
@@ -328,7 +236,6 @@ Thumb.defaultProps = {
 };
 
 Thumb.propTypes = {
-  aspectRatioInv: PropTypes.number.isRequired,
   borderRadius: PropTypes.number.isRequired,
   color: PropTypes.string.isRequired,
   controllersAreVisible: PropTypes.bool,

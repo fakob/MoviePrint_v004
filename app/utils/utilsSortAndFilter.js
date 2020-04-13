@@ -90,11 +90,11 @@ export const sortArray = (
       const { faceIdOfOrigin } = optionalSortProperties;
 
       if (detectionArrayFiltered.length > 0 && faceIdOfOrigin !== undefined) {
-        console.log(faceIdOfOrigin);
+        // console.log(faceIdOfOrigin);
 
         if (faceIdOfOrigin !== undefined) {
           const flattenedArray = getFlattenedArrayWithOccurrences(detectionArrayFiltered);
-          console.log(flattenedArray);
+          // console.log(flattenedArray);
 
           // filter array to only include faceIdOfOrigin
           flattenedArray.filter(item => item.faceGroupNumber === faceIdOfOrigin);
@@ -117,7 +117,7 @@ export const sortArray = (
     }
     default:
   }
-  console.log(sortedArray);
+  // console.log(sortedArray);
   return sortedArray;
 };
 
@@ -125,7 +125,7 @@ export const sortArray = (
 export const filterArray = (detectionArray, filters) => {
   let filteredAndSortedArray = [];
 
-  console.log(filters);
+  // console.log(filters);
 
   const detectionArrayFiltered = detectionArray.filter(item => item.faceCount !== 0); // filter out frames with no faces
   const flattenedArray = getFlattenedArrayWithOccurrences(detectionArrayFiltered);
@@ -185,7 +185,7 @@ export const filterArray = (detectionArray, filters) => {
     return -1;
   });
 
-  console.log(filteredAndSortedArray);
+  // console.log(filteredAndSortedArray);
   return filteredAndSortedArray;
 };
 
@@ -287,7 +287,7 @@ export const getOccurrencesOfFace = (detectionArray, frameNumber, defaultFaceUni
   const foundFrames = [];
 
   const frameOfFace = detectionArray.find(frame => frame.frameNumber === frameNumber);
-  console.log(frameOfFace);
+  // console.log(frameOfFace);
   if (frameOfFace === undefined || frameOfFace.facesArray === undefined || frameOfFace.facesArray.length === 0) {
     return []; // return an empty array as there where no faceOccurrences
   }
@@ -304,14 +304,14 @@ export const getOccurrencesOfFace = (detectionArray, frameNumber, defaultFaceUni
         const currentFaceDescriptor = Object.values(face.faceDescriptor);
         // compare descriptor value with faceDescriptorOfFace
         const dist = faceapi.euclideanDistance(currentFaceDescriptor, faceDescriptorOfFace);
-        console.log(dist);
+        // console.log(dist);
         // if no match was found add the current descriptor to the array marking a unique face
         if (dist < defaultFaceUniquenessThreshold) {
-          console.log(dist === 0 ? `this face is identical: ${dist}` : `this face is probably the same: ${dist}`);
+          // console.log(dist === 0 ? `this face is identical: ${dist}` : `this face is probably the same: ${dist}`);
           foundFaces.push({ ...face, distToOrigin: dist, faceDescriptor: undefined });
         } else if (foundFaces.length > 0) {
           // only add other faces if one face is similar
-          console.log(`this face is different: ${dist}`);
+          // console.log(`this face is different: ${dist}`);
           foundFaces.push({ ...face, faceDescriptor: undefined });
         }
         return undefined;
@@ -332,7 +332,7 @@ export const insertOccurrence = detectionArray => {
   // this function determines faceOccurrences and adds them to the detectionArray
   // insert faceOccurrence into detectionArray
   const arrayOfOccurrences = getArrayOfOccurrences(detectionArray);
-  console.log(arrayOfOccurrences);
+  // console.log(arrayOfOccurrences);
   detectionArray.forEach(frame => {
     if (frame.facesArray !== undefined) {
       frame.facesArray.forEach(face => {
@@ -383,8 +383,8 @@ export const getIntervalArray = (
 export const sortThumbsArray = (thumbsArray, sortOrderArray) => {
   // extract frameNumbers
   const frameNumberArrayFromFaceDetection = sortOrderArray.map(item => item.frameNumber);
-  console.log(frameNumberArrayFromFaceDetection);
-  console.log(thumbsArray);
+  // console.log(frameNumberArrayFromFaceDetection);
+  // console.log(thumbsArray);
 
   // let filteredArray = thumbsArray;
   // if (hideOthers) {
@@ -398,7 +398,7 @@ export const sortThumbsArray = (thumbsArray, sortOrderArray) => {
       frameNumberArrayFromFaceDetection.indexOf(b.frameNumber)
     );
   });
-  console.log(thumbsArrayAfterSorting);
+  // console.log(thumbsArrayAfterSorting);
   return thumbsArrayAfterSorting;
 };
 

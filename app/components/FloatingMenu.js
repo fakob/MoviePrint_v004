@@ -329,19 +329,19 @@ const FloatingMenu = ({
                   disabled={!isFaceType}
                   className={styles.dropDownItem}
                   onClick={() => {
-                    onSortSheet(SORT_METHOD.FACESIZE);
+                    onSortSheet(SORT_METHOD.FACECOUNT);
                   }}
                 >
-                  Face size
+                  Amount of faces in frame
                 </Dropdown.Item>
                 <Dropdown.Item
                   disabled={!isFaceType}
                   className={styles.dropDownItem}
                   onClick={() => {
-                    onSortSheet(SORT_METHOD.FACECOUNT);
+                    onSortSheet(SORT_METHOD.FACESIZE);
                   }}
                 >
-                  Face count in frame
+                  Face size
                 </Dropdown.Item>
                 <Dropdown.Item
                   disabled={!isFaceType}
@@ -384,6 +384,45 @@ const FloatingMenu = ({
               <Dropdown.Menu className={`${styles.dropDownMenu} ${styles.dropDownMenuFilter}`}>
                 <Dropdown.Item
                   disabled={!isFaceType}
+                  className={`${styles.dropDownItem} ${
+                    faceCountFilter.enabled ? styles.dropDownItemCheckboxAndSlider : ''
+                  }`}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <Checkbox
+                    data-tid="enableSizeFilterCheckbox"
+                    label="Amount of faces in frame"
+                    checked={faceCountFilter.enabled}
+                    onChange={(e, { checked }) => {
+                      onFilterChange(FILTER_METHOD.FACECOUNT, {
+                        ...faceCountFilter,
+                        enabled: checked,
+                      });
+                    }}
+                  />
+                  <Range
+                    data-tid="faceCountRangeSlider"
+                    className={`${styles.slider} ${!faceCountFilter.enabled ? styles.dropDownItemHidden : ''}`}
+                    disabled={!isFaceType || !faceCountFilter.enabled}
+                    min={FILTER_METHOD_FACECOUNT.MIN}
+                    max={FILTER_METHOD_FACECOUNT.MAX}
+                    defaultValue={[faceCountFilter.lower, faceCountFilter.upper]}
+                    marks={{
+                      [FILTER_METHOD_FACECOUNT.MIN]: FILTER_METHOD_FACECOUNT.MIN,
+                      [FILTER_METHOD_FACECOUNT.MAX]: 'max',
+                    }}
+                    handle={handle}
+                    onAfterChange={value => {
+                      onFilterChange(FILTER_METHOD.FACECOUNT, {
+                        ...faceCountFilter,
+                        lower: value[0],
+                        upper: value[1],
+                      });
+                    }}
+                  />
+                </Dropdown.Item>
+                <Dropdown.Item
+                  disabled={!isFaceType}
                   className={`${styles.dropDownItem} ${ageFilter.enabled ? styles.dropDownItemCheckboxAndSlider : ''}`}
                   onClick={e => e.stopPropagation()}
                 >
@@ -413,45 +452,6 @@ const FloatingMenu = ({
                     onAfterChange={value => {
                       onFilterChange(FILTER_METHOD.AGE, {
                         ...ageFilter,
-                        lower: value[0],
-                        upper: value[1],
-                      });
-                    }}
-                  />
-                </Dropdown.Item>
-                <Dropdown.Item
-                  disabled={!isFaceType}
-                  className={`${styles.dropDownItem} ${
-                    faceCountFilter.enabled ? styles.dropDownItemCheckboxAndSlider : ''
-                  }`}
-                  onClick={e => e.stopPropagation()}
-                >
-                  <Checkbox
-                    data-tid="enableSizeFilterCheckbox"
-                    label="Face count in frame"
-                    checked={faceCountFilter.enabled}
-                    onChange={(e, { checked }) => {
-                      onFilterChange(FILTER_METHOD.FACECOUNT, {
-                        ...faceCountFilter,
-                        enabled: checked,
-                      });
-                    }}
-                  />
-                  <Range
-                    data-tid="faceCountRangeSlider"
-                    className={`${styles.slider} ${!faceCountFilter.enabled ? styles.dropDownItemHidden : ''}`}
-                    disabled={!isFaceType || !faceCountFilter.enabled}
-                    min={FILTER_METHOD_FACECOUNT.MIN}
-                    max={FILTER_METHOD_FACECOUNT.MAX}
-                    defaultValue={[faceCountFilter.lower, faceCountFilter.upper]}
-                    marks={{
-                      [FILTER_METHOD_FACECOUNT.MIN]: FILTER_METHOD_FACECOUNT.MIN,
-                      [FILTER_METHOD_FACECOUNT.MAX]: 'max',
-                    }}
-                    handle={handle}
-                    onAfterChange={value => {
-                      onFilterChange(FILTER_METHOD.FACECOUNT, {
-                        ...faceCountFilter,
                         lower: value[0],
                         upper: value[1],
                       });

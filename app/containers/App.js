@@ -1898,6 +1898,8 @@ class App extends Component {
 
       // add detection information to thumbs
       deleteFaceDescriptorFromFaceScanArray(baseArray);
+      // console.log(baseArray)
+      // console.log(thumbsArray)
       dispatch(changeAndSortThumbArray(theFileId, theSheetId, baseArray));
     }
   }
@@ -3799,6 +3801,28 @@ ${exportObject}`;
       visibilitySettings,
     } = this.props;
 
+    const {
+      [FILTER_METHOD.AGE]: ageFilter = {
+        enabled: false,
+      },
+      [FILTER_METHOD.DISTTOORIGIN]: uniqueFilter = {
+        enabled: false,
+      },
+      [FILTER_METHOD.FACECOUNT]: faceCountFilter = {
+        enabled: false,
+      },
+      [FILTER_METHOD.FACEOCCURRENCE]: faceOccurrenceFilter = {
+        enabled: false,
+      },
+      [FILTER_METHOD.FACESIZE]: sizeFilter = {
+        enabled: false,
+      },
+      [FILTER_METHOD.GENDER]: genderFilter = {
+        enabled: false,
+      },
+      expanded: expandedFrameNumber,
+    } = currentSheetFilter;
+
     const { defaultSheetView } = visibilitySettings;
 
     const fileCount = files.length;
@@ -4276,7 +4300,13 @@ ${exportObject}`;
                             isViewForPrinting={false}
                             frameSize={settings.defaultCachedFramesSize}
                             isGridView={isGridView}
-                            currentSheetFilter={currentSheetFilter}
+                            ageFilterEnabled={ageFilter.enabled}
+                            uniqueFilterEnabled={uniqueFilter.enabled}
+                            faceCountFilterEnabled={faceCountFilter.enabled}
+                            faceOccurrenceFilterEnabled={faceOccurrenceFilter.enabled}
+                            sizeFilterEnabled={sizeFilter.enabled}
+                            genderFilterEnabled={genderFilter.enabled}
+                            isExpanded={expandedFrameNumber !== undefined}
                           />
                         </Conditional>
                         <Conditional

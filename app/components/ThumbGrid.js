@@ -7,6 +7,7 @@ import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import { Popup } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
 import Thumb from './Thumb';
+import AllFaces from './AllFaces';
 import ThumbGridHeader from './ThumbGridHeader';
 import styles from './ThumbGrid.css';
 import stylesPop from './Popup.css';
@@ -31,6 +32,7 @@ import {
   DEFAULT_FRAMEINFO_POSITION,
   DEFAULT_FRAMEINFO_SCALE,
   DEFAULT_SHOW_FACERECT,
+  FILTER_METHOD,
   MINIMUM_WIDTH_TO_SHOW_HOVER,
   MINIMUM_WIDTH_TO_SHRINK_HOVER,
   SHEET_TYPE,
@@ -68,6 +70,7 @@ class ThumbGrid extends Component {
     this.state = {
       thumbsToDim: [],
       controllersVisible: undefined,
+      currentThumb: undefined,
       addThumbBeforeController: undefined,
       addThumbAfterController: undefined,
       hoverPos: undefined,
@@ -144,8 +147,15 @@ class ThumbGrid extends Component {
           newClientRect = undefined;
         }
 
+        let currentThumb;
+        if (foundThumbId !== undefined) {
+          currentThumb = thumbs.find(thumb => thumb.thumbId === foundThumbId);
+          console.log(currentThumb);
+        }
+
         this.setState({
           controllersVisible: foundThumbId,
+          currentThumb,
           addThumbBeforeController: undefined,
           addThumbAfterController: undefined,
           hoverPos: newClientRect,
@@ -177,6 +187,7 @@ class ThumbGrid extends Component {
   resetHover() {
     this.setState({
       controllersVisible: undefined,
+      currentThumb: undefined,
       addThumbBeforeController: undefined,
       addThumbAfterController: undefined,
       hoverPos: undefined,
@@ -191,12 +202,11 @@ class ThumbGrid extends Component {
 
   onExpand(e) {
     // console.log('onExpand');
-    const { currentSheetId, file, onExpandClick, sheetType, thumbs } = this.props;
-    const { controllersVisible } = this.state;
+    const { currentSheetId, file, onExpandClick, sheetType } = this.props;
+    const { currentThumb } = this.state;
 
     e.stopPropagation();
-    const thumb = thumbs.find(item => item.thumbId === controllersVisible);
-    onExpandClick(file, thumb.thumbId, currentSheetId, sheetType);
+    onExpandClick(file, currentThumb.thumbId, currentSheetId, sheetType);
     this.resetDim();
   }
 
@@ -211,45 +221,48 @@ class ThumbGrid extends Component {
 
   onSaveThumb(e) {
     // console.log('onSaveThumb');
-    const { file, onSaveThumbClick, thumbs } = this.props;
-    const { controllersVisible } = this.state;
+    const { file, onSaveThumbClick } = this.props;
+    const { currentThumb } = this.state;
 
     e.stopPropagation();
-    const thumb = thumbs.find(item => item.thumbId === controllersVisible);
-    onSaveThumbClick(file.path, file.useRatio, file.name, thumb.frameNumber, thumb.frameId, file.transformObject);
+    onSaveThumbClick(
+      file.path,
+      file.useRatio,
+      file.name,
+      currentThumb.frameNumber,
+      currentThumb.frameId,
+      file.transformObject,
+    );
     // this.resetHover();
   }
 
   onInPoint(e) {
     // console.log('onInPoint');
     const { file, onInPointClick, thumbs } = this.props;
-    const { controllersVisible } = this.state;
+    const { currentThumb } = this.state;
 
     e.stopPropagation();
-    const thumb = thumbs.find(item => item.thumbId === controllersVisible);
-    onInPointClick(file, thumbs, thumb.thumbId, thumb.frameNumber);
+    onInPointClick(file, thumbs, currentThumb.thumbId, currentThumb.frameNumber);
     this.resetDim();
   }
 
   onOutPoint(e) {
     // console.log('onOutPoint');
     const { file, onOutPointClick, thumbs } = this.props;
-    const { controllersVisible } = this.state;
+    const { currentThumb } = this.state;
 
     e.stopPropagation();
-    const thumb = thumbs.find(item => item.thumbId === controllersVisible);
-    onOutPointClick(file, thumbs, thumb.thumbId, thumb.frameNumber);
+    onOutPointClick(file, thumbs, currentThumb.thumbId, currentThumb.frameNumber);
     this.resetDim();
   }
 
   onHideBefore(e) {
     // console.log('onHideBefore');
     const { currentSheetId, file, onHideBeforeAfterClick, thumbs } = this.props;
-    const { controllersVisible } = this.state;
+    const { currentThumb } = this.state;
 
     e.stopPropagation();
-    const thumb = thumbs.find(item => item.thumbId === controllersVisible);
-    const previousThumbs = getPreviousThumbs(thumbs, thumb.thumbId);
+    const previousThumbs = getPreviousThumbs(thumbs, currentThumb.thumbId);
     const previousThumbIds = previousThumbs.map(t => t.thumbId);
     onHideBeforeAfterClick(file.id, currentSheetId, previousThumbIds);
     this.resetDim();
@@ -258,11 +271,10 @@ class ThumbGrid extends Component {
   onHideAfter(e) {
     // console.log('onHideAfter');
     const { currentSheetId, file, onHideBeforeAfterClick, thumbs } = this.props;
-    const { controllersVisible } = this.state;
+    const { currentThumb } = this.state;
 
     e.stopPropagation();
-    const thumb = thumbs.find(item => item.thumbId === controllersVisible);
-    const previousThumbs = getNextThumbs(thumbs, thumb.thumbId);
+    const previousThumbs = getNextThumbs(thumbs, currentThumb.thumbId);
     const previousThumbIds = previousThumbs.map(t => t.thumbId);
     onHideBeforeAfterClick(file.id, currentSheetId, previousThumbIds);
     this.resetDim();
@@ -270,22 +282,20 @@ class ThumbGrid extends Component {
 
   onBack(e) {
     // console.log('onBack');
-    const { file, onBackClick, thumbs } = this.props;
-    const { controllersVisible } = this.state;
+    const { file, onBackClick } = this.props;
+    const { currentThumb } = this.state;
 
     e.stopPropagation();
-    const thumb = thumbs.find(item => item.thumbId === controllersVisible);
-    onBackClick(file, thumb.thumbId, thumb.frameNumber);
+    onBackClick(file, currentThumb.thumbId, currentThumb.frameNumber);
   }
 
   onForward(e) {
     // console.log('onForward');
-    const { file, onForwardClick, thumbs } = this.props;
-    const { controllersVisible } = this.state;
+    const { file, onForwardClick } = this.props;
+    const { currentThumb } = this.state;
 
     e.stopPropagation();
-    const thumb = thumbs.find(item => item.thumbId === controllersVisible);
-    onForwardClick(file, thumb.thumbId, thumb.frameNumber);
+    onForwardClick(file, currentThumb.thumbId, currentThumb.frameNumber);
   }
 
   onHoverExpand(e) {
@@ -337,52 +347,47 @@ class ThumbGrid extends Component {
     // console.log('onScrub');
     // for the scrub window the user has to click and drag while keeping the mouse pressed
     // use triggerTime to keep scrub window open if users just click and release the mouse within 1000ms
-    const { file, onScrubClick, thumbs } = this.props;
-    const { controllersVisible } = this.state;
+    const { file, onScrubClick } = this.props;
+    const { currentThumb } = this.state;
 
     e.stopPropagation();
-    const thumb = thumbs.find(item => item.thumbId === controllersVisible);
-    onScrubClick(file, thumb, triggerTime);
+    onScrubClick(file, currentThumb, triggerTime);
   }
 
   onAddBefore(e) {
     // console.log('onAddBefore');
-    const { file, onAddThumbClick, thumbs } = this.props;
-    const { controllersVisible } = this.state;
+    const { file, onAddThumbClick } = this.props;
+    const { currentThumb } = this.state;
 
     e.stopPropagation();
-    const thumb = thumbs.find(item => item.thumbId === controllersVisible);
-    onAddThumbClick(file, thumb, 'before');
+    onAddThumbClick(file, currentThumb, 'before');
   }
 
   onAddAfter(e) {
     // console.log('onAddAfter');
-    const { file, onAddThumbClick, thumbs } = this.props;
-    const { controllersVisible } = this.state;
+    const { file, onAddThumbClick } = this.props;
+    const { currentThumb } = this.state;
 
     e.stopPropagation();
-    const thumb = thumbs.find(item => item.thumbId === controllersVisible);
-    onAddThumbClick(file, thumb, 'after');
+    onAddThumbClick(file, currentThumb, 'after');
   }
 
   onJumpToCutBefore(e) {
     // console.log('onJumpToCutBefore');
-    const { file, onJumpToCutThumbClick, thumbs } = this.props;
-    const { controllersVisible } = this.state;
+    const { file, onJumpToCutThumbClick } = this.props;
+    const { currentThumb } = this.state;
 
     e.stopPropagation();
-    const thumb = thumbs.find(item => item.thumbId === controllersVisible);
-    onJumpToCutThumbClick(file, thumb.thumbId, 'before');
+    onJumpToCutThumbClick(file, currentThumb.thumbId, 'before');
   }
 
   onJumpToCutAfter(e) {
     // console.log('onJumpToCutAfter');
-    const { file, onJumpToCutThumbClick, thumbs } = this.props;
-    const { controllersVisible } = this.state;
+    const { file, onJumpToCutThumbClick } = this.props;
+    const { currentThumb } = this.state;
 
     e.stopPropagation();
-    const thumb = thumbs.find(item => item.thumbId === controllersVisible);
-    onJumpToCutThumbClick(file, thumb.thumbId, 'after');
+    onJumpToCutThumbClick(file, currentThumb.thumbId, 'after');
   }
 
   onHoverAddThumbBefore(e) {
@@ -419,7 +424,13 @@ class ThumbGrid extends Component {
 
   render() {
     const {
-      currentSheetFilter,
+      ageFilterEnabled,
+      uniqueFilterEnabled,
+      faceCountFilterEnabled,
+      faceOccurrenceFilterEnabled,
+      sizeFilterEnabled,
+      genderFilterEnabled,
+      isExpanded,
       defaultShowDetailsInHeader,
       defaultShowHeader,
       defaultShowImages,
@@ -448,8 +459,19 @@ class ThumbGrid extends Component {
       useBase64,
       view,
     } = this.props;
-    const { addThumbAfterController, addThumbBeforeController, controllersVisible, hoverPos, thumbsToDim } = this.state;
-    const { unique: uniqueFilter, expanded: expandedFrameNumber } = currentSheetFilter;
+    const {
+      addThumbAfterController,
+      addThumbBeforeController,
+      controllersVisible,
+      currentThumb,
+      hoverPos,
+      thumbsToDim,
+    } = this.state;
+
+    let currentFaceArray;
+    if (currentThumb !== undefined) {
+      currentFaceArray = currentThumb.facesArray;
+    }
 
     const isPlayerView = view !== VIEW.STANDARDVIEW;
     const isIntervalType = sheetType === SHEET_TYPE.INTERVAL;
@@ -525,6 +547,7 @@ class ThumbGrid extends Component {
       }
     }
     const thumbWidth = scaleValueObject.newThumbWidth;
+    const thumbHeight = thumbWidth * scaleValueObject.aspectRatioInv;
 
     const hoverThumbIndex = thumbArray.findIndex(thumb => thumb.thumbId === controllersVisible);
     const isHidden = hoverThumbIndex !== -1 ? thumbArray[hoverThumbIndex].hidden : undefined;
@@ -573,12 +596,6 @@ class ThumbGrid extends Component {
     }
 
     const margin = `${view === VIEW.STANDARDVIEW ? thumbMarginGridView : Math.max(1, thumbMarginGridView)}px`;
-
-    let isExpanded = false;
-    // if it is an expanded facetype, then get the faceGroupNumber
-    if (expandedFrameNumber !== undefined) {
-      isExpanded = true;
-    }
 
     return (
       <div
@@ -654,8 +671,8 @@ class ThumbGrid extends Component {
                 useBase64 !== undefined && objectUrlObjects !== undefined ? objectUrlObjects[thumb.frameId] : undefined
               }
               transparentThumb={!defaultShowImages || thumb.transparentThumb || undefined}
-              aspectRatioInv={scaleValueObject.aspectRatioInv}
               thumbWidth={thumbWidth}
+              thumbHeight={thumbHeight}
               borderRadius={scaleValueObject.newBorderRadius}
               margin={margin}
               thumbInfoValue={getThumbInfoValue(defaultThumbInfo, thumb.frameNumber, fps)}
@@ -676,6 +693,7 @@ class ThumbGrid extends Component {
                 if (controllersVisible !== thumb.thumbId) {
                   this.setState({
                     controllersVisible: thumb.thumbId,
+                    currentThumb: thumb,
                     hoverPos: hoverPosition,
                   });
                 }
@@ -705,7 +723,12 @@ class ThumbGrid extends Component {
               frameinfoScale={defaultFrameinfoScale}
               frameinfoMargin={frameinfoMargin}
               thumbCSSTranslate={thumbCSSTranslate}
-              uniqueFilter={uniqueFilter}
+              ageFilterEnabled={ageFilterEnabled}
+              uniqueFilterEnabled={uniqueFilterEnabled}
+              faceCountFilterEnabled={faceCountFilterEnabled}
+              faceOccurrenceFilterEnabled={faceOccurrenceFilterEnabled}
+              sizeFilterEnabled={sizeFilterEnabled}
+              genderFilterEnabled={genderFilterEnabled}
               isExpanded={isExpanded}
             />
           ))}
@@ -727,6 +750,21 @@ class ThumbGrid extends Component {
                   height: `${thumbWidth * scaleValueObject.aspectRatioInv}px`,
                 }}
               >
+                {currentThumb !== undefined && currentThumb.facesArray !== undefined && (
+                  <AllFaces
+                    facesArray={currentFaceArray}
+                    thumbWidth={thumbWidth}
+                    thumbHeight={thumbHeight}
+                    ageFilterEnabled={ageFilterEnabled}
+                    uniqueFilterEnabled={uniqueFilterEnabled}
+                    faceCountFilterEnabled={faceCountFilterEnabled}
+                    faceOccurrenceFilterEnabled={faceOccurrenceFilterEnabled}
+                    sizeFilterEnabled={sizeFilterEnabled}
+                    genderFilterEnabled={genderFilterEnabled}
+                    isExpanded={isExpanded}
+                    thumbHover={true}
+                  />
+                )}
                 <Popup
                   trigger={
                     <button

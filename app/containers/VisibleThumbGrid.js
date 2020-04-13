@@ -80,7 +80,13 @@ class SortedVisibleThumbGrid extends Component {
     const { isSorting } = this.state;
     const {
       currentSheetId,
-      currentSheetFilter,
+      ageFilterEnabled,
+      uniqueFilterEnabled,
+      faceCountFilterEnabled,
+      faceOccurrenceFilterEnabled,
+      sizeFilterEnabled,
+      genderFilterEnabled,
+      isExpanded,
       defaultShowDetailsInHeader,
       defaultShowHeader,
       defaultShowImages,
@@ -166,7 +172,13 @@ class SortedVisibleThumbGrid extends Component {
         isViewForPrinting={isViewForPrinting}
         isGridView={isGridView}
         isSorting={isSorting}
-        currentSheetFilter={currentSheetFilter}
+        ageFilterEnabled={ageFilterEnabled}
+        uniqueFilterEnabled={uniqueFilterEnabled}
+        faceCountFilterEnabled={faceCountFilterEnabled}
+        faceOccurrenceFilterEnabled={faceOccurrenceFilterEnabled}
+        sizeFilterEnabled={sizeFilterEnabled}
+        genderFilterEnabled={genderFilterEnabled}
+        isExpanded={isExpanded}
 
         useDragHandle
         axis="xy"
