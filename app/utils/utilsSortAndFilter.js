@@ -127,6 +127,8 @@ export const filterArray = (detectionArray, filters) => {
 
   // if there are no filters, return untouched
   if (!areOneOrMoreFiltersEnabled(filters)) {
+    // add detection information to thumbs
+    deleteFaceDescriptorFromFaceScanArray(detectionArray);
     return detectionArray;
   }
 
@@ -228,7 +230,7 @@ export const filterArray = (detectionArray, filters) => {
 export const unflattenArray = flattenedArray => {
   // construct a new unflattened Array
   const unflattenedArray = [];
-  console.log(unflattenedArray);
+  // console.log(unflattenedArray);
   flattenedArray.map(face => {
     const indexOfOtherFrame = unflattenedArray.findIndex(item => item.frameNumber === face.frameNumber);
     const newFaceObject = {
@@ -258,10 +260,10 @@ export const unflattenArray = flattenedArray => {
         hidden: face.faceIsHidden,
       });
     }
-    console.log(face.frameNumber);
+    // console.log(face.frameNumber);
     return undefined;
   });
-  console.log(unflattenedArray);
+  // console.log(unflattenedArray);
   return unflattenedArray;
 };
 

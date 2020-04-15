@@ -739,6 +739,13 @@ export const getThumbsCount = (sheetsByFileId, fileId, sheetId, settings, visibi
   return sheetsByFileId[fileId][sheetId].thumbsArray.length;
 };
 
+export const getThumbsCountOfArray = (thumbsArray, visibilityFilter) => {
+  if (visibilityFilter === THUMB_SELECTION.VISIBLE_THUMBS) {
+    return thumbsArray.filter(thumb => thumb.hidden === false).length;
+  }
+  return thumbsArray.length;
+};
+
 export const getShotNumber = (sceneId, sheetsByFileId, fileId, sheetId) => {
   if (
     fileId === undefined ||

@@ -74,6 +74,7 @@ import {
   getSheetView,
   getShotNumber,
   getThumbsCount,
+  getThumbsCountOfArray,
   getVisibleThumbs,
   isEquivalent,
   limitFrameNumberWithinMovieRange,
@@ -1850,8 +1851,9 @@ class App extends Component {
   }
 
   onFilterSheet(filters, fileId = undefined, sheetId = undefined, faceUniquenessThreshold = undefined) {
-    const { currentFileId, currentSheetId, dispatch, settings, sheetsByFileId } = this.props;
+    const { currentFileId, currentSheetId, dispatch, settings, sheetsByFileId, visibilitySettings } = this.props;
     const { defaultFaceUniquenessThreshold } = settings;
+    const { visibilityFilter } = visibilitySettings;
 
     const theFileId = fileId || currentFileId;
     const theSheetId = sheetId || currentSheetId;
@@ -1873,12 +1875,7 @@ class App extends Component {
 
       // get sortOrderArray
       const sortOrderArray = filterArray(baseArray, filters);
-      console.log(sortOrderArray);
-
-      // next step is to use full sortOrderArray to sort thumbs, update order
-      // disregard hiding as it is already done
-      // disregard deleteFaceDescriptorFromFaceScanArray as it is already done
-      // chnage thumb array
+      // console.log(sortOrderArray);
 
       // sort thumbs array
       const sortedThumbsArray = sortThumbsArray(thumbsArray, sortOrderArray);
@@ -1886,18 +1883,12 @@ class App extends Component {
       // update the thumb order
       dispatch(updateOrder(theFileId, theSheetId, sortedThumbsArray));
 
-      // // hide other thumbs as filtering could happen
-      // const frameNumberArray = sortOrderArray.map(item => item.frameNumber);
-      // dispatch(showThumbsByFrameNumberArray(theFileId, theSheetId, frameNumberArray));
-
-      // // add detection information to thumbs
-      // deleteFaceDescriptorFromFaceScanArray(baseArray);
-      // console.log(baseArray)
-      // console.log(thumbsArray)
+      // add updated faceArray info to thumbs
       dispatch(changeThumbArray(theFileId, theSheetId, sortOrderArray));
 
       // change column count for optimisation
-      // this.optimiseGridLayout(currentFileId, currentSheetId, frameNumberArray.length);
+      const visibleThumbsCount = getThumbsCountOfArray(sortOrderArray, visibilityFilter);
+      this.optimiseGridLayout(currentFileId, currentSheetId, visibleThumbsCount);
     }
   }
 
