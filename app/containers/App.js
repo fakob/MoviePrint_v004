@@ -1871,17 +1871,14 @@ class App extends Component {
       insertOccurrence(baseArray);
       // console.log(baseArray);
 
-      // flatten thumbsArray
-
-      // filter flattened thumbsArray
-
-      // sort flattened thumbsArray
-
-      // create new movieprint
-
       // get sortOrderArray
       const sortOrderArray = filterArray(baseArray, filters);
-      // console.log(sortOrderArray);
+      console.log(sortOrderArray);
+
+      // next step is to use full sortOrderArray to sort thumbs, update order
+      // disregard hiding as it is already done
+      // disregard deleteFaceDescriptorFromFaceScanArray as it is already done
+      // chnage thumb array
 
       // sort thumbs array
       const sortedThumbsArray = sortThumbsArray(thumbsArray, sortOrderArray);
@@ -1889,18 +1886,18 @@ class App extends Component {
       // update the thumb order
       dispatch(updateOrder(theFileId, theSheetId, sortedThumbsArray));
 
-      // hide other thumbs as filtering could happen
-      const frameNumberArray = sortOrderArray.map(item => item.frameNumber);
-      dispatch(showThumbsByFrameNumberArray(theFileId, theSheetId, frameNumberArray));
+      // // hide other thumbs as filtering could happen
+      // const frameNumberArray = sortOrderArray.map(item => item.frameNumber);
+      // dispatch(showThumbsByFrameNumberArray(theFileId, theSheetId, frameNumberArray));
 
-      // change column count for optimisation
-      this.optimiseGridLayout(currentFileId, currentSheetId, frameNumberArray.length);
-
-      // add detection information to thumbs
-      deleteFaceDescriptorFromFaceScanArray(baseArray);
+      // // add detection information to thumbs
+      // deleteFaceDescriptorFromFaceScanArray(baseArray);
       // console.log(baseArray)
       // console.log(thumbsArray)
-      dispatch(changeThumbArray(theFileId, theSheetId, baseArray));
+      dispatch(changeThumbArray(theFileId, theSheetId, sortOrderArray));
+
+      // change column count for optimisation
+      // this.optimiseGridLayout(currentFileId, currentSheetId, frameNumberArray.length);
     }
   }
 

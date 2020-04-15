@@ -18,6 +18,7 @@ import {
   THUMB_SELECTION,
   VIEW,
 } from '../utils/constants';
+import { areOneOrMoreFiltersEnabled } from '../utils/utils';
 import styles from './FloatingMenu.css';
 import stylesPop from './Popup.css';
 import iconCutView from '../img/icon-cut-view.svg';
@@ -109,15 +110,7 @@ const FloatingMenu = ({
   const isFaceType = sheetType === SHEET_TYPE.FACES;
   const isShotType = sheetType === SHEET_TYPE.SCENES;
 
-  const checkIfSheetHasFilters = () => {
-    for (const key of Object.keys(currentSheetFilter)) {
-      if (currentSheetFilter[key].enabled) {
-        return true;
-      }
-    }
-    return false;
-  };
-  const sheetHasFilters = checkIfSheetHasFilters();
+  const sheetHasFilters = areOneOrMoreFiltersEnabled(currentSheetFilter);
 
   const {
     [FILTER_METHOD.AGE]: ageFilter = {

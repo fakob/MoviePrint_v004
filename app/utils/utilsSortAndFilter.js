@@ -1,7 +1,7 @@
 import log from 'electron-log';
 import * as faceapi from 'face-api.js';
 
-import { limitRange, roundNumber, mapRange } from './utils';
+import { areOneOrMoreFiltersEnabled, limitRange, roundNumber, mapRange } from './utils';
 import {
   FILTER_METHOD,
   SORT_METHOD,
@@ -123,9 +123,12 @@ export const sortArray = (
 
 // filter detectionArray by ...
 export const filterArray = (detectionArray, filters) => {
-  let filteredAndSortedArray = [];
-
   // console.log(filters);
+
+  // if there are no filters, return untouched
+  if (!areOneOrMoreFiltersEnabled(filters)) {
+    return detectionArray;
+  }
 
   const detectionArrayFiltered = detectionArray.filter(item => item.faceCount !== 0); // filter out frames with no faces
   const flattenedArray = getFlattenedArrayWithOccurrences(detectionArrayFiltered);
@@ -133,7 +136,11 @@ export const filterArray = (detectionArray, filters) => {
   // filteredAndSortedArray = flattenedArray.filter(item => item.distToOrigin === 0);
 
   /* eslint no-restricted-syntax: ["error", "FunctionExpression", "WithStatement", "BinaryExpression[operator='in']"] */
-  filteredAndSortedArray = flattenedArray.filter(item => {
+  // mutating array!!!
+  flattenedArray.forEach(item => {
+    // start by unhiding all faces
+    item.faceIsHidden = false;
+
     for (const key of Object.keys(filters)) {
       // console.log(key)
       // console.log(filters[key])
@@ -141,36 +148,64 @@ export const filterArray = (detectionArray, filters) => {
       // only filter if enabled
       if (filters[key].enabled) {
         // set new max value if upper equals max to not exclude top values on age, size ...
-        let newMaxValue
+        let newMaxValue;
+        let rangeFilter = false;
+        let valueFilter = false;
         switch (key) {
+          // rangeFilters
           case FILTER_METHOD.AGE:
             newMaxValue = filters[key].upper === FILTER_METHOD_AGE.MAX ? FILTER_METHOD_AGE.MAXMAX : filters[key].upper;
-          case FILTER_METHOD.FACECOUNT:
-            newMaxValue = filters[key].upper === FILTER_METHOD_FACECOUNT.MAX ? FILTER_METHOD_FACECOUNT.MAXMAX : filters[key].upper;
-          case FILTER_METHOD.FACEOCCURRENCE:
-            newMaxValue = filters[key].upper === FILTER_METHOD_FACEOCCURRENCE.MAX ? FILTER_METHOD_FACEOCCURRENCE.MAXMAX : filters[key].upper;
-          case FILTER_METHOD.FACESIZE:
-            newMaxValue = filters[key].upper === FILTER_METHOD_FACESIZE.MAX ? FILTER_METHOD_FACESIZE.MAXMAX : filters[key].upper;
-            if (item[key] === undefined || !(filters[key].lower <= item[key] && item[key] <= newMaxValue)) return false;
+            rangeFilter = true;
             break;
+          case FILTER_METHOD.FACECOUNT:
+            newMaxValue =
+              filters[key].upper === FILTER_METHOD_FACECOUNT.MAX ? FILTER_METHOD_FACECOUNT.MAXMAX : filters[key].upper;
+            rangeFilter = true;
+            break;
+          case FILTER_METHOD.FACEOCCURRENCE:
+            newMaxValue =
+              filters[key].upper === FILTER_METHOD_FACEOCCURRENCE.MAX
+                ? FILTER_METHOD_FACEOCCURRENCE.MAXMAX
+                : filters[key].upper;
+            rangeFilter = true;
+            break;
+          case FILTER_METHOD.FACESIZE:
+            newMaxValue =
+              filters[key].upper === FILTER_METHOD_FACESIZE.MAX ? FILTER_METHOD_FACESIZE.MAXMAX : filters[key].upper;
+            rangeFilter = true;
+            break;
+
+          // valueFilters
           case FILTER_METHOD.GENDER:
+            valueFilter = true;
+            break;
           case FILTER_METHOD.DISTTOORIGIN:
-            if (item[key] === undefined || item[key] !== filters[key].value) return false;
+            valueFilter = true;
             break;
           default:
         }
+
+        // if rangeFilter hide face if it is not within range
+        if (
+          rangeFilter &&
+          (item[key] === undefined || !(filters[key].lower <= item[key] && item[key] <= newMaxValue))
+        ) {
+          item.faceIsHidden = true;
+          break; // break out of for loop and go to next item
+        }
+
+        // if valueFilter hide face if it is not a specific value
+        if (valueFilter && (item[key] === undefined || item[key] !== filters[key].value)) {
+          item.faceIsHidden = true;
+          break; // break out of for loop and go to next item
+        }
       }
     }
-    return true;
+    return undefined;
   });
 
-  // only keep first faceOccurrence of faceGroupNumber
-  // filteredAndSortedArray = flattenedArray.filter(
-  //   (item, index, self) => index === self.findIndex(t => t.faceGroupNumber === item.faceGroupNumber),
-  // );
-
   // sort by count, size and then score
-  filteredAndSortedArray.sort((a, b) => {
+  flattenedArray.sort((a, b) => {
     // Sort by faceOccurrence
     if (a.faceOccurrence < b.faceOccurrence) return 1;
     if (a.faceOccurrence > b.faceOccurrence) return -1;
@@ -185,8 +220,49 @@ export const filterArray = (detectionArray, filters) => {
     return -1;
   });
 
+  const unflattenedArray = unflattenArray(flattenedArray);
   // console.log(filteredAndSortedArray);
-  return filteredAndSortedArray;
+  return unflattenedArray;
+};
+
+export const unflattenArray = flattenedArray => {
+  // construct a new unflattened Array
+  const unflattenedArray = [];
+  console.log(unflattenedArray);
+  flattenedArray.map(face => {
+    const indexOfOtherFrame = unflattenedArray.findIndex(item => item.frameNumber === face.frameNumber);
+    const newFaceObject = {
+      faceIsHidden: face.faceIsHidden,
+      score: face.score,
+      size: face.size,
+      box: face.box,
+      gender: face.gender,
+      age: face.age,
+      faceId: face.faceId,
+      faceGroupNumber: face.faceGroupNumber,
+      faceOccurrence: face.faceOccurrence,
+      distToOrigin: face.distToOrigin,
+    };
+    if (indexOfOtherFrame > -1) {
+      // if it already exists push new face and in case faceIsHidden is false update hidden property to show thumb
+      unflattenedArray[indexOfOtherFrame].facesArray.push(newFaceObject);
+      if (!face.faceIsHidden) {
+        unflattenedArray[indexOfOtherFrame].hidden = false;
+      }
+    } else {
+      unflattenedArray.push({
+        frameNumber: face.frameNumber,
+        faceCount: face.faceCount,
+        largestSize: face.largestSize,
+        facesArray: [newFaceObject],
+        hidden: face.faceIsHidden,
+      });
+    }
+    console.log(face.frameNumber);
+    return undefined;
+  });
+  console.log(unflattenedArray);
+  return unflattenedArray;
 };
 
 export const getFlattenedArrayWithOccurrences = detectionArray => {

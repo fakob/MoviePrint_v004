@@ -1332,3 +1332,12 @@ export const getSizeOfString = stringToMeasure => {
   const sizeInByte = Buffer.byteLength(stringToMeasure, 'utf8');
   return formatBytes(sizeInByte);
 };
+
+export const areOneOrMoreFiltersEnabled = filters => {
+  for (const key of Object.keys(filters)) {
+    if (filters[key].enabled) {
+      return true;
+    }
+  }
+  return false;
+};
