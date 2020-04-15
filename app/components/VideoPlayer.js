@@ -294,8 +294,8 @@ class VideoPlayer extends Component {
               Math.min(matResized.cols, sliceWidth),
               Math.min(matResized.rows, Math.abs(videoHeight)),
             );
-            log.debug(cropRectForSlice);
-            log.debug(`${fileWidth}, ${fileHeight}, ${rescaleFactor}, ${fileWidth * rescaleFactor}, ${fileHeight * rescaleFactor}, ${i}: ${canvasXPos}, ${sliceXPos}, ${cropRectForSlice.width}`)
+            // log.debug(cropRectForSlice);
+            // log.debug(`${fileWidth}, ${fileHeight}, ${rescaleFactor}, ${fileWidth * rescaleFactor}, ${fileHeight * rescaleFactor}, ${i}: ${canvasXPos}, ${sliceXPos}, ${cropRectForSlice.width}`)
 
             const matCropped = matResized.getRegion(cropRectForSlice);
 

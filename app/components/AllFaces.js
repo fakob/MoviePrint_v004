@@ -25,7 +25,7 @@ const AllFaces = ({
     const showFaceRect =
       (isExpanded && face.distToOrigin !== undefined) ||
       (!isExpanded && (!uniqueFilterEnabled || face.distToOrigin === 0));
-    if (showFaceRect) {
+    if (showFaceRect && !face.faceIsHidden) {
       return (
         <FaceRect
           key={face.faceId}
@@ -120,29 +120,25 @@ const FaceRect = React.memo(
             />
           </svg>
         </div>
-        {thumbHover &&
-          (ageFilterEnabled ||
-            uniqueFilterEnabled ||
-            faceCountFilterEnabled ||
-            faceOccurrenceFilterEnabled ||
-            sizeFilterEnabled ||
-            genderFilterEnabled) && (
+        {thumbHover && (
+          <div
+            className={styles.faceRectTag}
+            style={{
+              left: `${box.x * thumbWidth + box.width * thumbWidth}px`,
+              top: `${box.y * thumbHeight}px`,
+            }}
+          >
             <div
-              className={styles.faceRectTag}
-              style={{
-                left: `${box.x * thumbWidth + box.width * thumbWidth}px`,
-                top: `${box.y * thumbHeight}px`,
-              }}
-            >
-              {ageFilterEnabled && <div>{`age: ${faceExceptForBox.age}`}</div>}
-              {(uniqueFilterEnabled || faceOccurrenceFilterEnabled) && (
-                <div>{`found: ${faceExceptForBox.faceOccurrence}x`}</div>
-              )}
-              {sizeFilterEnabled && <div>{`size: ${faceExceptForBox.size}`}</div>}
-              {genderFilterEnabled && <div>{`${faceExceptForBox.gender === 'female' ? '\u2640' : '\u2642'}`}</div>}
-              <br />
-            </div>
-          )}
+              className={`${uniqueFilterEnabled || faceOccurrenceFilterEnabled ? styles.opacity100 : ''}`}
+            >{`found: ${faceExceptForBox.faceOccurrence}x`}</div>
+            <div className={`${sizeFilterEnabled ? styles.opacity100 : ''}`}>{`size: ${faceExceptForBox.size}`}</div>
+            <div className={`${ageFilterEnabled ? styles.opacity100 : ''}`}>{`age: ${faceExceptForBox.age}`}</div>
+            <div className={`${genderFilterEnabled ? styles.opacity100 : ''}`}>{`${
+              faceExceptForBox.gender === 'female' ? '\u2640' : '\u2642'
+            }`}</div>
+            <br />
+          </div>
+        )}
       </>
     );
   },

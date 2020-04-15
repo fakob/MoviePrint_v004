@@ -123,17 +123,15 @@
 .faceHover {
   position: absolute;
   background-color: rgba(255, 80, 6, 0.3);
-  /* background-color: rgba(255, 255, 255, 0.1); */
-  /* background-color: rgba(153, 253, 114, 0.1); */
-  /* border:1px solid rgba(255,80,6,0.2); */
-  /* background-color: rgba(255, 255, 255, 0.1); */
-  /* mix-blend-mode: luminosity; */
-  /* border-radius: 5%; */
-  /* visibility: hidden; */
+  /* z-index: 2000; */
 }
 
 .faceRectSVG {
   position: absolute;
+}
+
+.opacity100 {
+  color: rgba(255,255,255,1.0);
 }
 
 .faceRectTag {
@@ -142,7 +140,7 @@
   margin-top: 0px;
   font-size: 9px;
   line-height: 11px;
-  color: #FFFFFF;
+  color: rgba(255,255,255,0.7);
   /* visibility: hidden; */
   /* mix-blend-mode: difference; */
   /* filter: invert(1) grayscale(1) contrast(9); */

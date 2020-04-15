@@ -6,14 +6,7 @@ import * as tf from '@tensorflow/tfjs-node';
 import { VideoCaptureProperties } from './utils/openCVProperties';
 import { limitRange, setPosition, fourccToString } from './utils/utils';
 import { detectAllFaces } from './utils/faceDetection';
-import {
-  getCropRect,
-  HSVtoRGB,
-  detectCut,
-  recaptureThumbs,
-  rescaleMat,
-  transformMat,
-} from './utils/utilsForOpencv';
+import { getCropRect, HSVtoRGB, detectCut, recaptureThumbs, rescaleMat, transformMat } from './utils/utilsForOpencv';
 import { IN_OUT_POINT_SEARCH_LENGTH, IN_OUT_POINT_SEARCH_THRESHOLD } from './utils/constants';
 import { insertFrameScanArray, insertFaceScanArray } from './utils/utilsForSqlite';
 import Queue from './utils/queue';
