@@ -22,10 +22,7 @@ const AllFaces = ({
   thumbHover = false,
 }) =>
   facesArray.map(face => {
-    const showFaceRect =
-      (isExpanded && face.distToOrigin !== undefined) ||
-      (!isExpanded && (!uniqueFilterEnabled || face.distToOrigin === 0));
-    if (showFaceRect && !face.faceIsHidden) {
+    if (!face.faceIsHidden) {
       return (
         <FaceRect
           key={face.faceId}
@@ -35,6 +32,7 @@ const AllFaces = ({
           faceOccurrenceFilterEnabled={faceOccurrenceFilterEnabled}
           sizeFilterEnabled={sizeFilterEnabled}
           genderFilterEnabled={genderFilterEnabled}
+          isExpanded={isExpanded}
           face={face}
           thumbWidth={thumbWidth}
           thumbHeight={thumbHeight}
@@ -56,6 +54,7 @@ const FaceRect = React.memo(
     faceOccurrenceFilterEnabled,
     sizeFilterEnabled,
     genderFilterEnabled,
+    isExpanded,
     thumbHover,
   }) => {
     const left = box.x * thumbWidth;
@@ -128,10 +127,10 @@ const FaceRect = React.memo(
               top: `${box.y * thumbHeight}px`,
             }}
           >
-            <div
+            {!isExpanded && <div
               className={`${uniqueFilterEnabled || faceOccurrenceFilterEnabled ? styles.opacity100 : ''}`}
-            >{`found: ${faceExceptForBox.faceOccurrence}x`}</div>
-            <div className={`${sizeFilterEnabled ? styles.opacity100 : ''}`}>{`size: ${faceExceptForBox.size}`}</div>
+            >{`found: ${faceExceptForBox.faceOccurrence}x`}</div>}
+            <div className={`${sizeFilterEnabled ? styles.opacity100 : ''}`}>{`size: ${faceExceptForBox.size}%`}</div>
             <div className={`${ageFilterEnabled ? styles.opacity100 : ''}`}>{`age: ${faceExceptForBox.age}`}</div>
             <div className={`${genderFilterEnabled ? styles.opacity100 : ''}`}>{`${
               faceExceptForBox.gender === 'female' ? '\u2640' : '\u2642'

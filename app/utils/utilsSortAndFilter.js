@@ -153,6 +153,7 @@ export const filterArray = (detectionArray, filters) => {
         let newMaxValue;
         let rangeFilter = false;
         let valueFilter = false;
+        let arrayFilter = false;
         switch (key) {
           // rangeFilters
           case FILTER_METHOD.AGE:
@@ -184,6 +185,11 @@ export const filterArray = (detectionArray, filters) => {
           case FILTER_METHOD.DISTTOORIGIN:
             valueFilter = true;
             break;
+
+          // arrayFilter
+          case FILTER_METHOD.FACEID:
+            arrayFilter = true;
+            break;
           default:
         }
 
@@ -198,6 +204,15 @@ export const filterArray = (detectionArray, filters) => {
 
         // if valueFilter hide face if it is not a specific value
         if (valueFilter && (item[key] === undefined || item[key] !== filters[key].value)) {
+          item.faceIsHidden = true;
+          break; // break out of for loop and go to next item
+        }
+
+        // if arrayFilter hide face if it is not a specific value
+        if (
+          arrayFilter &&
+          (item[key] === undefined || !filters[key].faceIdArray.some(faceId => faceId === item[key]))
+        ) {
           item.faceIsHidden = true;
           break; // break out of for loop and go to next item
         }
@@ -511,3 +526,10 @@ export const deleteFaceDescriptorFromFaceScanArray = faceScanArray => {
 //
 //   return frameNumberArray;
 // };
+
+export const getFaceIdArrayFromThumbs = thumbArray => {
+  const flattenedArray = getFlattenedArray(thumbArray);
+  // get faceId of all faces with distToOrigin parameter (used for expanded face prints)
+  const faceIdArray = flattenedArray.filter(face => face.distToOrigin !== undefined).map(face => face.faceId);
+  return faceIdArray;
+};

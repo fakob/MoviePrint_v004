@@ -778,7 +778,7 @@ class ThumbGrid extends Component {
                       onFocus={over}
                       onBlur={out}
                     >
-                      {isFaceType ? 'FIND' : 'EXPAND'}
+                      {isFaceType ? (isExpanded ? '' : 'FIND') : 'EXPAND'}
                     </button>
                   }
                   mouseEnterDelay={1000}

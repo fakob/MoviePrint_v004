@@ -141,7 +141,9 @@ const FloatingMenu = ({
       enabled: false,
       value: 'female',
     },
-    expanded: expandedFrameNumber,
+    [FILTER_METHOD.FACEID]: faceIdFilter = {
+      enabled: false,
+    },
   } = currentSheetFilter;
 
   const onFilterChange = (filterMethod, valueObject) => {
@@ -370,7 +372,7 @@ const FloatingMenu = ({
               className={styles.dropDownButton}
               floating
               closeOnBlur={false}
-              closeOnChange={false}
+              closeOnChange={true}
               disabled={fileMissingStatus || isShotType}
               icon={<img src={sheetHasFilters ? iconFilterEnabled : iconFilter} height="18px" alt="" />}
             >
@@ -582,7 +584,7 @@ const FloatingMenu = ({
                 </Dropdown.Item>
                 <Divider />
                 <Dropdown.Item
-                  disabled={!isFaceType}
+                  disabled={!isFaceType || faceIdFilter.enabled}
                   className={`${styles.dropDownItem} ${
                     uniqueFilter.enabled ? styles.dropDownItemCheckboxAndSlider : ''
                   }`}
@@ -602,7 +604,7 @@ const FloatingMenu = ({
                   <SliderWithTooltip
                     data-tid="faceUniquenessThresholdSlider"
                     className={`${styles.slider} ${!uniqueFilter.enabled ? styles.dropDownItemHidden : ''}`}
-                    disabled={!isFaceType || !uniqueFilter.enabled || expandedFrameNumber !== undefined}
+                    disabled={!isFaceType || !uniqueFilter.enabled || faceIdFilter.enabled}
                     min={40}
                     max={80}
                     defaultValue={defaultFaceUniquenessThreshold * 100}
@@ -620,6 +622,19 @@ const FloatingMenu = ({
                     }}
                   />
                 </Dropdown.Item>
+                {faceIdFilter.enabled && (
+                  <Dropdown.Item
+                    disabled={!isFaceType || faceIdFilter.enabled}
+                    className={styles.dropDownItem}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    <Checkbox
+                      data-tid="enablefaceIdFilterCheckbox"
+                      label="Same face"
+                      checked={faceIdFilter.enabled}
+                    />
+                  </Dropdown.Item>
+                )}
               </Dropdown.Menu>
             </Dropdown>
           }

@@ -86,6 +86,7 @@ import {
   deleteFaceDescriptorFromFaceScanArray,
   determineAndInsertFaceGroupNumber,
   filterArray,
+  getFaceIdArrayFromThumbs,
   getIntervalArray,
   insertOccurrence,
   sortArray,
@@ -843,12 +844,13 @@ class App extends Component {
         const { sheetsToUpdate } = this.state;
         console.log(foundFrames);
 
-        const file = getFile(files, fileId);
+        const theFile = getFile(files, fileId);
 
         const frameNumberArray = foundFrames.map(frame => frame.frameNumber);
+        const faceIdArray = getFaceIdArrayFromThumbs(foundFrames);
 
         // get thumbs
-        dispatch(addNewThumbsWithOrder(file, sheetId, frameNumberArray, settings.defaultCachedFramesSize));
+        dispatch(addNewThumbsWithOrder(theFile, sheetId, frameNumberArray, settings.defaultCachedFramesSize));
         sheetsToUpdate.push({
           fileId,
           sheetId,
@@ -867,7 +869,18 @@ class App extends Component {
         dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.FACES));
 
         // set filter
-        this.onUpdateSheetFilter({ expanded: frameNumber }, fileId, sheetId);
+        this.onUpdateSheetFilter(
+          {
+            [FILTER_METHOD.FACEID]: {
+              enabled: true,
+              faceIdOfOrigin,
+              frameNumberOfOrigin: frameNumber,
+              faceIdArray,
+            },
+          },
+          fileId,
+          sheetId,
+        );
 
         // update columnCount
         this.optimiseGridLayout(fileId, sheetId, frameNumberArray.length);
@@ -1867,11 +1880,20 @@ class App extends Component {
 
       let baseArray = thumbsArray;
       let thumbsFrameNumbers;
-      // for unique method get all face scan data
+
+      // for an expanded face sheet only get face scan data of these thumbs
+      if (filters[FILTER_METHOD.FACEID] !== undefined) {
+        thumbsFrameNumbers = thumbsArray.map(thumb => thumb.frameNumber);
+      }
+      // for all others get all face scan data
       baseArray = getFaceScanByFileId(theFileId, thumbsFrameNumbers);
-      determineAndInsertFaceGroupNumber(baseArray, theFaceUniquenessThreshold);
-      insertOccurrence(baseArray);
-      // console.log(baseArray);
+
+      // faceGroupNumber and occurrence is not necessary for expanded face sheet
+      if (filters[FILTER_METHOD.FACEID] === undefined) {
+        determineAndInsertFaceGroupNumber(baseArray, theFaceUniquenessThreshold);
+        insertOccurrence(baseArray);
+        // console.log(baseArray);
+      }
 
       // get sortOrderArray
       const sortOrderArray = filterArray(baseArray, filters);
@@ -3808,7 +3830,9 @@ ${exportObject}`;
       [FILTER_METHOD.GENDER]: genderFilter = {
         enabled: false,
       },
-      expanded: expandedFrameNumber,
+      [FILTER_METHOD.FACEID]: faceIdFilter = {
+        enabled: false,
+      },
     } = currentSheetFilter;
 
     const { defaultSheetView } = visibilitySettings;
@@ -4294,7 +4318,7 @@ ${exportObject}`;
                             faceOccurrenceFilterEnabled={faceOccurrenceFilter.enabled}
                             sizeFilterEnabled={sizeFilter.enabled}
                             genderFilterEnabled={genderFilter.enabled}
-                            isExpanded={expandedFrameNumber !== undefined}
+                            isExpanded={faceIdFilter.enabled}
                           />
                         </Conditional>
                         <Conditional

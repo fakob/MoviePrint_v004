@@ -321,6 +321,7 @@ export const FILTER_METHOD = {
   DISTTOORIGIN: 'distToOrigin', // equals/range
   FACECONFIDENCE: 'score', // range
   FACECOUNT: 'faceCount', // range
+  FACEID: 'faceId', // equals array
   FACEOCCURRENCE: 'faceOccurrence', // range
   FACESIZE: 'size', // range
   GENDER: 'gender', // equals
