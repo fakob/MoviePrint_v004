@@ -35,6 +35,7 @@ import SortedVisibleThumbGrid from './VisibleThumbGrid';
 import SortedVisibleSceneGrid from './VisibleSceneGrid';
 import Conditional from '../components/Conditional';
 import HeaderComponent from '../components/HeaderComponent';
+import EditTransformModal from '../components/EditTransformModal';
 import FloatingMenu from '../components/FloatingMenu';
 import Footer from '../components/Footer';
 import VideoPlayer from '../components/VideoPlayer';
@@ -423,7 +424,6 @@ class App extends Component {
     this.onReplaceMovieListItemClick = this.onReplaceMovieListItemClick.bind(this);
     this.onEditTransformListItemClick = this.onEditTransformListItemClick.bind(this);
     this.onChangeTransform = this.onChangeTransform.bind(this);
-    this.handleTransformChange = this.handleTransformChange.bind(this);
     this.onRemoveMovieListItem = this.onRemoveMovieListItem.bind(this);
     this.onDeleteSheetClick = this.onDeleteSheetClick.bind(this);
     this.onChangeDefaultMoviePrintName = this.onChangeDefaultMoviePrintName.bind(this);
@@ -3237,67 +3237,43 @@ class App extends Component {
   };
 
   onEditTransformListItemClick = fileId => {
-    const { files } = this.props;
-    const file = getFile(files, fileId);
-
-    const { transformObject = TRANSFORMOBJECT_INIT } = file; // initialise if undefined
     this.setState({
       showTransformModal: true,
-      transformObject: { fileId, ...transformObject }, // adding fileId
+      fileIdToTransform: fileId,
     });
   };
 
-  handleTransformChange = (e, { name, value }) => {
-    const { transformObject } = this.state;
-    console.log(name);
-    console.log(value);
-    if (value === 4) {
-      this.setState({
-        transformObject: {
-          ...transformObject,
-          [name]: null,
-        },
-      });
-    } else {
-      this.setState({
-        transformObject: {
-          ...transformObject,
-          [name]: parseInt(value, 10),
-        },
-      });
-    }
-  };
-
-  onChangeTransform = () => {
+  onChangeTransform = (fileId, transformObjectState) => {
     const { dispatch, files } = this.props;
-    const { transformObject } = this.state;
-    const { cropTop, cropBottom, cropLeft, cropRight, rotationFlag } = transformObject;
-    console.log(transformObject);
+    const { fileIdToTransform } = this.state;
+    const { cropTop, cropBottom, cropLeft, cropRight, rotationFlag } = transformObjectState;
+    console.log(transformObjectState);
 
-    const transformObjectBefore = getFileTransformObject(files, transformObject.fileId);
+    const transformObjectBefore = getFileTransformObject(files, fileId);
     console.log(transformObjectBefore);
 
     const wasThereAChange =
-      transformObjectBefore.rotationFlag !== transformObject.rotationFlag ||
-      transformObjectBefore.cropTop !== transformObject.cropTop ||
-      transformObjectBefore.cropBottom !== transformObject.cropBottom ||
-      transformObjectBefore.cropLeft !== transformObject.cropLeft ||
-      transformObjectBefore.cropRight !== transformObject.cropRight;
+      transformObjectBefore.rotationFlag !== rotationFlag ||
+      transformObjectBefore.cropTop !== cropTop ||
+      transformObjectBefore.cropBottom !== cropBottom ||
+      transformObjectBefore.cropLeft !== cropLeft ||
+      transformObjectBefore.cropRight !== cropRight;
 
     console.log(wasThereAChange);
 
     if (wasThereAChange) {
       // always update rotation before cropping as this is the same order it is applied when capturing a thumb
       if (rotationFlag === RotateFlags.ROTATE_90_CLOCKWISE || rotationFlag === RotateFlags.ROTATE_90_COUNTERCLOCKWISE) {
-        dispatch(rotateWidthAndHeight(transformObject.fileId, true));
+        dispatch(rotateWidthAndHeight(fileId, true));
       } else {
-        dispatch(rotateWidthAndHeight(transformObject.fileId, false));
+        dispatch(rotateWidthAndHeight(fileId, false));
       }
-      dispatch(updateCropping(transformObject.fileId, rotationFlag, cropTop, cropBottom, cropLeft, cropRight));
+      dispatch(updateCropping(fileId, rotationFlag, cropTop, cropBottom, cropLeft, cropRight));
     }
     this.setState({
       showTransformModal: false,
-      ...(wasThereAChange && { fileIdToBeRecaptured: transformObject.fileId }),
+      fileIdToTransform: undefined,
+      ...(wasThereAChange && { fileIdToBeRecaptured: fileIdToTransform }),
     });
   };
 
@@ -4558,115 +4534,13 @@ ${exportObject}`;
                   />
                 </div>
               )}
-              <div
-                onKeyDown={e => e.stopPropagation()}
-                onClick={e => e.stopPropagation()}
-                onFocus={e => e.stopPropagation()}
-                onMouseOver={e => e.stopPropagation()}
-              >
-                <Modal
-                  open={this.state.showTransformModal}
-                  onClose={() => this.setState({ showTransformModal: false })}
-                  size="small"
-                  closeIcon
-                  as={Form}
-                  onSubmit={this.onChangeTransform}
-                >
-                  <Modal.Header>Set rotation and cropping</Modal.Header>
-                  <Modal.Content image>
-                    <Modal.Description>
-                      <Form.Group>
-                        <Header as="h5">Rotation</Header>
-                      </Form.Group>
-                      <Form.Group>
-                        <Form.Select
-                          name="rotationFlag"
-                          // label="Rotation"
-                          options={ROTATION_OPTIONS}
-                          // placeholder="Select"
-                          onChange={this.handleTransformChange}
-                          defaultValue={this.state.transformObject.rotationFlag}
-                        />
-                      </Form.Group>
-                      <Divider hidden />
-                      <Form.Group>
-                        <Header as="h5">Cropping in pixel</Header>
-                      </Form.Group>
-                      <Grid centered columns={3}>
-                        <Grid.Row>
-                          <Grid.Column>
-                            <Form.Group>
-                              <Form.Input
-                                name="cropTop"
-                                label="From top"
-                                placeholder="top"
-                                required
-                                type="number"
-                                min="0"
-                                width={16}
-                                defaultValue={this.state.transformObject.cropTop}
-                                onChange={this.handleTransformChange}
-                              />
-                            </Form.Group>
-                          </Grid.Column>
-                        </Grid.Row>
-                        <Grid.Row centered columns={1}>
-                          <Grid.Column width={5}>
-                            <Form.Input
-                              name="cropLeft"
-                              label="From left"
-                              placeholder="left"
-                              required
-                              type="number"
-                              min="0"
-                              width={16}
-                              defaultValue={this.state.transformObject.cropLeft}
-                              onChange={this.handleTransformChange}
-                            />
-                          </Grid.Column>
-                          <Grid.Column width={6}></Grid.Column>
-                          <Grid.Column width={5}>
-                            <Form.Input
-                              name="cropRight"
-                              label="From right"
-                              placeholder="right"
-                              required
-                              type="number"
-                              min="0"
-                              width={16}
-                              defaultValue={this.state.transformObject.cropRight}
-                              onChange={this.handleTransformChange}
-                            />
-                          </Grid.Column>
-                        </Grid.Row>
-                        <Grid.Row centered columns={3}>
-                          <Grid.Column>
-                            <Form.Group>
-                              <Form.Input
-                                name="cropBottom"
-                                label="From bottom"
-                                placeholder="bottom"
-                                required
-                                type="number"
-                                min="0"
-                                width={16}
-                                defaultValue={this.state.transformObject.cropBottom}
-                                onChange={this.handleTransformChange}
-                              />
-                            </Form.Group>
-                          </Grid.Column>
-                        </Grid.Row>
-                      </Grid>
-                    </Modal.Description>
-                  </Modal.Content>
-                  <Modal.Actions>
-                    <span className={styles.smallInfo}>
-                      All thumbs of this movie will be updated. This can take a bit.
-                    </span>
-                    <Button type="submit" content="Update transform" />
-                  </Modal.Actions>
-                </Modal>
-              </div>
+              <EditTransformModal
+                showTransformModal={this.state.showTransformModal}
+                onClose={() => this.setState({ showTransformModal: false })}
+                transformObject={file.transformObject}
+                onChangeTransform={this.onChangeTransform}
+                fileId={this.state.fileIdToTransform}
+              />
               <Modal
                 open={this.state.savingAllMoviePrints}
                 basic
