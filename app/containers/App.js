@@ -3875,6 +3875,12 @@ ${exportObject}`;
       );
     }
 
+    // for EditTransformModal
+    let fileToTransform;
+    if (this.state.fileIdToTransform !== undefined) {
+      fileToTransform = files.find(file => file.id === this.state.fileIdToTransform);
+    }
+
     return (
       <Dropzone
         ref={this.dropzoneRef}
@@ -4534,13 +4540,24 @@ ${exportObject}`;
                   />
                 </div>
               )}
-              <EditTransformModal
-                showTransformModal={this.state.showTransformModal}
-                onClose={() => this.setState({ showTransformModal: false })}
-                transformObject={file.transformObject}
-                onChangeTransform={this.onChangeTransform}
-                fileId={this.state.fileIdToTransform}
-              />
+              {this.state.showTransformModal && (
+                <EditTransformModal
+                  showTransformModal={this.state.showTransformModal}
+                  onClose={() => this.setState({ showTransformModal: false })}
+                  onChangeTransform={this.onChangeTransform}
+                  fileId={this.state.fileIdToTransform}
+                  transformObject={fileToTransform !== undefined ? fileToTransform.transformObject : undefined}
+                  originalWidth={fileToTransform !== undefined ? fileToTransform.originalWidth : undefined}
+                  originalHeight={fileToTransform !== undefined ? fileToTransform.originalHeight : undefined}
+                  width={fileToTransform !== undefined ? fileToTransform.width : undefined}
+                  height={fileToTransform !== undefined ? fileToTransform.height : undefined}
+                  objectUrl={
+                    fileToTransform !== undefined
+                      ? filteredPosterFrameObjectUrlObjects[fileToTransform.posterFrameId]
+                      : undefined
+                  }
+                />
+              )}
               <Modal
                 open={this.state.savingAllMoviePrints}
                 basic

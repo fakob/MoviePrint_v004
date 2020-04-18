@@ -1,7 +1,7 @@
 import log from 'electron-log';
 import { VideoCaptureProperties, ImwriteFlags, RotateFlags } from './openCVProperties';
 import { getCropWidthAndHeight, setPosition } from './utils';
-import { DEFAULT_THUMB_JPG_QUALITY, DEFAULT_THUMB_FORMAT, OUTPUT_FORMAT, SHOT_DETECTION_METHOD } from './constants';
+import { DEFAULT_THUMB_JPG_QUALITY, DEFAULT_THUMB_FORMAT, OUTPUT_FORMAT, SHOT_DETECTION_METHOD, TRANSFORMOBJECT_INIT } from './constants';
 import // updateFrameBase64,
 './utilsForSqlite';
 
@@ -16,7 +16,7 @@ export const recaptureThumbs = (
   frameIdArray,
   frameNumberArray,
   onlyReplace,
-  transformObject,
+  transformObject = TRANSFORMOBJECT_INIT,
 ) => {
   try {
     const vid = new opencv.VideoCapture(filePath);

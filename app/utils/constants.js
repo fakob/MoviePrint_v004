@@ -359,3 +359,35 @@ export const FILTER_METHOD_FACESIZE = {
 
 // app settings
 export const UNDO_STEPS_LIMIT = 50; // undo redo
+
+// edit transform
+export const EDIT_TRANSFORM_CANVAS_WIDTH = 540;
+export const EDIT_TRANSFORM_CANVAS_HEIGHT = 540;
+
+export const ASPECT_RATIO_OPTIONS = [
+  { value: undefined, text: 'Default', 'data-tid': 'Default' },
+  { value: 0.5625, text: '16:9', 'data-tid': '16:9' },
+  { value: 0.75, text: '4:3', 'data-tid': '4:3' },
+  { value: 1.0, text: '1:1', 'data-tid': '1:1' },
+  { value: 0.625, text: '16:10', 'data-tid': '16:10' },
+  { value: 0.5405, text: '1.85:1', 'data-tid': '1.85:1' },
+  { value: 0.5525, text: '2.21:1', 'data-tid': '2.21:1' },
+  { value: 0.4255, text: '2.35:1', 'data-tid': '2.35:1' },
+  { value: 0.4184, text: '2.39:1', 'data-tid': '2.39:1' },
+  { value: 0.6, text: '5:3', 'data-tid': '5:3' },
+  { value: 0.8, text: '5:4', 'data-tid': '5:4' },
+];
+
+export const CROP_OPTIONS = [
+  { value: undefined, text: 'Default', 'data-tid': 'Default' },
+  { value: 0.625, text: '16:10', 'data-tid': '16:10' },
+  { value: 0.5625, text: '16:9', 'data-tid': '16:9' },
+  { value: 0.75, text: '4:3', 'data-tid': '4:3' },
+  { value: 0.5405, text: '1.85:1', 'data-tid': '1.85:1' },
+  { value: 0.5525, text: '2.21:1', 'data-tid': '2.21:1' },
+  { value: 0.4255, text: '2.35:1', 'data-tid': '2.35:1' },
+  { value: 0.4184, text: '2.39:1', 'data-tid': '2.39:1' },
+  { value: 0.6, text: '5:3', 'data-tid': '5:3' },
+  { value: 0.8, text: '5:4', 'data-tid': '5:4' },
+  { value: 1.0, text: '1:1', 'data-tid': '1:1' },
+];
