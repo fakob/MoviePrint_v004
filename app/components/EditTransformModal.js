@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, Modal, Divider, Grid, Form, Header } from 'semantic-ui-react';
 import {
+  CROP_OPTIONS,
   ROTATION_OPTIONS,
   TRANSFORMOBJECT_INIT,
   ASPECT_RATIO_OPTIONS,
@@ -25,18 +26,14 @@ const EditTransformModal = ({
   console.log('EditTransformModal is mounted');
   console.log(transformObject);
   const [transformObjectState, setTransformObjectState] = useState(transformObject);
+  const [cropDropdownValue, setCropDropdownValue] = useState(undefined);
   const canvasRef = useRef();
 
   const canvasWidth = EDIT_TRANSFORM_CANVAS_WIDTH;
   const canvasHeight = EDIT_TRANSFORM_CANVAS_HEIGHT;
+  const originalAspectRatioInv = (originalHeight * 1.0) / originalWidth;
 
-  function drawImageCenter(ctx, image, x, y, cx, cy, scale, rotation){
-    ctx.setTransform(scale, 0, 0, scale, x, y); // sets scale and origin
-    ctx.rotate(rotation);
-    ctx.drawImage(image, -cx, -cy);
-  }
-
-  function getRadians(rotationFlag){
+  function getRadians(rotationFlag) {
     let degrees = 0;
     switch (rotationFlag) {
       case 0:
@@ -56,8 +53,9 @@ const EditTransformModal = ({
   // ctx.setTransform(1,0,0,1,0,0); // which is much quicker than save and restore
 
   useEffect(() => {
-    const originalAspectRatioInv = (originalHeight * 1.0) / originalWidth;
-    const { cropTop, cropBottom, cropLeft, cropRight, rotationFlag } = transformObjectState;
+    console.log(transformObjectState);
+
+    const { cropTop, cropLeft, rotationFlag } = transformObjectState;
     // console.log(canvasRef)
     // console.log(objectUrl)
     if (canvasRef.current !== undefined && canvasRef.current !== null) {
@@ -73,55 +71,64 @@ const EditTransformModal = ({
       // draw original image
       const posterImageToCanvasScaleFactor =
         originalAspectRatioInv <= 1 ? canvasWidth / imageObj.width : canvasHeight / imageObj.height;
-      const imageToPosterImageScaleFactor =
-        originalAspectRatioInv <= 1 ? imageObj.width / originalWidth : imageObj.height / originalHeight;
       const scaledWidth = imageObj.width * posterImageToCanvasScaleFactor;
       const scaledHeight = imageObj.height * posterImageToCanvasScaleFactor;
       const centeredXPos = (EDIT_TRANSFORM_CANVAS_WIDTH - scaledWidth) / 2.0;
       const centeredYPos = (EDIT_TRANSFORM_CANVAS_HEIGHT - scaledHeight) / 2.0;
-      ctx.globalAlpha = 0.4;
-      // ctx.setTransform(1, 0, 0, 1, EDIT_TRANSFORM_CANVAS_WIDTH / 2, EDIT_TRANSFORM_CANVAS_HEIGHT / 2); // sets scale and origin
-      // ctx.rotate(getRadians(rotationFlag));
-      // ctx.drawImage(
-      //   imageObj,
-      //   0,
-      //   0,
-      //   imageObj.width,
-      //   imageObj.height,
-      //   centeredXPos - EDIT_TRANSFORM_CANVAS_WIDTH / 2,
-      //   centeredYPos - EDIT_TRANSFORM_CANVAS_HEIGHT / 2,
-      //   scaledWidth,
-      //   scaledHeight,
-      // );
-      // ctx.setTransform(1, 0, 0, 1, 0, 0); // sets scale and origin
-
-      // draw cropped image
-      const { cropWidth, cropHeight } = getCropWidthAndHeight(transformObjectState, originalWidth, originalHeight);
-      let displayCropLeft = cropLeft * imageToPosterImageScaleFactor;
-      let displayCropTop = cropTop * imageToPosterImageScaleFactor;
-      let displayCropWidth = cropWidth * imageToPosterImageScaleFactor;
-      let displayCropHeight = cropHeight * imageToPosterImageScaleFactor;
-
-      let cropScaledWidth = displayCropWidth * posterImageToCanvasScaleFactor;
-      let cropScaledHeight = displayCropHeight * posterImageToCanvasScaleFactor;
-      let cropCenteredXPos = centeredXPos + displayCropLeft * posterImageToCanvasScaleFactor;
-      let cropCenteredYPos = centeredYPos + displayCropTop * posterImageToCanvasScaleFactor;
-      ctx.globalAlpha = 1.0;
-      console.log(transformObjectState);
-      console.log(
-        `${originalWidth}|${imageObj.width}|${EDIT_TRANSFORM_CANVAS_WIDTH}|${posterImageToCanvasScaleFactor}|${scaledWidth}|${centeredXPos}||${cropLeft}|${displayCropLeft}|${cropCenteredXPos}`,
-      );
+      ctx.globalAlpha = 0.8;
+      ctx.setTransform(1, 0, 0, 1, EDIT_TRANSFORM_CANVAS_WIDTH / 2, EDIT_TRANSFORM_CANVAS_HEIGHT / 2); // sets scale and origin
+      ctx.rotate(getRadians(rotationFlag));
       ctx.drawImage(
         imageObj,
-        displayCropLeft,
-        displayCropTop,
-        displayCropWidth,
-        displayCropHeight,
-        cropCenteredXPos,
-        cropCenteredYPos,
-        cropScaledWidth,
-        cropScaledHeight,
+        0,
+        0,
+        imageObj.width,
+        imageObj.height,
+        centeredXPos - EDIT_TRANSFORM_CANVAS_WIDTH / 2,
+        centeredYPos - EDIT_TRANSFORM_CANVAS_HEIGHT / 2,
+        scaledWidth,
+        scaledHeight,
       );
+      ctx.setTransform(1, 0, 0, 1, 0, 0); // sets scale and origin
+
+      // draw cropped image
+      const imageToCanvasScaleFactor =
+        originalAspectRatioInv <= 1 ? canvasWidth / originalWidth : canvasHeight / originalHeight;
+      let { cropWidth, cropHeight } = getCropWidthAndHeight(transformObjectState, originalWidth, originalHeight);
+      let displayCropLeft = cropLeft * imageToCanvasScaleFactor;
+      let displayCropTop = cropTop * imageToCanvasScaleFactor;
+      let displayCropWidth = cropWidth * imageToCanvasScaleFactor;
+      let displayCropHeight = cropHeight * imageToCanvasScaleFactor;
+      let cropCenteredXPos = centeredXPos + displayCropLeft;
+      let cropCenteredYPos = centeredYPos + displayCropTop;
+
+      // if 90 or 270 degrees
+      if (rotationFlag === 0 || rotationFlag === 2) {
+        const { cropWidth: newCropWidth, cropHeight: newCropHeight } = getCropWidthAndHeight(
+          transformObjectState,
+          originalHeight, // switched width and height
+          originalWidth,
+        );
+        cropWidth = newCropWidth;
+        cropHeight = newCropHeight;
+        displayCropLeft = cropLeft * imageToCanvasScaleFactor;
+        displayCropTop = cropTop * imageToCanvasScaleFactor;
+        displayCropWidth = cropWidth * imageToCanvasScaleFactor;
+        displayCropHeight = cropHeight * imageToCanvasScaleFactor;
+        cropCenteredXPos = centeredYPos + displayCropLeft;
+        cropCenteredYPos = centeredXPos + displayCropTop;
+      }
+
+      ctx.globalAlpha = 1.0;
+      // console.log(transformObjectState);
+      // console.log(
+      //   `${originalWidth}|${imageObj.width}|${EDIT_TRANSFORM_CANVAS_WIDTH}|${posterImageToCanvasScaleFactor}|${scaledWidth}|${centeredXPos}||${cropLeft}|${displayCropLeft}|${cropCenteredXPos}`,
+      // );
+      ctx.beginPath();
+      ctx.rect(cropCenteredXPos, cropCenteredYPos, displayCropWidth, displayCropHeight);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'white';
+      ctx.stroke();
     }
   });
 
@@ -141,6 +148,40 @@ const EditTransformModal = ({
   //   defaultShowFaceRect,
   // } = settings;
   // const { moviePrintAspectRatioInv, containerAspectRatioInv } = scaleValueObject;
+
+  const handleCropDropdownChange = (e, { value }) => {
+    console.log(value);
+    setCropDropdownValue(value);
+    if (value === undefined) {
+      setTransformObjectState({
+        ...transformObjectState,
+        cropTop: 0,
+        cropBottom: 0,
+        cropLeft: 0,
+        cropRight: 0,
+      });
+    } else if (value <= originalAspectRatioInv) {
+      const newHeight = value * originalWidth;
+      const cropTopAndBottom = (originalHeight - newHeight) / 2;
+      setTransformObjectState({
+        ...transformObjectState,
+        cropTop: parseInt(cropTopAndBottom, 10),
+        cropBottom: parseInt(cropTopAndBottom, 10),
+        cropLeft: 0,
+        cropRight: 0,
+      });
+    } else {
+      const newWidth = originalHeight / value;
+      const cropLeftAndRight = (originalWidth - newWidth) / 2;
+      setTransformObjectState({
+        ...transformObjectState,
+        cropLeft: parseInt(cropLeftAndRight, 10),
+        cropRight: parseInt(cropLeftAndRight, 10),
+        cropTop: 0,
+        cropBottom: 0,
+      });
+    }
+  };
 
   const handleCropInputChange = (e, { name, value }) => {
     console.log(name);
@@ -204,9 +245,17 @@ const EditTransformModal = ({
                     options={ROTATION_OPTIONS}
                     // placeholder="Select"
                     onChange={handleRotationChange}
-                    defaultValue={transformObject.rotationFlag}
+                    defaultValue={transformObjectState.rotationFlag}
                   />
                   <Header as="h5">Cropping in pixel</Header>
+                  <Form.Select
+                    name="rotationFlag"
+                    // label="Rotation"
+                    options={CROP_OPTIONS}
+                    // placeholder="Select"
+                    onChange={handleCropDropdownChange}
+                    defaultValue={cropDropdownValue}
+                  />
                   <Form.Input
                     name="cropTop"
                     label="From top"
@@ -215,7 +264,7 @@ const EditTransformModal = ({
                     type="number"
                     min="0"
                     // width={4}
-                    defaultValue={transformObject.cropTop}
+                    defaultValue={transformObjectState.cropTop}
                     onChange={handleCropInputChange}
                   />
                   <Form.Input
@@ -225,7 +274,7 @@ const EditTransformModal = ({
                     required
                     type="number"
                     // width={4}
-                    defaultValue={transformObject.cropLeft}
+                    defaultValue={transformObjectState.cropLeft}
                     onChange={handleCropInputChange}
                   />
                   <Form.Input
@@ -236,7 +285,7 @@ const EditTransformModal = ({
                     type="number"
                     min="0"
                     // width={4}
-                    defaultValue={transformObject.cropRight}
+                    defaultValue={transformObjectState.cropRight}
                     onChange={handleCropInputChange}
                   />
                   <Form.Input
@@ -247,7 +296,7 @@ const EditTransformModal = ({
                     type="number"
                     min="0"
                     // width={4}
-                    defaultValue={transformObject.cropBottom}
+                    defaultValue={transformObjectState.cropBottom}
                     onChange={handleCropInputChange}
                   />
                 </Grid.Column>
