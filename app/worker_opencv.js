@@ -130,10 +130,6 @@ ipcRenderer.on(
           const frameNumberArray = currentSheetArray.map(frame => frame.frameNumber);
           const frameIdArray = currentSheetArray.map(frame => frame.frameId);
 
-          // add posterFrame
-          frameIdArray.push(file.posterFrameId);
-          frameNumberArray.push(Math.floor(file.frameCount / 2));
-
           recaptureThumbs(
             frameSize,
             file.id,
@@ -143,6 +139,17 @@ ipcRenderer.on(
             frameNumberArray,
             onlyReplace,
             file.transformObject,
+          );
+
+          // recapture posterFrame without transform
+          recaptureThumbs(
+            frameSize,
+            file.id,
+            file.path,
+            file.useRatio,
+            [file.posterFrameId],
+            [Math.floor(file.frameCount / 2)],
+            onlyReplace,
           );
           return true; // finished capturing one sheet
         });
