@@ -87,6 +87,16 @@ const file = (state = {}, type, payload, index) => {
       const newWidth = origWidth - cropLeft - cropRight;
       const newHeight = origHeight - cropTop - cropBottom;
       return { ...state, width: newWidth, height: newHeight, transformObject };
+    case 'UPDATE_ASPECT_RATIO':
+      if (state.id !== payload.fileId) {
+        return state;
+      }
+      return {
+        ...state, transformObject: {
+        ...state.transformObject,
+          aspectRatioInv: payload.aspectRatioInv
+        }
+      };
     case 'UPDATE_IN_OUT_POINT':
       if (state.id !== payload.fileId) {
         return state;
@@ -121,6 +131,7 @@ const files = (state = [], { type, payload }) => {
     case 'SET_TRANSFORM':
     case 'ROTATE_WIDTH_AND_HEIGHT':
     case 'UPDATE_CROPPING':
+    case 'UPDATE_ASPECT_RATIO':
     case 'UPDATE_IN_OUT_POINT':
     case 'UPDATE_FILE_MISSING_STATUS':
     case 'UPDATE_FILESCAN_STATUS':

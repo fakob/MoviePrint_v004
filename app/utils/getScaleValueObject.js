@@ -28,6 +28,7 @@ const getScaleValueObject = (
   forPrinting = false,
   sceneArray = [],
   secondsPerRow = 120.0,
+  newMovieAspectRatioInv = undefined, // used when updating aspectRatioInv of the currentFileId
 ) => {
   const {
     defaultBorderMargin,
@@ -52,7 +53,17 @@ const getScaleValueObject = (
 
   const movieWidth = file !== undefined && file.width !== undefined ? file.width : DEFAULT_MOVIE_WIDTH;
   const movieHeight = file !== undefined && file.height !== undefined ? file.height : DEFAULT_MOVIE_HEIGHT;
-  const movieAspectRatioInv = (movieHeight * 1.0) / movieWidth;
+  const movieAspectRatioInv =
+    (newMovieAspectRatioInv !== undefined && newMovieAspectRatioInv !== null) ? newMovieAspectRatioInv :
+    (file !== undefined &&
+      file.transformObject !== undefined &&
+      file.transformObject.aspectRatioInv !== undefined &&
+      file.transformObject.aspectRatioInv !== null)
+      ? file.transformObject.aspectRatioInv
+      : (movieHeight * 1.0) / movieWidth;
+  console.log(newMovieAspectRatioInv);
+  console.log(movieAspectRatioInv);
+
   const rowCount = Math.ceil(thumbCount / columnCount);
   const showPlayerView = defaultView === VIEW.PLAYERVIEW;
   const containerAspectRatioInv = (containerHeight * 1.0) / containerWidth;

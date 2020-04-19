@@ -23,14 +23,15 @@ const EditTransformModal = ({
   width = EDIT_TRANSFORM_CANVAS_WIDTH,
   height = EDIT_TRANSFORM_CANVAS_HEIGHT,
 }) => {
-  console.log('EditTransformModal is mounted');
-  console.log(transformObject);
+  // console.log('EditTransformModal is mounted');
+  // console.log(transformObject);
   const [transformObjectState, setTransformObjectState] = useState(transformObject);
+  const [canvasWidth, setCanvasWidth] = useState(EDIT_TRANSFORM_CANVAS_WIDTH);
+  const [canvasHeight, setCanvasHeight] = useState(EDIT_TRANSFORM_CANVAS_HEIGHT);
   const [cropDropdownValue, setCropDropdownValue] = useState(undefined);
+  const [aspectRatioDropdownValue, setAspectRatioDropdownValue] = useState(transformObject.aspectRatioInv);
   const canvasRef = useRef();
 
-  const canvasWidth = EDIT_TRANSFORM_CANVAS_WIDTH;
-  const canvasHeight = EDIT_TRANSFORM_CANVAS_HEIGHT;
   const originalAspectRatioInv = (originalHeight * 1.0) / originalWidth;
 
   function getRadians(rotationFlag) {
@@ -50,19 +51,13 @@ const EditTransformModal = ({
     return (degrees * Math.PI) / 180;
   }
 
-  // ctx.setTransform(1,0,0,1,0,0); // which is much quicker than save and restore
-
   useEffect(() => {
-    console.log(transformObjectState);
+    // console.log(transformObjectState);
 
     const { cropTop, cropLeft, rotationFlag } = transformObjectState;
-    // console.log(canvasRef)
-    // console.log(objectUrl)
     if (canvasRef.current !== undefined && canvasRef.current !== null) {
       const ctx = canvasRef.current.getContext('2d');
       ctx.clearRect(0, 0, EDIT_TRANSFORM_CANVAS_WIDTH, EDIT_TRANSFORM_CANVAS_HEIGHT);
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-      ctx.fillRect(0, 0, EDIT_TRANSFORM_CANVAS_WIDTH, EDIT_TRANSFORM_CANVAS_HEIGHT);
 
       // load image from data url
       const imageObj = new Image();
@@ -70,12 +65,14 @@ const EditTransformModal = ({
 
       // draw original image
       const posterImageToCanvasScaleFactor =
-        originalAspectRatioInv <= 1 ? canvasWidth / imageObj.width : canvasHeight / imageObj.height;
+        originalAspectRatioInv <= 1
+          ? EDIT_TRANSFORM_CANVAS_WIDTH / imageObj.width
+          : EDIT_TRANSFORM_CANVAS_HEIGHT / imageObj.height;
       const scaledWidth = imageObj.width * posterImageToCanvasScaleFactor;
       const scaledHeight = imageObj.height * posterImageToCanvasScaleFactor;
       const centeredXPos = (EDIT_TRANSFORM_CANVAS_WIDTH - scaledWidth) / 2.0;
       const centeredYPos = (EDIT_TRANSFORM_CANVAS_HEIGHT - scaledHeight) / 2.0;
-      ctx.globalAlpha = 0.8;
+
       ctx.setTransform(1, 0, 0, 1, EDIT_TRANSFORM_CANVAS_WIDTH / 2, EDIT_TRANSFORM_CANVAS_HEIGHT / 2); // sets scale and origin
       ctx.rotate(getRadians(rotationFlag));
       ctx.drawImage(
@@ -93,7 +90,9 @@ const EditTransformModal = ({
 
       // draw cropped image
       const imageToCanvasScaleFactor =
-        originalAspectRatioInv <= 1 ? canvasWidth / originalWidth : canvasHeight / originalHeight;
+        originalAspectRatioInv <= 1
+          ? EDIT_TRANSFORM_CANVAS_WIDTH / originalWidth
+          : EDIT_TRANSFORM_CANVAS_HEIGHT / originalHeight;
       let { cropWidth, cropHeight } = getCropWidthAndHeight(transformObjectState, originalWidth, originalHeight);
       let displayCropLeft = cropLeft * imageToCanvasScaleFactor;
       let displayCropTop = cropTop * imageToCanvasScaleFactor;
@@ -119,40 +118,18 @@ const EditTransformModal = ({
         cropCenteredYPos = centeredXPos + displayCropTop;
       }
 
-      ctx.globalAlpha = 1.0;
-      // console.log(transformObjectState);
-      // console.log(
-      //   `${originalWidth}|${imageObj.width}|${EDIT_TRANSFORM_CANVAS_WIDTH}|${posterImageToCanvasScaleFactor}|${scaledWidth}|${centeredXPos}||${cropLeft}|${displayCropLeft}|${cropCenteredXPos}`,
-      // );
       ctx.beginPath();
       ctx.rect(cropCenteredXPos, cropCenteredYPos, displayCropWidth, displayCropHeight);
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#00FF00';
       ctx.stroke();
     }
   });
 
-  // useEffect(() => {
-  //   // clean up function on open close model
-  //   return function cleanup() {
-  //     setTransformObjectState(transformObject);
-  //   };
-  // },[showTransformModal]);
-
-  // const {
-  //   defaultFaceUniquenessThreshold = FACE_UNIQUENESS_THRESHOLD,
-  //   defaultFaceSizeThreshold = FACE_SIZE_THRESHOLD,
-  //   defaultThumbInfo,
-  //   defaultShowHeader,
-  //   defaultShowImages,
-  //   defaultShowFaceRect,
-  // } = settings;
-  // const { moviePrintAspectRatioInv, containerAspectRatioInv } = scaleValueObject;
-
   const handleCropDropdownChange = (e, { value }) => {
     const { rotationFlag } = transformObjectState;
 
-    console.log(value)
+    console.log(value);
     setCropDropdownValue(value);
 
     let newOriginalWidth = originalWidth;
@@ -195,6 +172,54 @@ const EditTransformModal = ({
     }
   };
 
+  const handleAspectRatioDropdownChange = (e, { value }) => {
+    const { rotationFlag } = transformObjectState;
+    const aspectRatioInv = value;
+
+    console.log(value);
+    setAspectRatioDropdownValue(value);
+    setTransformObjectState({
+      ...transformObjectState,
+      aspectRatioInv,
+    });
+
+    if (aspectRatioInv === null) {
+      setCanvasWidth(EDIT_TRANSFORM_CANVAS_WIDTH);
+      setCanvasHeight(EDIT_TRANSFORM_CANVAS_HEIGHT);
+    } else {
+      const imageToCanvasScaleFactor =
+        originalAspectRatioInv <= 1
+          ? EDIT_TRANSFORM_CANVAS_WIDTH / originalWidth
+          : EDIT_TRANSFORM_CANVAS_HEIGHT / originalHeight;
+      let { cropWidth, cropHeight } = getCropWidthAndHeight(transformObjectState, originalWidth, originalHeight);
+
+      // if 90 or 270 degrees
+      if (rotationFlag === 0 || rotationFlag === 2) {
+        const { cropWidth: newCropWidth, cropHeight: newCropHeight } = getCropWidthAndHeight(
+          transformObjectState,
+          originalHeight, // switched width and height
+          originalWidth,
+        );
+        cropWidth = newCropWidth;
+        cropHeight = newCropHeight;
+      }
+
+      const displayCropWidth = cropWidth * imageToCanvasScaleFactor;
+      const displayCropHeight = cropHeight * imageToCanvasScaleFactor;
+      const displayCropWidthNew = displayCropHeight / aspectRatioInv;
+      const scaleRatio = displayCropWidthNew / displayCropWidth;
+      const newCanvasWidth = scaleRatio * EDIT_TRANSFORM_CANVAS_WIDTH;
+      const newCanvasHeight = EDIT_TRANSFORM_CANVAS_HEIGHT / scaleRatio;
+      if (scaleRatio <= 1) {
+        setCanvasWidth(newCanvasWidth);
+        setCanvasHeight(EDIT_TRANSFORM_CANVAS_HEIGHT);
+      } else {
+        setCanvasHeight(newCanvasHeight);
+        setCanvasWidth(EDIT_TRANSFORM_CANVAS_WIDTH);
+      }
+    }
+  };
+
   const handleCropInputChange = (e, { name, value }) => {
     console.log(name);
     console.log(value);
@@ -230,26 +255,16 @@ const EditTransformModal = ({
       <Modal
         open={showTransformModal}
         onClose={onClose}
-        size="medium"
         closeIcon
         as={Form}
         onSubmit={() => onChangeTransform(fileId, transformObjectState)}
       >
-        <Modal.Header>Set rotation and cropping</Modal.Header>
+        <Modal.Header>Set rotation, cropping and aspect ratio</Modal.Header>
         <Modal.Content image>
           <Modal.Description>
             <Grid>
               <Grid.Row>
                 <Grid.Column width={4}>
-                  <Header as="h5">Aspect ratio</Header>
-                  <Form.Select
-                    name="rotationFlag"
-                    // label="Rotation"
-                    options={ASPECT_RATIO_OPTIONS}
-                    // placeholder="Select"
-                    // onChange={handleCropInputChange}
-                    // defaultValue={transformObject.rotationFlag}
-                  />
                   <Header as="h3">Rotation</Header>
                   <Form.Select
                     name="rotationFlag"
@@ -266,6 +281,7 @@ const EditTransformModal = ({
                     options={CROP_OPTIONS}
                     placeholder="Select"
                     onChange={handleCropDropdownChange}
+                    defaultValue={undefined}
                     value={cropDropdownValue}
                   />
                   <Form.Group widths="equal">
@@ -315,9 +331,27 @@ const EditTransformModal = ({
                       onChange={handleCropInputChange}
                     />
                   </Form.Group>
+                  <Header as="h3">Aspect ratio</Header>
+                  <Form.Select
+                    name="aspectRatio"
+                    // label="Rotation"
+                    options={ASPECT_RATIO_OPTIONS}
+                    placeholder="Select"
+                    onChange={handleAspectRatioDropdownChange}
+                    value={aspectRatioDropdownValue}
+                  />
                 </Grid.Column>
-                <Grid.Column width={12}>
-                  <canvas ref={canvasRef} width={canvasWidth} height={canvasHeight} />
+                <Grid.Column width={12} color="black" className={styles.editTransformCanvasContainer}>
+                  <canvas
+                    ref={canvasRef}
+                    className={styles.editTransformCanvas}
+                    width={EDIT_TRANSFORM_CANVAS_WIDTH}
+                    height={EDIT_TRANSFORM_CANVAS_HEIGHT}
+                    style={{
+                      width: `${canvasWidth}px`,
+                      height: `${canvasHeight}px`,
+                    }}
+                  />
                 </Grid.Column>
               </Grid.Row>
             </Grid>

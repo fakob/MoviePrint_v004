@@ -175,6 +175,7 @@ import {
   showSettings,
   showThumbsByFrameNumberArray,
   rotateWidthAndHeight,
+  updateAspectRatio,
   updateCropping,
   updateFileDetails,
   updateFileDetailUseRatio,
@@ -1640,7 +1641,7 @@ class App extends Component {
     });
   }
 
-  updateScaleValue() {
+  updateScaleValue(optionalNewAspectRatioInv = undefined) {
     const { columnCountTemp, thumbCountTemp, containerWidth, containerHeight } = this.state;
     const {
       currentFileId,
@@ -1668,6 +1669,7 @@ class App extends Component {
       undefined,
       scenes,
       currentSecondsPerRow,
+      optionalNewAspectRatioInv,
     );
     this.setState({
       scaleValueObject,
@@ -3244,9 +3246,9 @@ class App extends Component {
   };
 
   onChangeTransform = (fileId, transformObjectState) => {
-    const { dispatch, files } = this.props;
+    const { currentFileId, dispatch, files } = this.props;
     const { fileIdToTransform } = this.state;
-    const { cropTop, cropBottom, cropLeft, cropRight, rotationFlag } = transformObjectState;
+    const { aspectRatioInv, cropTop, cropBottom, cropLeft, cropRight, rotationFlag } = transformObjectState;
     console.log(transformObjectState);
 
     const transformObjectBefore = getFileTransformObject(files, fileId);
@@ -3258,8 +3260,10 @@ class App extends Component {
       transformObjectBefore.cropBottom !== cropBottom ||
       transformObjectBefore.cropLeft !== cropLeft ||
       transformObjectBefore.cropRight !== cropRight;
+    const wasThereAChangeInAspectRatio = transformObjectBefore.aspectRatioInv !== aspectRatioInv;
 
     console.log(wasThereAChange);
+    console.log(wasThereAChangeInAspectRatio);
 
     if (wasThereAChange) {
       // always update rotation before cropping as this is the same order it is applied when capturing a thumb
@@ -3268,8 +3272,17 @@ class App extends Component {
       } else {
         dispatch(rotateWidthAndHeight(fileId, false));
       }
-      dispatch(updateCropping(fileId, rotationFlag, cropTop, cropBottom, cropLeft, cropRight));
+      dispatch(updateCropping(fileId, rotationFlag, cropTop, cropBottom, cropLeft, cropRight, aspectRatioInv));
+      if (wasThereAChangeInAspectRatio && (currentFileId === fileId)) { // only update if currentFileId, else it will be updated next time when the user switches to this fileId
+        this.updateScaleValue(aspectRatioInv);
+      }
+    } else if (wasThereAChangeInAspectRatio) {
+      dispatch(updateAspectRatio(fileId, aspectRatioInv));
+      if (currentFileId === fileId) { // only update if currentFileId, else it will be updated next time when the user switches to this fileId
+        this.updateScaleValue(aspectRatioInv);
+      }
     }
+
     this.setState({
       showTransformModal: false,
       fileIdToTransform: undefined,

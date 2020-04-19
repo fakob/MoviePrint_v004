@@ -263,3 +263,12 @@
 .smallInfo {
   color: rgba(0,0,0,.87);
 }
+
+.editTransformCanvasContainer {
+  margin: auto !important;
+}
+
+.editTransformCanvas {
+  margin: auto;
+  display: block;
+}

@@ -1443,7 +1443,7 @@ export const setTransform = (fileId, rotationFlag, cropTop, cropBottom, cropLeft
   };
 };
 
-export const updateCropping = (fileId, rotationFlag, cropTop, cropBottom, cropLeft, cropRight) => {
+export const updateCropping = (fileId, rotationFlag, cropTop, cropBottom, cropLeft, cropRight, aspectRatioInv) => {
   return dispatch => {
     log.debug('action: updateCropping');
     dispatch({
@@ -1456,7 +1456,21 @@ export const updateCropping = (fileId, rotationFlag, cropTop, cropBottom, cropLe
           cropBottom,
           cropLeft,
           cropRight,
+          aspectRatioInv,
         },
+      },
+    });
+  };
+};
+
+export const updateAspectRatio = (fileId, aspectRatioInv) => {
+  return dispatch => {
+    log.debug('action: updateAspectRatio');
+    dispatch({
+      type: 'UPDATE_ASPECT_RATIO',
+      payload: {
+        fileId,
+        aspectRatioInv,
       },
     });
   };
