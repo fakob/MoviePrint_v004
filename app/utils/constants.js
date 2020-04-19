@@ -98,25 +98,6 @@ export const SHEET_TYPE_OPTIONS = [
   { value: SHEET_TYPE.FACES, text: 'Faces', 'data-tid': 'sheetTypeOptionsFaces' },
 ];
 
-export const ROTATION_OPTIONS = [
-  { value: RotateFlags.NO_ROTATION, text: 'No rotation', 'data-tid': 'rotationOptions0' },
-  { value: RotateFlags.ROTATE_90_CLOCKWISE, text: '90º clockwise', 'data-tid': 'rotationOptions90' },
-  { value: RotateFlags.ROTATE_180, text: '180º', 'data-tid': 'rotationOptions180' },
-  {
-    value: RotateFlags.ROTATE_90_COUNTERCLOCKWISE,
-    text: '90º counterclockwise',
-    'data-tid': 'rotationOptions270',
-  },
-];
-
-export const TRANSFORMOBJECT_INIT = {
-  cropTop: 0,
-  cropLeft: 0,
-  cropBottom: 0,
-  cropRight: 0,
-  rotationFlag: RotateFlags.NO_ROTATION,
-};
-
 export const THUMB_INFO = {
   FRAMES: 'frames',
   TIMECODE: 'timecode',
@@ -361,11 +342,31 @@ export const FILTER_METHOD_FACESIZE = {
 export const UNDO_STEPS_LIMIT = 50; // undo redo
 
 // edit transform
-export const EDIT_TRANSFORM_CANVAS_WIDTH = 540;
-export const EDIT_TRANSFORM_CANVAS_HEIGHT = 540;
+export const TRANSFORMOBJECT_INIT = {
+  cropTop: 0,
+  cropLeft: 0,
+  cropBottom: 0,
+  cropRight: 0,
+  rotationFlag: RotateFlags.NO_ROTATION,
+  aspectRatioInv: null,
+};
+
+export const EDIT_TRANSFORM_CANVAS_WIDTH = 480;
+export const EDIT_TRANSFORM_CANVAS_HEIGHT = 480;
+
+export const ROTATION_OPTIONS = [
+  { value: RotateFlags.NO_ROTATION, text: 'No rotation', 'data-tid': 'rotationOptions0' },
+  { value: RotateFlags.ROTATE_90_CLOCKWISE, text: '90º clockwise', 'data-tid': 'rotationOptions90' },
+  { value: RotateFlags.ROTATE_180, text: '180º', 'data-tid': 'rotationOptions180' },
+  {
+    value: RotateFlags.ROTATE_90_COUNTERCLOCKWISE,
+    text: '90º counterclockwise',
+    'data-tid': 'rotationOptions270',
+  },
+];
 
 export const ASPECT_RATIO_OPTIONS = [
-  { value: undefined, text: 'Default', 'data-tid': 'Default' },
+  { value: null, text: 'Reset', 'data-tid': 'Reset' },
   { value: 0.5625, text: '16:9', 'data-tid': '16:9' },
   { value: 0.75, text: '4:3', 'data-tid': '4:3' },
   { value: 1.0, text: '1:1', 'data-tid': '1:1' },
@@ -379,7 +380,7 @@ export const ASPECT_RATIO_OPTIONS = [
 ];
 
 export const CROP_OPTIONS = [
-  { value: undefined, text: 'Default', 'data-tid': 'Default' },
+  { value: null, text: 'Reset', 'data-tid': 'Reset' },
   { value: 0.625, text: '16:10', 'data-tid': '16:10' },
   { value: 0.5625, text: '16:9', 'data-tid': '16:9' },
   { value: 0.75, text: '4:3', 'data-tid': '4:3' },
@@ -387,7 +388,11 @@ export const CROP_OPTIONS = [
   { value: 0.5525, text: '2.21:1', 'data-tid': '2.21:1' },
   { value: 0.4255, text: '2.35:1', 'data-tid': '2.35:1' },
   { value: 0.4184, text: '2.39:1', 'data-tid': '2.39:1' },
+  { value: 0.5, text: '2:1', 'data-tid': '2:1' },
   { value: 0.6, text: '5:3', 'data-tid': '5:3' },
   { value: 0.8, text: '5:4', 'data-tid': '5:4' },
   { value: 1.0, text: '1:1', 'data-tid': '1:1' },
+  { value: 1.25, text: '4:5', 'data-tid': '4:5' },
+  { value: 1.5, text: '2:3', 'data-tid': '2:3' },
+  { value: 1.7778, text: '9:16', 'data-tid': '9:16' },
 ];

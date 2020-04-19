@@ -150,9 +150,21 @@ const EditTransformModal = ({
   // const { moviePrintAspectRatioInv, containerAspectRatioInv } = scaleValueObject;
 
   const handleCropDropdownChange = (e, { value }) => {
-    console.log(value);
+    const { rotationFlag } = transformObjectState;
+
+    console.log(value)
     setCropDropdownValue(value);
-    if (value === undefined) {
+
+    let newOriginalWidth = originalWidth;
+    let newOriginalHeight = originalHeight;
+    let newAspectRatio = originalAspectRatioInv;
+    // if 90 or 270 degrees swap width and height and calculate new aspectRatioInv
+    if (rotationFlag === 0 || rotationFlag === 2) {
+      [newOriginalWidth, newOriginalHeight] = [newOriginalHeight, newOriginalWidth];
+      newAspectRatio = (newOriginalHeight * 1.0) / newOriginalWidth;
+    }
+
+    if (value === null) {
       setTransformObjectState({
         ...transformObjectState,
         cropTop: 0,
@@ -160,9 +172,9 @@ const EditTransformModal = ({
         cropLeft: 0,
         cropRight: 0,
       });
-    } else if (value <= originalAspectRatioInv) {
-      const newHeight = value * originalWidth;
-      const cropTopAndBottom = (originalHeight - newHeight) / 2;
+    } else if (value <= newAspectRatio) {
+      const newHeight = value * newOriginalWidth;
+      const cropTopAndBottom = (newOriginalHeight - newHeight) / 2;
       setTransformObjectState({
         ...transformObjectState,
         cropTop: parseInt(cropTopAndBottom, 10),
@@ -171,8 +183,8 @@ const EditTransformModal = ({
         cropRight: 0,
       });
     } else {
-      const newWidth = originalHeight / value;
-      const cropLeftAndRight = (originalWidth - newWidth) / 2;
+      const newWidth = newOriginalHeight / value;
+      const cropLeftAndRight = (newOriginalWidth - newWidth) / 2;
       setTransformObjectState({
         ...transformObjectState,
         cropLeft: parseInt(cropLeftAndRight, 10),
@@ -218,7 +230,7 @@ const EditTransformModal = ({
       <Modal
         open={showTransformModal}
         onClose={onClose}
-        size="large"
+        size="medium"
         closeIcon
         as={Form}
         onSubmit={() => onChangeTransform(fileId, transformObjectState)}
@@ -238,7 +250,7 @@ const EditTransformModal = ({
                     // onChange={handleCropInputChange}
                     // defaultValue={transformObject.rotationFlag}
                   />
-                  <Header as="h5">Rotation</Header>
+                  <Header as="h3">Rotation</Header>
                   <Form.Select
                     name="rotationFlag"
                     // label="Rotation"
@@ -247,58 +259,62 @@ const EditTransformModal = ({
                     onChange={handleRotationChange}
                     defaultValue={transformObjectState.rotationFlag}
                   />
-                  <Header as="h5">Cropping in pixel</Header>
+                  <Header as="h3">Crop</Header>
                   <Form.Select
-                    name="rotationFlag"
-                    // label="Rotation"
+                    name="cropDropdown"
+                    label="Crop presets"
                     options={CROP_OPTIONS}
-                    // placeholder="Select"
+                    placeholder="Select"
                     onChange={handleCropDropdownChange}
-                    defaultValue={cropDropdownValue}
+                    value={cropDropdownValue}
                   />
-                  <Form.Input
-                    name="cropTop"
-                    label="From top"
-                    placeholder="top"
-                    required
-                    type="number"
-                    min="0"
-                    // width={4}
-                    defaultValue={transformObjectState.cropTop}
-                    onChange={handleCropInputChange}
-                  />
-                  <Form.Input
-                    name="cropLeft"
-                    label="From left"
-                    placeholder="left"
-                    required
-                    type="number"
-                    // width={4}
-                    defaultValue={transformObjectState.cropLeft}
-                    onChange={handleCropInputChange}
-                  />
-                  <Form.Input
-                    name="cropRight"
-                    label="From right"
-                    placeholder="right"
-                    required
-                    type="number"
-                    min="0"
-                    // width={4}
-                    defaultValue={transformObjectState.cropRight}
-                    onChange={handleCropInputChange}
-                  />
-                  <Form.Input
-                    name="cropBottom"
-                    label="From bottom"
-                    placeholder="bottom"
-                    required
-                    type="number"
-                    min="0"
-                    // width={4}
-                    defaultValue={transformObjectState.cropBottom}
-                    onChange={handleCropInputChange}
-                  />
+                  <Form.Group widths="equal">
+                    <Form.Input
+                      name="cropTop"
+                      label="From top"
+                      placeholder="top"
+                      required
+                      type="number"
+                      min="0"
+                      width={4}
+                      value={transformObjectState.cropTop}
+                      onChange={handleCropInputChange}
+                    />
+                    <Form.Input
+                      name="cropBottom"
+                      label="From bottom"
+                      placeholder="bottom"
+                      required
+                      type="number"
+                      min="0"
+                      width={4}
+                      value={transformObjectState.cropBottom}
+                      onChange={handleCropInputChange}
+                    />
+                  </Form.Group>
+                  <Form.Group widths="equal">
+                    <Form.Input
+                      name="cropLeft"
+                      label="From left"
+                      placeholder="left"
+                      required
+                      type="number"
+                      width={4}
+                      value={transformObjectState.cropLeft}
+                      onChange={handleCropInputChange}
+                    />
+                    <Form.Input
+                      name="cropRight"
+                      label="From right"
+                      placeholder="right"
+                      required
+                      type="number"
+                      min="0"
+                      width={4}
+                      value={transformObjectState.cropRight}
+                      onChange={handleCropInputChange}
+                    />
+                  </Form.Group>
                 </Grid.Column>
                 <Grid.Column width={12}>
                   <canvas ref={canvasRef} width={canvasWidth} height={canvasHeight} />
