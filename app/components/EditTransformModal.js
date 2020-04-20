@@ -221,11 +221,38 @@ const EditTransformModal = ({
   };
 
   const handleCropInputChange = (e, { name, value }) => {
+    const { cropTop, cropBottom, cropLeft, cropRight, rotationFlag } = transformObjectState;
+
     console.log(name);
     console.log(value);
+    let newValue = parseInt(value, 10);
+
+    // check for legal cropping values
+    let newOriginalWidth = originalWidth;
+    let newOriginalHeight = originalHeight;
+    // if 90 or 270 degrees swap width and height
+    if (rotationFlag === 0 || rotationFlag === 2) {
+      [newOriginalWidth, newOriginalHeight] = [newOriginalHeight, newOriginalWidth];
+    }
+    switch (name) {
+      case 'cropLeft':
+        newValue = Math.min(newValue, newOriginalWidth - cropRight - 1);
+        break;
+      case 'cropRight':
+        newValue = Math.min(newValue, newOriginalWidth - cropLeft - 1);
+        break;
+      case 'cropTop':
+        newValue = Math.min(newValue, newOriginalHeight - cropBottom - 1);
+        break;
+      case 'cropBottom':
+        newValue = Math.min(newValue, newOriginalHeight - cropTop - 1);
+        break;
+      default:
+    }
+
     setTransformObjectState({
       ...transformObjectState,
-      [name]: parseInt(value, 10),
+      [name]: newValue,
     });
   };
 
