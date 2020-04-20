@@ -1,6 +1,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import log from 'electron-log';
+import uuidV4 from 'uuid/v4';
 import * as tf from '@tensorflow/tfjs-node';
 
 import { VideoCaptureProperties } from './utils/openCVProperties';
@@ -108,6 +109,18 @@ ipcRenderer.on(
     log.debug('opencvWorkerWindow | on recapture frames');
     log.debug(`opencvWorkerWindow | frameSize: ${frameSize}`);
 
+    // define toastId so it can be updated
+    const toastId = fileId || uuidV4();
+
+    ipcRenderer.send(
+      'message-from-opencvWorkerWindow-to-mainWindow',
+      'progressMessage',
+      'info',
+      'Updating frame cache',
+      false,
+      toastId,
+    );
+
     // if fileId, then only recapture those, else recapture all
     let filteredArray = files;
     if (fileId !== undefined) {
@@ -156,12 +169,15 @@ ipcRenderer.on(
       }
       return true; // finished capturing one file
     });
+
     ipcRenderer.send(
       'message-from-opencvWorkerWindow-to-mainWindow',
       'progressMessage',
       'success',
-      `Finished recapturing all frames with ${frameSize === 0 ? 'original size' : frameSize}px`,
+      'Finished updating frame cache',
       3000,
+      toastId,
+      true,
     );
   },
 );
