@@ -765,6 +765,7 @@ const FloatingMenu = ({
         <Popup
           trigger={
             <Button
+              disabled={sheetView === SHEET_VIEW.TIMELINEVIEW}
               className={styles.normalButton}
               size="large"
               data-tid="zoomOutBtn"
@@ -781,6 +782,7 @@ const FloatingMenu = ({
         <Popup
           trigger={
             <Button
+              disabled={sheetView === SHEET_VIEW.TIMELINEVIEW}
               className={styles.normalButton}
               size="large"
               data-tid="zoomFitBtn"
@@ -797,6 +799,7 @@ const FloatingMenu = ({
         <Popup
           trigger={
             <Button
+              disabled={sheetView === SHEET_VIEW.TIMELINEVIEW}
               className={styles.normalButton}
               size="large"
               data-tid="zoomInBtn"
