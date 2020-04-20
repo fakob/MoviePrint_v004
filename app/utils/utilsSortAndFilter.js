@@ -127,8 +127,8 @@ export const filterArray = (detectionArray, filters) => {
 
   // if there are no filters, return untouched
   if (!areOneOrMoreFiltersEnabled(filters)) {
-    // add detection information to thumbs
-    deleteFaceDescriptorFromFaceScanArray(detectionArray);
+    // remove faceDescriptor and unhide thumbs
+    deleteFaceDescriptorFromFaceScanArray(detectionArray, true);
     return detectionArray;
   }
 
@@ -495,10 +495,13 @@ export const sortThumbsArray = (thumbsArray, sortOrderArray) => {
   return thumbsArrayAfterSorting;
 };
 
-export const deleteFaceDescriptorFromFaceScanArray = faceScanArray => {
+export const deleteFaceDescriptorFromFaceScanArray = (faceScanArray, unhide = false) => {
   // note!!! this is a mutating function
   faceScanArray.map(frame => {
     // loop through all frames
+    if (unhide) {
+      frame.hidden = false;
+    }
     if (frame.facesArray !== undefined) {
       frame.facesArray.map(face => {
         // loop through all faces
