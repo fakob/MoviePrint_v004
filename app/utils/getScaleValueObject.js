@@ -61,8 +61,6 @@ const getScaleValueObject = (
       file.transformObject.aspectRatioInv !== null)
       ? file.transformObject.aspectRatioInv
       : (movieHeight * 1.0) / movieWidth;
-  console.log(newMovieAspectRatioInv);
-  console.log(movieAspectRatioInv);
 
   const rowCount = Math.ceil(thumbCount / columnCount);
   const showPlayerView = defaultView === VIEW.PLAYERVIEW;
