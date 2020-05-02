@@ -10,7 +10,7 @@ import SortedVisibleThumbGrid from './VisibleThumbGrid';
 import SortedVisibleSceneGrid from './VisibleSceneGrid';
 import Conditional from '../components/Conditional';
 import ErrorBoundary from '../components/ErrorBoundary';
-import { getMoviePrintColor, getVisibleThumbs, getFramenumbers } from '../utils/utils';
+import { getMoviePrintColor, getVisibleThumbs } from '../utils/utils';
 import saveMoviePrint from '../utils/saveMoviePrint';
 import { DEFAULT_THUMB_COUNT_MAX, SHEET_VIEW, VIEW } from '../utils/constants';
 import { getBase64Object } from '../utils/utilsForOpencv';
@@ -96,22 +96,6 @@ class WorkerApp extends Component {
       // const filePath = file.path.substring(0, file.path.lastIndexOf("/"));
       const outputPath = sentData.settings.defaultOutputPathFromMovie ? filePath : sentData.settings.defaultOutputPath;
 
-      const movieFilePath = sentData.settings.defaultEmbedFilePath ? sentData.file.path : undefined;
-      const transformObject = sentData.settings.defaultEmbedFrameNumbers ? sentData.file.transformObject : undefined;
-      const columnCount = sentData.settings.defaultEmbedFrameNumbers
-        ? sentData.sheet.columnCount || sentData.settings.defaultColumnCount
-        : undefined;
-      const frameNumberArray = sentData.settings.defaultEmbedFrameNumbers
-        ? getFramenumbers(sentData.sheet, sentData.visibilityFilter)
-        : undefined;
-
-      const dataToEmbed = {
-        filePath: movieFilePath,
-        transformObject,
-        columnCount,
-        frameNumberArray,
-      };
-
       log.debug(`outputPath: ${filePath}`);
       saveMoviePrint(
         sentData.elementId,
@@ -124,7 +108,7 @@ class WorkerApp extends Component {
         sentData.settings.defaultSaveOptionOverwrite,
         sentData.settings.defaultSaveOptionIncludeIndividual,
         visibleThumbs,
-        dataToEmbed,
+        sentData.dataToEmbed,
         sentData.settings.defaultMoviePrintBackgroundColor,
         sentData.settings.defaultMoviePrintName,
         sentData.settings.defaultAllThumbsName,

@@ -6,6 +6,7 @@ import { VideoCaptureProperties } from './openCVProperties';
 import sheetNames from '../img/listOfNames.json';
 import {
   SCENE_DETECTION_MIN_SCENE_LENGTH,
+  SHEET_TYPE,
   SHEET_VIEW,
   THUMB_SELECTION,
   TRANSFORMOBJECT_INIT,
@@ -521,6 +522,18 @@ export const getFramenumbersOfSheet = (sheetsByFileId, fileId, sheetId, visibili
   return thumbsArray.map(thumb => thumb.frameNumber);
 };
 
+export const getSceneArrayForExport = (sceneArray, thumbsArray) => {
+  return sceneArray.map(scene => {
+    const { frameNumber } = thumbsArray.find(thumb => thumb.thumbId === scene.sceneId);
+    return {
+      start: scene.start,
+      length: scene.length,
+      frameNumber,
+      colorArray: scene.colorArray,
+    };
+  });
+};
+
 export const getFrameNumberWithSceneOrThumbId = (sheetsByFileId, fileId, sheetId, thumbId) => {
   if (
     thumbId === undefined ||
@@ -649,6 +662,13 @@ export const getSheetIdArray = (sheetsByFileId, fileId) => {
   }
   // return first sheetId in array
   return sheetIdArray;
+};
+
+export const getSheet = (sheetsByFileId, fileId, sheetId) => {
+  if (sheetsByFileId === undefined || sheetsByFileId[fileId] === undefined) {
+    return undefined;
+  }
+  return sheetsByFileId[fileId][sheetId];
 };
 
 export const getSheetName = (sheetsByFileId, fileId, sheetId) => {
@@ -1347,4 +1367,27 @@ export const areOneOrMoreFiltersEnabled = filters => {
     }
   }
   return false;
+};
+
+export const prepareDataToExportOrEmbed = (file, sheet, visibilityFilter, embedFilePath = true, embedFrameData = true) => {
+  const { path: filePath, transformObject = TRANSFORMOBJECT_INIT } = file;
+  const { columnCount, sceneArray, thumbsArray, type: sheetType } = sheet;
+  const frameNumberArray = getFramenumbers(sheet, visibilityFilter);
+
+  let sceneArrayForExport;
+  if (sheetType === SHEET_TYPE.SCENES) {
+    sceneArrayForExport = getSceneArrayForExport(sceneArray, thumbsArray);
+  }
+
+  const frameData = {
+    transformObject,
+    columnCount,
+    ...(sheetType !== SHEET_TYPE.SCENES && { frameNumberArray }), // only include frameNumberArray if not scenes
+    sceneArray: sceneArrayForExport,
+  };
+
+  return {
+    ...(embedFilePath && { filePath }),
+    ...(embedFrameData && frameData),
+  };
 };

@@ -66,6 +66,7 @@ import {
   getParentSheetId,
   getSceneFromFrameNumber,
   getSecondsPerRow,
+  getSheet,
   getSheetCount,
   getSheetFilter,
   getSheetId,
@@ -81,6 +82,7 @@ import {
   limitFrameNumberWithinMovieRange,
   limitRange,
   pad,
+  prepareDataToExportOrEmbed,
   repairFrameScanData,
 } from '../utils/utils';
 import {
@@ -1006,7 +1008,7 @@ class App extends Component {
     const { dispatch } = this.props;
     const { filesToLoad, sheetsToPrint, sheetsToUpdate } = this.state;
     const { files, file, settings, sheetsByFileId, visibilitySettings } = this.props;
-    const { defaultMoviePrintWidth, defaultPaperAspectRatioInv } = settings;
+    const { defaultMoviePrintWidth, defaultPaperAspectRatioInv, defaultEmbedFilePath, defaultEmbedFrameNumbers } = settings;
     const { visibilityFilter } = visibilitySettings;
 
     if (filesToLoad.length !== 0 && prevState.filesToLoad.length !== filesToLoad.length) {
@@ -1079,6 +1081,7 @@ class App extends Component {
 
         // get file to print
         const tempFile = getFile(files, sheetToPrint.fileId);
+        const tempSheet = getSheet(files, sheetToPrint.fileId, sheetToPrint.sheetId);
 
         // get scenes to print
         let tempScenes;
@@ -1110,6 +1113,8 @@ class App extends Component {
           secondsPerRow,
         );
         // console.log(scaleValueObject);
+        const dataToEmbed = prepareDataToExportOrEmbed(tempFile, tempSheet, visibilitySettings, defaultEmbedFilePath, defaultEmbedFrameNumbers);
+
         const dataToSend = {
           elementId: sheetView !== SHEET_VIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
           file: tempFile,
@@ -1121,6 +1126,7 @@ class App extends Component {
           scaleValueObject,
           scenes: tempScenes,
           secondsPerRow,
+          dataToEmbed
         };
 
         filesToUpdateStatus.push({
@@ -2191,6 +2197,7 @@ class App extends Component {
       dispatch(setCurrentSheetId(sheetId));
       this.optimiseGridLayout(tempFile.id, sheetId, sceneList.length);
       dispatch(setDefaultSheetView(SHEET_VIEW.TIMELINEVIEW));
+      console.log(sceneList);
       dispatch(addScenesFromSceneList(tempFile, sceneList, clearOldScenes, settings.defaultCachedFramesSize, sheetId));
     } else {
       this.showMessage('No scenes detected', 3000);
@@ -2547,7 +2554,7 @@ class App extends Component {
       sheetsByFileId,
       visibilitySettings,
     } = this.props;
-    const { defaultMoviePrintWidth, defaultPaperAspectRatioInv } = settings;
+    const { defaultMoviePrintWidth, defaultPaperAspectRatioInv, defaultEmbedFilePath, defaultEmbedFrameNumbers } = settings;
     const { visibilityFilter } = visibilitySettings;
 
     const sheet = sheetsByFileId[file.id][currentSheetId];
@@ -2567,6 +2574,8 @@ class App extends Component {
       currentSecondsPerRow,
     );
 
+    const dataToEmbed = prepareDataToExportOrEmbed(file, sheet, visibilitySettings, defaultEmbedFilePath, defaultEmbedFrameNumbers);
+
     const dataToSend = {
       // scale: 1,
       elementId: currentSheetView !== SHEET_VIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
@@ -2579,6 +2588,7 @@ class App extends Component {
       scaleValueObject,
       scenes: currentSheetView !== SHEET_VIEW.TIMELINEVIEW ? undefined : scenes,
       currentSecondsPerRow,
+      dataToEmbed,
     };
     // log.debug(dataToSend);
     this.setState(
@@ -3273,12 +3283,14 @@ class App extends Component {
         dispatch(rotateWidthAndHeight(fileId, false));
       }
       dispatch(updateCropping(fileId, rotationFlag, cropTop, cropBottom, cropLeft, cropRight, aspectRatioInv));
-      if (wasThereAChangeInAspectRatio && (currentFileId === fileId)) { // only update if currentFileId, else it will be updated next time when the user switches to this fileId
+      if (wasThereAChangeInAspectRatio && currentFileId === fileId) {
+        // only update if currentFileId, else it will be updated next time when the user switches to this fileId
         this.updateScaleValue(aspectRatioInv);
       }
     } else if (wasThereAChangeInAspectRatio) {
       dispatch(updateAspectRatio(fileId, aspectRatioInv));
-      if (currentFileId === fileId) { // only update if currentFileId, else it will be updated next time when the user switches to this fileId
+      if (currentFileId === fileId) {
+        // only update if currentFileId, else it will be updated next time when the user switches to this fileId
         this.updateScaleValue(aspectRatioInv);
       }
     }
@@ -3393,6 +3405,7 @@ class App extends Component {
   onExportSheetClick = (fileId, sheetId, exportType, fps) => {
     const { files, settings, sheetsByFileId, visibilitySettings } = this.props;
     log.debug(`onExportSheetClick: ${exportType}`);
+    const sheet = getSheet(sheetsByFileId, fileId, sheetId);
     const sheetName = getSheetName(sheetsByFileId, fileId, sheetId);
     const fileName = getFileName(files, fileId);
     const filePath = getFilePath(files, fileId);
@@ -3401,16 +3414,10 @@ class App extends Component {
     const isDropFrame = false;
     let exportObject;
     if (exportType === EXPORT_FORMAT_OPTIONS.JSON) {
-      const frameNumberArray = getFramenumbersOfSheet(sheetsByFileId, fileId, sheetId, visibilitySettings);
-      const transformObject = getFileTransformObject(files, fileId);
-      const columnCount = getColumnCount(sheetsByFileId, fileId, sheetId, settings);
+      const file = getFile(files, fileId);
+      const dataToExport = prepareDataToExportOrEmbed(file, sheet, visibilitySettings);
       exportObject = JSON.stringify(
-        {
-          filePath,
-          transformObject,
-          columnCount,
-          frameNumberArray,
-        },
+        dataToExport,
         null,
         '\t',
       ); // for pretty print with tab
@@ -3467,6 +3474,7 @@ ${exportObject}`;
         let transformObject;
         let columnCount;
         let frameNumberArray;
+        let sceneArray;
         let dataAvailable = false;
 
         if (fileExtension === '.png') {
@@ -3482,7 +3490,12 @@ ${exportObject}`;
             columnCount = Number(textChunks.find(chunk => chunk.keyword === 'columnCount').text);
             const frameNumberArrayString = textChunks.find(chunk => chunk.keyword === 'frameNumberArray').text;
             frameNumberArray = frameNumberArrayString !== 'undefined' ? JSON.parse(frameNumberArrayString) : undefined;
-            if (frameNumberArray !== undefined && frameNumberArray.length > 0) {
+            const sceneArrayString = textChunks.find(chunk => chunk.keyword === 'sceneArray').text;
+            sceneArray = sceneArrayString !== 'undefined' ? JSON.parse(sceneArrayString) : undefined;
+            if (
+              (frameNumberArray !== undefined && frameNumberArray.length > 0) ||
+              (sceneArray !== undefined && sceneArray.length > 0)
+            ) {
               dataAvailable = true;
             }
           }
@@ -3495,11 +3508,12 @@ ${exportObject}`;
           transformObject = jsonData.transformObject;
           columnCount = Number(jsonData.columnCount);
           frameNumberArray = jsonData.frameNumberArray;
+          sceneArray = jsonData.sceneArray;
           if (
             newFilePath !== undefined &&
             columnCount !== undefined &&
-            frameNumberArray !== undefined &&
-            frameNumberArray.length > 0
+            ((frameNumberArray !== undefined && frameNumberArray.length > 0) ||
+              (sceneArray !== undefined && sceneArray.length > 0))
           ) {
             dataAvailable = true;
           }
@@ -3540,14 +3554,37 @@ ${exportObject}`;
             type: 'ADD_MOVIE_LIST_ITEMS',
             payload: [fileToAdd],
           });
-          dispatch(addNewThumbsWithOrder(fileToAdd, sheetId, frameNumberArray, settings.defaultCachedFramesSize));
+
+
+          // sceneArray
+          // colorArray: (3) [134, 134, 98]
+          // fileId: "099371a6-5ec7-4a06-8c65-dd853b64df5e"
+          // hidden: false
+          // length: 430
+          // sceneId: "7cba705c-a003-48e4-8b1a-963e6bb9ad3b"
+          // sheetId: "4f545281-815b-4ab2-b8bd-ae2377daabc1"
+          // start: 0
+
+          // make interval sheet if frameNumberArray else shot based sheet
+          if (frameNumberArray !== undefined) {
+            dispatch(addNewThumbsWithOrder(fileToAdd, sheetId, frameNumberArray, settings.defaultCachedFramesSize));
+            dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.INTERVAL));
+            dispatch(updateSheetView(fileId, sheetId, SHEET_VIEW.GRIDVIEW));
+          } else {
+            const clearOldScenes = true;
+            dispatch(
+              addScenesFromSceneList(fileToAdd, sceneArray, clearOldScenes, settings.defaultCachedFramesSize, sheetId),
+            );
+            dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.SCENES));
+            dispatch(updateSheetView(fileId, sheetId, SHEET_VIEW.TIMELINEVIEW));
+          }
+
           dispatch(updateSheetName(fileId, sheetId, getNewSheetName(getSheetCount(files, fileId)))); // set name on file
           dispatch(updateSheetCounter(fileId));
-          dispatch(updateSheetColumnCount(fileId, sheetId, columnCount));
-          dispatch(updateSheetType(fileId, sheetId, SHEET_TYPE.INTERVAL));
-          dispatch(updateSheetView(fileId, sheetId, SHEET_VIEW.GRIDVIEW));
           dispatch(setCurrentSheetId(sheetId));
+          dispatch(updateSheetColumnCount(fileId, sheetId, columnCount));
           dispatch(setCurrentFileId(fileId));
+
           ipcRenderer.send(
             'message-from-mainWindow-to-opencvWorkerWindow',
             'send-get-file-details',

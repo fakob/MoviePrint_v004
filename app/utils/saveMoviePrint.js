@@ -28,13 +28,14 @@ const saveBlob = (blob, sheetId, fileName, dataToEmbed = undefined) => {
 
       // if there is data to embed, create chunks and add them in the end
       if (dataToEmbed !== undefined) {
-        const { filePath, transformObject, columnCount, frameNumberArray } = dataToEmbed;
+        const { filePath, transformObject, columnCount, frameNumberArray, sceneArray } = dataToEmbed;
         // Create chunks
         const version = text.encode('version', app.getVersion());
         const filePathChunk = text.encode('filePath', encodeURIComponent(filePath));
         const transformObjectChunk = text.encode('transformObject', JSON.stringify(transformObject));
         const columnCountChunk = text.encode('columnCount', columnCount);
         const frameNumberArrayChunk = text.encode('frameNumberArray', JSON.stringify(frameNumberArray));
+        const sceneArrayChunk = text.encode('sceneArray', JSON.stringify(sceneArray));
 
         const chunks = extract(buffer);
 
@@ -44,6 +45,7 @@ const saveBlob = (blob, sheetId, fileName, dataToEmbed = undefined) => {
         chunks.splice(-1, 0, transformObjectChunk);
         chunks.splice(-1, 0, columnCountChunk);
         chunks.splice(-1, 0, frameNumberArrayChunk);
+        chunks.splice(-1, 0, sceneArrayChunk);
 
         chunkBuffer = Buffer.from(encode(chunks));
       }
