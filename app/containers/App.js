@@ -488,7 +488,15 @@ class App extends Component {
       ) {
         const { columnCountTemp, thumbCountTemp, containerHeight, currentSecondsPerRow } = state;
 
-        const opencvVideo = new opencv.VideoCapture(file.path);
+        let opencvVideo;
+        if (getObjectProperty(() => file.path)) {
+          try {
+            opencvVideo = new opencv.VideoCapture(file.path);
+          } catch (e) {
+            log.error(e);
+          }
+        }
+
         const secondsPerRow = getSecondsPerRow(sheetsByFileId, currentFileId, currentSheetId, settings);
         const columnCount = getColumnCount(sheetsByFileId, file.id, currentSheetId, settings);
 
@@ -3816,7 +3824,7 @@ ${exportObject}`;
   };
 
   render() {
-    const { dropzoneActive, feedbackFormIsLoading, objectUrlObjects, scaleValueObject } = this.state;
+    const { dropzoneActive, feedbackFormIsLoading, objectUrlObjects, scaleValueObject, opencvVideo, showScrubWindow } = this.state;
     const { dispatch } = this.props;
     const {
       allScenes,
@@ -4210,7 +4218,7 @@ ${exportObject}`;
                       overflow: visibilitySettings.defaultView === VIEW.PLAYERVIEW ? 'visible' : 'hidden',
                     }}
                   >
-                    {file && (
+                    {opencvVideo !== undefined && file && (
                       <VideoPlayer
                         ref={this.videoPlayer}
                         file={file}
@@ -4225,7 +4233,7 @@ ${exportObject}`;
                         defaultSheetView={defaultSheetView}
                         sheetType={currentSheetType}
                         keyObject={this.state.keyObject}
-                        opencvVideo={this.state.opencvVideo}
+                        opencvVideo={opencvVideo}
                         containerWidth={this.state.containerWidth}
                         aspectRatioInv={scaleValueObject.aspectRatioInv}
                         height={scaleValueObject.videoPlayerHeight}
@@ -4538,9 +4546,9 @@ ${exportObject}`;
                   defaultView={visibilitySettings.defaultView}
                 />
               </div>
-              {this.state.showScrubWindow && (
+              {opencvVideo !== undefined && showScrubWindow && (
                 <Scrub
-                  opencvVideo={this.state.opencvVideo}
+                  opencvVideo={opencvVideo}
                   file={file}
                   settings={settings}
                   sheetType={currentSheetType}
