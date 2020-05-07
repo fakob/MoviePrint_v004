@@ -30,6 +30,27 @@ export const OUTPUT_FORMAT = {
   JPG: 'jpg',
 };
 
+export const MOVIEPRINT_WIDTH_HEIGHT_SIZE_LIMIT = 16384; // due to browser limitations https://html2canvas.hertzen.com/faq
+
+export const MOVIEPRINT_WIDTH_HEIGHT = [
+  1024,
+  2048,
+  3072,
+  4096,
+  5120,
+  6144,
+  7168,
+  8192,
+  9216,
+  10240,
+  11264,
+  12288,
+  13312,
+  14336,
+  15360,
+  16384,
+];
+
 export const SCALE_VALUE_ARRAY = [0.25, 0.33, 0.5, 0.75, 1, 2, 3, 4, 5, 6, 7, 8];
 
 export const COLOR_PALETTE_PICO_EIGHT = [

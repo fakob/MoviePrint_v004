@@ -51,6 +51,8 @@ import {
   FRAMEINFO_POSITION_OPTIONS,
   MENU_FOOTER_HEIGHT,
   MENU_HEADER_HEIGHT,
+  MOVIEPRINT_WIDTH_HEIGHT,
+  MOVIEPRINT_WIDTH_HEIGHT_SIZE_LIMIT,
   OUTPUT_FORMAT_OPTIONS,
   OUTPUT_FORMAT,
   PAPER_LAYOUT_OPTIONS,
@@ -71,7 +73,8 @@ const handle = props => {
   );
 };
 
-const outputSize = (
+const getOutputSizeOptions = (
+  baseSizeArray,
   file = {
     width: DEFAULT_MOVIE_WIDTH,
     height: DEFAULT_MOVIE_HEIGHT,
@@ -98,53 +101,52 @@ const outputSize = (
     sceneArray,
     secondsPerRowTemp,
   );
-  const sizeLimit = 16384; // due to browser limitations https://html2canvas.hertzen.com/faq
-  let moviePrintSize;
-  if (isGridView) {
-    moviePrintSize = [
-      { width: 1024, height: Math.round(1024 * newScaleValueObject.moviePrintAspectRatioInv) },
-      { width: 2048, height: Math.round(2048 * newScaleValueObject.moviePrintAspectRatioInv) },
-      { width: 3072, height: Math.round(3072 * newScaleValueObject.moviePrintAspectRatioInv) },
-      { width: 4096, height: Math.round(4096 * newScaleValueObject.moviePrintAspectRatioInv) },
-      { width: 8192, height: Math.round(8192 * newScaleValueObject.moviePrintAspectRatioInv) },
-      { width: 16384, height: Math.round(16384 * newScaleValueObject.moviePrintAspectRatioInv) },
-    ];
-    if (newScaleValueObject.moviePrintAspectRatioInv > 1) {
-      const maxWidth = Math.round(sizeLimit / newScaleValueObject.moviePrintAspectRatioInv);
-      // to avoid duplicates due to rounding
-      if (maxWidth !== sizeLimit) {
-        moviePrintSize.push({ width: maxWidth, height: sizeLimit });
-      }
-    }
-  } else {
-    moviePrintSize = [
-      { height: 1024, width: Math.round(1024 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
-      { height: 2048, width: Math.round(2048 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
-      { height: 3072, width: Math.round(3072 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
-      { height: 4096, width: Math.round(4096 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
-      { height: 8192, width: Math.round(8192 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
-      { height: 16384, width: Math.round(16384 / newScaleValueObject.timelineMoviePrintAspectRatioInv) },
-    ];
-    if (newScaleValueObject.timelineMoviePrintAspectRatioInv < 1) {
-      const maxHeight = Math.round(sizeLimit * newScaleValueObject.timelineMoviePrintAspectRatioInv);
-      // to avoid duplicates due to rounding
-      if (maxHeight !== sizeLimit) {
-        moviePrintSize.push({ height: maxHeight, width: sizeLimit });
-      }
+
+  // set base size options
+  const moviePrintSize = MOVIEPRINT_WIDTH_HEIGHT.map(item => {
+    const otherDim = isGridView
+      ? Math.round(item * newScaleValueObject.moviePrintAspectRatioInv)
+      : Math.round(item / newScaleValueObject.timelineMoviePrintAspectRatioInv);
+    return {
+      value: item,
+      otherdim: otherDim,
+      text: isGridView ? `${item}px (×${otherDim}px)` : `${otherDim}px (×${item}px)`,
+      'data-tid': `${item}-option`,
+    };
+  });
+
+  // add max option
+  if (
+    isGridView
+      ? newScaleValueObject.moviePrintAspectRatioInv > 1
+      : newScaleValueObject.timelineMoviePrintAspectRatioInv < 1
+  ) {
+    const maxDim = isGridView
+      ? Math.round(MOVIEPRINT_WIDTH_HEIGHT_SIZE_LIMIT / newScaleValueObject.moviePrintAspectRatioInv)
+      : Math.round(MOVIEPRINT_WIDTH_HEIGHT_SIZE_LIMIT * newScaleValueObject.timelineMoviePrintAspectRatioInv);
+    // to avoid duplicates due to rounding
+    if (maxDim !== MOVIEPRINT_WIDTH_HEIGHT_SIZE_LIMIT) {
+      moviePrintSize.push({
+        value: maxDim,
+        otherdim: MOVIEPRINT_WIDTH_HEIGHT_SIZE_LIMIT,
+        text: isGridView
+          ? `${maxDim}px (×${MOVIEPRINT_WIDTH_HEIGHT_SIZE_LIMIT}px)`
+          : `${MOVIEPRINT_WIDTH_HEIGHT_SIZE_LIMIT}px (×${maxDim}px)`,
+        'data-tid': `other-max-option`,
+      });
     }
   }
-  const moviePrintSizeArray = moviePrintSize
-    .reduce((newFilteredArray, item) => {
-      if (item.width <= sizeLimit && item.height <= sizeLimit) {
-        newFilteredArray.push({
-          value: isGridView ? item.width : item.height,
-          text: `${item.width}px (×${item.height}px)`,
-          'data-tid': `${item.width}-widthOption`,
-        });
-      }
-      return newFilteredArray;
-    }, [])
-    .sort((a, b) => b.value < a.value);
+
+  // filter options
+  const moviePrintSizeArray = moviePrintSize.filter(item => {
+    const useOtherDim = isGridView
+      ? newScaleValueObject.moviePrintAspectRatioInv > 1
+      : newScaleValueObject.timelineMoviePrintAspectRatioInv < 1;
+    return useOtherDim
+      ? item.otherdim <= MOVIEPRINT_WIDTH_HEIGHT_SIZE_LIMIT
+      : item.value <= MOVIEPRINT_WIDTH_HEIGHT_SIZE_LIMIT;
+  });
+  // console.log(moviePrintSizeArray);
   return moviePrintSizeArray;
 };
 
@@ -538,6 +540,7 @@ class SettingsList extends Component {
       activeIndex,
       displayColorPicker,
       focusReference,
+      outputSizeOptions,
       previewMoviePrintName,
       previewSingleThumbName,
       previewAllThumbsName,
@@ -941,11 +944,7 @@ class SettingsList extends Component {
                   </Grid>
                 </Accordion.Content>
 
-                <Accordion.Title
-                  active={activeIndex === 1}
-                  index={1}
-                  onClick={this.handleClick}
-                >
+                <Accordion.Title active={activeIndex === 1} index={1} onClick={this.handleClick}>
                   <Icon name="dropdown" />
                   Styling
                 </Accordion.Title>
@@ -1297,7 +1296,8 @@ class SettingsList extends Component {
                           data-tid="changeMoviePrintWidthDropdown"
                           placeholder="Select..."
                           selection
-                          options={outputSize(
+                          options={getOutputSizeOptions(
+                            MOVIEPRINT_WIDTH_HEIGHT,
                             file,
                             columnCountTemp,
                             thumbCountTemp,

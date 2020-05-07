@@ -132,6 +132,7 @@ const saveMoviePrint = (
         getMimeType(outputFormat),
         qualityArgument,
       );
+      return undefined;
     })
     .catch(err => {
       log.error(err);

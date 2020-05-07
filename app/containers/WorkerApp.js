@@ -12,7 +12,7 @@ import Conditional from '../components/Conditional';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { getMoviePrintColor, getVisibleThumbs } from '../utils/utils';
 import saveMoviePrint from '../utils/saveMoviePrint';
-import { DEFAULT_THUMB_COUNT_MAX, SHEET_VIEW, VIEW } from '../utils/constants';
+import { DEFAULT_THUMB_COUNT_MAX, MOVIEPRINT_WIDTH_HEIGHT_SIZE_LIMIT, SHEET_VIEW, VIEW } from '../utils/constants';
 import { getBase64Object } from '../utils/utilsForOpencv';
 
 const { ipcRenderer } = require('electron');
@@ -26,17 +26,20 @@ class WorkerApp extends Component {
       savingMoviePrint: false,
       sentData: {},
       thumbObjectBase64s: {},
+      debugKeepView: false,
     };
   }
 
   componentDidMount() {
     log.debug('I am the worker window - responsible for saving a MoviePrint');
     ipcRenderer.on('action-saved-MoviePrint-done', event => {
+      const debugKeepView = false; // set to tru to keep view for debugging
       this.setState({
+        debugKeepView,
         savingMoviePrint: false,
-        sentData: {},
-        visibleThumbs: [],
-        thumbObjectBase64s: {},
+        ...(!debugKeepView && { sentData: {} }),
+        ...(!debugKeepView && { visibleThumbs: [] }),
+        ...(!debugKeepView && { thumbObjectBase64s: {} }),
       });
     });
 
@@ -44,22 +47,28 @@ class WorkerApp extends Component {
       log.debug('workerWindow | action-save-MoviePrint');
       log.debug(sentData);
 
-      if (sentData.moviePrintWidth > 16384) {
+      if (sentData.moviePrintWidth > MOVIEPRINT_WIDTH_HEIGHT_SIZE_LIMIT) {
         ipcRenderer.send(
           'message-from-workerWindow-to-mainWindow',
           'received-saved-file-error',
-          'MoviePrint could not be saved due to sizelimit (width > 16384)',
+          `MoviePrint could not be saved due to sizelimit (width > ${MOVIEPRINT_WIDTH_HEIGHT_SIZE_LIMIT})`,
         );
       } else {
         const visibleThumbs = getVisibleThumbs(sentData.sheet.thumbsArray, sentData.visibilityFilter);
 
         // calculate which frameSize is needed to be captured
-        // moviePrintAspectRatioInv
+        // aspectRatioInv
         // need to check portrait thumbs as resizeToMax is used which is not width specific
-        const { newThumbWidth, moviePrintAspectRatioInv } = sentData.scaleValueObject;
+        const { newThumbWidth, aspectRatioInv } = sentData.scaleValueObject;
         const { file } = sentData;
-        const newThumbHeight = newThumbWidth * moviePrintAspectRatioInv;
-        const frameSize = Math.floor(Math.max(newThumbHeight, newThumbWidth) * 2); // get twice the needed resolution for better antialiasing
+        const newThumbHeight = newThumbWidth * aspectRatioInv;
+
+        // get twice the needed resolution for better antialiasing, but
+        // prevent upsizing of image of more than the original size
+        const frameSize = Math.floor(
+          Math.max(Math.min(newThumbHeight * 2, file.originalHeight), Math.min(newThumbWidth * 2, file.originalWidth)),
+        );
+        console.log(aspectRatioInv);
         console.log(newThumbWidth);
         console.log(newThumbHeight);
         console.log(frameSize);
@@ -130,10 +139,10 @@ class WorkerApp extends Component {
   // }
 
   render() {
-    const { sentData, savingMoviePrint, thumbObjectBase64s, visibleThumbs } = this.state;
+    const { debugKeepView, sentData, savingMoviePrint, thumbObjectBase64s, visibleThumbs } = this.state;
 
     let sheetView;
-    if (savingMoviePrint) {
+    if (savingMoviePrint || debugKeepView) {
       sheetView = sentData.sheet.sheetView;
       console.log(sheetView);
     }
@@ -141,7 +150,7 @@ class WorkerApp extends Component {
     return (
       <ErrorBoundary>
         <div>
-          {savingMoviePrint && (
+          {(savingMoviePrint || debugKeepView) && (
             <div
               ref={r => {
                 this.divOfSortedVisibleThumbGridRef = r;

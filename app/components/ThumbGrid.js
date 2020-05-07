@@ -32,7 +32,6 @@ import {
   DEFAULT_FRAMEINFO_POSITION,
   DEFAULT_FRAMEINFO_SCALE,
   DEFAULT_SHOW_FACERECT,
-  FILTER_METHOD,
   MINIMUM_WIDTH_TO_SHOW_HOVER,
   MINIMUM_WIDTH_TO_SHRINK_HOVER,
   SHEET_TYPE,
@@ -736,7 +735,7 @@ class ThumbGrid extends Component {
         hoverPos !== undefined && ( // only show when hoveringOver a thumb
             // !this.props.showSettings && // only show when not showSettings
             <div
-              className={styles.overlayContainer}
+              className={`${styles.overlayContainer} data-html2canvas-ignore`}
               // onMouseOut={this.onContainerOut}
             >
               <div

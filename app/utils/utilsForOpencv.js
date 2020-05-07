@@ -127,10 +127,10 @@ export const getBase64Object = (
           if (fileFormat === OUTPUT_FORMAT.JPG) {
             encodingFlags = [ImwriteFlags.IMWRITE_JPEG_QUALITY, defaultThumbJpgQuality]; // 1 for IMWRITE_JPEG_QUALITY
           }
-        } else {
-          log.debug('getBase64Object | frame is empty');
         }
         base64 = opencv.imencode(`.${fileFormat}`, matRescaled || matCropped || mat, encodingFlags).toString('base64');
+      } else {
+        log.debug('getBase64Object | frame is empty');
       }
       objectUrlObjects[thumb.frameId] = base64;
       return undefined;
