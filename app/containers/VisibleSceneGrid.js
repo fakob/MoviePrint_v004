@@ -144,9 +144,11 @@ SortedVisibleSceneGrid.contextTypes = {
 };
 
 SortedVisibleSceneGrid.defaultProps = {
+  selectedThumbsArray: [],
 };
 
 SortedVisibleSceneGrid.propTypes = {
+  selectedThumbsArray: PropTypes.array,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(SortedVisibleSceneGrid);
