@@ -918,44 +918,49 @@ class App extends Component {
       }
     });
 
-    ipcRenderer.on('received-saved-file', (event, id, path) => {
+    ipcRenderer.on('received-saved-file', (event, id, path, isSingleThumb = false) => {
       const { settings } = this.props;
       const { defaultOpenFileExplorerAfterSaving } = settings;
-      if (this.state.savingMoviePrint) {
-        setTimeout(this.setState({ savingMoviePrint: false }), 1000); // adding timeout to prevent clicking multiple times
-        // open file explorer if checked
-        if (defaultOpenFileExplorerAfterSaving) {
-          this.onOpenFileExplorer(path);
-        }
-      } else if (this.state.savingAllMoviePrints) {
-        // check if the sheet which was saved has been printing, then set status to done
-        if (this.state.sheetsToPrint.findIndex(item => item.status === 'printing') > -1) {
-          // state should be immutable, therefor
-          const sheetsToPrint = this.state.sheetsToPrint.map(item => {
-            if (item.status !== 'printing') {
-              // This isn't the item we care about - keep it as-is
-              return item;
-            }
-            // Otherwise, this is the one we want - return an updated value
-            return {
-              ...item,
-              status: 'done',
-            };
-          });
-          // log.debug(sheetsToPrint);
-          this.setState({
-            sheetsToPrint,
-          });
-          // check if all files have been printed, then set savingAllMoviePrints to false
-          if (
-            this.state.sheetsToPrint.filter(item => item.status === 'done').length ===
-            this.state.sheetsToPrint.filter(item => item.status !== 'undefined').length
-          ) {
-            this.setState({ savingAllMoviePrints: false });
 
-            // open file explorer if checked
-            if (defaultOpenFileExplorerAfterSaving) {
-              this.onOpenFileExplorer(path);
+      // ignore when saved file event was triggered from saving a single thumb
+      if (!isSingleThumb) {
+        if (this.state.savingMoviePrint) {
+          setTimeout(this.setState({ savingMoviePrint: false }), 1000); // adding timeout to prevent clicking multiple times
+          // open file explorer if checked
+          if (defaultOpenFileExplorerAfterSaving) {
+            this.onOpenFileExplorer(path);
+          }
+        } else if (this.state.savingAllMoviePrints) {
+          // check if the sheet which was saved has been printing, then set status to done
+          if (this.state.sheetsToPrint.findIndex(item => item.status === 'printing') > -1) {
+            // state should be immutable, therefor
+            const sheetsToPrint = this.state.sheetsToPrint.map(item => {
+              if (item.status !== 'printing') {
+                // This isn't the item we care about - keep it as-is
+                return item;
+              }
+              // Otherwise, this is the one we want - return an updated value
+              return {
+                ...item,
+                status: 'done',
+              };
+            });
+            log.debug(sheetsToPrint);
+            this.setState({
+              sheetsToPrint,
+            });
+            // check if all files have been printed, then set savingAllMoviePrints to false
+            if (
+              this.state.sheetsToPrint.filter(item => item.status === 'done').length ===
+              this.state.sheetsToPrint.filter(item => item.status !== 'undefined').length
+            ) {
+              console.log('++++++++++++++++++++++++++ savingAllMoviePrints: false')
+              this.setState({ savingAllMoviePrints: false });
+
+              // open file explorer if checked
+              if (defaultOpenFileExplorerAfterSaving) {
+                this.onOpenFileExplorer(path);
+              }
             }
           }
         }
@@ -1016,7 +1021,12 @@ class App extends Component {
     const { dispatch } = this.props;
     const { filesToLoad, sheetsToPrint, sheetsToUpdate } = this.state;
     const { files, file, settings, sheetsByFileId, visibilitySettings } = this.props;
-    const { defaultMoviePrintWidth, defaultPaperAspectRatioInv, defaultEmbedFilePath, defaultEmbedFrameNumbers } = settings;
+    const {
+      defaultMoviePrintWidth,
+      defaultPaperAspectRatioInv,
+      defaultEmbedFilePath,
+      defaultEmbedFrameNumbers,
+    } = settings;
     const { visibilityFilter } = visibilitySettings;
 
     if (filesToLoad.length !== 0 && prevState.filesToLoad.length !== filesToLoad.length) {
@@ -1082,14 +1092,13 @@ class App extends Component {
         const sheetToPrint = sheetsToPrint.find(item => item.status === 'readyForPrinting');
 
         // get sheet to print
-        const sheet = sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId];
+        const sheet = getSheet(sheetsByFileId, sheetToPrint.fileId, sheetToPrint.sheetId);
 
         // define what sheetView to print depending on type
         const { sheetView } = sheet;
 
         // get file to print
         const tempFile = getFile(files, sheetToPrint.fileId);
-        const tempSheet = getSheet(files, sheetToPrint.fileId, sheetToPrint.sheetId);
 
         // get scenes to print
         let tempScenes;
@@ -1121,7 +1130,13 @@ class App extends Component {
           secondsPerRow,
         );
         // console.log(scaleValueObject);
-        const dataToEmbed = prepareDataToExportOrEmbed(tempFile, tempSheet, visibilitySettings, defaultEmbedFilePath, defaultEmbedFrameNumbers);
+        const dataToEmbed = prepareDataToExportOrEmbed(
+          tempFile,
+          sheet,
+          visibilitySettings,
+          defaultEmbedFilePath,
+          defaultEmbedFrameNumbers,
+        );
 
         const dataToSend = {
           elementId: sheetView !== SHEET_VIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
@@ -1134,7 +1149,7 @@ class App extends Component {
           scaleValueObject,
           scenes: tempScenes,
           secondsPerRow,
-          dataToEmbed
+          dataToEmbed,
         };
 
         filesToUpdateStatus.push({
@@ -2562,7 +2577,12 @@ class App extends Component {
       sheetsByFileId,
       visibilitySettings,
     } = this.props;
-    const { defaultMoviePrintWidth, defaultPaperAspectRatioInv, defaultEmbedFilePath, defaultEmbedFrameNumbers } = settings;
+    const {
+      defaultMoviePrintWidth,
+      defaultPaperAspectRatioInv,
+      defaultEmbedFilePath,
+      defaultEmbedFrameNumbers,
+    } = settings;
     const { visibilityFilter } = visibilitySettings;
 
     const sheet = sheetsByFileId[file.id][currentSheetId];
@@ -2582,7 +2602,13 @@ class App extends Component {
       currentSecondsPerRow,
     );
 
-    const dataToEmbed = prepareDataToExportOrEmbed(file, sheet, visibilitySettings, defaultEmbedFilePath, defaultEmbedFrameNumbers);
+    const dataToEmbed = prepareDataToExportOrEmbed(
+      file,
+      sheet,
+      visibilitySettings,
+      defaultEmbedFilePath,
+      defaultEmbedFrameNumbers,
+    );
 
     const dataToSend = {
       // scale: 1,
@@ -3424,11 +3450,7 @@ class App extends Component {
     if (exportType === EXPORT_FORMAT_OPTIONS.JSON) {
       const file = getFile(files, fileId);
       const dataToExport = prepareDataToExportOrEmbed(file, sheet, visibilitySettings);
-      exportObject = JSON.stringify(
-        dataToExport,
-        null,
-        '\t',
-      ); // for pretty print with tab
+      exportObject = JSON.stringify(dataToExport, null, '\t'); // for pretty print with tab
     } else if (exportType === EXPORT_FORMAT_OPTIONS.EDL) {
       const sceneArray = getEDLscenes(sheetsByFileId, fileId, sheetId, visibilitySettings, fps);
       exportObject = sceneArray.join(`
@@ -3562,7 +3584,6 @@ ${exportObject}`;
             type: 'ADD_MOVIE_LIST_ITEMS',
             payload: [fileToAdd],
           });
-
 
           // sceneArray
           // colorArray: (3) [134, 134, 98]
@@ -3824,7 +3845,14 @@ ${exportObject}`;
   };
 
   render() {
-    const { dropzoneActive, feedbackFormIsLoading, objectUrlObjects, scaleValueObject, opencvVideo, showScrubWindow } = this.state;
+    const {
+      dropzoneActive,
+      feedbackFormIsLoading,
+      objectUrlObjects,
+      scaleValueObject,
+      opencvVideo,
+      showScrubWindow,
+    } = this.state;
     const { dispatch } = this.props;
     const {
       allScenes,
