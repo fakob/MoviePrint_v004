@@ -4,18 +4,12 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { arrayMove } from 'react-sortable-hoc';
 import scrollIntoView from 'scroll-into-view';
-import {
-  toggleThumb, updateOrder,
-  changeThumb, addIntervalSheet, toggleThumbsByThumbIdArray
-} from '../actions';
+import { toggleThumb, updateOrder, changeThumb, addIntervalSheet, toggleThumbsByThumbIdArray } from '../actions';
 import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
 import { getLowestFrame, getHighestFrame } from '../utils/utils';
 import saveThumb from '../utils/saveThumb';
-import {
-  CHANGE_THUMB_STEP,
-  DEFAULT_SINGLETHUMB_NAME,
-} from '../utils/constants';
+import { CHANGE_THUMB_STEP, DEFAULT_SINGLETHUMB_NAME } from '../utils/constants';
 
 class SortedVisibleThumbGrid extends Component {
   constructor(props) {
@@ -39,14 +33,15 @@ class SortedVisibleThumbGrid extends Component {
   componentDidUpdate(prevProps) {
     const { selectedThumbsArray, view } = this.props;
 
-    if (prevProps.selectedThumbsArray.length !== 0 &&
+    if (
+      prevProps.selectedThumbsArray.length !== 0 &&
       selectedThumbsArray.length !== 0 &&
-      (prevProps.selectedThumbsArray[0].thumbId !== selectedThumbsArray[0].thumbId)) {
+      prevProps.selectedThumbsArray[0].thumbId !== selectedThumbsArray[0].thumbId
+    ) {
       this.scrollThumbIntoView();
     }
     // delay when switching to gridView so it waits for the sheetView to be ready
-    if ((prevProps.view !== view) &&
-    prevProps.view) {
+    if (prevProps.view !== view && prevProps.view) {
       setTimeout(() => {
         this.scrollThumbIntoView();
       }, 500);
@@ -63,7 +58,7 @@ class SortedVisibleThumbGrid extends Component {
     const { onSelectThumbMethod } = this.props;
 
     onSelectThumbMethod(thumbId, frameNumber);
-  }
+  };
 
   scrollThumbIntoView = () => {
     if (this.scrollIntoViewElement && this.scrollIntoViewElement.current !== null) {
@@ -71,7 +66,7 @@ class SortedVisibleThumbGrid extends Component {
         time: 300,
         align: {
           left: 0.5,
-        }
+        },
       });
     }
   };
@@ -179,15 +174,12 @@ class SortedVisibleThumbGrid extends Component {
         sizeFilterEnabled={sizeFilterEnabled}
         genderFilterEnabled={genderFilterEnabled}
         isExpanded={isExpanded}
-
         useDragHandle
         axis="xy"
         distance={1}
         helperClass={styles.whileDragging}
-        onSortStart={
-          this.onSortStart.bind(this)
-        }
-        onSortEnd={(sort) => {
+        onSortStart={this.onSortStart.bind(this)}
+        onSortEnd={sort => {
           this.setState({
             isSorting: false,
           });
@@ -204,48 +196,44 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     onSortEnd: ({ oldIndex, newIndex }) => {
       const { currentSheetId, settings, sheetsByFileId } = ownProps;
-      console.log(ownProps)
-      console.log(sheetsByFileId)
-      console.log(settings)
-      const newOrderedThumbs = arrayMove(sheetsByFileId[settings.currentFileId][currentSheetId].thumbsArray,
+      const newOrderedThumbs = arrayMove(
+        sheetsByFileId[settings.currentFileId][currentSheetId].thumbsArray,
         oldIndex,
-        newIndex);
-      dispatch(updateOrder(
-        settings.currentFileId,
-        currentSheetId,
-        newOrderedThumbs));
+        newIndex,
+      );
+      dispatch(updateOrder(settings.currentFileId, currentSheetId, newOrderedThumbs));
     },
     onToggleClick: (fileId, thumbId) => {
       dispatch(toggleThumb(fileId, ownProps.currentSheetId, thumbId));
     },
     onInPointClick: (file, thumbs, thumbId, frameNumber) => {
-      dispatch(addIntervalSheet(
-        file,
-        ownProps.currentSheetId,
-        thumbs.length,
-        frameNumber,
-        getHighestFrame(thumbs),
-        ownProps.frameSize,
-        true, // limitToRange -> do not get more thumbs then between in and out available
-      ));
+      dispatch(
+        addIntervalSheet(
+          file,
+          ownProps.currentSheetId,
+          thumbs.length,
+          frameNumber,
+          getHighestFrame(thumbs),
+          ownProps.frameSize,
+          true, // limitToRange -> do not get more thumbs then between in and out available
+        ),
+      );
     },
     onOutPointClick: (file, thumbs, thumbId, frameNumber) => {
-      dispatch(addIntervalSheet(
-        file,
-        ownProps.currentSheetId,
-        thumbs.length,
-        getLowestFrame(thumbs),
-        frameNumber,
-        ownProps.frameSize,
-        true, // limitToRange -> do not get more thumbs then between in and out available
-      ));
+      dispatch(
+        addIntervalSheet(
+          file,
+          ownProps.currentSheetId,
+          thumbs.length,
+          getLowestFrame(thumbs),
+          frameNumber,
+          ownProps.frameSize,
+          true, // limitToRange -> do not get more thumbs then between in and out available
+        ),
+      );
     },
     onHideBeforeAfterClick: (fileId, sheetId, thumbIdArray) => {
-      dispatch(toggleThumbsByThumbIdArray(
-        fileId,
-        sheetId,
-        thumbIdArray
-      ));
+      dispatch(toggleThumbsByThumbIdArray(fileId, sheetId, thumbIdArray));
     },
 
     onSaveThumbClick: (filePath, fileUseRatio, movieFileName, frameNumber, frameId, transformObject) => {
@@ -287,7 +275,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
         stepValue = stepValue2;
       }
       dispatch(changeThumb(ownProps.currentSheetId, file, thumbId, frameNumber + stepValue, ownProps.frameSize));
-    }
+    },
   };
 };
 
@@ -309,12 +297,14 @@ SortedVisibleThumbGrid.propTypes = {
     width: PropTypes.number,
     height: PropTypes.number,
   }),
-  thumbs: PropTypes.arrayOf(PropTypes.shape({
-    thumbId: PropTypes.string.isRequired,
-    index: PropTypes.number.isRequired,
-    hidden: PropTypes.bool.isRequired,
-    frameNumber: PropTypes.number.isRequired
-  }).isRequired),
+  thumbs: PropTypes.arrayOf(
+    PropTypes.shape({
+      thumbId: PropTypes.string.isRequired,
+      index: PropTypes.number.isRequired,
+      hidden: PropTypes.bool.isRequired,
+      frameNumber: PropTypes.number.isRequired,
+    }).isRequired,
+  ),
   currentSheetId: PropTypes.string,
   emptyColorsArray: PropTypes.array.isRequired,
   inputRef: PropTypes.func.isRequired,
