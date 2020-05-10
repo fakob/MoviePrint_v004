@@ -122,6 +122,7 @@ const saveMoviePrint = (
   html2canvas(node, {
     backgroundColor: backgroundColorDependentOnFormat,
     allowTaint: true,
+    foreignObjectRendering: true,
     scale,
   })
     .then(canvas => {
