@@ -233,22 +233,6 @@ export const filterArray = (detectionArray, filters) => {
     return undefined;
   });
 
-  // sort by count, size and then score
-  flattenedArray.sort((a, b) => {
-    // Sort by faceOccurrence
-    if (a.faceOccurrence < b.faceOccurrence) return 1;
-    if (a.faceOccurrence > b.faceOccurrence) return -1;
-
-    // If the count number is the same between both items, sort by size
-    if (a.size < b.size) return 1;
-    if (a.size > b.size) return -1;
-
-    // If the count number is the same between both items, sort by size
-    if (a.score < b.score) return 1;
-    if (a.score > b.score) return -1;
-    return -1;
-  });
-
   const unflattenedArray = unflattenArray(flattenedArray);
   // console.log(filteredAndSortedArray);
   return unflattenedArray;
