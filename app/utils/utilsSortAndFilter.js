@@ -27,13 +27,6 @@ export const sortArray = (
         .sort((a, b) => (a.frameNumber > b.frameNumber ? sortOrderMultiplier * 1 : sortOrderMultiplier * -1));
       // .map(item => item.frameNumber);
       break;
-    case SORT_METHOD.FACESIZE:
-      sortedArray = detectionArray
-        .slice()
-        .filter(item => item.faceCount !== 0) // filter out frames with no faces
-        .sort((a, b) => (a.largestSize < b.largestSize ? sortOrderMultiplier * 1 : sortOrderMultiplier * -1));
-      // .map(item => item.frameNumber);
-      break;
     case SORT_METHOD.FACECOUNT:
       sortedArray = detectionArray
         .slice()
@@ -41,16 +34,33 @@ export const sortArray = (
         .sort((a, b) => (a.faceCount < b.faceCount ? sortOrderMultiplier * 1 : sortOrderMultiplier * -1));
       // .map(item => item.frameNumber);
       break;
+    case SORT_METHOD.FACESIZE: {
+      // filtered and flatten the detectionArray
+      const detectionArrayFiltered = detectionArray.filter(item => item.faceCount !== 0); // filter out frames with no faces
+      const flattenedArray = getFlattenedArray(detectionArrayFiltered);
+      const flattenedArrayFiltered = flattenedArray.filter(item => !item.faceIsHidden); // filter out faces which are hidden
+
+      // sort
+      flattenedArrayFiltered.sort((a, b) => (a.size < b.size ? sortOrderMultiplier * 1 : sortOrderMultiplier * -1));
+
+      // only keep first faceOccurrence of frameNumber
+      sortedArray = flattenedArrayFiltered.filter(
+        (item, index, self) => index === self.findIndex(t => t.frameNumber === item.frameNumber),
+      );
+      // sortedArray =
+      break;
+    }
     case SORT_METHOD.FACECONFIDENCE: {
       // filtered and flatten the detectionArray
       const detectionArrayFiltered = detectionArray.filter(item => item.faceCount !== 0); // filter out frames with no faces
       const flattenedArray = getFlattenedArray(detectionArrayFiltered);
+      const flattenedArrayFiltered = flattenedArray.filter(item => !item.faceIsHidden); // filter out faces which are hidden
 
       // sort
-      flattenedArray.sort((a, b) => (a.score < b.score ? sortOrderMultiplier * 1 : sortOrderMultiplier * -1));
+      flattenedArrayFiltered.sort((a, b) => (a.score < b.score ? sortOrderMultiplier * 1 : sortOrderMultiplier * -1));
 
       // only keep first faceOccurrence of frameNumber
-      sortedArray = flattenedArray.filter(
+      sortedArray = flattenedArrayFiltered.filter(
         (item, index, self) => index === self.findIndex(t => t.frameNumber === item.frameNumber),
       );
       // sortedArray =
@@ -59,11 +69,12 @@ export const sortArray = (
     case SORT_METHOD.FACEOCCURRENCE: {
       // filtered and flatten the detectionArray
       const detectionArrayFiltered = detectionArray.filter(item => item.faceCount !== 0); // filter out frames with no faces
-      const flattenedArray = getFlattenedArrayWithOccurrences(detectionArrayFiltered);
+      const flattenedArray = getFlattenedArray(detectionArrayFiltered);
+      const flattenedArrayFiltered = flattenedArray.filter(item => !item.faceIsHidden); // filter out faces which are hidden
       // console.log(flattenedArray.map(item => ({ faceGroupNumber: item.faceGroupNumber, size: item.size, faceOccurrence: item.faceOccurrence })));
 
       // sort by count, size and then score
-      flattenedArray.sort((a, b) => {
+      flattenedArrayFiltered.sort((a, b) => {
         // Sort by count number
         if (a.faceOccurrence < b.faceOccurrence) return sortOrderMultiplier * 1;
         if (a.faceOccurrence > b.faceOccurrence) return sortOrderMultiplier * -1;
@@ -79,7 +90,7 @@ export const sortArray = (
       });
 
       // only keep first faceOccurrence of frameNumber
-      sortedArray = flattenedArray.filter(
+      sortedArray = flattenedArrayFiltered.filter(
         (item, index, self) => index === self.findIndex(t => t.frameNumber === item.frameNumber),
       );
       break;
@@ -93,14 +104,15 @@ export const sortArray = (
         // console.log(faceIdOfOrigin);
 
         if (faceIdOfOrigin !== undefined) {
-          const flattenedArray = getFlattenedArrayWithOccurrences(detectionArrayFiltered);
+          const flattenedArray = getFlattenedArray(detectionArrayFiltered);
+          const flattenedArrayFiltered = flattenedArray.filter(item => !item.faceIsHidden); // filter out faces which are hidden
           // console.log(flattenedArray);
 
           // filter array to only include faceIdOfOrigin
-          flattenedArray.filter(item => item.faceGroupNumber === faceIdOfOrigin);
+          flattenedArrayFiltered.filter(item => item.faceGroupNumber === faceIdOfOrigin);
 
           // sort by distToOrigin
-          flattenedArray.sort((a, b) => {
+          flattenedArrayFiltered.sort((a, b) => {
             // Sort by distToOrigin
             if (a.distToOrigin > b.distToOrigin) return sortOrderMultiplier * 1;
             if (a.distToOrigin < b.distToOrigin) return sortOrderMultiplier * -1;
@@ -108,7 +120,7 @@ export const sortArray = (
           });
 
           // only keep first faceOccurrence of frameNumber
-          sortedArray = flattenedArray.filter(
+          sortedArray = flattenedArrayFiltered.filter(
             (item, index, self) => index === self.findIndex(t => t.frameNumber === item.frameNumber),
           );
         }
@@ -133,7 +145,7 @@ export const filterArray = (detectionArray, filters) => {
   }
 
   const detectionArrayFiltered = detectionArray.filter(item => item.faceCount !== 0); // filter out frames with no faces
-  const flattenedArray = getFlattenedArrayWithOccurrences(detectionArrayFiltered);
+  const flattenedArray = getFlattenedArray(detectionArrayFiltered);
 
   // filteredAndSortedArray = flattenedArray.filter(item => item.distToOrigin === 0);
 
@@ -282,16 +294,16 @@ export const unflattenArray = flattenedArray => {
   return unflattenedArray;
 };
 
-export const getFlattenedArrayWithOccurrences = detectionArray => {
-  const arrayOfOccurrences = getArrayOfOccurrences(detectionArray);
-  const flattenedArray = getFlattenedArray(detectionArray);
-  flattenedArray.forEach(item => {
-    // convert object to array and find faceOccurrence and add to item
-    const { count } = Object.values(arrayOfOccurrences).find(item2 => item2.faceGroupNumber === item.faceGroupNumber);
-    item.faceOccurrence = count;
-  });
-  return flattenedArray;
-};
+// export const getFlattenedArrayWithOccurrences = detectionArray => {
+//   const arrayOfOccurrences = getArrayOfOccurrences(detectionArray);
+//   const flattenedArray = getFlattenedArray(detectionArray);
+//   flattenedArray.forEach(item => {
+//     // convert object to array and find faceOccurrence and add to item
+//     const { count } = Object.values(arrayOfOccurrences).find(item2 => item2.faceGroupNumber === item.faceGroupNumber);
+//     item.faceOccurrence = count;
+//   });
+//   return flattenedArray;
+// };
 
 export const getFlattenedArray = detectionArray => {
   const flattenedArray = [];

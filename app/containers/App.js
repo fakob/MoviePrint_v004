@@ -954,7 +954,6 @@ class App extends Component {
               this.state.sheetsToPrint.filter(item => item.status === 'done').length ===
               this.state.sheetsToPrint.filter(item => item.status !== 'undefined').length
             ) {
-              console.log('++++++++++++++++++++++++++ savingAllMoviePrints: false')
               this.setState({ savingAllMoviePrints: false });
 
               // open file explorer if checked
