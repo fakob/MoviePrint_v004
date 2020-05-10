@@ -617,7 +617,7 @@ const FloatingMenu = ({
                     onAfterChange={value => {
                       const valueFloat = value / 100.0;
                       onChangeFaceUniquenessThreshold(valueFloat);
-                      onFilterSheet(currentSheetFilter);
+                      onFilterSheet(currentSheetFilter, undefined, undefined, valueFloat);
                       onUpdateSheetFilter(currentSheetFilter);
                     }}
                   />

@@ -91,7 +91,7 @@ import {
   filterArray,
   getFaceIdArrayFromThumbs,
   getIntervalArray,
-  insertOccurrence,
+  insertFaceOccurrence,
   sortArray,
   sortThumbsArray,
 } from '../utils/utilsSortAndFilter';
@@ -1920,8 +1920,9 @@ class App extends Component {
 
       // faceGroupNumber and occurrence is not necessary for expanded face sheet
       if (filters[FILTER_METHOD.FACEID] === undefined) {
-        determineAndInsertFaceGroupNumber(baseArray, theFaceUniquenessThreshold);
-        insertOccurrence(baseArray);
+        const baseArrayWithFaceGroupNumber = determineAndInsertFaceGroupNumber(baseArray, theFaceUniquenessThreshold);
+        insertFaceOccurrence(baseArrayWithFaceGroupNumber);
+        baseArray = baseArrayWithFaceGroupNumber;
         // console.log(baseArray);
       }
 
@@ -1978,12 +1979,14 @@ class App extends Component {
     const faceScanArray = getFaceScanByFileId(fileId, arrayOfFrameNumbers);
 
     // calculate occurrences
-    // console.log(faceScanArray);
-    determineAndInsertFaceGroupNumber(faceScanArray, defaultFaceUniquenessThreshold);
-    insertOccurrence(faceScanArray);
+    const faceScanArrayWithFaceGroupNumber = determineAndInsertFaceGroupNumber(
+      faceScanArray,
+      defaultFaceUniquenessThreshold,
+    );
+    insertFaceOccurrence(faceScanArrayWithFaceGroupNumber);
 
-    deleteFaceDescriptorFromFaceScanArray(faceScanArray);
-    return faceScanArray;
+    deleteFaceDescriptorFromFaceScanArray(faceScanArrayWithFaceGroupNumber);
+    return faceScanArrayWithFaceGroupNumber;
   }
 
   addFaceData(fileId, sheetId, payload) {
