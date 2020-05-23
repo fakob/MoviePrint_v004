@@ -715,7 +715,7 @@ export const addThumb = (file, sheetId, frameNumber, index, thumbId = uuidV4(), 
 
     const newFrameNumberWithinBoundaries = limitRange(frameNumber, 0, file.frameCount - 1);
 
-    imageDB.frameList
+    return imageDB.frameList
       .where('[fileId+frameNumber]')
       .equals([file.id, newFrameNumberWithinBoundaries])
       .toArray()
@@ -737,7 +737,7 @@ export const addThumb = (file, sheetId, frameNumber, index, thumbId = uuidV4(), 
             file.transformObject || TRANSFORMOBJECT_INIT, // need INIT value as undefined is translated to null via IPC
           );
           log.debug('dispatch: ADD_THUMB');
-          return dispatch({
+          dispatch({
             type: 'ADD_THUMB',
             payload: {
               sheetId,
@@ -749,6 +749,7 @@ export const addThumb = (file, sheetId, frameNumber, index, thumbId = uuidV4(), 
               hidden: false,
             },
           });
+          return thumbId;
         }
         log.debug(`frame number: ${frameNumber} already in database`);
         log.debug('dispatch: ADD_THUMB');
@@ -764,6 +765,7 @@ export const addThumb = (file, sheetId, frameNumber, index, thumbId = uuidV4(), 
             hidden: false,
           },
         });
+        return thumbId;
       })
       .catch(error => {
         log.error(`There has been a problem with your fetch operation: ${error.message}`);

@@ -7,9 +7,9 @@ import scrollIntoView from 'scroll-into-view';
 import { toggleThumb, updateOrder, changeThumb, addIntervalSheet, toggleThumbsByThumbIdArray } from '../actions';
 import styles from '../components/ThumbGrid.css';
 import SortableThumbGrid from '../components/ThumbGrid';
-import { getLowestFrame, getHighestFrame } from '../utils/utils';
+import { getLowestFrame, getHighestFrame, getNextThumb } from '../utils/utils';
 import saveThumb from '../utils/saveThumb';
-import { CHANGE_THUMB_STEP, DEFAULT_SINGLETHUMB_NAME } from '../utils/constants';
+import { CHANGE_THUMB_STEP, DEFAULT_SINGLETHUMB_NAME, THUMB_SELECTION } from '../utils/constants';
 
 class SortedVisibleThumbGrid extends Component {
   constructor(props) {
@@ -38,7 +38,10 @@ class SortedVisibleThumbGrid extends Component {
       selectedThumbsArray.length !== 0 &&
       prevProps.selectedThumbsArray[0].thumbId !== selectedThumbsArray[0].thumbId
     ) {
-      this.scrollThumbIntoView();
+      setTimeout(() => {
+        this.scrollThumbIntoView();
+      }, 500);
+      // this.scrollThumbIntoView();
     }
     // delay when switching to gridView so it waits for the sheetView to be ready
     if (prevProps.view !== view && prevProps.view) {
@@ -205,6 +208,10 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     },
     onToggleClick: (fileId, thumbId) => {
       dispatch(toggleThumb(fileId, ownProps.currentSheetId, thumbId));
+      const nextThumb = getNextThumb(ownProps.thumbs, thumbId, THUMB_SELECTION.VISIBLE_THUMBS);
+      if (nextThumb !== undefined) {
+        ownProps.onSelectThumbMethod(nextThumb.thumbId);
+      }
     },
     onInPointClick: (file, thumbs, thumbId, frameNumber) => {
       dispatch(

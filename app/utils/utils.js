@@ -384,36 +384,39 @@ export const getNextThumbs = (thumbs, thumbId) => {
   return undefined; // return undefined if no thumbs provided
 };
 
-export const getPreviousThumb = (thumbs, thumbId) => {
+export const getPreviousThumb = (thumbs, thumbId, filter = THUMB_SELECTION.ALL_THUMBS) => {
   if (thumbs) {
     if (thumbId) {
       // get index of thumb
-      const foundThumb = thumbs.find(thumb => thumb.thumbId === thumbId);
+      const thumbsToUse = getVisibleThumbs(thumbs, filter);
+      const currentIndex = thumbsToUse.findIndex(thumb => thumb.thumbId === thumbId);
+      const foundThumb = thumbsToUse[currentIndex];
       if (foundThumb === undefined) {
-        return thumbs[thumbs.length - 1]; // return last item if no thumb found
+        return thumbsToUse[thumbsToUse.length - 1]; // return last item if no thumb found
       }
-      const currentIndex = foundThumb.index;
-      const newIndex = currentIndex - 1 >= 0 ? currentIndex - 1 : thumbs.length - 1;
+      const newIndex = currentIndex - 1 >= 0 ? currentIndex - 1 : thumbsToUse.length - 1;
       // log.debug(thumbs[newIndex]);
-      return thumbs[newIndex];
+      return thumbsToUse[newIndex];
     }
     return thumbs[thumbs.length - 1]; // return last item if no thumbId provided
   }
   return undefined; // return undefined if no thumbs provided
 };
 
-export const getNextThumb = (thumbs, thumbId) => {
+// use filter to get for example next visible thumb
+export const getNextThumb = (thumbs, thumbId, filter = THUMB_SELECTION.ALL_THUMBS) => {
   if (thumbs) {
     if (thumbId) {
       // get index of thumb
-      const foundThumb = thumbs.find(thumb => thumb.thumbId === thumbId);
+      const thumbsToUse = getVisibleThumbs(thumbs, filter);
+      const currentIndex = thumbsToUse.findIndex(thumb => thumb.thumbId === thumbId);
+      const foundThumb = thumbsToUse[currentIndex];
       if (foundThumb === undefined) {
-        return thumbs[0]; // return first item if no thumb found
+        return thumbsToUse[0]; // return first item if no thumb found
       }
-      const currentIndex = foundThumb.index;
-      const newIndex = currentIndex + 1 < thumbs.length ? currentIndex + 1 : 0;
-      // log.debug(thumbs[newIndex]);
-      return thumbs[newIndex];
+      const newIndex = currentIndex + 1 < thumbsToUse.length ? currentIndex + 1 : 0;
+      // log.debug(thumbsToUse[newIndex]);
+      return thumbsToUse[newIndex];
     }
     return thumbs[0]; // return first item if no thumbId provided
   }

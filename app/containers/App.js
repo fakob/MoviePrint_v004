@@ -2456,7 +2456,15 @@ class App extends Component {
           newThumbId,
           this.props.settings.defaultCachedFramesSize,
         ),
-      );
+      )
+      .then(thumbId => {
+        console.log(thumbId);
+        this.onSelectThumbMethod(thumbId); // select new thumb
+        return undefined;
+      })
+      .catch(error => {
+        log.error(`There has been a problem with addThumb operation: ${error.message}`);
+      });
     } else if (insertWhere === 'before') {
       // if shiftKey
       dispatch(
@@ -2468,7 +2476,15 @@ class App extends Component {
           newThumbId,
           this.props.settings.defaultCachedFramesSize,
         ),
-      );
+      )
+      .then(thumbId => {
+        console.log(thumbId);
+        this.onSelectThumbMethod(thumbId); // select new thumb
+        return undefined;
+      })
+      .catch(error => {
+        log.error(`There has been a problem with addThumb operation: ${error.message}`);
+      });
     }
   }
 
