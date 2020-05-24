@@ -230,6 +230,7 @@ class ThumbGrid extends Component {
       currentThumb.frameNumber,
       currentThumb.frameId,
       file.transformObject,
+      file.fps,
     );
     // this.resetHover();
   }

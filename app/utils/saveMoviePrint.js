@@ -94,7 +94,7 @@ const saveMoviePrint = (
 ) => {
   log.debug(file);
   const node = document.getElementById(elementId);
-  const fileName = file.name;
+  const { name: fileName, fps } = file;
   const frameNumber = undefined;
   const newFilePathObject = getFilePathObject(
     fileName,
@@ -104,6 +104,7 @@ const saveMoviePrint = (
     outputFormat,
     exportPath,
     overwrite,
+    fps,
   );
   const newFilePathAndName = pathR.join(newFilePathObject.dir, newFilePathObject.base);
 
@@ -156,6 +157,7 @@ const saveMoviePrint = (
         overwrite,
         defaultThumbFormat,
         defaultThumbJpgQuality,
+        fps,
       );
     });
   }

@@ -126,7 +126,7 @@ export const frameCountToMinutes = (frames, fps = 25) => {
   return seconds;
 };
 
-export const frameCountToTimeCode = (frames, fps = 25) => {
+export const frameCountToTimeCode = (frames, fps = 25, separator = ':') => {
   // fps = (fps !== undefined ? fps : 30);
   if (frames !== undefined) {
     const paddedValue = input => (input < 10 ? `0${input}` : input);
@@ -136,9 +136,9 @@ export const frameCountToTimeCode = (frames, fps = 25) => {
       paddedValue(Math.floor((seconds % 3600) / 60)),
       paddedValue(Math.floor(seconds % 60)),
       paddedValue(Math.floor(frames % fps)),
-    ].join(':');
+    ].join(separator);
   }
-  return '––:––:––:––';
+  return `––${separator}––${separator}––${separator}––`;
 };
 
 export const secondsToTimeCode = (seconds = 0, fps = 25) => {
@@ -199,8 +199,9 @@ const fillTemplate = function(templateString, templateVars) {
   return new Function(`return \`${templateString}\`;`).call(templateVars);
 };
 
-export const getCustomFileName = (fileName, sheetName, frameNumber, fileNameTemplate) => {
+export const getCustomFileName = (fileName, sheetName, frameNumber, fileNameTemplate, fps = 25) => {
   const paddedFrameNumber = frameNumber === undefined ? '' : pad(frameNumber, 6);
+  const timeCode = frameNumber === undefined ? '' : frameCountToTimeCode(frameNumber, fps, '_');
   const movieName = pathR.parse(fileName).name;
   const movieExtension = pathR.parse(fileName).ext.substr(1); // remove dot from extension
 
@@ -211,8 +212,9 @@ export const getCustomFileName = (fileName, sheetName, frameNumber, fileNameTemp
       '[ME]': '${this.movieExtension}',
       '[MPN]': '${this.moviePrintName}',
       '[FN]': '${this.paddedFrameNumber}',
+      '[TC]': '${this.timeCode}',
     };
-    const preparedFileNameTemplate = fileNameTemplate.replace(/\[MN\]|\[ME\]|\[MPN\]|\[FN\]/gi, function(matched) {
+    const preparedFileNameTemplate = fileNameTemplate.replace(/\[MN\]|\[ME\]|\[MPN\]|\[FN\]|\[TC\]/gi, function(matched) {
       return mapObj[matched];
     });
 
@@ -222,6 +224,7 @@ export const getCustomFileName = (fileName, sheetName, frameNumber, fileNameTemp
       movieExtension,
       moviePrintName: sheetName,
       paddedFrameNumber,
+      timeCode,
     };
     const customFileName = fillTemplate(preparedFileNameTemplate, templateVars);
     const validFilename = customFileName.replace(/[/\\?%*:|"<>]/g, '-');
@@ -241,8 +244,9 @@ export const getFilePathObject = (
   // exportPath = '',
   exportPath = app.getPath('desktop'),
   overwrite = false,
+  fps = 25,
 ) => {
-  const validFilename = getCustomFileName(fileName, sheetName, frameNumber, fileNameTemplate);
+  const validFilename = getCustomFileName(fileName, sheetName, frameNumber, fileNameTemplate, fps);
 
   if (validFilename !== undefined) {
     let newFilePathAndName = pathR.join(exportPath, `${validFilename}.${outputFormat}`);

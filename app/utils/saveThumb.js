@@ -20,6 +20,7 @@ const saveThumb = (
   overwrite = false,
   defaultThumbFormat = DEFAULT_THUMB_FORMAT,
   defaultThumbJpgQuality = DEFAULT_THUMB_JPG_QUALITY,
+  fps = 25,
 ) => {
   // save thumbs in folder with the same name as moviePrint
   let newFolderName = app.getPath('desktop');
@@ -38,6 +39,7 @@ const saveThumb = (
     defaultThumbFormat,
     newFolderName,
     overwrite,
+    fps,
   );
   const newFilePathAndName = pathR.join(newFilePathObject.dir, newFilePathObject.base);
 

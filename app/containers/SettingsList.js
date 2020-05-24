@@ -595,8 +595,13 @@ class SettingsList extends Component {
     const minutesRounded = Math.round(minutes);
     const cutsPerMinuteRounded = Math.round((thumbCountTemp - 1) / minutes);
 
-    const defaultSingleThumbNameContainsFrameNumber = defaultSingleThumbName.includes('[FN]');
-    const defaultAllThumbsNameContainsFrameNumber = defaultAllThumbsName.includes('[FN]');
+    const frameNumberOrTimecode = ['[FN]', '[TC]'];
+    const defaultSingleThumbNameContainsFrameNumberOrTimeCode = frameNumberOrTimecode.some(item =>
+      defaultSingleThumbName.includes(item),
+    );
+    const defaultAllThumbsNameContainsFrameNumberOrTimeCode = frameNumberOrTimecode.some(item =>
+      defaultAllThumbsName.includes(item),
+    );
 
     const moviePrintBackgroundColorDependentOnFormat =
       defaultOutputFormat === OUTPUT_FORMAT.JPG // set alpha only for PNG
@@ -1510,10 +1515,10 @@ class SettingsList extends Component {
                         />
                         <Label
                           className={styles.previewCustomName}
-                          color={defaultSingleThumbNameContainsFrameNumber ? undefined : 'orange'}
-                          pointing={defaultSingleThumbNameContainsFrameNumber ? undefined : true}
+                          color={defaultSingleThumbNameContainsFrameNumberOrTimeCode ? undefined : 'orange'}
+                          pointing={defaultSingleThumbNameContainsFrameNumberOrTimeCode ? undefined : true}
                         >
-                          {defaultSingleThumbNameContainsFrameNumber
+                          {defaultSingleThumbNameContainsFrameNumberOrTimeCode
                             ? undefined
                             : 'The framenumber attribute is missing. This can lead to the thumb being overwritten. | '}
                           {previewSingleThumbName}.jpg
@@ -1535,10 +1540,10 @@ class SettingsList extends Component {
                         />
                         <Label
                           className={styles.previewCustomName}
-                          color={defaultAllThumbsNameContainsFrameNumber ? undefined : 'orange'}
-                          pointing={defaultAllThumbsNameContainsFrameNumber ? undefined : true}
+                          color={defaultAllThumbsNameContainsFrameNumberOrTimeCode ? undefined : 'orange'}
+                          pointing={defaultAllThumbsNameContainsFrameNumberOrTimeCode ? undefined : true}
                         >
-                          {defaultAllThumbsNameContainsFrameNumber
+                          {defaultAllThumbsNameContainsFrameNumberOrTimeCode
                             ? undefined
                             : 'The framenumber attribute is missing. This can lead to the thumb being overwritten. | '}
                           {previewAllThumbsName}.jpg
@@ -1579,6 +1584,15 @@ class SettingsList extends Component {
                           size="mini"
                         >
                           [FN] Frame number
+                        </Button>
+                        <Button
+                          data-tid="addAttribute[TC]IntoInputButton"
+                          className={styles.attributeButton}
+                          onClick={() => this.addAttributeIntoInput('[TC]')}
+                          disabled={focusReference === undefined}
+                          size="mini"
+                        >
+                          [TC] Timecode
                         </Button>
                       </Grid.Column>
                     </Grid.Row>

@@ -243,7 +243,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
       dispatch(toggleThumbsByThumbIdArray(fileId, sheetId, thumbIdArray));
     },
 
-    onSaveThumbClick: (filePath, fileUseRatio, movieFileName, frameNumber, frameId, transformObject) => {
+    onSaveThumbClick: (filePath, fileUseRatio, movieFileName, frameNumber, frameId, transformObject, fps = 25) => {
       const filePathDirectory = path.dirname(filePath);
       const outputPath = ownProps.defaultOutputPathFromMovie ? filePathDirectory : ownProps.defaultOutputPath;
       saveThumb(
@@ -259,6 +259,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
         true,
         ownProps.settings.defaultThumbFormat,
         ownProps.settings.defaultThumbJpgQuality,
+        fps,
       );
     },
     onBackClick: (file, thumbId, frameNumber) => {
