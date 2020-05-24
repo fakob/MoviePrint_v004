@@ -83,7 +83,6 @@ export const getBase64Object = (
     let cropLeft = 0;
     let cropRight = 0;
     if (transformObject !== undefined && transformObject !== null) {
-      console.log(transformObject);
       cropTop = transformObject.cropTop || 0;
       cropBottom = transformObject.cropBottom || 0;
       cropLeft = transformObject.cropLeft || 0;

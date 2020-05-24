@@ -1389,9 +1389,6 @@ class App extends Component {
             // });
             break;
           case 83: // press 's'
-            if (currentFileId) {
-              this.runSceneDetection(file.id, file.path, file.useRatio, undefined, undefined, file.transformObject);
-            }
             break;
           default:
         }
@@ -4267,6 +4264,8 @@ ${exportObject}`;
                     {opencvVideo !== undefined && file && (
                       <VideoPlayer
                         ref={this.videoPlayer}
+                        settings={settings}
+                        sheetName={currentSheetName}
                         file={file}
                         fileWidth={file.width}
                         fileHeight={file.height}

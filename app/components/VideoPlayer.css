@@ -202,6 +202,19 @@
     z-Index: 1;
 }
 
+.saveFrameButton {
+    position: absolute;
+    bottom: 92px;
+    left: 50%;
+    margin-top: 8px;
+    margin-right: 8px;
+    z-Index: 1;
+}
+
+.centerTheButton {
+    transform: translate(-50%, 0%);
+}
+
 .backButton {
     position: absolute;
     top: 0;

@@ -6,9 +6,11 @@ import PropTypes from 'prop-types';
 import { Popup } from 'semantic-ui-react';
 import uuidV4 from 'uuid/v4';
 import log from 'electron-log';
+import path from 'path';
 import { VideoCaptureProperties } from '../utils/openCVProperties';
 import {
   CHANGE_THUMB_STEP,
+  DEFAULT_SINGLETHUMB_NAME,
   DEFAULT_VIDEO_PLAYER_CONTROLLER_HEIGHT,
   MOVIEPRINT_COLORS,
   SHEET_TYPE,
@@ -34,6 +36,7 @@ import {
   setPosition,
 } from '../utils/utils';
 import { getCropRect, transformMat } from '../utils/utilsForOpencv';
+import saveThumb from '../utils/saveThumb';
 import Timeline from './Timeline';
 import styles from './VideoPlayer.css';
 import stylesPop from './Popup.css';
@@ -79,6 +82,7 @@ class VideoPlayer extends Component {
     this.onVideoError = this.onVideoError.bind(this);
     this.onLoadedData = this.onLoadedData.bind(this);
     this.toggleHTML5Player = this.toggleHTML5Player.bind(this);
+    this.saveFrame = this.saveFrame.bind(this);
 
     this.onNextSceneClickWithStop = this.onNextSceneClickWithStop.bind(this);
     this.onNextThumbClickWithStop = this.onNextThumbClickWithStop.bind(this);
@@ -90,7 +94,16 @@ class VideoPlayer extends Component {
   }
 
   static getDerivedStateFromProps(props) {
-    const { aspectRatioInv, height, containerWidth, defaultSheetView, file, fileHeight, fileWidth, opencvVideo } = props;
+    const {
+      aspectRatioInv,
+      height,
+      containerWidth,
+      defaultSheetView,
+      file,
+      fileHeight,
+      fileWidth,
+      opencvVideo,
+    } = props;
     const { transformObject = TRANSFORMOBJECT_INIT } = file;
 
     const videoHeight = parseInt(height - DEFAULT_VIDEO_PLAYER_CONTROLLER_HEIGHT, 10);
@@ -218,6 +231,9 @@ class VideoPlayer extends Component {
             } else {
               this.updatePositionWithStep(stepValue);
             }
+            break;
+          case 83: // press 's'
+            this.saveFrame();
             break;
           default:
         }
@@ -641,6 +657,42 @@ class VideoPlayer extends Component {
     }));
   }
 
+  saveFrame(e = undefined) {
+    if (e !== undefined) {
+      e.target.blur(); // remove focus so button gets not triggered when clicking enter
+      e.stopPropagation();
+    }
+    const { currentFrame } = this.state;
+    const { file, fps, useRatio, path: filePath, sheetName, settings } = this.props;
+    const { name, transformObject } = file;
+    const {
+      defaultOutputPathFromMovie,
+      defaultOutputPath,
+      defaultSingleThumbName,
+      defaultThumbFormat,
+      defaultThumbJpgQuality,
+    } = settings;
+
+    const filePathDirectory = path.dirname(filePath);
+    const outputPath = defaultOutputPathFromMovie ? filePathDirectory : defaultOutputPath;
+
+    saveThumb(
+      filePath,
+      useRatio,
+      name,
+      sheetName,
+      currentFrame,
+      defaultSingleThumbName || DEFAULT_SINGLETHUMB_NAME,
+      undefined,
+      transformObject,
+      outputPath,
+      true,
+      defaultThumbFormat,
+      defaultThumbJpgQuality,
+      fps,
+    );
+  }
+
   onVideoError = () => {
     const { frameCount } = this.props;
 
@@ -737,6 +789,28 @@ class VideoPlayer extends Component {
               </video>
             </>
           )}
+          <Popup
+            trigger={
+              <button
+                type="button"
+                className={`${styles.hoverButton} ${styles.textButton} ${styles.saveFrameButton} ${
+                  defaultSheetView === SHEET_VIEW.GRIDVIEW ? styles.centerTheButton : ''
+                }`}
+                onClick={e => this.saveFrame(e)}
+                onMouseOver={over}
+                onMouseLeave={out}
+                onFocus={over}
+                onBlur={out}
+              >
+                save frame
+              </button>
+            }
+            mouseEnterDelay={1000}
+            on={['hover']}
+            position="bottom center"
+            className={stylesPop.popup}
+            content="Save frame"
+          />
           <canvas
             ref={el => {
               this.opencvVideoPlayerCanvasRef = el;
