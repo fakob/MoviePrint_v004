@@ -36,34 +36,39 @@ const file = (state = {}, type, payload, index) => {
         size: payload.size,
         lastModified: payload.lastModified,
       };
-    case 'UPDATE_MOVIE_LIST_ITEM':
+    case 'UPDATE_MOVIE_LIST_ITEM': {
       if (state.id !== payload.fileId) {
         return state;
       }
-      let { width } = payload;
-      let { height } = payload;
-      // if transformObject exists then calculate width and height from it
-      if (state.originalWidth !== undefined && payload.transformObject !== undefined) {
-        const { transformObject } = payload;
-        width = state.originalWidth - transformObject.cropLeft - transformObject.cropRight;
-        height = state.originalHeight - transformObject.cropTop - transformObject.cropBottom;
+      const { fps, fourCC, frameCount } = payload;
+      let { height, width } = payload;
+      const originalWidth = width;
+      const originalHeight = height;
+
+      // if transformObject already exists then calculate width and height from it
+      const { transformObject } = state;
+      console.log(state);
+      if (transformObject !== undefined) {
+        width = originalWidth - transformObject.cropLeft - transformObject.cropRight;
+        height = originalHeight - transformObject.cropTop - transformObject.cropBottom;
       }
       return {
         ...state,
-        frameCount: payload.frameCount,
-        originalWidth: payload.width,
+        frameCount,
+        originalWidth,
         width,
-        originalHeight: payload.height,
+        originalHeight,
         height,
-        fps: payload.fps,
-        fourCC: payload.fourCC,
+        fps,
+        fourCC,
       };
+    }
     case 'SET_TRANSFORM':
       if (state.id !== payload.fileId) {
         return state;
       }
       return { ...state, transformObject: payload.transformObject };
-    case 'ROTATE_WIDTH_AND_HEIGHT':
+    case 'ROTATE_WIDTH_AND_HEIGHT': {
       if (state.id !== payload.fileId) {
         return state;
       }
@@ -72,7 +77,8 @@ const file = (state = {}, type, payload, index) => {
         return { ...state, width: state.originalHeight, height: state.originalWidth };
       }
       return { ...state, width: state.originalWidth, height: state.originalHeight };
-    case 'UPDATE_CROPPING':
+    }
+    case 'UPDATE_CROPPING': {
       if (state.id !== payload.fileId) {
         return state;
       }
@@ -87,6 +93,7 @@ const file = (state = {}, type, payload, index) => {
       const newWidth = origWidth - cropLeft - cropRight;
       const newHeight = origHeight - cropTop - cropBottom;
       return { ...state, width: newWidth, height: newHeight, transformObject };
+    }
     case 'UPDATE_ASPECT_RATIO':
       if (state.id !== payload.fileId) {
         return state;

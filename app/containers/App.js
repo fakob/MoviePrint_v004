@@ -3578,10 +3578,11 @@ ${exportObject}`;
             transformObjectToAdd = {
               // rotationFlag: transformObject.rotationFlag || RotateFlags.NO_ROTATION,
               rotationFlag: RotateFlags.NO_ROTATION, // ignoring rotationFlag for now as the capturing in the correct orientation is not yet solved
-              cropTop: transformObject.cropTop,
-              cropBottom: transformObject.cropBottom,
-              cropLeft: transformObject.cropLeft,
-              cropRight: transformObject.cropRight,
+              cropTop: transformObject.cropTop || 0,
+              cropBottom: transformObject.cropBottom || 0,
+              cropLeft: transformObject.cropLeft || 0,
+              cropRight: transformObject.cropRight || 0,
+              aspectRatioInv: transformObject.aspectRatioInv || null,
             };
           }
 
