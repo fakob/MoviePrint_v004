@@ -69,7 +69,7 @@ export const getBase64Object = (
   useRatio,
   arrayOfThumbs,
   frameSize = 0,
-  transformObject = undefined,
+  transformObject = TRANSFORMOBJECT_INIT,
   thumbFormatObject = undefined,
 ) => {
   try {
@@ -84,10 +84,10 @@ export const getBase64Object = (
     let cropRight = 0;
     if (transformObject !== undefined && transformObject !== null) {
       console.log(transformObject);
-      cropTop = transformObject.cropTop;
-      cropBottom = transformObject.cropBottom;
-      cropLeft = transformObject.cropLeft;
-      cropRight = transformObject.cropRight;
+      cropTop = transformObject.cropTop || 0;
+      cropBottom = transformObject.cropBottom || 0;
+      cropLeft = transformObject.cropLeft || 0;
+      cropRight = transformObject.cropRight || 0;
     }
     const cropWidth = width - cropLeft - cropRight;
     const cropHeight = height - cropTop - cropBottom;

@@ -1525,6 +1525,7 @@ export const addMoviesToList = (files, clearList) => {
           size: files[key].size,
           type: files[key].type,
           posterFrameId,
+          transformObject: TRANSFORMOBJECT_INIT,
         };
         // insertMovie(fileToAdd);
         newFiles.push(fileToAdd);
