@@ -7,7 +7,7 @@ import * as tf from '@tensorflow/tfjs-node';
 import { VideoCaptureProperties } from './utils/openCVProperties';
 import { limitRange, setPosition, fourccToString } from './utils/utils';
 import { detectAllFaces } from './utils/faceDetection';
-import { getCropRect, HSVtoRGB, detectCut, recaptureThumbs, rescaleMat, transformMat } from './utils/utilsForOpencv';
+import { getCropRect, HSVtoRGB, detectCut, recaptureThumbs, resizeMatToMax, transformMat } from './utils/utilsForOpencv';
 import { IN_OUT_POINT_SEARCH_LENGTH, IN_OUT_POINT_SEARCH_THRESHOLD } from './utils/constants';
 import { insertFrameScanArray, insertFaceScanArray } from './utils/utilsForSqlite';
 import Queue from './utils/queue';
@@ -774,8 +774,8 @@ ipcRenderer.on(
               // optional transform
               const matTransformed = transformMat(mat, transformObject, cropRect);
 
-              // optional rescale
-              const matResult = rescaleMat(vid, matTransformed, 720);
+              // optional resize using resizeToMax
+              const matResult = resizeMatToMax(vid, matTransformed, 720);
 
               const outJpg = opencv.imencode('.jpg', matResult); // for detection jpg is used
               const input = tf.node.decodeJpeg(outJpg);
@@ -941,8 +941,8 @@ ipcRenderer.on(
               // optional transform
               const matTransformed = transformMat(mat, transformObject, cropRect);
 
-              // optional rescale
-              const matResult = rescaleMat(vid, matTransformed, frameSize);
+              // optional resize using resizeToMax
+              const matResult = resizeMatToMax(vid, matTransformed, frameSize);
 
               // opencv.imshow('matRescaled', matRescaled);
               const outBase64 = opencv.imencode('.jpg', matResult).toString('base64'); // for internal usage frame jpg is used

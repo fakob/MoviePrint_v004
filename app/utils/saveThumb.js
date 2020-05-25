@@ -60,6 +60,7 @@ const saveThumb = (
     frameSize,
     transformObject,
     thumbFormatObject,
+    true,
   );
   const base64 = base64Object[frameId];
 

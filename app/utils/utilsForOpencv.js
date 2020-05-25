@@ -43,8 +43,8 @@ export const recaptureThumbs = (
         // optional transform
         const matTransformed = transformMat(mat, transformObject, cropRect);
 
-        // optional rescale
-        const matResult = rescaleMat(vid, matTransformed, frameSize);
+        // optional resize using resizeToMax
+        const matResult = resizeMatToMax(vid, matTransformed, frameSize);
 
         // opencv.imshow('matRescaled', matRescaled);
         const outBase64 = opencv.imencode('.jpg', matResult).toString('base64'); // for internal usage frame jpg is used
@@ -71,25 +71,12 @@ export const getBase64Object = (
   frameSize = 0,
   transformObject = TRANSFORMOBJECT_INIT,
   thumbFormatObject = undefined,
+  useAspectRatio = false,
 ) => {
   try {
     const vid = new opencv.VideoCapture(filePath);
 
-    // transform
-    const width = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_WIDTH);
-    const height = vid.get(VideoCaptureProperties.CAP_PROP_FRAME_HEIGHT);
-    let cropTop = 0;
-    let cropBottom = 0;
-    let cropLeft = 0;
-    let cropRight = 0;
-    if (transformObject !== undefined && transformObject !== null) {
-      cropTop = transformObject.cropTop || 0;
-      cropBottom = transformObject.cropBottom || 0;
-      cropLeft = transformObject.cropLeft || 0;
-      cropRight = transformObject.cropRight || 0;
-    }
-    const cropWidth = width - cropLeft - cropRight;
-    const cropHeight = height - cropTop - cropBottom;
+    const cropRect = getCropRect(vid, transformObject);
 
     const objectUrlObjects = {};
     arrayOfThumbs.map(thumb => {
@@ -98,19 +85,14 @@ export const getBase64Object = (
       let base64 = '';
 
       if (!mat.empty) {
-        // optional cropping
-        let matCropped;
-        if (transformObject !== undefined && transformObject !== null) {
-          matCropped = mat.getRegion(new opencv.Rect(cropLeft, cropTop, cropWidth, cropHeight));
-          // matCropped = mat.copy().copyMakeBorder(transformObject.cropTop, transformObject.cropBottom, transformObject.cropLeft, transformObject.cropRight);
-        }
+        // optional transform
+        const matTransformed = transformMat(mat, transformObject, cropRect);
 
-        // optional rescale
-        let matRescaled;
-        if (frameSize !== 0) {
-          // 0 stands for keep original size
-          matRescaled = matCropped === undefined ? mat.resizeToMax(frameSize) : matCropped.resizeToMax(frameSize);
-        }
+        // optional resize using resizeToMax
+        const matRescaled = resizeMatToMax(vid, matTransformed, frameSize);
+
+        // optional resize due to aspectRatioInv
+        const matResult = resizeMat(vid, matRescaled, transformObject, useAspectRatio);
 
         let fileFormat = DEFAULT_THUMB_FORMAT;
         let encodingFlags = []; // default for png quality 1 (lossless - best speed setting), default for jpg -> 95% quality
@@ -127,7 +109,7 @@ export const getBase64Object = (
             encodingFlags = [ImwriteFlags.IMWRITE_JPEG_QUALITY, defaultThumbJpgQuality]; // 1 for IMWRITE_JPEG_QUALITY
           }
         }
-        base64 = opencv.imencode(`.${fileFormat}`, matRescaled || matCropped || mat, encodingFlags).toString('base64');
+        base64 = opencv.imencode(`.${fileFormat}`, matResult, encodingFlags).toString('base64');
       } else {
         log.debug('getBase64Object | frame is empty');
       }
@@ -343,14 +325,37 @@ export const transformMat = (mat, transformObject, cropRect) => {
   return matTransformed;
 };
 
-export const rescaleMat = (vid, mat, frameSize) => {
-  // optional rescale
-  let matRescaled = mat;
+export const resizeMatToMax = (vid, mat, frameSize) => {
+  // optional resize using resizeToMax
+  let matResizedToMax = mat;
   if (frameSize !== 0) {
     // 0 stands for keep original size
-    matRescaled = mat.resizeToMax(frameSize);
+    matResizedToMax = mat.resizeToMax(frameSize);
   }
-  return matRescaled;
+  return matResizedToMax;
+};
+
+export const resizeMat = (vid, mat, transformObject, useAspectRatio) => {
+  // optional resize using resize
+  const { aspectRatioInv = null } = transformObject;
+
+  if (useAspectRatio && aspectRatioInv !== null) {
+    let width = mat.cols;
+    let height = mat.rows;
+    console.log(width)
+    console.log(height)
+    console.log(aspectRatioInv)
+    if (aspectRatioInv <= 1) {
+      height = width * aspectRatioInv;
+    } else {
+      width = height * aspectRatioInv;
+    }
+    console.log(width)
+    console.log(height)
+    const matResized = mat.resize(Math.round(height), Math.round(width));
+    return matResized;
+  }
+  return mat;
 };
 
 export const getVideoWidthAndHeightDependingOnRotation = (vid, rotationFlag) => {
