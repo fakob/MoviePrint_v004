@@ -342,16 +342,11 @@ export const resizeMat = (vid, mat, transformObject, useAspectRatio) => {
   if (useAspectRatio && aspectRatioInv !== null) {
     let width = mat.cols;
     let height = mat.rows;
-    console.log(width)
-    console.log(height)
-    console.log(aspectRatioInv)
     if (aspectRatioInv <= 1) {
       height = width * aspectRatioInv;
     } else {
       width = height * aspectRatioInv;
     }
-    console.log(width)
-    console.log(height)
     const matResized = mat.resize(Math.round(height), Math.round(width));
     return matResized;
   }
