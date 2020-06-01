@@ -1,7 +1,7 @@
 .gridHeader {
   background: #3b3b3b;
   color: #eee;
-  font-family: 'Open sans';
+  font-family: 'Open sans', sans-serif;
   padding-left: 4px;
   overflow: hidden;
   position: relative;
