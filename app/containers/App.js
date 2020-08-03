@@ -1567,9 +1567,14 @@ class App extends Component {
           // add a property to first movie indicating that it should be displayed when ready
           response[0].displayMe = true;
 
-          this.setState({
-            filesToLoad: response,
+          // add newly dropped files to filesToLoad
+          this.setState(state => {
+            const addedToFilesToLoad = [...state.filesToLoad, ...response];
+            return {
+              filesToLoad: addedToFilesToLoad,
+            };
           });
+
           if (clearList) {
             this.setState({
               objectUrlObjects: {}, // clear objectUrlObjects
