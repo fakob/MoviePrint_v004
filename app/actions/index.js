@@ -974,16 +974,20 @@ export const addIntervalSheet = (
   return dispatch => {
     log.debug('action: addIntervalSheet');
 
-    const frameNumberArray = getIntervalArray(
-      amountOfThumbs,
-      start,
-      stop,
-      file.frameCount,
-      limitToRange, // in some cases it can be allowed to go over
-    );
+    if (file.frameCount !== undefined) {
+      const frameNumberArray = getIntervalArray(
+        amountOfThumbs,
+        start,
+        stop,
+        file.frameCount,
+        limitToRange, // in some cases it can be allowed to go over
+      );
 
-    dispatch(deleteThumbsArray(file.id, sheetId));
-    return dispatch(addThumbs(file, sheetId, frameNumberArray, frameSize));
+      dispatch(deleteThumbsArray(file.id, sheetId));
+      return dispatch(addThumbs(file, sheetId, frameNumberArray, frameSize));
+    }
+    log.error('in addIntervalSheet: file.frameCount === undefined');
+    return Promise.reject(new Error('in addIntervalSheet: file.frameCount === undefined'));
   };
 };
 

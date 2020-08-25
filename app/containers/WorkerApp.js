@@ -128,16 +128,6 @@ class WorkerApp extends Component {
     }
   }
 
-  // componentWillUnmount() {
-  //   // close the database connection
-  //   moviePrintDB.close((err) => {
-  //     if (err) {
-  //       return console.error(err.message);
-  //     }
-  //     console.log('Close the database connection.');
-  //   });
-  // }
-
   render() {
     const { debugKeepView, sentData, savingMoviePrint, thumbObjectBase64s, visibleThumbs } = this.state;
 

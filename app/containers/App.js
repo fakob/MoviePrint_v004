@@ -1038,141 +1038,145 @@ class App extends Component {
       );
     }
 
-    // run if there was a change in the sheetsToPrint array
-    if (sheetsToPrint.length !== 0 && !isEquivalent(sheetsToPrint, prevState.sheetsToPrint)) {
-      const filesToUpdateStatus = [];
-      // run if there is a sheet which needsThumbs, but not if there is one already gettingThumbs
-      if (
-        sheetsToPrint.findIndex(item => item.status === 'gettingThumbs') === -1 &&
-        sheetsToPrint.findIndex(item => item.status === 'needsThumbs') > -1
-      ) {
-        // log.debug(sheetsToPrint);
-        const sheetToGetThumbsFor = sheetsToPrint.find(item => item.status === 'needsThumbs');
-        // log.debug(sheetToGetThumbsFor);
-        const tempFile = getFile(files, sheetToGetThumbsFor.fileId);
-        // log.debug(tempFile);
-
-        // check if file could be found within files to cover the following case
-        // files who could be added to the filelist, but then could not be read by opencv get removed again from the FileList
-        if (tempFile !== undefined) {
-          this.getThumbsForFile(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId);
-          dispatch(
-            updateSheetName(
-              sheetToGetThumbsFor.fileId,
-              sheetToGetThumbsFor.sheetId,
-              getNewSheetName(getSheetCount(files, sheetToGetThumbsFor.fileId)),
-            ),
-          );
-          dispatch(updateSheetCounter(sheetToGetThumbsFor.fileId));
-          dispatch(updateSheetType(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, SHEET_TYPE.INTERVAL));
-          dispatch(updateSheetView(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, SHEET_VIEW.GRIDVIEW));
-          filesToUpdateStatus.push({
-            fileId: sheetToGetThumbsFor.fileId,
-            sheetId: sheetToGetThumbsFor.sheetId,
-            status: 'gettingThumbs',
-          });
-        } else {
-          // status of file which could not be found gets set to undefined
-          filesToUpdateStatus.push({
-            fileId: sheetToGetThumbsFor.fileId,
-            sheetId: sheetToGetThumbsFor.sheetId,
-            status: 'undefined',
-          });
-        }
-        // log.debug(filesToUpdateStatus);
-      }
-
-      // run if there is a file readyForPrinting, but not if there is one already printing
-      if (
-        sheetsToPrint.findIndex(item => item.status === 'printing') === -1 &&
-        sheetsToPrint.findIndex(item => item.status === 'readyForPrinting') > -1
-      ) {
-        // log.debug(sheetsToPrint);
-        const sheetToPrint = sheetsToPrint.find(item => item.status === 'readyForPrinting');
-
-        // get sheet to print
-        const sheet = getSheet(sheetsByFileId, sheetToPrint.fileId, sheetToPrint.sheetId);
-
-        // define what sheetView to print depending on type
-        const { sheetView } = sheet;
-
-        // get file to print
-        const tempFile = getFile(files, sheetToPrint.fileId);
-
-        // get scenes to print
-        let tempScenes;
+    // check if all files have been initially loaded (have gotten file details like frameCount)
+    console.log(filesToLoad);
+    if (filesToLoad.length === 0) {
+      // run if there was a change in the sheetsToPrint array
+      if (sheetsToPrint.length !== 0) {
+        const filesToUpdateStatus = [];
+        // run if there is a sheet which needsThumbs, but not if there is one already gettingThumbs
         if (
-          sheetView === SHEET_VIEW.TIMELINEVIEW &&
-          sheetsByFileId[sheetToPrint.fileId] !== undefined &&
-          sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId] !== undefined
+          sheetsToPrint.findIndex(item => item.status === 'gettingThumbs') === -1 &&
+          sheetsToPrint.findIndex(item => item.status === 'needsThumbs') > -1
         ) {
-          tempScenes = getVisibleThumbs(
-            sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId].sceneArray,
-            visibilitySettings.visibilityFilter,
-          );
+          // log.debug(sheetsToPrint);
+          const sheetToGetThumbsFor = sheetsToPrint.find(item => item.status === 'needsThumbs');
+          // log.debug(sheetToGetThumbsFor);
+          const tempFile = getFile(files, sheetToGetThumbsFor.fileId);
+          // log.debug(tempFile);
+
+          // check if file could be found within files to cover the following case
+          // files who could be added to the filelist, but then could not be read by opencv get removed again from the FileList
+          if (tempFile !== undefined) {
+            this.getThumbsForFile(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId);
+            dispatch(
+              updateSheetName(
+                sheetToGetThumbsFor.fileId,
+                sheetToGetThumbsFor.sheetId,
+                getNewSheetName(getSheetCount(files, sheetToGetThumbsFor.fileId)),
+              ),
+            );
+            dispatch(updateSheetCounter(sheetToGetThumbsFor.fileId));
+            dispatch(updateSheetType(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, SHEET_TYPE.INTERVAL));
+            dispatch(updateSheetView(sheetToGetThumbsFor.fileId, sheetToGetThumbsFor.sheetId, SHEET_VIEW.GRIDVIEW));
+            filesToUpdateStatus.push({
+              fileId: sheetToGetThumbsFor.fileId,
+              sheetId: sheetToGetThumbsFor.sheetId,
+              status: 'gettingThumbs',
+            });
+          } else {
+            // status of file which could not be found gets set to undefined
+            filesToUpdateStatus.push({
+              fileId: sheetToGetThumbsFor.fileId,
+              sheetId: sheetToGetThumbsFor.sheetId,
+              status: 'undefined',
+            });
+          }
+          // log.debug(filesToUpdateStatus);
         }
 
-        const secondsPerRow = getSecondsPerRow(sheetsByFileId, sheetToPrint.fileId, sheetToPrint.sheetId, settings);
+        // run if there is a file readyForPrinting, but not if there is one already printing
+        if (
+          sheetsToPrint.findIndex(item => item.status === 'printing') === -1 &&
+          sheetsToPrint.findIndex(item => item.status === 'readyForPrinting') > -1
+        ) {
+          // log.debug(sheetsToPrint);
+          const sheetToPrint = sheetsToPrint.find(item => item.status === 'readyForPrinting');
 
-        const scaleValueObject = getScaleValueObject(
-          tempFile,
-          settings,
-          visibilitySettings,
-          getColumnCount(sheetsByFileId, sheetToPrint.fileId, sheetToPrint.sheetId, settings),
-          file.thumbCount,
-          defaultMoviePrintWidth,
-          sheetView === SHEET_VIEW.TIMELINEVIEW ? defaultMoviePrintWidth * defaultPaperAspectRatioInv : undefined,
-          1,
-          undefined,
-          true,
-          tempScenes,
-          secondsPerRow,
-        );
-        // console.log(scaleValueObject);
-        const dataToEmbed = prepareDataToExportOrEmbed(
-          tempFile,
-          sheet,
-          visibilitySettings,
-          defaultEmbedFilePath,
-          defaultEmbedFrameNumbers,
-        );
+          // get sheet to print
+          const sheet = getSheet(sheetsByFileId, sheetToPrint.fileId, sheetToPrint.sheetId);
 
-        const dataToSend = {
-          elementId: sheetView !== SHEET_VIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
-          file: tempFile,
-          sheetId: sheetToPrint.sheetId,
-          moviePrintWidth: defaultMoviePrintWidth,
-          settings,
-          sheet,
-          visibilityFilter,
-          scaleValueObject,
-          scenes: tempScenes,
-          secondsPerRow,
-          dataToEmbed,
-        };
+          // define what sheetView to print depending on type
+          const { sheetView } = sheet;
 
-        filesToUpdateStatus.push({
-          fileId: sheetToPrint.fileId,
-          sheetId: sheetToPrint.sheetId,
-          status: 'printing',
-        });
-        // console.log(filesToUpdateStatus);
-        // console.log(dataToSend);
-        ipcRenderer.send('message-from-mainWindow-to-workerWindow', 'action-save-MoviePrint', dataToSend);
-      }
+          // get file to print
+          const tempFile = getFile(files, sheetToPrint.fileId);
 
-      // only update sheetsToPrint if there is any update
-      if (filesToUpdateStatus.length !== 0) {
-        const newSheetsToPrint = sheetsToPrint.map(el => {
-          const found = filesToUpdateStatus.find(s => s.sheetId === el.sheetId);
-          if (found) {
-            return Object.assign(el, found);
+          // get scenes to print
+          let tempScenes;
+          if (
+            sheetView === SHEET_VIEW.TIMELINEVIEW &&
+            sheetsByFileId[sheetToPrint.fileId] !== undefined &&
+            sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId] !== undefined
+          ) {
+            tempScenes = getVisibleThumbs(
+              sheetsByFileId[sheetToPrint.fileId][sheetToPrint.sheetId].sceneArray,
+              visibilitySettings.visibilityFilter,
+            );
           }
-          return el;
-        });
-        this.setState({
-          sheetsToPrint: newSheetsToPrint,
-        });
+
+          const secondsPerRow = getSecondsPerRow(sheetsByFileId, sheetToPrint.fileId, sheetToPrint.sheetId, settings);
+
+          const scaleValueObject = getScaleValueObject(
+            tempFile,
+            settings,
+            visibilitySettings,
+            getColumnCount(sheetsByFileId, sheetToPrint.fileId, sheetToPrint.sheetId, settings),
+            file.thumbCount,
+            defaultMoviePrintWidth,
+            sheetView === SHEET_VIEW.TIMELINEVIEW ? defaultMoviePrintWidth * defaultPaperAspectRatioInv : undefined,
+            1,
+            undefined,
+            true,
+            tempScenes,
+            secondsPerRow,
+          );
+          // console.log(scaleValueObject);
+          const dataToEmbed = prepareDataToExportOrEmbed(
+            tempFile,
+            sheet,
+            visibilitySettings,
+            defaultEmbedFilePath,
+            defaultEmbedFrameNumbers,
+          );
+
+          const dataToSend = {
+            elementId: sheetView !== SHEET_VIEW.TIMELINEVIEW ? 'ThumbGrid' : 'SceneGrid',
+            file: tempFile,
+            sheetId: sheetToPrint.sheetId,
+            moviePrintWidth: defaultMoviePrintWidth,
+            settings,
+            sheet,
+            visibilityFilter,
+            scaleValueObject,
+            scenes: tempScenes,
+            secondsPerRow,
+            dataToEmbed,
+          };
+
+          filesToUpdateStatus.push({
+            fileId: sheetToPrint.fileId,
+            sheetId: sheetToPrint.sheetId,
+            status: 'printing',
+          });
+          // console.log(filesToUpdateStatus);
+          // console.log(dataToSend);
+          ipcRenderer.send('message-from-mainWindow-to-workerWindow', 'action-save-MoviePrint', dataToSend);
+        }
+
+        // only update sheetsToPrint if there is any update
+        if (filesToUpdateStatus.length !== 0) {
+          const newSheetsToPrint = sheetsToPrint.map(el => {
+            const found = filesToUpdateStatus.find(s => s.sheetId === el.sheetId);
+            if (found) {
+              return Object.assign(el, found);
+            }
+            return el;
+          });
+          this.setState({
+            sheetsToPrint: newSheetsToPrint,
+          });
+        }
       }
     }
 
@@ -1286,9 +1290,11 @@ class App extends Component {
     // close the database connection
     moviePrintDB.close(err => {
       if (err) {
+        log.error(err.message);
         return console.error(err.message);
       }
       console.log('Close the database connection.');
+      log.debug('Close the database connection.');
     });
   }
 
@@ -2235,7 +2241,7 @@ class App extends Component {
     const { currentSheetId, dispatch, sheetsByFileId } = this.props;
     const { requestIdleCallbackForScenesHandle } = this.state;
 
-    console.error(`Cancel file scan for: ${fileId}`);
+    log.error(`Cancel file scan for: ${fileId}`);
 
     // cancel pullScenesFromOpencvWorker
     window.cancelIdleCallback(requestIdleCallbackForScenesHandle);
@@ -2957,7 +2963,7 @@ class App extends Component {
           settings.defaultCachedFramesSize,
         ),
       ).catch(error => {
-        console.log(error);
+        log.error(error);
       });
     }
   }
