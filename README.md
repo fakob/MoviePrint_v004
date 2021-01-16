@@ -17,6 +17,9 @@ A tool which lets you create screenshots of entire movies in an instant.
 
 MoviePrint is using openCV as the roadmap includes utilising computer vision algorithms.
 
+### Privacy
+MoviePrint does not collect any data. All work including detection is done in the app itself (Note: It currently connets on startup to fonts.googleapis.com due to a dependency to semantic ui a ui framework.)
+
 ### Please give feedback
 As **we are not collecting any data** from you, **we are dependent on you talking to us**. If you have a minute, we would very much appreciate if you tell us
 
