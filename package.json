@@ -316,7 +316,7 @@
     "eslint-plugin-prettier": "^3.1.2",
     "history": "^4.7.2",
     "html2canvas": "1.0.0-rc.5",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.21",
     "png-chunk-text": "^1.0.0",
     "png-chunks-encode": "^1.0.0",
     "png-chunks-extract": "^1.0.0",
