@@ -341,7 +341,7 @@
     "scroll-into-view": "^1.9.3",
     "semantic-ui-css": "^2.3.3",
     "semantic-ui-react": "^0.88.2",
-    "shelljs": "^0.8.2",
+    "shelljs": "^0.8.5",
     "spectron-fake-dialog": "^0.0.1",
     "stylelint-config-prettier": "^8.0.1"
   },
