@@ -305,7 +305,7 @@
     "connected-react-router": "^6.6.1",
     "core-js": "^3.6.4",
     "devtron": "^1.4.0",
-    "dexie": "^2.0.1",
+    "dexie": "^3.2.2",
     "dotenv": "^8.2.0",
     "electron-chartjs": "^1.0.0",
     "electron-debug": "^3.0.1",
