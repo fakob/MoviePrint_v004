@@ -2,6 +2,9 @@
 
 Website - [https://movieprint.org/](https://movieprint.org/)
 
+>[!IMPORTANT]
+>_Please note that MoviePrint is no longer under development. You can still download it or reach out to me, but I don't have the time to make any updates. Sorry._
+
 A tool which lets you create screenshots of entire movies in an instant.
 <br/>
 
