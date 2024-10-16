@@ -299,7 +299,7 @@
   "dependencies": {
     "@hot-loader/react-dom": "^16.11.0",
     "ajv": "^6.5.3",
-    "axios": "^0.19.2",
+    "axios": "^0.21.2",
     "chart.js": "^2.7.2",
     "compare-versions": "^3.4.0",
     "connected-react-router": "^6.6.1",
