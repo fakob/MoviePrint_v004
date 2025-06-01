@@ -34,42 +34,19 @@ As **we are not collecting any data** from you, **we are dependent on you talkin
 
 You can use [this form](http://movieprint.org/contact-us/) or the `Contact us` button in the app.
 
-### Want to stay updated?
-Do you want to be informed when new features are released? Just check Keep me up-to-date in [this form](http://movieprint.org/contact-us/) or use the `Contact us` button in the app.
-_We will only ever send you MoviePrint related updates._
-
-### Example MoviePrints
-Grid view
-![MoviePrint_v004 screencast](https://movieprint.fakob.com/wp-content/uploads/2019/03/Big-Buck-Bunny-Sunflower.-2160p-60fps.-Download-link-f1R2E6_TdWQ.mp4-MoviePrint-1-edit-1.jpg)
-
-Timeline views
-![MoviePrint_v004 screencast](https://movieprint.fakob.com/wp-content/uploads/2019/03/Big-Buck-Bunny-Sunflower.-2160p-60fps.-Download-link-f1R2E6_TdWQ.mp4-MoviePrint-3.jpg)
-![MoviePrint_v004 screenshot](https://movieprint.fakob.com/wp-content/uploads/2019/03/MoviePrint_v004-0.1.16-alpha-screenshot-4.jpeg)
-![MoviePrint_v004 screenshot](https://movieprint.fakob.com/wp-content/uploads/2019/03/MoviePrint_v004-0.1.16-alpha-screenshot-7.jpeg)
-
-### How it works
-![MoviePrint_v004 screencast](https://movieprint.fakob.com/wp-content/uploads/2018/09/Screen-Shot-2018-09-11-at-19.00.59.jpg)
-![MoviePrint_v004 screencast](https://movieprint.fakob.com/wp-content/uploads/2018/09/Screen-Shot-2018-09-11-at-19.01.55.jpg)
-![MoviePrint_v004 screenshot](https://movieprint.fakob.com/wp-content/uploads/2019/03/MoviePrint_v004-0.1.16-alpha-screenshot-2.jpeg)
-![MoviePrint_v004 screencast](https://movieprint.fakob.com/wp-content/uploads/2018/09/Screen-Shot-2018-09-11-at-19.00.29.jpg)
-![MoviePrint_v004 screencast](https://movieprint.fakob.com/wp-content/uploads/2018/09/Screen-Shot-2018-09-11-at-19.04.35.jpg)
-![MoviePrint_v004 screencast](https://movieprint.fakob.com/wp-content/uploads/2018/09/Screen-Shot-2018-09-11-at-19.05.28.jpg)
-![MoviePrint_v004 screenshot](https://movieprint.fakob.com/wp-content/uploads/2019/03/MoviePrint_v004-0.1.16-alpha-screenshot-1.jpeg)
-![MoviePrint_v004 screencast](https://movieprint.fakob.com/wp-content/uploads/2018/09/Screen-Shot-2018-09-11-at-18.57.14.jpg)
-![MoviePrint_v004 screencast](https://movieprint.fakob.com/wp-content/uploads/2018/09/Screen-Shot-2018-09-11-at-19.22.03.jpg)
-
-### Watch explainer
-[![MoviePrint_v004 screencast](http://img.youtube.com/vi/vRklHN0A2YU/0.jpg)](https://www.youtube.com/watch?v=vRklHN0A2YU)
-[Watch screencast](https://www.youtube.com/watch?v=vRklHN0A2YU)
-
 ---
-## Download Mac and Windows releases
+### Download Mac and Windows releases
 https://github.com/fakob/MoviePrint_v004/releases
 
 old version (2014)
 http://www.fakob.com/2014/movieprint-an-osx-tool/
 
----
+### Build it yourself
+
+<details>
+  
+<summary>Details</summary>
+
 MoviePrint_v004 is based on [electron-react-boilerplate](https://github.com/chentsulin/electron-react-boilerplate)
 
 #### For development
@@ -124,5 +101,24 @@ To package the app for your local platform:
 $ yarn package
 ```
 
+</details>
+
 ## License
 MIT © [fakob](https://github.com/fakob)
+
+---
+## Alternative Implementations
+
+### PyMoviePrint (Python)
+A feature rich Python port of MoviePrint created by [@eldorado230](https://github.com/eldorado230), offering both CLI and GUI interfaces with additional features like shot detection and face recognition.
+
+🔗 **Repository:** [eldorado230/PyMoviePrint](https://github.com/eldorado230/PyMoviePrint)
+
+**Key Features:**
+- Command-line and Tkinter GUI interfaces
+- Shot-based frame extraction using PySceneDetect
+- Timeline view with proportional shot durations
+- Batch processing and metadata export
+- Face detection and thumbnail transformations
+
+*Note: This is a community-maintained project separate from the main MoviePrint codebase.*
